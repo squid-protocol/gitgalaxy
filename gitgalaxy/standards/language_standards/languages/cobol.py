@@ -814,7 +814,7 @@ DEFINITION: dict[str, Any] = {
             r"|\bEXEC\s+CICS\s+BIF\s+DEEDIT\b",
             re.I,
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution.
         # #2485: `EXEC CICS ABEND` terminates the task abnormally and is the
         # CICS sibling of `STOP RUN` -- 91 occurrences across 47 crucible
         # files, none of which recorded an abort before this. Deliberately NOT

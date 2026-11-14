@@ -17,6 +17,6 @@ However, complex shell syntax breaks this cache and forces the user to manually 
 2. **NEVER use pipes** (`|`). If you need to process output, save it to a file or process it in Python.
 3. **NEVER use command substitution** (`$(...)` or backticks).
 4. **Avoid inline environment variables** (`VAR=val cmd`). If you need them, use `RunPersistent=True` to create a terminal, `export` the variables in one call, and run the command in the next call.
-5. **Use direct binary invocations** (e.g., `.venv-zerodep/bin/python3 script.py`).
+5. **Use direct binary invocations** (e.g., `.venv-zerodep/bin/python3 <your-script>`).
 
 By keeping commands clean and simple, you ensure the user's "Always Allow" selections are respected, vastly improving iteration speed.

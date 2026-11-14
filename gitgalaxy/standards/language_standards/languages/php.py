@@ -258,7 +258,12 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a PHPDoc block counts once, not
         # once per tag inside it (the #2658 shape). Bare tags stay last so a
         # tag outside any doc block still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"
+        ),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             # #2852 contract C3: everyday words anchor to their call form; ->test( is an ordinary method
@@ -315,7 +320,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(bcadd|bcsub|bcmul|bcdiv|gmp_add|gmp_mul|abs|cos|sin|tan|sqrt|log|exp|pow)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Magic methods, reflection, and variable variables.
         "reflection_metaprogramming": re.compile(
             r"\b(__(?:get|set|call|callStatic|invoke|destruct|clone)|Reflection(?:Class|Method|Property)|call_user_func(?:_array)?)\b|\$\$[a-zA-Z_\x80-\U0010ffff]"
@@ -434,7 +439,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\((?:int|integer|bool|boolean|float|double|string|array|object|unset)\)\s*|\bsettype\s*\("
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|die|exit|abort)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|usleep|time_nanosleep|time_sleep_until)\b"),

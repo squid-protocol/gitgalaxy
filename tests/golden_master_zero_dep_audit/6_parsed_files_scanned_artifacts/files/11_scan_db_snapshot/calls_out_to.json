@@ -19459,7 +19459,8 @@
           "ASM_EXIT",
           "LOCAL_IDX_GEN_PC",
           "mp_asm_base_get_code_pos",
-          "LOCAL_IDX_THROW_VAL"
+          "LOCAL_IDX_THROW_VAL",
+          "ASM_CLR_REG"
         ],
         "emit_native_global_exc_exit@1309": [
           "emit_native_label_assign",
@@ -19716,7 +19717,9 @@
           "ASM_MOV_LOCAL_MP_OBJ_NULL",
           "LOCAL_IDX_EXC_VAL",
           "emit_native_leave_exc_stack",
-          "emit_native_jump"
+          "emit_native_jump",
+          "ASM_CLR_REG",
+          "ASM_MOV_LOCAL_REG"
         ],
         "emit_native_pop_jump_if@2056": [
           "DEBUG_printf",
@@ -19985,7 +19988,9 @@
           "emit_post_push_reg",
           "ASM_MOV_REG_REG",
           "emit_call",
-          "ASM_MOV_LOCAL_MP_OBJ_NULL"
+          "ASM_MOV_LOCAL_MP_OBJ_NULL",
+          "ASM_CLR_REG",
+          "ASM_MOV_LOCAL_REG"
         ],
         "emit_native_write_code_info_byte@678": [
           "mp_asm_base_data"
@@ -20020,7 +20025,8 @@
           "emit_access_stack",
           "emit_post_push_reg",
           "ASM_JUMP_IF_REG_NONZERO",
-          "emit_fold_stack_top"
+          "emit_fold_stack_top",
+          "ASM_CLR_REG"
         ],
         "emit_post@988": [],
         "emit_post_push_imm@1006": [
@@ -48447,6 +48453,8 @@
           "cob_malloc",
           "cob_move",
           "cob_free",
+          "ISFINITE",
+          "_fpclass",
           "_isnan"
         ],
         "cob_decimal_get_ieee128dec@607": [
@@ -94642,8 +94650,7 @@
           "Just",
           "parseLang",
           "report",
-          "InvalidLang",
-          "Right"
+          "InvalidLang"
         ],
         "convertWithOpts'@138": [
           "configureCommonState",
@@ -94792,6 +94799,7 @@
           "takeWhile",
           "svgToPng",
           "insertMedia",
+          "Just",
           "report",
           "CouldNotConvertImage",
           "pack",
@@ -95171,7 +95179,6 @@
           "put",
           "break",
           "headerLtEq",
-          "already",
           "lookup",
           "intercalate",
           "map",
@@ -95181,7 +95188,8 @@
           "Header",
           "all",
           "combineAttr",
-          "return"
+          "return",
+          "rest"
         ],
         "go@719": [
           "all",
@@ -95279,7 +95287,6 @@
           "put",
           "break",
           "headerLtEq",
-          "already",
           "lookup",
           "intercalate",
           "map",
@@ -95288,7 +95295,8 @@
           "Div",
           "Header",
           "combineAttr",
-          "return"
+          "return",
+          "rest"
         ],
         "matchTags@734": [
           "flip"
@@ -95393,7 +95401,8 @@
         ],
         "stripFirstAndLast@210": [
           "uncons",
-          "Just"
+          "Just",
+          "unsnoc"
         ],
         "stripTrailingNewlines@174": [
           "dropWhileEnd"
@@ -152551,8 +152560,7 @@
           "ParseError",
           "ExpectedIdent",
           "assert",
-          "matches",
-          "InvalidIndex"
+          "matches"
         ],
         "symbol_from_byte@169": [
           "Some"
@@ -172126,7 +172134,8 @@
         ],
         "scheme_set_cont_mark@750": [
           "clone_meta_cont_set_mark",
-          "ts_scheme_new_mark_segment"
+          "ts_scheme_new_mark_segment",
+          "scheme_new_mark_segment"
         ],
         "scheme_set_current_namespace_as_env@3565": [
           "scheme_get_startup_export",

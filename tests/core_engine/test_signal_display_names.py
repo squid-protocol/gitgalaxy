@@ -42,3 +42,46 @@ def test_docs_table_lists_every_signal():
     text = DOC.read_text(encoding="utf-8")
     missing = [col for col, _ in SIGNAL_DISPLAY_NAMES.values() if f"`{col}`" not in text]
     assert not missing, f"docs/signals.md is missing: {missing}"
+
+
+AUDIT_LABELLED = (
+    "structural_boundaries args safety safety_bypasses api state_mutation reflection_metaprogramming "
+    "panics_and_aborts thread_sleeps immutability_locks encapsulation"
+).split()
+
+
+def test_audit_labels_use_the_display_names():
+    """gitgalaxy#8009 slice 2b: the audit JSON (FRIENDLY_MAP) labels the 11 misnamed signals
+    with their display names, so the two label sources cannot drift apart."""
+    friendly = RECORDING_SCHEMAS["FRIENDLY_MAP"]
+    wrong = {k: friendly.get(k) for k in AUDIT_LABELLED if friendly.get(k) != SIGNAL_DISPLAY_NAMES[k][1]}
+    assert not wrong
+
+
+RETIRED_LABELS = (
+    "Sequential Logic Declarations",
+    "Type/Safety Bypasses",
+    "Fatal Aborts",
+    "Defensive Programming Constructs",
+    "Private / Encapsulated Scopes",
+    "Exposed API / Public Exports",
+    "Immutable Data Declarations",
+)
+
+
+def test_how_to_add_a_language_uses_no_retired_labels():
+    """gitgalaxy#8009: the language how-to names signals by their display names."""
+    doc = DOC.parent.parent / "gitgalaxy" / "standards" / "how_to_add_a_language.md"
+    text = doc.read_text(encoding="utf-8")
+    assert not [label for label in RETIRED_LABELS if label in text]
+
+
+def test_coverage_verdicts_doc_uses_canonical_display_names():
+    """docs/signal_coverage_verdicts.md names each signal by its display name (#8009 slice 3)."""
+    doc = DOC.parent / "signal_coverage_verdicts.md"
+    names = {n for _, n in SIGNAL_DISPLAY_NAMES.values()}
+    rows = [ln for ln in doc.read_text(encoding="utf-8").splitlines() if ln.startswith("| ")]
+    cells = [ln.split(" | ")[0][2:] for ln in rows[2:]]
+    assert cells
+    stale = [p for c in cells for p in c.split("; ") if p not in names and p != "Feature Flags"]
+    assert not stale, f"not canonical display names: {stale}"

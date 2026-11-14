@@ -11,12 +11,12 @@ hand to a coding agent. The pipeline is also thorough enough to be the basis for
 <table>
 <tr>
 <td align="center" width="250"><h2>&lt; 1 s</h2></td>
-<td align="center" width="250"><h2>59</h2></td>
+<td align="center" width="250"><h2>65</h2></td>
 <td align="center" width="250"><h2>0</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>for most repositories</strong><br />Kubernetes, 2.46M lines, in about 65 s · single run, 2026-09-19<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
-<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />72 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />78 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
 <td align="center" valign="top"><sub><strong>install dependencies</strong><br />runs locally; nothing leaves your machine<br /><em><a href="#privacy-and-deployment">privacy</a></em></sub></td>
 </tr>
 </table>
@@ -255,7 +255,7 @@ either and run `galaxyscope --llm-only <path>` to reproduce the full brief:
 
 **curl**: 4,250 files, 1,105 of them scanned as code, 237,991 LOC across C, Perl, Python, Shell and M4. The brief
 ranks `lib/mprintf.c` as the top structural pillar (411 inbound connections) and puts a *Perl* function,
-`APPEND_imap` in `tests/ftpserver.pl` (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
+`APPEND_imap` in curl's `ftpserver.pl` test script (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
 the same ranking as the C code. That cross-language graph is the product: one comparable signal set across every
 language in the repo. Why only 26% of the files: most of curl isn't code. The scan sets aside 1,948 test-case data
 files in `tests/data`, about 900 documentation pages, 129 example programs in its examples folder, and the build and
@@ -275,7 +275,7 @@ own always-current self-scan brief is at
 <a id="languages"></a>
 
 <details>
-<summary><strong>Languages: 72 recognized, 59 read down to the function</strong></summary>
+<summary><strong>Languages: 78 recognized, 65 read down to the function</strong></summary>
 
 From the engine's language definitions
 ([`gitgalaxy/standards/language_standards/`](gitgalaxy/standards/language_standards/)) on
@@ -283,7 +283,7 @@ From the engine's language definitions
 
 | level | count | languages |
 |---|---|---|
-| **Split into functions**: full structural extraction, functions with their own signals | 59 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
+| **Split into functions**: full structural extraction, functions with their own signals | 65 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `erlang`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hcl`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `julia`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `nim`, `objective-c`, `ocaml`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `r`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
 | **Structural rules, no function split** | 4 | `glsl`, `hlo`, `markdown`, `mlir` |
 | **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
 
@@ -369,9 +369,11 @@ structural signal, dependency edge, in/out-degree count, PageRank / blast
 radius, betweenness, closeness, average path length, modularity, cyclic
 density, articulation points and assortativity is measured exactly as in full
 precision (these are computed natively). What needs the optional engines is
-token mass and read cost (`tiktoken`), ML threat
-classification (`xgboost`/`scikit-learn`/`pandas`/`numpy`) and YAML config/OpenAPI parsing
-(`pyyaml`). A metric that was not computed is reported as absent (`n/a` /
+token mass and read cost (`tiktoken`) and YAML config/OpenAPI parsing
+(`pyyaml`). `[full]` also installs the ML threat classifier's packages
+(`xgboost`/`scikit-learn`/`pandas`/`numpy`), but no trained model ships, so that
+classifier does not run in any install
+([#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430)). A metric that was not computed is reported as absent (`n/a` /
 NULL), never as a zero. Each output says when a scan ran in this mode, and
 [`docs/zero_dependency_mode.md`](docs/zero_dependency_mode.md) lists, field by
 field, what is identical and what is unavailable.

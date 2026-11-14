@@ -69,6 +69,9 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # The equivalence harness (tests/tools/equivalence.py cobc_failure_report) writes it into report.json; port_runner
+    # reads it back (#8325). The producer lives outside gitgalaxy/.
+    "cobol_compile_failed": "report.json key written by tests/tools/equivalence.py, read by port_runner (#8325)",
     # DFSORT control-statement operands (det/dfsort.py, #4268): the producer is a JCL step's SYSIN text, parsed
     # into an operand dict, never a literal in this repo.
     "FIELDS": "DFSORT SORT / MERGE FIELDS= operand, parsed from a step's SYSIN (#4268)",

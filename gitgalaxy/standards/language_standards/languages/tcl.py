@@ -304,7 +304,7 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         # Explicit math invocations via expr.
         "scientific": re.compile(r"\b(?:expr|math::)\b|\b(?:sin|cos|tan|sqrt|exp|log|pow)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # High Cognitive Load: Intercepting variables, tracking execution, and runtime aliasing.
         "reflection_metaprogramming": re.compile(r"\b(?:trace[ \t]+add|rename|interp[ \t]+create|interp[ \t]+alias)\b"),
         # 24. import (Dependency Inclusions)
@@ -349,7 +349,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\bputs\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\bexpr[ \t]+(?:int|double|wide)\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: error/exit)
         "panics_and_aborts": re.compile(r"\b(?:error|exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\bafter[ \t]+[0-9]+\b"),

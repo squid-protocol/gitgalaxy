@@ -228,9 +228,9 @@ _COBOL_PROC_MIN_STATEMENTS = 2
 # two strong lines: one stray `05 X PIC` in a text file is not a copybook
 _ORDINARY_DIR_MIN_HITS = 2
 # #8111: `.inc` is the extension a COBOL shop gives `EXEC SQL INCLUDE` members; PHP / NASM / C / PL/I share it, so the
-# registry cannot claim it and the body decides, as it does for an extensionless member. (`.lib`, `.cobcpy` and
-# `.cobcopy` never reach the lens: aperture does not admit them.)
-_COBOL_MEMBER_EXTENSIONS = frozenset({".inc"})
+# registry cannot claim it and the body decides, as it does for an extensionless member. #8412: `.lib`, `.cobcpy`,
+# `.cobcopy` and `.cpb` are claimed by no language; aperture admits them and the body decides the same way.
+_COBOL_MEMBER_EXTENSIONS = frozenset({".inc", ".lib", ".cobcpy", ".cobcopy", ".cpb"})
 # #8111: a member in a directory that holds COBOL files is judged on weaker evidence: ONE strong line, or a body that
 # is only comments and `COPY name.` statements (a chain member: it holds no data of its own).
 _COBOL_COPY_LINE = re.compile(

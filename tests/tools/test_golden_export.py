@@ -1,5 +1,6 @@
 """#4052 slice 1: golden export of a case's COBOL outputs, and the byte-exact check of a Java run against it."""
 
+import json
 import shutil
 import subprocess
 import sys
@@ -177,6 +178,28 @@ def test_install_project_copies_golden_files_and_writes_the_classes(golden, tmp_
     assert not stale.exists()
 
 
+def test_write_pom_writes_a_maven_pom_from_the_project_and_keeps_an_existing_one(tmp_path):
+    import xml.etree.ElementTree as ET  # noqa: S405 -- the generator's own pom
+
+    project = tmp_path / "My Proj"
+    project.mkdir()
+    pom = g.write_pom(project, "com.acme.golden")
+    assert pom == project / "pom.xml"
+    ns = {"m": "http://maven.apache.org/POM/4.0.0"}
+    root = ET.fromstring(pom.read_text(encoding="utf-8"))  # noqa: S314
+    assert root.findtext("m:groupId", namespaces=ns) == "com.acme"
+    assert root.findtext("m:artifactId", namespaces=ns) == "My-Proj"
+    deps = {d.findtext("m:artifactId", namespaces=ns) for d in root.iterfind(".//m:dependency", ns)}
+    assert "spring-boot-starter-test" in deps  # JUnit 5 for GoldenRegressionTest
+    assert g.write_pom(project, "x") is None  # an existing pom is the project's own build
+    other = tmp_path / "p2"
+    other.mkdir()
+    assert "<groupId>golden</groupId>" in g.write_pom(other, "golden", None).read_text(encoding="utf-8")
+    third = tmp_path / "p3"
+    third.mkdir()
+    assert "<groupId>org.x</groupId>" in g.write_pom(third, "golden", "org.x").read_text(encoding="utf-8")
+
+
 def test_killed_ids_reads_the_committed_ledger_and_is_empty_for_an_unknown_case():
     assert g.killed_ids("no-such-case") == set()
     assert g.killed_ids("carddemo-readcust")  # the ledger the prove-mutant command trusts
@@ -259,6 +282,28 @@ def test_one_jvm_reaches_the_java_runs_and_a_mutant_reuses_the_first_projects_es
     bounds.clear()
     g._run_ports("demo", "none", {"a": None, "b": None, "c": None}, tmp_path / "t", tmp_path / "gt", False, 7)
     assert bounds == [before, 7, 7] and ej.JAVA_DIRECT_TIMEOUT == before
+
+
+def test_the_project_and_prove_mutant_golden_carries_the_record_layouts(tmp_path, monkeypatch):
+    """#4052: `_run_ports` (behind `project` and `prove-mutant`) exports the golden with the case's field layouts, as
+    `export` does; without them a FILLER-only dataset (posttran TCATBALF) was judged byte-exact there."""
+    import equivalence
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+
+    case = {**CASE, "corpus": "c", "datasets": {"OUT": {"compare": True, "copybook": "x.cpy", "reclen": 4}}}
+    fields = [{"name": "A", "offset": 0, "length": 4}]
+    monkeypatch.setattr(equivalence, "load_case", lambda n: case)
+    monkeypatch.setattr(equivalence, "build_image", lambda: None)
+    monkeypatch.setattr(equivalence, "selected_faults", lambda c, f: [])
+    monkeypatch.setattr(equivalence, "run_cobol", lambda *a, **k: dict(MAIN_RUN))
+    monkeypatch.setattr(mc, "select", lambda names: [object()])
+    monkeypatch.setattr(mc, "require_clone", lambda e: tmp_path)
+    monkeypatch.setattr(ej, "run_java_environments", lambda case, corpus, work, *a, **k: work.mkdir(parents=True) or {})
+    monkeypatch.setattr(equivalence.equivalence_common, "layout_fields", lambda *a, **k: fields)
+    g._run_ports("demo", "none", {"a": None}, tmp_path / "w", tmp_path / "g")
+    manifest = json.loads((tmp_path / "g" / g.MANIFEST).read_text(encoding="utf-8"))
+    assert manifest["records"] == {"OUT": {"reclen": 4, "fields": fields}}
 
 
 def test_a_mutant_whose_java_run_hangs_is_a_failing_run_not_an_abort(tmp_path, monkeypatch):
@@ -398,3 +443,78 @@ def test_the_generated_java_check_compares_sysout_by_lines_too(tmp_path):
     golden = _log_golden(tmp_path)
     cases = {k: {"main": {"SYSOUT": v, "RETURN-CODE": b"0\n"}} for k, v in SYSOUT_CASES.items()}
     _java_agrees(golden, tmp_path, cases)
+
+
+# --- #4052 slice 15: record-level (field layout) comparison -----------------------------------------------------
+
+_F = [
+    {"name": "ID", "offset": 0, "bytes": 2, "pic": "99", "usage": "DISPLAY"},
+    {"name": "FILLER", "offset": 2, "bytes": 2, "pic": "XX", "usage": "DISPLAY"},
+    {"name": "NAME", "offset": 4, "bytes": 2, "pic": "XX", "usage": "DISPLAY"},
+]
+_REC = {"OUT": {"reclen": 6, "fields": _F}}
+_GOLD = b"01..AB02..CD"
+
+
+@pytest.fixture
+def rec_golden(tmp_path):
+    d = tmp_path / "golden-rec"
+    g.export(CASE, {"main": {"OUT": _GOLD, "RETURN-CODE": b"0\n"}}, d, "latin-1", _REC)
+    return d
+
+
+def _run(tmp_path, label, out):
+    return _java(tmp_path / label, {"main": {"OUT": out, "RETURN-CODE": b"0\n"}})
+
+
+def test_export_carries_layouts_only_when_given(golden, rec_golden):
+    assert "records" not in g.json.loads((golden / "golden.json").read_text())
+    assert g.json.loads((rec_golden / "golden.json").read_text())["records"] == _REC
+
+
+def test_a_filler_only_difference_is_accepted_and_counted(rec_golden, tmp_path):
+    notes: list[str] = []
+    assert g.check(rec_golden, _run(tmp_path, "j", b"01xx" + b"AB" + b"02yyCD"), notes) == []
+    assert notes == [
+        "main/OUT: 2/2 records equal field by field; FILLER differs in 2 record(s) (accepted as the harness compares records)"
+    ]
+
+
+def test_a_field_difference_or_a_missing_record_still_fails(rec_golden, tmp_path):
+    for label, out in (("field", b"01..AB02..CX"), ("short", b"01..AB"), ("long", _GOLD + b"03..EF")):
+        assert g.check(rec_golden, _run(tmp_path, label, out)), label
+
+
+def test_a_dataset_without_a_layout_stays_byte_exact(golden, tmp_path):
+    bad = dict(MAIN_RUN, OUT=b"AB\x00\xc2\n" * 3)
+    assert g.check(golden, _java(tmp_path / "j", {"main": bad, "fault-x": {"ABEND": b"U0016\n"}}))
+
+
+_FILLER_ONLY = [
+    {"name": "FILLER", "offset": 0, "bytes": 3, "pic": "XXX", "usage": "DISPLAY"},
+    {"name": "REDEF", "offset": 2, "bytes": 1, "pic": "X", "usage": "DISPLAY"},  # covers the last FILLER byte too
+]
+
+
+@pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
+def test_the_generated_java_check_compares_records_like_the_python_check(tmp_path):
+    """#4052 slice 16: the Java mirror of diff_records. A FILLER-only difference passes in both; a field, a byte outside
+    the layout, a FILLER byte a named field also covers, a missing or extra record and a partial record fail in both."""
+    recs = {"OUT": {"reclen": 6, "fields": _F}, "FIL": {"reclen": 4, "fields": _FILLER_ONLY}}
+    base = {"RETURN-CODE": b"0\n"}
+    gold = tmp_path / "golden"
+    g.export(CASE, {"main": dict(base, OUT=_GOLD, FIL=b"abcdWXYZ")}, gold, "latin-1", recs)
+    runs = {
+        "same": (_GOLD, b"abcdWXYZ"),
+        "filler": (b"01xxAB02yyCD", b"zzcdWXYZ"),  # only FILLER bytes differ
+        "field": (b"01..AB02..CX", b"abcdWXYZ"),
+        "redef": (_GOLD, b"abXdWXYZ"),  # byte 2 is also a named field
+        "outside": (_GOLD, b"abcXWXYZ"),  # byte 3 is no field, no FILLER
+        "short": (_GOLD[:6], b"abcdWXYZ"),
+        "long": (_GOLD + b"03..EF", b"abcdWXYZ"),
+        "partial": (_GOLD[:-1], b"abcdWXY"),
+    }
+    dirs = {k: _java(tmp_path / k, {"main": dict(base, OUT=o, FIL=f)}) for k, (o, f) in runs.items()}
+    want = {k: g.check(gold, d) for k, d in dirs.items()}
+    assert [k for k, v in want.items() if not v] == ["same", "filler"]
+    assert g.java_problems(gold, list(dirs.values()), tmp_path / "scratch") == list(want.values())

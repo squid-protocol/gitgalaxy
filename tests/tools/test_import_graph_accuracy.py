@@ -151,7 +151,9 @@ def test_rust_bin_path_is_a_crate_root(tmp_path):
             "crates/core/flags/defs.rs": "",
         },
     )
-    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [{"crates/core/flags/defs.rs"}]
+    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [
+        {"crates/core/flags/defs.rs"}
+    ]
 
 
 @needs_ts
@@ -721,3 +723,309 @@ def test_matlab_resolves_by_package_and_name_never_by_path(tmp_path):
         set(),
         set(),
     ]
+
+
+def test_elixir_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "lib/a/conn.ex": "defmodule App.Conn do\n  defmodule Inner do\n  end\nend\n",
+            "lib/b/router.ex": "defmodule App.Router do\nend\n",
+            "lib/c/util.exs": "defmodule App.Util do\nend\n",
+            "lib/d/doc.ex": 'defmodule App.Doc do\n  @moduledoc """\n  alias App.Router\n  """\nend\n',
+        },
+    )
+    src = (
+        b"defmodule App.Main do\n"
+        b"  alias App.Conn\n"
+        b"  alias App.Router, as: R\n"
+        b"  import App.Util, only: [x: 1]\n"
+        b"  require App.Conn.Inner\n"
+        b"  use App.Doc\n"
+        b"  alias App.{Conn,\n    Router}\n"
+        b"  alias __MODULE__.Missing\n"
+        b"  alias Elixir.App.Conn\n"
+        b"  alias Plug.Conn\n"  # external
+        b"  alias App\n"  # a namespace prefix: no file
+        b"  # alias App.Router\n"
+        b'  @doc """\n  alias App.Util\n  """\n'
+        b"  alias App.Main\n"  # own module: no edge
+        b"  import :erlang\n"
+        b"end\n"
+    )
+    assert iga.elixir_imports(src, "lib/main.ex", g) == [
+        {"lib/a/conn.ex"},
+        {"lib/b/router.ex"},
+        {"lib/c/util.exs"},
+        {"lib/a/conn.ex"},
+        {"lib/d/doc.ex"},
+        {"lib/a/conn.ex"},
+        {"lib/b/router.ex"},
+        set(),
+        {"lib/a/conn.ex"},
+        set(),
+        set(),
+        set(),
+    ]
+
+
+def test_erlang_resolves_by_module_and_include_never_by_guess(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/app_sup.erl": "-module(app_sup).\n",
+            "src/app_handler.erl": "-module(app_handler).\n",
+            "src/sub/app_util.erl": "-module(app_util).\n",
+            "src/app.hrl": "",
+            "include/app_defs.hrl": "",
+            "src/sub/local.hrl": "",
+            "test/t_SUITE.erl": "-module(t_SUITE).\n",
+            "apps/core/include/core.hrl": "",
+        },
+    )
+    src = (
+        b"-module(app_main).\n"
+        b'-include("app.hrl").\n'  # beside this file
+        b'-include("app_defs.hrl").\n'  # ../include/
+        b'-include("sub/local.hrl").\n'  # relative path
+        b'-include_lib("core/include/core.hrl").\n'  # app dir in the repo
+        b'-include_lib("kernel/include/file.hrl").\n'  # OTP: external
+        b'-include("missing.hrl").\n'
+        b"-behaviour(app_handler).\n"
+        b"-behavior(app_sup).\n"
+        b"-behaviour(gen_server).\n"  # OTP
+        b"-import(app_util, [f/1, g/2]).\n"
+        b"-import(lists, [map/2]).\n"
+        b"-behaviour(app_main).\n"  # own module: no edge
+        b'% -include("app.hrl").\n'
+        b'X = "-behaviour(app_sup).",\n'
+        b"-spec f() -> ok.\n"
+    )
+    assert iga.erlang_imports(src, "src/app_main.erl", g) == [
+        {"src/app.hrl"},
+        {"include/app_defs.hrl"},
+        {"src/sub/local.hrl"},
+        {"apps/core/include/core.hrl"},
+        set(),
+        set(),
+        {"src/app_handler.erl"},
+        {"src/app_sup.erl"},
+        set(),
+        {"src/sub/app_util.erl"},
+        set(),
+        set(),
+    ]
+    # an .hrl is found from a test directory by the same rule, and a file's own include is no edge
+    assert iga.erlang_imports(b'-include("../include/app_defs.hrl").\n', "test/t_SUITE.erl", g) == [
+        {"include/app_defs.hrl"}
+    ]
+    assert iga.erlang_imports(b'-include("app.hrl").\n', "src/app.hrl", g) == [set()]
+
+
+def test_ocaml_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/lib_util.ml": "",
+            "src/lib_util.mli": "",
+            "src/lib_core.ml": "",
+            "src/sub/lib_extra.ml": "",
+            "src/lib.ml": "",
+            "src/lib_main.ml": "",
+        },
+    )
+    src = (
+        b"open Lib_util\n"
+        b"open! Lib_core\n"
+        b"  include Lib_extra\n"
+        b"open Lib.Term.Syntax\n"  # first component with a file
+        b"open Stdlib.Printf\n"  # external
+        b"open Missing\n"
+        b"let f () = let open Lib_core in x\n"
+        b"open Lib_main\n"  # own module: no edge
+        b"(* open Lib_core (* nested open Lib_util *) open Lib_util *)\n"
+        b'let s = "open Lib_core"\n'
+        b"let c = '\"'\n"
+        b"open Lib_util\n"  # a char literal does not start a string
+        b"module X = Lib_core\n"  # an alias is not an import statement
+        b"let y = Lib_core.z\n"
+    )
+    assert iga.ocaml_imports(src, "src/lib_main.ml", g) == [
+        {"src/lib_util.ml", "src/lib_util.mli"},
+        {"src/lib_core.ml"},
+        {"src/sub/lib_extra.ml"},
+        {"src/lib.ml"},
+        set(),
+        set(),
+        {"src/lib_core.ml"},
+        set(),
+        {"src/lib_util.ml", "src/lib_util.mli"},
+    ]
+    # an .mli sees its own .ml's module as itself
+    assert iga.ocaml_imports(b"open Lib_util\n", "src/lib_util.mli", g) == [set()]
+    assert iga.ocaml_imports(b"", "src/lib_util.ml", g) == []
+
+
+def test_julia_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/Pkg.jl": "module Pkg\nend\n",
+            "src/graphs/Local.jl": "module Local\nmodule Inner\nend\nend\n",
+            "src/other/Sub.jl": "baremodule Sub\nend\n",
+            "src/Test/Test.jl": "module Test\nend\n",
+            "src/main.jl": "",
+        },
+    )
+    src = (
+        b"using .Local\n"
+        b"import ..Pkg: a, b\n"  # after `:` only the first path
+        b"using Pkg.Local.Inner\n"  # absolute: entry, then deepest declared submodule
+        b"using .Sub, .Local\n"  # each path of a list
+        b"using Pkg\n"  # package entry file
+        b"using Test\n"  # stdlib, not the repo's own `module Test`
+        b"using Statistics: mean\n"  # external
+        b"using .Missing\n"
+        b"import .Sub as S\n"
+        b"using Pkg # using .Local\n"
+        b"#= using .Local\nusing .Sub =#\n"
+        b'x = "using .Local"\n'
+        b'doc = """\nusing .Sub\n"""\n'
+        b"c = '\"'\n"
+        b"using .Sub\n"  # a char literal does not start a string
+        b'include("other/Sub.jl")\n'  # not an import statement
+    )
+    assert iga.julia_imports(src, "src/main.jl", g) == [
+        {"src/graphs/Local.jl"},
+        {"src/Pkg.jl"},
+        {"src/graphs/Local.jl"},
+        {"src/other/Sub.jl"},
+        {"src/graphs/Local.jl"},
+        {"src/Pkg.jl"},
+        set(),
+        set(),
+        set(),
+        {"src/other/Sub.jl"},
+        {"src/Pkg.jl"},
+        {"src/other/Sub.jl"},
+    ]
+    # a file's reference to its own module is no edge; an empty file has no statements
+    assert iga.julia_imports(b"using .Local\n", "src/graphs/Local.jl", g) == [set()]
+    assert iga.julia_imports(b"", "src/main.jl", g) == []
+
+
+def test_nim_resolves_by_path_and_reads_every_import_form(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "lib/pkg.nim": "",
+            "lib/pkg/a.nim": "",
+            "lib/pkg/b.nim": "",
+            "lib/pkg/sub/c.nim": "",
+            "lib/util.nim": "",
+            "lib/pkg/loc.nim": "",
+            "lib/main.nim": "",
+        },
+    )
+    src = (
+        b"import pkg/a\n"
+        b"import pkg/[a, b, sub/c]\n"  # a bracket group scores each leaf
+        b"import ./util, std/os\n"  # a list; std is the stdlib
+        b"from pkg/b import x, y\n"  # only the module
+        b"include util\n"
+        b"import\n  pkg/a,\n  pkg/b\n"  # continues after a bare import and a trailing comma
+        b"import pkg/a as pa\n"
+        b"import pkg/b except foo, bar\n"
+        b"import missing\n"
+        b"export pkg/a\n"  # not an import
+        b"#[ import util\n  #[ nested ]# import pkg/a ]#\n"
+        b"##[ import pkg/b ]##\n"
+        b"# import util\n"
+        b'x = "import util"\n'
+        b'y = """\nimport pkg/a\n"""\n'
+        b"z = a[0]#import util\n"
+        b"  import pkg/loc\n"  # indented (inside a `when`)
+    )
+    assert iga.nim_imports(src, "lib/main.nim", g) == [
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/b.nim"},
+        {"lib/pkg/sub/c.nim"},
+        {"lib/util.nim"},
+        set(),
+        {"lib/pkg/b.nim"},
+        {"lib/util.nim"},
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/b.nim"},
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/b.nim"},
+        set(),
+        {"lib/pkg/loc.nim"},
+    ]
+    # a relative path resolves from the importing file; a file's own module is no edge
+    assert iga.nim_imports(b"import ../util\nimport a\n", "lib/pkg/b.nim", g) == [{"lib/util.nim"}, {"lib/pkg/a.nim"}]
+    assert iga.nim_imports(b"import b\n", "lib/pkg/b.nim", g) == [set()]
+    assert iga.nim_imports(b"", "lib/main.nim", g) == []
+
+
+def test_hcl_local_module_source_names_a_directory(tmp_path):
+    g = _group(
+        tmp_path,
+        {"main.tf": "", "modules/vpc/a.tf": "", "modules/vpc/b.tf": "", "modules/vpc/notes.txt": "", "env/x.tf": ""},
+    )
+    src = (
+        b'# module "c" { source = "./modules/vpc" }\n'
+        b'module "vpc" {\n  source = "./modules/vpc"\n  tags = { source = "./nope" }\n}\n'
+        b'module "up" {\n  providers = { aws = aws }\n  source = "../modules/vpc"\n}\n'
+        b'module "reg" {\n  source = "terraform-aws-modules/vpc/aws"\n}\n'
+        b'module "git" {\n  source = "git::https://example.com/x.git"\n}\n'
+        b'module "gone" {\n  source = "./missing"\n}\n'
+        b'resource "aws_s3_object" "o" {\n  source = "./modules/vpc"\n}\n'
+        b'locals {\n  t = <<EOT\nmodule "h" {\n  source = "./modules/vpc"\n}\nEOT\n}\n'
+    )
+    both = {"modules/vpc/a.tf", "modules/vpc/b.tf"}
+    assert iga.hcl_imports(src, "main.tf", g) == [both, set(), set(), set(), set()]
+    assert iga.hcl_imports(src, "env/x.tf", g) == [set(), both, set(), set(), set()]
+    assert iga.hcl_imports(b"", "main.tf", g) == []
+    own = b'module "m" {\n  source = "./"\n}\n'
+    assert iga.hcl_imports(own, "modules/vpc/a.tf", g) == [{"modules/vpc/b.tf"}]
+
+
+def test_r_source_by_path_and_library_by_local_package(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "DESCRIPTION": "Package: mypkg\nTitle: x\n",
+            "R/a.R": "",
+            "R/b.R": "",
+            "tests/helper.R": "",
+            "tests/main.R": "",
+            "tests/sub/util.R": "",
+            "scripts/run.R": "",
+        },
+    )
+    src = (
+        b'# source("helper.R")\n'
+        b'source("helper.R")\nsource("sub/util.R")\nsys.source(file = "../scripts/run.R", envir = e)\n'
+        b'source(\'helper.R\', local = TRUE)\nsource(file.path(dir, "helper.R"))\nsource("/abs/x.R")\n'
+        b'source("gone.R")\n'
+        b"x <- \"\n source('helper.R')\n\"\n"
+        b'library(mypkg)\nrequire("mypkg")\nrequireNamespace("mypkg", quietly = TRUE)\nlibrary(dplyr)\n'
+        b"library(mypkg, character.only = TRUE)\nlibrary(pkg_var, character.only = TRUE)\nmypkg::f()\n"
+    )
+    pkg = {"R/a.R", "R/b.R"}
+    assert iga.r_imports(src, "tests/main.R", g) == [
+        {"tests/helper.R"},
+        {"tests/sub/util.R"},
+        {"scripts/run.R"},
+        {"tests/helper.R"},
+        set(),
+        pkg,
+        pkg,
+        pkg,
+        set(),
+    ]
+    assert iga.r_imports(b"", "tests/main.R", g) == []
+    # the importing file is never its own target
+    assert iga.r_imports(b"library(mypkg)\n", "R/a.R", g) == [{"R/b.R"}]
+    assert iga.r_imports(b'source("helper.R")\n', "tests/helper.R", g) == [set()]

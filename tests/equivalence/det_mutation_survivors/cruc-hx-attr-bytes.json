@@ -116,13 +116,11 @@
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 13, 4, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -132,13 +130,11 @@
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 5, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -170,13 +166,11 @@
    "before": "private final Field f6_STATA = Field.alphanumeric(s_HXM1I, 14, 1, false);",
    "after": "private final Field f6_STATA = Field.alphanumeric(s_HXM1I, 14, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -186,13 +180,11 @@
    "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 16, 12, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -202,13 +194,11 @@
    "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -240,13 +230,11 @@
    "before": "private final Field f11_BRITEA = Field.alphanumeric(s_HXM1I, 29, 1, false);",
    "after": "private final Field f11_BRITEA = Field.alphanumeric(s_HXM1I, 29, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -256,13 +244,11 @@
    "before": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -306,13 +292,11 @@
    "before": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 11, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -344,13 +328,11 @@
    "before": "private final Field f21_SECRETA = Field.alphanumeric(s_HXM1I, 57, 1, false);",
    "after": "private final Field f21_SECRETA = Field.alphanumeric(s_HXM1I, 57, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -360,13 +342,11 @@
    "before": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -398,13 +378,11 @@
    "before": "private final Field f26_RAWA = Field.alphanumeric(s_HXM1I, 68, 1, false);",
    "after": "private final Field f26_RAWA = Field.alphanumeric(s_HXM1I, 68, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -414,13 +392,11 @@
    "before": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -452,13 +428,11 @@
    "before": "private final Field f31_BLINKYA = Field.alphanumeric(s_HXM1I, 79, 1, false);",
    "after": "private final Field f31_BLINKYA = Field.alphanumeric(s_HXM1I, 79, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -468,13 +442,11 @@
    "before": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -506,13 +478,11 @@
    "before": "private final Field f36_TWIDDLEA = Field.alphanumeric(s_HXM1I, 90, 1, false);",
    "after": "private final Field f36_TWIDDLEA = Field.alphanumeric(s_HXM1I, 90, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -522,13 +492,11 @@
    "before": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -560,13 +528,11 @@
    "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
    "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -576,13 +542,11 @@
    "before": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -626,13 +590,11 @@
    "before": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 8, false);",
    "after": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -676,13 +638,11 @@
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 16, 12, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -692,13 +652,11 @@
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -708,13 +666,11 @@
    "before": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -724,13 +680,11 @@
    "before": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 11, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -740,13 +694,11 @@
    "before": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -756,13 +708,11 @@
    "before": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -772,13 +722,11 @@
    "before": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -788,13 +736,11 @@
    "before": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -804,13 +750,11 @@
    "before": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -820,13 +764,11 @@
    "before": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 8, false);",
    "after": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1688,13 +1630,11 @@
    "before": "private final Field f150_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
    "after": "private final Field f150_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1860,13 +1800,11 @@
    "before": "private final Field f166_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f166_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1876,13 +1814,11 @@
    "before": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1892,13 +1828,11 @@
    "before": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1943,14 +1877,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1959,14 +1889,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1975,14 +1901,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1992,13 +1914,11 @@
    "before": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2008,13 +1928,11 @@
    "before": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2036,7 +1954,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "4bb9a2d8c0",
@@ -2045,7 +1975,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "cbe87f47a9",
@@ -2054,7 +1996,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "f42cdb99f1",
@@ -2063,7 +2017,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "4ac6ec7eaf",
@@ -2300,7 +2266,19 @@
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "d3a4a3e549",
@@ -2309,7 +2287,19 @@
    "before": "if (d == null) {",
    "after": "if (d != null) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "5eca6f2bd1",
@@ -2327,13 +2317,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2343,13 +2331,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2359,13 +2345,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2375,13 +2359,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2391,23 +2373,12 @@
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
-  },
-  {
-   "id": "9669980a1a",
-   "op": "CON",
-   "line": 245,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "c81484870f",
@@ -3572,15 +3543,6 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "5b46341e67",
-   "op": "CON",
-   "line": 345,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "b0abbd90a0",
    "op": "CON",
    "line": 345,
@@ -3599,24 +3561,6 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "5864d29c39",
-   "op": "ROR",
-   "line": 346,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "f40ba19c2b",
-   "op": "NEG",
-   "line": 346,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "f439332578",
    "op": "ROR",
    "line": 346,
@@ -3631,33 +3575,6 @@
    "line": 347,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "f933b4d989",
-   "op": "DEL",
-   "line": 349,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "0ed9fb7db2",
-   "op": "DEL",
-   "line": 353,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "df95e3ab45",
-   "op": "CON",
-   "line": 353,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
@@ -3713,7 +3630,19 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "5df852516e",
@@ -3722,7 +3651,14 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "7860f711da",
@@ -3731,7 +3667,14 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "e80e0747b8",
@@ -3740,7 +3683,14 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "bfc8948fa5",
@@ -3749,7 +3699,14 @@
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "dd8ac5d904",
@@ -3767,7 +3724,19 @@
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "6760bc1569",
@@ -3776,7 +3745,14 @@
    "before": "if (caWhole == null) {",
    "after": "if (caWhole != null) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "401a8babb7",
@@ -3785,7 +3761,14 @@
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "7f021c4cec",
@@ -3803,7 +3786,19 @@
    "before": "caWhole(caWhole);",
    "after": "/* caWhole(caWhole); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5",
+    "link-bytes-invmpsz",
+    "link-clear-invmpsz",
+    "link-dataonly-invmpsz",
+    "link-dataonly-tsioerr",
+    "link-first-tsioerr"
+   ]
   },
   {
    "id": "6fd4e75d8a",
@@ -4178,7 +4173,14 @@
    "before": "task.returnTransid(null, null);",
    "after": "/* task.returnTransid(null, null); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "6495ec000e",
@@ -4300,12 +4302,10 @@
    "line": 580,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4314,12 +4314,10 @@
    "line": 580,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4328,12 +4326,10 @@
    "line": 581,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4400,7 +4396,14 @@
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 2, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "bc8ae86c09",
@@ -4409,7 +4412,14 @@
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "f0f1835023",
@@ -4538,8 +4548,11 @@
    "line": 635,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(resp9), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(resp9), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "6ae99082f7",
@@ -4547,8 +4560,11 @@
    "line": 636,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "787623bbd3",
@@ -4556,8 +4572,11 @@
    "line": 636,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "b68df41514",
@@ -4706,12 +4725,10 @@
    "line": 674,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4720,12 +4737,10 @@
    "line": 674,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4734,12 +4749,10 @@
    "line": 675,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5068,31 +5081,15 @@
    ]
   },
   {
-   "id": "e4d27a7a26",
-   "op": "CON",
-   "line": 710,
-   "before": "if (planned18[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
-   "after": "if (planned18[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
-   "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
-   ]
-  },
-  {
    "id": "4d9646afec",
    "op": "CON",
    "line": 711,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5101,12 +5098,10 @@
    "line": 711,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5115,26 +5110,10 @@
    "line": 712,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
-   ]
-  },
-  {
-   "id": "475c406800",
-   "op": "CON",
-   "line": 713,
-   "before": "if (planned18[0] != 0) {",
-   "after": "if (planned18[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
-   "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5201,7 +5180,14 @@
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "b92ae1ae61",
@@ -5210,7 +5196,14 @@
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 2, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "tried": [
+    "ca-len0-clear",
+    "ca-len0-enter",
+    "ca-len1-entry-enter",
+    "ca-len1-link-enter",
+    "ca-len1-pf5"
+   ]
   },
   {
    "id": "39d2a6dc83",

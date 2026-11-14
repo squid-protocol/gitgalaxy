@@ -99,6 +99,78 @@
     "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15  00000000072120/80    "
    },
    "why": "CA-VISIT-TIME(10:) is spaces: '.0' is moved into positions 9-10 (the program edits the commarea), so the key is 10:30:15.0 and the seeded row still matches"
+  },
+  {
+   "name": "bloodpressure-select-deadlock-913",
+   "commarea": {
+    "CA-REQUEST-ID": "01IVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "why": "the BLOODPRESSURE SELECT meets a Db2 timeout (-913): '01' in CA-RETURN-CODE and the program carries on",
+   "sql_faults": [
+    {
+     "table": "BLOODPRESSURE",
+     "verb": "SELECT",
+     "sqlcode": -913,
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "bloodpressure-select-fails-904",
+   "commarea": {
+    "CA-REQUEST-ID": "01IVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "why": "the BLOODPRESSURE SELECT meets resource unavailable (-904): WHEN OTHER sets '90', writes the error message and RETURNs",
+   "sql_faults": [
+    {
+     "table": "BLOODPRESSURE",
+     "verb": "SELECT",
+     "sqlcode": -904,
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "heartrate-select-deadlock-913",
+   "commarea": {
+    "CA-REQUEST-ID": "01IVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "why": "the HEARTRATE SELECT meets a Db2 timeout (-913): '01' in CA-RETURN-CODE and the program carries on",
+   "sql_faults": [
+    {
+     "table": "HEARTRATE",
+     "verb": "SELECT",
+     "sqlcode": -913,
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "heartrate-select-fails-904",
+   "commarea": {
+    "CA-REQUEST-ID": "01IVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "why": "the HEARTRATE SELECT meets resource unavailable (-904): WHEN OTHER sets '90', writes the error message and RETURNs",
+   "sql_faults": [
+    {
+     "table": "HEARTRATE",
+     "verb": "SELECT",
+     "sqlcode": -904,
+     "nth": 1
+    }
+   ]
   }
  ]
 }

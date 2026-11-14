@@ -20,7 +20,7 @@ contracts it builds on: `docs/api_rule_contract.md` (#2730, the public surface),
 `docs/unreferenced_by_name_contract.md` (#2806, the orphan census), and the `doc` row of
 `gitgalaxy/standards/signal_contracts.py`. The audit that keeps §1 honest is
 `tests/tools/audit_score_inputs.py documentation` (per-unit since Phase 3; its Phase-0
-ancestor `audit_documentation_inputs.py` decomposed the §2 density formula and retired
+ancestor `audit_documentation_inputs` script decomposed the §2 density formula and retired
 with it).
 
 ## 1. The equation

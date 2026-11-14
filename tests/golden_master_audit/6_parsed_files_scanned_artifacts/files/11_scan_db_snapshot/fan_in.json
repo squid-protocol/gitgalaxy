@@ -42463,7 +42463,7 @@
         "scheme_malloc_empty_closure@2067": 0,
         "scheme_module_is_declared@4111": 0,
         "scheme_namespace_require@3511": 0,
-        "scheme_new_mark_segment@720": 0,
+        "scheme_new_mark_segment@720": 1,
         "scheme_pop_continuation_frame@692": 6,
         "scheme_primitive_module@3659": 0,
         "scheme_protect_primitive_provide@3697": 0,

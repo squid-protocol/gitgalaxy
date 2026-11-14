@@ -418,7 +418,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(MATMUL|DOT_PRODUCT|TRANSPOSE|SUM|PRODUCT|MAXVAL|MINVAL|MAXLOC|MINLOC|RESHAPE|SQRT|EXP|LOG|LOG10|SIN|COS|TAN|ASIN|ACOS|ATAN|ATAN2|SINH|COSH|TANH|CEILING|FLOOR|MOD|MODULO)\s*\(|KIND\s*=",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # High Cognitive Load: Memory aliasing (`EQUIVALENCE`), multiple entry points (`ENTRY`), Object-Oriented runtime dispatch (`CLASS DEFAULT`, `%`), and unstructured `NAMELIST` loading.
         "reflection_metaprogramming": re.compile(
             r"\b(EQUIVALENCE|ENTRY|SELECT\s+TYPE|CLASS\s+DEFAULT|NAMELIST|VOLATILE)\b",
@@ -490,7 +490,7 @@ DEFINITION: dict[str, Any] = {
         # # 40. explicit_casts (Explicit Type Casting)
         # Forceful type coercion bypassing the safety engine. Strictly defining known Fortran intrinsic type conversion functions.
         "explicit_casts": re.compile(r"(?i)\b(?:int|real|cmplx|dble|achar|char|iachar|ichar)[ \t]*\([^)]*\)"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution destruction and unrecoverable exceptions.
         "panics_and_aborts": re.compile(r"(?i)\b(?:stop|error[ \t]+stop|return)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

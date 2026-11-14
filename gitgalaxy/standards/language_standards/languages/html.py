@@ -262,7 +262,7 @@ DEFINITION: dict[str, Any] = {
             r'<(?:math|mfrac|mi|mo|svg|canvas|path|circle|rect|polygon|polyline)(?=[ \t\n\r\f/>])|\bd=(?:"[MmLlHhVvCcSsQqTtAaZz0-9\s,.-]+"|\'[MmLlHhVvCcSsQqTtAaZz0-9\s,.-]+\')',
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Extreme logic heat: heavy inline styles and JS pollution.
         # BUG FIX: `style="[^"]*;"` required a literal trailing `;`
         # immediately before the closing quote. CSS allows omitting the
@@ -346,7 +346,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": None,
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(?:process\.exit|history\.back|window\.close)\s*\(", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(?:setTimeout|setInterval)\s*\(", re.I),

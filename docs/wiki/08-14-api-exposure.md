@@ -27,8 +27,8 @@ Files that expose every internal function and class create highly coupled, britt
 
 ## Design
 The calculation multiplies a relative exposure ratio (public against public-plus-private) by a logarithmic volume weight and a network multiplier.
-- **Risk:** Export keywords (`export`, `public`, `module.exports`) or casing conventions (Go/Python) -- the `api` signal.
-- **Mitigation:** Internal/private boundaries -- the `encapsulation` signal.
+- **Risk:** Export keywords (`export`, `public`, `module.exports`) or casing conventions (Go/Python) -- the `api` signal (**Public / Exported Surface**, column `arch_api`).
+- **Mitigation:** Internal/private boundaries -- the `encapsulation` signal (**Private Scope (private/static/_name)**, column `def_encapsulation`).
 
 **Mathematical Formulation** (as implemented in `_calc_api_exposure`; an earlier revision of this page described a 40/60 ratio-plus-volume blend that the code never shipped -- the `api_exposure` tuning keys are unread)
 1. **Encapsulation Short-Circuit:** If `api_hits == 0`, score is `0.0` (the ratio below would be $0$ anyway; encapsulation cannot push exposure below zero).

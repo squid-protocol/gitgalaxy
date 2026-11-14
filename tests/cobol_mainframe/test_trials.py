@@ -141,9 +141,7 @@ def test_start_freezes_the_system_and_declares_eligibility_up_front(started):
     )
     assert t["system"]["porting_rules_hash"] == trial.porting_rules_hash()[0] and t["system"]["model"] == "stand-in"
     assert t["eligible"] == ["FIXPGM", "GOODPGM"]
-    assert t["out_of_scope"]["ONLINE1"] == (
-        "source missing from the repo: COPY member NOSUCHM is not in the estate"
-    )
+    assert t["out_of_scope"]["ONLINE1"] == ("source missing from the repo: COPY member NOSUCHM is not in the estate")
     assert (started["project"] / "ai_agent_jobs" / "FIXPGM_port_ticket.json").is_file()
     estate = next(e for e in ledger["estates"] if e["id"] == "tiny-estate")
     assert (estate["status"], estate["trialled_by"], estate["repo"], estate["ref"]) == (
@@ -267,8 +265,12 @@ def test_a_synthetic_trial_end_to_end(started, tmp_path):
     assert trial.headline(ledger).startswith("first-try proof rate: 1/2 (50%) on 1 fresh estates at engine ")
     assert trial.fixes_per_estate(ledger)["tiny-estate"]["generator"] == 1
     page, svg = trial.render(ledger), trial.render_svg(ledger)
-    assert "| trial-001 | FIXPGM | proven@2(generator) | 1:failed/generator" in page
+    assert "| trial-001 | FIXPGM | unknown | proven@2(generator) | 1:failed/generator" in page
     assert "out-of-scope(source missing from the repo" in page
+    assert "| program | status | oracle | final |" in trial.trial_page(ledger, ledger["trials"][0])
+    ledger["trials"][0]["programs"]["FIXPGM"]["attempts"][0]["oracle"] = "bogus"  # #8325
+    assert any("oracle must be one of" in e for e in trial.validate(ledger))
+    del ledger["trials"][0]["programs"]["FIXPGM"]["attempts"][0]["oracle"]
     assert "tiny-estate: 1 @2" in svg and "training data" in svg and "declared up front" in svg
 
     assert trial.main([*common, "close", trial_id]) == 0
@@ -291,6 +293,26 @@ def test_a_retry_with_no_fix_is_the_models_and_a_recorded_attempt_is_never_rewri
     t = {"id": "t", "programs": {"P": {"attempts": [{**got[0], "outcome": "no-port"}], "final": "open"}}}
     with pytest.raises(SystemExit, match="never rewritten"):
         trial.sync(t, ev, [])
+
+
+def test_oracle_status_is_carried_and_a_compile_failure_is_not_a_model_failure():
+    """#8325 (Amendment 4): cobc's compile status rides on the attempt; absent on old events; never a model cause."""
+    ev = [{"event": "proposed", "ticket": "P", "started": "2026-09-28T10:00:00+00:00",
+           "at": "2026-09-28T10:00:05+00:00", "model": "m"},
+          {"event": "proof-failed", "ticket": "P", "at": "2026-09-28T10:01:00+00:00", "oracle": "compile-failed"},
+          {"event": "proposed", "ticket": "P", "started": "2026-09-28T10:02:00+00:00",
+           "at": "2026-09-28T10:03:00+00:00", "model": "m"},
+          {"event": "proven", "ticket": "P", "at": "2026-09-28T10:04:00+00:00", "oracle": "compiled"}]  # fmt: skip
+    got = trial.attempts_from_log(ev, "P", [])
+    assert [a.get("oracle") for a in got] == ["compile-failed", "compiled"]
+    assert got[0]["cause"] is None and trial.final_of(got) == "proven@2(oracle)"
+    p = {"final": trial.final_of(got), "attempts": got}
+    assert trial.program_state({"final": "open", "attempts": got[:1]}) == ("couldn't run", None)
+    assert trial._oracle(p) == "compiled" and trial._oracle({"attempts": []}) == "-"
+    old = trial.attempts_from_log([{**e, "oracle": None} for e in ev], "P", [])
+    assert all("oracle" not in a for a in old) and old[0]["cause"] == "model"
+    again = trial.attempts_from_log(ev, "P", [])
+    assert again == got  # idempotent for sync
 
 
 def _proc(body: str, data: str = "") -> str:
@@ -462,7 +484,9 @@ def test_every_equivalence_module_is_in_the_frozen_harness_or_named_outside_it()
     root = trial.REPO_ROOT
     modules = {p.relative_to(root).as_posix() for p in (root / "tests" / "tools").glob("equivalence*.py")}
     outside = {m for m in modules if any(fnmatch.fnmatch(m, pat) for pat in trial.NOT_HARNESS)}
-    assert outside and modules <= set(trial.HARNESS_PATHS) | outside, sorted(modules - set(trial.HARNESS_PATHS) - outside)
+    assert outside and modules <= set(trial.HARNESS_PATHS) | outside, sorted(
+        modules - set(trial.HARNESS_PATHS) - outside
+    )
     assert not set(trial.HARNESS_PATHS) & outside
     assert [p for p in trial.HARNESS_PATHS if not (root / p).exists()] == []
     assert all(any(fnmatch.fnmatch(m, pat) for m in modules) for pat in trial.NOT_HARNESS)
@@ -946,3 +970,213 @@ def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_
     assert top["cause"] not in {b["cause"] for b in after}
     held = sum(b["tests_unlocked"] for b in rows) - sum(b["tests_unlocked"] for b in after)
     assert held == top["tests_unlocked"]
+
+
+def test_a_withdrawn_trial_reports_no_rate_instead_of_a_zero():
+    """#8121: a registered trial whose proof phase never ran must not publish a 0% first-try rate.
+
+    Closing counts every open program, so without a withdrawn state the 28 unattempted programs of
+    trial-001 would have become `not-proven(<cause>)` -- a fabricated negative against a frozen engine
+    that was never asked to try."""
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    for key in t["eligible"]:  # the shape of a trial that was registered and never run
+        t["programs"][key] = {"final": "open", "attempts": []}
+    trial.close(t, {}, withdrawn="the proof phase never ran")
+    assert t["closed"] and t["withdrawn"] == "the proof phase never ran"
+    assert {p["final"] for p in t["programs"].values()} == {"withdrawn"}
+    v = trial.summary(ledger)["v"]
+    assert (v["counted"], v["first"], v["withdrawn"]) == (0, 0, 4), "withdrawn is unmeasured, not a failure"
+    assert "not measured" in trial.headline(ledger) and "%" not in trial.headline(ledger)
+
+
+def test_withdrawing_a_trial_still_declares_the_cause_of_an_attempted_program():
+    """A program with real attempts stays measured: withdrawing the trial never erases its verdict."""
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    t["programs"]["C"]["attempts"][-1]["cause"] = None  # an undiagnosed failure still needs its cause declared
+    with pytest.raises(SystemExit):
+        trial.close(t, {}, withdrawn="the proof phase never ran")
+    trial.close(t, {"C": "harness"}, withdrawn="the proof phase never ran")
+    assert t["programs"]["D"]["final"] == "withdrawn", "D was never attempted"
+    assert t["programs"]["B"]["final"] == "not-proven(generator)", "B's own failed attempt names its cause"
+    assert t["programs"]["C"]["final"] == "not-proven(harness)"
+    v = trial.summary(ledger)["v"]
+    assert (v["counted"], v["first"]) == (3, 1), "the denominator is A, B and C; D is withdrawn"
+
+
+def test_withdrawn_needs_a_withdrawn_closed_trial_and_an_unattempted_program():
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    t["programs"]["D"]["final"] = "withdrawn"  # no `withdrawn` reason, trial still open
+    assert any("withdrawn needs a withdrawn, closed trial" in e for e in trial.validate(ledger))
+    t["closed"], t["withdrawn"] = "2026-11-11", "the proof phase never ran"
+    t["programs"]["B"]["final"] = "withdrawn"  # B has an attempt: it is measured, not withdrawable
+    assert any("withdrawn is only for a program with no attempt" in e for e in trial.validate(ledger))
+
+
+def _frozen(tmp_path):
+    """A one-commit engine repo and a trial frozen on it."""
+    engine = tmp_path / "engine"
+    engine.mkdir()
+    _git(engine, "init", "-q")
+    (engine / "README").write_text("engine\n", encoding="utf-8")
+    _git(engine, "add", "README")
+    _git(engine, "commit", "-q", "-m", "freeze")
+    sha = _git(engine, "rev-parse", "HEAD").strip()
+    eligible, out = ["AAA"], {"BBB": "source missing"}
+    t = {"system": {"engine_commit": sha, "harness_commit": sha, "porting_rules_hash": "r" * 64},
+         "eligible": eligible, "out_of_scope": out, "declared": trial.declaration_hash(eligible, out)}  # fmt: skip
+    return engine, t
+
+
+def _failed(results):
+    return {name for name, ok, _d in results if not ok}
+
+
+def test_verify_passes_on_an_intact_frozen_system(tmp_path):
+    engine, t = _frozen(tmp_path)
+    good = {"matches_pin": True, "cobc": "3.2"}
+    assert _failed(trial.verify_frozen(t, engine, good, rules="r" * 64)) == set()
+
+
+def test_verify_fails_on_each_kind_of_drift(tmp_path):
+    engine, t = _frozen(tmp_path)
+    bad_oracle = {"matches_pin": False, "mismatches": ["cobc: the image has '3.1'"]}
+    assert _failed(trial.verify_frozen(t, engine, bad_oracle, rules="r" * 64)) == {"oracle_matches_pin"}
+    assert _failed(trial.verify_frozen(t, engine, None, rules="x" * 64)) == {"porting_rules_hash"}
+    t["out_of_scope"] = {}
+    assert _failed(trial.verify_frozen(t, engine, None, rules="r" * 64)) == {"declaration_hash"}
+    t["system"]["engine_commit"] = "0" * 40
+    assert {"engine_commit", "engine_is_ancestor_of_head"} <= _failed(trial.verify_frozen(t, engine, None, "r" * 64))
+
+
+def test_verify_rebuild_check_compares_the_rebuild_with_the_local_oracle(tmp_path):
+    engine, t = _frozen(tmp_path)
+    local = {"matches_pin": True, "cobc": "3.1", "gnucobol3": "v1"}
+    same = {"matches_pin": True, "cobc": "3.1", "gnucobol3": "v1"}
+    assert _failed(trial.verify_frozen(t, engine, local, "r" * 64, rebuilt=same)) == set()
+    moved = {**same, "gnucobol3": "v2"}
+    assert _failed(trial.verify_frozen(t, engine, local, "r" * 64, rebuilt=moved)) == {"oracle_rebuild_reproduces"}
+    off_pin = {**same, "matches_pin": False, "mismatches": ["base: x"]}
+    assert _failed(trial.verify_frozen(t, engine, local, "r" * 64, rebuilt=off_pin)) == {"oracle_rebuild_reproduces"}
+    assert "oracle_rebuild_reproduces" not in {n for n, _o, _d in trial.verify_frozen(t, engine, local, "r" * 64)}
+
+
+def test_oracle_rebuild_removes_its_scratch_tag_on_success_and_failure(monkeypatch):
+    import equivalence_common as common
+    import equivalence_oracle as eo
+
+    calls = []
+    fail = {"on": False}
+
+    def fake_build(*args, **_kw):
+        calls.append(("build", args[-1]))
+        if fail["on"]:
+            raise RuntimeError("docker build failed: boom")
+
+    monkeypatch.setattr(common, "docker_build", fake_build)
+    monkeypatch.setattr(eo.subprocess, "run", lambda argv, **_kw: calls.append((argv[1], argv[-1])))
+    monkeypatch.setattr(eo, "fingerprint", lambda image, refresh=False: {"image": image, "matches_pin": True})
+    assert eo.rebuild("scratch:t")["image"] == "scratch:t"
+    assert [c[0] for c in calls] == ["build", "rmi"]
+    calls.clear()
+    fail["on"] = True
+    with pytest.raises(RuntimeError, match="docker build"):
+        eo.rebuild("scratch:t")
+    assert [c[0] for c in calls] == ["build", "rmi"]
+    assert calls[1][1] == "scratch:t"
+
+
+def test_verify_fails_when_the_ticket_source_changed_since_the_freeze(tmp_path):
+    engine, t = _frozen(tmp_path)
+    src = engine / trial.TICKET_SOURCE
+    src.parent.mkdir(parents=True)
+    src.write_text("RULES = 1\n", encoding="utf-8")
+    _git(engine, "add", "-A")
+    _git(engine, "commit", "-q", "-m", "rules moved")
+    assert _failed(trial.verify_frozen(t, engine, None, rules="r" * 64)) == {"ticket_source_unchanged_since_freeze"}
+
+
+def test_verify_command_is_read_only_and_reports_failure(tmp_path, capsys):
+    engine, t = _frozen(tmp_path)
+    ledger = _ledger(tmp_path / "trials.json")
+    data = json.loads(ledger.read_text(encoding="utf-8"))
+    data["trials"] = [{"id": "t-1", **t}]
+    ledger.write_text(json.dumps(data), encoding="utf-8")
+    before = ledger.read_bytes()
+    rc = trial.main(["--ledger", str(ledger), "--repo", str(engine), "verify", "t-1", "--no-oracle"])
+    assert rc == 1  # the synthetic rules hash is not the real one
+    assert "FAIL porting_rules_hash" in capsys.readouterr().out
+    assert ledger.read_bytes() == before
+    assert trial.main(["--ledger", str(ledger), "--repo", str(engine), "verify", "nope", "--no-oracle"]) == 1
+
+
+def _regen(tmp_path):
+    _engine, t = _frozen(tmp_path)
+    preview = {"eligible": list(t["eligible"]), "out_of_scope": dict(t["out_of_scope"])}
+    return t, preview
+
+
+def test_regenerated_tickets_pass_when_everything_matches(tmp_path):
+    t, preview = _regen(tmp_path)
+    assert _failed(trial.check_regenerated(t, preview, "r" * 64, {"AAA"}, "ref1", "ref1")) == set()
+
+
+def test_regenerated_tickets_fail_on_each_kind_of_drift(tmp_path):
+    t, preview = _regen(tmp_path)
+    check = trial.check_regenerated
+    assert _failed(check(t, preview, "x" * 64, {"AAA"}, "ref1", "ref1")) == {"frozen_rules_hash"}
+    assert _failed(check(t, preview, "r" * 64, set(), "ref1", "ref1")) == {"every_eligible_program_has_a_ticket"}
+    assert (
+        _failed(check(t, preview, "r" * 64, {"AAA", "BBB"}, "ref1", "ref1")) == set()
+    )  # an out-of-scope ticket is fine
+    assert _failed(check(t, preview, "r" * 64, {"AAA"}, "ref2", "ref1")) == {"estate_at_pinned_ref"}
+    assert _failed(check(t, preview, "r" * 64, {"AAA"}, None, None)) == {"estate_at_pinned_ref"}
+    moved = {"eligible": ["AAA", "CCC"], "out_of_scope": {}}
+    assert _failed(check(t, moved, "r" * 64, {"AAA"}, "ref1", "ref1")) == {"declaration_reproduces"}
+
+
+def test_frozen_runs_use_the_frozen_tree_alone_on_the_python_path(tmp_path, monkeypatch):
+    monkeypatch.setenv("PYTHONPATH", "/some/main/checkout")
+    assert trial._frozen_env(tmp_path)["PYTHONPATH"] == str(tmp_path)
+
+
+def test_tickets_command_leaves_the_ledger_alone_and_writes_a_manifest(tmp_path, monkeypatch):
+    engine, t = _frozen(tmp_path)
+    ledger = _ledger(tmp_path / "trials.json")
+    data = json.loads(ledger.read_text(encoding="utf-8"))
+    data["trials"] = [{"id": "t-1", "estate": "e", **t}]
+    data["estates"] = [{"id": "e", "kind": "public", "status": "development", "repo": "u", "ref": "ref1"}]
+    ledger.write_text(json.dumps(data), encoding="utf-8")
+    before = ledger.read_bytes()
+    work = tmp_path / "work"
+    (work / "frozen-engine").mkdir(parents=True)
+    monkeypatch.setattr(trial, "git", lambda _repo, *a: "" if "status" in a else t["system"]["engine_commit"])
+    monkeypatch.setattr(trial, "_estate_git", lambda *_a: "ref1")
+    make_ticket = {"on": True}
+
+    def fake(_tree, *argv):
+        if "--json" in argv:
+            if make_ticket["on"]:  # what the frozen engine's preview writes under --work
+                jobs.mkdir(parents=True)
+                (jobs / "AAA_port_ticket.json").write_text("{}", encoding="utf-8")
+            Path(argv[argv.index("--json") + 1]).write_text(
+                json.dumps({"eligible": ["AAA"], "out_of_scope": {"BBB": "source missing"}}), encoding="utf-8"
+            )
+        return "r" * 64
+
+    monkeypatch.setattr(trial, "_in_frozen", fake)
+    jobs = work / "java_h2" / "ai_agent_jobs"
+    argv = ["--ledger", str(ledger), "--repo", str(engine), "tickets", "t-1", "--estate-path", str(tmp_path),
+            "--work", str(work)]  # fmt: skip
+    assert trial.main(argv) == 0
+    assert json.loads((work / "tickets_manifest.json").read_text(encoding="utf-8"))["tickets"].keys() == {"AAA"}
+    assert ledger.read_bytes() == before
+    with pytest.raises(SystemExit, match="must be empty"):  # a second run over the first run's output
+        trial.main(argv)
+    make_ticket["on"] = False  # no ticket generated, in a fresh --work that only holds the tree
+    work2 = tmp_path / "work2"
+    (work2 / "frozen-engine").mkdir(parents=True)
+    argv[-1] = str(work2)
+    assert trial.main(argv) == 1

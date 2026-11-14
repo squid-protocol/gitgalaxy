@@ -81,7 +81,7 @@
       "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
     }
   ],
-  "notes": "The example-health-apis visit screen program HCV1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434; the harness reads the RETURN commarea bytes, #8230). Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; it LINKs HCP1BI01 (patient name) and HCT1BI01 (thresholds) first, then HCV1 inquires through HCV1BI01 / HCIVDB01 and HCVA adds through HCV1BA01 / HCAVDB01. sysout is not compared: HCITDB01 DISPLAYs, and the Java side of a CICS run on an estate with no batch package does not capture it (port_blockers P128); events, the RETURN COMMAREA bytes and the tables are compared. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. Not driven: the EIBCALEN > 0 arm (a re-entry with the COMMAREA the previous RETURN passed): the harness starts a layout_only COMMAREA empty and refuses a stated one (#7434).",
+  "notes": "The example-health-apis visit screen program HCV1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434; the harness reads the RETURN commarea bytes, #8230). Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; it LINKs HCP1BI01 (patient name) and HCT1BI01 (thresholds) first, then HCV1 inquires through HCV1BI01 / HCIVDB01 and HCVA adds through HCV1BA01 / HCAVDB01. HCITDB01 DISPLAYs; the job log is compared too (the standalone Sysout honours gitgalaxy.sysout since #8246, port_blockers P128). Events, the RETURN COMMAREA bytes and the tables are compared. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The re-entry arm (EIBCALEN > 0, a COMMAREA the previous RETURN passed) is driven by commarea_hex scenarios: the program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121).",
   "scenarios": [
     {
       "name": "inquire-visit",
@@ -110,6 +110,29 @@
           "HCV1TIMEI": "09:00:00"
         }
       }
+    },
+    {
+      "name": "inquire-visit-select-fails",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "the BLOODPRESSURE SELECT meets resource unavailable (-904): HCIVDB01 sets '90', so HCV1BI01 returns a code above 1 and HCV1PL01 skips the field moves (CA-RETURN-CODE <= 1 false)",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      },
+      "sql_faults": [
+        {
+          "program": "HCIVDB01",
+          "table": "BLOODPRESSURE",
+          "verb": "SELECT",
+          "sqlcode": -904,
+          "nth": 1
+        }
+      ]
     },
     {
       "name": "inquire-needs-datetime",
@@ -243,8 +266,37 @@
       "aid": "DFHENTER",
       "commarea": null,
       "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
+    },
+    {
+      "name": "reentry-short-area",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "commarea_hex": "40",
+      "why": "re-entry with a one-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 52), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "reentry-long-area",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "commarea_hex": "C1C2C3C4C5C6C7C8",
+      "why": "re-entry with an eight-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 52), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
     }
   ],
-  "startcode": "TD",
-  "sysout": false
+  "startcode": "TD"
 }

@@ -403,7 +403,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(puts|print|p|pp|warn)\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(Integer|Float|String|Array|Hash|Complex|Rational)\b\s*\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # BUG FIX: `exit!` ends on `!` (non-word), so the shared
         # trailing \b could never fire -- unlike high_risk_execution's
         # copy of this same alternative (which is harmlessly masked by

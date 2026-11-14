@@ -22,10 +22,12 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.standards.analysis_lens import signal_display_name
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SIGS = "7. Structural Signatures (Net Mitigated Signals)"
-HOMOGLYPH = "Non-Standard Unicode / Homoglyphs"
-INVISIBLE = "Invisible Unicode Payload Smuggling"
+HOMOGLYPH = signal_display_name("sec_homoglyphs")
+INVISIBLE = signal_display_name("sec_unicode_steganography")
 
 CYR_E = chr(0x0435)  # Cyrillic small ie, passes for Latin e
 GREEK_O = chr(0x03BF)  # Greek small omicron, passes for Latin o
@@ -82,7 +84,7 @@ def test_planted_file_fires_exactly_its_signal(signatures, name):
 
 
 # --- Sec Extension Mismatch: the #4126 sensor, read through the audit label the golden reads ---
-MISMATCH = "Sec Extension Mismatch"
+MISMATCH = signal_display_name("sec_extension_mismatch")
 ELF = b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 120
 LFS = b"version https://git-lfs.github.com/spec/v1\noid sha256:abc\nsize 123\n"
 # path -> (bytes, fires)

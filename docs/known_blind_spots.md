@@ -129,3 +129,54 @@ Even with the detection pass, these stay blind and belong on this page:
   is not a thin pass-through, and treating it as one would over-count.
 - **Library delegation.** The `def_auth` case: the primitive never appears in the repository at
   all.
+
+## Blind spot 2: lines of 250+ characters, in the security lens (gitgalaxy#8429)
+
+**Affects:** every security-lens regex (hard-coded secrets, eval/exec, safety bypasses, unusual imports, environment
+mutation, raw database calls and the rest of `SecurityLens.scan_content`) and the high-entropy string check.
+Vault Sentinel is the one caller that is not affected.
+
+### Plain-language version
+
+Before any security regex runs, `SecurityLens._armor` (`gitgalaxy/security/security_lens.py`) empties every line of
+250 or more characters. The line is kept as an empty line so later line numbers stay right, but its text is gone. This
+is a ReDoS guard: it bounds how much text any one regex sees. The cost is that whatever sits on a long line is never
+looked at: a secret in a one-line JSON or YAML config, an `eval` buried in minified JavaScript, a base64 payload in a
+long string literal. The entropy check reads the same emptied text, so a string literal longer than about 248
+characters is never entropy-checked at all, which is the opposite of what a "payload hidden in a huge string" check
+needs.
+
+### The evidence
+
+Probed on `SecurityLens.scan_content` directly (2026-11-13, engine at main):
+
+| input | longest line | counts |
+|---|---:|---|
+| `aws_access_key_id = "AKIA..."` alone | 42 | `hardcoded_secrets: 1` |
+| the same key inside a one-line dict padded to 290 characters | 290 | nothing |
+| a 96-character high-entropy string literal | 102 | `entropy: 1` |
+| the same text repeated to a 288-character literal | 294 | nothing |
+
+### Why the engine cannot see it
+
+- **The cut is unconditional.** `_armor` blanks the whole line; there is no chunking or windowing in
+  `scan_content`. The code-stream haystack goes through the same `_armor`.
+- **The minified fallback is narrow.** When armoring removes more than 90% of a file, `scan_content` runs a literal
+  search on the raw text for nine strings (`eval(`, `setTimeout(`, `child_process`, `shell_exec(`, `XMLHttpRequest`,
+  `fetch(`, `http.request`, `NODE_TLS_REJECT_UNAUTHORIZED`, `disable_functions`). It has no secret, entropy or import
+  patterns, and it does not run at all on a file where long lines are under 90% of the text (one long line in an
+  ordinary file).
+- **Only Vault Sentinel chunks long lines.** `gitgalaxy/security/long_lines.py` (`chunk_long_lines`) splits long lines
+  into scannable pieces, and only `gitgalaxy/tools/supply_chain_security/vault_sentinel.py` calls it. The main scan
+  does not.
+
+### What this means when reading output
+
+- **Zero security hits on minified bundles, base64 blobs, lockfile-style one-line JSON or generated configs means
+  "not examined", not "clean".**
+- **A file whose findings are all `[Minified Literal Hit]` was scanned only by the nine-literal fallback.**
+- For secrets in such files, run Vault Sentinel or a dedicated secret scanner.
+
+### What is planned
+
+Tracked as gitgalaxy#8429 (under the security-claims epic gitgalaxy#8427). Nothing is merged yet.

@@ -12,8 +12,12 @@ one-shot measurement at a named, frozen system.
                                      [--model-version V] [--exclude PROG=reason ...] [--shipped-data PROG ...]
     python tests/tools/trial.py preview <estate-id> --estate-path P --work W [--json F]   # rehearsal, no ledger
     python tests/tools/trial.py sync  <trial-id> --project W/java_h2     # (alias: attempt) import port_log.jsonl
-    python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...]
+    python tests/tools/trial.py record <trial-id> --summary run_summary.json --run B --fix PROG=cause:SHA --at ISO  # #8322
+    python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...] [--withdrawn REASON]
     python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
+    python tests/tools/trial.py verify <trial-id> [--no-oracle]          # re-check the frozen system, read-only (#8322)
+    python tests/tools/trial.py tickets <trial-id> --estate-path P --work W  # tickets at the frozen engine (#8322)
+    python tests/tools/trial.py run <trial-id> --estate-path P --work W [--runs A,B]   # det port + proofs (#8322)
     python tests/tools/trial.py report [--write]                         # the page + the SVG chart + a page per estate
     python tests/tools/trial.py check                                    # ledger valid, report current (CI)
 
@@ -30,6 +34,10 @@ port), numbered from 1; stopped at the first proven one. An attempt that failed 
 happened next: a commit carrying a trailer `Trial-Cause: <ticket|generator|engine|harness> <PROGRAM>`
 between the failure and the next attempt is a fix on our side (its cause, its commit); a retry with no
 such commit is the model's. `close` ends the trial: a program still not proven gets its cause declared.
+`close --withdrawn REASON` ends a trial whose proof phase never ran: every eligible program with no attempt
+becomes `withdrawn` and is left OUT of the first-try denominator, so an unrun trial reports "not measured"
+instead of publishing a 0% rate against the frozen engine. A program that does carry attempts still declares
+its cause as usual, because its attempts are real measurements.
 
 Sources: tests/cobol_mainframe/trials.json (the ledger, committed). Writes
 docs/language_status/fresh_estate_trials.md and fresh_estate_trials.svg (a plain SVG, no plotting library), and
@@ -66,6 +74,7 @@ STATUSES = ("fresh", "development")
 OUTCOMES = ("proven", "failed", "no-port", "error")
 OUR_CAUSES = ("ticket", "generator", "engine", "harness")  # a fix on our side, with its commit
 CAUSES = ("model", *OUR_CAUSES)
+ORACLE = ("compiled", "compile-failed", "unknown")  # #8325: did cobc compile the reference (Amendment 4)
 BINS = ("@1", "@2", "@3", "@4+")
 # The frozen system's harness: the files the proof runs through (tests/tools/equivalence*.py and its image).
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
@@ -102,7 +111,7 @@ NOT_HARNESS = ("tests/tools/equivalence_e2e_*.py", "tests/tools/equivalence_cach
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line
 _TRAILER = re.compile(r"^Trial-Cause:[ \t]{0,8}([a-z]{1,12})[ \t]{1,8}([A-Za-z0-9$#@_-]{1,64})[ \t]{0,8}$", re.M)
 _FINAL = re.compile(
-    r"^(proven@[1-9][0-9]{0,3}(\((?:[a-z]{1,12},){0,63}[a-z]{1,12}\))?|not-proven\([a-z]{1,12}\)|open)$"
+    r"^(proven@[1-9][0-9]{0,3}(\((?:[a-z]{1,12},){0,63}[a-z]{1,12}\))?|not-proven\([a-z]{1,12}\)|withdrawn|open)$"
 )
 
 
@@ -420,7 +429,7 @@ def final_of(attempts: list[dict[str, Any]], closed_cause: str | None = None) ->
     """proven@N (with the causes of the failures before it) | not-proven(cause) | open."""
     for a in attempts:
         if a["outcome"] == "proven":
-            causes = [str(b["cause"]) for b in attempts[: a["n"] - 1]]
+            causes = [str(b["cause"] or "oracle") for b in attempts[: a["n"] - 1]]  # #8325: no cause = oracle
             return f"proven@{a['n']}" + (f"({','.join(causes)})" if causes else "")
     return f"not-proven({closed_cause})" if closed_cause else "open"
 
@@ -466,6 +475,10 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
         errors.append(f"the frozen system is missing {missing}")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(t.get("started"))):
         errors.append("started is a date YYYY-MM-DD")
+    if "withdrawn" in t and not (isinstance(t.get("withdrawn"), str) and t["withdrawn"].strip()):
+        errors.append("withdrawn is the one-line reason the trial's proof phase never ran")
+    if t.get("withdrawn") and not t.get("closed"):
+        errors.append("a withdrawn trial is closed")
     eligible, out = t.get("eligible", []), t.get("out_of_scope", {})
     if eligible != sorted(set(eligible)):
         errors.append("eligible is a sorted list of distinct programs")
@@ -486,6 +499,8 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
         for a in attempts:
             if a.get("outcome") not in OUTCOMES:
                 errors.append(f"{key} attempt {a.get('n')}: outcome must be one of {OUTCOMES}")
+            if a.get("oracle") is not None and a.get("oracle") not in ORACLE:
+                errors.append(f"{key} attempt {a.get('n')}: oracle must be one of {ORACLE}")
             if a.get("cause") is not None and a.get("cause") not in CAUSES:
                 errors.append(f"{key} attempt {a.get('n')}: cause must be one of {CAUSES} or null")
             if a.get("outcome") == "proven" and a.get("cause") is not None:
@@ -494,14 +509,19 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
                 errors.append(f"{key} attempt {a.get('n')}: a fix commit goes with a cause on our side, and only there")
         if any(a["outcome"] == "proven" for a in attempts[:-1]):
             errors.append(f"{key}: attempts stop at the first proven one")
-        if any(a.get("cause") is None for a in attempts[:-1]):
+        if any(a.get("cause") is None and a.get("oracle") != "compile-failed" for a in attempts[:-1]):
             errors.append(f"{key}: every failed attempt before the last carries its cause")
         final = str(p.get("final"))
         if not _FINAL.match(final):
-            errors.append(f"{key}: final must be proven@N | not-proven(cause) | open")
+            errors.append(f"{key}: final must be proven@N | not-proven(cause) | withdrawn | open")
         elif final.startswith("not-proven"):
             if final[len("not-proven(") : -1] not in CAUSES or not t.get("closed"):
                 errors.append(f"{key}: not-proven(cause) needs a known cause and a closed trial")
+        elif final == "withdrawn":
+            if not t.get("withdrawn") or not t.get("closed"):
+                errors.append(f"{key}: withdrawn needs a withdrawn, closed trial (close --withdrawn REASON)")
+            if attempts:
+                errors.append(f"{key}: withdrawn is only for a program with no attempt; declare its cause instead")
         elif final != final_of(attempts):
             errors.append(f"{key}: final {final} does not follow from its attempts ({final_of(attempts)})")
         if t.get("closed") and final == "open":
@@ -681,7 +701,8 @@ def attempts_from_log(events: list[dict[str, Any]], key: str, fixes: list[dict[s
         elif ev in ("proven", "proof-failed"):
             base = pending or (raw[-1] if raw else {"began": at, "model": None})
             raw.append({"outcome": "proven" if ev == "proven" else "failed", "began": base["began"] if pending else at,
-                        "at": at, "model": base.get("model")})  # fmt: skip
+                        "at": at, "model": base.get("model"),
+                        **({"oracle": e["oracle"]} if e.get("oracle") else {})})  # fmt: skip
             pending = None
         if raw and raw[-1]["outcome"] == "proven":
             break
@@ -695,10 +716,10 @@ def attempts_from_log(events: list[dict[str, Any]], key: str, fixes: list[dict[s
             ]
             if mine:
                 cause, commit = mine[-1]["cause"], mine[-1]["sha"]
-            elif i + 1 < len(raw):
-                cause = "model"
+            elif i + 1 < len(raw) and r.get("oracle") != "compile-failed":
+                cause = "model"  # an oracle that did not compile is nobody's model failure (#8325)
         out.append({"n": i + 1, "outcome": r["outcome"], "cause": cause, "fix_commit": commit, "at": r["at"],
-                    "model": r["model"]})  # fmt: skip
+                    "model": r["model"], **({"oracle": r["oracle"]} if r.get("oracle") else {})})  # fmt: skip
     return out
 
 
@@ -794,9 +815,81 @@ def cmd_sync(opts: argparse.Namespace) -> int:
     return 0
 
 
-def close(trial: dict[str, Any], causes: dict[str, str]) -> None:
+def record_run(
+    trial: dict[str, Any], run: dict[str, Any], fixes: dict[str, tuple[str, str]], at: str
+) -> dict[str, int]:
+    """#8322: book a measured run whose port log was not kept. `run` is one run of a `trial.py run` summary;
+    `fixes` is {program: (cause, full fix sha)} for each program the run did not prove, whose later proof (the
+    post-fix rerun) is attempt 2. Attempt 1 is the run's verdict and is never rewritten. {program: attempts}."""
+    if trial.get("closed"):
+        raise SystemExit(f"{trial['id']} is closed")
+    stray = sorted(set(run["programs"]) ^ set(trial["programs"]))
+    if stray:
+        raise SystemExit(f"the run and the trial disagree on the eligible programs: {stray}")
+    extra = sorted(set(fixes) - {k for k, r in run["programs"].items() if r["state"] != "proven"})
+    if extra:
+        raise SystemExit(f"--fix names programs the run proved: {extra}")
+    changed = {}
+    for key, res in run["programs"].items():
+        first = {"n": 1, "at": at, "model": None, "oracle": res["oracle"]}
+        if res["state"] == "proven":
+            attempts = [{**first, "outcome": "proven", "cause": None, "fix_commit": None}]
+        elif res["state"] == "not-proven" and key in fixes:
+            cause, sha = fixes[key]
+            attempts = [{**first, "outcome": "failed", "cause": cause, "fix_commit": sha},
+                        {**first, "n": 2, "outcome": "proven", "cause": None, "fix_commit": None}]  # fmt: skip
+        else:
+            raise SystemExit(f"{key}: state {res['state']} needs a judged failure and a --fix to be recorded")
+        old = trial["programs"][key]["attempts"]
+        if old and old != attempts:
+            raise SystemExit(f"{trial['id']} {key}: a recorded attempt is never rewritten")
+        if old != attempts:
+            changed[key] = len(attempts)
+        trial["programs"][key]["attempts"] = attempts
+        trial["programs"][key]["final"] = final_of(attempts)
+    return changed
+
+
+def cmd_record(opts: argparse.Namespace) -> int:
+    ledger = load(opts.ledger)
+    trial = _trial(ledger, opts.trial)
+    summary_doc = json.loads(opts.summary.read_text(encoding="utf-8"))
+    if opts.run == "A" or opts.run not in summary_doc["runs"]:
+        raise SystemExit("only the measuring run (B) is ledger data; run A is reported beside it, never booked")
+    if summary_doc.get("engine_commit") != trial["system"]["engine_commit"]:
+        raise SystemExit("the run was not made at the trial's frozen engine")
+    fixes = {}
+    for prog, spec in _parse_pairs(opts.fix, "--fix").items():
+        cause, _, sha = spec.partition(":")
+        if cause not in OUR_CAUSES or not sha:
+            raise SystemExit(f"--fix takes PROGRAM=<{'|'.join(OUR_CAUSES)}>:SHA, not {prog}={spec}")
+        full = git(opts.repo, "rev-parse", "--verify", f"{sha}^{{commit}}")
+        frozen = trial["system"]["engine_commit"]
+        if subprocess.run(["git", "-C", str(opts.repo), "merge-base", "--is-ancestor", frozen, full],  # noqa: S603, S607
+                          check=False).returncode != 0 or full == frozen:  # fmt: skip
+            raise SystemExit(f"{prog}: fix {sha} is not a commit after the frozen engine")
+        fixes[prog] = (cause, full)
+    changed = record_run(trial, summary_doc["runs"][opts.run], fixes, opts.at)
+    problems = validate(ledger)
+    if problems:
+        raise SystemExit("the ledger would be invalid:\n  " + "\n  ".join(problems))
+    save(ledger, opts.ledger)
+    refresh_outputs(ledger, opts.ledger)
+    for key, p in trial["programs"].items():
+        print(f"  {key}: {p['final']}" + ("  (updated)" if key in changed else ""))
+    return 0
+
+
+def close(trial: dict[str, Any], causes: dict[str, str], withdrawn: str | None = None) -> None:
+    """End a trial. With `withdrawn`, a program that was never attempted becomes `withdrawn` rather than
+    not-proven: an unrun proof phase leaves the first-try rate UNMEASURED instead of publishing a 0%."""
+    if withdrawn:
+        trial["withdrawn"] = withdrawn
     for key, p in trial["programs"].items():
         if p["final"] != "open":
+            continue
+        if withdrawn and not p["attempts"]:
+            p["final"] = "withdrawn"
             continue
         last = p["attempts"][-1]["cause"] if p["attempts"] else None
         cause = causes.get(key) or last
@@ -809,13 +902,13 @@ def close(trial: dict[str, Any], causes: dict[str, str]) -> None:
 def cmd_close(opts: argparse.Namespace) -> int:
     ledger = load(opts.ledger)
     attach_harness(_trial(ledger, opts.trial), _parse_pairs(opts.case, "--case"), opts.proof_blockers)
-    close(_trial(ledger, opts.trial), _parse_pairs(opts.cause, "--cause"))
+    close(_trial(ledger, opts.trial), _parse_pairs(opts.cause, "--cause"), opts.withdrawn)
     problems = validate(ledger)
     if problems:
         raise SystemExit("the ledger would be invalid:\n  " + "\n  ".join(problems))
     save(ledger, opts.ledger)
     refresh_outputs(ledger, opts.ledger)
-    print(f"{opts.trial}: closed")
+    print(f"{opts.trial}: closed" + (" (withdrawn: its proof phase never ran)" if opts.withdrawn else ""))
     return 0
 
 
@@ -834,7 +927,11 @@ COLUMNS = (*BINS, *[f"not proven: {c}" for c in CAUSES])
 
 
 def _counted(trial: dict[str, Any], p: dict[str, Any]) -> bool:
-    """A program counts toward the rate once its first attempt has a verdict, or its trial is closed."""
+    """A program counts toward the rate once its first attempt has a verdict, or its trial is closed.
+
+    A withdrawn program never counts: its proof was never attempted, so it is unmeasured, not a failure."""
+    if p["final"] == "withdrawn":
+        return False
     return bool(p["attempts"]) or bool(trial.get("closed"))
 
 
@@ -843,7 +940,7 @@ def summary(ledger: dict[str, Any]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for t in ledger["trials"]:
         v = out.setdefault(t["system"]["engine_version"], {"trials": [], "estates": [], "first": 0, "counted": 0,
-                                                           "open": 0, "bins": {}})  # fmt: skip
+                                                           "open": 0, "withdrawn": 0, "bins": {}})  # fmt: skip
         v["trials"].append(t["id"])
         if t["estate"] not in v["estates"]:
             v["estates"].append(t["estate"])
@@ -852,7 +949,9 @@ def summary(ledger: dict[str, Any]) -> dict[str, dict[str, Any]]:
             if _counted(t, p):
                 v["counted"] += 1
                 v["first"] += p["final"] == "proven@1"
-            if b is None:
+            if p["final"] == "withdrawn":
+                v["withdrawn"] += 1
+            elif b is None:
                 v["open"] += 1
             else:
                 v["bins"].setdefault(b, {}).setdefault(t["estate"], 0)
@@ -865,8 +964,11 @@ def headline(ledger: dict[str, Any]) -> str:
     if not s:
         return "first-try proof rate: no trial yet (0 fresh estates trialled)"
     ver, v = list(s.items())[-1]
-    rate = f"{100 * v['first'] / v['counted']:.0f}%" if v["counted"] else "-"
     n = len(v["estates"])
+    if not v["counted"]:
+        why = " (proof phase withdrawn)" if v["withdrawn"] else ""
+        return f"first-try proof rate: not measured{why} on {n} fresh estates at engine {ver}"
+    rate = f"{100 * v['first'] / v['counted']:.0f}%"
     return f"first-try proof rate: {v['first']}/{v['counted']} ({rate}) on {n} fresh estates at engine {ver}"
 
 
@@ -894,10 +996,12 @@ _BLOCKER_FIX = {
 
 
 def program_state(p: dict[str, Any]) -> tuple[str, str | None]:
-    """(run status, cause) of one eligible program: proven / differs / couldn't run / not attempted."""
+    """(run status, cause) of one eligible program: proven / differs / couldn't run / not attempted / withdrawn."""
     final = p["final"]
     if final.startswith("proven@"):
         return "proven", None
+    if final == "withdrawn":
+        return "withdrawn", None
     last = p["attempts"][-1] if p["attempts"] else None
     if final.startswith("not-proven("):
         cause = final[len("not-proven(") : -1]
@@ -905,7 +1009,15 @@ def program_state(p: dict[str, Any]) -> tuple[str, str | None]:
         cause = last["cause"] if last else None
     if last is None:
         return "not attempted", cause
+    if last.get("oracle") == "compile-failed":  # the oracle never ran: not a difference (#8325)
+        return "couldn't run", cause
     return ("differs" if last["outcome"] == "failed" else "couldn't run"), cause
+
+
+def _oracle(p: dict[str, Any]) -> str:
+    """#8325: the oracle's compile status at the program's latest attempt that recorded one ('-' before any)."""
+    seen = [a["oracle"] for a in p["attempts"] if a.get("oracle")]
+    return seen[-1] if seen else "-"
 
 
 def _pct(n: int, d: int) -> str:
@@ -997,12 +1109,14 @@ def trial_page(
             f"- proven: {proven} of {len(elig)} eligible ({_pct(proven, len(elig))})",
             f"- {measured}",
             "", "## Run status", ""]  # fmt: skip
-    out += [f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted")]
-    out += ["", "| program | status | final | attempts (outcome/cause) |", "|---|---|---|---|"]
+    out += [
+        f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted", "withdrawn")
+    ]
+    out += ["", "| program | status | oracle | final | attempts (outcome/cause) |", "|---|---|---|---|---|"]
     for key in sorted(elig):
         p = trial["programs"][key]
         steps = ", ".join(f"{a['n']}:{a['outcome']}" + (f"/{a['cause']}" if a["cause"] else "") for a in p["attempts"])
-        out.append(f"| {key} | {states[key][0]} | {p['final']} | {steps or '-'} |")
+        out.append(f"| {key} | {states[key][0]} | {_oracle(p)} | {p['final']} | {steps or '-'} |")
     if facts:
         out += ["", "## Input generation", "", "| program | case | tests | generated | shipped data | no input |",
                 "|---|---|---|---|---|---|"]  # fmt: skip
@@ -1111,19 +1225,21 @@ def render(ledger: dict[str, Any]) -> str:
            "failed attempt carries its cause: the model's (a retry, same system) or ours (a fix commit with a",
            "`Trial-Cause:` trailer: ticket, generator, engine, harness). A trialled estate is development data",
            "for good: its numbers stay here but never count as first-try again. The rate counts programs whose",
-           "first attempt has a verdict (and every program of a closed trial).", "",
+           "first attempt has a verdict (and every program of a closed trial). A WITHDRAWN trial's proof phase",
+           "never ran: its programs were never attempted, so they are left out of the rate rather than counted",
+           "as failures, and the rate reads 'not measured'.", "",
            *[f"- {c}" for c in CAVEATS], "", "![attempts to proof](fresh_estate_trials.svg)", "",
            "## Trials", ""]  # fmt: skip
     if not ledger["trials"]:
         out += ["No trial yet."]
     else:
         out += ["| trial | estate | kind | started | closed | engine | model | eligible | out of scope | "
-                + " | ".join(COLUMNS) + " | open |",
-                "|" + "---|" * (9 + len(COLUMNS) + 1)]  # fmt: skip
+                + " | ".join(COLUMNS) + " | withdrawn | open |",
+                "|" + "---|" * (9 + len(COLUMNS) + 2)]  # fmt: skip
         for t in ledger["trials"]:
             bins: dict[str, int] = {}
             for p in t["programs"].values():
-                b = _bin(p["final"]) or "open"
+                b = _bin(p["final"]) or ("withdrawn" if p["final"] == "withdrawn" else "open")
                 bins[b] = bins.get(b, 0) + 1
             kind = (_estate(ledger, t["estate"]) or {}).get("kind", "?")
             sysm = t["system"]
@@ -1131,16 +1247,22 @@ def render(ledger: dict[str, Any]) -> str:
                        f"{t.get('closed') or '-'} | {sysm['engine_version']} | "
                        f"{sysm['model_version']} ({sysm['backend']}) | "
                        f"{len(t['eligible'])} | {len(t['out_of_scope'])} | "
-                       + " | ".join(str(bins.get(c, 0)) for c in (*COLUMNS, "open")) + " |")  # fmt: skip
-        out += ["", "## Programs", "", "| trial | program | final | attempts (outcome/cause) |", "|---|---|---|---|"]
+                       + " | ".join(str(bins.get(c, 0)) for c in (*COLUMNS, "withdrawn", "open")) + " |")  # fmt: skip
+        out += [
+            "",
+            "## Programs",
+            "",
+            "| trial | program | oracle | final | attempts (outcome/cause) |",
+            "|---|---|---|---|---|",
+        ]
         for t in ledger["trials"]:
             for key, p in sorted(t["programs"].items()):
                 steps = ", ".join(f"{a['n']}:{a['outcome']}" + (f"/{a['cause']}" if a["cause"] else "")
                                   + (f" {a['fix_commit'][:10]}" if a["fix_commit"] else "")
                                   for a in p["attempts"])  # fmt: skip
-                out.append(f"| {t['id']} | {key} | {p['final']} | {steps or '-'} |")
+                out.append(f"| {t['id']} | {key} | {_oracle(p)} | {p['final']} | {steps or '-'} |")
             for key, reason in sorted(t["out_of_scope"].items()):
-                out.append(f"| {t['id']} | {key} | out-of-scope({reason.replace('|', '/')}) | - |")
+                out.append(f"| {t['id']} | {key} | - | out-of-scope({reason.replace('|', '/')}) | - |")
     out += ["", "## Estates", "", "| estate | kind | status | repo @ ref | trialled by |", "|---|---|---|---|---|"]
     for e in ledger["estates"]:
         where = f"{e['repo']} @ {e['ref'][:12]}" if e["kind"] == "public" else "(private)"
@@ -1264,6 +1386,350 @@ def render_svg(ledger: dict[str, Any]) -> str:
     return "\n".join(p) + "\n"
 
 
+# ---- verify: the frozen system, re-checked ---------------------------------------------
+TICKET_SOURCE = "gitgalaxy/tools/cobol_to_java/cobol_to_java_port_tickets.py"
+
+
+def _git_ok(repo: Path, *args: str) -> bool:
+    argv = ["git", "-C", str(repo), *args]
+    return subprocess.run(argv, capture_output=True, check=False).returncode == 0  # noqa: S603
+
+
+def verify_frozen(
+    t: dict[str, Any],
+    repo: Path,
+    oracle: dict[str, Any] | None = None,
+    rules: str | None = None,
+    rebuilt: dict[str, Any] | None = None,
+) -> list[tuple[str, bool, str]]:
+    """Re-compute each fact a trial froze: [(check, ok, detail)]. Reads only; `oracle` is an
+    equivalence_oracle fingerprint (None: not checked), `rules` the porting-rules hash (default: computed)."""
+    sysd = t.get("system", {})
+    out: list[tuple[str, bool, str]] = []
+    for key in ("engine_commit", "harness_commit"):
+        sha = str(sysd.get(key, ""))
+        out.append((key, bool(sha) and _git_ok(repo, "cat-file", "-e", f"{sha}^{{commit}}"), sha[:12]))
+    engine = str(sysd.get("engine_commit", ""))
+    out.append(("engine_is_ancestor_of_head", _git_ok(repo, "merge-base", "--is-ancestor", engine, "HEAD"), ""))
+    untouched = _git_ok(repo, "diff", "--quiet", engine, "--", TICKET_SOURCE)
+    out.append(("ticket_source_unchanged_since_freeze", untouched, TICKET_SOURCE))
+    have = rules if rules is not None else porting_rules_hash()[0]
+    want = sysd.get("porting_rules_hash")
+    out.append(("porting_rules_hash", have == want, f"computes {have[:12]}, frozen {str(want)[:12]}"))
+    eligible, oos = t.get("eligible", []), t.get("out_of_scope", {})
+    declared = declaration_hash(eligible, oos) == t.get("declared")
+    out.append(("declaration_hash", declared, f"{len(eligible)} eligible, {len(oos)} out of scope"))
+    if oracle is not None:
+        why = "; ".join(oracle.get("mismatches", [])) or f"cobc {oracle.get('cobc')}"
+        out.append(("oracle_matches_pin", bool(oracle.get("matches_pin")), why))
+    if rebuilt is not None:  # #8322: the Dockerfile builds the same oracle the proofs ran on
+        drift = list(rebuilt.get("mismatches", []))
+        if oracle is not None:
+            drift += [f"{k}: rebuild {rebuilt.get(k)!r}, local {oracle.get(k)!r}" for k in ("cobc", "gnucobol3")
+                      if rebuilt.get(k) != oracle.get(k)]  # fmt: skip
+        out.append(
+            (
+                "oracle_rebuild_reproduces",
+                not drift and bool(rebuilt.get("matches_pin")),
+                "; ".join(drift) or f"cobc {rebuilt.get('cobc')}, gnucobol3 {rebuilt.get('gnucobol3')}",
+            )
+        )
+    return out
+
+
+def cmd_verify(opts: argparse.Namespace) -> int:
+    """Read-only: nothing is written to the ledger or the pages."""
+    ledger = load(opts.ledger)
+    found = [t for t in ledger.get("trials", []) if t.get("id") == opts.trial]
+    if not found:
+        print(f"no trial {opts.trial}")
+        return 1
+    oracle = None
+    if not opts.no_oracle:
+        import equivalence_oracle as eo
+
+        try:
+            oracle = eo.fingerprint()
+        except (RuntimeError, OSError) as exc:  # no docker, no image: a failed check, never a skipped one
+            oracle = {"matches_pin": False, "mismatches": [str(exc)]}
+    rebuilt = None
+    if opts.rebuild_oracle:
+        import equivalence_oracle as eo
+
+        try:
+            rebuilt = eo.rebuild()
+        except (RuntimeError, OSError) as exc:  # a failed build is a failed check
+            rebuilt = {"matches_pin": False, "mismatches": [str(exc)]}
+    results = verify_frozen(found[0], opts.repo, oracle, rebuilt=rebuilt)
+    for name, ok, detail in results:
+        print(f"{'ok  ' if ok else 'FAIL'} {name}: {detail}")
+    return 0 if all(ok for _n, ok, _d in results) else 1
+
+
+def check_regenerated(
+    t: dict[str, Any], preview: dict[str, Any], rules: str, tickets: set[str], estate_ref: str | None, ref: str | None
+) -> list[tuple[str, bool, str]]:
+    """Judge a ticket regeneration run at the frozen engine: [(check, ok, detail)]. Pure; reads nothing."""
+    eligible, oos = t.get("eligible", []), t.get("out_of_scope", {})
+    again = declaration_hash(preview.get("eligible", []), preview.get("out_of_scope", {}))
+    missing = sorted(set(eligible) - tickets)
+    want = t.get("system", {}).get("porting_rules_hash")
+    return [
+        ("estate_at_pinned_ref", bool(ref) and estate_ref == ref, f"estate {str(estate_ref)[:12]}, pinned {str(ref)[:12]}"),
+        ("declaration_reproduces", again == t.get("declared"), f"{len(preview.get('eligible', []))} eligible"),
+        ("frozen_rules_hash", rules == want, f"frozen engine computes {rules[:12]}, frozen {str(want)[:12]}"),
+        ("every_eligible_program_has_a_ticket", not missing, f"missing {missing}" if missing else f"{len(eligible)} tickets"),
+    ]  # fmt: skip
+
+
+_RULES_SNIPPET = (
+    "import sys; sys.path.insert(0, sys.argv[1]); sys.path.insert(0, sys.argv[1] + '/tests/tools'); "
+    "import trial; print(trial.porting_rules_hash()[0])"
+)
+
+
+def _frozen_env(tree: Path) -> dict[str, str]:
+    """The environment for a run inside the frozen tree: PYTHONPATH is the tree alone, never the preset main checkout."""
+    import os
+
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(tree)
+    return env
+
+
+def _in_frozen(tree: Path, *argv: str) -> str:
+    proc = subprocess.run(  # noqa: S603
+        [sys.executable, *argv], capture_output=True, text=True, check=False, cwd=tree, env=_frozen_env(tree)
+    )
+    if proc.returncode != 0:
+        raise SystemExit(f"{' '.join(argv[:2])} failed in the frozen tree: {proc.stderr.strip()[-600:]}")
+    return proc.stdout.strip()
+
+
+def cmd_tickets(opts: argparse.Namespace) -> int:
+    """Regenerate the trial's tickets with the FROZEN engine (a detached worktree of its commit), then check them.
+
+    Writes only under --work (the worktree, the project, tickets_manifest.json); the ledger and pages are untouched."""
+    ledger = load(opts.ledger)
+    found = [t for t in ledger.get("trials", []) if t.get("id") == opts.trial]
+    if not found:
+        print(f"no trial {opts.trial}")
+        return 1
+    t = found[0]
+    sha = str(t["system"]["engine_commit"])
+    estate = _estate(ledger, t["estate"]) or {}
+    work = opts.work.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    tree = work / "frozen-engine"
+    stale = sorted(p.name for p in work.iterdir() if p != tree)
+    if stale:  # the frozen engine's refractor copies the estate into --work and does not overwrite
+        raise SystemExit(f"--work must be empty (or hold only frozen-engine); found {stale}")
+    if not tree.exists():
+        git(opts.repo, "worktree", "add", "--detach", str(tree), sha)
+    if git(tree, "rev-parse", "HEAD") != sha or git(tree, "status", "--porcelain"):
+        raise SystemExit(f"{tree} is not a clean checkout of the frozen engine {sha[:12]}")
+    rules = _in_frozen(tree, "-I", "-c", _RULES_SNIPPET, str(tree))
+    out_json = work / "declaration.json"
+    _in_frozen(tree, "tests/tools/trial.py", "preview", t["estate"], "--estate-path", str(opts.estate_path),
+               "--work", str(work), "--json", str(out_json))  # fmt: skip
+    preview = json.loads(out_json.read_text(encoding="utf-8"))
+    jobs = work / "java_h2" / "ai_agent_jobs"
+    names = {p.name[: -len("_port_ticket.json")]: p for p in jobs.glob("*_port_ticket.json")}
+    results = check_regenerated(
+        t, preview, rules, set(names), _estate_git(opts.estate_path.resolve(), "rev-parse", "HEAD"), estate.get("ref")
+    )
+    for name, ok, detail in results:
+        print(f"{'ok  ' if ok else 'FAIL'} {name}: {detail}")
+    ok_all = all(ok for _n, ok, _d in results)
+    if ok_all:
+        manifest = {"trial": t["id"], "engine_commit": sha, "porting_rules_hash": rules,
+                    "tickets": {k: hashlib.sha256(p.read_bytes()).hexdigest() for k, p in sorted(names.items())}}  # fmt: skip
+        (work / "tickets_manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+        print(f"tickets in {jobs}; manifest {work / 'tickets_manifest.json'}")
+    return 0 if ok_all else 1
+
+
+# ---- the proof run (#8322): det port in the frozen engine, proved under each instrument ----------------------
+ERROR_PATH_ONLY = frozenset({"HCPRESTW", "HCTRESTW", "HCMRESTW"})  # prereg Amendment 4: error-path cases only
+RUNS = {"A": "the frozen harness", "B": "the harness at current main"}
+
+
+def case_map(corpus: str, cases_dir: Path | None = None) -> dict[str, str]:
+    """{program: case name} for the cases of one corpus (a program with two cases is refused: the run would guess)."""
+    root = cases_dir or REPO_ROOT / "tests" / "equivalence"
+    out: dict[str, str] = {}
+    for f in sorted(root.glob("*/case.json")):
+        c = json.loads(f.read_text(encoding="utf-8"))
+        if c.get("corpus") != corpus:
+            continue
+        if c["program"] in out:
+            raise SystemExit(f"{c['program']} has two cases ({out[c['program']]}, {f.parent.name})")
+        out[c["program"]] = f.parent.name
+    return out
+
+
+def inlined_by_harness(case: dict[str, Any], corpus: Path) -> bool:
+    """Whether `inline_exec_copies` (#8217) changes the program's compiled text: the programs a harness without it
+    judges against a different reference (Amendment 4's 18 of 28), measured, never listed by hand."""
+    import tempfile
+
+    import equivalence_cics as ec
+    import equivalence_common as common
+
+    with tempfile.TemporaryDirectory() as tmp:
+        src = Path(tmp)
+        common.stage_copybooks(case, corpus, src)
+        text, _enc = common.read_program(case, corpus / case["program_source"])
+        return ec.inline_exec_copies(text, src).strip() != text.strip()
+
+
+def build_instrument(repo: Path, tree: Path, harness_commit: str | None) -> Path:
+    """A detached worktree of `repo`'s HEAD to prove under. With `harness_commit`, every HARNESS_PATHS entry is
+    restored to that commit (one it did not have is removed): the frozen harness, with the cases as they are."""
+    if tree.exists():
+        return tree
+    git(repo, "worktree", "add", "--detach", str(tree), "HEAD")
+    if harness_commit:
+        for rel in HARNESS_PATHS:
+            git(tree, "rm", "-rq", "--ignore-unmatch", "--", rel)
+            if git(tree, "ls-tree", harness_commit, "--", rel):
+                git(tree, "checkout", harness_commit, "--", rel)
+    return tree
+
+
+def summarize_run(
+    events: list[dict[str, Any]], eligible: list[str], flagged: frozenset[str] = frozenset()
+) -> dict[str, Any]:
+    """One run's first-attempt verdicts, decomposed (Amendment 4): proven / not proven (the oracle compiled) /
+    not judged (it did not: cause `harness`, reason oracle-compile-failed, or no-report when the harness stopped first) / flagged (`flagged` programs whose oracle compiled anyway: a wrong
+    reference passes a wrong port as readily as it fails one, so counted in neither) / no-port / unknown oracle.
+    Pure. Only a program's FIRST verdict counts: attempt 1 is the measurement."""
+    rows: dict[str, dict[str, Any]] = {}
+    for key in eligible:
+        mine = [e for e in events if e.get("ticket") == key]
+        verdict = next((e for e in mine if e.get("event") in ("proven", "proof-failed")), None)
+        proposed = next((e for e in mine if e.get("event") == "proposed"), None)
+        row: dict[str, Any] = {}
+        if key in ERROR_PATH_ONLY:
+            row["scope"] = "error-path-only"
+        holes = ((proposed or {}).get("translation") or {}).get("holes")
+        if holes:
+            row["holes"] = holes
+        if verdict is None:
+            row["state"] = "no-port"
+        else:
+            oracle = verdict.get("oracle") or "unknown"
+            row["oracle"] = oracle
+            row["outcome"] = "proven" if verdict["event"] == "proven" else "failed"
+            if oracle == "compile-failed":
+                row["state"], row["cause"], row["reason"] = "not-judged", "harness", "oracle-compile-failed"
+            elif oracle == "unknown" and row["outcome"] == "failed":
+                # the proof command exited non-zero and wrote no report: the harness stopped before any verdict
+                row["state"], row["cause"], row["reason"] = "not-judged", "harness", "no-report"
+            elif oracle == "unknown":
+                row["state"] = "unknown-oracle"
+            elif key in flagged:
+                row["state"] = "flagged"
+            else:
+                row["state"] = "proven" if row["outcome"] == "proven" else "not-proven"
+        rows[key] = row
+    states = ("proven", "not-proven", "not-judged", "flagged", "no-port", "unknown-oracle")
+    counts = {s: sum(1 for r in rows.values() if r["state"] == s) for s in states}
+    return {"programs": rows, "counts": counts, "eligible": len(eligible)}
+
+
+def _verdict_count(project: Path, key: str) -> int:
+    from gitgalaxy.tools.cobol_to_java import port_runner
+
+    return sum(1 for e in port_runner.events(project) if e.get("ticket") == key
+               and e.get("event") in ("proven", "proof-failed"))  # fmt: skip
+
+
+def cmd_run(opts: argparse.Namespace) -> int:
+    """The det translator's first attempt per eligible program, at the FROZEN engine, then proved under Run A
+    (the frozen harness) and Run B (the harness at HEAD), each on its own copy of the project so no log holds
+    two verdicts of one attempt. Resumable: a program with a verdict in a run is not proved again there."""
+    import os
+    import shutil
+
+    from gitgalaxy.tools.cobol_to_java import port_runner
+
+    ledger = load(opts.ledger)
+    t = _trial(ledger, opts.trial)
+    work = opts.work.resolve()
+    backend = getattr(opts, "backend", "det")
+    suffix = "" if backend == "det" else f"_{backend}"
+    if backend != "det":
+        # the model leg spends money and is only a first-try measurement of the REGISTERED system: refuse before any call
+        reg = t["system"]
+        if reg.get("backend") != backend or not reg.get("model"):
+            raise SystemExit(f"{t['id']} is registered with backend {reg.get('backend')!r}, not {backend!r}")
+        if not os.environ.get(opts.api_key_env):
+            raise SystemExit(f"the {backend} leg needs ${opts.api_key_env} (a key and spend only the owner grants)")
+    tree, base_project = work / "frozen-engine", work / "java_h2"
+    project = work / f"java_h2{suffix}"
+    if not (tree / ".git").exists() or not (base_project / "ai_agent_jobs").is_dir():
+        raise SystemExit(f"{work}: run `trial.py tickets {opts.trial}` first (frozen-engine, java_h2)")
+    if git(tree, "rev-parse", "HEAD") != t["system"]["engine_commit"] or git(tree, "status", "--porcelain"):
+        raise SystemExit(f"{tree} is not a clean checkout of the frozen engine")
+    estate = opts.estate_path.resolve()
+    cases = case_map(t["estate"])
+    missing = [k for k in t["eligible"] if k not in cases]
+    if missing:
+        raise SystemExit(f"no equivalence case for {missing}")
+    import equivalence as eq
+    import mainframe_corpus as mc
+
+    (entry,) = mc.select([t["estate"]])
+    corpus = mc.require_clone(entry)
+    flagged = frozenset(k for k in t["eligible"] if inlined_by_harness(eq.load_case(cases[k]), corpus))
+    print(f"harness-inlined programs (oracle differs without #8217): {len(flagged)}")
+    if backend != "det" and not project.exists():
+        # the tickets only: the det leg's port log and attempts must not be read as this leg's
+        shutil.copytree(base_project, project, symlinks=True, ignore=shutil.ignore_patterns("ports"))
+    # 1. propose: the frozen engine's translator (det: once, deterministic; a model: attempt 1, no feedback)
+    for key in t["eligible"]:
+        if any(e.get("ticket") == key for e in port_runner.events(project)):
+            continue
+        argv = [sys.executable, "-m", "gitgalaxy.tools.cobol_to_java.port_runner", "run", str(project), "--ticket", key,
+                "--backend", backend]  # fmt: skip
+        if backend == "det":
+            argv += ["--source-root", str(estate)]
+        else:
+            argv += ["--model", t["system"]["model"], "--api-key-env", opts.api_key_env]
+        proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=tree, env=_frozen_env(tree))  # noqa: S603
+        print((proc.stdout or proc.stderr).strip().splitlines()[-1:] or [key])
+    # 2. prove, per run, on a copy
+    summary: dict[str, Any] = {"trial": t["id"], "engine_commit": t["system"]["engine_commit"], "backend": backend,
+                               "harness_inlined": sorted(flagged), "runs": {}}  # fmt: skip
+    for run in opts.runs:
+        rproj = work / f"run{run}{suffix}"
+        if not rproj.exists():
+            shutil.copytree(project, rproj, symlinks=True)
+        inst = build_instrument(
+            opts.repo, work / f"instrument-{run}", t["system"]["harness_commit"] if run == "A" else None
+        )
+        for key in t["eligible"]:
+            if _verdict_count(rproj, key) or not any(e.get("ticket") == key and e.get("event") == "proposed"
+                                                      for e in port_runner.events(rproj)):  # fmt: skip
+                continue
+            cmd = (f"env PYTHONPATH={inst} {sys.executable} {inst}/tests/tools/equivalence.py run {cases[key]} "
+                   "--port {port_dir} --keep {report_dir}")  # fmt: skip
+            argv = [sys.executable, "-m", "gitgalaxy.tools.cobol_to_java.port_runner", "prove", str(rproj), "--ticket", key,
+                    "--command", cmd]  # fmt: skip
+            proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=REPO_ROOT,  # noqa: S603
+                                  env={**os.environ, "PYTHONPATH": str(REPO_ROOT)})  # fmt: skip
+            print(f"[{run}] {(proc.stdout or proc.stderr).strip().splitlines()[:1]}")
+        summary["runs"][run] = {"instrument": RUNS[run], **summarize_run(
+            port_runner.events(rproj), t["eligible"], flagged if run == "A" else frozenset())}  # fmt: skip
+    (work / f"run_summary{suffix}.json").write_text(
+        json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    for run, r in summary["runs"].items():
+        print(f"Run {run} ({r['instrument']}): {r['counts']}")
+    return 0
+
+
 # ---- CLI -------------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1303,23 +1769,63 @@ def main(argv: list[str] | None = None) -> int:
     pb_help = "proof_blockers.py --json: the programs with no translation yet, for the page"
     sy.add_argument("--case", action="append", help=cl_help)
     sy.add_argument("--proof-blockers", type=Path, help=pb_help)
+    rc = sub.add_parser("record", help="book a measured run whose port log was not kept (run B, with its fix commits)")
+    rc.add_argument("trial")
+    rc.add_argument("--summary", type=Path, required=True, help="the run's run_summary.json")
+    rc.add_argument("--run", default="B")
+    rc.add_argument(
+        "--fix", action="append", help="PROGRAM=cause:SHA, the commit that fixed a program run B did not prove"
+    )
+    rc.add_argument("--at", required=True, help="when the run was made (ISO 8601)")
     cl = sub.add_parser("close", help="end a trial: a program not proven gets its cause")
     cl.add_argument("trial")
     cl.add_argument("--cause", action="append", help=f"PROGRAM=cause ({'|'.join(CAUSES)})")
+    cl.add_argument("--withdrawn", metavar="REASON",
+                    help="end a trial whose proof phase never ran: a program with no attempt is withdrawn and "
+                         "left out of the first-try denominator, instead of counting as a failure")  # fmt: skip
     cl.add_argument("--case", action="append", help=cl_help)
     cl.add_argument("--proof-blockers", type=Path, help=pb_help)
     rp = sub.add_parser("report")
     rp.add_argument("--write", action="store_true")
     sub.add_parser("check")
+    vf = sub.add_parser("verify", help="re-check a trial's frozen system (read-only)")
+    vf.add_argument("trial")
+    vf.add_argument("--no-oracle", action="store_true", help="skip the oracle image check (no docker)")
+    vf.add_argument(
+        "--rebuild-oracle",
+        action="store_true",
+        help="also build the oracle Dockerfile fresh (docker, network) and compare it with the local image",
+    )
+    tk = sub.add_parser("tickets", help="regenerate a trial's tickets at its frozen engine and check them")
+    tk.add_argument("trial")
+    tk.add_argument("--estate-path", type=Path, required=True)
+    tk.add_argument("--work", type=Path, required=True, help="holds the frozen-engine worktree and the project")
+    rn = sub.add_parser("run", help="det port per eligible program at the frozen engine, proved under Run A and Run B")
+    rn.add_argument("trial")
+    rn.add_argument("--estate-path", type=Path, required=True)
+    rn.add_argument("--work", type=Path, required=True, help="the `tickets` work dir (frozen-engine, java_h2)")
+    rn.add_argument("--runs", default="A,B", type=lambda v: [x for x in v.split(",") if x in RUNS],
+                    help="which runs to prove: A (frozen harness), B (current main), default A,B")  # fmt: skip
+    rn.add_argument("--backend", choices=("det", "anthropic"), default="det",
+                    help="det (default) or the registered model leg, det-then-model: needs the key and spend")  # fmt: skip
+    rn.add_argument("--api-key-env", default="ANTHROPIC_API_KEY", help="the NAME of the variable holding the key")
     opts = ap.parse_args(argv)
+    if opts.cmd == "run":
+        return cmd_run(opts)
     if opts.cmd == "start":
         return cmd_start(opts)
     if opts.cmd == "preview":
         return cmd_preview(opts)
     if opts.cmd in ("sync", "attempt"):
         return cmd_sync(opts)
+    if opts.cmd == "record":
+        return cmd_record(opts)
     if opts.cmd == "close":
         return cmd_close(opts)
+    if opts.cmd == "verify":
+        return cmd_verify(opts)
+    if opts.cmd == "tickets":
+        return cmd_tickets(opts)
     ledger = load(opts.ledger)
     errors = validate(ledger)
     if errors:

@@ -317,7 +317,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|function|class|return|var|const|let|import", block=False)
+            commented_keyword_statement(
+                "function|class|return|var|const|let|import", block=False, paren_keywords="if|for|while"
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -329,7 +331,12 @@ DEFINITION: dict[str, Any] = {
         # last so a tag outside any doc block still counts. No corpus
         # movement -- the rosetta corpus only plants one of {marker, tag}
         # for this language.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"
+        ),
         # 14. test (Testing & Assertions)
         # (?<!\.) on the it|test alternation: TypeScript's near-identical rule
         # already carries this guard so `myRegex.test('x')` (a regex method
@@ -376,7 +383,7 @@ DEFINITION: dict[str, Any] = {
         # _shared_patterns.py. #2898 removed webgl (a renderer, not a peripheral).
         "hardware_bridge": JS_HARDWARE_BRIDGE,
         "cryptography": JS_CRYPTOGRAPHY,
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         "reflection_metaprogramming": re.compile(
             r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty)\b|\.(?:bind|call|apply)\("
         ),
@@ -466,7 +473,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\bconsole\.(?:log|warn|error|dir|trace|info|table|time)\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(Number|String|Boolean|BigInt|Symbol|Array\.from)\b\s*\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|process\.exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|Atomics\.wait)\b"),

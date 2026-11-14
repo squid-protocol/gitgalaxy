@@ -1,0 +1,3758 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cruc-pc-wizard",
+ "entry": {
+  "program": "PCWIZ",
+  "commit": "9a8b2ec83601358057953d0f1ca9243613d0f00b",
+  "date": "2026-11-13",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 699,
+  "out_of_scope": 6,
+  "chosen": 699,
+  "coverage": "proven on 8 scenarios, covering 5/5 paragraphs and 10/10 branches",
+  "counts": {
+   "killed": 259,
+   "timeout": 0,
+   "survived": 426,
+   "stillborn": 14,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "0012012440",
+   "009a432ab8",
+   "00ab100256",
+   "00ad74d04f",
+   "00f5c58edb",
+   "01ddc592f7",
+   "04f076a46d",
+   "0731effa65",
+   "07b99e5c2c",
+   "0a2a86c1d9",
+   "0a666909cf",
+   "0b137512fc",
+   "0bee08b552",
+   "0c8c35d742",
+   "0d521e3c06",
+   "0e01aae01c",
+   "0f8e59aefb",
+   "11d2b6c3b3",
+   "13dc3ca988",
+   "15147180a1",
+   "15fdcbacc2",
+   "16a361f622",
+   "1762cc3a56",
+   "1a6808a51b",
+   "1abe6609cd",
+   "1b009a921e",
+   "1b5ada26fb",
+   "1c15792b30",
+   "1d4a370630",
+   "1ed2003cc7",
+   "1ef272f90a",
+   "1f27cb27b4",
+   "1f4b8892e1",
+   "1fa85a5c6c",
+   "1fecdb9cc9",
+   "212c27f1b1",
+   "235be70174",
+   "235c0857da",
+   "23dd323dbb",
+   "243bfbfea7",
+   "247ab877fd",
+   "24f003f717",
+   "26e19bd538",
+   "273781a997",
+   "276952e917",
+   "2959dbf62c",
+   "2987ad649e",
+   "29931b8064",
+   "2afa9b83c4",
+   "2c0566109c",
+   "2d23970549",
+   "2d3e209ad6",
+   "2faf260cec",
+   "2fc7a44ad7",
+   "309fecfc23",
+   "32a7542ff3",
+   "3422608a53",
+   "369e627b48",
+   "3725d4067a",
+   "375b939bb2",
+   "38b56d9589",
+   "3999631a29",
+   "3d4fee197c",
+   "3e59ce7f00",
+   "3e7de3af0d",
+   "3ef1872f2b",
+   "3ef62316ee",
+   "3f122a2678",
+   "3fd1d221ea",
+   "405f224505",
+   "4124746391",
+   "413775b94a",
+   "434b021cf1",
+   "4771436b1e",
+   "4a28a5b30a",
+   "4e29fc3bf6",
+   "4e964bb785",
+   "4f4c9edf69",
+   "4f77e4c772",
+   "5008817377",
+   "504b402687",
+   "509c712b55",
+   "51d69c6df8",
+   "52bb061467",
+   "52fbb5e08d",
+   "549318df73",
+   "551f0fb648",
+   "555ca71de5",
+   "57c1718eaf",
+   "581380dfb8",
+   "5a8b06f021",
+   "5ae30dbc41",
+   "5b0ef8d281",
+   "5d5a8b5027",
+   "5ecdc492b4",
+   "5f00faf2f0",
+   "5ff8875c9f",
+   "6079c3950c",
+   "60e110420e",
+   "61218da453",
+   "64ddaa9e72",
+   "6734440337",
+   "673eb4663b",
+   "68b4d7dc58",
+   "692ec0f46b",
+   "69471fd966",
+   "6b86e8f543",
+   "6be3c31280",
+   "6c455bd916",
+   "6d00974867",
+   "6d14dddf6a",
+   "6da628cf69",
+   "6dfa418bfc",
+   "70f2030695",
+   "71045874ac",
+   "7186c956b7",
+   "719619ae4c",
+   "72a0e35320",
+   "72ca837428",
+   "738d4ff08c",
+   "748b29fd45",
+   "74f826071f",
+   "7549f0e108",
+   "78c039ade9",
+   "7afb8116d3",
+   "7becf62df2",
+   "7bfce12ed6",
+   "7c7e8dc43c",
+   "8001b3b7e9",
+   "80999dd840",
+   "80c8d4606c",
+   "82e4be9f36",
+   "8788f740d2",
+   "88213bdc09",
+   "89eafe991a",
+   "8a5c7d2dfa",
+   "8ac512c461",
+   "8bc8abf9dc",
+   "8d9be42557",
+   "8e6630a05b",
+   "8eccd2a490",
+   "8eee0c85a8",
+   "8f26cd0195",
+   "91b743d382",
+   "9226b553d1",
+   "9270e1f39e",
+   "9419b6c7b6",
+   "946c6f9892",
+   "94e435a4d7",
+   "9589ed311b",
+   "95d1928b5f",
+   "97e49a787f",
+   "9875067132",
+   "9904dd200c",
+   "99450ff685",
+   "99683c3849",
+   "9b7a2c40ef",
+   "9d5bfb72d5",
+   "9dac9e8d94",
+   "9ef1a621b0",
+   "9f4736486c",
+   "9f67019a9b",
+   "a080bdfba9",
+   "a0db8d267c",
+   "a13910ed8b",
+   "a1929da126",
+   "a23758e08c",
+   "a2597c9cfa",
+   "a2de03fa6e",
+   "a42371a341",
+   "a5df03bb11",
+   "a69175728c",
+   "ad666c48b4",
+   "adaa823337",
+   "ae5cc429d4",
+   "ae5d041831",
+   "afc65e80d7",
+   "afd18dfe06",
+   "b00f18745d",
+   "b1384a6df4",
+   "b2305aafaf",
+   "b36a14bf09",
+   "b4044ea8b0",
+   "b48ce6364b",
+   "b510952e8a",
+   "b5c20bf331",
+   "b5cccf1cec",
+   "b5d31a88db",
+   "b63a769ad5",
+   "b661c3ad6d",
+   "b679b2bcd2",
+   "b67d1a6a28",
+   "b7958687a8",
+   "b7bbdc5a2d",
+   "b927fdbd6c",
+   "b965fea17f",
+   "bb274d6e75",
+   "bbe1067e28",
+   "be7b5b7e54",
+   "bed7e30572",
+   "c023e28b38",
+   "c036eb4a11",
+   "c06db5b2c7",
+   "c0c03b5321",
+   "c2a3ac1b17",
+   "c2bf984d50",
+   "c5e126de35",
+   "c734bc48c0",
+   "c783e6d6c4",
+   "c8a15886e7",
+   "c9f509e3d1",
+   "caafcd866c",
+   "cb016de551",
+   "d028eee2fc",
+   "d06beed3f9",
+   "d08c4d094f",
+   "d0a68b879c",
+   "d289e1627f",
+   "d2b3363a95",
+   "d5cfd9843e",
+   "d73fcbe5e5",
+   "d7d971c02b",
+   "d828a9129f",
+   "d8cc5c3b8a",
+   "d95bd0ca95",
+   "d99f1a5b19",
+   "da5b9bec50",
+   "dc5ee3708a",
+   "dedcb450e0",
+   "df8770d6e8",
+   "e0f5669284",
+   "e174f4a646",
+   "e433bb4f3c",
+   "e4471e9297",
+   "e46a92c43f",
+   "e4a120b9c6",
+   "e4b062ec56",
+   "e51ddcb937",
+   "e7b22ff8ed",
+   "e8caa4ee6b",
+   "eb204037bf",
+   "ec225fb4b6",
+   "ec63ab86cb",
+   "ed10b9eedb",
+   "edc62cd5dc",
+   "ee00d0e65b",
+   "ef009497de",
+   "efbd402d0f",
+   "f1cbd7b9d3",
+   "f237631e81",
+   "f32a5578cb",
+   "f5a6291fa1",
+   "f5db9d4ac1",
+   "f98331dd70",
+   "fa504582dc",
+   "fa589b05ab",
+   "fc2d86504c",
+   "fcdd695b4a",
+   "fe0adf8bea"
+  ],
+  "stillborn": [
+   "0f71740895",
+   "18d298e59a",
+   "1dfc773bfb",
+   "2ada72d2d4",
+   "48c9b7fd0a",
+   "820c6b1dcf",
+   "86cfc3dd89",
+   "88246607a4",
+   "8ac64a867d",
+   "99a62cb7bf",
+   "a5deefb4ef",
+   "d77eaa7a84",
+   "d7edd0c827",
+   "e10e9b9a96"
+  ],
+  "survived": [
+   {
+    "id": "f8fa1a8b64",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 34,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "3c0cc8fb88",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 34,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "06d2a871a8",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 41,
+    "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "5689c77dae",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 43,
+    "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "77b2a47704",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 45,
+    "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "5311f69a59",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 47,
+    "before": "\"AH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
+    "after": "\"XH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));"
+   },
+   {
+    "id": "d6051fd743",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 49,
+    "before": "\"MCAgICAgICAgICAgICAgIAAAAAwAACAgICAgICAg\"));",
+    "after": "\"XCAgICAgICAgICAgICAgIAAAAAwAACAgICAgICAg\"));"
+   },
+   {
+    "id": "4e2d402406",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 51,
+    "before": "\"MDAwMDAwMA==\"));",
+    "after": "\"XDAwMDAwMA==\"));"
+   },
+   {
+    "id": "04fcb13703",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 55,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "46c24fbba7",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 57,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "e63df32821",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 59,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "a5d4bf0d95",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 72,
+    "before": "private final Field f3_NAMEL = Field.binary(s_PCM1I, 12, 4, 0, true, false);",
+    "after": "private final Field f3_NAMEL = Field.binary(s_PCM1I, 13, 4, 0, true, false);"
+   },
+   {
+    "id": "ba9da4c07d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 72,
+    "before": "private final Field f3_NAMEL = Field.binary(s_PCM1I, 12, 4, 0, true, false);",
+    "after": "private final Field f3_NAMEL = Field.binary(s_PCM1I, 12, 4, 1, true, false);"
+   },
+   {
+    "id": "70021fa563",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 73,
+    "before": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 14, 1, false);",
+    "after": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 15, 1, false);"
+   },
+   {
+    "id": "5dabf3a5fb",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 73,
+    "before": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 14, 1, false);",
+    "after": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 14, 2, false);"
+   },
+   {
+    "id": "008af333ef",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 74,
+    "before": "private final Field f7_NAMEI = Field.alphanumeric(s_PCM1I, 15, 15, false);",
+    "after": "private final Field f7_NAMEI = Field.alphanumeric(s_PCM1I, 16, 15, false);"
+   },
+   {
+    "id": "1bfde0d84e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 74,
+    "before": "private final Field f7_NAMEI = Field.alphanumeric(s_PCM1I, 15, 15, false);",
+    "after": "private final Field f7_NAMEI = Field.alphanumeric(s_PCM1I, 15, 16, false);"
+   },
+   {
+    "id": "5120774850",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 75,
+    "before": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 4, 0, true, false);",
+    "after": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 31, 4, 0, true, false);"
+   },
+   {
+    "id": "86fe9b2887",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 75,
+    "before": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 4, 0, true, false);",
+    "after": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 5, 0, true, false);"
+   },
+   {
+    "id": "5ef362f754",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 75,
+    "before": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 4, 0, true, false);",
+    "after": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 4, 1, true, false);"
+   },
+   {
+    "id": "01d970a0be",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 76,
+    "before": "private final Field f11_MSG1A = Field.alphanumeric(s_PCM1I, 32, 1, false);",
+    "after": "private final Field f11_MSG1A = Field.alphanumeric(s_PCM1I, 32, 2, false);"
+   },
+   {
+    "id": "5d137b4cab",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 77,
+    "before": "private final Field f12_MSG1I = Field.alphanumeric(s_PCM1I, 33, 40, false);",
+    "after": "private final Field f12_MSG1I = Field.alphanumeric(s_PCM1I, 34, 40, false);"
+   },
+   {
+    "id": "7a8d59c91d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 77,
+    "before": "private final Field f12_MSG1I = Field.alphanumeric(s_PCM1I, 33, 40, false);",
+    "after": "private final Field f12_MSG1I = Field.alphanumeric(s_PCM1I, 33, 41, false);"
+   },
+   {
+    "id": "1ed72c7507",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 79,
+    "before": "private final Field f16_NAMEO = Field.alphanumeric(s_PCM1I, 15, 15, false);",
+    "after": "private final Field f16_NAMEO = Field.alphanumeric(s_PCM1I, 16, 15, false);"
+   },
+   {
+    "id": "63efebbc7c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 79,
+    "before": "private final Field f16_NAMEO = Field.alphanumeric(s_PCM1I, 15, 15, false);",
+    "after": "private final Field f16_NAMEO = Field.alphanumeric(s_PCM1I, 15, 16, false);"
+   },
+   {
+    "id": "3911936968",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 81,
+    "before": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 4, 0, true, false);",
+    "after": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 13, 4, 0, true, false);"
+   },
+   {
+    "id": "ac67b2e744",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 81,
+    "before": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 4, 0, true, false);",
+    "after": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 5, 0, true, false);"
+   },
+   {
+    "id": "997033bb78",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 81,
+    "before": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 4, 0, true, false);",
+    "after": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 4, 1, true, false);"
+   },
+   {
+    "id": "22c94a7f3b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 82,
+    "before": "private final Field f24_NAMEOUTA = Field.alphanumeric(s_PCM2I, 14, 1, false);",
+    "after": "private final Field f24_NAMEOUTA = Field.alphanumeric(s_PCM2I, 14, 2, false);"
+   },
+   {
+    "id": "8b7773cfdd",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 83,
+    "before": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 4, 0, true, false);",
+    "after": "private final Field f26_AMTL = Field.binary(s_PCM2I, 31, 4, 0, true, false);"
+   },
+   {
+    "id": "17f2309942",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 83,
+    "before": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 4, 0, true, false);",
+    "after": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 5, 0, true, false);"
+   },
+   {
+    "id": "646a846d98",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 83,
+    "before": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 4, 0, true, false);",
+    "after": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 4, 1, true, false);"
+   },
+   {
+    "id": "1e37263238",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 84,
+    "before": "private final Field f29_AMTA = Field.alphanumeric(s_PCM2I, 32, 1, false);",
+    "after": "private final Field f29_AMTA = Field.alphanumeric(s_PCM2I, 32, 2, false);"
+   },
+   {
+    "id": "4761789e12",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 85,
+    "before": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 4, 0, true, false);",
+    "after": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 41, 4, 0, true, false);"
+   },
+   {
+    "id": "abc128d53b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 85,
+    "before": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 4, 0, true, false);",
+    "after": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 5, 0, true, false);"
+   },
+   {
+    "id": "c07a70b065",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 85,
+    "before": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 4, 0, true, false);",
+    "after": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 4, 1, true, false);"
+   },
+   {
+    "id": "415844e5eb",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 86,
+    "before": "private final Field f34_MSG2A = Field.alphanumeric(s_PCM2I, 42, 1, false);",
+    "after": "private final Field f34_MSG2A = Field.alphanumeric(s_PCM2I, 42, 2, false);"
+   },
+   {
+    "id": "d071b91649",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 88,
+    "before": "private final Field f39_NAMEOUTO = Field.alphanumeric(s_PCM2I, 15, 15, false);",
+    "after": "private final Field f39_NAMEOUTO = Field.alphanumeric(s_PCM2I, 16, 15, false);"
+   },
+   {
+    "id": "8846be2b11",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 88,
+    "before": "private final Field f39_NAMEOUTO = Field.alphanumeric(s_PCM2I, 15, 15, false);",
+    "after": "private final Field f39_NAMEOUTO = Field.alphanumeric(s_PCM2I, 15, 16, false);"
+   },
+   {
+    "id": "a705748365",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 89,
+    "before": "private final Field f41_AMTO = Field.alphanumeric(s_PCM2I, 33, 7, false);",
+    "after": "private final Field f41_AMTO = Field.alphanumeric(s_PCM2I, 34, 7, false);"
+   },
+   {
+    "id": "4a6996f953",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 89,
+    "before": "private final Field f41_AMTO = Field.alphanumeric(s_PCM2I, 33, 7, false);",
+    "after": "private final Field f41_AMTO = Field.alphanumeric(s_PCM2I, 33, 8, false);"
+   },
+   {
+    "id": "df6578635d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 91,
+    "before": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
+    "after": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 1, 1, false);"
+   },
+   {
+    "id": "53eb161b6e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 91,
+    "before": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
+    "after": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 2, false);"
+   },
+   {
+    "id": "13c68d3fe0",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 92,
+    "before": "private final Field f71_DFHENTER = Field.alphanumeric(s_DFHAID, 1, 1, false);",
+    "after": "private final Field f71_DFHENTER = Field.alphanumeric(s_DFHAID, 1, 2, false);"
+   },
+   {
+    "id": "c51b6b60cb",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 93,
+    "before": "private final Field f72_DFHCLEAR = Field.alphanumeric(s_DFHAID, 2, 1, false);",
+    "after": "private final Field f72_DFHCLEAR = Field.alphanumeric(s_DFHAID, 3, 1, false);"
+   },
+   {
+    "id": "ae07a0354d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 94,
+    "before": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 3, 1, false);",
+    "after": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 4, 1, false);"
+   },
+   {
+    "id": "e95efd2b40",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 94,
+    "before": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 3, 1, false);",
+    "after": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 3, 2, false);"
+   },
+   {
+    "id": "95b9042bf8",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 95,
+    "before": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 4, 1, false);",
+    "after": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 5, 1, false);"
+   },
+   {
+    "id": "0c289a80c2",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 95,
+    "before": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 4, 1, false);",
+    "after": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 4, 2, false);"
+   },
+   {
+    "id": "62960877d4",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 96,
+    "before": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 5, 1, false);",
+    "after": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 6, 1, false);"
+   },
+   {
+    "id": "bb807ada7c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 96,
+    "before": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 5, 1, false);",
+    "after": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 5, 2, false);"
+   },
+   {
+    "id": "9b8e1a8610",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 97,
+    "before": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 6, 1, false);",
+    "after": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 7, 1, false);"
+   },
+   {
+    "id": "00208a8ec4",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 97,
+    "before": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 6, 1, false);",
+    "after": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 6, 2, false);"
+   },
+   {
+    "id": "c8006786ab",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 98,
+    "before": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 7, 1, false);",
+    "after": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 8, 1, false);"
+   },
+   {
+    "id": "d3dd41c971",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 98,
+    "before": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 7, 1, false);",
+    "after": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 7, 2, false);"
+   },
+   {
+    "id": "24b890c7ab",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 99,
+    "before": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 8, 1, false);",
+    "after": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 9, 1, false);"
+   },
+   {
+    "id": "9653712544",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 99,
+    "before": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 8, 1, false);",
+    "after": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 8, 2, false);"
+   },
+   {
+    "id": "36240fb41a",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 100,
+    "before": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 9, 1, false);",
+    "after": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 10, 1, false);"
+   },
+   {
+    "id": "1f171a4768",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 100,
+    "before": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 9, 1, false);",
+    "after": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 9, 2, false);"
+   },
+   {
+    "id": "0006c1e8f3",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 101,
+    "before": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 10, 1, false);",
+    "after": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 11, 1, false);"
+   },
+   {
+    "id": "12db5a47cf",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 101,
+    "before": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 10, 1, false);",
+    "after": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 10, 2, false);"
+   },
+   {
+    "id": "ec67ff8cfc",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 102,
+    "before": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 1, false);",
+    "after": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);"
+   },
+   {
+    "id": "78b4b5eeed",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 102,
+    "before": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 1, false);",
+    "after": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 2, false);"
+   },
+   {
+    "id": "82a763c1a3",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 103,
+    "before": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+    "after": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 1, false);"
+   },
+   {
+    "id": "d494ba24c7",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 103,
+    "before": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+    "after": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 2, false);"
+   },
+   {
+    "id": "5d05a5600e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 104,
+    "before": "private final Field f83_DFHPF3 = Field.alphanumeric(s_DFHAID, 13, 1, false);",
+    "after": "private final Field f83_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);"
+   },
+   {
+    "id": "4f18b5b9ec",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 105,
+    "before": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
+    "after": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 15, 1, false);"
+   },
+   {
+    "id": "e52440674b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 105,
+    "before": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
+    "after": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 14, 2, false);"
+   },
+   {
+    "id": "f7038f06f4",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 106,
+    "before": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
+    "after": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 16, 1, false);"
+   },
+   {
+    "id": "f90a6f6628",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 106,
+    "before": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
+    "after": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 15, 2, false);"
+   },
+   {
+    "id": "5691cd195e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 107,
+    "before": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
+    "after": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 17, 1, false);"
+   },
+   {
+    "id": "23fa32a256",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 107,
+    "before": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
+    "after": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);"
+   },
+   {
+    "id": "694761cae8",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 108,
+    "before": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 17, 1, false);",
+    "after": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 18, 1, false);"
+   },
+   {
+    "id": "419bd7c7e1",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 108,
+    "before": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 17, 1, false);",
+    "after": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 17, 2, false);"
+   },
+   {
+    "id": "52bbeddf1e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 109,
+    "before": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 18, 1, false);",
+    "after": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 19, 1, false);"
+   },
+   {
+    "id": "76e2aaf015",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 109,
+    "before": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 18, 1, false);",
+    "after": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 18, 2, false);"
+   },
+   {
+    "id": "718cfd1e7c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 110,
+    "before": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 1, false);",
+    "after": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 20, 1, false);"
+   },
+   {
+    "id": "16040f420c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 110,
+    "before": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 1, false);",
+    "after": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 2, false);"
+   },
+   {
+    "id": "327ce1f0bc",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 111,
+    "before": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 20, 1, false);",
+    "after": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 21, 1, false);"
+   },
+   {
+    "id": "44c2120c22",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 111,
+    "before": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 20, 1, false);",
+    "after": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 20, 2, false);"
+   },
+   {
+    "id": "c4ab93fbe5",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 112,
+    "before": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 21, 1, false);",
+    "after": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 22, 1, false);"
+   },
+   {
+    "id": "e37c4babfa",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 112,
+    "before": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 21, 1, false);",
+    "after": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 21, 2, false);"
+   },
+   {
+    "id": "121efdf070",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 113,
+    "before": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
+    "after": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);"
+   },
+   {
+    "id": "66c7e64edf",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 113,
+    "before": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
+    "after": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 22, 2, false);"
+   },
+   {
+    "id": "5c3c023d33",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 114,
+    "before": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+    "after": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 24, 1, false);"
+   },
+   {
+    "id": "2c721a9a00",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 114,
+    "before": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+    "after": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 23, 2, false);"
+   },
+   {
+    "id": "b7caa1c9a3",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 115,
+    "before": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 24, 1, false);",
+    "after": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 25, 1, false);"
+   },
+   {
+    "id": "7ad0cd3917",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 115,
+    "before": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 24, 1, false);",
+    "after": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 24, 2, false);"
+   },
+   {
+    "id": "fe353ac756",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 116,
+    "before": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 25, 1, false);",
+    "after": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 26, 1, false);"
+   },
+   {
+    "id": "4572a931c2",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 116,
+    "before": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 25, 1, false);",
+    "after": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 25, 2, false);"
+   },
+   {
+    "id": "1189d13f9b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 117,
+    "before": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 26, 1, false);",
+    "after": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 27, 1, false);"
+   },
+   {
+    "id": "a77b3f891c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 117,
+    "before": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 26, 1, false);",
+    "after": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 26, 2, false);"
+   },
+   {
+    "id": "3a4f1eb760",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 118,
+    "before": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 27, 1, false);",
+    "after": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 28, 1, false);"
+   },
+   {
+    "id": "c28a26d330",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 118,
+    "before": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 27, 1, false);",
+    "after": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 27, 2, false);"
+   },
+   {
+    "id": "2be9c30a82",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 119,
+    "before": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+    "after": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 29, 1, false);"
+   },
+   {
+    "id": "cdf89c6ed9",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 119,
+    "before": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+    "after": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 28, 2, false);"
+   },
+   {
+    "id": "e69751a777",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 120,
+    "before": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+    "after": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 30, 1, false);"
+   },
+   {
+    "id": "d86b9169b1",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 120,
+    "before": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+    "after": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 29, 2, false);"
+   },
+   {
+    "id": "84a1e802c9",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 121,
+    "before": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 30, 1, false);",
+    "after": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 31, 1, false);"
+   },
+   {
+    "id": "5121b801f0",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 121,
+    "before": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 30, 1, false);",
+    "after": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 30, 2, false);"
+   },
+   {
+    "id": "3f70e91e10",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 122,
+    "before": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 31, 1, false);",
+    "after": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 32, 1, false);"
+   },
+   {
+    "id": "ec925b7f17",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 122,
+    "before": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 31, 1, false);",
+    "after": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 31, 2, false);"
+   },
+   {
+    "id": "03fa20db8c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 123,
+    "before": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 32, 1, false);",
+    "after": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 33, 1, false);"
+   },
+   {
+    "id": "a6d4410660",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 123,
+    "before": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 32, 1, false);",
+    "after": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 32, 2, false);"
+   },
+   {
+    "id": "60600e2067",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 124,
+    "before": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 33, 1, false);",
+    "after": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 34, 1, false);"
+   },
+   {
+    "id": "896e025a11",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 124,
+    "before": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 33, 1, false);",
+    "after": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 33, 2, false);"
+   },
+   {
+    "id": "7663b3f6ae",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 125,
+    "before": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 1, false);",
+    "after": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 35, 1, false);"
+   },
+   {
+    "id": "5fdb820f0e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 125,
+    "before": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 1, false);",
+    "after": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 2, false);"
+   },
+   {
+    "id": "095a819488",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 131,
+    "before": "private final Field f110_PC_BACK = Field.alphanumeric(s_WS_STATE, 22, 1, false);",
+    "after": "private final Field f110_PC_BACK = Field.alphanumeric(s_WS_STATE, 22, 2, false);"
+   },
+   {
+    "id": "cf84f77301",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 135,
+    "before": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "79c26875e4",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 135,
+    "before": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "7e0b621fd1",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 135,
+    "before": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "473f0ae4b9",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 136,
+    "before": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
+    "id": "312c438217",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 136,
+    "before": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "1676948f24",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 136,
+    "before": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "16980844ef",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 137,
+    "before": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "81907d4687",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 137,
+    "before": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "e8ce5ca940",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 138,
+    "before": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "769fc4cb6d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 138,
+    "before": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "d322e747bb",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 138,
+    "before": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "406be097d3",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 139,
+    "before": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "c6a5b5a996",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 139,
+    "before": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "09a1eb4102",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 140,
+    "before": "private final Field f125_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f125_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "30830ebe9b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 141,
+    "before": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+    "after": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);"
+   },
+   {
+    "id": "5f21babf4f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 141,
+    "before": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+    "after": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);"
+   },
+   {
+    "id": "664efc0c81",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 142,
+    "before": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);"
+   },
+   {
+    "id": "21dcd4448a",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 142,
+    "before": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "88928c3ced",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 142,
+    "before": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "310db5cd71",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 143,
+    "before": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "e7cd6be82f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 143,
+    "before": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "aa94e3b722",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 143,
+    "before": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "b857d1647c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 144,
+    "before": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "61ba83fcee",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 144,
+    "before": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "c7b41b03ea",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 144,
+    "before": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "fc209c57c7",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 157,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "6374be72d0",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 157,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "3ed0a4a67e",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 157,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "5d42ef5332",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 157,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "db44977224",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 158,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "62e0922b78",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 163,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "251f3c30b4",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 165,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "f59c8b2465",
+    "op": "COR",
+    "file": "service/PcwizService.java",
+    "line": 165,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "da7c06cd0e",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 168,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "3190337e2c",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 168,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "f6978ec2a5",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 172,
+    "before": "java.util.Map.entry(\"CANCEL-WIZARD\", 4),",
+    "after": "java.util.Map.entry(\"XANCEL-WIZARD\", 4),"
+   },
+   {
+    "id": "9be6d1856c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 172,
+    "before": "java.util.Map.entry(\"CANCEL-WIZARD\", 4),",
+    "after": "java.util.Map.entry(\"CANCEL-WIZARD\", 5),"
+   },
+   {
+    "id": "6c2751eb87",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 173,
+    "before": "java.util.Map.entry(\"SEND-STEP2\", 3),",
+    "after": "java.util.Map.entry(\"XEND-STEP2\", 3),"
+   },
+   {
+    "id": "df6bc30294",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 173,
+    "before": "java.util.Map.entry(\"SEND-STEP2\", 3),",
+    "after": "java.util.Map.entry(\"SEND-STEP2\", 4),"
+   },
+   {
+    "id": "dfc3c3c736",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 174,
+    "before": "java.util.Map.entry(\"SEND-STEP1\", 2),",
+    "after": "java.util.Map.entry(\"XEND-STEP1\", 2),"
+   },
+   {
+    "id": "e70d97a418",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 174,
+    "before": "java.util.Map.entry(\"SEND-STEP1\", 2),",
+    "after": "java.util.Map.entry(\"SEND-STEP1\", 3),"
+   },
+   {
+    "id": "4ba2f14f1f",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 175,
+    "before": "java.util.Map.entry(\"TAKE-NAME\", 1),",
+    "after": "java.util.Map.entry(\"XAKE-NAME\", 1),"
+   },
+   {
+    "id": "38d4a620dc",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 175,
+    "before": "java.util.Map.entry(\"TAKE-NAME\", 1),",
+    "after": "java.util.Map.entry(\"TAKE-NAME\", 2),"
+   },
+   {
+    "id": "384be6199b",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 176,
+    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+    "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
+   },
+   {
+    "id": "6d3fa15e39",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 176,
+    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
+   },
+   {
+    "id": "14386baa84",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 181,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "c8c5e86bfe",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 181,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "52f676c614",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 182,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "43e723f928",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 194,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "7cdf1e974e",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 194,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "cb0aabfcf2",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 197,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "c3c83a9748",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 198,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "4367916c50",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 200,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "c9e7a6f1f3",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 201,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "4472471cea",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 201,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "fcef66c196",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 205,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "d934eb4130",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 205,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "361ad2cb0b",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 217,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "b955b8f06b",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 219,
+    "before": "Cobol.move(d.getPcStep() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcStep().toString()), Field.zoned(s, base + 0, 1, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getPcStep() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcStep().toString()), Field.zoned(s, base - 0, 1, 0, false, false, false), CS);"
+   },
+   {
+    "id": "4da7a5aeca",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 220,
+    "before": "Cobol.move(d.getPcName() == null ? \"\" : d.getPcName(), Field.alphanumeric(s, base + 1, 15, false), CS);",
+    "after": "Cobol.move(d.getPcName() == null ? \"\" : d.getPcName(), Field.alphanumeric(s, base + 1, 16, false), CS);"
+   },
+   {
+    "id": "e413363439",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 222,
+    "before": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);",
+    "after": "Cobol.move(d.getPcErrors() != null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);"
+   },
+   {
+    "id": "58fadaec79",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 222,
+    "before": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);",
+    "after": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 5, 0, true, false), CS);"
+   },
+   {
+    "id": "00ae99670f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 222,
+    "before": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);",
+    "after": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 1, true, false), CS);"
+   },
+   {
+    "id": "a9bd9d064f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 223,
+    "before": "Cobol.move(d.getPcBack() == null ? \"\" : d.getPcBack(), Field.alphanumeric(s, base + 22, 1, false), CS);",
+    "after": "Cobol.move(d.getPcBack() == null ? \"\" : d.getPcBack(), Field.alphanumeric(s, base + 22, 2, false), CS);"
+   },
+   {
+    "id": "0bea17eaea",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 224,
+    "before": "Cobol.move(d.getPcSpare() == null ? \"\" : d.getPcSpare(), Field.alphanumeric(s, base + 23, 7, false), CS);",
+    "after": "Cobol.move(d.getPcSpare() != null ? \"\" : d.getPcSpare(), Field.alphanumeric(s, base + 23, 7, false), CS);"
+   },
+   {
+    "id": "0e0074d51b",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 228,
+    "before": "d.setPcStep(Cobol.num(Field.zoned(s, base + 0, 1, 0, false, false, false), CS).intValue());",
+    "after": "d.setPcStep(Cobol.num(Field.zoned(s, base - 0, 1, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "745ca48d8e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 232,
+    "before": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 1, false), CS));",
+    "after": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 2, false), CS));"
+   },
+   {
+    "id": "63e2da7e37",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 233,
+    "before": "d.setPcSpare(Cobol.text(Field.alphanumeric(s, base + 23, 7, false), CS));",
+    "after": "/* d.setPcSpare(Cobol.text(Field.alphanumeric(s, base + 23, 7, false), CS)); */"
+   },
+   {
+    "id": "45afc1287b",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 244,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
+   },
+   {
+    "id": "a484c2e812",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 244,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
+   },
+   {
+    "id": "d19e4429aa",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 245,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
+   },
+   {
+    "id": "3230af6782",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 245,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "96fd66564d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 245,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "ad63b6ef14",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 246,
+    "before": "s_DFHCOMMAREA.bytes = whole;",
+    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
+   },
+   {
+    "id": "3b13ca3cef",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 257,
+    "before": "System.arraycopy(IMAGE_s_PCM1I, 0, s_PCM1I.bytes, 0, IMAGE_s_PCM1I.length);",
+    "after": "/* System.arraycopy(IMAGE_s_PCM1I, 0, s_PCM1I.bytes, 0, IMAGE_s_PCM1I.length); */"
+   },
+   {
+    "id": "2c83552ef1",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 258,
+    "before": "System.arraycopy(IMAGE_s_PCM2I, 0, s_PCM2I.bytes, 0, IMAGE_s_PCM2I.length);",
+    "after": "/* System.arraycopy(IMAGE_s_PCM2I, 0, s_PCM2I.bytes, 0, IMAGE_s_PCM2I.length); */"
+   },
+   {
+    "id": "57807bd3fa",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 259,
+    "before": "System.arraycopy(IMAGE_s_PCM3I, 0, s_PCM3I.bytes, 0, IMAGE_s_PCM3I.length);",
+    "after": "/* System.arraycopy(IMAGE_s_PCM3I, 0, s_PCM3I.bytes, 0, IMAGE_s_PCM3I.length); */"
+   },
+   {
+    "id": "03cc70a662",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 261,
+    "before": "System.arraycopy(IMAGE_s_WS_STATE, 0, s_WS_STATE.bytes, 0, IMAGE_s_WS_STATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_STATE, 0, s_WS_STATE.bytes, 0, IMAGE_s_WS_STATE.length); */"
+   },
+   {
+    "id": "57f5464768",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 262,
+    "before": "System.arraycopy(IMAGE_s_WS_AMT_DIGITS, 0, s_WS_AMT_DIGITS.bytes, 0, IMAGE_s_WS_AMT_DIGITS.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_AMT_DIGITS, 0, s_WS_AMT_DIGITS.bytes, 0, IMAGE_s_WS_AMT_DIGITS.length); */"
+   },
+   {
+    "id": "13f3932044",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 264,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
+    "id": "389c84e2fe",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 265,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "a5283c3741",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 266,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "3909a4608c",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 267,
+    "before": "f112_WS_RESP = 0L;",
+    "after": "/* f112_WS_RESP = 0L; */"
+   },
+   {
+    "id": "69d17c76de",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 268,
+    "before": "f113_WS_MSG = \"                                        \";",
+    "after": "f113_WS_MSG = \"X                                       \";"
+   },
+   {
+    "id": "7a7d0919f7",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 269,
+    "before": "DC_100.reset();",
+    "after": "/* DC_100.reset(); */"
+   },
+   {
+    "id": "5d44122521",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 291,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "84dfecfbf9",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 292,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "3fb43c14a0",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 293,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "37333520b2",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 295,
+    "before": "Cobol.move(task.transid(), f120_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f120_EIBTRNID, CS); */"
+   },
+   {
+    "id": "2b463acc13",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 297,
+    "before": "Cobol.store(f121_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f121_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "e9115a9b23",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 299,
+    "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "c43fd2192d",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 299,
+    "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "853cf6cc48",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 299,
+    "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "74eded9fe0",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 299,
+    "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "430ebdbd96",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 299,
+    "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "ec9d970496",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 300,
+    "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
+   },
+   {
+    "id": "a76df7170b",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 300,
+    "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "2291691c22",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 300,
+    "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "6aca195360",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 300,
+    "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "484fa95a35",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 300,
+    "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "7eb1ac6a90",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 302,
+    "before": "case \"NULL\" -> Cobol.move(f70_DFHNULL, f126_EIBAID, CS);",
+    "after": "case \"XULL\" -> Cobol.move(f70_DFHNULL, f126_EIBAID, CS);"
+   },
+   {
+    "id": "2dd0c24214",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 303,
+    "before": "case \"ENTER\" -> Cobol.move(f71_DFHENTER, f126_EIBAID, CS);",
+    "after": "case \"XNTER\" -> Cobol.move(f71_DFHENTER, f126_EIBAID, CS);"
+   },
+   {
+    "id": "e7733729ee",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 305,
+    "before": "case \"PEN\" -> Cobol.move(f73_DFHPEN, f126_EIBAID, CS);",
+    "after": "case \"XEN\" -> Cobol.move(f73_DFHPEN, f126_EIBAID, CS);"
+   },
+   {
+    "id": "110acd0175",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 306,
+    "before": "case \"OPID\" -> Cobol.move(f74_DFHOPID, f126_EIBAID, CS);",
+    "after": "case \"XPID\" -> Cobol.move(f74_DFHOPID, f126_EIBAID, CS);"
+   },
+   {
+    "id": "d2f4a72669",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 307,
+    "before": "case \"MSRE\" -> Cobol.move(f75_DFHMSRE, f126_EIBAID, CS);",
+    "after": "case \"XSRE\" -> Cobol.move(f75_DFHMSRE, f126_EIBAID, CS);"
+   },
+   {
+    "id": "86287f4b13",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 308,
+    "before": "case \"STRF\" -> Cobol.move(f76_DFHSTRF, f126_EIBAID, CS);",
+    "after": "case \"XTRF\" -> Cobol.move(f76_DFHSTRF, f126_EIBAID, CS);"
+   },
+   {
+    "id": "9f6c8c8f5b",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 309,
+    "before": "case \"TRIG\" -> Cobol.move(f77_DFHTRIG, f126_EIBAID, CS);",
+    "after": "case \"XRIG\" -> Cobol.move(f77_DFHTRIG, f126_EIBAID, CS);"
+   },
+   {
+    "id": "de293f29f7",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 310,
+    "before": "case \"PA1\" -> Cobol.move(f78_DFHPA1, f126_EIBAID, CS);",
+    "after": "case \"XA1\" -> Cobol.move(f78_DFHPA1, f126_EIBAID, CS);"
+   },
+   {
+    "id": "8eb1940e41",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 311,
+    "before": "case \"PA2\" -> Cobol.move(f79_DFHPA2, f126_EIBAID, CS);",
+    "after": "case \"XA2\" -> Cobol.move(f79_DFHPA2, f126_EIBAID, CS);"
+   },
+   {
+    "id": "80e075dc61",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 312,
+    "before": "case \"PA3\" -> Cobol.move(f80_DFHPA3, f126_EIBAID, CS);",
+    "after": "case \"XA3\" -> Cobol.move(f80_DFHPA3, f126_EIBAID, CS);"
+   },
+   {
+    "id": "f1c80aeb79",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 313,
+    "before": "case \"PF1\" -> Cobol.move(f81_DFHPF1, f126_EIBAID, CS);",
+    "after": "case \"XF1\" -> Cobol.move(f81_DFHPF1, f126_EIBAID, CS);"
+   },
+   {
+    "id": "f653288239",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 314,
+    "before": "case \"PF2\" -> Cobol.move(f82_DFHPF2, f126_EIBAID, CS);",
+    "after": "case \"XF2\" -> Cobol.move(f82_DFHPF2, f126_EIBAID, CS);"
+   },
+   {
+    "id": "05e07072ee",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 316,
+    "before": "case \"PF4\" -> Cobol.move(f84_DFHPF4, f126_EIBAID, CS);",
+    "after": "case \"XF4\" -> Cobol.move(f84_DFHPF4, f126_EIBAID, CS);"
+   },
+   {
+    "id": "df5ea01d4a",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 317,
+    "before": "case \"PF5\" -> Cobol.move(f85_DFHPF5, f126_EIBAID, CS);",
+    "after": "case \"XF5\" -> Cobol.move(f85_DFHPF5, f126_EIBAID, CS);"
+   },
+   {
+    "id": "1ab46e6387",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 318,
+    "before": "case \"PF6\" -> Cobol.move(f86_DFHPF6, f126_EIBAID, CS);",
+    "after": "case \"XF6\" -> Cobol.move(f86_DFHPF6, f126_EIBAID, CS);"
+   },
+   {
+    "id": "b44ed5999b",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 319,
+    "before": "case \"PF7\" -> Cobol.move(f87_DFHPF7, f126_EIBAID, CS);",
+    "after": "case \"XF7\" -> Cobol.move(f87_DFHPF7, f126_EIBAID, CS);"
+   },
+   {
+    "id": "fb87bd7769",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 320,
+    "before": "case \"PF8\" -> Cobol.move(f88_DFHPF8, f126_EIBAID, CS);",
+    "after": "case \"XF8\" -> Cobol.move(f88_DFHPF8, f126_EIBAID, CS);"
+   },
+   {
+    "id": "1a0c06f88f",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 321,
+    "before": "case \"PF9\" -> Cobol.move(f89_DFHPF9, f126_EIBAID, CS);",
+    "after": "case \"XF9\" -> Cobol.move(f89_DFHPF9, f126_EIBAID, CS);"
+   },
+   {
+    "id": "ae2099629c",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 322,
+    "before": "case \"PF10\" -> Cobol.move(f90_DFHPF10, f126_EIBAID, CS);",
+    "after": "case \"XF10\" -> Cobol.move(f90_DFHPF10, f126_EIBAID, CS);"
+   },
+   {
+    "id": "826a004b24",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 323,
+    "before": "case \"PF11\" -> Cobol.move(f91_DFHPF11, f126_EIBAID, CS);",
+    "after": "case \"XF11\" -> Cobol.move(f91_DFHPF11, f126_EIBAID, CS);"
+   },
+   {
+    "id": "ee52b3cd78",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 324,
+    "before": "case \"PF12\" -> Cobol.move(f92_DFHPF12, f126_EIBAID, CS);",
+    "after": "case \"XF12\" -> Cobol.move(f92_DFHPF12, f126_EIBAID, CS);"
+   },
+   {
+    "id": "dc3d39f638",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 325,
+    "before": "case \"PF13\" -> Cobol.move(f93_DFHPF13, f126_EIBAID, CS);",
+    "after": "case \"XF13\" -> Cobol.move(f93_DFHPF13, f126_EIBAID, CS);"
+   },
+   {
+    "id": "625f4d5729",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 326,
+    "before": "case \"PF14\" -> Cobol.move(f94_DFHPF14, f126_EIBAID, CS);",
+    "after": "case \"XF14\" -> Cobol.move(f94_DFHPF14, f126_EIBAID, CS);"
+   },
+   {
+    "id": "f7285995af",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 327,
+    "before": "case \"PF15\" -> Cobol.move(f95_DFHPF15, f126_EIBAID, CS);",
+    "after": "case \"XF15\" -> Cobol.move(f95_DFHPF15, f126_EIBAID, CS);"
+   },
+   {
+    "id": "9c3e65aeb1",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 328,
+    "before": "case \"PF16\" -> Cobol.move(f96_DFHPF16, f126_EIBAID, CS);",
+    "after": "case \"XF16\" -> Cobol.move(f96_DFHPF16, f126_EIBAID, CS);"
+   },
+   {
+    "id": "b96381545c",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 329,
+    "before": "case \"PF17\" -> Cobol.move(f97_DFHPF17, f126_EIBAID, CS);",
+    "after": "case \"XF17\" -> Cobol.move(f97_DFHPF17, f126_EIBAID, CS);"
+   },
+   {
+    "id": "411373f3b8",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 330,
+    "before": "case \"PF18\" -> Cobol.move(f98_DFHPF18, f126_EIBAID, CS);",
+    "after": "case \"XF18\" -> Cobol.move(f98_DFHPF18, f126_EIBAID, CS);"
+   },
+   {
+    "id": "d10a30d6e0",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 331,
+    "before": "case \"PF19\" -> Cobol.move(f99_DFHPF19, f126_EIBAID, CS);",
+    "after": "case \"XF19\" -> Cobol.move(f99_DFHPF19, f126_EIBAID, CS);"
+   },
+   {
+    "id": "6d5ff9bd20",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 332,
+    "before": "case \"PF20\" -> Cobol.move(f100_DFHPF20, f126_EIBAID, CS);",
+    "after": "case \"XF20\" -> Cobol.move(f100_DFHPF20, f126_EIBAID, CS);"
+   },
+   {
+    "id": "2bb6c6a3c3",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 333,
+    "before": "case \"PF21\" -> Cobol.move(f101_DFHPF21, f126_EIBAID, CS);",
+    "after": "case \"XF21\" -> Cobol.move(f101_DFHPF21, f126_EIBAID, CS);"
+   },
+   {
+    "id": "33c2f32bfe",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 334,
+    "before": "case \"PF22\" -> Cobol.move(f102_DFHPF22, f126_EIBAID, CS);",
+    "after": "case \"XF22\" -> Cobol.move(f102_DFHPF22, f126_EIBAID, CS);"
+   },
+   {
+    "id": "5e648d1880",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 335,
+    "before": "case \"PF23\" -> Cobol.move(f103_DFHPF23, f126_EIBAID, CS);",
+    "after": "case \"XF23\" -> Cobol.move(f103_DFHPF23, f126_EIBAID, CS);"
+   },
+   {
+    "id": "1ab1f66df4",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 336,
+    "before": "case \"PF24\" -> Cobol.move(f104_DFHPF24, f126_EIBAID, CS);",
+    "after": "case \"XF24\" -> Cobol.move(f104_DFHPF24, f126_EIBAID, CS);"
+   },
+   {
+    "id": "d410b5ddaf",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 343,
+    "before": "caBack = () -> fill_PcwizWsState(x, s_DFHCOMMAREA, 0);",
+    "after": "/* caBack = () -> fill_PcwizWsState(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "25ffc23336",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 344,
+    "before": "calen = cx(task, 30);",
+    "after": "calen = cx(task, 31);"
+   },
+   {
+    "id": "df694ede24",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 346,
+    "before": "s_DFHCOMMAREA.beyond = null;",
+    "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "ddafb48733",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 349,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "063d2a9f28",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 349,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "08214c375e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 349,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "39556da93a",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 350,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "a6f6a8d14b",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 350,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "58229443f9",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 350,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "79e056fda9",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 351,
+    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
+   },
+   {
+    "id": "c212acf8e0",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 353,
+    "before": "calen = cx(task, cb.length);",
+    "after": "/* calen = cx(task, cb.length); */"
+   },
+   {
+    "id": "9ab7f29f0d",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 357,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "80d44752a8",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 357,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "9ac38d3387",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 357,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "a2f909c777",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 359,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
+   },
+   {
+    "id": "a3cea0f97d",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 359,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
+   },
+   {
+    "id": "eea66f0829",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 359,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
+   },
+   {
+    "id": "2e441dcee8",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */"
+   },
+   {
+    "id": "a367f6d541",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
+   },
+   {
+    "id": "890dacd678",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
+   },
+   {
+    "id": "a076d1d13f",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
+   },
+   {
+    "id": "7b625e3dd6",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
+   },
+   {
+    "id": "798191b540",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
+   },
+   {
+    "id": "ae31b44e2b",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 361,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
+   },
+   {
+    "id": "affd15176f",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 364,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "66c8211b42",
+    "op": "COR",
+    "file": "service/PcwizService.java",
+    "line": 364,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "93ce1b9802",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 364,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "b5731d35ed",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 364,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "8c9d75de84",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 365,
+    "before": "caWhole = s_DFHCOMMAREA.bytes;",
+    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
+   },
+   {
+    "id": "993bbef0a8",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 366,
+    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "17929aa25b",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 369,
+    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
+   },
+   {
+    "id": "f94936b468",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 374,
+    "before": "perform(0, 4);",
+    "after": "perform(0, 5);"
+   },
+   {
+    "id": "e8707d614f",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 379,
+    "before": "if (caWhole == null) {",
+    "after": "if (!(caWhole == null)) {"
+   },
+   {
+    "id": "66cceb63fb",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 379,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
+    "id": "a0142ed83a",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 382,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
+   },
+   {
+    "id": "4de712911d",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 382,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
+   },
+   {
+    "id": "e0cfbfe836",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 385,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
+   },
+   {
+    "id": "7964c87a1b",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 389,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "c581ebeb98",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 393,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "187c4ea75a",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 394,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "bf45ba4b93",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 401,
+    "before": "region.run(task, \"PCWIZ\", this::runTask);",
+    "after": "region.run(task, \"XCWIZ\", this::runTask);"
+   },
+   {
+    "id": "57df6fe4c9",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 415,
+    "before": "CicsTask task = region.linked(\"PCWIZ\", request);",
+    "after": "CicsTask task = region.linked(\"XCWIZ\", request);"
+   },
+   {
+    "id": "2a76575dc8",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 416,
+    "before": "region.run(task, \"PCWIZ\", this::runTask);",
+    "after": "region.run(task, \"XCWIZ\", this::runTask);"
+   },
+   {
+    "id": "ed034b3d16",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 422,
+    "before": "CicsTask task = region.linked(\"PCWIZ\", request, area);",
+    "after": "CicsTask task = region.linked(\"XCWIZ\", request, area);"
+   },
+   {
+    "id": "56a206ad13",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 423,
+    "before": "region.run(task, \"PCWIZ\", this::runTask);",
+    "after": "region.run(task, \"XCWIZ\", this::runTask);"
+   },
+   {
+    "id": "e7db22f207",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 425,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
+   },
+   {
+    "id": "cc4330221e",
+    "op": "COR",
+    "file": "service/PcwizService.java",
+    "line": 425,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "f23f5b66f4",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 425,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "3b81a13d51",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 444,
+    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
+   },
+   {
+    "id": "f4efbdbcc3",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 453,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "ffd2a82ceb",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 458,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "b28963157f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 459,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "9042970c27",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 467,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "2f276aa8b0",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 478,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "83d830f84e",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 478,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "13fcf202b5",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 478,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "3157ef2465",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 485,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "d0b6263676",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 485,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) != 1;"
+   },
+   {
+    "id": "6870ac8691",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 487,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "02c8b992cf",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 488,
+    "before": "if (i == thru) {",
+    "after": "if (!(i == thru)) {"
+   },
+   {
+    "id": "7ca1aaff1e",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 488,
+    "before": "if (i == thru) {",
+    "after": "if (i != thru) {"
+   },
+   {
+    "id": "06345b3b61",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 489,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "e9dbd573fb",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 491,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "08e507ca46",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 491,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "6d4aabc909",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 491,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "783100b19f",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 491,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "66530b7ad0",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 491,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "cb55f45ff7",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 491,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "24edd27bf5",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 492,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "27c678c9c9",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 492,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "c1c95908ec",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 497,
+    "before": "if (next >= 5) {",
+    "after": "if (!(next >= 5)) {"
+   },
+   {
+    "id": "f3b2862e2c",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 497,
+    "before": "if (next >= 5) {",
+    "after": "if (next < 5) {"
+   },
+   {
+    "id": "4a039a0cae",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 497,
+    "before": "if (next >= 5) {",
+    "after": "if (next > 5) {"
+   },
+   {
+    "id": "b196b7096f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 497,
+    "before": "if (next >= 5) {",
+    "after": "if (next >= 6) {"
+   },
+   {
+    "id": "2c87c08513",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 500,
+    "before": "i = next;",
+    "after": "/* i = next; */"
+   },
+   {
+    "id": "b44547c3f3",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 503,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "a611f651f1",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 503,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "50cd617103",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 507,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "7660ab4e96",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 518,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "702526a1d4",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 527,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "441e7f1290",
+    "op": "AOR",
+    "file": "service/PcwizService.java",
+    "line": 527,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() - 0, 1, 0, false, false, false), CS);"
+   },
+   {
+    "id": "cf3670ea38",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 527,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 1, 1, 0, false, false, false), CS);"
+   },
+   {
+    "id": "77ac105489",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 527,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "088f2a968c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 527,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 0, 1, 1, false, false, false), CS);"
+   },
+   {
+    "id": "8cecc91dfb",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 528,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 1, 15, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 1, 15, false), CS); */"
+   },
+   {
+    "id": "15782fcc6c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 528,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 1, 15, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 2, 15, false), CS);"
+   },
+   {
+    "id": "62e0ef3ec8",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 528,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 1, 15, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 1, 16, false), CS);"
+   },
+   {
+    "id": "513b422a4d",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 529,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 7, 2, true), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 7, 2, true), CS); */"
+   },
+   {
+    "id": "9bdd35b0f2",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 529,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 7, 2, true), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 17, 7, 2, true), CS);"
+   },
+   {
+    "id": "8b8b80697d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 529,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 7, 2, true), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 8, 2, true), CS);"
+   },
+   {
+    "id": "11890c7a33",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 529,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 7, 2, true), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 16, 7, 3, true), CS);"
+   },
+   {
+    "id": "43a8ee1d29",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 530,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 4, 0, true, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 4, 0, true, false), CS); */"
+   },
+   {
+    "id": "dacedf5f60",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 530,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 4, 0, true, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 21, 4, 0, true, false), CS);"
+   },
+   {
+    "id": "98bfd60dee",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 530,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 4, 0, true, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 5, 0, true, false), CS);"
+   },
+   {
+    "id": "d858f5081d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 530,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 4, 0, true, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.binary(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 20, 4, 1, true, false), CS);"
+   },
+   {
+    "id": "c2d64b425f",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 531,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 22, 1, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 22, 1, false), CS); */"
+   },
+   {
+    "id": "0bd5ac7055",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 531,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 22, 1, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 23, 1, false), CS);"
+   },
+   {
+    "id": "9ce9428660",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 531,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 22, 1, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 22, 2, false), CS);"
+   },
+   {
+    "id": "48198aa7bc",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 532,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 23, 7, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f105_WS_STATE.storage(), f105_WS_STATE.offset() + 23, 7, false), CS); */"
+   },
+   {
+    "id": "e9b715c77f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 538,
+    "before": "perform(2, 2);",
+    "after": "perform(2, 3);"
+   },
+   {
+    "id": "d15ace9ef4",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 545,
+    "before": "perform(4, 4);",
+    "after": "perform(4, 5);"
+   },
+   {
+    "id": "dd8c5652cc",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 554,
+    "before": "perform(3, 3);",
+    "after": "perform(3, 4);"
+   },
+   {
+    "id": "4f577d6f4c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 559,
+    "before": "perform(2, 2);",
+    "after": "perform(2, 3);"
+   },
+   {
+    "id": "e190eadf70",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 560,
+    "before": "} else if (true) {",
+    "after": "} else if (!(true)) {"
+   },
+   {
+    "id": "496b7873a2",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 562,
+    "before": "perform(1, 1);",
+    "after": "/* perform(1, 1); */"
+   },
+   {
+    "id": "9875af67a0",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 562,
+    "before": "perform(1, 1);",
+    "after": "perform(1, 2);"
+   },
+   {
+    "id": "1254ece95a",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 564,
+    "before": "return 1;",
+    "after": "return 2;"
+   },
+   {
+    "id": "7bc6481745",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 570,
+    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_PCM1I, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_PCM1I, CS); */"
+   },
+   {
+    "id": "1ad85c7e26",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 572,
+    "before": "int[] planned4 = task.planned(\"RECEIVE-MAP\", \"PCM1\");",
+    "after": "int[] planned4 = task.planned(\"XECEIVE-MAP\", \"PCM1\");"
+   },
+   {
+    "id": "65bcad2382",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 572,
+    "before": "int[] planned4 = task.planned(\"RECEIVE-MAP\", \"PCM1\");",
+    "after": "int[] planned4 = task.planned(\"RECEIVE-MAP\", \"XCM1\");"
+   },
+   {
+    "id": "7f58db71b7",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 573,
+    "before": "java.util.Optional<Pcm1Screen> received1 = planned4[0] != 0 ? java.util.Optional.empty() : task.receive(\"PCM1\", \"PCSET\", Pcm1Screen.class);",
+    "after": "java.util.Optional<Pcm1Screen> received1 = planned4[1] != 0 ? java.util.Optional.empty() : task.receive(\"PCM1\", \"PCSET\", Pcm1Screen.class);"
+   },
+   {
+    "id": "3a706f09a2",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 574,
+    "before": "int resp3 = planned4[0] != 0 ? planned4[0] : received1.isPresent() ? 0 : 36;",
+    "after": "int resp3 = planned4[1] != 0 ? planned4[0] : received1.isPresent() ? 0 : 36;"
+   },
+   {
+    "id": "af1452e9ee",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 574,
+    "before": "int resp3 = planned4[0] != 0 ? planned4[0] : received1.isPresent() ? 0 : 36;",
+    "after": "int resp3 = planned4[0] == 0 ? planned4[0] : received1.isPresent() ? 0 : 36;"
+   },
+   {
+    "id": "c0ab40ddf5",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 574,
+    "before": "int resp3 = planned4[0] != 0 ? planned4[0] : received1.isPresent() ? 0 : 36;",
+    "after": "int resp3 = planned4[0] != 1 ? planned4[0] : received1.isPresent() ? 0 : 36;"
+   },
+   {
+    "id": "f2de07b9de",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 574,
+    "before": "int resp3 = planned4[0] != 0 ? planned4[0] : received1.isPresent() ? 0 : 36;",
+    "after": "int resp3 = planned4[0] != 0 ? planned4[1] : received1.isPresent() ? 0 : 36;"
+   },
+   {
+    "id": "0ece2e4b8c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 574,
+    "before": "int resp3 = planned4[0] != 0 ? planned4[0] : received1.isPresent() ? 0 : 36;",
+    "after": "int resp3 = planned4[0] != 0 ? planned4[0] : received1.isPresent() ? 0 : 37;"
+   },
+   {
+    "id": "c33436deff",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 576,
+    "before": "java.util.Arrays.fill(f1_PCM1I.storage().bytes, f1_PCM1I.offset(), f1_PCM1I.offset() + f1_PCM1I.length(), (byte) 0);",
+    "after": "/* java.util.Arrays.fill(f1_PCM1I.storage().bytes, f1_PCM1I.offset(), f1_PCM1I.offset() + f1_PCM1I.length(), (byte) 0); */"
+   },
+   {
+    "id": "6e7756e52a",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 579,
+    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f7_NAMEI, f3_NAMEL, typed2.get(\"NAME\"), CS, \"LEFT,BLANK\");",
+    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f7_NAMEI, f3_NAMEL, typed2.get(\"NAME\"), CS, \"XEFT,BLANK\");"
+   },
+   {
+    "id": "fa75936a0c",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 581,
+    "before": "if (typed2.get(\"MSG1\") != null) {",
+    "after": "if (typed2.get(\"XSG1\") != null) {"
+   },
+   {
+    "id": "487c4e867e",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 582,
+    "before": "DetCics.typed(f12_MSG1I, f8_MSG1L, typed2.get(\"MSG1\"), CS);",
+    "after": "DetCics.typed(f12_MSG1I, f8_MSG1L, typed2.get(\"XSG1\"), CS);"
+   },
+   {
+    "id": "01d6b3e20c",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 585,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(resp3), false, CS);",
+    "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(resp3), false, CS); */"
+   },
+   {
+    "id": "43950b7a27",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 586,
+    "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "80a5f3e804",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 586,
+    "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "a2b3d8cc55",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 587,
+    "before": "f112_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp3), 8, true, false, CS);",
+    "after": "/* f112_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp3), 8, true, false, CS); */"
+   },
+   {
+    "id": "a00fbf8cb0",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 587,
+    "before": "f112_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp3), 8, true, false, CS);",
+    "after": "f112_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp3), 9, true, false, CS);"
+   },
+   {
+    "id": "562499cead",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 596,
+    "before": "perform(2, 2);",
+    "after": "perform(2, 3);"
+   },
+   {
+    "id": "583f17137e",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 605,
+    "before": "perform(3, 3);",
+    "after": "perform(3, 4);"
+   },
+   {
+    "id": "6dd184440d",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 606,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "bbf1d018c0",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 612,
+    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f13_PCM1O, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f13_PCM1O, CS); */"
+   },
+   {
+    "id": "c461e17b6d",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 618,
+    "before": "values7.put(\"NAME\", Cobol.text(f16_NAMEO, CS));",
+    "after": "values7.put(\"XAME\", Cobol.text(f16_NAMEO, CS));"
+   },
+   {
+    "id": "86d4ee05f9",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 619,
+    "before": "DetCics.subfields(sub8, \"NAME\", f3_NAMEL, f6_NAMEA, null, null, CS);",
+    "after": "DetCics.subfields(sub8, \"XAME\", f3_NAMEL, f6_NAMEA, null, null, CS);"
+   },
+   {
+    "id": "d50a60e48b",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 621,
+    "before": "DetCics.subfields(sub8, \"MSG1\", f8_MSG1L, f11_MSG1A, null, null, CS);",
+    "after": "DetCics.subfields(sub8, \"XSG1\", f8_MSG1L, f11_MSG1A, null, null, CS);"
+   },
+   {
+    "id": "3ba6b6ef5e",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 623,
+    "before": "int[] planned10 = task.planned(\"SEND-MAP\", \"PCM1\");",
+    "after": "int[] planned10 = task.planned(\"XEND-MAP\", \"PCM1\");"
+   },
+   {
+    "id": "c0458741d4",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 623,
+    "before": "int[] planned10 = task.planned(\"SEND-MAP\", \"PCM1\");",
+    "after": "int[] planned10 = task.planned(\"SEND-MAP\", \"XCM1\");"
+   },
+   {
+    "id": "5da6e86d7c",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 624,
+    "before": "if (planned10[0] == 0) task.sendMap(\"PCM1\", \"PCSET\", screen9, sub8, \"ERASE\");",
+    "after": "if (planned10[1] == 0) task.sendMap(\"PCM1\", \"PCSET\", screen9, sub8, \"ERASE\");"
+   },
+   {
+    "id": "9d5261e538",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 625,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+    "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS); */"
+   },
+   {
+    "id": "45fe54a356",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 625,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+    "after": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[1]), false, CS);"
+   },
+   {
+    "id": "694f2d3743",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 626,
+    "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS);",
+    "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS); */"
+   },
+   {
+    "id": "9f4b0753cd",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 627,
+    "before": "if (planned10[0] != 0) {",
+    "after": "if (planned10[1] != 0) {"
+   },
+   {
+    "id": "5a36b56532",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 628,
+    "before": "int to = condition(DetCics.condition(planned10[0]));",
+    "after": "int to = condition(DetCics.condition(planned10[1]));"
+   },
+   {
+    "id": "2e4f4368f0",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 629,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "8e07da071d",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 629,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "e6d034a324",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 629,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "07376906f5",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 629,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "f0613c217f",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 632,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "006272e501",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 633,
+    "before": "task.returnTransid(\"PC02\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 30).bytes);",
+    "after": "task.returnTransid(\"PC02\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 31, Cobol.commarea(f105_WS_STATE, 30).bytes);"
+   },
+   {
+    "id": "8f86892b1a",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 633,
+    "before": "task.returnTransid(\"PC02\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 30).bytes);",
+    "after": "task.returnTransid(\"PC02\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 31).bytes);"
+   },
+   {
+    "id": "c3c2d72b94",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 635,
+    "before": "return 3;",
+    "after": "return 4;"
+   },
+   {
+    "id": "0fe8c84602",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 641,
+    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f36_PCM2O, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f36_PCM2O, CS); */"
+   },
+   {
+    "id": "01115b2c35",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 658,
+    "before": "DetCics.subfields(sub13, \"NAMEOUT\", f21_NAMEOUTL, f24_NAMEOUTA, null, null, CS);",
+    "after": "DetCics.subfields(sub13, \"XAMEOUT\", f21_NAMEOUTL, f24_NAMEOUTA, null, null, CS);"
+   },
+   {
+    "id": "23e1daa636",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 660,
+    "before": "DetCics.subfields(sub13, \"AMT\", f26_AMTL, f29_AMTA, null, null, CS);",
+    "after": "DetCics.subfields(sub13, \"XMT\", f26_AMTL, f29_AMTA, null, null, CS);"
+   },
+   {
+    "id": "61df94ba8a",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 662,
+    "before": "DetCics.subfields(sub13, \"MSG2\", f31_MSG2L, f34_MSG2A, null, null, CS);",
+    "after": "DetCics.subfields(sub13, \"XSG2\", f31_MSG2L, f34_MSG2A, null, null, CS);"
+   },
+   {
+    "id": "51f27b983a",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 664,
+    "before": "int[] planned15 = task.planned(\"SEND-MAP\", \"PCM2\");",
+    "after": "int[] planned15 = task.planned(\"XEND-MAP\", \"PCM2\");"
+   },
+   {
+    "id": "69942e35fd",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 664,
+    "before": "int[] planned15 = task.planned(\"SEND-MAP\", \"PCM2\");",
+    "after": "int[] planned15 = task.planned(\"SEND-MAP\", \"XCM2\");"
+   },
+   {
+    "id": "27a8e47a18",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 665,
+    "before": "if (planned15[0] == 0) task.sendMap(\"PCM2\", \"PCSET\", screen14, sub13, \"ERASE\");",
+    "after": "if (planned15[1] == 0) task.sendMap(\"PCM2\", \"PCSET\", screen14, sub13, \"ERASE\");"
+   },
+   {
+    "id": "2dfa6eeaf9",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 666,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[0]), false, CS);",
+    "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[0]), false, CS); */"
+   },
+   {
+    "id": "dd3178ab59",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 666,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[0]), false, CS);",
+    "after": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[1]), false, CS);"
+   },
+   {
+    "id": "ff49858d96",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 667,
+    "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned15[1]), false, CS);",
+    "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned15[1]), false, CS); */"
+   },
+   {
+    "id": "7fcf800998",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 668,
+    "before": "if (planned15[0] != 0) {",
+    "after": "if (planned15[1] != 0) {"
+   },
+   {
+    "id": "ae174b0388",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 669,
+    "before": "int to = condition(DetCics.condition(planned15[0]));",
+    "after": "int to = condition(DetCics.condition(planned15[1]));"
+   },
+   {
+    "id": "f1f00ad550",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 670,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "6f7f2fa208",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 670,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "d2b3f5c39a",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 670,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "22ce516b44",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 670,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "608a3799b3",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 673,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "896a9bcf4b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 674,
+    "before": "task.returnTransid(\"PC03\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 30).bytes);",
+    "after": "task.returnTransid(\"PC03\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 31, Cobol.commarea(f105_WS_STATE, 30).bytes);"
+   },
+   {
+    "id": "309c0725cd",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 674,
+    "before": "task.returnTransid(\"PC03\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 30).bytes);",
+    "after": "task.returnTransid(\"PC03\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 31).bytes);"
+   },
+   {
+    "id": "12e242e98f",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 676,
+    "before": "return 4;",
+    "after": "return 5;"
+   },
+   {
+    "id": "0cff5fe079",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 683,
+    "before": "int[] planned17 = task.planned(\"SEND-TEXT\", \"-\");",
+    "after": "int[] planned17 = task.planned(\"XEND-TEXT\", \"-\");"
+   },
+   {
+    "id": "8fc1eef1da",
+    "op": "LIT",
+    "file": "service/PcwizService.java",
+    "line": 683,
+    "before": "int[] planned17 = task.planned(\"SEND-TEXT\", \"-\");",
+    "after": "int[] planned17 = task.planned(\"SEND-TEXT\", \"X\");"
+   },
+   {
+    "id": "03a9c67b4a",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 684,
+    "before": "if (planned17[0] == 0) task.sendText(text16.substring(0, Math.min(text16.length(), 16)), 16, \"ERASE\");",
+    "after": "if (planned17[1] == 0) task.sendText(text16.substring(0, Math.min(text16.length(), 16)), 16, \"ERASE\");"
+   },
+   {
+    "id": "6a2f3cfc50",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 684,
+    "before": "if (planned17[0] == 0) task.sendText(text16.substring(0, Math.min(text16.length(), 16)), 16, \"ERASE\");",
+    "after": "if (planned17[0] == 0) task.sendText(text16.substring(0, Math.min(text16.length(), 17)), 16, \"ERASE\");"
+   },
+   {
+    "id": "4ef50fe57f",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 685,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[0]), false, CS);",
+    "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[0]), false, CS); */"
+   },
+   {
+    "id": "71a2aaf358",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 685,
+    "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[0]), false, CS);",
+    "after": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[1]), false, CS);"
+   },
+   {
+    "id": "9eb7074539",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 686,
+    "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned17[1]), false, CS);",
+    "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned17[1]), false, CS); */"
+   },
+   {
+    "id": "c6d35ebf14",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 687,
+    "before": "if (planned17[0] != 0) {",
+    "after": "if (planned17[1] != 0) {"
+   },
+   {
+    "id": "e675d95775",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 688,
+    "before": "int to = condition(DetCics.condition(planned17[0]));",
+    "after": "int to = condition(DetCics.condition(planned17[1]));"
+   },
+   {
+    "id": "b62699e430",
+    "op": "NEG",
+    "file": "service/PcwizService.java",
+    "line": 689,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "55811eaf8d",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 689,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "f8e4577ecd",
+    "op": "ROR",
+    "file": "service/PcwizService.java",
+    "line": 689,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "9096263745",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 689,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "71e4dcd1b3",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 692,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "eb0909b415",
+    "op": "DEL",
+    "file": "service/PcwizService.java",
+    "line": 693,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "9b5a3b150b",
+    "op": "CON",
+    "file": "service/PcwizService.java",
+    "line": 695,
+    "before": "return 5;",
+    "after": "return 6;"
+   }
+  ],
+  "inputs": {
+   "port": "6a9ad28fc214cfaf449a9b19ba033828e9c638aa51c3000d7a98254590d79d96",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "5b82f05260d5b4d3b896a4bffe8fda57e4f12b094bb8918b3ec0fba84f346e8b",
+   "case": "bc7c3e890412c5175adcf5e8ab81f0ded80b139b990a10b2957e19768eec2bbe",
+   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
+   "harness": "8d700c1c727b7af6d9fc3d802e1bd6f3f345c281af8555ab06aee864964006e0",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "768eb78d4990d5e598cf60b582e6701172a989acad011097c579d3a1021fee12",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "9eef7b45d05a73906a1cda840ac56acde4da73ea841260926c68d147e1bd4aad",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   },
+   "harness": {
+    "harness:cics": "9f149a6a4a1beecf81f1629e565ad62ce06082e86301acb3306f6b1505363564",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "0006c1e8f3 0012012440 00208a8ec4 006272e501 008af333ef 009a432ab8 00ab100256 00ad74d04f 00ae99670f 00f5c58edb 01115b2c35 01d6b3e20c 01d970a0be 01ddc592f7 02c8b992cf 03a9c67b4a 03cc70a662 03fa20db8c 04f076a46d 04fcb13703 05e07072ee 06345b3b61 063d2a9f28 06d2a871a8 0731effa65 07376906f5 07b99e5c2c 08214c375e 088f2a968c 08e507ca46 095a819488 09a1eb4102 0a2a86c1d9 0a666909cf 0b137512fc 0bd5ac7055 0bea17eaea 0bee08b552 0c289a80c2 0c8c35d742 0cff5fe079 0d521e3c06 0e0074d51b 0e01aae01c 0ece2e4b8c 0f71740895 0f8e59aefb 0fe8c84602 110acd0175 11890c7a33 1189d13f9b 11d2b6c3b3 121efdf070 1254ece95a 12db5a47cf 12e242e98f 13c68d3fe0 13dc3ca988 13f3932044 13fcf202b5 14386baa84 15147180a1 15782fcc6c 15fdcbacc2 16040f420c 1676948f24 16980844ef 16a361f622 1762cc3a56 17929aa25b 17f2309942 187c4ea75a 18d298e59a 1a0c06f88f 1a6808a51b 1ab1f66df4 1ab46e6387 1abe6609cd 1ad85c7e26 1b009a921e 1b5ada26fb 1bfde0d84e 1c15792b30 1d4a370630 1dfc773bfb 1e37263238 1ed2003cc7 1ed72c7507 1ef272f90a 1f171a4768 1f27cb27b4 1f4b8892e1 1fa85a5c6c 1fecdb9cc9 212c27f1b1 21dcd4448a 2291691c22 22c94a7f3b 22ce516b44 235be70174 235c0857da 23dd323dbb 23e1daa636 23fa32a256 243bfbfea7 247ab877fd 24b890c7ab 24edd27bf5 24f003f717 251f3c30b4 25ffc23336 26e19bd538 273781a997 276952e917 27a8e47a18 27c678c9c9 2959dbf62c 2987ad649e 29931b8064 2a76575dc8 2ada72d2d4 2afa9b83c4 2b463acc13 2bb6c6a3c3 2be9c30a82 2c0566109c 2c721a9a00 2c83552ef1 2c87c08513 2d23970549 2d3e209ad6 2dd0c24214 2dfa6eeaf9 2e441dcee8 2e4f4368f0 2f276aa8b0 2faf260cec 2fc7a44ad7 30830ebe9b 309c0725cd 309fecfc23 310db5cd71 312c438217 3157ef2465 3190337e2c 3230af6782 327ce1f0bc 32a7542ff3 33c2f32bfe 3422608a53 361ad2cb0b 36240fb41a 369e627b48 3725d4067a 37333520b2 375b939bb2 384be6199b 389c84e2fe 38b56d9589 38d4a620dc 3909a4608c 3911936968 39556da93a 3999631a29 3a4f1eb760 3a706f09a2 3b13ca3cef 3b81a13d51 3ba6b6ef5e 3c0cc8fb88 3d4fee197c 3e59ce7f00 3e7de3af0d 3ed0a4a67e 3ef1872f2b 3ef62316ee 3f122a2678 3f70e91e10 3fb43c14a0 3fd1d221ea 405f224505 406be097d3 411373f3b8 4124746391 413775b94a 415844e5eb 419bd7c7e1 430ebdbd96 434b021cf1 4367916c50 43950b7a27 43a8ee1d29 43e723f928 441e7f1290 4472471cea 44c2120c22 4572a931c2 45afc1287b 45fe54a356 46c24fbba7 473f0ae4b9 4761789e12 4771436b1e 48198aa7bc 484fa95a35 487c4e867e 48c9b7fd0a 496b7873a2 4a039a0cae 4a28a5b30a 4a6996f953 4ba2f14f1f 4da7a5aeca 4de712911d 4e29fc3bf6 4e2d402406 4e964bb785 4ef50fe57f 4f18b5b9ec 4f4c9edf69 4f577d6f4c 4f77e4c772 5008817377 504b402687 509c712b55 50cd617103 5120774850 5121b801f0 513b422a4d 51d69c6df8 51f27b983a 52bb061467 52bbeddf1e 52f676c614 52fbb5e08d 5311f69a59 53eb161b6e 549318df73 551f0fb648 555ca71de5 55811eaf8d 562499cead 5689c77dae 5691cd195e 56a206ad13 57807bd3fa 57c1718eaf 57df6fe4c9 57f5464768 581380dfb8 58229443f9 583f17137e 58fadaec79 5a36b56532 5a8b06f021 5ae30dbc41 5b0ef8d281 5c3c023d33 5d05a5600e 5d137b4cab 5d42ef5332 5d44122521 5d5a8b5027 5da6e86d7c 5dabf3a5fb 5e648d1880 5ecdc492b4 5ef362f754 5f00faf2f0 5f21babf4f 5fdb820f0e 5ff8875c9f 60600e2067 6079c3950c 608a3799b3 60e110420e 61218da453 61ba83fcee 61df94ba8a 625f4d5729 62960877d4 62e0922b78 62e0ef3ec8 6374be72d0 63e2da7e37 63efebbc7c 646a846d98 64ddaa9e72 65bcad2382 664efc0c81 66530b7ad0 66c7e64edf 66c8211b42 66cceb63fb 6734440337 673eb4663b 6870ac8691 68b4d7dc58 692ec0f46b 69471fd966 694761cae8 694f2d3743 69942e35fd 69d17c76de 6a2f3cfc50 6aca195360 6b86e8f543 6be3c31280 6c2751eb87 6c455bd916 6d00974867 6d14dddf6a 6d3fa15e39 6d4aabc909 6d5ff9bd20 6da628cf69 6dd184440d 6dfa418bfc 6e7756e52a 6f7f2fa208 70021fa563 702526a1d4 70f2030695 71045874ac 7186c956b7 718cfd1e7c 719619ae4c 71a2aaf358 71e4dcd1b3 72a0e35320 72ca837428 738d4ff08c 745ca48d8e 748b29fd45 74eded9fe0 74f826071f 7549f0e108 7660ab4e96 7663b3f6ae 769fc4cb6d 76e2aaf015 77ac105489 77b2a47704 783100b19f 78b4b5eeed 78c039ade9 7964c87a1b 798191b540 79c26875e4 79e056fda9 7a7d0919f7 7a8d59c91d 7ad0cd3917 7afb8116d3 7b625e3dd6 7bc6481745 7becf62df2 7bfce12ed6 7c7e8dc43c 7ca1aaff1e 7cdf1e974e 7e0b621fd1 7eb1ac6a90 7f58db71b7 7fcf800998 8001b3b7e9 80999dd840 80a5f3e804 80c8d4606c 80d44752a8 80e075dc61 81907d4687 820c6b1dcf 826a004b24 82a763c1a3 82e4be9f36 83d830f84e 84a1e802c9 84dfecfbf9 853cf6cc48 86287f4b13 86cfc3dd89 86d4ee05f9 86fe9b2887 8788f740d2 88213bdc09 88246607a4 8846be2b11 88928c3ced 890dacd678 896a9bcf4b 896e025a11 89eafe991a 8a5c7d2dfa 8ac512c461 8ac64a867d 8b7773cfdd 8b8b80697d 8bc8abf9dc 8c9d75de84 8cecc91dfb 8d9be42557 8e07da071d 8e6630a05b 8eb1940e41 8eccd2a490 8eee0c85a8 8f26cd0195 8f86892b1a 8fc1eef1da 9042970c27 9096263745 91b743d382 9226b553d1 9270e1f39e 93ce1b9802 9419b6c7b6 946c6f9892 94e435a4d7 9589ed311b 95b9042bf8 95d1928b5f 9653712544 96fd66564d 97e49a787f 9875067132 9875af67a0 98bfd60dee 9904dd200c 993bbef0a8 99450ff685 99683c3849 997033bb78 99a62cb7bf 9ab7f29f0d 9ac38d3387 9b5a3b150b 9b7a2c40ef 9b8e1a8610 9bdd35b0f2 9be6d1856c 9c3e65aeb1 9ce9428660 9d5261e538 9d5bfb72d5 9dac9e8d94 9eb7074539 9ef1a621b0 9f4736486c 9f4b0753cd 9f67019a9b 9f6c8c8f5b a00fbf8cb0 a0142ed83a a076d1d13f a080bdfba9 a0db8d267c a13910ed8b a1929da126 a23758e08c a2597c9cfa a2b3d8cc55 a2de03fa6e a2f909c777 a367f6d541 a3cea0f97d a42371a341 a484c2e812 a5283c3741 a5d4bf0d95 a5deefb4ef a5df03bb11 a611f651f1 a69175728c a6d4410660 a6f6a8d14b a705748365 a76df7170b a77b3f891c a9bd9d064f aa94e3b722 abc128d53b ac67b2e744 ad63b6ef14 ad666c48b4 adaa823337 ae07a0354d ae174b0388 ae2099629c ae31b44e2b ae5cc429d4 ae5d041831 af1452e9ee afc65e80d7 afd18dfe06 affd15176f b00f18745d b1384a6df4 b196b7096f b2305aafaf b28963157f b36a14bf09 b4044ea8b0 b44547c3f3 b44ed5999b b48ce6364b b510952e8a b5731d35ed b5c20bf331 b5cccf1cec b5d31a88db b62699e430 b63a769ad5 b661c3ad6d b679b2bcd2 b67d1a6a28 b7958687a8 b7bbdc5a2d b7caa1c9a3 b857d1647c b927fdbd6c b955b8f06b b96381545c b965fea17f ba9da4c07d bb274d6e75 bb807ada7c bbe1067e28 bbf1d018c0 be7b5b7e54 bed7e30572 bf45ba4b93 c023e28b38 c036eb4a11 c0458741d4 c06db5b2c7 c07a70b065 c0ab40ddf5 c0c03b5321 c1c95908ec c212acf8e0 c28a26d330 c2a3ac1b17 c2bf984d50 c2d64b425f c33436deff c3c2d72b94 c3c83a9748 c43fd2192d c461e17b6d c4ab93fbe5 c51b6b60cb c581ebeb98 c5e126de35 c6a5b5a996 c6d35ebf14 c734bc48c0 c783e6d6c4 c7b41b03ea c8006786ab c8a15886e7 c8c5e86bfe c9e7a6f1f3 c9f509e3d1 caafcd866c cb016de551 cb0aabfcf2 cb55f45ff7 cc4330221e cdf89c6ed9 cf3670ea38 cf84f77301 d028eee2fc d06beed3f9 d071b91649 d08c4d094f d0a68b879c d0b6263676 d10a30d6e0 d15ace9ef4 d19e4429aa d289e1627f d2b3363a95 d2b3f5c39a d2f4a72669 d322e747bb d3dd41c971 d410b5ddaf d494ba24c7 d50a60e48b d5cfd9843e d6051fd743 d73fcbe5e5 d77eaa7a84 d7d971c02b d7edd0c827 d828a9129f d858f5081d d86b9169b1 d8cc5c3b8a d934eb4130 d95bd0ca95 d99f1a5b19 da5b9bec50 da7c06cd0e dacedf5f60 db44977224 dc3d39f638 dc5ee3708a dd3178ab59 dd8c5652cc ddafb48733 de293f29f7 dedcb450e0 df5ea01d4a df6578635d df694ede24 df6bc30294 df8770d6e8 dfc3c3c736 e0cfbfe836 e0f5669284 e10e9b9a96 e174f4a646 e190eadf70 e37c4babfa e413363439 e433bb4f3c e4471e9297 e46a92c43f e4a120b9c6 e4b062ec56 e51ddcb937 e52440674b e63df32821 e675d95775 e69751a777 e6d034a324 e70d97a418 e7733729ee e7b22ff8ed e7cd6be82f e7db22f207 e8707d614f e8caa4ee6b e8ce5ca940 e9115a9b23 e95efd2b40 e9b715c77f e9dbd573fb eb0909b415 eb204037bf ec225fb4b6 ec63ab86cb ec67ff8cfc ec925b7f17 ec9d970496 ed034b3d16 ed10b9eedb edc62cd5dc ee00d0e65b ee52b3cd78 eea66f0829 ef009497de efbd402d0f f0613c217f f1c80aeb79 f1cbd7b9d3 f1f00ad550 f237631e81 f23f5b66f4 f2de07b9de f32a5578cb f3b2862e2c f4efbdbcc3 f59c8b2465 f5a6291fa1 f5db9d4ac1 f653288239 f6978ec2a5 f7038f06f4 f7285995af f8e4577ecd f8fa1a8b64 f90a6f6628 f94936b468 f98331dd70 fa504582dc fa589b05ab fa75936a0c fb87bd7769 fc209c57c7 fc2d86504c fcdd695b4a fcef66c196 fe0adf8bea fe353ac756 ff49858d96 ffd2a82ceb"
+ }
+}

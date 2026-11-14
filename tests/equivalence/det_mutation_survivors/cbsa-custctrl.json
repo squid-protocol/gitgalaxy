@@ -1,0 +1,423 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-custctrl",
+ "survivors": [
+  {
+   "id": "3f2424fbc7",
+   "op": "CON",
+   "line": 40,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "CON at line 40 (`private static final int GOTO = 1 << 20;`): GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20. Settled by survivor_attack.py facts (goto-flag-bit); no input of the program can show a difference.",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "604bd1b7ca",
+   "op": "CON",
+   "line": 40,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "CON at line 40 (`private static final int GOTO = 1 << 20;`): GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20. Settled by survivor_attack.py facts (goto-flag-bit); no input of the program can show a difference.",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "7288fd289f",
+   "op": "LIT",
+   "line": 53,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 53 (`\"Tg==\"));`): image byte(s) [0] of s_EXIT_VSAM_READ lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "4dd92fd0b8",
+   "op": "LIT",
+   "line": 55,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 55 (`\"Tg==\"));`): image byte(s) [0] of s_EXIT_DB2_READ lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "a5fceba12b",
+   "op": "LIT",
+   "line": 57,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 57 (`\"Tg==\"));`): image byte(s) [0] of s_WS_V_RETRIED lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "bdf9fe0c77",
+   "op": "LIT",
+   "line": 59,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 59 (`\"Tg==\"));`): image byte(s) [0] of s_WS_D_RETRIED lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "0f745d8111",
+   "op": "LIT",
+   "line": 61,
+   "before": "\"KzAwMDAwMDAw\"));",
+   "after": "\"XzAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 61 (`\"KzAwMDAwMDAw\"));`): image byte(s) [0] of s_SQLCODE_DISPLAY lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "35a77e1737",
+   "op": "LIT",
+   "line": 63,
+   "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
+   "after": "\"XCAgIDAwMDAwMCAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 63 (`\"ICAgIDAwMDAwMCAgIA==\"));`): image byte(s) [0] of s_WS_PASSED_DATA lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "8981d9d15a",
+   "op": "LIT",
+   "line": 65,
+   "before": "\"ICAgICAg\"));",
+   "after": "\"XCAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 65 (`\"ICAgICAg\"));`): image byte(s) [0] of s_WS_SORT_DIV lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "d0a31e1e63",
+   "op": "LIT",
+   "line": 67,
+   "before": "\"MDAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 67 (`\"MDAwMDAwMDAwMDAwMDAwMDAw\"));`): image byte(s) [0] of s_WS_DISP_CUST_NO_VAL lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "fd033a0074",
+   "op": "LIT",
+   "line": 69,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 69 (`\"AAA=\"));`): image byte(s) [0] of s_WS_CUST_REC_LEN lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "ea8e598f7b",
+   "op": "LIT",
+   "line": 71,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 71 (`\"Tg==\"));`): image byte(s) [0] of s_NCS_UPDATED lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "b3fde78dd7",
+   "op": "LIT",
+   "line": 73,
+   "before": "\"MDAwMDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 73 (`\"MDAwMDAwMDAwMDAw\"));`): image byte(s) [0] of s_WS_EIBTASKN12 lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "be72c26c60",
+   "op": "LIT",
+   "line": 75,
+   "before": "\"MDAw\"));",
+   "after": "\"XDAw\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 75 (`\"MDAw\"));`): image byte(s) [0] of s_PROCTRAN_RETRY lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "653456a4db",
+   "op": "LIT",
+   "line": 77,
+   "before": "\"MDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 77 (`\"MDAwMDAwMDAwMDAwMDAwMA==\"));`): image byte(s) [0] of s_CUSTOMER_KY2 lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "06c6a4b5cb",
+   "op": "LIT",
+   "line": 79,
+   "before": "\"MDAwMDAwMDAwMA==\"));",
+   "after": "\"XDAwMDAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 79 (`\"MDAwMDAwMDAwMA==\"));`): image byte(s) [0] of s_HIGHEST_CUST_NUMBER lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "cc8e7520bf",
+   "op": "LIT",
+   "line": 85,
+   "before": "\"ICAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 85 (`\"ICAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICA`): image byte(s) [0] of s_SQLCA lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "e5de4f7630",
+   "op": "LIT",
+   "line": 87,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 87 (`\"AAAAAA==\"));`): image byte(s) [0] of s_HV_NUMBER_OF_CUSTOMERS lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "908bdbdc47",
+   "op": "LIT",
+   "line": 89,
+   "before": "\"ICAgICAg\"));",
+   "after": "\"XCAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 89 (`\"ICAgICAg\"));`): image byte(s) [0] of s_HV_CUSTOMER_SORTCODE lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "b34a678fb5",
+   "op": "LIT",
+   "line": 95,
+   "before": "\"ICAuICAuICAgIA==\"));",
+   "after": "\"XCAuICAuICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 95 (`\"ICAuICAuICAgIA==\"));`): image byte(s) [0] of s_WS_ORIG_DATE_GRP_X lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "b2e666d404",
+   "op": "LIT",
+   "line": 99,
+   "before": "\"QUJORFBST0M=\"));",
+   "after": "\"XUJORFBST0M=\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 99 (`\"QUJORFBST0M=\"));`): image byte(s) [0] of s_WS_ABEND_PGM lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "764f968b8a",
+   "op": "LIT",
+   "line": 101,
+   "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "LIT at line 101 (`\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA`): image byte(s) [0] of s_ABNDINFO_REC lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "9d26b2e436",
+   "op": "LIT",
+   "line": 102,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "LIT at line 102 (`\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA`): image byte(s) [300] of s_ABNDINFO_REC lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "6821ae7f38",
+   "op": "LIT",
+   "line": 103,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "LIT at line 103 (`\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA`): image byte(s) [600] of s_ABNDINFO_REC lie in no item the program names. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "8a7810a6ea",
+   "op": "CON",
+   "line": 170,
+   "before": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 170 (`private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_`): f140_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0. Settled by survivor_attack.py facts (zero-image-read); no input of the program can show a difference.",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "3b83b9df24",
+   "op": "LIT",
+   "line": 195,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "LIT at line 195 (`@SuppressWarnings(\"unchecked\")`): a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect. Settled by survivor_attack.py facts (annotation-text); no input of the program can show a difference.",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "ac50b8f612",
+   "op": "LIT",
+   "line": 242,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "LIT at line 242 (`Integer error = handlers.get(\"ERROR\");`): handlers is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "fda97af424",
+   "op": "DEL",
+   "line": 282,
+   "before": "fill_CustctrlDfhcommarea(d, s, base);",
+   "after": "/* fill_CustctrlDfhcommarea(d, s, base); */",
+   "verdict": "unreachable",
+   "reason": "DEL at line 282 (`fill_CustctrlDfhcommarea(d, s, base);`): out_CustctrlDfhcommarea() is reached from no entry point of the program. Settled by survivor_attack.py facts (no-entry-path); no input of the program can show a difference.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "905297b502",
+   "op": "DEL",
+   "line": 320,
+   "before": "System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_LEN.bytes, 0, IMAGE_s_WS_CUST_REC_LEN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_LEN.bytes, 0, IMAGE_s_WS_CUST_REC_LEN.length); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 320 (`System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_L`): s_WS_CUST_REC_LEN is all X'00' and its items are only read: restoring it changes nothing. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "1910bfa809",
+   "op": "DEL",
+   "line": 329,
+   "before": "System.arraycopy(IMAGE_s_HV_NUMBER_OF_CUSTOMERS, 0, s_HV_NUMBER_OF_CUSTOMERS.bytes, 0, IMAGE_s_HV_NUMBER_OF_CUSTOMERS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HV_NUMBER_OF_CUSTOMERS, 0, s_HV_NUMBER_OF_CUSTOMERS.bytes, 0, IMAGE_s_HV_NUMBER_OF_CUSTOMERS.length); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 329 (`System.arraycopy(IMAGE_s_HV_NUMBER_OF_CUSTOMERS, 0, s_HV_NUM`): s_HV_NUMBER_OF_CUSTOMERS is all X'00' and its items are only read: restoring it changes nothing. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "579f0ee1cf",
+   "op": "DEL",
+   "line": 339,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 339 (`System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE`): s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "77de71f389",
+   "op": "DEL",
+   "line": 363,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 363 (`handlers.clear();`): handlers is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "c217632191",
+   "op": "DEL",
+   "line": 364,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 364 (`heldKey.clear();`): heldKey is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "bc1ae4a921",
+   "op": "CON",
+   "line": 678,
+   "before": "return 8;",
+   "after": "return 9;",
+   "verdict": "unreachable",
+   "reason": "CON at line 678 (`return 8;`): line 678 follows an unconditional `if (true) throw new Goback();`: it is never reached. Settled by survivor_attack.py facts (dead-after-throw); no input of the program can show a difference.",
+   "tried": [
+    "dead-after-throw"
+   ]
+  }
+ ]
+}

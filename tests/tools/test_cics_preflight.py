@@ -162,3 +162,16 @@ def test_copy_resolution_clean_fixture_counts(census, tmp_path, capsys):
     assert "ok   copy resolution: repos 1, members 4, agree 1" in out
     assert "neither 3" in out
     assert "  miss" not in out  # no cause lines when nothing disagrees
+
+
+def test_archive_files_are_counted_and_a_finding(census, tmp_path, capsys):
+    import zipfile
+
+    rc, out = run(census, tmp_path, capsys)
+    assert rc == 0 and "archive files 0" in out
+    with zipfile.ZipFile(census / SECRET / "members.zip", "w") as z:  # authored fixture, never opened by the check
+        z.writestr("ZZOTHER.cpy", DATA_ONLY)
+    (census / SECRET / "stage.xmit").write_bytes(b"\x00")
+    rc, out = run(census, tmp_path, capsys)
+    assert rc == 1 and "FAIL archive files 2" in out
+    assert SECRET not in out and "members.zip" not in out

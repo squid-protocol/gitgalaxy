@@ -310,6 +310,188 @@
           "map": "HXM2"
         }
       ]
+    },
+    {
+      "name": "pf5-invmpsz",
+      "why": "#7955: PF5 (alarm, cursor) path SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHPF5",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "pf5-tsioerr",
+      "why": "#7955: PF5 (alarm, cursor) path SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHPF5",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "bad-account-invmpsz",
+      "why": "#7955: bad-account error-redisplay path SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "AB12",
+          "AMOUNTI": "125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "bad-account-tsioerr",
+      "why": "#7955: bad-account error-redisplay path SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "AB12",
+          "AMOUNTI": "125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "ca-tail-enter",
+      "why": "survivor attack (#7955): COMMAREA longer than the record: bytes past it kept in beyond and returned",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-CA": "F"
+      },
+      "link_bytes": true,
+      "commarea_tail_hex": "5A5B",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "ca-tail-pf5",
+      "why": "survivor attack (#7955): same tail on PF5 path",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea": {
+        "WS-CA": "F"
+      },
+      "link_bytes": true,
+      "commarea_tail_hex": "5A"
+    },
+    {
+      "name": "ca-bytes-entry-long",
+      "why": "survivor attack (#7955): byte[] entry, 3 bytes: the first fills the record, two stay in beyond",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "C5C1C2",
+      "entry_only": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "ca-bytes-entry-pf5",
+      "why": "survivor attack (#7955): byte[] entry 1 byte F, PF5",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea_hex": "C6",
+      "entry_only": true
+    },
+    {
+      "name": "ca-bytes-link-long",
+      "why": "survivor attack (#7955): link area 3 bytes: record gets first, tail kept",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "C6C1C2",
+      "link_bytes": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "ca-bytes-link-pf5",
+      "why": "survivor attack (#7955): link area 1 byte F, PF5",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea_hex": "C6",
+      "link_bytes": true
+    },
+    {
+      "name": "ca-bytes-link-invmpsz",
+      "why": "survivor attack (#7955): link area 1 byte, SEND MAP INVMPSZ; the next scenario reads the COMMAREA record this one leaves",
+      "aid": "DFHENTER",
+      "commarea_hex": "C5",
+      "link_bytes": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ],
+      "terminal": "HX02 A"
+    },
+    {
+      "name": "ca-bytes-link-clear-after-fault",
+      "why": "survivor attack (#7955): link area 1 byte, CLEAR, run after the faulted link scenario",
+      "aid": "DFHCLEAR",
+      "commarea_hex": "C5",
+      "link_bytes": true,
+      "terminal": "HX02 A"
     }
   ]
 }

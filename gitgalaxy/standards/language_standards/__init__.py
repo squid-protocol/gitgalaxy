@@ -93,12 +93,14 @@ from .languages import dockerfile as _dockerfile
 from .languages import easytrieve as _easytrieve
 from .languages import elixir as _elixir
 from .languages import embedded_python as _embedded_python
+from .languages import erlang as _erlang
 from .languages import fortran as _fortran
 from .languages import fsharp as _fsharp
 from .languages import glsl as _glsl
 from .languages import go as _go
 from .languages import groovy as _groovy
 from .languages import haskell as _haskell
+from .languages import hcl as _hcl
 from .languages import hlasm as _hlasm
 from .languages import hlo as _hlo
 from .languages import html as _html
@@ -106,6 +108,7 @@ from .languages import java as _java
 from .languages import javascript as _javascript
 from .languages import jcl as _jcl
 from .languages import json as _json
+from .languages import julia as _julia
 from .languages import kotlin as _kotlin
 from .languages import livecode as _livecode
 from .languages import lua as _lua
@@ -114,8 +117,10 @@ from .languages import makefile as _makefile
 from .languages import markdown as _markdown
 from .languages import matlab as _matlab
 from .languages import mlir as _mlir
+from .languages import nim as _nim
 from .languages import nix as _nix
 from .languages import objectivec as _objectivec
+from .languages import ocaml as _ocaml
 from .languages import pbtxt as _pbtxt
 from .languages import perl as _perl
 from .languages import php as _php
@@ -125,6 +130,7 @@ from .languages import postgresql as _postgresql
 from .languages import powershell as _powershell
 from .languages import proto as _proto
 from .languages import python as _python
+from .languages import r as _r
 from .languages import rexx as _rexx
 from .languages import ruby as _ruby
 from .languages import rust as _rust
@@ -171,7 +177,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     # #5623: ".cr", ruby's `end`-delimited shape (its own Mode D scope entry).
     "crystal": _crystal.DEFINITION,
     "elixir": _elixir.DEFINITION,
+    "erlang": _erlang.DEFINITION,
+    "ocaml": _ocaml.DEFINITION,
+    "nim": _nim.DEFINITION,
     "swift": _swift.DEFINITION,
+    "julia": _julia.DEFINITION,
+    "hcl": _hcl.DEFINITION,
+    "r": _r.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,
     "html": _html.DEFINITION,

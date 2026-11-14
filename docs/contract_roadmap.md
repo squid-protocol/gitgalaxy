@@ -106,8 +106,8 @@ precondition for #2765.
 **D2 · The per-language issues — close #2561–#2607 (40 open) and #2560; one handoff surface.**
 They were organised on the wrong axis. Every cell they listed is explained (gate 0) and tracked
 by cause in the ledger; #2669 had already declared them "not the work queue" and built
-`issue_status.py` plus a Batch F.6 reopen loop solely to keep them current. The E.3 capstone rule
-decouples: a capstone is written when the language reads clean by `language_deviations.py`,
+keyword-rosetta's `issue_status.py` plus a Batch F.6 reopen loop solely to keep them current. The E.3 capstone rule
+decouples: a capstone is written when the language reads clean by keyword-rosetta's `language_deviations.py`,
 whenever that happens.
 
 **D3 · Where the contract sheet lives — `gitgalaxy/standards/signal_contracts.py`,
@@ -119,7 +119,7 @@ fixed and the disagreeing rules filed but not edited -- the unplanted, ungated s
 corpus plants it. `how_to_add_a_language.md` keeps
 its one-liners — it is the LLM prompt for new languages — but a baseline-gated audit
 (`tests/signal_contract_audit.py`, the `dead_key_audit.py` pattern) fails when a registry key
-has no entry or a comment drifts from its sentence. The corpus's `_registry.py` can import the
+has no entry or a comment drifts from its sentence. The keyword-rosetta corpus's `_registry.py` can import the
 module the way it already imports `LANGUAGE_DEFINITIONS`. Full `docs/<rule>_rule_contract.md`
 files stay for rules that earn a 46-row audit.
 
@@ -233,7 +233,7 @@ units come from the sheet.
 
 | issues | action | goes to |
 |---|---|---|
-| #2561–#2607 (40 open) | close, scripted comment | epic; live standing via `language_deviations.py <lang>` |
+| #2561–#2607 (40 open) | close, scripted comment | epic; live standing via keyword-rosetta's `language_deviations.py <lang>` |
 | #2560 | close as superseded | epic |
 | #2669 | final status; close | F.4 → Phase 3 families (`encapsulation` #2766, api census #2806); F.5 → the six STRUCTURE COUNTS issues; F.6 retired |
 | #2765 #2766 #2772 #2804 #2805 | keep | Phase 3, in that order |

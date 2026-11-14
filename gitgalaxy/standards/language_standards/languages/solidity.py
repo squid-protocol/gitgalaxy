@@ -144,7 +144,12 @@ DEFINITION: dict[str, Any] = {
         # `/// @param x` is one hit per line, not two; bare tags stay last
         # so a tag outside any doc comment still counts.
         # #2882 contract C4: doc counts the block, not the author tag -- the bare `@author` tag is ownership's alone.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@(?:param|return|dev|notice|custom|title)"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@(?:param|return|dev|notice|custom|title)"
+        ),
         # 14. test: Testing & Assertions. Foundry/Forge testing hooks and assertions.
         "test": re.compile(
             r"\b(?:setUp|test[A-Za-z0-9_]*|assertEq|assertTrue|assertFalse|assertGt|assertLt|vm\.expectRevert)\b"
@@ -183,7 +188,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": None,
         # 22. scientific: Numerical / Compute Libraries. Cryptographic hashing and elliptic curve recovery.
         "scientific": re.compile(r"\b(keccak256|sha256|ripemd160|ecrecover|addmod|mulmod)\b"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Low-level assembly injections and fallback routers.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Low-level assembly injections and fallback routers.
         "reflection_metaprogramming": re.compile(r"\b(fallback|receive|assembly|delegatecall|call|staticcall)\b"),
         # 24. import: Dependency Inclusions. Resolving dependencies across files.
         "import": re.compile(
@@ -237,7 +242,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": None,
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(address|uint\d*|int\d*|bytes\d*|uint|int|bytes)\s*\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting transaction state.
+        # 41. panics_and_aborts (Error Exits: revert) Aborting transaction state.
         "panics_and_aborts": re.compile(r"\b(revert)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (EVM cannot sleep).
         "thread_sleeps": None,

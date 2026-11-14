@@ -6,10 +6,10 @@ description: "> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](ht
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
 ## Engineering Summary
-Evaluates the presence of exposed sensitive credentials (API keys, private tokens, passwords, database connections) and analyzes careless code handling (e.g., debug log statements, dead code, global variable assignments) that increases the likelihood of accidental credential leakage. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Hardcoded Secrets Exposure metric.
+Scores a file from its count of hardcoded-credential matches (`sec_hardcoded_secrets`: API keys, tokens, passwords assigned to string literals), raised by whole-file counts of debug prints, dead code and globals. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Hardcoded Secrets Exposure metric.
 
 ## Purpose
-The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
+The metric calculates a density-based risk score (0-100) from the file's credential-match count and line count.
 
 ## Problem Being Solved
 Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
@@ -20,9 +20,9 @@ The analysis engine evaluates credential presence and careless code practice mul
 | Variable | Signal Key | Weight | Description |
 | :--- | :--- | :--- | :--- |
 | `sec_hardcoded_secrets` | Static Pattern | **10.0x Base** | Regex matches for private API keys, tokens, or passwords. |
-| `debug_prints` | `debug_prints` | **+1.0 Amplification** | Print/log statements (`console.log`, `print`, `logger.info`) near secrets. |
-| `dead_code` | `dead_code` | **+1.0 Amplification** | Commented-out or unreachable code blocks containing hardcoded keys. |
-| `globals` | `globals` | **+1.0 Amplification** | Secrets assigned to global scope variables. |
+| `debug_prints` | `debug_prints` | **+1.0 per hit** | Count of print/log statements anywhere in the file. No proximity to the secret is checked. |
+| `dead_code` | `dead_code` | **+1.0 per hit** | Count of dead-code hits anywhere in the file, whether or not they contain a key. |
+| `globals` | `globals` | **+1.0 per hit** | Count of global-scope assignments anywhere in the file, not only ones holding a secret. |
 | `llm_api` | `llm_api` | **3.0x Multiplier** | Calling external APIs (`llm_api > 0`) without global config management (`globals == 0`). |
 
 ### 1. Base Leak & Amplification Mass
@@ -34,6 +34,8 @@ If external API calls are detected without global configuration structures, ampl
 $$\text{Amplifiers} = \text{Amplifiers} \times 3.0$$
 
 In standard non-paranoid mode without reflection/metaprogramming signals, amplifiers are capped at $2.0$.
+
+The amplifier terms are whole-file counts: a file with one secret and twenty unrelated `print(` calls gets the same amplification as one that prints the secret.
 
 ### 2. Leak Mass Formulation
 $$\text{LeakMass} = \text{BaseLeak} \times \text{Amplifiers}$$
@@ -88,16 +90,22 @@ def _calc_secrets_risk(self, loc: int, raw_signals: dict[str, int], mp: float) -
     return min(score * mp, 100.0)
 ```
 
-**Risk Classification:**
-* 🟦 **LOW (Score 0–19):** Secrets safely retrieved via environment variables or secret management vaults.
-* 🟨 **MODERATE (Score 40–59):** Low-entropy credentials or test environment secrets.
-* 🟥 **VERY HIGH (Score 80–100):** High-entropy secrets paired with debug logging, or inline API keys in modules lacking global configuration parameters.
+**Score bands:** the score is a sigmoid of match density only. It does not tell environment-variable retrieval from inline keys, test secrets from production ones, or low-entropy from high-entropy values; the bands below are plain score ranges.
+* 🟦 **LOW (Score 0–19):** no credential match, or few matches relative to the file's size (scores under 5.0 are floored to 0).
+* 🟨 **MODERATE (Score 40–59):** match density near the sigmoid threshold.
+* 🟥 **VERY HIGH (Score 80–100):** match density well past the threshold, often with amplifiers applied.
+
+### 4. The 100.0 override (keyfiles)
+The formula above is skipped for files the aperture flags as exposed secret files: an extension in `SECRETS_EXTENSIONS` (`.pem`, `.key`, `.p12` and others), a name in `SECRETS_EXACT` (`id_rsa` and others), or an aperture reason containing `CRITICAL LEAK`. Their `secrets_risk` is set to 100.0 and every other risk to 0 except churn (`signal_processor.py`, the "CRITICAL SECRETS EXPOSURE OVERRIDE" block). Files the aperture excluded with a `CRITICAL LEAK` reason are also put back on the map as synthetic artifacts with `secrets_risk` 100.0 and `file_impact` 5000.0, unless their path contains `/test/`, `/tests/`, `mock` or `dummy` (`galaxyscope.py`, the critical-leak escalation).
+
+### 5. What the input count misses
+`sec_hardcoded_secrets` comes from `SecurityLens`, which blanks every line of 250 or more characters before its regexes run (`SecurityLens._armor`). A key on a minified or otherwise long line is not counted, and this score stays 0 for it. Vault Sentinel is the only scanner that reads such lines (`gitgalaxy/security/long_lines.py`, #7179; blind spot tracked in #8429). The credential patterns are tested on planted inputs (`tests/core_engine/test_embedded_credentials_probe_4108.py`, `tests/core_engine/test_embedded_credentials_real_scan_4108.py`) and the formula by `test_signal_processor_*secrets*` in `tests/core_engine/test_signal_processor.py`; there is no measured real-world recall.
 
 ## Pipeline Integration
-Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
+Inputs are per-file signal counts from the detector's language rules (`debug_prints`, `dead_code`, `globals`, `llm_api`) and from `SecurityLens` (`sec_hardcoded_secrets`, `sec_reflection_metaprogramming`), plus the path multiplier `mp`. The output is a risk score (0-100) in the `secrets_risk` slot of the risk vector. GitGalaxy has no AST parser; these are regex counts.
 ```mermaid
 flowchart LR
-    A[AST Parser] --> B[Signal Processor]
+    A[Detector + SecurityLens counts] --> B[Signal Processor]
     B --> C[Hardcoded Secrets Exposure Metric]
     C --> D[Risk Score Output]
 ```

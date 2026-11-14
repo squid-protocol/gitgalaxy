@@ -359,3 +359,106 @@ def test_continuation_join_is_redos_immune():
     t = time.perf_counter()
     _hs_join_continuations("x = f\n" + "  a\n" * 50000 + "g\n" * 50000)
     assert time.perf_counter() - t < 3.0
+
+
+@pytest.mark.parametrize(
+    "body, callees, absent",
+    [
+        # two primed names on one line were read as a char literal and blanked the code between them
+        ("run x = case y of\n  Just (_, t') -> case T.unsnoc t' of\n    Just m -> m\n", {"unsnoc"}, set()),
+        ("run x = case y of\n  Just u' -> go u'\n", {"go"}, {"Just"}),
+        ("run x = go' x + foo' 1\n", {"go'", "foo'"}, set()),
+        # a real char literal is still a literal
+        ("run x = f 'a' + g '\\n' + h x\n", {"f", "g", "h"}, set()),
+        ("run x = if c == 'a' then k x else m x'\n", {"k", "m"}, {"a"}),
+    ],
+)
+def test_primed_identifiers_are_not_char_literals(body, callees, absent):
+    got = _callees(body)
+    assert callees <= got
+    assert not absent & got
+
+
+def test_prime_masking_is_redos_immune():
+    import time
+
+    from gitgalaxy.standards.language_standards.languages.haskell import _hs_mask_primes
+
+    t = time.perf_counter()
+    _hs_mask_primes("x' " * 100000 + "'" * 100000 + "\\'" * 50000)
+    assert time.perf_counter() - t < 3.0
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run x = y : Foo x\n", {"Foo"}),
+        ("run x = go (Foo x : rest)\n", {"Foo", "go"}),
+        ("run x = acc : Bar 1 : []\n", {"Bar"}),
+        ("run x = a :| [Foo x]\n", {"Foo"}),
+        ("run x = Foo !x\n", {"Foo"}),
+        ("run x = Foo ~(a, b)\n", {"Foo"}),
+        ("run x = Foo !(g x) !y\n", {"Foo"}),
+    ],
+)
+def test_cons_and_strict_marked_applications_keep_their_head(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run x = foo (y:ys)\n", {"y", "ys"}),
+        ("run x = z :: Foo y\n", {"Foo", "y"}),
+        ("run x = a ! b\n", {"a", "b"}),
+        ("run x = a != b\n", {"a", "b"}),
+        ("run x = f (x:Foo y) = z\n", {"Foo"}),
+        ("go !acc (x:xs) = acc\n", {"go", "acc", "x", "xs"}),
+    ],
+)
+def test_cons_and_strict_mark_lookalikes_are_not_calls(body, absent):
+    assert not (absent & _callees(body))
+
+
+def test_cons_and_strict_alternatives_are_redos_immune():
+    pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
+    assert_redos_immune(pattern, "x = " + ": " * 50000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "Foo !" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "f " + "a !" * 30000 + "=", timeout_sec=3.0)
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        # a data-constructor application in expression position is a call (C3), in every head context
+        ('run x = Span ("",[],[]) (Str "a" : xs ++ [Str "b"])\n', {"Span", "Str"}),
+        ("run x = Str $ T.toUpper x\n", {"Str", "toUpper"}),
+        ("run x = Str (Emoji.replaceEmojis e x)\n", {"Str", "replaceEmojis"}),
+        ("run x = Foo.Bar x y\n", {"Bar"}),
+        ("run x = [Box x, Some y]\n", {"Box", "Some"}),
+        ("run x = Right (Just (Box x))\n", {"Right", "Just", "Box"}),
+        ("run x\n  | x > 1 = Box x\n  | otherwise = Nil\n", {"Box"}),
+        ("run x = let a = Box x in a\n", {"Box"}),
+        ("run x = map (\\y -> Box y) x\n", {"map", "Box"}),
+        ("run x = go x\n  where go y = Box y\n", {"go", "Box"}),
+        ("run x = Opts\n  { a = Box 1\n  , b = Some 2 }\n", {"Opts", "Box", "Some"}),
+        ("run x = do\n  Box y <- foo x\n  pure (Pair y 1)\n", {"foo", "pure", "Pair"}),
+        ("run x = Box (-1)\n", {"Box"}),
+        ('run x = Box "s"\n', {"Box"}),
+    ],
+)
+def test_constructor_application_is_a_call_in_every_head_context(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run (Box y) = y\n", {"Box"}),
+        ("run x = case x of\n  Box y -> y\n  Some z -> z\n", {"Box", "Some"}),
+        ("run x = foo\n  where go (Str s) = s\n", {"Str"}),
+        ("run x = \\(Box y) -> y\n", {"Box"}),
+    ],
+)
+def test_constructor_patterns_are_not_calls(body, absent):
+    assert not (absent & _callees(body))

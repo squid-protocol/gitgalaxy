@@ -473,8 +473,11 @@ DEFINITION: dict[str, Any] = {
         # bare tags stay last so a tag outside any doc comment still
         # counts. No corpus movement -- the rosetta corpus only plants one
         # of {marker, tag} for this language.
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|/\*![\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@discussion"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|/\*![\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@discussion"
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (OCUnit/XCTest).
         "test": re.compile(
@@ -524,7 +527,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(math\.h|sin|cos|tan|sqrt|exp|log|abs|NSDecimalNumber|CGVector|CGAffineTransform|CGPoint|CGRect|CGSize|NXRect|NXSize)\b"
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Objective-C Runtime Swizzling and dynamic messaging.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Objective-C Runtime Swizzling and dynamic messaging.
         "reflection_metaprogramming": re.compile(
             r"\b(objc_msgSend|performSelector|method_exchangeImplementations|class_addMethod|objc_allocateClassPair|isa|object_setClass)\b|<objc/runtime\.h>"
         ),
@@ -598,7 +601,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\(\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\*?\s*\)\s*[" + ID_START + r"$]|typeof\b"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution context.
         # BUG FIX: @throw never matched -- same \b-before-@ shape as
         # branch's fix above.
         "panics_and_aborts": re.compile(r"@(throw)\b|\b(abort|exit)\b"),

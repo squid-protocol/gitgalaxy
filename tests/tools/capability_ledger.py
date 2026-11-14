@@ -89,9 +89,38 @@ def seen(path: Path, text: str, state: str) -> str:
 
 
 def row(group: str, name: str, have: str, state: str, done: int | None = None, of: int | None = None,
-        unit: str = "", note: str = "") -> dict[str, Any]:  # fmt: skip
+        unit: str = "", note: str = "", found: str = "") -> dict[str, Any]:  # fmt: skip
+    """`found`: what a fresh estate's first contact showed about this row ("Gap found by ..." when it made us build it,
+    "Tested by ..." when the row already held), with its issues, so the ledger shows the trials' part in it."""
     return {"group": group, "name": name, "have": have, "state": state, "done": done, "of": of, "unit": unit,
-            "note": note}  # fmt: skip
+            "note": note, "found": found}  # fmt: skip
+
+
+COPY_MATRIX = REPO / "tests" / "cobol_mainframe" / "test_copy_layout_matrix_8074.py"
+
+
+def copy_layouts() -> int:
+    """Member layouts the COPY layout matrix pins (#8118): the keys of its FILES table, read without importing the test
+    (it scans a real estate)."""
+    import ast
+
+    if not COPY_MATRIX.is_file():
+        return 0
+    for node in ast.parse(COPY_MATRIX.read_text(encoding="utf-8")).body:
+        if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "FILES" for t in node.targets):
+            return len(getattr(node.value, "keys", []))
+    return 0
+
+
+def register_status(entry: str) -> str | None:
+    """The status line of one register entry (MATCHED / ASSUMED / DIFFERS / REFUSED), or None when it is absent."""
+    # read the register folder as register() does: a computed file name made the ground-truth input check
+    # (change_classifier) take every docs/language_status file for an input
+    for f in (STATUS / "register").glob("*.md"):
+        if f.stem == entry:
+            m = re.search(r'^status:\s*"?([A-Z]+)', f.read_text(encoding="utf-8"), re.M)
+            return m[1] if m else None
+    return None
 
 
 def family_counts(rules: list[dict[str, Any]], families: tuple[str, ...]) -> tuple[int, int]:
@@ -145,6 +174,7 @@ def proved_organizations() -> dict[str, int]:
 
 
 JCL_CASES = REPO / "tests" / "equivalence" / "jcl"
+IBM_WRITTEN_JCL_LEVELS = ("fixture", "ifelse")  # #4891 COND / IF; #8413 slice 1 IF / THEN / ELSE
 JCL_MEASURED = JCL_CASES / "carddemo" / "measured.json"  # the last CardDemo run, for runs without the corpus
 
 
@@ -189,9 +219,12 @@ def jcl_step_flow() -> dict[str, Any]:
     from gitgalaxy.core import job_flow
     from gitgalaxy.core.jcl_flow import JclFlow
 
-    fx = json.loads((JCL_CASES / "fixture" / "scenarios.json").read_text(encoding="utf-8"))
-    flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / "fixture" / "FLOW.jcl").read_text(encoding="latin-1")))
-    fx_ok = sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
+    fx_ok = fx_n = 0
+    for level in IBM_WRITTEN_JCL_LEVELS:  # each directory: FLOW.jcl + scenarios.json, answers written from the manual
+        fx = json.loads((JCL_CASES / level / "scenarios.json").read_text(encoding="utf-8"))
+        flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / level / "FLOW.jcl").read_text(encoding="latin-1")))
+        fx_ok += sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
+        fx_n += len(fx["scenarios"])
     cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
     n_cd = sum(len(j["scenarios"]) for j in cd["jobs"])
     corpus = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / cd["corpus"]
@@ -202,7 +235,7 @@ def jcl_step_flow() -> dict[str, Any]:
         rec = json.loads(JCL_MEASURED.read_text(encoding="utf-8"))
         if rec.get("answers_sha256") == _sha(JCL_CASES / "carddemo" / "scenarios.json") and rec.get("of") == n_cd:
             cd_ok = rec["matched"]
-    return {"fixture": (fx_ok, len(fx["scenarios"])), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"])}
+    return {"fixture": (fx_ok, fx_n), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"])}
 
 
 def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
@@ -235,6 +268,10 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
     keyed = proved_organizations().get("indexed", 0)
     spec = cics_spec_status.spec()
     maps = [k for k in ("SEND MAP", "RECEIVE MAP") if k in spec and spec[k].status == "modelled"]
+    import gap_prevalence
+
+    layouts, x77 = copy_layouts(), register_status("X77")
+    sql_keywords = len(getattr(gap_prevalence, "_SQL_OTHER_VERBS", ()))
     rows = [
         row(
             "COBOL language",
@@ -253,6 +290,22 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             "works",
             note="part of the rules above: depth, not extra rules",
         ),  # fmt: skip
+        row(
+            "COBOL language",
+            "Copybook search",
+            f"{layouts} member layouts the engine and translator both resolve",
+            "works" if layouts else "none",
+            note="extensionless and program-extension members, lowercase, nested COPY, OF library, deep directories",
+            found="Gap found by Blind 1: 28 of 29 first-contact misses were copybooks (#8074, #8111)",
+        ),
+        row(
+            "COBOL language",
+            "JSON GENERATE / PARSE",
+            "translated from IBM's text; GnuCOBOL has no JSON, so no oracle backs it"
+            + (f" (register X77: {x77})" if x77 else ""),
+            seen(DET / "gen.py", "def json_parse", "partial"),
+            found="Gap found by the census rehearsal: 2 programs needed it (#7524)",
+        ),
         row(
             "Code pages and national text",
             "EBCDIC code pages",
@@ -323,6 +376,9 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             db2,
             db2_of,
             "rules match IBM",
+            note=f"{sql_keywords} more IBM statement keywords, beyond the modelled ones, each refused by name, never dropped"
+            if sql_keywords else "",
+            found="Tested by Blind 1: its 17 SQL statements all translated at first contact; the rest pinned (#8075, #8146)",
         ),  # fmt: skip
         row(
             "Data and messaging",

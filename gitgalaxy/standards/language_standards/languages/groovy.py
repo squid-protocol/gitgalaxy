@@ -414,7 +414,12 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a groovydoc block counts once,
         # not once per tag inside it (the #2658 shape). Bare tags stay last
         # so a tag outside any doc block still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"
+        ),
         # 14. test (Testing & Assertions)
         # Integrates Spock Framework keywords (given:, when:, then:, expect:) alongside JUnit.
         # BUG FIX (Rule 5): `^\s*` matches newlines in re.M mode, so the
@@ -475,7 +480,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math\.|BigDecimal|BigInteger|Random|SecureRandom)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Groovy's highly dynamic Meta-Object Protocol (MOP).
         "reflection_metaprogramming": re.compile(
             r"\b(invokeMethod|getProperty|setProperty|methodMissing|propertyMissing|ExpandoMetaClass|metaClass)\b"
@@ -572,7 +577,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|System\.exit|GradleException)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|sleep)\b"),

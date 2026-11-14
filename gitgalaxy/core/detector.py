@@ -175,6 +175,9 @@ _DOCSTRING_POSITION_LANGS = ("python", "embedded_python", "matlab", "ruby", "eli
 # a `template<...>`, a decorator) and at most one blank line.
 _HEADER_COMMENT_MAX_PREFIX_LINES = 2
 _HEADER_COMMENT_MAX_BLANK_LINES = 1
+# The unit's own forward declaration may sit between its comment and its
+# definition (curl's `UNITTEST` idiom); it may span this many lines.
+_HEADER_COMMENT_MAX_PROTOTYPE_LINES = 3
 # A block is "explanatory" only with at least this many 2+-letter words (2: `/* Compress
 # 512 bits */` explains; a one-word `/* ARGSUSED */` or `// P_SpawnMobj` banner does not)...
 _HEADER_COMMENT_MIN_WORDS = 2
@@ -467,6 +470,25 @@ class ScopeParsingRegistry:
             "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
             "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
+        # #6572: Julia blocks (`function`, `if`, `for`, `while`, `let`, `try`, `struct`, `module`, `macro`, `quote`)
+        # open at the start of a line (a mid-line `for` / `if` is a comprehension or ternary-free guard and opens
+        # nothing); `begin` and `do` open anywhere (`@testset "x" begin`, `open(f) do io`). A closing `end` is not
+        # an index (`x[end]`, `x[end-1]`, `x[1:end]`, `x[end, 1]`).
+        "julia": {
+            "mode": "mode_d",
+            "openers": [
+                (
+                    r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*(?:\([^)\n]*\))?[ \t]+)*"
+                    r"(?:(?:mutable[ \t]+)?struct|function|macro|if|for|while|let|try|quote|(?:bare)?module"
+                    r"|abstract[ \t]+type|primitive[ \t]+type)\b"
+                ),
+                r"(?<![\[(,:.@$\w])\bbegin\b(?![ \t]*[\]):,])",
+                r"(?<![:.@$\w])\bdo\b(?![:?!])",
+            ],
+            "closers": [r"(?<![\[(,:.@$\w])\bend\b(?![ \t]*[-+*/\u00f7%^\]:,\[])"],
+            "function_opener": r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*function\b",
+            "class_opener": r"(?m:^)[ \t]*(?:(?:mutable[ \t]+)?struct|(?:bare)?module)\b",
+        },
         "vb": {
             "mode": "mode_d",
             "openers": [
@@ -582,7 +604,9 @@ class ScopeParsingRegistry:
         },
         "erlang": {
             "mode": "mode_e",
-            "terminator": r"\.",
+            # #6572: a clause-ending `.` is followed by whitespace or a comment, never a word character: a float
+            # (`3.14`), a record field (`#r.f`) and `..` / `...` are not terminators.
+            "terminator": r"\.(?![\w.])",
             "igniter": r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)",
         },
         "prolog": {
@@ -1668,7 +1692,12 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             for c in _C_MACRO_BODY_CALL.findall(body)
             if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
         )
-        out[name] = calls if out.get(name, calls) == calls else None
+        # #7828: variants one file defines under `#if` / `#else` that all call something (openssl's `ERR_raise_data`)
+        # call the union: the engine does not evaluate `#if`, and whichever is built calls one of them. A variant that
+        # calls nothing (linuxdoom's `#define SHORT(x) (x)` beside the big-endian `SwapSHORT` one) means the call exists
+        # only under a configuration the compiler may not build: the macro stays ambiguous (None), as before.
+        prior = out.get(name, calls)
+        out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
         entries = _c_macro_init_entries(body) - params
         if entries:
             key = INIT_LIST_QUALIFIER + name
@@ -1713,6 +1742,24 @@ def _c_declared_function_names(text: str) -> set[str]:
     return out
 
 
+_C_DEFINE_ALIAS = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]+\(?[ \t]*([" + ID_START + "][" + ID_CONTINUE
+    + r"]*)[ \t]*\)?[ \t]*(?:/\*.*?\*/|//.*)?[ \t]*$",
+    re.M,
+)  # fmt: skip
+
+
+def c_macro_alias_targets(code: str) -> dict[str, set[str]]:
+    """#7828: each object-like `#define NAME TARGET` in `code` (the whole body one identifier, parentheses and a
+    trailing comment allowed) -> every TARGET its variants name (curl's `#define failf Curl_failf`). Whether TARGET
+    is a function is the repo's to say (`c_repo_macro_body_calls`)."""
+    out: dict[str, set[str]] = {}
+    for m in _C_DEFINE_ALIAS.finditer(code):
+        if m.group(1) != m.group(2) and m.group(2) not in _C_STATEMENT_WORDS:
+            out.setdefault(m.group(1), set()).add(m.group(2))
+    return out
+
+
 def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """#6770: `c_macro_body_calls` over many C/C++ texts. Every function-like macro is listed, so an expansion can tell
     a macro its body invokes from a function: one that calls nothing, or that two files define differently, maps to
@@ -1725,12 +1772,23 @@ def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """
     table: dict[str, frozenset[str] | None] = {}
     declared: set[str] = set()
+    aliases: dict[str, set[str]] = {}
     for text in texts:
         declared |= _c_declared_function_names(text)
         if "#" not in text or "define" not in text:
             continue
+        for name, targets in c_macro_alias_targets(text).items():
+            aliases.setdefault(name, set()).update(targets)
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
+    # #7828: an object-like alias of a function the scan declares (or of a macro the table knows) calls it. A name a
+    # function-like macro also defines (curl's `infof(...)  Curl_nop_stmt` beside `infof Curl_infof`) adds its targets
+    # to that entry's calls; a target that is no function (`Curl_nop_stmt`) is dropped and the variants that name a
+    # function still link, as the engine does not evaluate `#if`.
+    for name, targets in aliases.items():
+        linked = frozenset(t for t in targets if t in declared or t in table)
+        if linked:
+            table[name] = (table.get(name) or frozenset()) | linked
     out = {
         name: (calls or frozenset()) | ({name} if name in declared and not name.startswith(INIT_LIST_QUALIFIER) else set())
         for name, calls in table.items()
@@ -4682,7 +4740,7 @@ class StructuralExtractor:
                 # Not a risk_documentation input: a measured companion to
                 # is_documented (contract §8). A Doxygen header is a header too.
                 func["has_header_comment"] = start_line > 0 and self._has_header_comment(
-                    start_line, _header_pos_lines, _dead_code_pattern
+                    start_line, _header_pos_lines, _dead_code_pattern, str(func.get("name") or "")
                 )
 
                 # Attribute comment-stream signals (`dead_code`, `doc`, `ownership`,
@@ -5065,7 +5123,9 @@ class StructuralExtractor:
     # documented.
     _BELOW_POSITION_DOC_MARKERS = ('"""', "'''", "=begin")
 
-    def _has_header_comment(self, start_line: int, pos_lines: list[str], dead_code_pattern: Any) -> bool:
+    def _has_header_comment(
+        self, start_line: int, pos_lines: list[str], dead_code_pattern: Any, unit_name: str = ""
+    ) -> bool:
         """Does an explanatory comment block sit directly above this unit?
 
         Walks up from `start_line` over the raw file, using the line-aligned
@@ -5074,10 +5134,13 @@ class StructuralExtractor:
         `_HEADER_COMMENT_MAX_PREFIX_LINES` header-prefix code lines (return
         type, template, decorator) and `_HEADER_COMMENT_MAX_BLANK_LINES` blank
         line; a code line ending a statement or block (`;`, `{`, `}`) or a
-        preprocessor line stops the walk. The comment block found is then
-        rejected when it is a license header, a punctuation divider, too
-        short to explain anything, or commented-out code (the language's own
-        `dead_code` rule).
+        preprocessor line stops the walk -- except the unit's own forward
+        declaration (`UNITTEST void f(int);` right above `UNITTEST void f(int) {`,
+        curl's idiom), which is stepped over once. The comment block found is
+        then rejected when it is the tail of a trailing comment on a code line
+        above it (`#define X 1  /* room for ...` + `   names. */`), a license
+        header, a punctuation divider, too short to explain anything, or
+        commented-out code (the language's own `dead_code` rule).
         """
         raw = self.raw_content_lines
         if start_line <= 1 or not raw or not pos_lines:
@@ -5087,8 +5150,23 @@ class StructuralExtractor:
             p = pos_lines[n - 1].strip() if n - 1 < len(pos_lines) else ""
             return bool(p) and p == raw[n - 1].strip()
 
+        def own_prototype_start(end: int) -> int:
+            """1-indexed first line of this unit's forward declaration ending at
+            `end`, or 0 when the `;` there ends anything else."""
+            if not unit_name:
+                return 0
+            call = re.compile(r"(?<![\w$])" + re.escape(unit_name) + r"[ \t]*\(")
+            for n in range(end, max(0, end - _HEADER_COMMENT_MAX_PROTOTYPE_LINES), -1):
+                line = raw[n - 1].strip()
+                if not line or comment_only(n) or (n != end and line.endswith((";", "{", "}"))):
+                    return 0
+                if call.search(line):
+                    return n
+            return 0
+
         j = min(start_line - 1, len(raw))
         prefix = blanks = 0
+        stepped_prototype = False
         while j >= 1:
             text = raw[j - 1].strip()
             if comment_only(j):
@@ -5098,6 +5176,12 @@ class StructuralExtractor:
                 if blanks > _HEADER_COMMENT_MAX_BLANK_LINES:
                     return False
             else:
+                if text.endswith(";") and not blanks and not stepped_prototype:
+                    proto = own_prototype_start(j)
+                    if proto:
+                        stepped_prototype = True
+                        j = proto - 1
+                        continue
                 if blanks or prefix >= _HEADER_COMMENT_MAX_PREFIX_LINES:
                     return False
                 if text.endswith((";", "{", "}")) or text.startswith("#"):
@@ -5108,8 +5192,22 @@ class StructuralExtractor:
             return False
 
         k = j
-        while k > 1 and comment_only(k - 1):
-            k -= 1
+        closes, opens = raw[j - 1].count("*/"), raw[j - 1].count("/*")
+        while k > 1:
+            prev = raw[k - 2]
+            # A blank line inside a still-open `/* ... */` (a `*/` seen below, its
+            # `/*` not yet) is part of the same comment: keep walking.
+            if comment_only(k - 1) or (not prev.strip() and closes > opens):
+                k -= 1
+                closes += prev.count("*/")
+                opens += prev.count("/*")
+                continue
+            break
+        # A code line right above the block whose trailing `/*` comment is still
+        # open: the block is that comment's continuation, not a header.
+        above = pos_lines[k - 2] if k > 1 and k - 2 < len(pos_lines) else ""
+        if above.rfind("/*") > above.rfind("*/"):
+            return False
         block = "\n".join(raw[n - 1] for n in range(k, j + 1))
 
         if _HEADER_COMMENT_LICENSE.search(block):
@@ -6134,6 +6232,14 @@ class StructuralExtractor:
             )
             if m:
                 return m.group(1)
+        elif lang_key == "julia":
+            # #6572: `function Base.show(io, p)` is `show`; `function f{T}(x)` / `function f!(x)` keep the bare name.
+            m = re.search(
+                r"\b(?:function|macro|(?:mutable[ \t]+)?struct|(?:bare)?module|abstract[ \t]+type)[ \t]+(?:[\w.]*\.)?([^\W\d][\w]*!?)",
+                line,
+            )
+            if m:
+                return m.group(1)
         elif lang_key == "lua":
             m = re.search(r"\bfunction\s+([a-zA-Z0-9_.:]+)", line)
             if m:
@@ -6420,6 +6526,10 @@ class StructuralExtractor:
                         # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
                         # slicing the wrong span.
                         "fsharp",
+                        # #6572: OCaml is column-0 `let` / `and` definitions with an indented body (F#'s shape).
+                        "ocaml",
+                        # #6572: Nim is offside-rule: a routine body is the indented block under `proc f() =`.
+                        "nim",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
@@ -8968,6 +9078,9 @@ class StructuralExtractor:
 
         single_quote = r"'(?:\\.|[^'\\])*'"
         comment_marker = r"#[^\n]*"  # Python and YAML both use "#" for comments
+        if lang_id == "nim":
+            # #6572: Nim's `5'i32` literal suffix is an unpaired `'` just as Haskell's `x'` is.
+            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
         if lang_id == "haskell":
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
             comment_marker = r"--[^\n]*"

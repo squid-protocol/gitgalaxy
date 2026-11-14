@@ -162,6 +162,7 @@
 /openapi.json	tests/security_auditing
 /openapi.yaml	tests/security_auditing
 /ord	tests/cobol_mainframe
+/other	tests/cobol_mainframe
 /other.py	tests/core_engine
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe
@@ -196,8 +197,11 @@
 01-01-project-overview.md	tests/tools/test_readme_hand_counts.py
 01-02-galaxyscope-cli-reference.md	tests/tools/test_cli_contract.py
 01-06-the-structural-rag-graph.md	tests/tools/test_readme_hand_counts.py
+03-05-claim-5-file-archetypes.md	tests/core_engine
 05-20-equivalence-harness.md	tests/cobol_mainframe
 08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
+08-07-structural-fortification.md	tests/core_engine
+08-14-api-exposure.md	tests/core_engine
 AGENTS.md	tests/tools/crucible_case.py
 ARCHITECTURE.md	gitgalaxy
 AUTHORS.md	tests/extraction
@@ -248,6 +252,7 @@ ai_agent_jobs/port_order.md	tests/cobol_mainframe
 ai_agent_jobs/ports/POSTIT/attempts/002_work/prompt.md	tests/cobol_mainframe
 answer.md	gitgalaxy
 b.md	tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
+blind1_run_b_causes.md	tests/cobol_mainframe
 blob/main/docs/language_status/cics_field_testing.md	tests/tools/publish_examples.py
 blocker_report.anon.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
 blocker_report.full.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
@@ -318,8 +323,10 @@ docs/immutability_locks_rule_contract.md	gitgalaxy
 docs/import_rule_contract.md	gitgalaxy
 docs/io_rule_contract.md	gitgalaxy
 docs/language_status	tests/tools/test_progress_report.py
-docs/language_status/	tests/tools/estate_journey.py,tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
+docs/language_status/	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
+docs/language_status/blind1_proof_run.md	tests/cobol_mainframe
+docs/language_status/blind1_run_b_causes.md	tests/cobol_mainframe
 docs/language_status/blockers	tests/tools/cics_census.py
 docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
 docs/language_status/blockers/census_history.jsonl	tests/tools/test_census_nightly.py
@@ -346,7 +353,7 @@ docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/g
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
 docs/language_status/det_survey.md	tests/tools/test_progress_report.py
 docs/language_status/estate4_burned_basenames.json	tests/tools/estate4_draw.py
-docs/language_status/estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py
+docs/language_status/estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/progress_report.py
 docs/language_status/estate4_candidates.md	tests/tools/estate4_draw.py
 docs/language_status/estate4_candidates_requests.json	tests/cobol_mainframe,tests/tools/estate4_draw.py
 docs/language_status/estate4_devdata_repos.json	tests/tools/estate4_draw.py
@@ -355,7 +362,9 @@ docs/language_status/estate_batch_candidates.json	tests/tools/estate4_draw.py
 docs/language_status/estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 docs/language_status/estate_evidence	tests/tools/test_generated_branch.py
 docs/language_status/estate_intake.md	tests/cobol_mainframe,tests/tools/estate_intake.py
-docs/language_status/estate_journey/journey.json	tests/tools/estate_journey.py
+docs/language_status/estate_journey.md	tests/tools/estate_journey.py
+docs/language_status/estate_journey/	tests/tools/estate_journey.py
+docs/language_status/estate_journey/journey.json	tests/tools/estate_journey.py,tests/tools/progress_report.py
 docs/language_status/evidence	tests/cobol_mainframe
 docs/language_status/evidence/	tests/tools/evidence.py
 docs/language_status/evidence/*.md	tests/tools/evidence.py
@@ -379,7 +388,7 @@ docs/language_status/mutation_scores.json	tests/cobol_mainframe,tests/tools/evid
 docs/language_status/mutation_testing.md	tests/tools/mutation.py,tests/tools/mutation_scores.py
 docs/language_status/oracle_assumptions.md	tests/cobol_mainframe,tests/tools/estate_evidence.py,tests/tools/generated_docs.py,tests/tools/register.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_docs.py
 docs/language_status/oracle_assumptions.md.	tests/tools/estate_evidence.py
-docs/language_status/port_blockers.md	tests/tools/port_blockers.py
+docs/language_status/port_blockers.md	tests/cobol_mainframe,tests/tools/port_blockers.py
 docs/language_status/progress.json	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/progress.md	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/progress.svg	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py,tests/tools/test_progress_slide.py
@@ -457,6 +466,7 @@ docs/why_gitgalaxy_beats_ast_here.md	tests/tools/tree_sitter_accuracy_audit.py
 docs/wiki/01-01-project-overview.md	tests/tools/test_readme_hand_counts.py
 docs/wiki/01-02-galaxyscope-cli-reference.md	tests/tools/test_cli_contract.py
 docs/wiki/01-06-the-structural-rag-graph.md	tests/tools/test_readme_hand_counts.py
+docs/wiki/03-05-claim-5-file-archetypes.md	tests/core_engine
 docs/wiki/05-19-proven-cobol-to-java-ports.md	tests/cobol_mainframe
 docs/wiki/05-20-equivalence-harness.md	tests/cobol_mainframe,tests/tools/test_generated_branch.py
 docs/wiki/08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
@@ -470,7 +480,7 @@ does_not_exist.md	tests/core_engine
 doom-port-study.md	tests/tools/doom_speedrun
 est/report.md	tests/tools/test_generated_readers.py
 estate4_burned_basenames.json	tests/tools/estate4_draw.py
-estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py
+estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/progress_report.py
 estate4_candidates.md	tests/tools/estate4_draw.py
 estate4_candidates_requests.json	tests/cobol_mainframe,tests/tools/estate4_draw.py
 estate4_dbb_mortgage.md	tests/tools/test_status_page_snapshots.py
@@ -508,10 +518,10 @@ graph_coverage_history.csv	tests/tools/graph_coverage_chart.py
 ground_truth_history.jsonl	tests/tools/ground_truth_ledger.py
 harness_report.md	tests/tools/harness_report.py,tests/tools/test_harness_report.py
 how_to_add_a_fact_channel.md	tests/core_engine
-how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
+how_to_add_a_language.md	tests/core_engine,tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
 indented4.md	tests/core_engine
 issue.md	tests/tools/test_context_pack.py
-journey.json	tests/tools/estate_journey.py
+journey.json	tests/tools/estate_journey.py,tests/tools/progress_report.py
 language_status/register/probe_a.md	tests/tools/test_pr_runner_cost.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine
@@ -534,7 +544,7 @@ p.md	tests/tools/test_generated_docs.py
 padded.md	tests/extraction
 page.md	tests/cobol_mainframe,tests/tools/test_cics_spec_status.py
 pilot-A.md	tests/cobol_mainframe
-port_blockers.md	tests/tools/port_blockers.py
+port_blockers.md	tests/cobol_mainframe,tests/tools/port_blockers.py
 port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
 prompt.md	gitgalaxy,tests/tools/strengthen.py,tests/tools/test_maven_exe_4939.py
@@ -556,6 +566,7 @@ scan_comparison.md	tests/tools/publish_examples.py
 scorecard.md	tests/tools/referees
 settings.json	gitgalaxy
 signal_contracts.md	tests/signal_contract_audit.py,tests/test_signal_contract_sheet.py
+signal_coverage_verdicts.md	tests/core_engine
 signals.md	tests/core_engine
 space.md	tests/extraction
 src/harness_report.md	tests/tools/test_harness_report.py

@@ -71,6 +71,20 @@ def test_dasd_and_stage_refuse_an_unstaged_work_dir(tmp_path):
 sys.path.insert(0, str(BOX))
 import sysgen  # noqa: E402
 
+
+def test_smp_failed_steps_bounds_by_listed_expectation():
+    ok = {"job": "J", "step": "A", "executed": True, "cond_code": 8}
+    exp = {("J", "A"): (8, "why")}
+    assert sysgen.smp_failed_steps([ok], exp) == []
+    assert sysgen.smp_failed_steps([ok], {}) == [ok]  # unlisted CC 8 fails
+    assert sysgen.smp_failed_steps([{**ok, "cond_code": 4}], exp) != []  # a listed step must match exactly
+    assert sysgen.smp_failed_steps([{**ok, "executed": False, "cond_code": None}], exp) != []
+
+
+def test_smp2_expected_has_a_reason_for_each_entry():
+    assert all(cc > 0 and reason for cc, reason in sysgen.SMP2_EXPECTED.values())
+
+
 PRINTER = """\
  IEF142I SMP4P44 S1 - STEP WAS EXECUTED - COND CODE 0000
  IEF142I SMP4P44 LK S3 - STEP WAS EXECUTED - COND CODE 0004

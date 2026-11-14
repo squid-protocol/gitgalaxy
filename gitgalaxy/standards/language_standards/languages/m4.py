@@ -179,7 +179,7 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         # M4's native integer arithmetic evaluator.
         "scientific": re.compile(r"\b(?:eval|m4_eval)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Advanced string metaprogramming and regex substitutions.
         "reflection_metaprogramming": re.compile(
             r"\b(?:translit|patsubst|regexp|m4_translit|m4_bpatsubst|m4_bregexp|m4_pattern_allow)\b"

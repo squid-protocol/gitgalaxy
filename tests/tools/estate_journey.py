@@ -324,8 +324,11 @@ def add_draw(data: dict[str, Any], *, draw: int, repo: str, issue: int, estate: 
         "program_basis": basis, "first_contact": {"date": date, "value": whole, "total": basis, "source": source},
         "milestones": [], "series": [point], "learned": [],
     })  # fmt: skip
-    chapter = {"title": f"Blind estate {draw} of {planned} (drawn {date[:10]})", "estates": [key],
-               "text": "Drawn at T0 from the pre-registered candidates, after the preflight passed and main was frozen."}
+    chapter = {
+        "title": f"Blind estate {draw} of {planned} (drawn {date[:10]})",
+        "estates": [key],
+        "text": "Drawn at T0 from the pre-registered candidates, after the preflight passed and main was frozen.",
+    }
     nxt = next((i for i, c in enumerate(data["chapters"]) if c.get("title", "").startswith("Next")), None)
     data["chapters"].insert(len(data["chapters"]) if nxt is None else nxt, chapter)
     left = planned - sum(1 for e in data["estates"] if e.get("kind") == "blind")
@@ -344,6 +347,8 @@ def add_point(data: dict[str, Any], *, key: str, measure: str, prs: int, value: 
     e = next((x for x in data["estates"] if x["key"] == key), None)
     if e is None:
         raise ValueError(f"no estate {key!r} in the journey")
+    if e.get("kind") != "blind":
+        raise ValueError(f"{key!r} is not a blind draw: point records blind draws only")
     if not source:
         raise ValueError("every point needs a source")
     if value > total:
@@ -385,6 +390,8 @@ def l2_series_from_prs(prs: list[tuple[str, int, str]], eligible: list[str], bas
                        first_contact_date: str) -> list[dict[str, Any]]:  # fmt: skip
     """L2 after each case PR: a PR whose title says "case(s)" and names eligible programs adds those it names first
     (the CI det-sweep ratchet holds a merged case's det port equal on every scenario). x = the PR's index in `prs`."""
+    if not eligible:
+        raise ValueError("the trial declares no eligible programs yet: nothing can be credited")
     names = re.compile(r"\b(" + "|".join(map(re.escape, sorted(eligible, key=len, reverse=True))) + r")\b")
     seen: set[str] = set()
     out = [{"date": first_contact_date, "prs": 0, "value": 0, "total": basis,
@@ -396,9 +403,24 @@ def l2_series_from_prs(prs: list[tuple[str, int, str]], eligible: list[str], bas
         if not new:
             continue
         seen.update(new)
-        out.append({"date": ts.replace("T", " ").replace("Z", " UTC"), "prs": i, "value": len(seen), "total": basis,
-                    "source": f"PR #{n} merged, case added (det port equal, CI det-sweep ratchet): {', '.join(new)}"})
+        out.append(
+            {
+                "date": ts.replace("T", " ").replace("Z", " UTC"),
+                "prs": i,
+                "value": len(seen),
+                "total": basis,
+                "source": f"PR #{n} merged, case added (det port equal, CI det-sweep ratchet): {', '.join(new)}",
+            }
+        )
     return out
+
+
+def keep_recorded_points(rebuilt: list[dict[str, Any]], committed: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The rebuilt series plus every committed point `point` recorded by hand (an evidence-report reading, say).
+    The rebuild only knows case PRs, so replacing the series outright dropped Blind 1's closing point."""
+    made = ("PR #", "first contact:")
+    kept = [p for p in committed if not str(p.get("source", "")).startswith(made)]
+    return sorted([*rebuilt, *kept], key=lambda p: int(p.get("prs") or 0))
 
 
 def fetch_prs(trial_issues: list[int], estate: str, since_day: str) -> list[tuple[str, int, str]]:
@@ -433,11 +455,21 @@ def _record(args: argparse.Namespace) -> int:
             add_point(data, key=args.key, measure=args.measure, prs=args.prs, value=args.value, total=args.total,
                       source=args.source, date=args.date, accounted=args.accounted, l2_note=args.l2_note)  # fmt: skip
         else:  # l2-from-prs
-            e = next(x for x in data["estates"] if x["key"] == args.key)
+            e = next((x for x in data["estates"] if x["key"] == args.key), None)
+            if e is None:
+                raise ValueError(f"no estate {args.key!r} in the journey")
             if not e.get("l2_measure_note"):
                 raise ValueError("record the owner amendment first: point --measure L2 --l2-note ...")
+            if args.trial:
+                e["trial"] = args.trial
+            if args.trial_issues:  # sub-issues opened after T0 join the ones add-draw recorded
+                e["trial_issues"] = sorted({*(e.get("trial_issues") or []), *args.trial_issues})
             ledger = json.loads(TRIALS.read_text(encoding="utf-8"))
-            tr = next(t for t in ledger["trials"] if t["id"] == e["trial"])
+            tr = next((t for t in ledger["trials"] if t["id"] == e.get("trial")), None)
+            if tr is None:
+                raise ValueError(
+                    f"no trial {e.get('trial')!r} in trials.json: pass --trial ID once trial.py start has run"
+                )
             rows = trial_prs(fetch_prs(e["trial_issues"], e["estate"], args.since[:10]), args.since,
                              e["trial_issues"], e["estate"], args.causes)  # fmt: skip
             series = l2_series_from_prs(rows, tr["eligible"], e["program_basis"], e["first_contact"]["date"])
@@ -445,7 +477,7 @@ def _record(args: argparse.Namespace) -> int:
             print(f"{len(rows)} trial PRs; L2 {series[-1]['value']} / {e['program_basis']}", file=sys.stderr)
             if not args.write:
                 return 0
-            e["l2_series"] = series
+            e["l2_series"] = keep_recorded_points(series, e.get("l2_series") or [])
     except ValueError as exc:
         print(f"refused: {exc}", file=sys.stderr)
         return 1
@@ -490,7 +522,11 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--since", required=True, help="first contact, UTC ISO (e.g. 2026-11-08T03:32)")
     r.add_argument("--causes", type=lambda s: [int(x) for x in s.split(",")], default=[],
                    help="comma-separated fix PRs the trial booked as causes")  # fmt: skip
-    r.add_argument("--write", action="store_true", help="replace l2_series (default: print it)")
+    r.add_argument("--trial", help="the trials.json id, when add-draw ran before trial.py start (recorded on --write)")
+    r.add_argument("--trial-issues", type=lambda s: [int(x) for x in s.split(",")], default=[],
+                   help="comma-separated sub-issues opened since add-draw (added to the entry on --write)")  # fmt: skip
+    r.add_argument("--write", action="store_true",
+                   help="rebuild the case-PR points of l2_series, keeping points recorded by hand (default: print)")  # fmt: skip
     args = ap.parse_args(argv)
     if args.cmd:
         return _record(args)

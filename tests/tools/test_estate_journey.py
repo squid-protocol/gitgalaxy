@@ -151,6 +151,34 @@ def test_the_l2_series_counts_trial_prs_and_steps_only_on_new_case_programs():
     assert "PGMC" in series[-1]["source"] and "PGMB" not in series[-1]["source"]
 
 
+def test_a_rebuild_keeps_hand_recorded_points_and_refuses_what_it_cannot_credit():
+    # review of #8406: --write replaced the series and dropped Blind 1's closing evidence-report point; an empty
+    # eligible list matched the empty string and credited a program; `point` on a development estate wrote a
+    # second L2 series the page build then crashed on
+    rebuilt = [
+        {"prs": 0, "value": 0, "total": 4, "source": "first contact: no case exists"},
+        {"prs": 2, "value": 2, "total": 4, "source": "PR #4 merged, case added: PGMA, PGMB"},
+    ]
+    committed = [
+        {"prs": 0, "value": 0, "total": 4, "source": "first contact: stale wording"},
+        {"prs": 1, "value": 1, "total": 4, "source": "PR #3 merged, case added: a row the rebuild no longer makes"},
+        {"prs": 9, "value": 2, "total": 4, "source": "origin/generated abc: L2+ 2 of 4"},
+    ]
+    merged = ej.keep_recorded_points(rebuilt, committed)
+    assert [(p["prs"], p["source"][:6]) for p in merged] == [(0, "first "), (2, "PR #4 "), (9, "origin")]
+    with pytest.raises(ValueError, match="no eligible programs"):
+        ej.l2_series_from_prs([("2026-12-01T12:00:00Z", 4, "Equivalence cases for x (Part of #9002)")], [], 4, "T0")
+    with pytest.raises(ValueError, match="not a blind draw"):
+        ej.add_point(_with_draws(), key="d", measure="L2", prs=1, value=1, total=2, source="s", date="d")
+
+
+def test_l2_from_prs_refuses_an_unknown_key_or_trial_without_a_traceback(capsys):
+    assert ej.main(["l2-from-prs", "--key", "no-such-estate", "--since", "2026-12-01T09:00"]) == 1
+    assert "refused: no estate 'no-such-estate'" in capsys.readouterr().err
+    assert ej.main(["l2-from-prs", "--key", "blind-trial-1", "--since", "2026-12-01T09:00", "--trial", "nope"]) == 1
+    assert "refused: no trial 'nope'" in capsys.readouterr().err
+
+
 def test_a_blind_l2_series_gets_its_own_chart_never_the_l1_overlay():
     d = ej.add_point(_with_draws(), key="b", measure="L2", prs=3, value=2, total=2, source="#7", date="d",
                      l2_note="Amendment 9: cases allowed")  # fmt: skip

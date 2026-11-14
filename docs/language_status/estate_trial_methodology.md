@@ -49,7 +49,7 @@ PR count that goes back, or a draw already recorded; none needs a code change.
 |---|---|---|
 | T0, after the post | `add-draw --draw N --repo O/R --issue I --estate E --basis B --date D --whole W [--accounted A] --source URL [--trial-issues ...]` | first contact, the draw's chapter, the "N draws remain" prose recounted |
 | each re-measure that moves the count | `point --key blind-trial-N --measure L1 --prs P --value V --total B [--accounted A] --date D --source URL` | one L1 point; `--prs` = trial PRs since first contact |
-| only after an owner amendment allows cases | `point --measure L2 ... --l2-note "Amendment K: ..."` once, then `l2-from-prs --key ... --since T0 --write` | the L2 climb, rebuilt from the merged case PRs |
+| only after an owner amendment allows cases | `point --measure L2 ... --l2-note "Amendment K: ..."` once, then `l2-from-prs --key ... --since T0 --write` (add `--trial ID` if `add-draw` ran before `trial.py start`, and `--trial-issues N,M` for sub-issues opened since) | the L2 climb, rebuilt from the merged case PRs; points recorded with `point` are kept |
 | the first-try run | `trial.py record` / `close` | the ledger the slide's first-try card sums |
 | close-out | milestones, "What we learned", journal lines; then `estate_journey.py` and `--check` | the write-up |
 

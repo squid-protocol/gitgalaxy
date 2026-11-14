@@ -5,18 +5,18 @@
  "case": "cruc-gt-asab",
  "entry": {
   "program": "GTASAB",
-  "commit": "3be51bec1dad2c0957c8fc16ac3fa004bbf3968a",
-  "date": "2026-11-13",
+  "commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
+  "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
-  "mutants": 273,
+  "mutants": 279,
   "out_of_scope": 6,
-  "chosen": 273,
+  "chosen": 279,
   "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
    "killed": 42,
    "timeout": 0,
-   "survived": 225,
+   "survived": 231,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -1873,21 +1873,69 @@
     "line": 369,
     "before": "return 1;",
     "after": "return 2;"
+   },
+   {
+    "id": "2ad0280ee1",
+    "op": "NEG",
+    "file": "service/GtasabService.java",
+    "line": 211,
+    "before": "} else if (ca instanceof HcrparWsV2) {",
+    "after": "} else if (!(ca instanceof HcrparWsV2)) {"
+   },
+   {
+    "id": "75c688d588",
+    "op": "DEL",
+    "file": "service/GtasabService.java",
+    "line": 212,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "848babd415",
+    "op": "CON",
+    "file": "service/GtasabService.java",
+    "line": 212,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "943554d338",
+    "op": "CON",
+    "file": "service/GtasabService.java",
+    "line": 210,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "9df37bfa6a",
+    "op": "NEG",
+    "file": "service/GtasabService.java",
+    "line": 209,
+    "before": "} else if (ca instanceof HcrparWsV1) {",
+    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+   },
+   {
+    "id": "a89a2bad3b",
+    "op": "DEL",
+    "file": "service/GtasabService.java",
+    "line": 210,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
    }
   ],
   "inputs": {
-   "port": "80475063d5fe64baf7107c87361600f1e7892a292f7143c1c9751cf33f4adef8",
+   "port": "a01769e4e8be892425e27b0559eadfa0f24521a3a07b51b02dc67c106840d50e",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
-   "generator": "d39d1fc47b391ed2a5908d9ce00d27609cca2c7fdbe26d8c7424e88c9b4112a5",
+   "generator": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
    "case": "3622f629f727a0a9002f429389f7190525881b44ba0d55b72500cc632e3db576",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
   "components": {
    "generator": {
-    "generator:core": "6700b235258c233e546d162b29bdd3b0829e7af19d54d017870403607f422146",
+    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -1908,10 +1956,10 @@
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
    },
    "harness": {
-    "harness:cics": "2604c86b17e3bf1d401faebb6c3f2ae4efc6233eae604b508585133b7a6e7942",
+    "harness:cics": "46e0186da8c5397a378b0e282d0aa29a0b50c2edb6e8c4a2c703e7e130dd4198",
     "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    },
    "oracle": {
@@ -1920,6 +1968,12 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "0068502b0c 00808109f3 017d76aff3 024011600f 02d01bad5e 034cb17f51 0489219906 04895cdef1 04f608ac5d 053f8aa45c 05cb303828 072b0e1655 07479fff3a 088a7278e9 08c18fa360 0b310ba92d 0f0cabb83b 11797dd315 13f7bbaf1c 172cc06ff2 19519510f2 1a13f35fae 1abae9588b 1abeff8c19 1cc3b31b36 1cd8cd2528 1d19861e10 1d87e8f982 1f34cc0b1c 22b5068d57 2372baf1c3 238dd7c40d 246977dacc 2469fb2b07 2486e944a7 25d44d0088 27ceb6608f 287a849f84 297021987a 29be1d9175 2a9381780b 2ab689314c 2b65673393 2b7882ee36 2b82be389c 2c244bcb49 2dccc721c4 2e7c199c62 2f5a246a0e 2f8ac001a7 2f92245b89 3038adaa6e 3101c8c1a4 3231eded46 34abca00a7 363db2078a 3710ca87d1 37da30137f 38c93c886b 3a359e9601 3a372e84b8 3b310237a1 3c97c3b857 3ce7d073ec 3d9f198d5d 3dd7512bcd 3dfe18a176 3e548810b9 3e8f01c630 3eca4a6706 3f6de3df21 400f24fad1 429238b70a 43df012d7b 4428b26009 45d51507c5 4635bdf5bb 485a36a9da 48c09c95db 4b28a72178 4cf79b63b2 4d7fd9fc8d 501fb5d1c7 511406885b 528c16575a 532752ffb4 54a94ea40a 5643ca43cc 57db702ae1 5b89b05e62 5bf4861865 5cf580492b 5d431534d4 5e00415b76 5e22114af2 5f929c456d 5f939e8f09 5fa99c4219 5fe6723460 626a4b36db 63a3a7531b 65f47008d2 65ff58df39 677282e06a 67dc86d39e 6981af76a0 6c231fe30e 6f73c88843 7278e9020f 72830a05b6 73b4ab4403 753d4c993f 7624293b1f 76a77bd643 76a983f2fb 76d170f148 7745662eaa 78bfe2e8a3 799b8989e0 7b8d471fbf 7bba53be35 7c4927903a 7c50b9b3a1 7db7e147b0 7e65d66170 7e7056702f 7ec7cb6032 7ef047b26c 8081e94efc 80e611a1a2 8201300b13 82f528d20b 8305754351 856b3dbc50 85b63be038 865bece668 885dda8337 8887fbd3eb 8900be7468 8a3d89d1bd 8ba0908c61 8c9adbbe20 8cc5a000b9 8f4535f094 8f56aa9e92 929d54c3f4 93fe414223 943881eae9 95dcb27fb6 96684a1292 968d2cd544 9736c35205 974a6cda91 98a80e423c 9c332132a1 9d90caa723 9ff4d706da a122d4f5c7 a17c070684 a20999e8c3 a22c7335d8 a23eb0e2fa a25e0106ac a443fa34ba a4546bb572 a66ba3e3d2 a698f65fc4 a722572ef1 a72e072fe7 a78739f9cd a98e85bfa6 a9e0b1da78 aa79516e6a aaa9879c04 ac35cdee88 ad39e9cd67 ae713fa6db b1910ceb2d b35629dfca b361bdae2f b36cd90e2b b4565fb82d b513056d62 b7589b19a4 b76cab2673 b8715885e8 ba1d99ddac baef7c5c4e bc085215e5 bd4b7e7b2d bdaf925fe3 bdf6fc542a be762ee720 bf2740ab3d c005e37137 c1fce3759a c2112f520c c2af6fc0f3 c49309ce2b c58842433c c5de634001 c5fdd0fcdf c7168a6c5f c7889044ce c7a8b3f210 c8cafb0a60 c90ac47103 c974609cf5 c979546fd2 c9dc76911f cb4285d93e cc3cc55848 cd2fb6717e ce40610a11 ce8a1cb9ec ce9bfd9af2 cfd3a079ab d0432cbf50 d28a20d547 d3e5843ca1 d493ce4ac7 d4e4443522 d53160ebd2 d5c10b452a d6aacce4b9 d73d82c545 d82cf51bdd dabcf000c2 db8b29d9b2 dbec54a958 dc14e68207 ddf42d2297 def189f361 df9ec1b938 e03b7a5351 e078a481f5 e14d30222e e167fe2706 e17bfadebb e19c02e63b e230c084a3 e427d005eb e4d1e9d39b e50094b346 e5c16217b7 e679218fad e7d592612a e802d82c64 e8214bcad3 e8d72ffaad e93156d9cf ea2e17e5dd eb1241b32b eb7bd4ad9e ec5f12963b ed9e68f3bf edf979af10 ee12fa3e46 ee86386e48 f18e362b2f f34141ed95 f5a54fdd44 f6754105f5 f7081f9f42 f7c661ed06 f88756b133 f8b6bd01ba fa21693bf2 fa2f6bb3bf fa4a9ff651 fcfb2cfb3e fe917769cc ff93dd770e"
+  "every": "0068502b0c 00808109f3 017d76aff3 024011600f 02d01bad5e 034cb17f51 0489219906 04895cdef1 04f608ac5d 053f8aa45c 05cb303828 072b0e1655 07479fff3a 088a7278e9 08c18fa360 0b310ba92d 0f0cabb83b 11797dd315 13f7bbaf1c 172cc06ff2 19519510f2 1a13f35fae 1abae9588b 1abeff8c19 1cc3b31b36 1cd8cd2528 1d19861e10 1d87e8f982 1f34cc0b1c 22b5068d57 2372baf1c3 238dd7c40d 246977dacc 2469fb2b07 2486e944a7 25d44d0088 27ceb6608f 287a849f84 297021987a 29be1d9175 2a9381780b 2ab689314c 2ad0280ee1 2b65673393 2b7882ee36 2b82be389c 2c244bcb49 2dccc721c4 2e7c199c62 2f5a246a0e 2f8ac001a7 2f92245b89 3038adaa6e 3101c8c1a4 3231eded46 34abca00a7 363db2078a 3710ca87d1 37da30137f 38c93c886b 3a359e9601 3a372e84b8 3b310237a1 3c97c3b857 3ce7d073ec 3d9f198d5d 3dd7512bcd 3dfe18a176 3e548810b9 3e8f01c630 3eca4a6706 3f6de3df21 400f24fad1 429238b70a 43df012d7b 4428b26009 45d51507c5 4635bdf5bb 485a36a9da 48c09c95db 4b28a72178 4cf79b63b2 4d7fd9fc8d 501fb5d1c7 511406885b 528c16575a 532752ffb4 54a94ea40a 5643ca43cc 57db702ae1 5b89b05e62 5bf4861865 5cf580492b 5d431534d4 5e00415b76 5e22114af2 5f929c456d 5f939e8f09 5fa99c4219 5fe6723460 626a4b36db 63a3a7531b 65f47008d2 65ff58df39 677282e06a 67dc86d39e 6981af76a0 6c231fe30e 6f73c88843 7278e9020f 72830a05b6 73b4ab4403 753d4c993f 75c688d588 7624293b1f 76a77bd643 76a983f2fb 76d170f148 7745662eaa 78bfe2e8a3 799b8989e0 7b8d471fbf 7bba53be35 7c4927903a 7c50b9b3a1 7db7e147b0 7e65d66170 7e7056702f 7ec7cb6032 7ef047b26c 8081e94efc 80e611a1a2 8201300b13 82f528d20b 8305754351 848babd415 856b3dbc50 85b63be038 865bece668 885dda8337 8887fbd3eb 8900be7468 8a3d89d1bd 8ba0908c61 8c9adbbe20 8cc5a000b9 8f4535f094 8f56aa9e92 929d54c3f4 93fe414223 943554d338 943881eae9 95dcb27fb6 96684a1292 968d2cd544 9736c35205 974a6cda91 98a80e423c 9c332132a1 9d90caa723 9df37bfa6a 9ff4d706da a122d4f5c7 a17c070684 a20999e8c3 a22c7335d8 a23eb0e2fa a25e0106ac a443fa34ba a4546bb572 a66ba3e3d2 a698f65fc4 a722572ef1 a72e072fe7 a78739f9cd a89a2bad3b a98e85bfa6 a9e0b1da78 aa79516e6a aaa9879c04 ac35cdee88 ad39e9cd67 ae713fa6db b1910ceb2d b35629dfca b361bdae2f b36cd90e2b b4565fb82d b513056d62 b7589b19a4 b76cab2673 b8715885e8 ba1d99ddac baef7c5c4e bc085215e5 bd4b7e7b2d bdaf925fe3 bdf6fc542a be762ee720 bf2740ab3d c005e37137 c1fce3759a c2112f520c c2af6fc0f3 c49309ce2b c58842433c c5de634001 c5fdd0fcdf c7168a6c5f c7889044ce c7a8b3f210 c8cafb0a60 c90ac47103 c974609cf5 c979546fd2 c9dc76911f cb4285d93e cc3cc55848 cd2fb6717e ce40610a11 ce8a1cb9ec ce9bfd9af2 cfd3a079ab d0432cbf50 d28a20d547 d3e5843ca1 d493ce4ac7 d4e4443522 d53160ebd2 d5c10b452a d6aacce4b9 d73d82c545 d82cf51bdd dabcf000c2 db8b29d9b2 dbec54a958 dc14e68207 ddf42d2297 def189f361 df9ec1b938 e03b7a5351 e078a481f5 e14d30222e e167fe2706 e17bfadebb e19c02e63b e230c084a3 e427d005eb e4d1e9d39b e50094b346 e5c16217b7 e679218fad e7d592612a e802d82c64 e8214bcad3 e8d72ffaad e93156d9cf ea2e17e5dd eb1241b32b eb7bd4ad9e ec5f12963b ed9e68f3bf edf979af10 ee12fa3e46 ee86386e48 f18e362b2f f34141ed95 f5a54fdd44 f6754105f5 f7081f9f42 f7c661ed06 f88756b133 f8b6bd01ba fa21693bf2 fa2f6bb3bf fa4a9ff651 fcfb2cfb3e fe917769cc ff93dd770e",
+  "refreshed": {
+   "from": "2026-11-13",
+   "survivors_rerun": 0,
+   "fresh": 6,
+   "stale": []
+  }
  }
 }

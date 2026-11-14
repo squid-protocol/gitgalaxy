@@ -5,18 +5,18 @@
  "case": "cruc-gt-stxs",
  "entry": {
   "program": "GTSTXS",
-  "commit": "2cdedeab52f8ffd17940dc853f3e6a805d893faf",
+  "commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
   "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
-  "mutants": 286,
-  "out_of_scope": 0,
+  "mutants": 292,
+  "out_of_scope": 6,
   "chosen": 286,
   "coverage": "proven on 2 scenarios, covering 1/1 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 59,
+   "killed": 56,
    "timeout": 0,
-   "survived": 221,
+   "survived": 224,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -56,7 +56,6 @@
    "89f6f1522f",
    "8b4d148433",
    "8c1bfeb4c8",
-   "94da1361e4",
    "9b5f7769a7",
    "9f0f61019b",
    "ab744e6d8a",
@@ -64,9 +63,7 @@
    "aec13f281b",
    "b3669644d2",
    "b5c44f1285",
-   "b78427543c",
    "b93f18bc1b",
-   "ba65a9e2e2",
    "bc75721c62",
    "c5227c8bb7",
    "cc79e8154f",
@@ -252,14 +249,6 @@
     "after": "private final Field f13_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
    },
    {
-    "id": "0c657960ca",
-    "op": "CON",
-    "file": "service/GtstxsService.java",
-    "line": 61,
-    "before": "private final Field f16_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-    "after": "private final Field f16_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
-   },
-   {
     "id": "d5a09a0186",
     "op": "CON",
     "file": "service/GtstxsService.java",
@@ -356,20 +345,20 @@
     "after": "if (!(task.level() > 1)) {"
    },
    {
-    "id": "e8957eb1ce",
-    "op": "ROR",
-    "file": "service/GtstxsService.java",
-    "line": 77,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
     "id": "5f10d466a7",
     "op": "ROR",
     "file": "service/GtstxsService.java",
     "line": 77,
     "before": "if (task.level() > 1) {",
     "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "e8957eb1ce",
+    "op": "ROR",
+    "file": "service/GtstxsService.java",
+    "line": 77,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
    },
    {
     "id": "d2dd9094d3",
@@ -732,14 +721,6 @@
     "after": "/* calen = cx(task, 20); */"
    },
    {
-    "id": "2bd183049b",
-    "op": "CON",
-    "file": "service/GtstxsService.java",
-    "line": 181,
-    "before": "calen = cx(task, 20);",
-    "after": "calen = cx(task, 21);"
-   },
-   {
     "id": "9f76772838",
     "op": "NEG",
     "file": "service/GtstxsService.java",
@@ -1100,10 +1081,58 @@
     "after": "calen = cx(task, 5);"
    },
    {
-    "id": "18378f1187",
+    "id": "e0dbea6ac3",
     "op": "NEG",
     "file": "service/GtstxsService.java",
     "line": 212,
+    "before": "} else if (ca instanceof HcrparWsV1) {",
+    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+   },
+   {
+    "id": "ddfa2da705",
+    "op": "DEL",
+    "file": "service/GtstxsService.java",
+    "line": 213,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "f063ce76d5",
+    "op": "CON",
+    "file": "service/GtstxsService.java",
+    "line": 213,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "7ee87cef6f",
+    "op": "NEG",
+    "file": "service/GtstxsService.java",
+    "line": 214,
+    "before": "} else if (ca instanceof HcrparWsV2) {",
+    "after": "} else if (!(ca instanceof HcrparWsV2)) {"
+   },
+   {
+    "id": "0a72a95cc0",
+    "op": "DEL",
+    "file": "service/GtstxsService.java",
+    "line": 215,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "56f0c3475c",
+    "op": "CON",
+    "file": "service/GtstxsService.java",
+    "line": 215,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "18378f1187",
+    "op": "NEG",
+    "file": "service/GtstxsService.java",
+    "line": 216,
     "before": "} else if (ca instanceof PcconfWsState) {",
     "after": "} else if (!(ca instanceof PcconfWsState)) {"
    },
@@ -1111,7 +1140,7 @@
     "id": "1be6adf7ab",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 213,
+    "line": 217,
     "before": "calen = cx(task, 30);",
     "after": "/* calen = cx(task, 30); */"
    },
@@ -1119,7 +1148,7 @@
     "id": "37a468b1d1",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 213,
+    "line": 217,
     "before": "calen = cx(task, 30);",
     "after": "calen = cx(task, 31);"
    },
@@ -1127,7 +1156,7 @@
     "id": "a04944067d",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 214,
+    "line": 218,
     "before": "} else if (ca instanceof PcrcaWsCarry) {",
     "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
    },
@@ -1135,7 +1164,7 @@
     "id": "05e358e398",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 215,
+    "line": 219,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1143,7 +1172,7 @@
     "id": "a7da7986d7",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 215,
+    "line": 219,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1151,7 +1180,7 @@
     "id": "346772d091",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 216,
+    "line": 220,
     "before": "} else if (ca instanceof PcrcaWsModify) {",
     "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
    },
@@ -1159,7 +1188,7 @@
     "id": "6116aa44f9",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 217,
+    "line": 221,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1167,7 +1196,7 @@
     "id": "c497c33b5b",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 217,
+    "line": 221,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1175,7 +1204,7 @@
     "id": "3137858786",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 218,
+    "line": 222,
     "before": "} else if (ca instanceof PcrcbWsExtra) {",
     "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
    },
@@ -1183,7 +1212,7 @@
     "id": "1d8246e584",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 219,
+    "line": 223,
     "before": "calen = cx(task, 5);",
     "after": "/* calen = cx(task, 5); */"
    },
@@ -1191,7 +1220,7 @@
     "id": "5ab5ece8e3",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 219,
+    "line": 223,
     "before": "calen = cx(task, 5);",
     "after": "calen = cx(task, 6);"
    },
@@ -1199,7 +1228,7 @@
     "id": "597034acf3",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 220,
+    "line": 224,
     "before": "} else if (ca instanceof PcrcbWsNew1) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
    },
@@ -1207,7 +1236,7 @@
     "id": "3382ca31f2",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 221,
+    "line": 225,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1215,7 +1244,7 @@
     "id": "a6d03e5522",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 221,
+    "line": 225,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1223,7 +1252,7 @@
     "id": "7d7f082510",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 222,
+    "line": 226,
     "before": "} else if (ca instanceof PcrcbWsNew2) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
    },
@@ -1231,7 +1260,7 @@
     "id": "e979da34a9",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 223,
+    "line": 227,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1239,7 +1268,7 @@
     "id": "788481b0a3",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 223,
+    "line": 227,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1247,7 +1276,7 @@
     "id": "c3ada844aa",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 224,
+    "line": 228,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
    },
@@ -1255,7 +1284,7 @@
     "id": "a4677931fe",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 225,
+    "line": 229,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1263,7 +1292,7 @@
     "id": "600ead3e82",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 225,
+    "line": 229,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1271,7 +1300,7 @@
     "id": "df99f24af0",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 227,
+    "line": 231,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen != 0 && task.linkArea() != null) {"
    },
@@ -1279,7 +1308,7 @@
     "id": "90aab3010f",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 227,
+    "line": 231,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 1 && task.linkArea() != null) {"
    },
@@ -1287,7 +1316,7 @@
     "id": "38b369fd22",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 228,
+    "line": 232,
     "before": "calen = cx(task, task.linkArea().length);",
     "after": "/* calen = cx(task, task.linkArea().length); */"
    },
@@ -1295,7 +1324,7 @@
     "id": "72831d5fe3",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 230,
+    "line": 234,
     "before": "Cobol.store(f16_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f16_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -1303,7 +1332,7 @@
     "id": "884769918e",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 232,
+    "line": 236,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -1311,7 +1340,7 @@
     "id": "f2ea0f68a6",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 237,
+    "line": 241,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -1319,7 +1348,7 @@
     "id": "4c358ea595",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 241,
+    "line": 245,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -1327,7 +1356,7 @@
     "id": "f6457d3dfe",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 242,
+    "line": 246,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -1335,7 +1364,7 @@
     "id": "b587fb2bdb",
     "op": "LIT",
     "file": "service/GtstxsService.java",
-    "line": 249,
+    "line": 253,
     "before": "region.run(task, \"GTSTXS\", this::runTask);",
     "after": "region.run(task, \"XTSTXS\", this::runTask);"
    },
@@ -1343,7 +1372,7 @@
     "id": "d1a35cd7a2",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 256,
+    "line": 260,
     "before": "lastAnswerBytes = task.returnedBytes();",
     "after": "/* lastAnswerBytes = task.returnedBytes(); */"
    },
@@ -1351,7 +1380,7 @@
     "id": "ac2306facd",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 274,
+    "line": 278,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1359,7 +1388,7 @@
     "id": "acacce011b",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 279,
+    "line": 283,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -1367,7 +1396,7 @@
     "id": "4e53329060",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 280,
+    "line": 284,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -1375,7 +1404,7 @@
     "id": "dace78c310",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 288,
+    "line": 292,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1383,7 +1412,7 @@
     "id": "5176f7b70f",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 299,
+    "line": 303,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -1391,7 +1420,7 @@
     "id": "a3a21d5929",
     "op": "AOR",
     "file": "service/GtstxsService.java",
-    "line": 299,
+    "line": 303,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -1399,7 +1428,7 @@
     "id": "eeb16bcc56",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 299,
+    "line": 303,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -1407,7 +1436,7 @@
     "id": "e016df0026",
     "op": "AOR",
     "file": "service/GtstxsService.java",
-    "line": 301,
+    "line": 305,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -1415,7 +1444,7 @@
     "id": "e90e2631ea",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 306,
+    "line": 310,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -1423,7 +1452,7 @@
     "id": "59d1c5213a",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 306,
+    "line": 310,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -1431,7 +1460,7 @@
     "id": "c55c198424",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 308,
+    "line": 312,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -1439,7 +1468,7 @@
     "id": "f63b845f52",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 309,
+    "line": 313,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -1447,7 +1476,7 @@
     "id": "73a410b26c",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 309,
+    "line": 313,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -1455,7 +1484,7 @@
     "id": "61b7a00953",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 310,
+    "line": 314,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -1463,7 +1492,7 @@
     "id": "d264ea6822",
     "op": "AOR",
     "file": "service/GtstxsService.java",
-    "line": 312,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -1471,31 +1500,31 @@
     "id": "4480005977",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 312,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
-   },
-   {
-    "id": "6aefc20dbb",
-    "op": "ROR",
-    "file": "service/GtstxsService.java",
-    "line": 312,
-    "before": "for (int d = mine - 1; d >= 0; d--) {",
-    "after": "for (int d = mine - 1; d < 0; d--) {"
    },
    {
     "id": "344fc64b59",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 312,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "6aefc20dbb",
+    "op": "ROR",
+    "file": "service/GtstxsService.java",
+    "line": 316,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
    },
    {
     "id": "b83987b48d",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 312,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -1503,7 +1532,7 @@
     "id": "a2c6509f96",
     "op": "AOR",
     "file": "service/GtstxsService.java",
-    "line": 312,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -1511,7 +1540,7 @@
     "id": "091634f35e",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 313,
+    "line": 317,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -1519,7 +1548,7 @@
     "id": "ccc0099d7a",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 313,
+    "line": 317,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -1527,31 +1556,31 @@
     "id": "fd7334ccad",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 318,
+    "line": 322,
     "before": "if (next >= 1) {",
     "after": "if (!(next >= 1)) {"
-   },
-   {
-    "id": "f8149c50e4",
-    "op": "ROR",
-    "file": "service/GtstxsService.java",
-    "line": 318,
-    "before": "if (next >= 1) {",
-    "after": "if (next < 1) {"
    },
    {
     "id": "67bb208581",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 318,
+    "line": 322,
     "before": "if (next >= 1) {",
     "after": "if (next > 1) {"
+   },
+   {
+    "id": "f8149c50e4",
+    "op": "ROR",
+    "file": "service/GtstxsService.java",
+    "line": 322,
+    "before": "if (next >= 1) {",
+    "after": "if (next < 1) {"
    },
    {
     "id": "c934a8db1e",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 318,
+    "line": 322,
     "before": "if (next >= 1) {",
     "after": "if (next >= 2) {"
    },
@@ -1559,7 +1588,7 @@
     "id": "b60d6729e7",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 321,
+    "line": 325,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -1567,7 +1596,7 @@
     "id": "25044cb2d6",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 324,
+    "line": 328,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -1575,7 +1604,7 @@
     "id": "079bcef324",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 324,
+    "line": 328,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -1583,7 +1612,7 @@
     "id": "365a9ce053",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 328,
+    "line": 332,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -1591,7 +1620,7 @@
     "id": "9e83bb3df6",
     "op": "LIT",
     "file": "service/GtstxsService.java",
-    "line": 335,
+    "line": 339,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -1599,7 +1628,7 @@
     "id": "a07fc698ea",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 346,
+    "line": 350,
     "before": "Cobol.store(f37_EIBRESP, BigDecimal.valueOf(assign1), false, CS);",
     "after": "/* Cobol.store(f37_EIBRESP, BigDecimal.valueOf(assign1), false, CS); */"
    },
@@ -1607,7 +1636,7 @@
     "id": "2562c1d105",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 347,
+    "line": 351,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
     "after": "/* Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS); */"
    },
@@ -1615,7 +1644,7 @@
     "id": "bcc15b2117",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 347,
+    "line": 351,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
     "after": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 != 0 ? 0 : 5)), false, CS);"
    },
@@ -1623,7 +1652,7 @@
     "id": "1ae9568dba",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 347,
+    "line": 351,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
     "after": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 1 ? 0 : 5)), false, CS);"
    },
@@ -1631,7 +1660,7 @@
     "id": "16f06af122",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 347,
+    "line": 351,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
     "after": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 1 : 5)), false, CS);"
    },
@@ -1639,7 +1668,7 @@
     "id": "86e0d03e5f",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 347,
+    "line": 351,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
     "after": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 6)), false, CS);"
    },
@@ -1647,7 +1676,7 @@
     "id": "620a5eebfd",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 348,
+    "line": 352,
     "before": "f2_WS_RESP = Cobol.binary(BigDecimal.valueOf(assign1), 8, true, false, CS);",
     "after": "f2_WS_RESP = Cobol.binary(BigDecimal.valueOf(assign1), 9, true, false, CS);"
    },
@@ -1655,7 +1684,7 @@
     "id": "c57df9ea19",
     "op": "LIT",
     "file": "service/GtstxsService.java",
-    "line": 355,
+    "line": 359,
     "before": "int[] planned3 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned3 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -1663,7 +1692,7 @@
     "id": "75d4532de6",
     "op": "LIT",
     "file": "service/GtstxsService.java",
-    "line": 355,
+    "line": 359,
     "before": "int[] planned3 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned3 = task.planned(\"SEND-TEXT\", \"X\");"
    },
@@ -1671,7 +1700,7 @@
     "id": "cf83ca945b",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 356,
+    "line": 360,
     "before": "if (planned3[0] == 0) task.sendText(text2.substring(0, Math.min(text2.length(), 30)), 30, \"ERASE\", \"FREEKB\", \"WAIT\");",
     "after": "if (planned3[1] == 0) task.sendText(text2.substring(0, Math.min(text2.length(), 30)), 30, \"ERASE\", \"FREEKB\", \"WAIT\");"
    },
@@ -1679,7 +1708,7 @@
     "id": "eef8dcd728",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 356,
+    "line": 360,
     "before": "if (planned3[0] == 0) task.sendText(text2.substring(0, Math.min(text2.length(), 30)), 30, \"ERASE\", \"FREEKB\", \"WAIT\");",
     "after": "if (planned3[0] == 0) task.sendText(text2.substring(0, Math.min(text2.length(), 31)), 30, \"ERASE\", \"FREEKB\", \"WAIT\");"
    },
@@ -1687,7 +1716,7 @@
     "id": "fe7a61f1e7",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 357,
+    "line": 361,
     "before": "Cobol.store(f37_EIBRESP, BigDecimal.valueOf(planned3[0]), false, CS);",
     "after": "/* Cobol.store(f37_EIBRESP, BigDecimal.valueOf(planned3[0]), false, CS); */"
    },
@@ -1695,7 +1724,7 @@
     "id": "2cf0a576e4",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 357,
+    "line": 361,
     "before": "Cobol.store(f37_EIBRESP, BigDecimal.valueOf(planned3[0]), false, CS);",
     "after": "Cobol.store(f37_EIBRESP, BigDecimal.valueOf(planned3[1]), false, CS);"
    },
@@ -1703,7 +1732,7 @@
     "id": "228363649f",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 358,
+    "line": 362,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf(planned3[1]), false, CS);",
     "after": "/* Cobol.store(f38_EIBRESP2, BigDecimal.valueOf(planned3[1]), false, CS); */"
    },
@@ -1711,7 +1740,7 @@
     "id": "152ce0e228",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 359,
+    "line": 363,
     "before": "if (planned3[0] != 0) {",
     "after": "if (planned3[1] != 0) {"
    },
@@ -1719,7 +1748,7 @@
     "id": "7aca539b7d",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 360,
+    "line": 364,
     "before": "int to = condition(DetCics.condition(planned3[0]));",
     "after": "int to = condition(DetCics.condition(planned3[1]));"
    },
@@ -1727,39 +1756,31 @@
     "id": "04f39825a3",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 361,
+    "line": 365,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
-   },
-   {
-    "id": "a9734f29cb",
-    "op": "ROR",
-    "file": "service/GtstxsService.java",
-    "line": 361,
-    "before": "if (to >= 0) return GOTO | to;",
-    "after": "if (to < 0) return GOTO | to;"
    },
    {
     "id": "816118dbd3",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 361,
+    "line": 365,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
    {
-    "id": "28554f0478",
-    "op": "CON",
+    "id": "a9734f29cb",
+    "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 361,
+    "line": 365,
     "before": "if (to >= 0) return GOTO | to;",
-    "after": "if (to >= 1) return GOTO | to;"
+    "after": "if (to < 0) return GOTO | to;"
    },
    {
     "id": "b1bf51dfff",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 365,
+    "line": 369,
     "before": "CicsTask.TsResult ts4 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f7_WS_NOTERM, 16, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts4 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f7_WS_NOTERM, 17, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -1767,7 +1788,7 @@
     "id": "1e62351498",
     "op": "LIT",
     "file": "service/GtstxsService.java",
-    "line": 365,
+    "line": 369,
     "before": "CicsTask.TsResult ts4 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f7_WS_NOTERM, 16, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts4 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f7_WS_NOTERM, 16, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -1775,7 +1796,7 @@
     "id": "8a4fa01f24",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 366,
+    "line": 370,
     "before": "Cobol.store(f37_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts4.resp())), false, CS);",
     "after": "/* Cobol.store(f37_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts4.resp())), false, CS); */"
    },
@@ -1783,7 +1804,7 @@
     "id": "b5a509742e",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 367,
+    "line": 371,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f38_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -1791,7 +1812,7 @@
     "id": "773be1ef16",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 367,
+    "line": 371,
     "before": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f38_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -1799,7 +1820,7 @@
     "id": "b0cd67b94f",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 370,
+    "line": 374,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -1807,7 +1828,7 @@
     "id": "f36f90b1b2",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 370,
+    "line": 374,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -1815,7 +1836,7 @@
     "id": "80deb0e147",
     "op": "ROR",
     "file": "service/GtstxsService.java",
-    "line": 370,
+    "line": 374,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -1823,7 +1844,7 @@
     "id": "64f5493397",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 370,
+    "line": 374,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -1831,7 +1852,7 @@
     "id": "e0f148d695",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 374,
+    "line": 378,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -1839,7 +1860,7 @@
     "id": "8c7268db16",
     "op": "DEL",
     "file": "service/GtstxsService.java",
-    "line": 375,
+    "line": 379,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -1847,7 +1868,7 @@
     "id": "6122cf4a23",
     "op": "NEG",
     "file": "service/GtstxsService.java",
-    "line": 376,
+    "line": 380,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -1855,24 +1876,24 @@
     "id": "7c1bdcaed4",
     "op": "CON",
     "file": "service/GtstxsService.java",
-    "line": 377,
+    "line": 381,
     "before": "return 1;",
     "after": "return 2;"
    }
   ],
   "inputs": {
-   "port": "fdac0740931f686e017aab70602de7c2ddc3bb512c6d24f6c1749969daae5948",
-   "runtime": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "generator": "d39d1fc47b391ed2a5908d9ce00d27609cca2c7fdbe26d8c7424e88c9b4112a5",
+   "port": "08c000fb4c824ba542e45bf9818665de9eaa1b29b0f153f8fe1fcfe9577e17c4",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
    "case": "d6ee80b19d5a21d01c7114e069abad06ca1c90a242cac9f0a9dfd28df5ced931",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
   "components": {
    "generator": {
-    "generator:core": "6700b235258c233e546d162b29bdd3b0829e7af19d54d017870403607f422146",
+    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -1893,10 +1914,10 @@
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
    },
    "harness": {
-    "harness:cics": "2604c86b17e3bf1d401faebb6c3f2ae4efc6233eae604b508585133b7a6e7942",
+    "harness:cics": "46e0186da8c5397a378b0e282d0aa29a0b50c2edb6e8c4a2c703e7e130dd4198",
     "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    },
    "oracle": {
@@ -1905,6 +1926,6 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": ""
+  "every": "02322b4c28 03d84815fe 0494fb58b4 04f39825a3 05e358e398 06572f2ba6 070d0ff7b3 0784c34c47 079bcef324 07f25eb591 091634f35e 0a72a95cc0 0bb141813b 0bcd9828f9 0c657960ca 0c88d2d31a 0e69060d79 0f7907ae4e 11b8d38a01 133baeb998 152ce0e228 16f06af122 17579a4e2e 18378f1187 19c63cb079 1ae9568dba 1b586f91a7 1bc27eec34 1be6adf7ab 1d3246dead 1d8246e584 1e5f813822 1e62351498 1e691162fa 1ed3b7f8d2 1f8b24b4d4 1fa1dac83d 21110bbec2 21ef3fad6c 222507526c 228363649f 25044cb2d6 2562c1d105 261e897f0d 26354bb123 28184e2ca1 28554f0478 2b93507842 2bd183049b 2c6c87e254 2cf0a576e4 304548c9d2 31210572b0 3137858786 31a46fa5e7 3214d599df 3382ca31f2 338b7cf26c 339a058f9b 344fc64b59 346772d091 35740d52f9 3612337196 365a9ce053 3660bc8ca2 37a468b1d1 38061697fe 38b369fd22 38fb430af0 39848c4db6 3c76544d64 3f8387b6bc 40f44ffb05 434e7ecee8 4480005977 462416abe0 476194ca60 498b78ad47 4aedcf7d54 4c358ea595 4e53329060 4e5f0d6db9 4ec917cb49 4edcd2a806 50cfbf0511 514d30c4a3 5176f7b70f 51c32843a9 521ee5facb 557fb78b1b 56f0c3475c 57550e495c 57c45554e3 597034acf3 59d1c5213a 5a5565f52e 5ab5ece8e3 5b8819d970 5c30a3fc19 5d9137f80a 5f10d466a7 5fec735125 600ead3e82 6067ba5abb 6116aa44f9 6122cf4a23 61b7a00953 61f7a885db 620a5eebfd 632000288e 634042a8ee 6428379101 64f5493397 660b093eb7 664757860f 67bb208581 698b46045e 6aefc20dbb 6bcdcec5c8 6f910b64b2 7237ed1120 72831d5fe3 73a410b26c 74a7bcbb1a 74fc20ddb0 75d4532de6 76ea3c8582 773318a969 773be1ef16 77db257f48 788481b0a3 79b82d61d7 7aca539b7d 7b0fe963df 7c1bdcaed4 7d7f082510 7da1139ad4 7e990a3016 7ee87cef6f 7fc4936269 7fcf16740d 80deb0e147 816118dbd3 8464e75e9a 86264d8ef8 86e0d03e5f 86ea8e5bfd 884769918e 88f59c3bd1 89f6f1522f 8a0f00be98 8a4fa01f24 8b4d148433 8c1bfeb4c8 8c7268db16 8cac090454 8ea6b3cb13 90aab3010f 94da1361e4 96a5fe15fd 9b5f7769a7 9bdc713524 9e83bb3df6 9f0f61019b 9f76772838 a02e5440df a04944067d a07fc698ea a0ad50784f a0ea0c7517 a0f9c926b9 a22929cba2 a2c6509f96 a3a21d5929 a4677931fe a62ad4d2ad a6d03e5522 a7509fe7be a7da7986d7 a881d2af28 a9107eda2a a9734f29cb ab744e6d8a abed7bd58f ac2306facd ac3e7637fc ac6caacd92 acacce011b ad61d4d150 aec13f281b aecfef7544 b09a14b268 b0cd67b94f b146b45042 b1bf51dfff b3669644d2 b3ebed32a8 b500583a1d b587fb2bdb b5a509742e b5c44f1285 b5eb679057 b60d6729e7 b78427543c b7afbce301 b83987b48d b915314057 b93f18bc1b ba65a9e2e2 bc75721c62 bcc15b2117 bcc85fdc3c c11d9723ab c130098a8e c1b618fa53 c2936def36 c29aaaca66 c3826c2e68 c3ada844aa c497c33b5b c5227c8bb7 c55c198424 c57df9ea19 c934a8db1e ca9adee565 cb6c948669 cc79e8154f ccc0099d7a ccd00c1a9e cdcbd5d5a0 ce25aa80ec cecf0f71c7 cf83ca945b d136cbb5ae d1a35cd7a2 d1e149fad8 d264ea6822 d2dd9094d3 d49748cea4 d521d20295 d5a09a0186 d5cd056dd3 d724a9c03d d797a5094d d8f678faf5 daca79f352 dace78c310 dba0778347 dd00a9687f ddfa2da705 de144bd3ba de93965d56 df99f24af0 e016df0026 e02e62fdd7 e0a7188097 e0dbea6ac3 e0f148d695 e17bf1de89 e34a8fe8e8 e43e5c34cf e49b3982b5 e8957eb1ce e90e2631ea e95d09d2af e979da34a9 eca825dcdf eeb16bcc56 eef8dcd728 f063ce76d5 f20583d9f7 f2ea0f68a6 f36f90b1b2 f38847211e f5892b4572 f62be2e25e f63b845f52 f6457d3dfe f67a18099b f789929051 f7db9c01d3 f7ff3c00e0 f8149c50e4 f91e008738 fa5f888802 fb009a071e fb712a1b0a fc98f0b921 fd65181602 fd7334ccad fe7a61f1e7 ff40b3b790"
  }
 }

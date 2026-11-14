@@ -133,6 +133,7 @@ class _Run:
     def __init__(self) -> None:
         self.order: list[str] = []
         self.out: dict[str, StepResult] = {}
+        self.if_done: dict[int, bool] = {}  # IF construct (its line) -> its result, fixed when first evaluated
 
     def abended(self) -> bool:
         return any(s.abend for s in self.out.values())
@@ -295,14 +296,24 @@ class JclFlow:
     @staticmethod
     def _starts(row: dict[str, Any], state: _Run) -> bool:
         abended = state.abended()
-        if row.get("if_cond"):
+        if row.get("if_chain"):
+            # IBM Example 9: an IF construct's result is fixed when it is evaluated and not re-evaluated for its later steps
+            for line, expr, in_else in row["if_chain"]:
+                if line not in state.if_done:
+                    if abended and not _names_abend(row["if_cond"]):
+                        return False  # A3: the row's whole nest is read, as for a flat if_cond
+                    state.if_done[line] = evaluate_if(expr, state)
+                if state.if_done[line] == in_else:
+                    return False
+        elif row.get("if_cond"):
             expr = row["if_cond"]
             if abended and not _names_abend(expr):
                 return False  # A3
             if not evaluate_if(expr, state):
                 return False
         tests, even, only = parse_cond(row.get("cond"))
-        if abended and not (even or only) and not (row.get("if_cond") and _names_abend(row["if_cond"])):
+        in_if = bool(row.get("if_cond")) and (bool(row.get("if_chain")) or _names_abend(row["if_cond"]))
+        if abended and not (even or only) and not in_if:
             return False  # after an abend: bypass unless EVEN / ONLY or an IF naming ABEND
         if only and not abended:
             return False

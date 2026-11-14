@@ -247,5 +247,9 @@ def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
                 cond = _COND_STEP.sub(rf"\g<1>{call}.\g<2>\g<3>", cond)
-            out.append(dict(ps, step_name=f"{r['step_name']}.{ps['step_name']}", cond=cond, if_cond=r["if_cond"]))
+            row = dict(ps, step_name=f"{r['step_name']}.{ps['step_name']}", cond=cond, if_cond=r["if_cond"])
+            row.pop("if_chain", None)
+            if r.get("if_chain"):
+                row["if_chain"] = r["if_chain"]
+            out.append(row)
     return out

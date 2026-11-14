@@ -15,6 +15,8 @@
 #         parm (the text EXEC PARM= passes the program, #3624),
 #         if_cond (the enclosing IF conditions: `(RC = 0)`, `NOT (RC = 0)` in an
 #         ELSE, nested ones joined by ` AND `), in_proc (the PROC it belongs to)
+#         if_chain (presence-keyed, #8413): the enclosing IF constructs outermost first, each [line of its IF statement,
+#         its condition as written, true when the step is in its ELSE clause]; jcl_flow evaluates a construct once
 #         #7065, presence-keyed: rd (EXEC RD=), parm_overrides / cond_overrides (EXEC PARM.procstep= /
 #         COND.procstep= on a procedure call, [{step, parm|cond}] in coded order); on a JOB row restart
 #         (the RESTART= step) and restart_checkid (its checkid)
@@ -455,6 +457,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     last_dd: str | None = None
     last_dd_step: str | None = None
     ifs: list[str] = []
+    if_meta: list[list[Any]] = []  # per open IF construct: [its line, the condition as written, in its ELSE clause]
     bodies = _instream_scan(code_stream)
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":
@@ -478,10 +481,13 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             in_proc, ordinal, step = None, 0, None
         elif op == "IF":
             ifs.append(field)
+            if_meta.append([line, field, False])
         elif op == "ELSE" and ifs:
             ifs[-1] = f"NOT {ifs[-1]}"
+            if_meta[-1][2] = True
         elif op == "ENDIF" and ifs:
             ifs.pop()
+            if_meta.pop()
         elif op == "SET":
             # #7065: z/OS MVS JCL Reference, SET: one symbol per NAME=value operand, in coded order
             rows.extend(
@@ -533,6 +539,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     in_proc=in_proc,
                     line=line,
                     # #7065: presence-keyed RD= and the per-proc-step overrides PARM.step= / COND.step=
+                    **({"if_chain": [list(m) for m in if_meta]} if if_meta else {}),
                     **({"rd": keyed[_KW_RD].strip()} if keyed.get(_KW_RD) else {}),
                     **_step_overrides(keyed),
                 )

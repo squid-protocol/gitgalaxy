@@ -126,15 +126,6 @@ def test_the_flow_evaluator_reproduces_every_scenario():
 IF_DOC = json.loads((FIXTURE / "ifflow_scenarios.json").read_text(encoding="utf-8"))
 IF_FLOW = job_flow.jcl_job_flow((FIXTURE / "IFFLOW.jcl").read_text(encoding="utf-8"))
 
-# Scenarios whose IBM answer the engine does not yet reproduce. Each is a real gap, named here so the list stays honest:
-# the test below fails both when one of these starts to match (remove it) and when any other scenario stops matching.
-#  * PRC5 / PRC6: the reader lists a PROC definition's steps as top-level steps and does not expand `EXEC PROC=` into
-#    `stepname.procstepname` steps, so the evaluator cannot take the scenario's `given` (KeyError).
-#  * abn-a2-s0c4: IBM Example 9 says an IF construct's result, once determined, is not re-evaluated, so A3 runs and A4
-#    stays bypassed after A2 abends. The reader gives a step only its `if_cond` text, with no construct id, so the
-#    evaluator re-evaluates `NOT ABEND` for A4 after the abend and starts it.
-IF_KNOWN_GAPS = {s["id"] for s in IF_DOC["scenarios"] if s["job"].startswith("PRC")} | {"abn-a2-s0c4"}
-
 
 def _if_steps_by_job() -> dict[str, list[str]]:
     jobs: dict[str, list[str]] = {}
@@ -181,24 +172,27 @@ def test_ifflow_reader_nests_if_and_else_into_each_steps_condition():
     assert " AND " in ifs["A6"]  # ELSE of the second IF, then the nested IF
 
 
-def test_ifflow_proc_jobs_are_a_reader_gap_not_a_wrong_answer():
-    # The reader sees the PROC definition's steps at top level; the scenario's `stepname.procstepname` keys are absent.
+def test_ifflow_the_flat_reader_rows_do_not_expand_a_proc_call():
+    # The reader alone lists a PROC definition's steps at top level; `jcl_proc.expand_flow_rows` makes them CALL.PROCSTEP.
     seen = {r["step_name"] for r in IF_FLOW if r["kind"] == "STEP"}
     for sc in IF_DOC["scenarios"]:
         if sc["job"].startswith("PRC"):
             assert not set(sc["given"]) <= seen, sc["id"]
 
 
-def test_ifflow_the_evaluator_matches_ibm_except_the_named_gaps():
+def test_ifflow_the_evaluator_matches_every_ibm_answer():
     from gitgalaxy.core.jcl_flow import JclFlow
+    from gitgalaxy.core.jcl_proc import expand_flow_rows
 
-    flow = JclFlow(IF_FLOW)
-    matched, missed = set(), set()
     for sc in IF_DOC["scenarios"]:
-        try:
-            ok = flow.run(sc["job"], sc["given"]).actions == sc["expect"]
-        except KeyError:
-            ok = False
-        (matched if ok else missed).add(sc["id"])
-    assert missed == IF_KNOWN_GAPS
-    assert len(matched) == 28 - len(IF_KNOWN_GAPS)
+        rows = expand_flow_rows(IF_FLOW, sc["job"]) if sc["job"].startswith("PRC") else IF_FLOW
+        assert JclFlow(rows).run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]
+
+
+def test_ifflow_an_if_construct_is_evaluated_once():
+    # IBM Example 9: ABNJOB's first IF is true at A2; A2 then abends, A3 still runs and the ELSE step A4 stays bypassed.
+    chain = {r["step_name"]: r.get("if_chain") for r in IF_FLOW if r["kind"] == "STEP"}
+    assert chain["N1"] is None
+    assert chain["A2"][0][0] == chain["A3"][0][0] == chain["A4"][0][0]
+    assert [c[2] for c in (chain["A2"][0], chain["A4"][0])] == [False, True]
+    assert chain["A6"][1][2] is False and chain["A6"][0][2] is True  # nested IF inside an ELSE

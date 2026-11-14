@@ -169,14 +169,15 @@ def test_strip_telnet_answers_negotiation_and_keeps_text_across_chunks():
     st = {}
     text, rep = console.strip_telnet(bytes([IAC, DO, 24, IAC, WILL, 1, IAC, DO, 3]) + b"HELLO", st)
     assert text == b"HELLO"
-    assert rep == bytes([IAC, WONT, 24, IAC, console.DO, 1, IAC, WILL, 3])
+    assert rep == bytes([IAC, WILL, 24, IAC, console.DO, 1, IAC, WILL, 3])
     # a sequence split over two reads, an escaped 255 and a subnegotiation
     t1, r1 = console.strip_telnet(b"a" + bytes([IAC]), st)
     t2, r2 = console.strip_telnet(
         bytes([DO, 99]) + b"b" + bytes([IAC, IAC]) + bytes([IAC, 250, 24, 1, IAC, 240]) + b"c", st
     )
     assert (t1, r1) == (b"a", b"")
-    assert (t2, r2) == (b"b\xffc", bytes([IAC, WONT, 99]))
+    ans = bytes([IAC, 250, 24, 0]) + b"ANSI" + bytes([IAC, 240])  # SB TERMINAL-TYPE SEND is answered IS ANSI
+    assert (t2, r2) == (b"b\xffc", bytes([IAC, WONT, 99]) + ans)
 
 
 def _serve(script):
@@ -214,7 +215,7 @@ def test_console_waits_on_a_prompt_with_no_newline_and_sends_crlf_lines():
         assert "IEA101A" in con.wait(r"IEA101A", 5)  # the prompt has no trailing newline
         con.send("r 0,clpa")
         assert "HASP426" in con.wait(r"\$HASP426", 5)
-        assert b"".join(got).startswith(bytes([IAC, WONT, 24]))
+        assert b"".join(got).startswith(bytes([IAC, WILL, 24]))
         assert b"r 0,clpa\r\n" in b"".join(got)
     finally:
         con.close()
@@ -241,16 +242,51 @@ def test_console_wait_times_out_and_connect_refuses_a_dead_port():
 
 def test_mount_requests_are_answered_once_with_devinit_and_a_reply(tmp_path):
     con = console.Console()
-    con.lines = ["12 IEC501A M 170,SMPTAP,SL,NOCOMP,SMP4P44,SMPJOB", "13 IEC501A M 170,OTHER,SL,X"]
+    con.lines = ["*IEC501A M 170,SMPTAP,SL,6250 BPI,", " IEC501A SMP4P44,S1", "*IEC501A M 170,OTHER,SL,X"]
     sent, replies, seen = [], [], set()
     con.send = replies.append
     sysgen.answer_mounts(sent.append, con, 0, {"SMPTAP": "tape/smp.het", "OTHER": "tape/o.het"}, seen)
     sysgen.answer_mounts(sent.append, con, 0, {"SMPTAP": "x", "OTHER": "x"}, seen)  # already answered: no repeat
     assert sent == ["devinit 170 tape/smp.het", "devinit 170 tape/o.het"]
-    assert replies == ["r 12,170", "r 13,170"]
-    con.lines = ["14 IEC501A M 171,NOPE,SL"]
+    assert replies == []  # a mount is satisfied by readying the drive: no reply
+    con.lines = ["*IEC501A M 171,NOPE,SL"]
     with pytest.raises(sysgen.SysgenError, match="--tape NOPE=FILE"):
         sysgen.answer_mounts(sent.append, con, 0, {}, set())
+
+
+def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "s.cnf").write_text("0150 3350 dasd/x\n0170 3420 *\n0171 3420 *\n")
+    assert sysgen.tape_unit(tmp_path, "conf/s.cnf") == "170"
+    con = console.Console()
+    con.lines = ["*02 IEF238D SMP4P44 - REPLY DEVICE NAME OR 'CANCEL'.", "*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD"]
+    replies, seen = [], set()
+    con.send = replies.append
+    sysgen.answer_mounts(lambda c: None, con, 0, {}, seen, "170")
+    sysgen.answer_mounts(lambda c: None, con, 0, {}, seen, "170")
+    assert replies == ["r 02,170", "r 03,u"]
+
+
+def test_a_tape_keep_message_is_not_a_console_error():
+    assert not sysgen.SMP_CONSOLE_ERRORS.search(" IEC502E K 170,MVS38J,SL,SMP4P44,S2")
+    assert sysgen.SMP_CONSOLE_ERRORS.search(" IEC145E I/O ERROR 170")
+
+
+def test_smp1_conf_gains_the_target_volumes_smp2_defines(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "smp1.cnf").write_text("0150 3330 dasd/start1.3330\n0148 3350 dasd/already\n")
+    (tmp_path / "conf" / "smp2.cnf").write_text(
+        "0148 3350 dasd/smp000.3350\n0149 3350 dasd/work00.3350\n014A 3350 dasd/work01.3350\n0150 3330 x\n"
+    )
+    out = sysgen.with_target_volumes(tmp_path, "conf/smp1.cnf")
+    assert out == "conf/smp1-gg.cnf"
+    lines = (tmp_path / out).read_text().splitlines()
+    assert lines == [
+        "0150 3330 dasd/start1.3330",
+        "0148 3350 dasd/already",
+        "0149 3350 dasd/work00.3350",
+        "014A 3350 dasd/work01.3350",
+    ]
 
 
 def test_printer_file_reads_the_first_1403_and_smp_refuses_an_unstaged_work_dir(tmp_path):

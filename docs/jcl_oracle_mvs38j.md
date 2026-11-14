@@ -55,13 +55,18 @@ executed, completion code) and `IEF272I` (step not executed) from a Hercules pri
 
 `tests/tools/box/mvs38j/console.py` is the telnet client for the 3215 console at 001F (stdlib; port 3270, published on
 127.0.0.1 only). It refuses every telnet option but binary, echo and suppress-go-ahead, strips IAC sequences, and collects lines
-on a thread; a prompt with no trailing newline (`IEA101A`) matches too. `sysgen.py smp1|smp2` (**written and unit-tested against
-a fake server; not yet run on the box: the work dir was not built when this slice was written**) starts Hercules with
-`conf/smpN.cnf`, `ipl 150`, answers `r 0,clpa` and `r 0,format,noreq` on the prompts, then feeds each `jcl/smpjobNN.jcl` with
-`devinit 12`, waits for `$HASP395 <job> ENDED`, answers each `IEC501A` mount (`devinit <unit> <tape file>`, `r <id>,<unit>`, the
-tape file from `--tape VOLSER=FILE`), stops on `IEA...E` / `IEC...E` / ABEND, and finally runs the condcode check over the
-first 1403 printer file of the config (any step not executed or over CC 4 fails the stage). Message ids and the job list are
-from Moseley's guide as remembered, not yet read off a live run: the first live run may need the patterns adjusted.
+on a thread; a prompt with no trailing newline (`IEA101A`) matches too. It identifies itself as `ANSI` when Hercules asks for the
+TERMINAL-TYPE (`IAC WILL 24`, then `SB 24 0 ANSI`): without that Hercules never attaches the 3215 and the IPL stops at wait
+state 21 (`IEA304W`). `sysgen.py smp1|smp2` starts Hercules with `conf/smpN.cnf`, waits for `HHC01024I` (Docker's port proxy
+accepts a connection before Hercules listens, then drops it), `ipl 150`, answers `r 0,clpa` and `r 0,format,noreq` (a fresh
+spool also asks `$HASP436`, answered `r NN,y`; a warm one does not), then feeds each deck with `devinit 12`, waits for
+`$HASP395 <job> ENDED`, and stops on `IEF452I` (JCL error), `IEA...E` / `IEC...E` / ABEND. Verified live (2026-11-14): the
+job's tape DD gets `*nn IEF238D <job> - REPLY DEVICE NAME`, answered `r nn,170` (the config's first 3420); each volume then asks
+`*IEC501A M 170,<volser>,...` with no reply id, satisfied by `devinit 170 <file>` (`--tape VOLSER=FILE`; smp4p44 mounts
+`MVS38J` = `tape/zdlib1.het`, then `T74172` = `tape/smp4b.het`). Jobs: smp1 runs `jcl/smp4p44.jcl` only and needs an IPL
+after it (`$HASP104`); smp2 runs the reader-preloaded `smpmount.jcl` confirm, then `smpjob00..07`. `MVS38J_CONSOLE_LOG=file`
+writes the console transcript, the way to see why a stage stalls. Finally the condcode check runs over the first 1403 printer
+file of the config. smp2 is not yet run live.
 
 ## Job runner
 
@@ -78,8 +83,9 @@ Results are internal only (Q16).
 
 ### Remaining slices (#8414)
 
-1. First live run of `sysgen smp1` / `smp2` on nyx: confirm the console message patterns, the `--tape` volsers each SMP job
-   asks for, whether smp2 uses the same job list, and the CC bound.
+1. `sysgen smp2` live (the `smpmount.jcl` confirm, `smpjob00..07`, their tape volsers), the Hercules restart between smp1 and
+   smp2, and the condcode bound; smp1's own condcode check on the printer file (job output goes to JES2, not 00E, until a
+   printer is started).
 2. Stage 1 and stage 2 (`sysgen01` output to `stage1.output`, `stage2.rexx`/`awk` port or call, the socket reader on 3505),
    then the user mods and `mvs.cnf` first IPL of the generated system.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the

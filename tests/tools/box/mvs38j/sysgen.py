@@ -151,8 +151,13 @@ def starter(work, image, name):
 
 # ---- SMP stages: IPL the starter system, then feed jobs through the reader and answer the operator console ----
 JOB_ENDED_RE = re.compile(r"\$HASP395\s+(\S+)\s+ENDED")
-MOUNT_RE = re.compile(r"(?:^|\s)(\d+)\s+IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
-SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
+# `*IEC501A M 170,MVS38J,SL,6250 BPI,` (live 2026-11-14): a mount is satisfied by readying the drive, so it carries no reply id
+MOUNT_RE = re.compile(r"IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
+# `*02 IEF238D JOB - REPLY DEVICE NAME OR 'CANCEL'`: no online unit fits the job's tape DD (seen live, smp4p44, 2026-11-14)
+DEVICE_ASK_RE = re.compile(r"(\d+)\s+IEF238D\s+\S+\s+-\s+REPLY DEVICE NAME")
+# `*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD`: a mounted volume (START1 holding SYS1.PROCLIB) is not yet in use; use it
+USE_ASK_RE = re.compile(r"(\d+)\s+IEC507D\s+REPLY\s+'U'")
+SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC(?!502E)\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
 SMP_IPL_UNIT, SMP_READER = "150", "12"
 
 
@@ -166,25 +171,63 @@ def printer_file(work, conf):
 
 
 def smp_jobs(work, stage):
-    """The stage's job decks in order (jcl/smpjobNN.jcl). Which jobs belong to smp1 and which to smp2 is unconfirmed: every deck runs for either stage."""
-    jobs = sorted(Path(work, "jcl").glob("smpjob*.jcl"))
+    """The stage's job decks in order, from Moseley's configs (verified live 2026-11-14): smp1 runs `smp4p44.jcl` alone (it
+    builds SMP 4.44 and needs an IPL after), smp2 (reader preloaded with `smpmount.jcl`) runs `smpjob00..07`."""
+    jcl = Path(work, "jcl")
+    jobs = [jcl / "smp4p44.jcl"] if stage == "smp1" else sorted(jcl.glob("smpjob*.jcl"))
+    jobs = [j for j in jobs if j.is_file()]
     if not jobs:
         raise SysgenError(f"{work}/jcl/smpjob*.jcl missing: run mvs38j.sh stage first")
     return jobs
 
 
-def answer_mounts(herc_cmd, con, since, tapes, seen):
-    """Answer each new IEC501A mount request on the console: `devinit` the tape for its volser, reply with the unit."""
+def with_target_volumes(work, conf, donor="conf/smp2.cnf"):
+    """smp1's job (`smp4p44.jcl` step S5, IEHDASDR ANALYZE of 148/149/14A) initialises the SMP000/WORK00/WORK01 volumes, but
+    `smp1.cnf` does not define those drives (live 2026-11-14: `IEA001I UNIT 148 INOPERATIVE`, the step hangs). Write
+    `<conf>-gg` with the donor config's missing drive lines appended and return its path."""
+    have = (Path(work) / conf).read_text(errors="backslashreplace")
+    add = [
+        ln
+        for ln in (Path(work) / donor).read_text(errors="backslashreplace").splitlines()
+        if re.match(r"\s*0?(148|149|14A)\s+3350\b", ln, re.I)
+        and not re.search(rf"^\s*{ln.split()[0]}\s", have, re.M | re.I)
+    ]
+    out = conf.replace(".cnf", "-gg.cnf")
+    (Path(work) / out).write_text(have.rstrip("\n") + "\n" + "\n".join(add) + ("\n" if add else ""))
+    return out
+
+
+def tape_unit(work, conf):
+    """The first 3420 tape drive of a Hercules config (the unit a job's tape DD is pointed at when MVS asks for a device)."""
+    for line in (Path(work) / conf).read_text(errors="backslashreplace").splitlines():
+        m = re.match(r"\s*([0-9A-Fa-f]{3,4})\s+3420\b", line)
+        if m:
+            return m.group(1)[-3:].upper()
+    raise SysgenError(f"no 3420 tape drive in {conf}")
+
+
+def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
+    """Answer each new IEC501A mount request on the console: `devinit` the tape for its volser (no reply).
+    An `IEF238D REPLY DEVICE NAME` ask is answered with `unit` (the config's tape drive); the mount request follows."""
     for line in con.lines[since:]:
-        m = MOUNT_RE.search(line)
-        if not m or m.group(1) in seen:
+        d = DEVICE_ASK_RE.search(line)
+        if d and unit and d.group(1) not in seen:
+            seen.add(d.group(1))
+            con.send(f"r {d.group(1)},{unit}")
             continue
-        seen.add(m.group(1))
-        reply_id, unit, volser = m.groups()
+        u = USE_ASK_RE.search(line)
+        if u and u.group(1) not in seen:
+            seen.add(u.group(1))
+            con.send(f"r {u.group(1)},u")
+            continue
+        m = MOUNT_RE.search(line)
+        if not m or m.groups() in seen:
+            continue
+        seen.add(m.groups())
+        unit, volser = m.groups()
         if volser not in tapes:
             raise SysgenError(f"mount request for volume {volser} on {unit}: pass --tape {volser}=FILE")
         herc_cmd(f"devinit {unit} {tapes[volser]}")
-        con.send(f"r {reply_id},{unit}")
 
 
 def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
@@ -193,7 +236,10 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
     if not (Path(work) / conf).is_file():
         raise SysgenError(f"{work}/{conf} missing: run mvs38j.sh stage first")
     jobs = smp_jobs(work, stage)
+    if stage == "smp1":
+        conf = with_target_volumes(work, conf)
     herc = Hercules(work, conf, image, name, console_port=port).start()
+    herc.wait(r"HHC01024I", 60)  # the console listener; docker's proxy accepts earlier and then drops the connection
     con = telnet_console.Console(port=port).connect()
     try:
         herc.send(f"ipl {SMP_IPL_UNIT}")
@@ -201,7 +247,13 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         con.send("r 0,clpa")
         con.wait(r"\$HASP426|SPECIFY OPTIONS", 300)
         con.send("r 0,format,noreq")
-        con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE", 300)
+        line = con.wait(
+            r"\$HASP436|\$HASP099", 300
+        )  # a fresh spool asks to confirm the checkpoint change; a warm one does not
+        if "HASP436" in line:
+            rid = re.search(r"(\d+)\s+\$HASP436", line)
+            con.send(f"r {rid.group(1) if rid else '01'},y")
+            con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE", 300)
         for job in jobs:
             since, seen = con.mark(), set()
             herc.send(f"devinit {SMP_READER} {job.relative_to(work)}")
@@ -211,9 +263,12 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
                     con.wait(JOB_ENDED_RE.pattern, 5, since)
                     break
                 except telnet_console.ConsoleError:
-                    if time.monotonic() > end:
-                        raise SysgenError(f"{job.name}: no $HASP395 ENDED within {job_timeout}s") from None
-                    answer_mounts(herc.send, con, since, tapes, seen)
+                    jcl_err = [ln for ln in con.lines[since:] if "IEF452I" in ln]
+                    if jcl_err or time.monotonic() > end:
+                        tail = " | ".join(ln.strip() for ln in con.lines[-8:])
+                        why = jcl_err[0].strip() if jcl_err else f"no $HASP395 ENDED within {job_timeout}s"
+                        raise SysgenError(f"{job.name}: {why}; console tail: {tail}") from None
+                    answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf))
             bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
             if bad:
                 raise SysgenError(f"{job.name}: {bad[0].strip()}")

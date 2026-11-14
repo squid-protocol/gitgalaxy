@@ -326,6 +326,18 @@ def _is_der_public_certificate(head: bytes) -> bool:
 _AR_MAGIC = b"!<arch>\n"
 
 
+def _head_is_text(path_obj: Path) -> bool:
+    """#8412: True when the first 4 KB holds no NUL byte, so an extension-only denial may be lifted for the body to judge.
+
+    A binary `.lib` (an import library, a COFF/ar archive) keeps its original denied-extension reason.
+    """
+    try:
+        with open(path_obj, "rb") as fh:
+            return b"\0" not in fh.read(4096)
+    except OSError:
+        return False
+
+
 def _is_ar_archive(path_obj: Path) -> bool:
     """True for a `.a` file that opens with the `ar` magic (#5624). One 8-byte read, `.a` only."""
     if path_obj.suffix != ".a":
@@ -613,7 +625,7 @@ class ApertureFilter:
         if (
             ext.lower() in self.ignored_extensions
             and ext.lower() not in self.whitelisted_extensions
-            and ext.lower() not in self._BODY_JUDGED_MEMBER_EXTENSIONS
+            and not (ext.lower() in self._BODY_JUDGED_MEMBER_EXTENSIONS and _head_is_text(path_obj))
         ) or _is_ar_archive(path_obj):
             reason = ApertureReason(f"Blocked (Explicitly Denied Extension: '{ext}')", DENIED_EXTENSION)
             return False, size_bytes, reason

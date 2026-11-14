@@ -71,3 +71,21 @@ def test_a_non_cobol_body_is_not_cobol(detector, tmp_path, name):
 def test_a_scan_drops_the_non_cobol_and_binary_files(estate):
     repo, ir = estate
     assert not [n for n in [*NON_COBOL, "bin.lib"] if ir.copy_resolution(f"other/{n}")["edges"].get(f"other/{n}")]
+
+
+@pytest.mark.parametrize("ext", EXTS)
+def test_a_binary_member_keeps_its_denied_extension_reason_and_a_text_one_passes(tmp_path, ext):
+    from gitgalaxy.core.aperture import ApertureFilter
+    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
+
+    aperture = ApertureFilter(
+        root_dir=tmp_path, language_definitions=LANGUAGE_DEFINITIONS, aperture_config=APERTURE_CONFIG
+    )
+    binary, text = tmp_path / ("bin" + ext), tmp_path / ("txt" + ext)
+    binary.write_bytes(b"MZ\x00\x00" + bytes(64))
+    text.write_text(BODY.format(n="TXT"), encoding="utf-8")
+    if ext == ".lib":  # the only one of the four the extension firewall denies
+        ok, _size, reason = aperture.evaluate_path_integrity(binary)
+        assert not ok
+        assert "Denied Extension" in str(reason)
+    assert aperture.evaluate_path_integrity(text)[0]

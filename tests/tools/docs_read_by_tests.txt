@@ -162,6 +162,7 @@
 /openapi.json	tests/security_auditing
 /openapi.yaml	tests/security_auditing
 /ord	tests/cobol_mainframe
+/other	tests/cobol_mainframe
 /other.py	tests/core_engine
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe

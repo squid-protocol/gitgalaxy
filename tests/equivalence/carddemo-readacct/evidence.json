@@ -55,7 +55,7 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 27,
-   "sha256": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "sha256": "6d0b2f467a992665a68cbb2f11f2fadc7fc52caf151de5647cc2ab572ada0a59",
    "components": {
     "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    }
@@ -85,12 +85,12 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 143,
-   "sha256": "8d1ff1516347542b895d9918a9fe3ea1d28ce9c8f443ff2b567405b6cb693a75",
+   "sha256": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
    "components": {
     "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
    }
   },
   "corpus": {
@@ -176,10 +176,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "f13c9cb95f384c83519afcba4d8d294f05f557679f2cd1a210870afea79e4f40"
+  "digest": "5068e3cbfb262c16003bd075ec12c431b1ff8ffee10b7eca9ccb7d0c2591fc09"
  },
  "proof": {
-  "at": "2026-11-14T16:29:55Z",
+  "at": "2026-11-14T21:46:34Z",
   "verdict": "proven",
   "source": "det-sweep",
   "runs": 16,
@@ -194,8 +194,8 @@
    "stale_inputs": [],
    "scenarios": 16
   },
-  "harness_commit": "36e79c81294c8e71a0c5f43fb9022e63bdc4093b+uncommitted",
-  "inputs_digest": "f13c9cb95f384c83519afcba4d8d294f05f557679f2cd1a210870afea79e4f40",
+  "harness_commit": "e8ddad27f9a2860c81043841135f2fa67bb8866f+uncommitted",
+  "inputs_digest": "5068e3cbfb262c16003bd075ec12c431b1ff8ffee10b7eca9ccb7d0c2591fc09",
   "det_mutation": {
    "score": 0.7622,
    "survived": 34,
@@ -220,7 +220,7 @@
    "total": null
   },
   "source": "det sweep at 36e79c81294c8e71a0c5f43fb9022e63bdc4093b (det_coverage_ledger.py)",
-  "inputs_digest": "f13c9cb95f384c83519afcba4d8d294f05f557679f2cd1a210870afea79e4f40"
+  "inputs_digest": "5068e3cbfb262c16003bd075ec12c431b1ff8ffee10b7eca9ccb7d0c2591fc09"
  },
  "reach": null,
  "mutation": null,

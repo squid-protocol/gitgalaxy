@@ -78,6 +78,7 @@ ESTATE_NAMES = {
     "cics-genapp": "GenApp (insurance)",
     "dbb-mortgage-application": "DBB Mortgage",
     "zecs": "zECS",
+    "example-health-apis": "Health APIs (Blind 1)",
 }
 TEST_ESTATE_NAMES = {"cics-crucible": "CICS test suite"}
 # The runtime rule families, spelled out once (the codes are cobolrt_rules.json's)
@@ -634,7 +635,9 @@ def render(prog: dict[str, Any]) -> str:
     section(
         "Results by age of code",
         "Real codebases mix decades: 1980s programs LINK 1990s ones that call 2010s Db2 code. Each program is dated by "
-        f"the features it uses (era_tags.py); {eras.get('none', {}).get('programs', 0)} show no dating clue.",
+        f"the features it uses (era_tags.py); {eras.get('none', {}).get('programs', 0)} show no dating clue"
+        + "".join(f"; {ESTATE_NAMES.get(k, k)}'s {n} are not dated yet (no feature inventory)"
+                  for k, n in sorted((prog.get("eras_undated") or {}).items())) + ".",  # fmt: skip
         gap_after=42,
     )
     ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 166, 14

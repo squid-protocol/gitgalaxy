@@ -669,7 +669,7 @@ DEFINITION: dict[str, Any] = {
             r"|MIN|MAX|ORD-MIN|ORD-MAX|ANNUITY|PRESENT-VALUE)(?![-\w])",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Metaprogramming and memory aliasing.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Metaprogramming and memory aliasing.
         "reflection_metaprogramming": re.compile(
             # #2990: the EXEC blanket also covers EXEC DLI (IMS); docs/cobol_semantic_coverage.md
             # records which verbs this blanket is the semantic owner of (ASSIGN, INQUIRE ...).

@@ -382,7 +382,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"(?<=[(\[])(sin|cos|tan|asin|acos|atan|exp|log|sqrt|expt|abs|gcd|lcm|numerator|denominator|floor|ceiling|truncate|round|exact->inexact)(?![^ \t)\]\n\r])"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and syntactic abstractions.
         "reflection_metaprogramming": re.compile(
             r"(?<![^ \t\n\r(\[])(define-macro|define-syntax|syntax-rules|syntax-case|let-syntax|letrec-syntax)(?![^ \t)\]\n\r])"

@@ -226,7 +226,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(?:fft|ifft|svd|eig|inv|det|polyfit|ode45|ode15s|integral|cross|dot)\b|\.\*|\./|\.\^"
         ),
-        # heat_triggers: Metaprogramming (feval), implicit expansion (bsxfun), and reflection.
+        # reflection_metaprogramming (Metaprogramming: feval), implicit expansion (bsxfun), and reflection.
         "reflection_metaprogramming": re.compile(
             r"\b(?:feval|bsxfun|cell2mat|mat2cell|num2cell|struct2cell|str2func|func2str|meta\.class|metaclass)\b|\?[a-zA-Z_]\w*"
         ),

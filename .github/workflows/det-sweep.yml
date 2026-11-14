@@ -377,6 +377,29 @@ jobs:
           path: gitgalaxy/tests/equivalence/linuxx64_odbc_cli.tar.gz
           key: db2-odbc-cli-${{ hashFiles('gitgalaxy/tests/equivalence/odbc_cli.pin') }}
 
+      # A cache entry is matched on its key AND its path. equivalence-e2e.yml saves the same driver under the same key
+      # with the path of a root checkout (tests/equivalence/...), so its entry never answers the restore above. When
+      # this workflow's own entry is gone and IBM's server refuses the runner (403 on 2026-11-14: every Db2 shard
+      # failed while that entry sat unused), take e2e's copy. The harness still checks the sha256.
+      - name: Fall back to equivalence-e2e's cached copy of the driver
+        id: db2_odbc_cli_driver_e2e
+        if: steps.db2_odbc_cli_driver.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('gitgalaxy/tests/equivalence/odbc_cli.pin') }}
+      - name: Put the fallback copy where the harness reads it
+        if: steps.db2_odbc_cli_driver.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          if [ -f tests/equivalence/linuxx64_odbc_cli.tar.gz ]; then
+            mv tests/equivalence/linuxx64_odbc_cli.tar.gz gitgalaxy/tests/equivalence/linuxx64_odbc_cli.tar.gz
+            echo "using equivalence-e2e's cached driver"
+          else
+            echo "no cached driver under either path: the harness downloads it"
+          fi
+
       # Db2 takes minutes to start and its databases to create (#4733): start them now, in the background, so they come
       # up while the JDK, Maven cache and corpora are set up. The harness's own ensure() then finds them running (the
       # start lock makes it wait for this one when it is not done yet).

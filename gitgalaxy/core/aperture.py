@@ -326,6 +326,18 @@ def _is_der_public_certificate(head: bytes) -> bool:
 _AR_MAGIC = b"!<arch>\n"
 
 
+def _head_is_text(path_obj: Path) -> bool:
+    """#8412: True when the first 4 KB holds no NUL byte, so an extension-only denial may be lifted for the body to judge.
+
+    A binary `.lib` (an import library, a COFF/ar archive) keeps its original denied-extension reason.
+    """
+    try:
+        with open(path_obj, "rb") as fh:
+            return b"\0" not in fh.read(4096)
+    except OSError:
+        return False
+
+
 def _is_ar_archive(path_obj: Path) -> bool:
     """True for a `.a` file that opens with the `ar` magic (#5624). One 8-byte read, `.a` only."""
     if path_obj.suffix != ".a":
@@ -498,6 +510,9 @@ class ApertureFilter:
         self._SQL_DDL_EXTENSIONS = frozenset({".sql", ".ddl", ".dml"})
         # #4365: COBOL copy members -- copybooks and DCLGEN output (see Gate 4.3)
         self._COPY_MEMBER_EXTENSIONS = (".cpy", ".copy", ".dcl")
+        # #8412: member extensions no language claims. Admitted so the lens can judge the body (COBOL or not); a binary
+        # `.lib` is still refused by the `ar` check and the content gates.
+        self._BODY_JUDGED_MEMBER_EXTENSIONS = frozenset({".lib", ".cobcpy", ".cobcopy", ".cpb"})
 
         # --- STATE CACHE & DYNAMIC STATE ---
         self._intent_cache: set[str] = set()
@@ -608,7 +623,9 @@ class ApertureFilter:
         # #5624: `.a` is also assembly source (a language now claims it, which lifts the denial), so a
         # static-library archive is recognised by its `ar` magic rather than by the extension alone.
         if (
-            ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions
+            ext.lower() in self.ignored_extensions
+            and ext.lower() not in self.whitelisted_extensions
+            and not (ext.lower() in self._BODY_JUDGED_MEMBER_EXTENSIONS and _head_is_text(path_obj))
         ) or _is_ar_archive(path_obj):
             reason = ApertureReason(f"Blocked (Explicitly Denied Extension: '{ext}')", DENIED_EXTENSION)
             return False, size_bytes, reason
@@ -632,6 +649,9 @@ class ApertureFilter:
 
         if path_obj.name in self.exact_match_files or ext.lower() in self.whitelisted_extensions:
             return True, size_bytes, "Passed (Whitelisted)"
+
+        if ext.lower() in self._BODY_JUDGED_MEMBER_EXTENSIONS:
+            return True, size_bytes, "Passed (COPY member extension -> body decides)"
 
         # #2555: defensive -- never emit a malformed extension into user-facing text.
         # The census is now dequoted upstream (git ls-files -z), but any path that

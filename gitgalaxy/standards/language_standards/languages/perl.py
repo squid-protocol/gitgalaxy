@@ -378,7 +378,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(Math::Trig|Math::BigInt|Math::BigFloat|Math::Complex|PDL|sin|cos|exp|log|sqrt|atan2|abs|int|rand|srand)\b"
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Metaprogramming and Symbol table hacks.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Metaprogramming and Symbol table hacks.
         "reflection_metaprogramming": re.compile(
             r"\b(AUTOLOAD|DESTROY|BEGIN|UNITCHECK|CHECK|INIT|END|tie|untie|bless|overload)\b|\*["
             + ID_START

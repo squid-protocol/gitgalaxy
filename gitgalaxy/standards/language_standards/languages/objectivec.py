@@ -527,7 +527,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(math\.h|sin|cos|tan|sqrt|exp|log|abs|NSDecimalNumber|CGVector|CGAffineTransform|CGPoint|CGRect|CGSize|NXRect|NXSize)\b"
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Objective-C Runtime Swizzling and dynamic messaging.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Objective-C Runtime Swizzling and dynamic messaging.
         "reflection_metaprogramming": re.compile(
             r"\b(objc_msgSend|performSelector|method_exchangeImplementations|class_addMethod|objc_allocateClassPair|isa|object_setClass)\b|<objc/runtime\.h>"
         ),

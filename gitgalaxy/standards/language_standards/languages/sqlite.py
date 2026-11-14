@@ -258,7 +258,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(abs|acos|asin|atan|ceil|cos|degrees|exp|floor|ln|log|pi|pow|radians|sin|sqrt|tan|random|match|bm25|snippet|highlight|rtree|geopoly_[a-z_]+)\b",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Recursive logic and JSON paths.
         "reflection_metaprogramming": re.compile(
             r"\bWITH\s+RECURSIVE\b|\bGENERATED\s+ALWAYS\s+AS\b[^,;()]{0,20}\([^()]{0,300}\)[ \t]*(?:STORED|VIRTUAL)\b|->>|->|\b(?:json_extract|jsonb_extract)\b",

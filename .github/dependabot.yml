@@ -47,3 +47,6 @@ updates:
       # These packages are managed via tests/tools/pin_requirements.py instead.
       - dependency-name: "numpy"
       - dependency-name: "xgboost"
+      # #8481: 1.24.0 moves the php / powershell accuracy baselines and the srb2 call-graph golden, and a
+      # lockfile-only PR runs neither check. Held at 1.22.1 until that issue takes the bump with its goldens.
+      - dependency-name: "tree-sitter-language-pack"

@@ -902,6 +902,39 @@ def test_an_absent_member_stays_a_clone_defect_and_git_internals_are_not_searche
     assert gp.is_named_defect(gp.CLONE_DEFECT)
 
 
+def _zipped_clone(tmp_path):
+    import zipfile
+
+    clone = _clone(tmp_path, "OTHER.cpy")
+    with zipfile.ZipFile(clone / "members.zip", "w") as z:  # authored: the member is inside the archive (#8412)
+        z.writestr("PAYREC.cpy", "       01 X PIC X.\n")
+    (clone / ".git" / "old.zip").write_text("x", encoding="utf-8")  # git internals are not counted
+    return clone
+
+
+def test_archive_files_are_counted_by_name_and_never_opened(tmp_path):
+    clone = _zipped_clone(tmp_path)
+    for name in ("a.TAR", "b.xmit", "c.terse", "d.unload", "e.tar.gz", "notes.txt"):
+        (clone / name).write_bytes(b"\x00not an archive")
+    assert gp.archive_files(clone) == 6  # zip, TAR, xmit, terse, unload, gz
+    assert gp.archive_files(_clone(tmp_path / "plain", "OTHER.cpy")) == 0
+
+
+def test_a_clone_holding_an_archive_never_earns_the_clone_defect_label(tmp_path):
+    clone = _zipped_clone(tmp_path)
+    index = gp.clone_member_index(clone)
+    n = gp.archive_files(clone)
+    key = gp.verified_copybook_key("missing copybook PAYREC", index, n)  # the member sits inside the zip
+    assert key == gp.ARCHIVED and not gp.is_named_defect(key)
+    assert gp.verified_copybook_key("missing copybook PAYREC", index, 0) == gp.CLONE_DEFECT
+    assert gp.verified_copybook_key("missing copybook OTHER", index, n) == gp.RESOLVER_DEFECT  # a found member stays so
+    assert gp.verified_copybook_key("missing copybook DFHAID", index, n) == "missing copybook: CICS system"
+    rows = {(CENSUS[0], "p.cbl"): {"error": "CopyNotFound: COPY PAYREC not found"}}
+    res = gp.measure_census(rows, {}, top=(1,), clone_index={CENSUS[0]: index}, clone_archives={CENSUS[0]: n})
+    assert res["whole_now"] == 0 and res.get("accounted_now", 0) == 0 and "clone_defect_checked" not in res
+    assert gp.clone_defect_violations(res) == []
+
+
 def test_no_index_means_unverified_and_never_accounted():
     key = gp.verified_copybook_key("missing copybook PAYREC", None)
     assert key == gp.UNVERIFIED and not gp.is_named_defect(key)

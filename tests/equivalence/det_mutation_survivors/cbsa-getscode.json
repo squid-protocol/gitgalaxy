@@ -964,26 +964,6 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program, and the program does no arithmetic"
   },
   {
-   "id": "7cddf4101a",
-   "op": "COR",
-   "line": 283,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "handleLink(request, byte[] area) with `&&` -> `||` on linkAreaTaken() / left != null: only a null link area tells the two apart (a typed LINK with no area, `||` copies null: NPE), and the attack and the mutation run use --no-facades, so the one-argument path never reaches it; slice 14 ran 1984-2100-byte direct and LINK entries and it survived. Open: a facade-enabled attack with a typed LINK given no area (Remaining slices, #7954).",
-   "tried": [
-    "s14-bytes-1984",
-    "s14-bytes-1985",
-    "s14-bytes-1986",
-    "s14-bytes-2100",
-    "s14-direct-1984",
-    "s14-direct-1985",
-    "s14-direct-1986",
-    "s14-direct-2100",
-    "s14-direct-after-long-10"
-   ]
-  },
-  {
    "id": "42a8a02e1c",
    "op": "DEL",
    "line": 299,

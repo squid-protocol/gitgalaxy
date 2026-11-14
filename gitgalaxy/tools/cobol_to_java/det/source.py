@@ -48,7 +48,9 @@ from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.det import hlasm
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
-COPYBOOK_EXTS = ("", ".cpy", ".CPY", ".copy", ".COPY", ".dcl", ".DCL")  # (.dcl: a DCLGEN member)
+# (.dcl: a DCLGEN member; #8412: the four after it are claimed by no language, aperture admits them and the body decides)
+BODY_JUDGED_EXTS = (".lib", ".LIB", ".cobcpy", ".COBCPY", ".cobcopy", ".COBCOPY", ".cpb", ".CPB")
+COPYBOOK_EXTS = ("", ".cpy", ".CPY", ".copy", ".COPY", ".dcl", ".DCL", *BODY_JUDGED_EXTS)
 PROGRAM_EXTS = (".cbl", ".CBL", ".cob", ".COB")
 COPY_EXTS = COPYBOOK_EXTS + PROGRAM_EXTS
 

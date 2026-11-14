@@ -356,7 +356,7 @@ DEFINITION: dict[str, Any] = {
             r"\[Math\]::(?:Abs|Acos|Asin|Atan|Ceiling|Cos|Exp|Floor|Log|Max|Min|Pow|Round|Sin|Sqrt|Tan|PI)\b",
             re.I,
         ),
-        # heat_triggers: Metaprogramming & Reflection. Reflection and on-the-fly C# compilation via Add-Type.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Reflection and on-the-fly C# compilation via Add-Type.
         "reflection_metaprogramming": re.compile(
             r"\b(Add-Type|System\.Reflection|System\.Management\.Automation\.Language|Invoke-Expression|iex)\b|&\s*\$["
             + ID_START

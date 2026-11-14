@@ -56,6 +56,17 @@
       "jcl_cond_jobs": 2,
       "jcl_checked_jobs": 0
     },
+    "example-health-apis": {
+      "programs": 29,
+      "program_lines": 6185,
+      "copybooks": 9,
+      "copybook_lines": 1010,
+      "copybooks_missing": 1,
+      "jcl_members": 17,
+      "jcl_jobs": 16,
+      "jcl_cond_jobs": 4,
+      "jcl_checked_jobs": 0
+    },
     "zecs": {
       "programs": 7,
       "program_lines": 4757,

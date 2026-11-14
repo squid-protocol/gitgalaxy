@@ -285,7 +285,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(scala\.math|breeze\.|spire\.|algebird|Math\.|StrictMath\.|DenseMatrix|DenseVector)\b"
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Contextual abstractions and implicit resolution.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Contextual abstractions and implicit resolution.
         "reflection_metaprogramming": re.compile(
             r"\b(implicit|given|using|inline|extension|TypeTag|ClassTag|scala\.reflect|Typeable|Dynamic|summon|derives)\b"
         ),

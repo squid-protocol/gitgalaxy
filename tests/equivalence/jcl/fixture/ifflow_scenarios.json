@@ -1,0 +1,757 @@
+{
+ "fixture": "IFFLOW.jcl",
+ "issue": 8413,
+ "checklist": "c0e6aa54 (IF / THEN / ELSE / ENDIF tier 1)",
+ "written_from": "IBM z/OS 2.5/3.1 MVS JCL Reference (SA23-1385), chapter 'JCL statements', IF/THEN/ELSE/ENDIF statement construct: Relational-expression field, Priorities of operators, NOT operator, Relational-expression keywords, THEN and ELSE clauses, Considerations, Examples 5, 6 and 9; z/OS MVS JCL User's Guide (SA23-1386) 'Relationship of the IF/THEN/ELSE/ENDIF statement construct to the COND parameter'. Expected answers were written before jcl_flow ran on this fixture.",
+ "scenario_input": "given: per step that starts, {rc: n} (0-4095) or {abend: code}. A procedure step is keyed stepname.procstepname. A step with no entry in given does not start.",
+ "scenario_answer": "expect: per step, run or bypass.",
+ "scenarios": [
+  {
+   "id": "nest-outer-false",
+   "job": "NESTJOB",
+   "given": {
+    "N1": {
+     "rc": 0
+    },
+    "N5": {
+     "rc": 0
+    },
+    "N6": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "N1": "run",
+    "N2": "bypass",
+    "N3": "bypass",
+    "N4": "bypass",
+    "N5": "run",
+    "N6": "run"
+   },
+   "basis": "N1.RC > 4 is false (0), so the ELSE clause runs: N5. The nested IF in the THEN clause is never evaluated, so N2, N3, N4 are bypassed. N6 follows the ENDIF. [THEN and ELSE clauses; Example 5: IFTEST3 false -> only the ELSE clause]"
+  },
+  {
+   "id": "nest-inner-true",
+   "job": "NESTJOB",
+   "given": {
+    "N1": {
+     "rc": 8
+    },
+    "N2": {
+     "rc": 0
+    },
+    "N3": {
+     "rc": 0
+    },
+    "N6": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "N1": "run",
+    "N2": "run",
+    "N3": "run",
+    "N4": "bypass",
+    "N5": "bypass",
+    "N6": "run"
+   },
+   "basis": "Outer true: THEN clause, N2 runs, then the nested IF is evaluated: N2.RC = 0 true, N3 runs, N4 (its ELSE) is bypassed, and the outer ELSE (N5) is bypassed. [Example 5: nested construct evaluated only inside a true THEN clause]"
+  },
+  {
+   "id": "nest-inner-false",
+   "job": "NESTJOB",
+   "given": {
+    "N1": {
+     "rc": 8
+    },
+    "N2": {
+     "rc": 4
+    },
+    "N4": {
+     "rc": 0
+    },
+    "N6": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "N1": "run",
+    "N2": "run",
+    "N3": "bypass",
+    "N4": "run",
+    "N5": "bypass",
+    "N6": "run"
+   },
+   "basis": "Outer true, N2.RC = 4 so N2.RC = 0 is false: the nested ELSE runs N4, N3 bypassed, N5 bypassed. [Example 5]"
+  },
+  {
+   "id": "nest-boundary-rc4",
+   "job": "NESTJOB",
+   "given": {
+    "N1": {
+     "rc": 4
+    },
+    "N5": {
+     "rc": 0
+    },
+    "N6": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "N1": "run",
+    "N2": "bypass",
+    "N3": "bypass",
+    "N4": "bypass",
+    "N5": "run",
+    "N6": "run"
+   },
+   "basis": "N1.RC > 4 is false at 4 (strict comparison), ELSE: N5. [Comparison operators: > is greater than]"
+  },
+  {
+   "id": "abn-clean",
+   "job": "ABNJOB",
+   "given": {
+    "A1": {
+     "rc": 0
+    },
+    "A2": {
+     "rc": 0
+    },
+    "A3": {
+     "rc": 0
+    },
+    "A6": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "A1": "run",
+    "A2": "run",
+    "A3": "run",
+    "A4": "bypass",
+    "A5": "bypass",
+    "A6": "run",
+    "A7": "bypass"
+   },
+   "basis": "IF NOT ABEND: no abend occurred, true: A2, A3 run, A4 bypassed. Second IF: A1.ABENDCC and A2.ABENDCC test false (no abend); ELSE, nested IF NOT (RC > 8): highest RC is 0, RC > 8 false, NOT true: A6 runs, A7 bypassed. [Relational-expression keywords: NOT ABEND; NOT operator reverses the expression; RC omitted stepname = highest step RC so far]"
+  },
+  {
+   "id": "abn-a1-u0012",
+   "job": "ABNJOB",
+   "given": {
+    "A1": {
+     "abend": "U0012"
+    },
+    "A4": {
+     "rc": 0
+    },
+    "A5": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "A1": "run",
+    "A2": "bypass",
+    "A3": "bypass",
+    "A4": "run",
+    "A5": "run",
+    "A6": "bypass",
+    "A7": "bypass"
+   },
+   "basis": "A1 abended: IF NOT ABEND false, the ELSE clause runs A4 ('If, however, STEP1 does abend, STEP4 is the next step to run, as prescribed by the ELSE clause'), A2 and A3 bypassed. Second IF: A1.ABENDCC=U0012 (U with 4 decimal digits) true: A5 runs; A6, A7 bypassed. [Example 9; Relational-expression keywords: ABENDCC=Uxxxx]"
+  },
+  {
+   "id": "abn-a2-s0c4",
+   "job": "ABNJOB",
+   "given": {
+    "A1": {
+     "rc": 0
+    },
+    "A2": {
+     "abend": "S0C4"
+    },
+    "A3": {
+     "rc": 0
+    },
+    "A5": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "A1": "run",
+    "A2": "run",
+    "A3": "run",
+    "A4": "bypass",
+    "A5": "run",
+    "A6": "bypass",
+    "A7": "bypass"
+   },
+   "basis": "IF NOT ABEND was true after A1 and 'this determination is not subject to change based on the results of running steps after STEP1. Thus, if STEP1 does not abend, even if STEP2 does, STEP3 (and not STEP4) still runs': A3 runs after A2's abend. Second IF: A2.ABENDCC=S0C4 (S with 3 hex digits) true: A5 runs; A6, A7 bypassed. [Example 9; Considerations: the result, once determined, remains unchanged]"
+  },
+  {
+   "id": "abn-a2-rc12",
+   "job": "ABNJOB",
+   "given": {
+    "A1": {
+     "rc": 0
+    },
+    "A2": {
+     "rc": 12
+    },
+    "A3": {
+     "rc": 0
+    },
+    "A7": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "A1": "run",
+    "A2": "run",
+    "A3": "run",
+    "A4": "bypass",
+    "A5": "bypass",
+    "A6": "bypass",
+    "A7": "run"
+   },
+   "basis": "No abend: A2, A3 run, A4 bypassed. Second IF false (no ABENDCC); ELSE: highest RC is 12, RC > 8 true, NOT false: nested ELSE, A7 runs; A5, A6 bypassed. [NOT operator reverses the expression]"
+  },
+  {
+   "id": "not-rc0",
+   "job": "NOTJOB",
+   "given": {
+    "T1": {
+     "rc": 0
+    },
+    "T2": {
+     "rc": 0
+    },
+    "T3": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run",
+    "T4": "bypass"
+   },
+   "basis": "IBM: NOT(RC = 8 | RC > 10) is true for RC 0-7, 9, 10; RC NE 8 & RC <= 10 makes the same test. RC 0: T2 and T3 run. T2 ran, so NOT T2.RUN is false: T4 bypassed. [NOT operator, TESTNOTC / TESTNOTD; RUN keywords]"
+  },
+  {
+   "id": "not-rc8",
+   "job": "NOTJOB",
+   "given": {
+    "T1": {
+     "rc": 8
+    },
+    "T4": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "T1": "run",
+    "T2": "bypass",
+    "T3": "bypass",
+    "T4": "run"
+   },
+   "basis": "RC 8 is the excluded value: both IFs false, T2 and T3 bypassed. T2 did not start, so NOT T2.RUN ('the step did not start execution') is true: T4 runs. [NOT operator; Relational-expression keywords: NOT stepname.RUN]"
+  },
+  {
+   "id": "not-rc9",
+   "job": "NOTJOB",
+   "given": {
+    "T1": {
+     "rc": 9
+    },
+    "T2": {
+     "rc": 0
+    },
+    "T3": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run",
+    "T4": "bypass"
+   },
+   "basis": "9 is in the IBM-listed true set (0-7, 9, 10): T2, T3 run, T4 bypassed. [NOT operator]"
+  },
+  {
+   "id": "not-rc10",
+   "job": "NOTJOB",
+   "given": {
+    "T1": {
+     "rc": 10
+    },
+    "T2": {
+     "rc": 0
+    },
+    "T3": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run",
+    "T4": "bypass"
+   },
+   "basis": "10 is in the true set (RC > 10 is false at 10, RC <= 10 true): T2, T3 run, T4 bypassed. [NOT operator, Comparison operators]"
+  },
+  {
+   "id": "not-rc11",
+   "job": "NOTJOB",
+   "given": {
+    "T1": {
+     "rc": 11
+    },
+    "T4": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "T1": "run",
+    "T2": "bypass",
+    "T3": "bypass",
+    "T4": "run"
+   },
+   "basis": "11 is outside the true set (RC > 10): T2, T3 bypassed, NOT T2.RUN true: T4 runs. [NOT operator]"
+  },
+  {
+   "id": "prc5-clean",
+   "job": "PRC5JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 0
+    },
+    "EXP1.PSTEP11": {
+     "rc": 0
+    },
+    "EXP1.PSTEP12": {
+     "rc": 0
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 0
+    },
+    "NOPROB": {
+     "rc": 0
+    },
+    "NEXTSTEP": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP1.PSTEP11": "run",
+    "EXP1.PSTEP12": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "bypass",
+    "NOPROB": "run",
+    "NEXTSTEP": "run"
+   },
+   "basis": "IFTEST3 (highest RC > 12) is false: its ELSE clause runs NOPROB; the nested IF is not evaluated, STEP1ERR and STEP2ERR bypassed; NEXTSTEP follows the ENDIF. A procedure step is named stepname.procstepname (EXP1.PSTEP11). [Example 5; Relational-expression keywords: stepname.procstepname.RC]"
+  },
+  {
+   "id": "prc5-p11-16",
+   "job": "PRC5JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 0
+    },
+    "EXP1.PSTEP11": {
+     "rc": 16
+    },
+    "EXP1.PSTEP12": {
+     "rc": 0
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 0
+    },
+    "STEP1ERR": {
+     "rc": 0
+    },
+    "NEXTSTEP": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP1.PSTEP11": "run",
+    "EXP1.PSTEP12": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "run",
+    "STEP2ERR": "bypass",
+    "NOPROB": "bypass",
+    "NEXTSTEP": "run"
+   },
+   "basis": "Highest RC 16 > 12: THEN clause. Nested IF: EXP1.PSTEP11.RC > 12 true: STEP1ERR runs, STEP2ERR and NOPROB bypassed. [Example 5: 'the return code is greater than 12 for either of the two steps in procedure PROC1']"
+  },
+  {
+   "id": "prc5-exp2-16",
+   "job": "PRC5JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 0
+    },
+    "EXP1.PSTEP11": {
+     "rc": 0
+    },
+    "EXP1.PSTEP12": {
+     "rc": 0
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 16
+    },
+    "STEP2ERR": {
+     "rc": 0
+    },
+    "NEXTSTEP": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP1.PSTEP11": "run",
+    "EXP1.PSTEP12": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "run",
+    "NOPROB": "bypass",
+    "NEXTSTEP": "run"
+   },
+   "basis": "Highest RC 16 > 12: THEN clause. Neither PSTEP11 nor PSTEP12 of EXP1 exceeds 12: the nested ELSE runs STEP2ERR; STEP1ERR and NOPROB bypassed. [Example 5]"
+  },
+  {
+   "id": "prc5-pstepone-16",
+   "job": "PRC5JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 16
+    },
+    "EXP1.PSTEP11": {
+     "rc": 0
+    },
+    "EXP1.PSTEP12": {
+     "rc": 0
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 0
+    },
+    "STEP2ERR": {
+     "rc": 0
+    },
+    "NEXTSTEP": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP1.PSTEP11": "run",
+    "EXP1.PSTEP12": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "run",
+    "NOPROB": "bypass",
+    "NEXTSTEP": "run"
+   },
+   "basis": "Highest RC is 16 (RC with no stepname covers every step that executed, procedure steps included): THEN clause. The nested IF tests only PSTEP11 and PSTEP12, both 0: ELSE, STEP2ERR runs. [Relational-expression keywords: RC omitted = highest step RC; Example 5]"
+  },
+  {
+   "id": "prc5-rc12",
+   "job": "PRC5JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 0
+    },
+    "EXP1.PSTEP11": {
+     "rc": 0
+    },
+    "EXP1.PSTEP12": {
+     "rc": 12
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 0
+    },
+    "NOPROB": {
+     "rc": 0
+    },
+    "NEXTSTEP": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP1.PSTEP11": "run",
+    "EXP1.PSTEP12": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "bypass",
+    "NOPROB": "run",
+    "NEXTSTEP": "run"
+   },
+   "basis": "RC 12 is not > 12: ELSE clause, NOPROB runs. [Comparison operators]"
+  },
+  {
+   "id": "prc6-pstepone-8",
+   "job": "PRC6JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 8
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 0
+    },
+    "STEP1ERR": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "run",
+    "STEP2ERR": "bypass",
+    "NOERR": "bypass"
+   },
+   "basis": "EXP1.PSTEPONE.RC > 4 true: THEN clause, STEP1ERR runs. IFTEST5 is in the ELSE clause and is not evaluated: STEP2ERR, NOERR bypassed. [Example 6]"
+  },
+  {
+   "id": "prc6-pstepone-4",
+   "job": "PRC6JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 4
+    },
+    "EXP2.PSTEPTWO": {
+     "rc": 0
+    },
+    "NOERR": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "bypass",
+    "NOERR": "run"
+   },
+   "basis": "4 is not > 4: ELSE clause of IFTEST4, nested IFTEST5: PSTEPTWO did not abend, ABENDCC=U0012 false: NOERR runs. [Example 6: 'return code is 4 or less']"
+  },
+  {
+   "id": "prc6-u0012",
+   "job": "PRC6JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 0
+    },
+    "EXP2.PSTEPTWO": {
+     "abend": "U0012"
+    },
+    "STEP2ERR": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "run",
+    "NOERR": "bypass"
+   },
+   "basis": "PSTEPONE RC 0: ELSE of IFTEST4. IFTEST5: EXP2.PSTEPTWO.ABENDCC=U0012 true: STEP2ERR runs; STEP1ERR, NOERR bypassed. [Example 6: 'the user-defined abend completion code is 0012 from PSTEPTWO ... processes the THEN clause of IFTEST5']"
+  },
+  {
+   "id": "prc6-other-abend",
+   "job": "PRC6JOB",
+   "given": {
+    "EXP1.PSTEPONE": {
+     "rc": 0
+    },
+    "EXP2.PSTEPTWO": {
+     "abend": "S0C4"
+    },
+    "NOERR": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "EXP1.PSTEPONE": "run",
+    "EXP2.PSTEPTWO": "run",
+    "STEP1ERR": "bypass",
+    "STEP2ERR": "bypass",
+    "NOERR": "run"
+   },
+   "basis": "PSTEPTWO abended with S0C4, not U0012: IFTEST5 false, its ELSE clause runs NOERR. [Example 6: 'not 0012 ... the system processes the ELSE clause of IFTEST5. EXEC statement NOERR invokes PROG3']"
+  },
+  {
+   "id": "mix-clean",
+   "job": "MIXJOB",
+   "given": {
+    "M1": {
+     "rc": 0
+    },
+    "M2": {
+     "rc": 0
+    },
+    "M3": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "M1": "run",
+    "M2": "run",
+    "M3": "run",
+    "M4": "bypass",
+    "M5": "bypass"
+   },
+   "basis": "M2 (4,LT,M1): 4 < 0 false, runs. IF M1.RC < 8 true and M3's COND (0,NE,M2): 0 <> 0 false: both evaluate to execute, M3 runs. IF (ABEND) false: M4, M5 bypassed. [User's Guide: both the IF construct and COND must evaluate to execute]"
+  },
+  {
+   "id": "mix-m1-rc6",
+   "job": "MIXJOB",
+   "given": {
+    "M1": {
+     "rc": 6
+    },
+    "M3": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "M1": "run",
+    "M2": "bypass",
+    "M3": "run",
+    "M4": "bypass",
+    "M5": "bypass"
+   },
+   "basis": "M2: 4 < 6 true, bypassed. IF M1.RC < 8 true; M3's COND tests the bypassed M2, which evaluates false, so M3 runs. M4, M5 bypassed. [User's Guide; EXEC COND: a test on a bypassed step is false]"
+  },
+  {
+   "id": "mix-m2-rc2",
+   "job": "MIXJOB",
+   "given": {
+    "M1": {
+     "rc": 0
+    },
+    "M2": {
+     "rc": 2
+    }
+   },
+   "expect": {
+    "M1": "run",
+    "M2": "run",
+    "M3": "bypass",
+    "M4": "bypass",
+    "M5": "bypass"
+   },
+   "basis": "IF true but M3's COND (0,NE,M2): 0 <> 2 true, bypass: only when both evaluate to execute does the step run. [User's Guide]"
+  },
+  {
+   "id": "mix-m1-rc9",
+   "job": "MIXJOB",
+   "given": {
+    "M1": {
+     "rc": 9
+    }
+   },
+   "expect": {
+    "M1": "run",
+    "M2": "bypass",
+    "M3": "bypass",
+    "M4": "bypass",
+    "M5": "bypass"
+   },
+   "basis": "M2: 4 < 9 bypassed. IF M1.RC < 8 false: M3 bypassed whatever its COND says. M4, M5 bypassed (no abend). [User's Guide]"
+  },
+  {
+   "id": "mix-m1-abend",
+   "job": "MIXJOB",
+   "given": {
+    "M1": {
+     "abend": "S0C7"
+    },
+    "M4": {
+     "rc": 0
+    },
+    "M5": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "M1": "run",
+    "M2": "bypass",
+    "M3": "bypass",
+    "M4": "run",
+    "M5": "run"
+   },
+   "basis": "After the abend M2 (COND with no abend condition) is bypassed: the default 'a job step will not execute'. M3: neither its IF nor its COND names an abend condition, the default applies: bypassed. IF (ABEND) true: M4 (COND=EVEN) and M5 (COND=ONLY) both run: the IF names an abend condition, so the default is not applied, and EVEN / ONLY execute after an abend. [User's Guide: relationship to COND, default applied only when neither names an abend; EXEC COND EVEN / ONLY]"
+  },
+  {
+   "id": "mix-m2-abend",
+   "job": "MIXJOB",
+   "given": {
+    "M1": {
+     "rc": 0
+    },
+    "M2": {
+     "abend": "S0C4"
+    },
+    "M4": {
+     "rc": 0
+    },
+    "M5": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "M1": "run",
+    "M2": "run",
+    "M3": "bypass",
+    "M4": "run",
+    "M5": "run"
+   },
+   "basis": "M2 abended: M3 (IF M1.RC < 8 true, COND names no abend): the default applies, bypassed. IF (ABEND) true: M4 (EVEN) and M5 (ONLY) run. [User's Guide]"
+  }
+ ],
+ "assumed": [
+  {
+   "id": "B1",
+   "text": "The answer key for a procedure step is stepname.procstepname (IBM names it that way in a relational expression); the EXEC PROC step itself carries no answer because IBM says stepname.keyword must name an EXEC PGM step."
+  },
+  {
+   "id": "B2",
+   "text": "In prc6-u0012 and prc6-other-abend the outer IFTEST4 is evaluated after an abend although its own relational expression names no abend keyword: IBM's Example 6 states the outcome for exactly this case, so its prose is followed over the COND-page default."
+  }
+ ],
+ "refused": [
+  {
+   "construct": "an IF whose relational expression names no abend keyword, evaluated after an abend, outside a clause already selected",
+   "reason": "IBM's pages read say the default is that a step will not execute after an abend, but Example 6 evaluates a nested IF after an abend; the two are not reconciled in the pages read"
+  },
+  {
+   "construct": "stepname.RC naming an EXEC PROC step",
+   "reason": "IBM: stepname must identify a step containing EXEC PGM, so the expression is not valid"
+  },
+  {
+   "construct": "COND on the first EXEC statement",
+   "reason": "IBM says it evaluates false; not in this slice"
+  },
+  {
+   "construct": "IF statement before the first EXEC",
+   "reason": "IBM: not evaluated before the first step executes; not in this slice"
+  },
+  {
+   "construct": "AND and OR mixed without parentheses",
+   "reason": "as the level fixture: IBM gives them one priority and no mixing rule"
+  },
+  {
+   "construct": "a null THEN or ELSE clause, nesting deeper than 15",
+   "reason": "not in this slice"
+  }
+ ]
+}

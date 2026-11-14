@@ -168,13 +168,15 @@ def test_a_parent_that_never_waits_still_runs_its_children_after_it_ends():
 
 
 # Cases the pinned crucible ships that need the child schedule (X18). hc-fetch-child arrived with v0.15.0 (#7956): every
-# side is `unsupported` in the baseline, and modelling the child schedule is that case's own slice.
-_NEEDS_CHILD_SCHEDULE = {"hc-fetch-child"}
+# side is `unsupported` in the baseline, and modelling the child schedule is that case's own slice. v0.19.0 added two
+# more on the same terms: hc-fetch-nosuspend (FETCH NOSUSPEND) and hc-run-channel (RUN TRANSID CHANNEL).
+_NEEDS_CHILD_SCHEDULE = {"hc-fetch-child", "hc-fetch-nosuspend", "hc-run-channel"}
 
 
 def test_no_pinned_crucible_case_needs_the_child_schedule():
-    """#4950 (register X18): the runner's missing child schedule has one consumer, `hc-fetch-child` (v0.15.0), refused by
-    `case_async_refusals`. Any other case that is refused is new work for the SPEC 6.2 CHILD event and runner wiring."""
+    """#4950 (register X18): the runner's missing child schedule has three consumers (`hc-fetch-child`, v0.15.0;
+    `hc-fetch-nosuspend` and `hc-run-channel`, v0.19.0), refused by `case_async_refusals`. Any other case that is
+    refused is new work for the SPEC 6.2 CHILD event and runner wiring."""
     env = os.environ.get(runner.PATH_ENV)
     if not env or not Path(env, "cases").is_dir():
         pytest.skip(f"no cics-crucible checkout ({runner.PATH_ENV})")

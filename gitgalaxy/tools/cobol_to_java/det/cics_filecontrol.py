@@ -7,6 +7,7 @@ det/cics_common.py (#7153): importing them back from det/cics.py closed an impor
 from __future__ import annotations
 
 import contextlib
+import re
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
@@ -38,6 +39,35 @@ def file_key_call(names: Any, expr: str) -> str:
     return f"fileKey({expr})" if has_template(names) else expr
 
 
+def instance_accessors(java_root: Any, entity: str) -> tuple[str, str] | None:
+    """#7965 slice 3b (X22): how a generated template entity carries its instance, as `(get, set)` Java templates over a
+    row variable `{r}` (set takes `{i}` too): the entity's own `vsamInstance` column (@IdClass, ESDS / RRDS), or the
+    instance in its `@EmbeddedId` key. None when the shape is not one of those (or no project is known): the caller keeps
+    the one shared store and its `claimInstance` Hole."""
+    if java_root is None:
+        return None
+    path = next(java_root.rglob(f"entity/vsam/{entity}.java"), None)
+    if path is None:
+        return None
+    text = path.read_text(encoding="utf-8")
+    if "private String vsamInstance" in text:
+        return "{r}.getVsamInstance()", "{r}.setVsamInstance({i})"
+    m = re.search(r"@EmbeddedId\s*\n(?:\s*@[^\n]*\n)*\s*private\s+([\w.]+)\s+id;", text)
+    if m is None:
+        return None
+    key = next(java_root.rglob(f"entity/vsam/{m.group(1)}.java"), None)
+    if key is None or "private String vsamInstance" not in key.read_text(encoding="utf-8"):
+        return None
+    return "{r}.getId().getVsamInstance()", "{r}.getId().setVsamInstance({i})"
+
+
+class StoreMap(dict):
+    """`Cics.stores` (CICS file -> Java Store expression). `unscoped`: a template store whose entity names no instance
+    accessor (#7965 slice 3b), so the template keeps one shared store and its `claimInstance` Hole."""
+
+    unscoped = False
+
+
 def file_key_method(names: Any) -> list[str]:
     """#4771: `fileKey(n)`, which maps a run-time file name (ZC01FILE) onto the template store that names it
     (ZC@ID@FILE): a name that is a store's own key stays, else the one template its characters fit. One shared store
@@ -57,6 +87,10 @@ def file_key_method(names: Any) -> list[str]:
         rx = "".join(".+" if m else re.escape(c) for c, m in _split(n))
         out.append(f"        if (t.matches({jstr(rx)})) return {jstr(n)};")
     out += ["        return n;", "    }", ""]
+    if isinstance(names, StoreMap) and not names.unscoped:
+        # #7965 slice 3b: every template store keeps one Store per instance (its rows told apart by instance), so there
+        # is nothing to claim: the call in store() stays and does nothing
+        return [*out, "    private void claimInstance(String name) { }", ""]
     # #7487: one generated table stands behind every instance of a template, so a task that reaches two defined
     # instances (ZC01FILE then ZC02FILE), or a task that reaches one while the region defines several, cannot keep their records apart: a Hole by name, never one instance's
     # command reaching the other's records. (An undefined name never gets here: FILENOTFOUND, #7960.)

@@ -756,3 +756,26 @@ def test_refresh_runs_only_its_shard(monkeypatch, tmp_path, capsys):
     assert dm.refresh([CASE], tmp_path, shard=(2, 2)) == 0 and calls == []
     assert "shard 2/2: 0 of the 1 stale" in capsys.readouterr().out
     assert dm.refresh([CASE], tmp_path, shard=(1, 2)) == 0 and calls
+
+
+def test_compiles_only_file_passes_single_source_and_sourcepath(monkeypatch, tmp_path):
+    import subprocess
+    import mutation as mu
+
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    (port / "service" / "A.java").write_text("class A {}\n", encoding="utf-8")
+    (port / "service" / "B.java").write_text("class B {}\n", encoding="utf-8")
+    seen: list[list[str]] = []
+
+    def fake_run(cmd, **kw):
+        seen.append(list(cmd))
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(mu.subprocess, "run", fake_run)
+    monkeypatch.setattr(mu, "_java_env", dict)
+    ok, _ = mu.compiles(port, "/cp/classes", tmp_path / "out", only_file="service/A.java")
+    assert ok and len(seen) == 1
+    assert str(port / "service" / "A.java") in seen[0]
+    assert str(port / "service" / "B.java") not in seen[0]
+    assert "-sourcepath" in seen[0]

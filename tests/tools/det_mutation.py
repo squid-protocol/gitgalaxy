@@ -563,7 +563,7 @@ def run(cases: list[str], work: Path, sample: int | None, seed: int, jobs: int, 
             continue
         try:
             mu.run(case, work / case, jobs, sample, seed, set(mu.OPERATORS), None, False, full, port=port,
-                   files=FILES, select=scope_filter(case_kind(case), port))  # fmt: skip
+                   files=FILES, select=scope_filter(case_kind(case), port), one_jvm=not full)  # fmt: skip
         except SystemExit as e:  # the det port is not proven: nothing to measure; the batch goes on
             print(f"{case}: {e}")
             rc = 1

@@ -1057,7 +1057,7 @@ def test_screen_command_detects_divergence_without_cobol(tmp_path, monkeypatch):
         },
     )
     monkeypatch.setattr(mu, "baseline_classpath", lambda b, w: "")
-    monkeypatch.setattr(mu, "compiles", lambda p, cp, out: (True, ""))
+    monkeypatch.setattr(mu, "compiles", lambda p, cp, out, only_file=None: (True, ""))
     monkeypatch.setattr(ej, "entry_names", lambda trial: [])
 
     def fake_run_java(trial, corpus, work, inputs, envs, port=True, port_dir=None, faults=(), stop=None, entries=(), one_jvm=False):

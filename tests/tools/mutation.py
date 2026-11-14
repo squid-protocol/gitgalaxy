@@ -329,11 +329,17 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
     return m.group(1).replace(str(scratch / "target" / "classes"), str(project / "target" / "classes"))
 
 
-def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
+def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None = None) -> tuple[bool, str]:
     out.mkdir(parents=True, exist_ok=True)
-    sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+    single = mutant_port / only_file if only_file else None
+    if single is not None and single.is_file() and classpath:
+        sources = [str(single)]
+        sp = ("-sourcepath", str(mutant_port))
+    else:
+        sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+        sp = ()
     try:
-        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
+        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sp, *sources],  # noqa: S603, S607
                               env=_java_env(), capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired:
@@ -431,7 +437,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
 
     def javac(m: Mutant) -> tuple[bool, str]:
         mdir = write_mutant(port, m, work / "mutants" / m.id / "port")
-        return compiles(mdir, classpath, work / "mutants" / m.id / "classes")
+        return compiles(mdir, classpath, work / "mutants" / m.id / "classes", only_file=m.file)
 
     live: list[Mutant] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:  # (javac, --jobs at a time)
@@ -458,7 +464,8 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
             done += 1
             print(f"  [{done}/{len(live)}] {m.op} {m.file}:{m.line} {res['verdict']} "
                   f"{','.join(res.get('killed_by', []))[:60]}", flush=True)  # fmt: skip
-            _save(work, case, base, every, chosen, results, started, seed, mode)
+            if done % 10 == 0:
+                _save(work, case, base, every, chosen, results, started, seed, mode)
     return _save(work, case, base, every, chosen, results, started, seed, mode)
 
 

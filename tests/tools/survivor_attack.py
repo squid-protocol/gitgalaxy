@@ -1276,7 +1276,7 @@ def attack(
     here.mkdir(parents=True, exist_ok=True)
     cf = here / "case.json"
     cf.write_text(json.dumps({k: v for k, v in trial.items() if k != "name"}, indent=1) + "\n", encoding="utf-8")
-    flags = ("--case-file", str(cf), "--no-facades", "--faults", faults)
+    flags = ("--case-file", str(cf), "--no-facades", "--faults", faults, "--one-jvm")
     print(f"{case_name}: proving the port on {len(proposals)} new input(s); the trial case: {cf}", flush=True)
     base = mu.prove(case_name, port, here / "baseline", 3600, flags)
     names = [p["name"] for p in proposals]
@@ -1291,7 +1291,7 @@ def attack(
             record["result"] = judge(base, {"verdict": "error"})
             record["detail"] = (base.get("why") or str((base.get("report") or {}).get("feedback") or ""))[:400]
         else:
-            ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes")
+            ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes", only_file=m.file)
             if not ok:
                 record.update(result="stillborn", detail=why[:400])
             else:
@@ -1398,7 +1398,7 @@ def screen(
         i, m = item
         record: dict[str, Any] = {"inputs": names, "date": time.strftime("%Y-%m-%d")}
         mdir = here / i
-        ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes")
+        ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes", only_file=m.file)
         if not ok:
             record.update(result="stillborn", detail=why[:400])
             return i, m, record

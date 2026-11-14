@@ -1,5 +1,7 @@
 # DOOM port study
 
+> **Standalone study repo:** The canonical DOOM study (manifests, keyword-mode specification, preregistered follow-up experiments, results, and interactive article) now lives in the sibling `doom-dna` repository. `tests/doom_rosetta/` in this repo remains the engine CI regression gate.
+
 What the GitGalaxy engine measures across 44 DOOM ports (issue #5620), re-scanned on engine `6c7c6c1bc`. Measurements only:
 no port code is reproduced, and the ports named here are those the license register marks clearly licensed
 (`tests/tools/doom_speedrun/README.md`, "Licensing rule"). "DOOM" is used descriptively; this project is not affiliated

@@ -1,5 +1,7 @@
 # DOOM Port Speedrun harness (#5468)
 
+> **Scope note:** This harness serves `gitgalaxy`'s CI regression gate (`tests/doom_rosetta/`). The standalone scientific study, keyword-mode standards, and follow-up experiments now live in the sibling `doom-dna` repository.
+
 Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `tests/doom_rosetta/manifest.csv`, cloned shallow
 at that SHA into a scratch directory, scanned with the current engine, and scored by seven clean-scan checks. Each run
 is keyed by the engine's git SHA, so before/after for one fix is a diff of two result directories. This corpus is

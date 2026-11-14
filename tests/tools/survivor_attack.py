@@ -130,6 +130,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         return {"result": "constant-unused", "fact": f"{constant.group(1)} is declared and never read"}
     for infra in (
         local_unread,
+        local_assign_unread,
         never_populated,
         store_dominates_read,
         subfield_unset,
@@ -191,6 +192,41 @@ def local_unread(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dic
     return {
         "result": "local-unread",
         "fact": f"{var} is a local map only ever put into: nothing reads it or passes it on",
+    }
+
+
+_CX_ASSIGN = re.compile(r"^\s*(calen)\s*=\s*cx\(\s*\w+\s*,\s*\d+\s*\)\s*;\s*$")
+
+
+def local_assign_unread(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """`calen = cx(task, N);` whose local `calen` is never read after `at` in its method before being overwritten or returning."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    m = _CX_ASSIGN.match(before)
+    at = int(mutant["line"])
+    where = _span(spans, at)
+    if not m or not where or not _comment_or(_CX_ASSIGN, after):
+        return None
+    var = m.group(1)
+    lines = text.splitlines()
+    decl = re.compile(rf"\bint\s+{var}\b")
+    if not any(decl.search(ln) for ln in lines[where[0] - 1 : at]):
+        return None
+    depth = _depth_starts(text)
+    base_depth = depth[at - 1]
+    for s in range(at + 1, where[1] + 1):
+        ln = lines[s - 1]
+        if depth[s - 1] <= base_depth and _CX_ASSIGN.match(ln) and "->" not in ln:
+            return {
+                "result": "local-unread",
+                "fact": f"local {var} at line {at} is overwritten at line {s} before any read",
+            }
+        if _word(var, ln):
+            return None
+    return {
+        "result": "local-unread",
+        "fact": f"local {var} assigned at line {at} is never read in the rest of its method",
     }
 
 
@@ -1714,6 +1750,102 @@ def cmd_fault_candidates(cases: list[str], limit: int) -> int:
     return 0
 
 
+_UNREACHABLE_RESULTS = {"no-entry-path", "solver-dead"}
+
+
+def cmd_auto_state(case: str, work: Path, dry_run: bool = False) -> int:
+    """Run `facts` for `case` and automatically apply `det_mutation.py state` for every settled survivor."""
+    cmd_facts(case, work)
+    attempts = load_attempts(work)
+    stated = dm.stated(case)
+    entry = dm.load().get(case) or {}
+    triage: dict[str, dict[str, Any]] = {}
+    for s in entry.get("survived", []):
+        mid = s["id"]
+        if mid in stated:
+            continue
+        recs = [a for a in attempts.get(mid, []) if a.get("result") in dm.ATTACK_SETTLED]
+        if not recs:
+            continue
+        rec = recs[-1]
+        res = str(rec["result"])
+        fact = str(rec.get("fact") or res)
+        verdict = "unreachable" if res in _UNREACHABLE_RESULTS else "equivalent"
+        reason = f"{fact} ({res})"
+        if len(reason) < dm.MIN_REASON:
+            reason = f"{reason}: settled by static port/COBOL fact"
+        triage[mid] = {"verdict": verdict, "reason": reason, "tried": [res]}
+    if not triage:
+        print(f"{case}: auto-state found 0 new settled survivors")
+        return 0
+    if dry_run:
+        print(f"{case}: auto-state dry-run would triage {len(triage)} survivor(s): {', '.join(list(triage)[:8])}")
+        return 0
+    rc = dm.state(case, triage, attempts)
+    if rc == 0:
+        print(f"{case}: auto-state triaged {len(triage)} survivor(s)")
+    return rc
+
+
+def cmd_facts_all(cases: list[str], work: Path, auto_state: bool = False, limit: int | None = None) -> int:
+    """Batch `facts` (and optionally `auto-state`) grouped by corpus so each corpus is translated once."""
+    import collections  # noqa: PLC0415
+
+    ledger = dm.load()
+    survivors = dm.load_survivors()
+    scope = set(cases) if cases else None
+    by_corpus: dict[str, list[str]] = collections.defaultdict(list)
+    for case, entry in sorted(ledger.items()):
+        if scope is not None and case not in scope:
+            continue
+        triaged = {s["id"] for s in survivors.get(case, [])}
+        if not any(s["id"] not in triaged for s in entry.get("survived", [])):
+            continue
+        spec = json.loads((dm.CASES / case / "case.json").read_text(encoding="utf-8"))
+        by_corpus[spec["corpus"]].append(case)
+    ran = 0
+    rc = 0
+    for corpus, corpus_cases in sorted(by_corpus.items()):
+        batch = corpus_cases[: limit - ran] if limit is not None else corpus_cases
+        if not batch:
+            break
+        cwork = work / corpus
+        dm.translate(batch, cwork)
+        for case in batch:
+            rc |= cmd_auto_state(case, cwork) if auto_state else cmd_facts(case, cwork)
+            ran += 1
+    return rc
+
+
+def apply_inputs(case_name: str, inputs: Path) -> int:
+    """Append proposals from `inputs` into `tests/equivalence/<case>/case.json` (`calls`, `scenarios`, or `faults`)."""
+    case_path = dm.CASES / case_name / "case.json"
+    case = json.loads(case_path.read_text(encoding="utf-8"))
+    proposals = json.loads(inputs.read_text(encoding="utf-8"))
+    kind = case.get("kind", "batch")
+    if kind == "call":
+        key = "calls"
+    elif kind == "cics":
+        key = "scenarios"
+    elif all(isinstance(p, dict) and ("plan" in p or "sql_plan" in p or "sysin" in p or "parm" in p) for p in proposals):
+        key = "faults"
+    else:
+        print(f"{case_name}: `--apply` supports `call`, `cics`, or batch fault proposals; add batch dataset inputs manually")
+        return 0
+    existing = case.setdefault(key, [])
+    seen = {e.get("name") for e in existing if isinstance(e, dict)}
+    added = 0
+    for p in proposals:
+        if p.get("name") not in seen:
+            existing.append(p)
+            seen.add(p.get("name"))
+            added += 1
+    if added:
+        case_path.write_text(json.dumps(case, indent=1) + "\n", encoding="utf-8")
+        print(f"{case_name}: appended {added} entry(s) to {case_path.relative_to(dm.CASES.parent.parent)} ({key})")
+    return added
+
+
 def cmd_lint(cases: list[str]) -> int:
     bad = 0
     ledger = dm.load()
@@ -1753,6 +1885,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--timeout", type=float, default=600, help="seconds per mutant")
     t.add_argument("--jobs", type=int, default=1, help="parallel mutants to prove")
     t.add_argument("--as", dest="base", metavar="SIBLING", help="enter it the way this sibling case does (e.g. LINK)")
+    t.add_argument("--apply", action="store_true", help="append winning inputs into the case's case.json")
     sc = sub.add_parser("screen")
     sc.add_argument("case")
     sc.add_argument("ids", help="mutant ids, comma separated")
@@ -1761,7 +1894,17 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--jobs", type=int, default=1, help="parallel mutants to screen")
     sc.add_argument("--as", dest="base", metavar="SIBLING", help="enter it the way this sibling case does (e.g. LINK)")
     sc.add_argument("--promote", action="store_true", help="run full COBOL+Java `try` on any mutant that diverges")
+    sc.add_argument("--apply", action="store_true", help="with --promote, append winning inputs into case.json")
     sc.add_argument("--timeout", type=float, default=600, help="seconds per mutant if --promote is used")
+    au = sub.add_parser("auto-state")
+    au.add_argument("case")
+    au.add_argument("--work", type=Path, required=True)
+    au.add_argument("--dry-run", action="store_true")
+    fa = sub.add_parser("facts-all")
+    fa.add_argument("cases", nargs="*")
+    fa.add_argument("--work", type=Path, required=True)
+    fa.add_argument("--auto-state", action="store_true")
+    fa.add_argument("--limit", type=int, default=None)
     li = sub.add_parser("lint")
     li.add_argument("cases", nargs="*")
     cl = sub.add_parser("clusters")
@@ -1783,6 +1926,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_clusters(args.cases, args.limit)
     if args.cmd == "fault-candidates":
         return cmd_fault_candidates(args.cases, args.limit)
+    if args.cmd == "auto-state":
+        return cmd_auto_state(args.case, args.work.resolve(), args.dry_run)
+    if args.cmd == "facts-all":
+        return cmd_facts_all(args.cases, args.work.resolve(), args.auto_state, args.limit)
     if args.cmd == "screen":
         results = screen(
             args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.jobs, args.base,
@@ -1793,18 +1940,24 @@ def main(argv: list[str] | None = None) -> int:
             print(f"diverged (Java-only): {', '.join(div)} — re-run with --promote or `try` to confirm on COBOL")
         wins = [i for i, r in results.items() if r["result"] == "killed"]
         if wins:
-            print(
-                f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
-            )
+            if args.apply:
+                apply_inputs(args.base or args.case, args.inputs)
+            else:
+                print(
+                    f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
+                )
         return 0
     results = attack(
         args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout, args.jobs, args.base
     )
     wins = [i for i, r in results.items() if r["result"] == "killed"]
     if wins:
-        print(
-            f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
-        )
+        if args.apply:
+            apply_inputs(args.base or args.case, args.inputs)
+        else:
+            print(
+                f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
+            )
     if any(r["result"] == "port-differs" for r in results.values()):
         print(
             "port-differs: the port is not equal to the COBOL on this input. Stop and report it: that is a real finding"

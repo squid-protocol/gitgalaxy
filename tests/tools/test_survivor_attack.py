@@ -1072,3 +1072,61 @@ def test_screen_command_detects_divergence_without_cobol(tmp_path, monkeypatch):
     assert res["m_div"]["result"] == "diverged"
     assert res["m_div"]["diverged_on"] == ["default"]
     assert res["m_same"]["result"] == "survived-java"
+
+
+_CX_TXT = """\
+class C {
+    public void run() {
+        int calen = 0;
+        calen = cx(task, 8);
+        calen = cx(task, 4);
+        use(calen);
+        calen = cx(task, 10);
+    }
+}
+"""
+
+
+def test_local_assign_unread_for_calen():
+    # Line 4 is overwritten at line 5 before any read
+    overwritten = _plumb(_CX_TXT, "        calen = cx(task, 8);", "        /* calen = cx(task, 8); */")
+    assert overwritten and overwritten["result"] == "local-unread"
+    overwritten_con = _plumb(_CX_TXT, "        calen = cx(task, 8);", "        calen = cx(task, 9);")
+    assert overwritten_con and overwritten_con["result"] == "local-unread"
+    # Line 7 is never read before method return
+    tail = _plumb(_CX_TXT, "        calen = cx(task, 10);", "        /* calen = cx(task, 10); */")
+    assert tail and tail["result"] == "local-unread"
+    # Line 5 IS read by use(calen) on line 6 -> must not settle
+    assert _plumb(_CX_TXT, "        calen = cx(task, 4);", "        /* calen = cx(task, 4); */") is None
+
+
+def test_auto_state_and_apply_inputs(tmp_path, monkeypatch):
+    cases_dir = tmp_path / "cases"
+    (cases_dir / "c1").mkdir(parents=True)
+    (cases_dir / "c1" / "case.json").write_text('{"kind": "call", "calls": [{"name": "old"}]}\n', encoding="utf-8")
+    monkeypatch.setattr(sa.dm, "CASES", cases_dir)
+
+    inputs = tmp_path / "in.json"
+    inputs.write_text('[{"name": "old"}, {"name": "new1"}]', encoding="utf-8")
+    assert sa.apply_inputs("c1", inputs) == 1
+    updated = json.loads((cases_dir / "c1" / "case.json").read_text(encoding="utf-8"))
+    assert [c["name"] for c in updated["calls"]] == ["old", "new1"]
+
+    work = tmp_path / "work"
+    work.mkdir()
+    (work / "attempts.json").write_text(
+        json.dumps({
+            "m1": [{"result": "inert-image", "fact": "image byte(s) [0] never read"}],
+            "m2": [{"result": "no-entry-path", "fact": "p99() is reached from no entry point"}],
+        }),
+        encoding="utf-8",
+    )
+    recorded: dict[str, dict[str, object]] = {}
+    monkeypatch.setattr(sa, "cmd_facts", lambda c, w: 0)
+    monkeypatch.setattr(sa.dm, "stated", lambda c: {})
+    monkeypatch.setattr(sa.dm, "load", lambda: {"c1": {"survived": [{"id": "m1"}, {"id": "m2"}]}})
+    monkeypatch.setattr(sa.dm, "state", lambda c, t, a: recorded.update(t) or 0)
+    assert sa.cmd_auto_state("c1", work) == 0
+    assert recorded["m1"]["verdict"] == "equivalent"
+    assert recorded["m2"]["verdict"] == "unreachable"
+    assert recorded["m1"]["tried"] == ["inert-image"]

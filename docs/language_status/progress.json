@@ -1,5 +1,5 @@
 {
- "commit": "8f6dd7f42",
+ "commit": "8d79a8a16",
  "components": {
   "capabilities": {
    "groups": [
@@ -554,12 +554,12 @@
      "equivalent": 2117,
      "l5": 5,
      "measured": 25,
-     "mutants": 30369,
+     "mutants": 30381,
      "programs": 44,
      "raw_pct": 50.9,
      "ready": 0,
-     "sampled": 12559,
-     "sampled_pct": 41.4,
+     "sampled": 12558,
+     "sampled_pct": 41.3,
      "survived": 5921,
      "unreachable": 209
     },
@@ -568,27 +568,27 @@
      "equivalent": 288,
      "l5": 0,
      "measured": 10,
-     "mutants": 6241,
+     "mutants": 6284,
      "programs": 10,
      "raw_pct": 94.2,
      "ready": 0,
-     "sampled": 6241,
+     "sampled": 6284,
      "sampled_pct": 100.0,
      "survived": 357,
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 1920,
+     "caught": 1925,
      "equivalent": 925,
      "l5": 2,
      "measured": 8,
-     "mutants": 4531,
+     "mutants": 4533,
      "programs": 31,
-     "raw_pct": 44.1,
+     "raw_pct": 44.3,
      "ready": 0,
-     "sampled": 4531,
+     "sampled": 4533,
      "sampled_pct": 100.0,
-     "survived": 2429,
+     "survived": 2425,
      "unreachable": 382
     },
     "cics-genapp": {
@@ -638,28 +638,28 @@
      "equivalent": 846,
      "l5": 0,
      "measured": 4,
-     "mutants": 2604,
+     "mutants": 2658,
      "programs": 7,
      "raw_pct": 47.9,
      "ready": 0,
-     "sampled": 2604,
+     "sampled": 2657,
      "sampled_pct": 100.0,
      "survived": 1322,
      "unreachable": 365
     }
    },
    "total": {
-    "caught": 15522,
+    "caught": 15527,
     "equivalent": 4182,
     "l5": 7,
     "measured": 50,
-    "mutants": 45536,
+    "mutants": 45647,
     "programs": 158,
     "raw_pct": 57.9,
     "ready": 0,
-    "sampled": 27726,
-    "sampled_pct": 60.9,
-    "survived": 11289,
+    "sampled": 27823,
+    "sampled_pct": 61.0,
+    "survived": 11285,
     "unreachable": 1026
    }
   },
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-14T18:52:34Z",
+  "as_of": "2026-11-14T20:06:49Z",
   "core": {
    "closed": 248,
    "open": 16,
@@ -1583,13 +1583,13 @@
   "test_estates": {
    "cics-crucible": {
     "l2_plus": 85,
-    "l2_plus_pct": 65.9,
+    "l2_plus_pct": 61.2,
     "l4_plus": 85,
-    "l4_plus_pct": 65.9,
+    "l4_plus_pct": 61.2,
     "l5": 0,
     "levels": {
      "L0": 6,
-     "L1": 38,
+     "L1": 48,
      "L2": 0,
      "L3": 0,
      "L4": 85,
@@ -1600,9 +1600,9 @@
      "practically_unreachable": 0,
      "undefined_by_ibm": 0
     },
-    "programs": 129,
+    "programs": 139,
     "stale": 0,
-    "translated_whole": 123
+    "translated_whole": 133
    }
   },
   "total": {

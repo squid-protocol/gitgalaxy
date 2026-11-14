@@ -64,9 +64,16 @@ spool also asks `$HASP436`, answered `r NN,y`; a warm one does not), then feeds 
 job's tape DD gets `*nn IEF238D <job> - REPLY DEVICE NAME`, answered `r nn,170` (the config's first 3420); each volume then asks
 `*IEC501A M 170,<volser>,...` with no reply id, satisfied by `devinit 170 <file>` (`--tape VOLSER=FILE`; smp4p44 mounts
 `MVS38J` = `tape/zdlib1.het`, then `T74172` = `tape/smp4b.het`). Jobs: smp1 runs `jcl/smp4p44.jcl` only and needs an IPL
-after it (`$HASP104`); smp2 runs the reader-preloaded `smpmount.jcl` confirm, then `smpjob00..07`. `MVS38J_CONSOLE_LOG=file`
-writes the console transcript, the way to see why a stage stalls. Finally the condcode check runs over the first 1403 printer
-file of the config. smp2 is not yet run live.
+after it (`$HASP104`); smp2 runs the reader-preloaded `smpmount.jcl` confirm (`IEF166D REPLY Y/N`, answered `r nn,y`), then
+`smpjob00..07`. smp1's IEHDASDR step needs `v 148,offline` (149, 14A) first, else `IEH824I ... DEVICE NOT OFF-LINE`; the console
+echoes nothing for VARY, so the driver sleeps. Its `IEH841D CONFIRM REQUEST TO INITIALIZE` is answered `r nn,u`. smp2's volumes
+are built in (`DEFAULT_TAPES`: `MVS38J` `tape/zdlib1.het`, `T74172` `tape/smp4b.het`, `PTFS20` `tape/ptfs.het`, `J90012`
+`tape/j90012.het`; `--tape` overrides) and smpjob01 asks for its mount as `IEF233A M 170,<volser>`. `MVS38J_CONSOLE_LOG=file`
+writes the console transcript, the way to see why a stage stalls. Finally the condcode check runs over the printer bytes
+written during the stage (the file is `noclear`, so it accumulates across runs; the stage reads only the new part) and refuses
+any `IEHnnnI ... TERMINATED`. Traps: repeated smp1 runs fill `START1` (`E37` on `SYS1.LINKLIB`): recreate the starter DASD
+and rerun `sysgen starter` first. smp2 ran live through `$HASP395 ENDED` for every job (2026-11-14); `SMPJOB00` `DLBUCL`
+ended CC 8 even on fresh volumes and its cause is not established, so the condcode bound for smp2 is still open.
 
 ## Job runner
 
@@ -83,9 +90,8 @@ Results are internal only (Q16).
 
 ### Remaining slices (#8414)
 
-1. `sysgen smp2` live (the `smpmount.jcl` confirm, `smpjob00..07`, their tape volsers), the Hercules restart between smp1 and
-   smp2, and the condcode bound; smp1's own condcode check on the printer file (job output goes to JES2, not 00E, until a
-   printer is started).
+1. The smp2 condcode bound: why `SMPJOB00` `DLBUCL` ends CC 8 (read its SMP SYSPRINT), then per-job expected codes with a
+   stated reason each; the Hercules restart between smp1 and smp2.
 2. Stage 1 and stage 2 (`sysgen01` output to `stage1.output`, `stage2.rexx`/`awk` port or call, the socket reader on 3505),
    then the user mods and `mvs.cnf` first IPL of the generated system.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the

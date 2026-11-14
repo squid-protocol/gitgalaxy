@@ -25,7 +25,7 @@ Two tiers. Tier 0 fails a file by its name alone (for example `.pem`, `id_rsa`, 
 Checks files for byte-level anomalies:
 
 * **Magic-byte mismatch:** a file whose first bytes do not match its extension (for example an executable named `logo.png`).
-* **Embedded execution headers** in the first 8 KB: ELF, Mach-O, WebAssembly and `#!/bin/` anywhere; `MZ` only at offset 0. A `#!/bin/` shebang in a `.sh`/`.bash`/`.zsh`/`.command` file is exempt.
+* **Embedded execution headers** in the first 8 KB: ELF, Mach-O, WebAssembly and a shell shebang (`#!` immediately followed by `/bin/`) anywhere; `MZ` only at offset 0. Such a shebang in a `.sh`/`.bash`/`.zsh`/`.command` file is exempt. Because the check reads raw bytes, a text file that merely quotes that shebang (this README once did) is flagged too.
 * **Entropy, three thresholds with different scopes:** string literals in the first 8 KB, Shannon entropy above 4.8; the first 8 KB read as raw bytes (`scan_binary`), above 7.95; long encoded runs (256+ characters) anywhere in a text file, above 5.0 (`DENSE_RUN_ENTROPY`). Files with an extension in `XRAY_BYPASS_EXTENSIONS` (by default `.json`, `.gz`, `.zip`, `.tar`, `.png`, `.jpg`, `.jpeg`, `.ico`, `.yml`) get the magic-byte check only.
 * **Repeated indexed XOR:** three or more `buf[i] ^= k;` statements.
 

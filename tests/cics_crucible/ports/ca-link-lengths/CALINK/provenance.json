@@ -411,6 +411,23 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-14T14:21:07+00:00",
+    "crucible_ref": "v0.19.0 (d0e7ebe9)",
+    "summary": {
+     "long-500": "1/1",
+     "no-commarea": "1/1",
+     "short-100": "1/1",
+     "undefined-program": "1/1"
+    },
+    "port_sha256": "6e80d6434e1d509b313973c186f485c250ce15fa2e50c6f168248b56dcd97f00",
+    "harness_commit": "f1affeb4d11b474e292f43ae5160ec4e154236ea",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CALINK --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

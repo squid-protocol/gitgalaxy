@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.18.0 (a1d0fc0f)",
+ "crucible_ref": "v0.19.0 (d0e7ebe9)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1182,6 +1182,56 @@
     }
    }
   },
+  "gt-web-extract-scheme-type/GTWEXT": {
+   "live": 1,
+   "outcomes": 6,
+   "scenarios": {
+    "get": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "70:true",
+      "71:true",
+      "74:true"
+     ]
+    },
+    "post": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "70:true",
+      "71:true",
+      "74:true"
+     ]
+    }
+   }
+  },
+  "gt-web-open-port/GTWPRT": {
+   "live": 1,
+   "outcomes": 4,
+   "scenarios": {
+    "default-port": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "47:false",
+      "56:true"
+     ]
+    },
+    "port-too-high": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "47:true",
+      "56:false"
+     ]
+    }
+   }
+  },
   "gt-web-parse-url/GTWPARS": {
    "live": 5,
    "outcomes": 10,
@@ -1219,6 +1269,21 @@
      "outcomes": [
       "61:WHEN@66",
       "134:false"
+     ]
+    }
+   }
+  },
+  "gt-web-receive-set/GTWRSET": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "receive": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "48:false",
+      "48:true"
      ]
     }
    }
@@ -1754,6 +1819,32 @@
     }
    }
   },
+  "hc-delay-range/HCDLRG": {
+   "live": 5,
+   "outcomes": 3,
+   "scenarios": {
+    "out-of-range": {
+     "units": [
+      "BAD-PARA",
+      "BLOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@39"
+     ]
+    },
+    "top-of-range": {
+     "units": [
+      "GLOG-PARA",
+      "GOOD-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@41"
+     ]
+    }
+   }
+  },
   "hc-delay/HCDLAY": {
    "live": 2,
    "outcomes": 0,
@@ -1786,6 +1877,19 @@
    "outcomes": 0,
    "scenarios": {
     "valid-forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-enq-scope/HCENQS": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "valid-scopes": {
      "units": [
       "LOG-PARA",
       "MAIN-PARA"
@@ -3140,6 +3244,57 @@
      "outcomes": [
       "37:WHEN@42",
       "109:true"
+     ]
+    }
+   }
+  },
+  "hc-tdqueue-enable/HCTDEN": {
+   "live": 10,
+   "outcomes": 5,
+   "scenarios": {
+    "inquire": {
+     "units": [
+      "INQ-PARA",
+      "INQ-UNDEFINED",
+      "LOG-F",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "68:WHEN@69"
+     ]
+    },
+    "toggle": {
+     "units": [
+      "INQ-ENABLE",
+      "LOG-D",
+      "LOG-E",
+      "MAIN-PARA",
+      "TOGGLE-PARA"
+     ],
+     "outcomes": [
+      "68:WHEN@71"
+     ]
+    },
+    "undefined": {
+     "units": [
+      "LOG-F",
+      "MAIN-PARA",
+      "UNDEF-PARA"
+     ],
+     "outcomes": [
+      "68:WHEN@73"
+     ]
+    },
+    "badcvda": {
+     "units": [
+      "BADCVDA-PARA",
+      "INQ-ENABLE",
+      "LOG-E",
+      "LOG-F",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "68:WHEN@75"
      ]
     }
    }

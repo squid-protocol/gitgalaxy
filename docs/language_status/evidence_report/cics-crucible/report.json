@@ -3698,10 +3698,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0a3f814a4296b3e9bd2fb7aef0d7577a1cae5f9a",
+   "sha": "ad131d66805b8932361b833fe844817acfc5fa14",
    "translator": {
     "files": 180,
-    "sha256": "1915ad27c95f1fd166d30e09cbcb9a78ed87e071d366c0c6f76ba68de7363373"
+    "sha256": "e21b40fc19a47a32c4a9f69b009dfafb950101c3b0fc16593422a5204ff67a03"
    }
   },
   "sweeps": {}
@@ -3946,13 +3946,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 14,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 28% (41/146 caught; 150 of 845 mutants, seed 0); 91 of 105 survivors unaccounted",
+    "killed": 41,
     "l5": false,
-    "score": null
+    "mutants": 845,
+    "score": 0.2808,
+    "stale_inputs": [],
+    "survived": 105,
+    "unaccounted": 91
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 28% (41/146 caught; 150 of 845 mutants, seed 0); 91 of 105 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -4189,13 +4196,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 33,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 19% (27/144 caught; 150 of 292 mutants, seed 0); 84 of 117 survivors unaccounted",
+    "killed": 27,
     "l5": false,
-    "score": null
+    "mutants": 292,
+    "score": 0.1875,
+    "stale_inputs": [],
+    "survived": 117,
+    "unaccounted": 84
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 19% (27/144 caught; 150 of 292 mutants, seed 0); 84 of 117 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -4421,13 +4435,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 16,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 27% (39/143 caught; 150 of 719 mutants, seed 0); 88 of 104 survivors unaccounted",
+    "killed": 39,
     "l5": false,
-    "score": null
+    "mutants": 719,
+    "score": 0.2727,
+    "stale_inputs": [],
+    "survived": 104,
+    "unaccounted": 88
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 27% (39/143 caught; 150 of 719 mutants, seed 0); 88 of 104 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -4664,13 +4685,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 31,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 13% (19/146 caught; 150 of 275 mutants, seed 0); 96 of 127 survivors unaccounted",
+    "killed": 19,
     "l5": false,
-    "score": null
+    "mutants": 275,
+    "score": 0.1301,
+    "stale_inputs": [],
+    "survived": 127,
+    "unaccounted": 96
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 13% (19/146 caught; 150 of 275 mutants, seed 0); 96 of 127 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -4928,13 +4956,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 15,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 28% (41/144 caught; 150 of 923 mutants, seed 0); 88 of 103 survivors unaccounted",
+    "killed": 41,
     "l5": false,
-    "score": null
+    "mutants": 923,
+    "score": 0.2847,
+    "stale_inputs": [],
+    "survived": 103,
+    "unaccounted": 88
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 28% (41/144 caught; 150 of 923 mutants, seed 0); 88 of 103 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -5183,13 +5218,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 26,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 24% (34/144 caught; 150 of 335 mutants, seed 0); 84 of 110 survivors unaccounted",
+    "killed": 34,
     "l5": false,
-    "score": null
+    "mutants": 335,
+    "score": 0.2361,
+    "stale_inputs": [],
+    "survived": 110,
+    "unaccounted": 84
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 24% (34/144 caught; 150 of 335 mutants, seed 0); 84 of 110 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -5415,13 +5457,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 17,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 31% (44/142 caught; 150 of 779 mutants, seed 0); 81 of 98 survivors unaccounted",
+    "killed": 44,
     "l5": false,
-    "score": null
+    "mutants": 779,
+    "score": 0.3099,
+    "stale_inputs": [],
+    "survived": 98,
+    "unaccounted": 81
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 31% (44/142 caught; 150 of 779 mutants, seed 0); 81 of 98 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -5658,13 +5707,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 32,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 14% (20/146 caught; 150 of 277 mutants, seed 0); 94 of 126 survivors unaccounted",
+    "killed": 20,
     "l5": false,
-    "score": null
+    "mutants": 277,
+    "score": 0.137,
+    "stale_inputs": [],
+    "survived": 126,
+    "unaccounted": 94
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 14% (20/146 caught; 150 of 277 mutants, seed 0); 94 of 126 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -5890,13 +5946,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 18,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 31% (45/143 caught; 150 of 453 mutants, seed 0); 80 of 98 survivors unaccounted",
+    "killed": 45,
     "l5": false,
-    "score": null
+    "mutants": 453,
+    "score": 0.3147,
+    "stale_inputs": [],
+    "survived": 98,
+    "unaccounted": 80
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 31% (45/143 caught; 150 of 453 mutants, seed 0); 80 of 98 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -6122,13 +6185,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 32,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 26% (37/145 caught; 150 of 315 mutants, seed 0); 76 of 108 survivors unaccounted",
+    "killed": 37,
     "l5": false,
-    "score": null
+    "mutants": 315,
+    "score": 0.2552,
+    "stale_inputs": [],
+    "survived": 108,
+    "unaccounted": 76
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 26% (37/145 caught; 150 of 315 mutants, seed 0); 76 of 108 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -6406,13 +6476,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 18,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 42% (62/146 caught; 150 of 684 mutants, seed 0); 66 of 84 survivors unaccounted",
+    "killed": 62,
     "l5": false,
-    "score": null
+    "mutants": 684,
+    "score": 0.4247,
+    "stale_inputs": [],
+    "survived": 84,
+    "unaccounted": 66
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (62/146 caught; 150 of 684 mutants, seed 0); 66 of 84 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -6638,13 +6715,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 20,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 30% (45/149 caught; 150 of 1347 mutants, seed 0); 84 of 104 survivors unaccounted",
+    "killed": 45,
     "l5": false,
-    "score": null
+    "mutants": 1347,
+    "score": 0.302,
+    "stale_inputs": [],
+    "survived": 104,
+    "unaccounted": 84
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 30% (45/149 caught; 150 of 1347 mutants, seed 0); 84 of 104 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -6870,13 +6954,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 36,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 25% (37/146 caught; 150 of 324 mutants, seed 0); 73 of 109 survivors unaccounted",
+    "killed": 37,
     "l5": false,
-    "score": null
+    "mutants": 324,
+    "score": 0.2534,
+    "stale_inputs": [],
+    "survived": 109,
+    "unaccounted": 73
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 25% (37/146 caught; 150 of 324 mutants, seed 0); 73 of 109 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -7113,13 +7204,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 6,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 39% (57/145 caught; 150 of 501 mutants, seed 0); 82 of 88 survivors unaccounted",
+    "killed": 57,
     "l5": false,
-    "score": null
+    "mutants": 501,
+    "score": 0.3931,
+    "stale_inputs": [],
+    "survived": 88,
+    "unaccounted": 82
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (57/145 caught; 150 of 501 mutants, seed 0); 82 of 88 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -7356,13 +7454,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 32,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 32% (47/146 caught; 150 of 380 mutants, seed 0); 67 of 99 survivors unaccounted",
+    "killed": 47,
     "l5": false,
-    "score": null
+    "mutants": 380,
+    "score": 0.3219,
+    "stale_inputs": [],
+    "survived": 99,
+    "unaccounted": 67
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 32% (47/146 caught; 150 of 380 mutants, seed 0); 67 of 99 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -8052,13 +8157,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 27,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 33% (47/144 caught; 150 of 392 mutants, seed 0); 70 of 97 survivors unaccounted",
+    "killed": 47,
     "l5": false,
-    "score": null
+    "mutants": 392,
+    "score": 0.3264,
+    "stale_inputs": [],
+    "survived": 97,
+    "unaccounted": 70
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (47/144 caught; 150 of 392 mutants, seed 0); 70 of 97 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -11675,13 +11787,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 33% (49/147 caught; 150 of 863 mutants, seed 0); 98 of 98 survivors unaccounted",
+    "killed": 49,
     "l5": false,
-    "score": null
+    "mutants": 863,
+    "score": 0.3333,
+    "stale_inputs": [],
+    "survived": 98,
+    "unaccounted": 98
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (49/147 caught; 150 of 863 mutants, seed 0); 98 of 98 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -11918,13 +12037,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 25% (36/143 caught; 150 of 353 mutants, seed 0); 107 of 107 survivors unaccounted",
+    "killed": 36,
     "l5": false,
-    "score": null
+    "mutants": 353,
+    "score": 0.2517,
+    "stale_inputs": [],
+    "survived": 107,
+    "unaccounted": 107
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 25% (36/143 caught; 150 of 353 mutants, seed 0); 107 of 107 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -12150,13 +12276,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 45% (65/144 caught; 150 of 773 mutants, seed 0); 79 of 79 survivors unaccounted",
+    "killed": 65,
     "l5": false,
-    "score": null
+    "mutants": 773,
+    "score": 0.4514,
+    "stale_inputs": [],
+    "survived": 79,
+    "unaccounted": 79
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (65/144 caught; 150 of 773 mutants, seed 0); 79 of 79 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -12382,13 +12515,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 44% (63/144 caught; 150 of 919 mutants, seed 0); 81 of 81 survivors unaccounted",
+    "killed": 63,
     "l5": false,
-    "score": null
+    "mutants": 919,
+    "score": 0.4375,
+    "stale_inputs": [],
+    "survived": 81,
+    "unaccounted": 81
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (63/144 caught; 150 of 919 mutants, seed 0); 81 of 81 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -12614,13 +12754,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 43% (63/145 caught; 150 of 898 mutants, seed 0); 82 of 82 survivors unaccounted",
+    "killed": 63,
     "l5": false,
-    "score": null
+    "mutants": 898,
+    "score": 0.4345,
+    "stale_inputs": [],
+    "survived": 82,
+    "unaccounted": 82
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (63/145 caught; 150 of 898 mutants, seed 0); 82 of 82 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -12846,13 +12993,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 42% (61/145 caught; 150 of 792 mutants, seed 0); 84 of 84 survivors unaccounted",
+    "killed": 61,
     "l5": false,
-    "score": null
+    "mutants": 792,
+    "score": 0.4207,
+    "stale_inputs": [],
+    "survived": 84,
+    "unaccounted": 84
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (61/145 caught; 150 of 792 mutants, seed 0); 84 of 84 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13078,13 +13232,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 33% (47/144 caught; 150 of 315 mutants, seed 0); 97 of 97 survivors unaccounted",
+    "killed": 47,
     "l5": false,
-    "score": null
+    "mutants": 315,
+    "score": 0.3264,
+    "stale_inputs": [],
+    "survived": 97,
+    "unaccounted": 97
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (47/144 caught; 150 of 315 mutants, seed 0); 97 of 97 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13310,13 +13471,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 47% (66/140 caught; 150 of 627 mutants, seed 0); 74 of 74 survivors unaccounted",
+    "killed": 66,
     "l5": false,
-    "score": null
+    "mutants": 627,
+    "score": 0.4714,
+    "stale_inputs": [],
+    "survived": 74,
+    "unaccounted": 74
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 47% (66/140 caught; 150 of 627 mutants, seed 0); 74 of 74 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13542,13 +13710,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 39% (57/145 caught; 150 of 585 mutants, seed 0); 88 of 88 survivors unaccounted",
+    "killed": 57,
     "l5": false,
-    "score": null
+    "mutants": 585,
+    "score": 0.3931,
+    "stale_inputs": [],
+    "survived": 88,
+    "unaccounted": 88
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (57/145 caught; 150 of 585 mutants, seed 0); 88 of 88 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13774,13 +13949,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 36% (51/141 caught; 150 of 559 mutants, seed 0); 90 of 90 survivors unaccounted",
+    "killed": 51,
     "l5": false,
-    "score": null
+    "mutants": 559,
+    "score": 0.3617,
+    "stale_inputs": [],
+    "survived": 90,
+    "unaccounted": 90
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (51/141 caught; 150 of 559 mutants, seed 0); 90 of 90 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -14006,13 +14188,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 39% (56/145 caught; 150 of 442 mutants, seed 0); 89 of 89 survivors unaccounted",
+    "killed": 56,
     "l5": false,
-    "score": null
+    "mutants": 442,
+    "score": 0.3862,
+    "stale_inputs": [],
+    "survived": 89,
+    "unaccounted": 89
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (56/145 caught; 150 of 442 mutants, seed 0); 89 of 89 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -14238,13 +14427,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 37% (54/145 caught; 150 of 675 mutants, seed 0); 91 of 91 survivors unaccounted",
+    "killed": 54,
     "l5": false,
-    "score": null
+    "mutants": 675,
+    "score": 0.3724,
+    "stale_inputs": [],
+    "survived": 91,
+    "unaccounted": 91
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (54/145 caught; 150 of 675 mutants, seed 0); 91 of 91 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -14470,13 +14666,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 150,
+    "current": true,
+    "det_port": "raw 28% (40/145 caught; 150 of 390 mutants, seed 0); 105 of 105 survivors unaccounted",
+    "killed": 40,
     "l5": false,
-    "score": null
+    "mutants": 390,
+    "score": 0.2759,
+    "stale_inputs": [],
+    "survived": 105,
+    "unaccounted": 105
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 28% (40/145 caught; 150 of 390 mutants, seed 0); 105 of 105 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -21573,7 +21776,7 @@
     "cases": [
      {
       "case": "cruc-pc-aid-menu",
-      "case_scenarios": 8,
+      "case_scenarios": 13,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -21609,13 +21812,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 336,
+    "current": true,
+    "det_port": "raw 32% (104/327 caught; 336 of 336 mutants, seed 0); 223 of 223 survivors unaccounted",
+    "killed": 104,
     "l5": false,
-    "score": null
+    "mutants": 336,
+    "score": 0.318,
+    "stale_inputs": [],
+    "survived": 223,
+    "unaccounted": 223
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 32% (104/327 caught; 336 of 336 mutants, seed 0); 223 of 223 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -21816,7 +22026,7 @@
     "cases": [
      {
       "case": "cruc-pc-aid-menu",
-      "case_scenarios": 8,
+      "case_scenarios": 13,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -21828,7 +22038,7 @@
     ],
     "chosen": {
      "case": "cruc-pc-aid-menu",
-     "case_scenarios": 8,
+     "case_scenarios": 13,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -21841,13 +22051,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 1001,
+    "current": true,
+    "det_port": "raw 24% (238/975 caught; 1001 of 1001 mutants, seed 0); 737 of 737 survivors unaccounted",
+    "killed": 238,
     "l5": false,
-    "score": null
+    "mutants": 1001,
+    "score": 0.2441,
+    "stale_inputs": [],
+    "survived": 737,
+    "unaccounted": 737
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 24% (238/975 caught; 1001 of 1001 mutants, seed 0); 737 of 737 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -22073,13 +22290,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 758,
+    "current": true,
+    "det_port": "raw 22% (165/741 caught; 758 of 758 mutants, seed 0); 576 of 576 survivors unaccounted",
+    "killed": 165,
     "l5": false,
-    "score": null
+    "mutants": 758,
+    "score": 0.2227,
+    "stale_inputs": [],
+    "survived": 576,
+    "unaccounted": 576
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 22% (165/741 caught; 758 of 758 mutants, seed 0); 576 of 576 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -22305,13 +22529,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 513,
+    "current": true,
+    "det_port": "raw 35% (175/501 caught; 513 of 513 mutants, seed 0); 326 of 326 survivors unaccounted",
+    "killed": 175,
     "l5": false,
-    "score": null
+    "mutants": 513,
+    "score": 0.3493,
+    "stale_inputs": [],
+    "survived": 326,
+    "unaccounted": 326
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 35% (175/501 caught; 513 of 513 mutants, seed 0); 326 of 326 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -22548,13 +22779,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 328,
+    "current": true,
+    "det_port": "raw 17% (54/321 caught; 328 of 328 mutants, seed 0); 267 of 267 survivors unaccounted",
+    "killed": 54,
     "l5": false,
-    "score": null
+    "mutants": 328,
+    "score": 0.1682,
+    "stale_inputs": [],
+    "survived": 267,
+    "unaccounted": 267
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 17% (54/321 caught; 328 of 328 mutants, seed 0); 267 of 267 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -22780,13 +23018,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 702,
+    "current": true,
+    "det_port": "raw 26% (177/681 caught; 702 of 702 mutants, seed 0); 504 of 504 survivors unaccounted",
+    "killed": 177,
     "l5": false,
-    "score": null
+    "mutants": 702,
+    "score": 0.2599,
+    "stale_inputs": [],
+    "survived": 504,
+    "unaccounted": 504
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 26% (177/681 caught; 702 of 702 mutants, seed 0); 504 of 504 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -23012,13 +23257,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 275,
+    "current": true,
+    "det_port": "raw 33% (87/264 caught; 275 of 275 mutants, seed 0); 177 of 177 survivors unaccounted",
+    "killed": 87,
     "l5": false,
-    "score": null
+    "mutants": 275,
+    "score": 0.3295,
+    "stale_inputs": [],
+    "survived": 177,
+    "unaccounted": 177
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (87/264 caught; 275 of 275 mutants, seed 0); 177 of 177 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -23255,13 +23507,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 271,
+    "current": true,
+    "det_port": "raw 18% (47/261 caught; 271 of 271 mutants, seed 0); 214 of 214 survivors unaccounted",
+    "killed": 47,
     "l5": false,
-    "score": null
+    "mutants": 271,
+    "score": 0.1801,
+    "stale_inputs": [],
+    "survived": 214,
+    "unaccounted": 214
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 18% (47/261 caught; 271 of 271 mutants, seed 0); 214 of 214 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -23487,13 +23746,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 256,
+    "current": true,
+    "det_port": "raw 18% (45/250 caught; 256 of 256 mutants, seed 0); 205 of 205 survivors unaccounted",
+    "killed": 45,
     "l5": false,
-    "score": null
+    "mutants": 256,
+    "score": 0.18,
+    "stale_inputs": [],
+    "survived": 205,
+    "unaccounted": 205
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 18% (45/250 caught; 256 of 256 mutants, seed 0); 205 of 205 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -23694,7 +23960,7 @@
     "cases": [
      {
       "case": "cruc-pc-confirm",
-      "case_scenarios": 10,
+      "case_scenarios": 15,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -23706,7 +23972,7 @@
     ],
     "chosen": {
      "case": "cruc-pc-confirm",
-     "case_scenarios": 10,
+     "case_scenarios": 15,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -23719,13 +23985,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 1555,
+    "current": true,
+    "det_port": "raw 23% (350/1527 caught; 1555 of 1555 mutants, seed 0); 1177 of 1177 survivors unaccounted",
+    "killed": 350,
     "l5": false,
-    "score": null
+    "mutants": 1555,
+    "score": 0.2292,
+    "stale_inputs": [],
+    "survived": 1177,
+    "unaccounted": 1177
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 23% (350/1527 caught; 1555 of 1555 mutants, seed 0); 1177 of 1177 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -23926,7 +24199,7 @@
     "cases": [
      {
       "case": "cruc-pc-confirm",
-      "case_scenarios": 10,
+      "case_scenarios": 15,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -23962,13 +24235,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 0,
+    "chosen": 699,
+    "current": true,
+    "det_port": "raw 38% (259/685 caught; 699 of 699 mutants, seed 0); 426 of 426 survivors unaccounted",
+    "killed": 259,
     "l5": false,
-    "score": null
+    "mutants": 699,
+    "score": 0.3781,
+    "stale_inputs": [],
+    "survived": 426,
+    "unaccounted": 426
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 38% (259/685 caught; 699 of 699 mutants, seed 0); 426 of 426 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -33010,8 +33290,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0a3f814a4296b3e9bd2fb7aef0d7577a1cae5f9a",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 0a3f814a4296b3e9bd2fb7aef0d7577a1cae5f9a",
+   "python tests/tools/cics_census.py survey --baseline --sha ad131d66805b8932361b833fe844817acfc5fa14",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha ad131d66805b8932361b833fe844817acfc5fa14",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -33032,13 +33312,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0a3f814a4296b3e9bd2fb7aef0d7577a1cae5f9a",
+   "sha": "ad131d66805b8932361b833fe844817acfc5fa14",
    "translator": {
     "files": 180,
-    "sha256": "1915ad27c95f1fd166d30e09cbcb9a78ed87e071d366c0c6f76ba68de7363373"
+    "sha256": "e21b40fc19a47a32c4a9f69b009dfafb950101c3b0fc16593422a5204ff67a03"
    }
   },
-  "translator_commit": "0a3f814a4296b3e9bd2fb7aef0d7577a1cae5f9a",
+  "translator_commit": "ad131d66805b8932361b833fe844817acfc5fa14",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -33081,6 +33361,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "1915ad27c95f1fd166d30e09cbcb9a78ed87e071d366c0c6f76ba68de7363373"
+  "fingerprint": "e21b40fc19a47a32c4a9f69b009dfafb950101c3b0fc16593422a5204ff67a03"
  }
 }

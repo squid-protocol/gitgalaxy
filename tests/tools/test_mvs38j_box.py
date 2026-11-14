@@ -267,6 +267,28 @@ def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
     assert replies == ["r 02,170", "r 03,u"]
 
 
+def test_a_tape_keep_message_is_not_a_console_error():
+    assert not sysgen.SMP_CONSOLE_ERRORS.search(" IEC502E K 170,MVS38J,SL,SMP4P44,S2")
+    assert sysgen.SMP_CONSOLE_ERRORS.search(" IEC145E I/O ERROR 170")
+
+
+def test_smp1_conf_gains_the_target_volumes_smp2_defines(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "smp1.cnf").write_text("0150 3330 dasd/start1.3330\n0148 3350 dasd/already\n")
+    (tmp_path / "conf" / "smp2.cnf").write_text(
+        "0148 3350 dasd/smp000.3350\n0149 3350 dasd/work00.3350\n014A 3350 dasd/work01.3350\n0150 3330 x\n"
+    )
+    out = sysgen.with_target_volumes(tmp_path, "conf/smp1.cnf")
+    assert out == "conf/smp1-gg.cnf"
+    lines = (tmp_path / out).read_text().splitlines()
+    assert lines == [
+        "0150 3330 dasd/start1.3330",
+        "0148 3350 dasd/already",
+        "0149 3350 dasd/work00.3350",
+        "014A 3350 dasd/work01.3350",
+    ]
+
+
 def test_printer_file_reads_the_first_1403_and_smp_refuses_an_unstaged_work_dir(tmp_path):
     (tmp_path / "conf").mkdir()
     (tmp_path / "conf" / "smp1.cnf").write_text("000C 3505 localhost:3505 sockdev\n000E 1403 prt/prt00e.txt crlf\n")

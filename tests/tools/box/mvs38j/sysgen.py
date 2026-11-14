@@ -157,7 +157,7 @@ MOUNT_RE = re.compile(r"IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
 DEVICE_ASK_RE = re.compile(r"(\d+)\s+IEF238D\s+\S+\s+-\s+REPLY DEVICE NAME")
 # `*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD`: a mounted volume (START1 holding SYS1.PROCLIB) is not yet in use; use it
 USE_ASK_RE = re.compile(r"(\d+)\s+IEC507D\s+REPLY\s+'U'")
-SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
+SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC(?!502E)\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
 SMP_IPL_UNIT, SMP_READER = "150", "12"
 
 
@@ -179,6 +179,22 @@ def smp_jobs(work, stage):
     if not jobs:
         raise SysgenError(f"{work}/jcl/smpjob*.jcl missing: run mvs38j.sh stage first")
     return jobs
+
+
+def with_target_volumes(work, conf, donor="conf/smp2.cnf"):
+    """smp1's job (`smp4p44.jcl` step S5, IEHDASDR ANALYZE of 148/149/14A) initialises the SMP000/WORK00/WORK01 volumes, but
+    `smp1.cnf` does not define those drives (live 2026-11-14: `IEA001I UNIT 148 INOPERATIVE`, the step hangs). Write
+    `<conf>-gg` with the donor config's missing drive lines appended and return its path."""
+    have = (Path(work) / conf).read_text(errors="backslashreplace")
+    add = [
+        ln
+        for ln in (Path(work) / donor).read_text(errors="backslashreplace").splitlines()
+        if re.match(r"\s*0?(148|149|14A)\s+3350\b", ln, re.I)
+        and not re.search(rf"^\s*{ln.split()[0]}\s", have, re.M | re.I)
+    ]
+    out = conf.replace(".cnf", "-gg.cnf")
+    (Path(work) / out).write_text(have.rstrip("\n") + "\n" + "\n".join(add) + ("\n" if add else ""))
+    return out
 
 
 def tape_unit(work, conf):
@@ -220,6 +236,8 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
     if not (Path(work) / conf).is_file():
         raise SysgenError(f"{work}/{conf} missing: run mvs38j.sh stage first")
     jobs = smp_jobs(work, stage)
+    if stage == "smp1":
+        conf = with_target_volumes(work, conf)
     herc = Hercules(work, conf, image, name, console_port=port).start()
     herc.wait(r"HHC01024I", 60)  # the console listener; docker's proxy accepts earlier and then drops the connection
     con = telnet_console.Console(port=port).connect()
@@ -229,7 +247,9 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         con.send("r 0,clpa")
         con.wait(r"\$HASP426|SPECIFY OPTIONS", 300)
         con.send("r 0,format,noreq")
-        line = con.wait(r"\$HASP436|\$HASP099", 300)  # a fresh spool asks to confirm the checkpoint change; a warm one does not
+        line = con.wait(
+            r"\$HASP436|\$HASP099", 300
+        )  # a fresh spool asks to confirm the checkpoint change; a warm one does not
         if "HASP436" in line:
             rid = re.search(r"(\d+)\s+\$HASP436", line)
             con.send(f"r {rid.group(1) if rid else '01'},y")

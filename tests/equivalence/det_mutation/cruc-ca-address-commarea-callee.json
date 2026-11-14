@@ -1,0 +1,1046 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cruc-ca-address-commarea-callee",
+ "entry": {
+  "program": "CAADSB",
+  "commit": "56fbab827e41c23efd64fc32a13692c75cb11585",
+  "date": "2026-11-13",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 292,
+  "out_of_scope": 6,
+  "chosen": 150,
+  "coverage": "proven on 2 scenarios, covering 1/1 paragraphs and 2/2 branches",
+  "counts": {
+   "killed": 27,
+   "timeout": 0,
+   "survived": 117,
+   "stillborn": 6,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "06df716199",
+   "0d130660fb",
+   "0deb4cd914",
+   "134ec68e87",
+   "1b60fb6b72",
+   "20a9a5e62a",
+   "246c356b61",
+   "246ccbfe30",
+   "4b28635686",
+   "681be67b53",
+   "707ce15b69",
+   "82beaf9d3c",
+   "8d257069dd",
+   "94b2139587",
+   "9e6a1e13da",
+   "a055738eab",
+   "af72782301",
+   "c4ecd68c7e",
+   "d07889092d",
+   "db443302e7",
+   "db4965ea51",
+   "dd473810ff",
+   "df2f069e10",
+   "e1c9639009",
+   "ea5bd5ae0c",
+   "ecd1d58b44",
+   "f0c667ed55"
+  ],
+  "stillborn": [
+   "07975ab664",
+   "100b5f6342",
+   "152b13c8ac",
+   "1c4ff290c8",
+   "52a8000124",
+   "efafdc6032"
+  ],
+  "survived": [
+   {
+    "id": "751f8f3d4e",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 37,
+    "before": "\"AAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "adf000bd4f",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 39,
+    "before": "\"ICAgIFA9ICAgICAgICBDQUxFTj0wMDAwIEVZRT0gICAgIFJFUT0gICAgICAgIA==\"));",
+    "after": "\"XCAgIFA9ICAgICAgICBDQUxFTj0wMDAwIEVZRT0gICAgIFJFUT0gICAgICAgIA==\"));"
+   },
+   {
+    "id": "5b077b2436",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 41,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "19c8c5d4e5",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 43,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "a06166e226",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 45,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "92ec460ff8",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 53,
+    "before": "private final Field f3_WS_CLOG = Field.group(s_WS_CLOG, 0, 46);",
+    "after": "private final Field f3_WS_CLOG = Field.group(s_WS_CLOG, 0, 47);"
+   },
+   {
+    "id": "6085aceebd",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 55,
+    "before": "private final Field f6_CLOG_P = Field.alphanumeric(s_WS_CLOG, 6, 7, false);",
+    "after": "private final Field f6_CLOG_P = Field.alphanumeric(s_WS_CLOG, 6, 8, false);"
+   },
+   {
+    "id": "9dd71e2d4b",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 63,
+    "before": "private final Field f18_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f18_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "05e5bf920d",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 65,
+    "before": "private final Field f20_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f20_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "2260bf9cd1",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 66,
+    "before": "private final Field f21_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f21_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "7d5274bbd8",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 67,
+    "before": "private final Field f22_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f22_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "5fb3790a21",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 68,
+    "before": "private final Field f25_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f25_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "ad60414674",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 68,
+    "before": "private final Field f25_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f25_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "3b7de00417",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 70,
+    "before": "private final Field f47_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f47_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "60f0ef00c3",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 71,
+    "before": "private final Field f49_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f49_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "93a0dec0a4",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 83,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "3cd83e4846",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 83,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "f1eef8c248",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 83,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "9c4fe3d7a7",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 84,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "58aa68a076",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 89,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "9447c34099",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 91,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "8bc6195d21",
+    "op": "COR",
+    "file": "service/CaadsbService.java",
+    "line": 91,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "2f2213d46e",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 94,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "6371341253",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 94,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "75167add29",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 98,
+    "before": "java.util.Map.entry(\"SUB-MAIN\", 0)",
+    "after": "java.util.Map.entry(\"XUB-MAIN\", 0)"
+   },
+   {
+    "id": "c75c44893c",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 98,
+    "before": "java.util.Map.entry(\"SUB-MAIN\", 0)",
+    "after": "java.util.Map.entry(\"SUB-MAIN\", 1)"
+   },
+   {
+    "id": "d45a2760fc",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 103,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "72eb0da0eb",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 103,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "9a9a6f79a9",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 104,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "d95c4b512b",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 116,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "2367ddf3c2",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 116,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "65fa2e249b",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 119,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "cc81c7c2b2",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 122,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "88be49f55f",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 123,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "effdb00b2a",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 127,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "2e33dc8170",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 127,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "fc289b9811",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 134,
+    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+   },
+   {
+    "id": "2760f116b6",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 144,
+    "before": "s_WS_PTR.unalias();",
+    "after": "/* s_WS_PTR.unalias(); */"
+   },
+   {
+    "id": "fbe44da7e8",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 145,
+    "before": "s_WS_CLOG.unalias();",
+    "after": "/* s_WS_CLOG.unalias(); */"
+   },
+   {
+    "id": "621a5879b5",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 148,
+    "before": "s_GG_RETURN_CODE.unalias();",
+    "after": "/* s_GG_RETURN_CODE.unalias(); */"
+   },
+   {
+    "id": "00651c5f5e",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 151,
+    "before": "System.arraycopy(IMAGE_s_LS_VIEW, 0, s_LS_VIEW.bytes, 0, IMAGE_s_LS_VIEW.length);",
+    "after": "/* System.arraycopy(IMAGE_s_LS_VIEW, 0, s_LS_VIEW.bytes, 0, IMAGE_s_LS_VIEW.length); */"
+   },
+   {
+    "id": "9ddc741d74",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 152,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "0bc9b1c0de",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 179,
+    "before": "Cobol.move(task.transid(), f20_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f20_EIBTRNID, CS); */"
+   },
+   {
+    "id": "4227a861b1",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 181,
+    "before": "Cobol.store(f21_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f21_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "10dd66ef68",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 183,
+    "before": "Cobol.store(f19_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f19_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "1196d28baf",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 183,
+    "before": "Cobol.store(f19_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f19_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "aa9a7e709b",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 183,
+    "before": "Cobol.store(f19_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f19_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "e0adf4c404",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 184,
+    "before": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "8f868c9dfb",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 184,
+    "before": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "41e9fa8989",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 184,
+    "before": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "e362c8b249",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 184,
+    "before": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f18_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "a132e45c8e",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 185,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "3aad98fad1",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 190,
+    "before": "if (ca instanceof CaaddrWsArea) {",
+    "after": "if (!(ca instanceof CaaddrWsArea)) {"
+   },
+   {
+    "id": "2e9a164331",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 191,
+    "before": "calen = cx(task, 20);",
+    "after": "calen = cx(task, 21);"
+   },
+   {
+    "id": "53e63afa53",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 193,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "9b07ff4e69",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 194,
+    "before": "} else if (ca instanceof CaboffWsOut) {",
+    "after": "} else if (!(ca instanceof CaboffWsOut)) {"
+   },
+   {
+    "id": "2eefda6f8f",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 195,
+    "before": "calen = cx(task, 16);",
+    "after": "/* calen = cx(task, 16); */"
+   },
+   {
+    "id": "4f167d5bf7",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 196,
+    "before": "} else if (ca instanceof CaboffWsPre) {",
+    "after": "} else if (!(ca instanceof CaboffWsPre)) {"
+   },
+   {
+    "id": "968ad18f23",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 197,
+    "before": "calen = cx(task, 2);",
+    "after": "calen = cx(task, 3);"
+   },
+   {
+    "id": "64326b78c5",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 198,
+    "before": "} else if (ca instanceof CaboffWsSrc) {",
+    "after": "} else if (!(ca instanceof CaboffWsSrc)) {"
+   },
+   {
+    "id": "1c7e5b4c62",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 199,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "92a8d972f0",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 200,
+    "before": "} else if (ca instanceof CabrerrWsData) {",
+    "after": "} else if (!(ca instanceof CabrerrWsData)) {"
+   },
+   {
+    "id": "70be3070bf",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 204,
+    "before": "} else if (ca instanceof CachanWsBin) {",
+    "after": "} else if (!(ca instanceof CachanWsBin)) {"
+   },
+   {
+    "id": "4efa1f3670",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 209,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "0d74124223",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 209,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "3b67c96a3e",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 210,
+    "before": "} else if (ca instanceof CachsubWsReply) {",
+    "after": "} else if (!(ca instanceof CachsubWsReply)) {"
+   },
+   {
+    "id": "f26d4a1691",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 211,
+    "before": "calen = cx(task, 11);",
+    "after": "/* calen = cx(task, 11); */"
+   },
+   {
+    "id": "7ccbd71c58",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 212,
+    "before": "} else if (ca instanceof CachsubWsShort) {",
+    "after": "} else if (!(ca instanceof CachsubWsShort)) {"
+   },
+   {
+    "id": "73033c919e",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 214,
+    "before": "} else if (ca instanceof CachxbWsOwn) {",
+    "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
+   },
+   {
+    "id": "51f76256a4",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 215,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "1ab84e441e",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 216,
+    "before": "} else if (ca instanceof CagcstWsPtr) {",
+    "after": "} else if (!(ca instanceof CagcstWsPtr)) {"
+   },
+   {
+    "id": "4c362323bc",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 218,
+    "before": "} else if (ca instanceof CagcstWsSrc2) {",
+    "after": "} else if (!(ca instanceof CagcstWsSrc2)) {"
+   },
+   {
+    "id": "e8acbd5c6c",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 219,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "09d062e7c4",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 219,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "12ab9c0368",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 221,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "aa7b163120",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 222,
+    "before": "} else if (ca instanceof PcconfWsState) {",
+    "after": "} else if (!(ca instanceof PcconfWsState)) {"
+   },
+   {
+    "id": "07bd7ada6d",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 224,
+    "before": "} else if (ca instanceof PcrcaWsCarry) {",
+    "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
+   },
+   {
+    "id": "5f268d5776",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 228,
+    "before": "} else if (ca instanceof PcrcbWsExtra) {",
+    "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
+   },
+   {
+    "id": "7c4aeb7002",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 229,
+    "before": "calen = cx(task, 5);",
+    "after": "/* calen = cx(task, 5); */"
+   },
+   {
+    "id": "80f487a003",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 230,
+    "before": "} else if (ca instanceof PcrcbWsNew1) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
+   },
+   {
+    "id": "50025dc8d4",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 233,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "b02b86970c",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 235,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "cbdb1456d7",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 242,
+    "before": "perform(0, 0);",
+    "after": "perform(0, 1);"
+   },
+   {
+    "id": "6046224e8f",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 251,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "ac5e647f47",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 258,
+    "before": "CicsTask task = region.linked(\"CAADSB\", request);",
+    "after": "CicsTask task = region.linked(\"XAADSB\", request);"
+   },
+   {
+    "id": "a5622a65d6",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 259,
+    "before": "region.run(task, \"CAADSB\", this::runTask);",
+    "after": "region.run(task, \"XAADSB\", this::runTask);"
+   },
+   {
+    "id": "4fde0aec31",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 265,
+    "before": "CicsTask task = region.linked(\"CAADSB\", request, area);",
+    "after": "CicsTask task = region.linked(\"XAADSB\", request, area);"
+   },
+   {
+    "id": "953be6feea",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 266,
+    "before": "region.run(task, \"CAADSB\", this::runTask);",
+    "after": "region.run(task, \"XAADSB\", this::runTask);"
+   },
+   {
+    "id": "e9d9e3fb2a",
+    "op": "COR",
+    "file": "service/CaadsbService.java",
+    "line": 268,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "649a1f946f",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 268,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "398c233286",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 278,
+    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
+   },
+   {
+    "id": "5b90129090",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 301,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "2d05364edd",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 312,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "9f38edf6fb",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 312,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "443e7bc431",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 312,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "dd868b2cbe",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 314,
+    "before": "performThru[performDepth++] = thru;",
+    "after": "performThru[performDepth--] = thru;"
+   },
+   {
+    "id": "d6b260dd81",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 319,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "7d4e152551",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 322,
+    "before": "if (i == thru) {",
+    "after": "if (i != thru) {"
+   },
+   {
+    "id": "7041f3e114",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 325,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "13d451bb11",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 325,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "5e798b5203",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 325,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "5a4ad5e119",
+    "op": "AOR",
+    "file": "service/CaadsbService.java",
+    "line": 325,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "517ab9128e",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 326,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "ae8678e911",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 326,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "0385c3b523",
+    "op": "NEG",
+    "file": "service/CaadsbService.java",
+    "line": 331,
+    "before": "if (next >= 1) {",
+    "after": "if (!(next >= 1)) {"
+   },
+   {
+    "id": "43163176f6",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 331,
+    "before": "if (next >= 1) {",
+    "after": "if (next > 1) {"
+   },
+   {
+    "id": "801eca3c40",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 331,
+    "before": "if (next >= 1) {",
+    "after": "if (next < 1) {"
+   },
+   {
+    "id": "d1154e013e",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 331,
+    "before": "if (next >= 1) {",
+    "after": "if (next >= 2) {"
+   },
+   {
+    "id": "0f7ba73df6",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 337,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "a9e4a9d639",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 348,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "238c9f2d84",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 357,
+    "before": "Cobol.store(f47_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f47_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "3f6dd380b7",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 360,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "330ad88a11",
+    "op": "LIT",
+    "file": "service/CaadsbService.java",
+    "line": 383,
+    "before": "CicsTask.TsResult ts1 = task.writeqTs(\"CALOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_CLOG, 46, \"WRITEQ TS\", CS), CS, REGION));",
+    "after": "CicsTask.TsResult ts1 = task.writeqTs(\"CALOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_CLOG, 46, \"XRITEQ TS\", CS), CS, REGION));"
+   },
+   {
+    "id": "303c322a13",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 388,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "4aa6358b5b",
+    "op": "ROR",
+    "file": "service/CaadsbService.java",
+    "line": 388,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "4ed7406679",
+    "op": "CON",
+    "file": "service/CaadsbService.java",
+    "line": 388,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "f406bc488d",
+    "op": "DEL",
+    "file": "service/CaadsbService.java",
+    "line": 392,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   }
+  ],
+  "inputs": {
+   "port": "3a159aab1084af4e18663d6b0b35164b1cd7797b97d253c8bf8ce5c9b9777902",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "a7d985f686b6dedfabe6fae2ed6be7809eb89259b2a9fe65fea4306d96487a79",
+   "case": "c3b2e0c18570dcf59206f90cda724e47b9e3a82aed3798dec45628e16960a50f",
+   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
+   "harness": "8c0c61fb1558bf400e82306a0728abcf827a67feddcb1fd5a6c78c3b3ff27255",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "ba8e119105a759c157cd0da7012745820228c049efdddcc0d609003038702dff"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "2ddd8859b310fbbf94d495d90f7adcda680b271e4eedfd552ab16e50a479c1ce",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   },
+   "harness": {
+    "harness:cics": "a567c237d8df01b43c6ca449b01f1367c33141555f005d32772cfb17935c3796",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "00651c5f5e 0385c3b523 04ce4d8577 058f34e78d 05e5bf920d 062c3fee7a 0688ff2053 06df716199 07975ab664 07bd7ada6d 09d062e7c4 0bc9b1c0de 0d130660fb 0d74124223 0dc6e7172e 0deb4cd914 0e63184e11 0ef89eda84 0f7ba73df6 100b5f6342 10d8362fbe 10dd66ef68 1196d28baf 12ab9c0368 12e3d6d7c7 134ec68e87 13893d0cca 13d451bb11 13e3b6808f 144111fbe9 152b13c8ac 1552e27986 167c43a224 173c5d37ef 1860e0944f 18f472c650 19c8c5d4e5 1ab84e441e 1b60fb6b72 1c4ff290c8 1c7e5b4c62 1ceb17c5b3 1ec9f11be2 1f04516b2b 205d830a7c 2063ed00cc 20a9a5e62a 20f867187a 2260bf9cd1 2367ddf3c2 238c9f2d84 239e61112c 246c356b61 246ccbfe30 2551dae1a7 25837a505b 25dceef806 2760f116b6 2a7534d8dc 2a94d0c3fd 2b0011e4d3 2d044541be 2d05364edd 2e33dc8170 2e9a164331 2ea132d27e 2eefda6f8f 2f2213d46e 303c322a13 330ad88a11 3488ea3128 34fe1dc979 3603691328 375dbddd8d 376e42dc7a 37dd655661 38da02c364 38e3f3ab4b 398c233286 3aad98fad1 3b67c96a3e 3b7de00417 3bb5798dc2 3bbdbc205e 3cd83e4846 3f6dd380b7 3fedb22946 40983188c2 41e9fa8989 4227a861b1 426abfb9b7 43163176f6 443e7bc431 44fb10de3b 46a38dfc4d 489b4ecf95 4aa6358b5b 4b28635686 4c362323bc 4ed7406679 4efa1f3670 4f167d5bf7 4fde0aec31 50025dc8d4 51168663a0 517ab9128e 51f76256a4 52a8000124 53e63afa53 543a093596 544e210349 548496b93c 55e52aec07 56d8ae5198 579183c9be 58aa68a076 595a4ee838 5a4ad5e119 5b077b2436 5b2c730f5b 5b90129090 5be2b143e1 5bf59310d0 5e798b5203 5f2044c73f 5f268d5776 5fb3790a21 5fbe80220d 6046224e8f 6085aceebd 60f0ef00c3 61c21193a8 621a5879b5 6371341253 64326b78c5 649a1f946f 65fa2e249b 67f437b246 681be67b53 68a000c98e 69e3ade755 6a5f1ccdfe 6bf832e299 6d11f1e456 6e2d75ee3c 6e860cd6f6 6f5303553b 7041f3e114 707ce15b69 70be3070bf 71f2a80bcf 7277f95862 72eb0da0eb 73033c919e 736e5e5ceb 74cca6603a 75167add29 751f8f3d4e 759d3b4a5f 79c81234e3 79eaa3f6f9 7a694f5ce1 7c4aeb7002 7c7127dc9b 7ccbd71c58 7d4e152551 7d5274bbd8 7ecfbba7a1 801eca3c40 80f487a003 824771acf2 82beaf9d3c 8336de9bc7 83d5998aeb 8863029739 8884632c29 88be49f55f 88efd07bcb 8bc6195d21 8c8de5bb15 8d257069dd 8d538c313c 8ebc7cc969 8f868c9dfb 91424edeff 92a8d972f0 92b1f4d0df 92ec460ff8 93a0dec0a4 9447c34099 94b12dfff9 94b2139587 953be6feea 968ad18f23 986fa19a61 9a9a6f79a9 9b07ff4e69 9c4fe3d7a7 9d795ee550 9dd71e2d4b 9ddc741d74 9e5c142f78 9e6a1e13da 9f38edf6fb a055738eab a06166e226 a132e45c8e a3b34703d1 a459a96e79 a5622a65d6 a5f32d2c4f a855341268 a88c65cc09 a9e4a9d639 a9fcc9c233 aa7b163120 aa9a7e709b aaa45d7378 ac0b4dee8b ac5e647f47 ad60414674 adf000bd4f ae8678e911 ae97d40ba9 af72782301 af744b0ecc af8c459c07 b02b86970c b2181811fc b2a714f167 b3028b41e3 b32cc486e4 b5e2af7d3a b67a1bc4b5 b775565a99 b8945bb99a ba64d5a105 bce43f11c2 bfe4c9b21d c4ecd68c7e c5d10a1c0c c75c44893c c81b56f2c6 ca29ad901e ca5761a21a cbdb1456d7 cc81c7c2b2 d07889092d d1154e013e d35f9cc188 d45a2760fc d6b260dd81 d7da1b654d d8aa876490 d95c4b512b db443302e7 db47d3cc5f db4965ea51 dd473810ff dd868b2cbe df2f069e10 e0adf4c404 e0b7d308d5 e1c9639009 e362c8b249 e8acbd5c6c e8f44d9e21 e9d9e3fb2a ea5bd5ae0c ea7bd3a341 ecd1d58b44 ee63230d7f efafdc6032 effdb00b2a f09949bda8 f09dbba7cf f0c667ed55 f0e7c64607 f1eef8c248 f26d4a1691 f292281275 f406bc488d f5f7a5d737 f6285f4213 f659f08a26 f71927575a f8e4aad191 f99ec0a275 fbe44da7e8 fbf738fbb0 fc289b9811 fed8da6192"
+ }
+}

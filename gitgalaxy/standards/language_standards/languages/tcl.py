@@ -304,7 +304,7 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         # Explicit math invocations via expr.
         "scientific": re.compile(r"\b(?:expr|math::)\b|\b(?:sin|cos|tan|sqrt|exp|log|pow)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # High Cognitive Load: Intercepting variables, tracking execution, and runtime aliasing.
         "reflection_metaprogramming": re.compile(r"\b(?:trace[ \t]+add|rename|interp[ \t]+create|interp[ \t]+alias)\b"),
         # 24. import (Dependency Inclusions)

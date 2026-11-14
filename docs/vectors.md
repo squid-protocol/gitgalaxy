@@ -38,10 +38,15 @@ keyword counts, danger vocabulary, complexity, per-file totals, pooled, density-
 length-matched, or banded — reduced to file size; the nulls are equivalence-confirmed, not
 just non-significant, on two independent repositories
 (temporal-crucible `docs/HYPOTHESES.md`, "the plain-language summary" and point 2). What
-*did* validate is that the vectors reliably characterize **what a change did**: the fix-shaped
-composite tracks a security-fix → ordinary-fix → control → revert gradient cleanly, and
-per-vector deltas correspond to real code events (guard code added, threading introduced,
-debt markers diluted). That is a real, useful, differentiated capability. It measures activity
+*did* validate is that the vectors characterize **what a change did**: per-vector deltas
+correspond to real code events (guard code added, threading introduced, debt markers diluted),
+and the fix-shaped composite separates fixes from non-fixes. It does not separate security fixes
+from ordinary bug fixes: the security-fix → ordinary-fix → control → revert gradient seen at file
+grain collapsed when only the patch's own lines were scored (curl, exploratory: fix classes about
+49–57% fix-shaped, controls 39%, reverts 10%; the file-grain security spread reads as a
+bystander-file artifact; temporal-crucible `docs/HYPOTHESES.md`, "Hunk-grain grammar", tc#34).
+The registered replication on openssl (X-H2) has not been scored yet. That is a real, useful,
+differentiated capability, narrower than a security-fix detector. It measures activity
 and surface, not defect probability — hence the rename below.
 
 ## The name table
@@ -401,15 +406,18 @@ tooling — on curl, 6 of 392 CVE/control-implicated files (`exposure_history_re
 nDPI, 0 of 197 (`ndpi_exposure_report.md`). "CVEs live in protocol code, credentials in test
 fixtures," as the record puts it. Disposition: **REWORK** to a plain count-based "credential
 material present" flag — which is also why this vector's new name is `credential_material`
-rather than a surface/density-implying name.
+rather than a surface/density-implying name. The rework is planned, not implemented: the shipped
+vector is still the density formula (`SignalProcessor._calc_secrets_risk`), and the name
+describes the intended flag, not the current computation.
 
 **(3) Explicit non-claims.** This value is not a defect-probability estimate, and — beyond the
 general caveat — it is not currently a useful security-risk indicator at all: it is strongly
 size-correlated as formulated, and it has been shown twice, on two repositories, to fire on
 files that are not where vulnerabilities actually live.
 
-**(4) Appropriate vs inappropriate uses.** Appropriate: as a raw presence flag for "does this
-file contain credential-shaped strings" (secrets-scanning triage, pending the rework).
+**(4) Appropriate vs inappropriate uses.** Appropriate: as a rough signal for "does this
+file contain credential-shaped strings" (secrets-scanning triage); until the rework lands it is a
+density score, not a presence flag, so read the underlying Hard-Coded Secrets count instead.
 Inappropriate: using the current score as a vulnerability or risk indicator of any kind.
 
 ---

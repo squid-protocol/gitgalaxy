@@ -1,0 +1,983 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cruc-ca-channel-browse-err",
+ "entry": {
+  "program": "CABRERR",
+  "commit": "bb18d41b95cbfa4536cb8d88c9cbe56eee71ce48",
+  "date": "2026-11-13",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 315,
+  "out_of_scope": 6,
+  "chosen": 150,
+  "coverage": "proven on 1 scenario, covering 2/2 paragraphs and 0/0 branches",
+  "counts": {
+   "killed": 37,
+   "timeout": 0,
+   "survived": 108,
+   "stillborn": 5,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "004285657e",
+   "11b911a6ae",
+   "12cc222f4f",
+   "14b3402d11",
+   "20e59cf1f3",
+   "23a44c1346",
+   "243880951d",
+   "284edbdbfa",
+   "2bb7ac8610",
+   "2f1cbac1c9",
+   "306aa3b40b",
+   "3179fd61a4",
+   "33610147fe",
+   "349585cfa4",
+   "44127b07ec",
+   "48e7a9d0d5",
+   "49ddea1411",
+   "4a4a425d90",
+   "55f53511c4",
+   "5d1c29a940",
+   "78ffd0a45c",
+   "7b62259163",
+   "7e73b6273f",
+   "852ff8f859",
+   "8ee6d7873b",
+   "924e6f6b60",
+   "a0b971dc1b",
+   "aad2575f0a",
+   "b04ccdf555",
+   "bc1d77366a",
+   "be16bf82dc",
+   "cc2bd41d76",
+   "d1389e1ceb",
+   "d46e633675",
+   "f6994154f0",
+   "f9271e1478",
+   "fdd3c67d59"
+  ],
+  "stillborn": [
+   "69652ff8a6",
+   "b1962a1892",
+   "b8964e0ffd",
+   "cb629b5c56",
+   "e87bf95bea"
+  ],
+  "survived": [
+   {
+    "id": "961fc5d0ae",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 37,
+    "before": "\"T05MWS1PTkU=\"));",
+    "after": "\"X05MWS1PTkU=\"));"
+   },
+   {
+    "id": "3938b4b980",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 39,
+    "before": "\"ICAgIDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgIDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "71bb5f70aa",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 41,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "c74f72f8d0",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 43,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "db8bb487e4",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 50,
+    "before": "private final Field f2_WS_LOG = Field.group(s_WS_LOG, 0, 31);",
+    "after": "private final Field f2_WS_LOG = Field.group(s_WS_LOG, 0, 32);"
+   },
+   {
+    "id": "2e9411ffd8",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 53,
+    "before": "private final Field f10_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f10_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "5c7a86113f",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 55,
+    "before": "private final Field f12_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f12_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "6ffc5042e4",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 59,
+    "before": "private final Field f38_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f38_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "8a34f9650d",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 60,
+    "before": "private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "4e4fc0dd89",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 72,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "0922379c2f",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 72,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "3072b75ba8",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 72,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "87782c5e38",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 72,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "49d7cf5c5e",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 78,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "76302fdd3f",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 80,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "f2b071ded4",
+    "op": "COR",
+    "file": "service/CabrerrService.java",
+    "line": 80,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "34a0006e13",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 83,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "175e44f5bd",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 83,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "e5588f3781",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 87,
+    "before": "java.util.Map.entry(\"LOG-ENTRY\", 1),",
+    "after": "java.util.Map.entry(\"XOG-ENTRY\", 1),"
+   },
+   {
+    "id": "f2c5e3e722",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 88,
+    "before": "java.util.Map.entry(\"ERR-MAIN\", 0)",
+    "after": "java.util.Map.entry(\"XRR-MAIN\", 0)"
+   },
+   {
+    "id": "906f34fa2d",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 93,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "eecdfd5919",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 93,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "4b0ed0b60f",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 94,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "e320a5965e",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 110,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "cc44352f9a",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 112,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "574908d62f",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 124,
+    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+   },
+   {
+    "id": "16e647139c",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 134,
+    "before": "System.arraycopy(IMAGE_s_WS_DATA, 0, s_WS_DATA.bytes, 0, IMAGE_s_WS_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_DATA, 0, s_WS_DATA.bytes, 0, IMAGE_s_WS_DATA.length); */"
+   },
+   {
+    "id": "07a2222d5a",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 135,
+    "before": "System.arraycopy(IMAGE_s_WS_LOG, 0, s_WS_LOG.bytes, 0, IMAGE_s_WS_LOG.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_LOG, 0, s_WS_LOG.bytes, 0, IMAGE_s_WS_LOG.length); */"
+   },
+   {
+    "id": "adfa767b76",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 161,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "c9ff076f95",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 163,
+    "before": "Cobol.move(task.transid(), f11_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f11_EIBTRNID, CS); */"
+   },
+   {
+    "id": "0de08d92a3",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 164,
+    "before": "Cobol.move(task.termid() == null ? \"\" : task.termid(), f13_EIBTRMID, CS);",
+    "after": "Cobol.move(task.termid() != null ? \"\" : task.termid(), f13_EIBTRMID, CS);"
+   },
+   {
+    "id": "ab03de7ed7",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 167,
+    "before": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "8d8545af0b",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 167,
+    "before": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "a153d6f94c",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 167,
+    "before": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "c127624b59",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 167,
+    "before": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f10_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "938764f61e",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 168,
+    "before": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "92b146e520",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 168,
+    "before": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "78f1e8a87e",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 168,
+    "before": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "a945bfd810",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 168,
+    "before": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f9_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "634322a57e",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 169,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "9a63e88dbf",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 174,
+    "before": "if (ca instanceof CaaddrWsArea) {",
+    "after": "if (!(ca instanceof CaaddrWsArea)) {"
+   },
+   {
+    "id": "3bb1da52c1",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 177,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "3cd2d8f9a3",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 178,
+    "before": "} else if (ca instanceof CaboffWsOut) {",
+    "after": "} else if (!(ca instanceof CaboffWsOut)) {"
+   },
+   {
+    "id": "a2483d5a69",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 179,
+    "before": "calen = cx(task, 16);",
+    "after": "calen = cx(task, 17);"
+   },
+   {
+    "id": "942244a491",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 181,
+    "before": "calen = cx(task, 2);",
+    "after": "/* calen = cx(task, 2); */"
+   },
+   {
+    "id": "a73e432317",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 182,
+    "before": "} else if (ca instanceof CaboffWsSrc) {",
+    "after": "} else if (!(ca instanceof CaboffWsSrc)) {"
+   },
+   {
+    "id": "ce5facc282",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 183,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "90801d4ee3",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 183,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "4aff59a496",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 184,
+    "before": "} else if (ca instanceof CabrerrWsData) {",
+    "after": "} else if (!(ca instanceof CabrerrWsData)) {"
+   },
+   {
+    "id": "78e8a7ea6e",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 185,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "e580b03f08",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 187,
+    "before": "calen = cx(task, 6);",
+    "after": "calen = cx(task, 7);"
+   },
+   {
+    "id": "4d4abf157b",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 188,
+    "before": "} else if (ca instanceof CachanWsBin) {",
+    "after": "} else if (!(ca instanceof CachanWsBin)) {"
+   },
+   {
+    "id": "ecfb9e5dab",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 191,
+    "before": "calen = cx(task, 3);",
+    "after": "/* calen = cx(task, 3); */"
+   },
+   {
+    "id": "ee7c16f57b",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 198,
+    "before": "} else if (ca instanceof CachxbWsOwn) {",
+    "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
+   },
+   {
+    "id": "2e870d9d4f",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 203,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "574e834f24",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 204,
+    "before": "} else if (ca instanceof GtasgnWsCa) {",
+    "after": "} else if (!(ca instanceof GtasgnWsCa)) {"
+   },
+   {
+    "id": "8ec73852b6",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 205,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "e1f3da9119",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 207,
+    "before": "calen = cx(task, 30);",
+    "after": "/* calen = cx(task, 30); */"
+   },
+   {
+    "id": "52f05375f1",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 209,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "cc900fde39",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 210,
+    "before": "} else if (ca instanceof PcrcaWsModify) {",
+    "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
+   },
+   {
+    "id": "33bd675406",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 211,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "2aaf87820a",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 211,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "8376bd6121",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 212,
+    "before": "} else if (ca instanceof PcrcbWsExtra) {",
+    "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
+   },
+   {
+    "id": "aed54b5a1c",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 214,
+    "before": "} else if (ca instanceof PcrcbWsNew1) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
+   },
+   {
+    "id": "8e7bb15c66",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 215,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "130913cea6",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 216,
+    "before": "} else if (ca instanceof PcrcbWsNew2) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
+   },
+   {
+    "id": "0cf481c845",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 217,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "492b1cf9df",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 221,
+    "before": "if (calen == 0 && task.linkArea() != null) {",
+    "after": "if (calen != 0 && task.linkArea() != null) {"
+   },
+   {
+    "id": "97a9f54ea7",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 222,
+    "before": "calen = cx(task, task.linkArea().length);",
+    "after": "/* calen = cx(task, task.linkArea().length); */"
+   },
+   {
+    "id": "63ecdab875",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 231,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "cd715cfc20",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 236,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "0c46a0d720",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 241,
+    "before": "throw new UnsupportedOperationException(\"handleTransaction: the program has no task facade (a channel program); it runs as runTask\");",
+    "after": "throw new UnsupportedOperationException(\"XandleTransaction: the program has no task facade (a channel program); it runs as runTask\");"
+   },
+   {
+    "id": "2a8f894c98",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 245,
+    "before": "throw new UnsupportedOperationException(\"handleChannel: a channel entry has no task facade; the program runs as runTask or handleTransaction / handleLink\");",
+    "after": "throw new UnsupportedOperationException(\"XandleChannel: a channel entry has no task facade; the program runs as runTask or handleTransaction / handleLink\");"
+   },
+   {
+    "id": "752d5bda4e",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 254,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "664a4d3205",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 260,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "71f3f10a7e",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 279,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "bbe3db37ee",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 292,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "66af520714",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 292,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "2948beaf14",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 292,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "44351a0cf0",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 293,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "8363d0f6c6",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 293,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "3a6ec863dd",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 298,
+    "before": "if (next >= 2) {",
+    "after": "if (next > 2) {"
+   },
+   {
+    "id": "087b1005b6",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 298,
+    "before": "if (next >= 2) {",
+    "after": "if (next < 2) {"
+   },
+   {
+    "id": "a3f17431cf",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 298,
+    "before": "if (next >= 2) {",
+    "after": "if (next >= 3) {"
+   },
+   {
+    "id": "5ed677d7fd",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 301,
+    "before": "i = next;",
+    "after": "/* i = next; */"
+   },
+   {
+    "id": "5f3b0ca10e",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 308,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "3195c2baca",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 316,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "6b07d41bd8",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 323,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 0, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() - 0, 4, false), CS);"
+   },
+   {
+    "id": "bc8c7bce3e",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 326,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 10, 5, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 10, 5, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "3ccfb357f3",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 327,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 15, 16, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 15, 16, false), CS); */"
+   },
+   {
+    "id": "9290db0a6c",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 330,
+    "before": "CicsTask.ContainerResult cont1 = task.putContainer(\"CABERRCHAN\".strip(), \"ONE\".strip(), DetCics.containerData(f1_WS_DATA, flen2), flen2, null, false);",
+    "after": "CicsTask.ContainerResult cont1 = task.putContainer(\"XABERRCHAN\".strip(), \"ONE\".strip(), DetCics.containerData(f1_WS_DATA, flen2), flen2, null, false);"
+   },
+   {
+    "id": "990a9f8db0",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 330,
+    "before": "CicsTask.ContainerResult cont1 = task.putContainer(\"CABERRCHAN\".strip(), \"ONE\".strip(), DetCics.containerData(f1_WS_DATA, flen2), flen2, null, false);",
+    "after": "CicsTask.ContainerResult cont1 = task.putContainer(\"CABERRCHAN\".strip(), \"XNE\".strip(), DetCics.containerData(f1_WS_DATA, flen2), flen2, null, false);"
+   },
+   {
+    "id": "a6516e09a4",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 335,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "9c6c417cb4",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 335,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "c8c6e23dc4",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 335,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "0c4dabff99",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 342,
+    "before": "CicsTask.ContainerResult chan3 = task.deleteChannel(\"CABNOCHAN\".strip());",
+    "after": "CicsTask.ContainerResult chan3 = task.deleteChannel(\"XABNOCHAN\".strip());"
+   },
+   {
+    "id": "63f1a3ee1f",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 343,
+    "before": "Cobol.store(f37_EIBRESP, BigDecimal.valueOf(DetCics.resp(chan3.resp())), false, CS);",
+    "after": "/* Cobol.store(f37_EIBRESP, BigDecimal.valueOf(DetCics.resp(chan3.resp())), false, CS); */"
+   },
+   {
+    "id": "cfaf3f91ee",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 345,
+    "before": "if (DetCics.resp(chan3.resp()) != 0) {",
+    "after": "if (DetCics.resp(chan3.resp()) != 1) {"
+   },
+   {
+    "id": "804d0147c4",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 347,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "71c7b45a8f",
+    "op": "LIT",
+    "file": "service/CabrerrService.java",
+    "line": 350,
+    "before": "Cobol.move(\"BAD2\", f3_LG_TAG, CS);",
+    "after": "Cobol.move(\"XAD2\", f3_LG_TAG, CS);"
+   },
+   {
+    "id": "788771e3e0",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 352,
+    "before": "perform(1, 1);",
+    "after": "perform(1, 2);"
+   },
+   {
+    "id": "d283181c66",
+    "op": "NEG",
+    "file": "service/CabrerrService.java",
+    "line": 356,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "78f93edb2c",
+    "op": "ROR",
+    "file": "service/CabrerrService.java",
+    "line": 368,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "955320e0c9",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 371,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 0, 4, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 0, 4, false), CS); */"
+   },
+   {
+    "id": "8179e83895",
+    "op": "AOR",
+    "file": "service/CabrerrService.java",
+    "line": 371,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 0, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() - 0, 4, false), CS);"
+   },
+   {
+    "id": "0eda04c138",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 371,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 0, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 1, 4, false), CS);"
+   },
+   {
+    "id": "8b86a7632a",
+    "op": "DEL",
+    "file": "service/CabrerrService.java",
+    "line": 373,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 7, 3, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 7, 3, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "3ff7bab4e7",
+    "op": "CON",
+    "file": "service/CabrerrService.java",
+    "line": 373,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 7, 3, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f2_WS_LOG.storage(), f2_WS_LOG.offset() + 8, 3, 0, false, false, false), CS);"
+   }
+  ],
+  "inputs": {
+   "port": "e2ebac14ea01b55d757f706ffb1581767307ed79d59499ead83977057d25d6ea",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "a7d985f686b6dedfabe6fae2ed6be7809eb89259b2a9fe65fea4306d96487a79",
+   "case": "932b9cc9f4f3a15392cf3f298e9e47f750f836ab0a135a2fe68821f75bc42f33",
+   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
+   "harness": "8c0c61fb1558bf400e82306a0728abcf827a67feddcb1fd5a6c78c3b3ff27255",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "addb60bd570ac52e0b7c2e898e7a7a2dd9a0d9511d69f4afb31843398f1e9764"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "2ddd8859b310fbbf94d495d90f7adcda680b271e4eedfd552ab16e50a479c1ce",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   },
+   "harness": {
+    "harness:cics": "a567c237d8df01b43c6ca449b01f1367c33141555f005d32772cfb17935c3796",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "004285657e 010588a415 0271130f86 064acd6938 0680a62c2e 06ffbf6a2a 073793d4d3 07a2222d5a 087b1005b6 0922379c2f 098208d9aa 09e8f989e4 0c46a0d720 0c4dabff99 0cf481c845 0de08d92a3 0eda04c138 0f2d4f962a 1108280097 11a23fe0f1 11b911a6ae 11ec2cb29f 12cc222f4f 130913cea6 14b3402d11 15fc975255 16153b73b1 1645e609eb 16c22058f0 16e647139c 175e44f5bd 1760d6af50 17d27eb22f 199312e9b4 1bf910866f 1c92738590 1c99aea584 1d8dc40ca0 1e70de6d65 20123ff2d7 20e59cf1f3 20f97a3203 23a44c1346 243880951d 253609c72f 25a977dcbd 25b18d95dd 264bfa5c95 26c525535e 26cae8d722 27df1075cd 284edbdbfa 2948beaf14 29ce119061 2a8f894c98 2aa5f9db57 2aaf87820a 2bb7ac8610 2e870d9d4f 2e9411ffd8 2f1cbac1c9 306aa3b40b 3072b75ba8 3179fd61a4 3195c2baca 33610147fe 33bd675406 349585cfa4 34a0006e13 36c771e0bf 37a740571b 386d762854 3938b4b980 39939e1c08 3a6ec863dd 3b4f317546 3bb1da52c1 3ccfb357f3 3cd2d8f9a3 3d362a2680 3ff7bab4e7 40f59df543 427652e8d5 44127b07ec 44351a0cf0 46a0e0ba9c 48e7a9d0d5 492b1cf9df 49d7cf5c5e 49ddea1411 4a4a425d90 4a7f2d15fb 4aff59a496 4b0ed0b60f 4c468bbc8f 4c990614d9 4d3052e052 4d4abf157b 4e4fc0dd89 4ee40af11a 4f6dc14de4 50bb2cb9f9 52f05375f1 5492e5788d 555463e211 555534b712 55f53511c4 574908d62f 574e834f24 57503a04c8 57e398df67 5aef50ea82 5b1d7539ba 5b247240e4 5b62a31ffe 5c7a86113f 5d1c29a940 5e66204d5a 5ed677d7fd 5f3b0ca10e 61cca4c92b 62bf40e82a 634322a57e 63ecdab875 63f1a3ee1f 664a4d3205 66af520714 6839a6fb84 69652ff8a6 69bee210f6 69edb4ff0f 6b07d41bd8 6bb99e35a3 6df5ef587d 6e721a15a7 6f6282494b 6ffc5042e4 71bb5f70aa 71c7b45a8f 71f3f10a7e 7306db6ca3 752d5bda4e 76302fdd3f 788771e3e0 78e8a7ea6e 78f1e8a87e 78f93edb2c 78ffd0a45c 7adadee7e6 7b55ccb574 7b62259163 7b97594b6d 7e73b6273f 80138a5e42 804d0147c4 8144eea83d 81720cfb58 8179e83895 8363d0f6c6 8376bd6121 852ff8f859 85a49fbac2 87782c5e38 8a34f9650d 8aa999ef56 8b86a7632a 8d8545af0b 8da9da519b 8e221781dc 8e7bb15c66 8ec73852b6 8ee6d7873b 8f17bafdc6 8fe1c69bba 906f34fa2d 90801d4ee3 90d5e72937 912c187a9d 924e6f6b60 926777cd3b 9290db0a6c 92b146e520 93395fad25 9381216d1f 938764f61e 939594f7c1 942244a491 94baea6362 95087f32cb 955320e0c9 961fc5d0ae 963faaa6fb 966dd8a128 9787ec54d6 97a9f54ea7 990a9f8db0 9a32589e7e 9a63e88dbf 9ad45d3a79 9b0992f7fb 9b6565e95e 9ba4400d42 9c6c417cb4 9d3e71b85a a09876ca13 a0b971dc1b a153d6f94c a17b521f31 a1e03c4fbb a2483d5a69 a3f17431cf a429ede981 a6516e09a4 a73e432317 a7bbf4102f a7dd6d987f a945bfd810 a9eecc8646 aacb05faa2 aad2575f0a ab03de7ed7 ab35be9b90 ac287e76df ac290e89b3 ac5803fc60 ac6d2b2f90 ad26cd16bb adfa767b76 aed54b5a1c af1cefa447 af23808392 b04b971076 b04ccdf555 b1962a1892 b2b0772fa5 b33849a8b0 b470e48223 b5a683e107 b6a4225e0c b8964e0ffd bbe3db37ee bc1d77366a bc8c7bce3e bd1cf9dc2e be16bf82dc bebd9c6db8 bf0b5547eb bfbe7af0ad c127624b59 c217e98a10 c299982e58 c3e376d6cc c6137b31b1 c74f72f8d0 c89cd025b1 c8c6e23dc4 c8e37bf031 c9ff076f95 ca3cf67d5a cb629b5c56 cc2bd41d76 cc44352f9a cc900fde39 cce9757701 cd715cfc20 cd9c999dcc ce5facc282 cec2fbba0e cf006d7b82 cfaf3f91ee d09325a96a d1389e1ceb d23bbc7653 d283181c66 d285f45a92 d46e633675 d4ce9261b1 d6c265f32a d8333bdf7f d9f4c9a4e8 da7a4203bd daf6a19e26 db5e8b2ecb db8bb487e4 dd4f11b0a9 dd631730d1 ddca9be4cc e1f3da9119 e272bfa3ef e320a5965e e5007742e8 e50dcfe607 e5588f3781 e580b03f08 e6141704c2 e87bf95bea e8b2672558 e972552e86 eae458a515 ec1c66e675 ecfb9e5dab edb74e4643 ee29f0e292 ee7c16f57b eecdfd5919 f2b071ded4 f2c5e3e722 f6994154f0 f7971f915a f850145dc9 f9271e1478 fd2a3ea0d7 fdd3c67d59 fde487674d fec697de5c"
+ }
+}

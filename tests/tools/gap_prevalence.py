@@ -557,6 +557,36 @@ def census_label(name: str) -> str:
 CLONE_DEFECT = "missing copybook: clone defect (not in the clone)"
 RESOLVER_DEFECT = "missing copybook: resolver defect (member found by file search)"
 UNVERIFIED = "missing copybook: unverified (no file search)"
+ARCHIVED = "missing copybook: unverified (clone holds an archive)"
+# #8412: files that can hide members from the resolver and from the file search alike. Matched by name only, never opened.
+ARCHIVE_EXTS = frozenset(
+    (
+        ".zip",
+        ".tar",
+        ".tgz",
+        ".gz",
+        ".bz2",
+        ".tbz2",
+        ".xz",
+        ".7z",
+        ".rar",
+        ".xmi",
+        ".xmit",
+        ".terse",
+        ".trs",
+        ".pax",
+        ".unload",
+    )
+)
+
+
+def archive_files(clone: Path) -> int:
+    """#8412: how many archive-named files `clone` holds (`.git` skipped). A count: no name is kept and no file is opened."""
+    return sum(
+        f.suffix.lower() in ARCHIVE_EXTS
+        for f in clone.rglob("*")
+        if ".git" not in f.relative_to(clone).parts and f.is_file()
+    )
 
 
 def clone_member_index(clone: Path) -> set[str]:
@@ -572,16 +602,19 @@ def clone_member_index(clone: Path) -> set[str]:
     return out
 
 
-def verified_copybook_key(gap: str, index: set[str] | None) -> str:
+def verified_copybook_key(gap: str, index: set[str] | None, archives: int = 0) -> str:
     """The summary key of a `missing copybook` gap. A clone defect needs the resolver's miss AND the file search's miss
-    (#8113, rule 10): a member the search finds is a resolver defect, and with no index the label is unverified."""
+    (#8113, rule 10): a member the search finds is a resolver defect, and with no index the label is unverified.
+    A clone holding an archive (`archives` > 0, #8412) may hold the member inside it, so the label is refused too."""
     key = copybook_family(gap)
     if key != CLONE_DEFECT:
         return key
     if index is None:
         return UNVERIFIED
     name = gap.removeprefix("missing copybook").replace("(ambiguous)", "").strip().upper()
-    return RESOLVER_DEFECT if name in index else CLONE_DEFECT
+    if name in index:
+        return RESOLVER_DEFECT
+    return ARCHIVED if archives else CLONE_DEFECT
 
 
 def clone_defect_violations(res: dict[str, Any]) -> list[str]:
@@ -596,9 +629,11 @@ def clone_defect_violations(res: dict[str, Any]) -> list[str]:
 
 def measure_census(rows: dict[tuple[str, str], dict[str, Any]], eras: dict[str, dict[str, str]],
                    top: tuple[int, ...] = TOP_N,
-                   clone_index: dict[str, set[str]] | None = None) -> dict[str, Any]:  # fmt: skip
+                   clone_index: dict[str, set[str]] | None = None,
+                   clone_archives: dict[str, int] | None = None) -> dict[str, Any]:  # fmt: skip
     """Rank the scrubbed gap classes of non-burned programs. `eras`: corpus -> program -> era key, held in memory only.
     `clone_index`: corpus -> `clone_member_index` (#8113); without one a clone-defect label stays unverified.
+    `clone_archives`: corpus -> `archive_files` (#8412); a corpus with any archive never earns the clone-defect label.
     The result carries opaque labels and counts: no corpus or program name. A burned corpus in `rows` is refused."""
     burned = cc.burned_names()
     bad = sorted({c for c, _ in rows if cc.is_burned(c, burned)})
@@ -611,7 +646,7 @@ def measure_census(rows: dict[tuple[str, str], dict[str, Any]], eras: dict[str, 
         for g in cc.gap_classes(r):
             k = scrub_key(g)
             if g.startswith("missing copybook") and k == CLONE_DEFECT:
-                k = verified_copybook_key(g, (clone_index or {}).get(corpus))
+                k = verified_copybook_key(g, (clone_index or {}).get(corpus), (clone_archives or {}).get(corpus, 0))
                 checked += k in (CLONE_DEFECT, RESOLVER_DEFECT)
                 found += k == RESOLVER_DEFECT
             keys.add(k)
@@ -627,6 +662,11 @@ def measure_census(rows: dict[tuple[str, str], dict[str, Any]], eras: dict[str, 
 def census_indexes(corpora: Path, names: set[str]) -> dict[str, set[str]]:
     """corpus -> `clone_member_index`, one walk per clone, in memory only (#8113)."""
     return {corpus: clone_member_index(path) for corpus, path in cc.corpus_dirs([corpora]) if corpus in names}
+
+
+def census_archives(corpora: Path, names: set[str]) -> dict[str, int]:
+    """corpus -> `archive_files` (#8412), counts only."""
+    return {corpus: archive_files(path) for corpus, path in cc.corpus_dirs([corpora]) if corpus in names}
 
 
 def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
@@ -934,7 +974,13 @@ def blind_counts(args: argparse.Namespace) -> int:
         raise SystemExit("--blind-root needs a blind-estate survey: no rows, or a burned corpus among them")
     with _silenced():  # the era scanner announces the estate it scans, by name
         eras = census_eras(args.blind_root, {c for c, _ in rows})
-    res = measure_census(rows, eras, tuple(args.top), census_indexes(args.blind_root, {c for c, _ in rows}))
+    res = measure_census(
+        rows,
+        eras,
+        tuple(args.top),
+        census_indexes(args.blind_root, {c for c, _ in rows}),
+        census_archives(args.blind_root, {c for c, _ in rows}),
+    )
     if copies := cc.load_copy_members(args.census_survey, args.label):
         res["copy_members"] = len(copies)
     if listed := cc.load_not_programs(args.census_survey, args.label):
@@ -968,7 +1014,7 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit("--census-survey needs non-burned rows and --census-corpora")
         names = {c for c, _ in crows}
         census = measure_census(crows, census_eras(args.census_corpora, names), tuple(args.top),
-                                census_indexes(args.census_corpora, names))  # fmt: skip
+                                census_indexes(args.census_corpora, names), census_archives(args.census_corpora, names))  # fmt: skip
         copies = [k for k in cc.load_copy_members(args.census_survey, args.label) if not cc.is_burned(k[0])]
         if copies:  # only when non-empty; a count, no member or estate name
             census["copy_members"] = len(copies)

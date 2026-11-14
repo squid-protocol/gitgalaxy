@@ -5,7 +5,7 @@
  "case": "carddemo-sort-tranrept",
  "entry": {
   "program": "DFSORTST",
-  "commit": "74db51397ea9247595e38542a410c1f22cefdbc6+uncommitted",
+  "commit": "5b6b1b2a756253a86f65a1bfcc475aaeb338a35d",
   "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
@@ -1136,7 +1136,7 @@
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "f49ec2e76e8c0b22dc006347a6e16bfa76ee72cc4f328fec148ee2f03d57dcdb"
+   "survivors": "928a4c0817aff786cd9c500be730f497e73e0023b9181b3a9ee05a4ec5b2a284"
   },
   "components": {
    "generator": {

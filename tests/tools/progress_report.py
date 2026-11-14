@@ -674,10 +674,13 @@ def build(
     sizes: dict[str, dict[str, Any]] | None = None,
     fresh: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    per, pairs = {}, {}
+    per, pairs, undated = {}, {}, {}
     for name in sorted(reports):
         progs = reports[name]["programs"]
         per[name] = ladder(progs)
+        if inventories.get(name) is None:  # no feature inventory yet: on the ladder, left out of the era table
+            undated[name] = len(progs)
+            continue
         eras = ((inventories.get(name) or {}).get("eras") or {}).get("programs") or {}
         pairs[name] = [
             (
@@ -720,6 +723,7 @@ def build(
             "crucibles": crucibles_component(cics_crucible, estate_crucible, estate_levels_plan),
         },
         "eras": era_table(pairs),
+        "eras_undated": undated,  # estate -> programs: no feature inventory, so not in the era table (never "none")
         "issues": issues_component(issues),
         "fresh": fresh or fresh_component(None, None, 0),
     }
@@ -736,12 +740,19 @@ def gather() -> dict[str, Any]:
     import det_mutation
     import readiness_report
 
+    import estate4_draw
+
     names = readiness_report.estates()
     bad = burned_estates_ok(names)
     if bad:
         raise RuntimeError(f"evidence reports for estates that are not burned: {bad}")
+    # a burned estate with a published report but no feature inventory yet (blind 1, example-health-apis: its upstream
+    # repo is gone, so the inventory waits on the pinned clone) is still on the ladder; only its eras are unknown
+    names = sorted(set(names) | {d.name for d in readiness_report._reports().iterdir()
+                                 if (d / "report.json").is_file() and d.name.lower() in estate4_draw.BURNED_NAMES})  # fmt: skip
     reports = {n: readiness_report._load(readiness_report._reports() / n / "report.json") for n in names}
-    inv = {n: readiness_report._load(readiness_report.INVENTORY / f"{n}.json") for n in names}
+    inv = {n: readiness_report._load(f) if (f := readiness_report.INVENTORY / f"{n}.json").is_file() else None
+           for n in names}  # fmt: skip
     data = cics_spec_status.load_data()
     tests = {
         n: readiness_report._load(f)

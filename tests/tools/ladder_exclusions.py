@@ -10,6 +10,8 @@ denominator, with the issue and the citation, so a reader does not mistake them 
   refused_by_design  outside what the port proves, for good (owner, 2026-11-03, #5106): its holes are constructs no
                  oracle can back (a model would rest on assumptions alone) or breadth work no ladder program needs;
                  the program stays at L0 as a stated boundary, not as unfinished translator work
+  clone_defect   the published repository lacks a member the program needs (rule 10: independent clone evidence,
+                 a plain file search, not the engine's own resolver); the code itself may be fine
 
 Stdlib only (progress_report and evidence_report both import it).
 """
@@ -18,9 +20,10 @@ from __future__ import annotations
 
 from typing import Any
 
-KINDS = ("source_defect", "not_cobol", "owner_held", "refused_by_design")
+KINDS = ("source_defect", "not_cobol", "owner_held", "refused_by_design", "clone_defect")
 KIND_LABEL = {
     "source_defect": "source defect (source IBM rejects)",
+    "clone_defect": "clone defect (a member the published repository does not hold)",
     "not_cobol": "refused whole: not COBOL",
     "owner_held": "held by an owner ruling or z/OS calibration",
     "refused_by_design": "refused by design (owner ruling: outside what the port proves)",
@@ -30,6 +33,7 @@ KIND_SHORT = {
     "not_cobol": "Not COBOL",
     "owner_held": "Owner hold",
     "refused_by_design": "Out of reach",
+    "clone_defect": "Missing file",
     "open": "In progress",
 }
 
@@ -67,6 +71,14 @@ EXCLUSIONS: dict[tuple[str, str], dict[str, str]] = {
         "point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle "
         "backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program "
         "needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0",
+    },
+    ("example-health-apis", "hcp1bu01.cbl"): {
+        "kind": "clone_defect",
+        "issue": "#8073",
+        "short": "COPY member LGCMAREA is not in the published repository",
+        "reason": "its COPY member LGCMAREA is not in the published repository: a plain case-insensitive file search of "
+        "the pinned clone, any extension, finds no member (docs/language_status/blind1_remeasure.md), so no compiler "
+        "can build it as published; out of scope since trial-001 started (tests/cobol_mainframe/trials.json)",
     },
     ("dbb-mortgage-application", "epsmpmt.cbl"): {
         "kind": "owner_held",

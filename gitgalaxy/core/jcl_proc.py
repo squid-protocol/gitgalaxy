@@ -29,6 +29,11 @@ _SYMBOLIC = re.compile(r"&([A-Z@#$][A-Z0-9@#$]{0,7})\.?", re.I)
 _COND_STEP = re.compile(r"(\(\s*\d+\s*,\s*[A-Z]{2}\s*,\s*)([A-Z@#$][A-Z0-9@#$]*)(\s*\))", re.I)
 
 
+def _keyword(field: str, key: str) -> str:
+    """The value of a keyword operand (`ORDER=(...)`, `MEMBER=X`) on a statement, empty when it is not coded."""
+    return dict(_split(field)).get(key, "")
+
+
 def _substitute(text: str | None, values: Mapping[str, str]) -> str | None:
     """`&NAME.` -> value (the period ends the name and is consumed); `&NAME` followed by anything else -> value."""
     if text is None:
@@ -106,7 +111,7 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
             else:
                 target["dd"].append((ddname.upper(), keyed))
         elif op == "INCLUDE" and steps:
-            member = dict(_split(field)).get("MEMBER", "").upper()
+            member = _keyword(field, "MEMBER").upper()
             _defaults, inc_body = _proc_body(_statements(_find(member, order, libraries)))
             for _l, ddn, iop, ifield in inc_body:
                 if iop != "DD":
@@ -169,7 +174,7 @@ def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str)
     while i < len(stmts):
         _line, name, op, field = stmts[i]
         if op == "JCLLIB":
-            raw = dict(_split(field)).get("ORDER", "")
+            raw = _keyword(field, "ORDER")
             order = [x.strip().upper() for x in raw.strip("()").split(",") if x.strip()]
         elif op == "PROC":
             j = i + 1

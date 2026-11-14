@@ -114,7 +114,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | "Graph BFS capped at 10,000 nodes" | 02-20:48 | FALSE | No BFS; a 50M work budget (`network_risk_sensor.py:186`) | Describe the work budget |
 | ML "introduces non-deterministic confidence scores" | 02-20:40 | VAGUE | `predict_proba` is deterministic; error rate is what is unknown | "Probabilistic scores, unmeasured error rate" |
 | Over-permissioned agent binding (orchestrator import + IO + low safety), opt-in | security/README.md:16-18,38,41,54 | TESTED | `test_ai_appsec_sensor.py` | — |
-| Dev agent firewall: context exhaustion, hallucination risk, state flux, HITL | security/README.md:39,55-56 | TESTED | `test_dev_agent_firewall.py` (state flux untested) | "Summed risk > 200", not "Technical Debt" |
+| Dev agent firewall: context exhaustion, hallucination risk, state flux, HITL | security/README.md:39,55-56 | TESTED | `test_dev_agent_firewall.py` (state flux: `test_silent_mutation_risk_detection`) | "Summed risk > 200", not "Technical Debt" |
 | Context budget check flags "O(N^3) files" | tests/security_auditing/readme.md:31 | FALSE | Only `token_mass > 8000` | "Token mass > 8,000" |
 | Pipeline pins flag unpinned installs across YAML, Docker, shell, GitLab | security/README.md:33 | TESTED | `tests/core_engine/test_pipeline_pins.py` | — |
 | Manifest parser flags non-standard registries, VCS/file/http refs, ngrok | security/README.md:31 | TESTED | `tests/core_engine/test_manifest_parser.py` | "Prevents" → "flags" |

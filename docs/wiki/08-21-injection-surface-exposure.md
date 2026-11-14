@@ -36,17 +36,22 @@ since [#3017](https://github.com/squid-protocol/gitgalaxy/pull/3017), persisted 
 
 | column | what one hit honestly means |
 | :--- | :--- |
-| `threat_tainted_injection` | the lens's bounded, single-file taint heuristic linked an I/O read to an exec/DB sink |
+| `threat_tainted_injection` | nothing: a retired placeholder, always 0. The taint heuristic that fed it was removed in #3101; the column stays so later feature indexes do not shift |
 | `threat_db_sinks` | a query verb was invoked on a receiver (`.execute(`, `->query(`) |
-| `threat_api_near_db_sink` | a public `api` declaration sits within ~10 lines of such a sink, in the same function |
+| `threat_api_near_db_sink` | a public `api` declaration sits within 5 lines of such a sink, in the same function (`galaxyscope.py` passes `max_distance=5`) |
 
-That last one is deliberately *not* called a SQL injection. Measured across the crucible
-corpus it has roughly **0% precision** as a vulnerability claim — `fastapi/tests/test_annotated.py`,
-a file containing no database code whatsoever, scored 13 hits purely from FastAPI's `Query()`
+That last one is deliberately *not* called a SQL injection. #3018 and #3019 report roughly
+**0% precision** as a vulnerability claim on the crucible corpus (the count is cited from those
+issues; no committed artifact reproduces it) — `fastapi/tests/test_annotated.py`, a file
+containing no database code whatsoever, scored 13 hits purely from FastAPI's `Query()`
 parameter helper. See [#3018](https://github.com/squid-protocol/gitgalaxy/issues/3018) and
 [#3019](https://github.com/squid-protocol/gitgalaxy/issues/3019). It is useful as a
 co-location signal to correlate against real CVE ground truth (#2982); it is not evidence of
 a vulnerability on its own.
+
+The sink side of both live columns is `SecurityLens`'s `db_hooks` signature. The lens blanks
+every line of 250+ characters before its regexes run (`SecurityLens._armor`), so a sink on a
+long or minified line is not counted.
 
 ---
 

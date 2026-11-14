@@ -245,10 +245,11 @@ def main(argv: list[str] | None = None) -> int:
     if bad:
         print("\n".join(bad), file=sys.stderr)
         return 1
-    base = REPO / "docs" / "language_status"
     stale = []
     for rel, text in build(data).items():
-        f = base / rel
+        # the page and the chart folder by their constants: a path computed from docs/language_status made the
+        # ground-truth input check (change_classifier) count every file there as read
+        f = PAGE if rel == PAGE.name else CHARTS / Path(rel).name
         if args.check:
             if not f.is_file() or f.read_text(encoding="utf-8") != text:
                 stale.append(rel)

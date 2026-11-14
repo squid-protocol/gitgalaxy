@@ -124,7 +124,7 @@ def record_event(state: dict[str, Any], n: int, sha: str, event: str, detail: st
 
 
 def box_verdict() -> str:
-    """Global metabolic headroom signal (cAMP-CRP) from box_status: 'GREEN', 'YELLOW', or 'RED'."""
+    """The host's headroom, from box_status: 'GREEN', 'YELLOW', or 'RED'."""
     try:
         import box_status
 
@@ -165,7 +165,7 @@ def start_fixers(
     verdict = box_verdict()
     for i, (n, sha, real) in enumerate(cands):
         if verdict in ("RED", "YELLOW"):
-            did.append(f"#{n} fixer deferred: box is {verdict} (catabolite repression)")
+            did.append(f"#{n} fixer deferred: box is {verdict} (no headroom for a fixer)")
             if once(state, n, sha, "note:fixer-deferred"):
                 record_event(state, n, sha, "fixer_deferred", f"box {verdict}")
         elif i >= MAX_FIXERS:

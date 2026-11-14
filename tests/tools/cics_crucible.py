@@ -1180,6 +1180,32 @@ class EquivalenceRunTest {
                             u.get(2).asText()}));
                     t.withUrimaps(defs);
                 }
+                if (plan.hasNonNull("tdqueues")) {
+                    // #5079 (X57) / #7956: DEFINE TDQUEUE -- the queues the case CSD installs, each "TYPE KEY=VALUE..."
+                    // ("-" when the definition states no TYPE). A queue the CSD does not define is QIDERR; without this
+                    // the task takes every queue as defined. The attributes carry RECOVSTATUS and the rest (#5168, X61).
+                    java.util.Set<String> names = new java.util.LinkedHashSet<>();
+                    Map<String, String> types = new LinkedHashMap<>();
+                    List<String> attrs = new ArrayList<>();
+                    plan.get("tdqueues").fields().forEachRemaining(e -> {
+                        String q = e.getKey();
+                        names.add(q);
+                        String[] words = e.getValue().asText().trim().split("\\s+");
+                        types.put(q, words.length > 0 && !"-".equals(words[0]) ? words[0] : "");
+                        for (int i = 1; i < words.length; i++) {
+                            int eq = words[i].indexOf('=');
+                            if (eq > 0) {
+                                attrs.add(q);
+                                attrs.add(words[i].substring(0, eq).toUpperCase(java.util.Locale.ROOT));
+                                attrs.add(words[i].substring(eq + 1));
+                            }
+                        }
+                    });
+                    t.withTdQueues(names).withTdQueueTypes(types);
+                    if (!attrs.isEmpty()) {
+                        t.withTdQueueAttributes(attrs.toArray(new String[0]));
+                    }
+                }
                 if (plan.hasNonNull("doctemplates")) {
                     // #4769 zECS (X33): DOCUMENT CREATE TEMPLATE -- the installed DOCTEMPLATEs, name -> the text each yields
                     Map<String, String> templates = new LinkedHashMap<>();
@@ -1767,6 +1793,10 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             {"wrkarea": case.data["wrkarea"]} if case.data.get("wrkarea") else {}
         ),  # #5079 (X59): SIT WRKAREA, not a CSD resource
         "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
+        # #5079 (X57) / #7956: the CSD's TDQUEUEs, name -> "TYPE KEY=VALUE..."; only when the case defines some,
+        # so a case that defines none keeps every queue defined (the stub's rule, tdqueues.cfg). Without it the Java
+        # task takes every queue as defined and answers NORMAL where the CSD's absence is QIDERR.
+        **({"tdqueues": case.csd["tdqueues"]} if case.csd.get("tdqueues") else {}),
         "doctemplates": case.data.get("doctemplates"),  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's text per name
         "services": services,
         "screens": screens,

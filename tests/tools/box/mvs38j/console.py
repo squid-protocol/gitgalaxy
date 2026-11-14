@@ -7,6 +7,7 @@ identifies as ANSI: Hercules attaches the 3215 only after that), strips IAC
 sequences from the received stream, and collects text on a thread so `wait` can match console messages.
 """
 
+import os
 import re
 import socket
 import threading
@@ -70,6 +71,7 @@ class Console:
         self.lines, self._partial, self._tel = [], "", {}
         self._cv = threading.Condition()
         self.sock = None
+        self.transcript = os.environ.get("MVS38J_CONSOLE_LOG")
 
     def connect(self):
         end = time.monotonic() + self.connect_timeout
@@ -105,6 +107,9 @@ class Console:
         self._partial += text.decode("ascii", errors="backslashreplace").replace("\r", "")
         *done, self._partial = self._partial.split("\n")
         self.lines.extend(done)
+        if self.transcript and done:  # `MVS38J_CONSOLE_LOG=file` keeps the console text for a run that stalls
+            with open(self.transcript, "a", encoding="ascii", errors="backslashreplace") as f:
+                f.write("\n".join(done) + "\n")
         self._cv.notify_all()
 
     closed = False

@@ -242,16 +242,29 @@ def test_console_wait_times_out_and_connect_refuses_a_dead_port():
 
 def test_mount_requests_are_answered_once_with_devinit_and_a_reply(tmp_path):
     con = console.Console()
-    con.lines = ["12 IEC501A M 170,SMPTAP,SL,NOCOMP,SMP4P44,SMPJOB", "13 IEC501A M 170,OTHER,SL,X"]
+    con.lines = ["*IEC501A M 170,SMPTAP,SL,6250 BPI,", " IEC501A SMP4P44,S1", "*IEC501A M 170,OTHER,SL,X"]
     sent, replies, seen = [], [], set()
     con.send = replies.append
     sysgen.answer_mounts(sent.append, con, 0, {"SMPTAP": "tape/smp.het", "OTHER": "tape/o.het"}, seen)
     sysgen.answer_mounts(sent.append, con, 0, {"SMPTAP": "x", "OTHER": "x"}, seen)  # already answered: no repeat
     assert sent == ["devinit 170 tape/smp.het", "devinit 170 tape/o.het"]
-    assert replies == ["r 12,170", "r 13,170"]
-    con.lines = ["14 IEC501A M 171,NOPE,SL"]
+    assert replies == []  # a mount is satisfied by readying the drive: no reply
+    con.lines = ["*IEC501A M 171,NOPE,SL"]
     with pytest.raises(sysgen.SysgenError, match="--tape NOPE=FILE"):
         sysgen.answer_mounts(sent.append, con, 0, {}, set())
+
+
+def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "s.cnf").write_text("0150 3350 dasd/x\n0170 3420 *\n0171 3420 *\n")
+    assert sysgen.tape_unit(tmp_path, "conf/s.cnf") == "170"
+    con = console.Console()
+    con.lines = ["*02 IEF238D SMP4P44 - REPLY DEVICE NAME OR 'CANCEL'."]
+    replies, seen = [], set()
+    con.send = replies.append
+    sysgen.answer_mounts(lambda c: None, con, 0, {}, seen, "170")
+    sysgen.answer_mounts(lambda c: None, con, 0, {}, seen, "170")
+    assert replies == ["r 02,170"]
 
 
 def test_printer_file_reads_the_first_1403_and_smp_refuses_an_unstaged_work_dir(tmp_path):

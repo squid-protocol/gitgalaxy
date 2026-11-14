@@ -151,7 +151,10 @@ def starter(work, image, name):
 
 # ---- SMP stages: IPL the starter system, then feed jobs through the reader and answer the operator console ----
 JOB_ENDED_RE = re.compile(r"\$HASP395\s+(\S+)\s+ENDED")
-MOUNT_RE = re.compile(r"(?:^|\s)(\d+)\s+IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
+# `*IEC501A M 170,MVS38J,SL,6250 BPI,` (live 2026-11-14): a mount is satisfied by readying the drive, so it carries no reply id
+MOUNT_RE = re.compile(r"IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
+# `*02 IEF238D JOB - REPLY DEVICE NAME OR 'CANCEL'`: no online unit fits the job's tape DD (seen live, smp4p44, 2026-11-14)
+DEVICE_ASK_RE = re.compile(r"(\d+)\s+IEF238D\s+\S+\s+-\s+REPLY DEVICE NAME")
 SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
 SMP_IPL_UNIT, SMP_READER = "150", "12"
 
@@ -176,18 +179,32 @@ def smp_jobs(work, stage):
     return jobs
 
 
-def answer_mounts(herc_cmd, con, since, tapes, seen):
-    """Answer each new IEC501A mount request on the console: `devinit` the tape for its volser, reply with the unit."""
+def tape_unit(work, conf):
+    """The first 3420 tape drive of a Hercules config (the unit a job's tape DD is pointed at when MVS asks for a device)."""
+    for line in (Path(work) / conf).read_text(errors="backslashreplace").splitlines():
+        m = re.match(r"\s*([0-9A-Fa-f]{3,4})\s+3420\b", line)
+        if m:
+            return m.group(1)[-3:].upper()
+    raise SysgenError(f"no 3420 tape drive in {conf}")
+
+
+def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
+    """Answer each new IEC501A mount request on the console: `devinit` the tape for its volser (no reply).
+    An `IEF238D REPLY DEVICE NAME` ask is answered with `unit` (the config's tape drive); the mount request follows."""
     for line in con.lines[since:]:
-        m = MOUNT_RE.search(line)
-        if not m or m.group(1) in seen:
+        d = DEVICE_ASK_RE.search(line)
+        if d and unit and d.group(1) not in seen:
+            seen.add(d.group(1))
+            con.send(f"r {d.group(1)},{unit}")
             continue
-        seen.add(m.group(1))
-        reply_id, unit, volser = m.groups()
+        m = MOUNT_RE.search(line)
+        if not m or m.groups() in seen:
+            continue
+        seen.add(m.groups())
+        unit, volser = m.groups()
         if volser not in tapes:
             raise SysgenError(f"mount request for volume {volser} on {unit}: pass --tape {volser}=FILE")
         herc_cmd(f"devinit {unit} {tapes[volser]}")
-        con.send(f"r {reply_id},{unit}")
 
 
 def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
@@ -224,7 +241,7 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
                         tail = " | ".join(ln.strip() for ln in con.lines[-8:])
                         why = jcl_err[0].strip() if jcl_err else f"no $HASP395 ENDED within {job_timeout}s"
                         raise SysgenError(f"{job.name}: {why}; console tail: {tail}") from None
-                    answer_mounts(herc.send, con, since, tapes, seen)
+                    answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf))
             bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
             if bad:
                 raise SysgenError(f"{job.name}: {bad[0].strip()}")

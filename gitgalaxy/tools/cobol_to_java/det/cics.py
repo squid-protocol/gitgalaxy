@@ -22,6 +22,7 @@ from gitgalaxy.standards.cics.commands.handles import AID_KEYS  # noqa: F401 -- 
 from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: F401 -- tests and the conditions mixin read it here
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics_common import (  # noqa: F401 -- re-exported for the mixins' old importers
@@ -526,7 +527,7 @@ class Cics(
         self.gp = generated
         self.package = package
         self.codecs: dict[str, list[str]] = {}  # DTO class -> its in / out methods
-        self.stores: dict[str, str] = {}  # CICS file -> the Java Store expression
+        self.stores: FC.StoreMap = FC.StoreMap()  # CICS file -> the Java Store expression
         self.repos: dict[str, str] = {}  # repository class -> field
         self.passes_bytes = (
             False  # #4695: a RETURN / XCTL passes its COMMAREA as bytes (commareaOut): a facade reads them
@@ -864,6 +865,22 @@ class Cics(
             off, length = self.gp.entity_key(entity, prop)
             rcls = repo[0].upper() + repo[1:]
             self.repos[rcls] = repo
+            inst = FC.instance_accessors(self.g.java_root, entity) if FC.has_template([name]) else None
+            if FC.has_template([name]) and inst is None:
+                self.stores.unscoped = True
+            if inst is not None:
+                # #7965 slice 3b (X22): a Store per instance (`n`, the run-time name, is the instance): its rows are the
+                # table's rows of that instance, a saved row is stamped with it, and findById (the key alone) is not used
+                get, put = inst[0].format(r="r"), inst[1].format(r="e", i="n.stripTrailing()")
+                self.stores[name] = (
+                    f"new DetCics.Store<{entity}>(() -> {repo}.findAll().stream().filter(r -> "
+                    f"n.stripTrailing().equals({get})).toList(), e -> e.toRecord(CS), "
+                    f"b -> {entity}.fromRecord(b, CS), e -> task.write({G_jstr(name)}, () -> {{ {put}; {repo}.save(e); }}), "
+                    f"e -> task.write({G_jstr(name)}, () -> {repo}.delete(e)), {off}, {length}, CS)"
+                    f".withLengths(CicsTask.recordLengths({G_jstr(entity)}))"
+                )
+                self.g.entities.add(entity)
+                continue
             self.stores[name] = (
                 f"new DetCics.Store<{entity}>({repo}::findAll, e -> e.toRecord(CS), "
                 f"b -> {entity}.fromRecord(b, CS), e -> task.write({G_jstr(name)}, () -> {repo}.save(e)), "

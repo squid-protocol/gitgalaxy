@@ -158,3 +158,62 @@ def test_the_java_test_tags_and_filters_rows_by_instance_only_when_instances_sta
     plain = {**case, "region_instances": {"values": ["ZC02FILE"], "why": "x"}}
     java2 = EC.cics_equivalence_test(plain, tmp_path, FILES1)
     assert "setVsamInstance" not in java2 and "getVsamInstance" not in java2
+
+
+# #7965 slice 3b: the port builds one Store per instance, so a task may reach two instances without a Hole.
+def _entity(root, name, body):
+    d = root / "entity" / "vsam"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{name}.java").write_text(body)
+
+
+@pytest.mark.parametrize(
+    ("shape", "want"),
+    [
+        ("own", ("{r}.getVsamInstance()", "{r}.setVsamInstance({i})")),
+        ("embedded", ("{r}.getId().getVsamInstance()", "{r}.getId().setVsamInstance({i})")),
+        ("unreadable", None),
+    ],
+)
+def test_the_instance_accessor_follows_the_entity_shape(tmp_path, shape, want):
+    from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC
+
+    if shape == "own":
+        _entity(tmp_path, "Rec", 'class Rec { private String vsamInstance = ""; }')
+    elif shape == "embedded":
+        _entity(tmp_path, "Rec", "class Rec {\n    @EmbeddedId\n    private RecKey id;\n}")
+        _entity(tmp_path, "RecKey", 'class RecKey { private String vsamInstance = ""; }')
+    else:
+        _entity(tmp_path, "Rec", "class Rec { private String other; }")
+    assert FC.instance_accessors(tmp_path, "Rec") == want
+    assert FC.instance_accessors(None, "Rec") is None
+
+
+def test_a_scoped_store_map_drops_the_claim_hole_and_a_plain_list_keeps_it():
+    from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC
+
+    names = FC.StoreMap({"ZC@ID@FILE": "x"})
+    scoped = "\n".join(FC.file_key_method(names))
+    assert "private void claimInstance(String name) { }" in scoped
+    assert "regionFiles" not in scoped.split("claimInstance", 1)[1]
+    names.unscoped = True
+    assert "private void claimInstance(String name) { }" not in "\n".join(FC.file_key_method(names))
+    assert "private void claimInstance(String name) { }" not in "\n".join(FC.file_key_method(["ZC@ID@FILE"]))
+
+
+def test_the_harness_tags_a_plain_cases_own_rows_when_the_entity_names_an_instance(tmp_path):
+    import equivalence_java as ej
+
+    (tmp_path / "service").mkdir()
+    (tmp_path / "service" / f"{ej._service_class('PROG')}.java").write_text("public void handleLink() {}")
+    _entity(tmp_path, "ZcFile", "class ZcFile {\n    @EmbeddedId\n    private ZcFileKey id;\n}")
+    _entity(tmp_path, "ZcFileKey", 'class ZcFileKey { private String vsamInstance = ""; }')
+    case = {
+        **_stated(tmp_path, _rec("AAAAAAAA"), _rec("BBBBBBBB")),
+        "program": "PROG", "commarea": None, "scenarios": [], "transid": "ABCD", "name": "n", "screens": {},
+        "clock": "2026/10/01 10:30:15.00",
+        "region_instances": {"values": ["ZC02FILE"], "why": "x"},
+    }  # fmt: skip
+    java = EC.cics_equivalence_test(case, tmp_path, FILES1)
+    assert 'row.getId().setVsamInstance("ZC01FILE")' in java
+    assert '"ZC01FILE".equals(row.getId().getVsamInstance())' in java

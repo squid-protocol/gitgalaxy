@@ -3576,6 +3576,15 @@ def _svc_var(program: str) -> str:
     return "linked" + s
 
 
+def _instance_accessors(src: Path, ent: str) -> tuple[str, str] | None:
+    """#7965 slice 3b: how the forge's entity carries the instance (its own column, or in its @EmbeddedId key), as the
+    port reads it (`det.cics_filecontrol.instance_accessors`): set only on a CSD template's file, whose port store reads
+    the rows of the instance it was asked for, so the harness tags the case's own rows with theirs."""
+    from gitgalaxy.tools.cobol_to_java.det.cics_filecontrol import instance_accessors
+
+    return instance_accessors(src, ent)
+
+
 def check_entity_table(src: Path, dsn: str, ent: str) -> None:
     """#8196: a case names the generated entity of each dataset, but a bare record name goes to whichever file the estate
     claims it for first, so a corpus case added later can take it (WS-REC: SFILE took `WsRec`, UFILE became `UfileWsRec`)
@@ -3703,6 +3712,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
         insts = instance_data(case, files).get(dsn)
+        acc = _instance_accessors(src, ent)
+        if insts is None and acc is not None:
+            insts = []  # #7965 slice 3b: the port's template store is the rows of ONE instance: the case's own, tagged
         if insts is None:
             loads.append(
                 f"            {repo}.deleteAll();\n"
@@ -3712,15 +3724,16 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                          f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
         else:  # #7965 slice 2: each instance's rows carry its name in VSAM_INSTANCE, and are dumped by it
             own = _cfg_file_name(case, by_base[dsn])
+            get, put = acc or ("{r}.getVsamInstance()", "{r}.setVsamInstance({i})")
             seed = f"            {repo}.deleteAll();\n"
             for dd, inst in [(dsn, own), *((f"{dsn}.{n}", n) for n, _ in insts)]:
                 seed += (f'            load(sc, "{dd}", {by_base[dsn]["reclen"]}, (b, cs) -> {{ var row = '
-                         f"{pkg}.entity.vsam.{ent}.fromRecord(b, cs); row.setVsamInstance({jstr_java(inst)}); "
+                         f"{pkg}.entity.vsam.{ent}.fromRecord(b, cs); {put.format(r='row', i=jstr_java(inst))}; "
                          f"return row; }}, {repo});\n")  # fmt: skip
             loads.append(seed.rstrip("\n"))
             for suffix, inst in [("", own), *((f".{n}", n) for n, _ in insts)]:
                 dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}{suffix}.out", {repo}.findAll().stream()'
-                             f".filter(row -> {jstr_java(inst)}.equals(row.getVsamInstance()))"
+                             f".filter(row -> {jstr_java(inst)}.equals({get.format(r='row')}))"
                              ".map(row -> row.toRecord(TEXT)).toList());")  # fmt: skip
         if variable_file(case, dsn):  # #6839: its record lengths, in and out
             loads.append(f'            lengthsIn(sc, "{dsn}", "{ent}");')

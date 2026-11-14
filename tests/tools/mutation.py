@@ -286,13 +286,23 @@ def sample(mutants: list[Mutant], n: int | None, seed: int) -> list[Mutant]:
     return sorted(picked, key=lambda m: (m.file, m.offset, m.op))
 
 
+def _link_or_copy(src: str, dst: str) -> str:
+    """Hardlink unmodified port files into a mutant work dir, falling back to copy2 across filesystems."""
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+    return dst
+
+
 def write_mutant(port: Path, m: Mutant, dest: Path) -> Path:
     """The port with `m` applied, laid out like the port (the harness's --port)."""
     if dest.exists():
         shutil.rmtree(dest)
-    shutil.copytree(port, dest, ignore=shutil.ignore_patterns("*.json", "*.md"))
+    shutil.copytree(port, dest, ignore=shutil.ignore_patterns("*.json", "*.md"), copy_function=_link_or_copy)
     f = dest / m.file
     text = f.read_text(encoding="utf-8")
+    f.unlink()  # break hardlink before writing mutated file
     f.write_text(text[: m.offset] + m.replacement + text[m.offset + m.length :], encoding="utf-8")
     return dest
 
@@ -330,6 +340,8 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
 
 
 def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None = None) -> tuple[bool, str]:
+    import javac_server  # noqa: PLC0415
+
     out.mkdir(parents=True, exist_ok=True)
     single = mutant_port / only_file if only_file else None
     if single is not None and single.is_file() and classpath:
@@ -338,10 +350,12 @@ def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None
     else:
         sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
         sp = ()
+    javac_exe = str(Path(_java_env()["JAVA_HOME"]) / "bin" / "javac")
     try:
-        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sp, *sources],  # noqa: S603, S607
-                              env=_java_env(), capture_output=True, text=True, encoding="utf-8", check=False,
-                              timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
+        proc = javac_server.javac(
+            [javac_exe, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sp, *sources],
+            capture_output=True, text=True, encoding="utf-8", check=False, timeout=JAVAC_MUTANT_TIMEOUT,
+        )
     except subprocess.TimeoutExpired:
         return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
     errors = [x for x in proc.stderr.splitlines() if ": error: " in x]

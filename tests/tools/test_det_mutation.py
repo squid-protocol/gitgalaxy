@@ -760,6 +760,7 @@ def test_refresh_runs_only_its_shard(monkeypatch, tmp_path, capsys):
 
 def test_compiles_only_file_passes_single_source_and_sourcepath(monkeypatch, tmp_path):
     import subprocess
+    import javac_server
     import mutation as mu
 
     port = tmp_path / "port"
@@ -768,14 +769,30 @@ def test_compiles_only_file_passes_single_source_and_sourcepath(monkeypatch, tmp
     (port / "service" / "B.java").write_text("class B {}\n", encoding="utf-8")
     seen: list[list[str]] = []
 
-    def fake_run(cmd, **kw):
+    def fake_javac(cmd, **kw):
         seen.append(list(cmd))
         return subprocess.CompletedProcess(cmd, 0, "", "")
 
-    monkeypatch.setattr(mu.subprocess, "run", fake_run)
-    monkeypatch.setattr(mu, "_java_env", dict)
+    monkeypatch.setattr(javac_server, "javac", fake_javac)
+    monkeypatch.setattr(mu, "_java_env", lambda: {"JAVA_HOME": str(tmp_path)})
     ok, _ = mu.compiles(port, "/cp/classes", tmp_path / "out", only_file="service/A.java")
     assert ok and len(seen) == 1
     assert str(port / "service" / "A.java") in seen[0]
     assert str(port / "service" / "B.java") not in seen[0]
     assert "-sourcepath" in seen[0]
+
+
+def test_write_mutant_hardlinks_without_mutating_source(tmp_path):
+    import mutation as mu
+
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    orig_a = port / "service" / "A.java"
+    orig_b = port / "service" / "B.java"
+    orig_a.write_text("class A { int x = 1; }\n", encoding="utf-8")
+    orig_b.write_text("class B {}\n", encoding="utf-8")
+    m = mu.Mutant("m1", "service/A.java", 1, "LIT", "1", "2", orig_a.read_text().index("1"), 1, "2")
+    dest = mu.write_mutant(port, m, tmp_path / "dest")
+    assert "int x = 2;" in (dest / "service" / "A.java").read_text(encoding="utf-8")
+    assert "int x = 1;" in orig_a.read_text(encoding="utf-8")
+    assert (dest / "service" / "B.java").stat().st_ino == orig_b.stat().st_ino

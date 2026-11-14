@@ -1645,6 +1645,75 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
     return 0
 
 
+def _norm_snippet(text: str) -> str:
+    """Normalize generated field/temp numbers (`f123_` -> `fN_`, trailing digits on temps) for cross-case clustering."""
+    s = " ".join(text.strip().split())
+    s = re.sub(r"\bf\d+_", "fN_", s)
+    return re.sub(r"\b(cont|planned|web|file|ts|td|rec)(\d+)\b", r"\1N", s)
+
+
+def cmd_clusters(cases: list[str], limit: int) -> int:
+    """Group open survivors by normalized (op, before, after) across cases to find high-leverage patterns."""
+    import collections  # noqa: PLC0415
+
+    ledger = dm.load()
+    survivors = dm.load_survivors()
+    scope = set(cases) if cases else None
+    groups: dict[tuple[str, str, str], list[tuple[str, str]]] = collections.defaultdict(list)
+    for case, entry in sorted(ledger.items()):
+        if scope is not None and case not in scope:
+            continue
+        triaged = {s["id"] for s in survivors.get(case, [])}
+        for s in entry.get("survived", []):
+            if s["id"] in triaged:
+                continue
+            key = (str(s.get("op", "")), _norm_snippet(str(s.get("before", ""))), _norm_snippet(str(s.get("after", ""))))
+            groups[key].append((case, s["id"]))
+    ranked_groups = sorted(groups.items(), key=lambda kv: (-len(kv[1]), -len({c for c, _ in kv[1]}), kv[0]))
+    for (op, bef, aft), items in ranked_groups[:limit]:
+        case_count = len({c for c, _ in items})
+        sample_cases = ", ".join(f"{c}:{i}" for c, i in items[:4])
+        print(f"{len(items):5d} ({case_count:3d} cases) {op:4s} {bef[:65]} -> {aft[:45]}  [{sample_cases}]")
+    return 0
+
+
+_FAULT_HINT = re.compile(
+    r"EIBRESP|RESP\b|STATUS|STAT[12]\b|SQLCODE|AT_END|END_OF_FILE|NOTFND|DUPREC|LENGERR|IO_STAT|FILE_STATUS",
+    re.IGNORECASE,
+)
+
+
+def cmd_fault_candidates(cases: list[str], limit: int) -> int:
+    """Rank cases that have uncovered branches in det_sweep_coverage and open fault-related survivors."""
+    ledger = dm.load()
+    survivors = dm.load_survivors()
+    cov_dir = dm.CASES / "det_sweep_coverage"
+    scope = set(cases) if cases else None
+    rows: list[tuple[int, int, str, int, int, list[str]]] = []
+    for case, entry in sorted(ledger.items()):
+        if scope is not None and case not in scope:
+            continue
+        cov_file = cov_dir / f"{case}.json"
+        if not cov_file.is_file():
+            continue
+        cov = json.loads(cov_file.read_text(encoding="utf-8"))
+        br = cov.get("branches") or {}
+        uncov = int(br.get("total", 0)) - int(br.get("covered", 0))
+        if uncov <= 0:
+            continue
+        triaged = {s["id"] for s in survivors.get(case, [])}
+        hits = [
+            s for s in entry.get("survived", [])
+            if s["id"] not in triaged and _FAULT_HINT.search(str(s.get("before", "")))
+        ]
+        if hits:
+            rows.append((len(hits), uncov, case, int(br.get("covered", 0)), int(br.get("total", 0)), [h["id"] for h in hits[:5]]))
+    rows.sort(reverse=True)
+    for hit_n, uncov, case, cov_n, tot_n, sample_ids in rows[:limit]:
+        print(f"{hit_n:4d} fault-survivors  {uncov:3d} uncov branches ({cov_n}/{tot_n})  {case:30s}  [{', '.join(sample_ids)}]")
+    return 0
+
+
 def cmd_lint(cases: list[str]) -> int:
     bad = 0
     ledger = dm.load()
@@ -1695,6 +1764,12 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--timeout", type=float, default=600, help="seconds per mutant if --promote is used")
     li = sub.add_parser("lint")
     li.add_argument("cases", nargs="*")
+    cl = sub.add_parser("clusters")
+    cl.add_argument("cases", nargs="*")
+    cl.add_argument("--limit", type=int, default=30)
+    fc = sub.add_parser("fault-candidates")
+    fc.add_argument("cases", nargs="*")
+    fc.add_argument("--limit", type=int, default=30)
     args = ap.parse_args(argv)
     if args.cmd == "next":
         return cmd_next(args.cases, args.limit)
@@ -1704,6 +1779,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_packet(args.case, args.id, args.work.resolve())
     if args.cmd == "lint":
         return cmd_lint(args.cases)
+    if args.cmd == "clusters":
+        return cmd_clusters(args.cases, args.limit)
+    if args.cmd == "fault-candidates":
+        return cmd_fault_candidates(args.cases, args.limit)
     if args.cmd == "screen":
         results = screen(
             args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.jobs, args.base,

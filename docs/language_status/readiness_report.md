@@ -297,6 +297,66 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 | X65 | REFUSED | CICS | 1 | 1 |
 
+## example-health-apis
+
+29 programs. Evidence ladder (counts; the oracle is GnuCOBOL plus our stub, not z/OS):
+
+| level | programs at exactly this level |
+|---|---|
+| L0 inventoried | 1 |
+| L1 translated whole | 0 |
+| L2 executed equivalent | 4 |
+| L3 paragraph coverage | 4 |
+| L4 branch coverage | 20 |
+| L5 mutants accounted for | 0 |
+
+- translated whole: 28 / 29 (97%); with holes: 0; refused: 1
+- whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
+- executed equivalent (L2 and above): 28 / 29
+- charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
+
+Refused whole, by reason:
+
+- 1 x missing copybook LGCMAREA
+
+Era evidence (programs by latest era a tell reaches):
+
+era 0: 0, era 1: 2, era 2: 24, era 3: 0, era 4: 3, era none: 0
+
+### Rules to land (1 gap classes; top 1, the `cics_census.py blockers` order)
+
+| rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
+|---|---|---|---|---|---|
+| 1 | missing copybook LGCMAREA (refuses the whole program: upper bound) | 1 | 0 | 1 | era 2: 1 |
+
+### Proof blockers (28 programs translated whole, 20 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+| 1 | coverage: branch outcomes below the bar | 4 | 0 | 4 |
+| 2 | coverage: paragraphs below the bar | 4 | 0 | 4 |
+
+### Missing inputs
+
+- assumed options awaiting customer confirmation: 15
+- by estate_intake checklist section: 2: 11, 3: 3, 5: 1
+- missing copybooks: LGCMAREA (1)
+
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
+
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 29 | 29 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 29 | 29 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 7 | 7 |
+| X16 | MATCHED (REFUSED where IBM is silent) | CICS | 6 | 6 |
+| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 6 | 6 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 4 | 4 |
+| X3 | MATCHED | CICS | 4 | 4 |
+| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+
 ## zecs
 
 7 programs. Evidence ladder (counts; the oracle is GnuCOBOL plus our stub, not z/OS):

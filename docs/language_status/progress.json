@@ -1,5 +1,5 @@
 {
- "commit": "ee0079361",
+ "commit": "eb4834650",
  "components": {
   "capabilities": {
    "groups": [
@@ -261,10 +261,10 @@
      "done": 8,
      "found": "",
      "group": "Batch",
-     "have": "143 jobs read in 213 JCL members; 18 depend on COND / IF",
+     "have": "159 jobs read in 230 JCL members; 22 depend on COND / IF",
      "name": "JCL in the real codebases",
      "note": "sizes recorded from the pinned corpora (estate_size.py)",
-     "of": 18,
+     "of": 22,
      "state": "partial",
      "unit": "COND jobs answer-checked"
     },
@@ -619,6 +619,20 @@
      "survived": 310,
      "unreachable": 0
     },
+    "example-health-apis": {
+     "caught": 0,
+     "equivalent": 0,
+     "l5": 0,
+     "measured": 0,
+     "mutants": 0,
+     "programs": 29,
+     "raw_pct": null,
+     "ready": 0,
+     "sampled": 0,
+     "sampled_pct": null,
+     "survived": 0,
+     "unreachable": 0
+    },
     "zecs": {
      "caught": 1215,
      "equivalent": 846,
@@ -640,7 +654,7 @@
     "l5": 7,
     "measured": 50,
     "mutants": 45535,
-    "programs": 129,
+    "programs": 158,
     "raw_pct": 57.9,
     "ready": 0,
     "sampled": 27725,
@@ -658,8 +672,8 @@
    "raw_total": 5232
   },
   "translator": {
-   "of": 129,
-   "whole": 126
+   "of": 158,
+   "whole": 154
   }
  },
  "eras": {
@@ -669,14 +683,14 @@
    "programs": 0
   },
   "1": {
-   "l2_plus": 9,
+   "l2_plus": 11,
    "l4_plus": 9,
-   "programs": 9
+   "programs": 11
   },
   "2": {
-   "l2_plus": 70,
-   "l4_plus": 70,
-   "programs": 70
+   "l2_plus": 93,
+   "l4_plus": 90,
+   "programs": 94
   },
   "3": {
    "l2_plus": 14,
@@ -684,9 +698,9 @@
    "programs": 16
   },
   "4": {
-   "l2_plus": 20,
+   "l2_plus": 23,
    "l4_plus": 20,
-   "programs": 21
+   "programs": 24
   },
   "none": {
    "l2_plus": 13,
@@ -694,6 +708,7 @@
    "programs": 13
   }
  },
+ "eras_undated": {},
  "format": "gitgalaxy-progress/1",
  "fresh": {
   "blind": [
@@ -961,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-14T14:06:42Z",
+  "as_of": "2026-11-14T14:07:59Z",
   "core": {
    "closed": 248,
    "open": 16,
@@ -1251,6 +1266,78 @@
     "level": "L0",
     "program": "epscsmrd",
     "why": "LE condition handling and SOAP faults that no oracle can back"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L3",
+    "program": "HCATDB01",
+    "why": "5 of 6 branch outcomes run (83.3%); L4 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L3",
+    "program": "HCAZERRS",
+    "why": "2 of 4 branch outcomes run (50.0%); L4 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L3",
+    "program": "HCIMDB01",
+    "why": "12 of 13 branch outcomes run (92.3%); L4 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L3",
+    "program": "HCMAPL01",
+    "why": "9 of 10 branch outcomes run (90.0%); L4 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L2",
+    "program": "HCM1PL01",
+    "why": "10 of 11 paragraphs run; L3 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L2",
+    "program": "HCMRESTW",
+    "why": "8 of 12 paragraphs run; L3 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L2",
+    "program": "HCPRESTW",
+    "why": "8 of 12 paragraphs run; L3 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": null,
+    "kind": "open",
+    "level": "L2",
+    "program": "HCTRESTW",
+    "why": "8 of 12 paragraphs run; L3 needs all"
+   },
+   {
+    "estate": "example-health-apis",
+    "issue": "#8073",
+    "kind": "clone_defect",
+    "level": "L0",
+    "program": "HCP1BU01",
+    "why": "COPY member LGCMAREA is not in the published repository"
    }
   ],
   "estates": {
@@ -1424,6 +1511,40 @@
     "stale": 0,
     "translated_whole": 5
    },
+   "example-health-apis": {
+    "l2_plus": 28,
+    "l2_plus_pct": 96.6,
+    "l4_plus": 20,
+    "l4_plus_pct": 69.0,
+    "l5": 0,
+    "levels": {
+     "L0": 1,
+     "L1": 0,
+     "L2": 4,
+     "L3": 4,
+     "L4": 20,
+     "L5": 0
+    },
+    "netted": {
+     "infeasible_netted": 1,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 0
+    },
+    "programs": 29,
+    "size": {
+     "copybook_lines": 1010,
+     "copybooks": 9,
+     "copybooks_missing": 1,
+     "jcl_checked_jobs": 0,
+     "jcl_cond_jobs": 4,
+     "jcl_jobs": 16,
+     "jcl_members": 17,
+     "program_lines": 6185,
+     "programs": 29
+    },
+    "stale": 0,
+    "translated_whole": 28
+   },
    "zecs": {
     "l2_plus": 7,
     "l2_plus_pct": 100.0,
@@ -1485,40 +1606,52 @@
    }
   },
   "total": {
-   "l2_plus": 126,
-   "l2_plus_pct": 97.7,
-   "l4_plus": 126,
-   "l4_plus_pct": 97.7,
+   "l2_plus": 154,
+   "l2_plus_pct": 97.5,
+   "l4_plus": 146,
+   "l4_plus_pct": 92.4,
    "l5": 7,
    "levels": {
-    "L0": 3,
+    "L0": 4,
     "L1": 0,
-    "L2": 0,
-    "L3": 0,
-    "L4": 119,
+    "L2": 4,
+    "L3": 4,
+    "L4": 139,
     "L5": 7
    },
    "netted": {
-    "infeasible_netted": 494,
+    "infeasible_netted": 495,
     "practically_unreachable": 1,
     "undefined_by_ibm": 5
    },
-   "programs": 129,
-   "reachable": 126,
+   "programs": 158,
+   "reachable": 154,
    "size": {
-    "copybook_lines": 11162,
-    "copybooks": 116,
+    "copybook_lines": 12172,
+    "copybooks": 125,
     "jcl_checked_jobs": 8,
-    "jcl_cond_jobs": 18,
-    "jcl_jobs": 143,
-    "jcl_members": 213,
-    "program_lines": 76320
+    "jcl_cond_jobs": 22,
+    "jcl_jobs": 159,
+    "jcl_members": 230,
+    "program_lines": 82505
    },
    "stale": 0,
-   "translated_whole": 126,
+   "translated_whole": 154,
    "unreachable": {
-    "count": 3,
+    "count": 4,
     "kinds": {
+     "clone_defect": {
+      "count": 1,
+      "issues": [
+       "#8073"
+      ],
+      "programs": [
+       "example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl"
+      ],
+      "reasons": [
+       "its COPY member LGCMAREA is not in the published repository: a plain case-insensitive file search of the pinned clone, any extension, finds no member (docs/language_status/blind1_remeasure.md), so no compiler can build it as published; out of scope since trial-001 started (tests/cobol_mainframe/trials.json)"
+      ]
+     },
      "refused_by_design": {
       "count": 1,
       "issues": [

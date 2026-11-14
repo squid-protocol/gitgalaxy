@@ -1,19 +1,20 @@
 # Progress
 
-Generated from main at `ee0079361` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `eb4834650` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
 ## 1. Burned-estate ladder
 
-Fixed denominator: the 129 programs of the 6 burned estates. Source: docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch).
+Fixed denominator: the 158 programs of the 7 burned estates. Source: docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch).
 
-Reachable denominator: 126 programs (129 - 2 - 1). These programs stay in the fixed denominator and in the table; each is reported apart because its blocker is not a translator gap.
+Reachable denominator: 154 programs (158 - 2 - 1 - 1). These programs stay in the fixed denominator and in the table; each is reported apart because its blocker is not a translator gap.
 
 | Not reachable for a non-translator reason | Programs | Issue | Reason |
 |---|---|---|---|
 | source defect (source IBM rejects) | 2: `aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl`, `aws-mainframe-modernization-carddemo/app/cbl/CBIMPORT.cbl` | #5866 | RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause) |
 | refused by design (owner ruling: outside what the port proves) | 1: `dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl` | #5106 | its 7 holes are Language Environment condition handling (CEEHDLR / CEEHDLU and the CEE3SRP recovery point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0 |
+| clone defect (a member the published repository does not hold) | 1: `example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl` | #8073 | its COPY member LGCMAREA is not in the published repository: a plain case-insensitive file search of the pinned clone, any extension, finds no member (docs/language_status/blind1_remeasure.md), so no compiler can build it as published; out of scope since trial-001 started (tests/cobol_mainframe/trials.json) |
 
 Entries that no longer hold (the program is above L0): dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl, zecs/Source/ZECS002.asm.
 
@@ -24,8 +25,9 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 29 | 2 | 31 (100.0%) | 31 (100.0%) | 2 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
+| `example-health-apis` | 29 | 1 | 0 | 4 | 4 | 20 | 0 | 28 (96.6%) | 20 (69.0%) | 0 |
 | `zecs` | 7 | 0 | 0 | 0 | 0 | 7 | 0 | 7 (100.0%) | 7 (100.0%) | 0 |
-| **Total** | 129 | 3 | 0 | 0 | 0 | 119 | 7 | 126 (97.7%) | 126 (97.7%) | 7 |
+| **Total** | 158 | 4 | 0 | 4 | 4 | 139 | 7 | 154 (97.5%) | 146 (92.4%) | 7 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every
 surviving translator mutant accounted for (`definition_of_done.md`).
@@ -60,8 +62,9 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 | `cics-banking-sample-application-cbsa` | 31 | 8 | 2 | 0 | 44.1% (1920 of 4349) | 100.0% (4530 of 4530) | 925 | 381 |
 | `cics-genapp` | 31 | 1 | 0 | 0 | 13.6% (149 of 1099) | 100.0% (1147 of 1147) | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
+| `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `zecs` | 7 | 4 | 0 | 0 | 47.9% (1215 of 2537) | 100.0% (2604 of 2604) | 846 | 365 |
-| **Total** | 129 | 50 | 7 | 0 | 57.9% (15522 of 26811) | 60.9% (27725 of 45535) | 4182 | 1025 |
+| **Total** | 158 | 50 | 7 | 0 | 57.9% (15522 of 26811) | 60.9% (27725 of 45535) | 4182 | 1025 |
 
 ## Capability ledger
 
@@ -92,7 +95,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
 | Batch | JCL step flow | Works | 32 of 32 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's JCL Reference before the evaluator ran) |
-| Batch | JCL in the real codebases | Partial | 8 of 18 COND jobs answer-checked | 143 jobs read in 213 JCL members; 18 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
+| Batch | JCL in the real codebases | Partial | 8 of 22 COND jobs answer-checked | 159 jobs read in 230 JCL members; 22 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
 | Batch | JCL job execution | Partial | no denominator | 1 multi-step job case (the programs' steps are wired by the case, not yet run from the JCL) |
 | Other languages | HLASM assembler | Partial | no denominator | 21 opcodes, the zECS subset |
 | Other languages | BMS maps | Works | no denominator | SEND MAP, RECEIVE MAP |
@@ -104,7 +107,7 @@ z/OS: 0 of 194 rules measured. Register of named limits: 147 entries, 74 refuse 
 
 | Component | Measure | Denominator | Source |
 |---|---|---|---|
-| Translator | 126 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
+| Translator | 154 programs translated whole | 158 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 91 MATCHED, 24 DIFFERS, 65 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
@@ -122,15 +125,15 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 | Era | Programs | L2+ | L4+ |
 |---|---|---|---|
 | 0 | 0 | 0 | 0 |
-| 1 | 9 | 9 | 9 |
-| 2 | 70 | 70 | 70 |
+| 1 | 11 | 11 | 9 |
+| 2 | 94 | 93 | 90 |
 | 3 | 16 | 14 | 14 |
-| 4 | 21 | 20 | 20 |
+| 4 | 24 | 23 | 20 |
 | untagged | 13 | 13 | 13 |
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-14T14:06:42Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-14T14:07:59Z.
 
 - `scope:core`: 16 open, 248 closed.
 - Milestone 28: 0 open, 112 closed.

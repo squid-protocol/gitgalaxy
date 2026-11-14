@@ -23,6 +23,7 @@ tests/tools/box/heavy-run.sh tests/tools/box/mvs38j/mvs38j.sh image   # build th
 tests/tools/box/mvs38j/mvs38j.sh tapes     # fetch + verify + unpack the three archives into $MVS38J_WORK/dl/
 tests/tools/box/mvs38j/mvs38j.sh stage     # lay conf/ jcl/ tape/ sajobs/ and the helper scripts out under $MVS38J_WORK
 tests/tools/box/mvs38j/mvs38j.sh dasd starter   # empty DASD volumes of one stage (starter | dlibs | sysgen | user), via dasdinit in the image
+tests/tools/box/mvs38j/mvs38j.sh sysgen smp1 [--tape VOLSER=FILE ...]   # starter-system IPL, SMP jobs over the 3215 console (smp2 likewise)
 tests/tools/box/mvs38j/mvs38j.sh sysgen starter   # START1 + SPOOL0: DASDI then DUMP/RESTORE per volume, driven over the console (~11 s)
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
 tests/tools/box/mvs38j/mvs38j.sh start     # needs $MVS38J_WORK/conf/mvs.conf (the generated system)
@@ -51,11 +52,20 @@ labels. A stand-alone error message (`IBC...E`, `CONTROL STATEMENT ERROR`) or a 
 `tests/tools/box/mvs38j/sysgen.py condcode FILE JOB|ALL [--expect STEP=CC ...]` is the `condcode.rexx` check in Python: it reads `IEF142I` (step
 executed, completion code) and `IEF272I` (step not executed) from a Hercules printer file and exits 1 on an unexpected code.
 
+`tests/tools/box/mvs38j/console.py` is the telnet client for the 3215 console at 001F (stdlib; port 3270, published on
+127.0.0.1 only). It refuses every telnet option but binary, echo and suppress-go-ahead, strips IAC sequences, and collects lines
+on a thread; a prompt with no trailing newline (`IEA101A`) matches too. `sysgen.py smp1|smp2` (**written and unit-tested against
+a fake server; not yet run on the box: the work dir was not built when this slice was written**) starts Hercules with
+`conf/smpN.cnf`, `ipl 150`, answers `r 0,clpa` and `r 0,format,noreq` on the prompts, then feeds each `jcl/smpjobNN.jcl` with
+`devinit 12`, waits for `$HASP395 <job> ENDED`, answers each `IEC501A` mount (`devinit <unit> <tape file>`, `r <id>,<unit>`, the
+tape file from `--tape VOLSER=FILE`), stops on `IEA...E` / `IEC...E` / ABEND, and finally runs the condcode check over the
+first 1403 printer file of the config (any step not executed or over CC 4 fails the stage). Message ids and the job list are
+from Moseley's guide as remembered, not yet read off a live run: the first live run may need the patterns adjusted.
+
 ### Remaining slices (#8414)
 
-1. Starter-system IPL stages: `smp1.cnf` / `smp2.cnf` with `ipl 150`, `r 0,clpa`, `r 0,format,noreq`, then jobs through
-   `devinit 12 jcl/smpjobNN.jcl` with tape mounts (`devinit 170 tape/...`, `r N,170`), and a `condcode` check per job. The
-   console there is the telnet 3215 at 001F (port 3270): the driver needs a small telnet client for it, not the 1052-C `/` path.
+1. First live run of `sysgen smp1` / `smp2` on nyx: confirm the console message patterns, the `--tape` volsers each SMP job
+   asks for, whether smp2 uses the same job list, and the CC bound.
 2. Stage 1 and stage 2 (`sysgen01` output to `stage1.output`, `stage2.rexx`/`awk` port or call, the socket reader on 3505),
    then the user mods and `mvs.cnf` first IPL of the generated system.
 3. Job runner: submit a deck to `localhost:3505`, capture the printer file, parse to JSON with provenance `mvs38j-run`.

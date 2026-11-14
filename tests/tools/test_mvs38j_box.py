@@ -30,7 +30,7 @@ def test_unknown_subcommand_is_refused():
 def test_bare_sysgen_is_refused_with_the_automated_stage_named():
     r = _run("sysgen")
     assert r.returncode == 3
-    assert "only 'sysgen starter' is automated" in r.stderr
+    assert "only 'sysgen starter|smp1|smp2' are automated" in r.stderr
 
 
 def test_every_tape_pin_is_an_md5():
@@ -149,6 +149,123 @@ def test_the_starter_plan_covers_both_volumes_with_distinct_readers_and_tapes():
     assert {v[1] for v in sysgen.STARTER_VOLUMES} == {"280", "281"}
 
 
-def test_sysgen_subcommand_still_refuses_anything_but_starter():
+def test_sysgen_subcommand_refuses_a_stage_that_is_not_automated():
     r = _run("sysgen", "stage1")
-    assert r.returncode == 3 and "only 'sysgen starter'" in r.stderr
+    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2'" in r.stderr
+
+
+# --- console.py: the telnet 3215 client, against an in-process fake server ---
+
+import socket  # noqa: E402
+import threading  # noqa: E402
+
+import console  # noqa: E402
+
+IAC, DO, WILL, WONT, DONT = console.IAC, console.DO, console.WILL, console.WONT, console.DONT
+
+
+def test_strip_telnet_answers_negotiation_and_keeps_text_across_chunks():
+    st = {}
+    text, rep = console.strip_telnet(bytes([IAC, DO, 24, IAC, WILL, 1, IAC, DO, 3]) + b"HELLO", st)
+    assert text == b"HELLO"
+    assert rep == bytes([IAC, WONT, 24, IAC, console.DO, 1, IAC, WILL, 3])
+    # a sequence split over two reads, an escaped 255 and a subnegotiation
+    t1, r1 = console.strip_telnet(b"a" + bytes([IAC]), st)
+    t2, r2 = console.strip_telnet(
+        bytes([DO, 99]) + b"b" + bytes([IAC, IAC]) + bytes([IAC, 250, 24, 1, IAC, 240]) + b"c", st
+    )
+    assert (t1, r1) == (b"a", b"")
+    assert (t2, r2) == (b"b\xffc", bytes([IAC, WONT, 99]))
+
+
+def _serve(script):
+    """Listen on a free loopback port; the fake Hercules sends `script` bytes after connect and records what it gets."""
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+    got = []
+
+    def run():
+        c, _ = srv.accept()
+        c.sendall(script)
+        c.settimeout(3)
+        try:
+            while True:
+                d = c.recv(4096)
+                if not d:
+                    break
+                got.append(d)
+                if b"r 0,clpa" in b"".join(got):
+                    c.sendall(b"\r\n$HASP426 SPECIFY OPTIONS - JES2\r\n")
+        except OSError:
+            pass
+        c.close()
+        srv.close()
+
+    threading.Thread(target=run, daemon=True).start()
+    return srv.getsockname()[1], got
+
+
+def test_console_waits_on_a_prompt_with_no_newline_and_sends_crlf_lines():
+    port, got = _serve(bytes([IAC, DO, 24]) + b"HHC01603I hi\r\n 00 IEA101A SPECIFY SYSTEM PARAMETERS")
+    con = console.Console(port=port, connect_timeout=5).connect()
+    try:
+        assert "IEA101A" in con.wait(r"IEA101A", 5)  # the prompt has no trailing newline
+        con.send("r 0,clpa")
+        assert "HASP426" in con.wait(r"\$HASP426", 5)
+        assert b"".join(got).startswith(bytes([IAC, WONT, 24]))
+        assert b"r 0,clpa\r\n" in b"".join(got)
+    finally:
+        con.close()
+
+
+def test_console_wait_times_out_and_connect_refuses_a_dead_port():
+    port, _ = _serve(b"quiet\r\n")
+    con = console.Console(port=port, connect_timeout=5).connect()
+    try:
+        with pytest.raises(console.ConsoleError, match="timed out"):
+            con.wait(r"never", 0.2)
+    finally:
+        con.close()
+    dead = socket.socket()
+    dead.bind(("127.0.0.1", 0))
+    dead_port = dead.getsockname()[1]
+    dead.close()  # nothing listens here now
+    with pytest.raises(console.ConsoleError, match="no console"):
+        console.Console(port=dead_port, connect_timeout=0.1).connect()
+
+
+# --- sysgen.py: the SMP stage's parsing and refusals ---
+
+
+def test_mount_requests_are_answered_once_with_devinit_and_a_reply(tmp_path):
+    con = console.Console()
+    con.lines = ["12 IEC501A M 170,SMPTAP,SL,NOCOMP,SMP4P44,SMPJOB", "13 IEC501A M 170,OTHER,SL,X"]
+    sent, replies, seen = [], [], set()
+    con.send = replies.append
+    sysgen.answer_mounts(sent.append, con, 0, {"SMPTAP": "tape/smp.het", "OTHER": "tape/o.het"}, seen)
+    sysgen.answer_mounts(sent.append, con, 0, {"SMPTAP": "x", "OTHER": "x"}, seen)  # already answered: no repeat
+    assert sent == ["devinit 170 tape/smp.het", "devinit 170 tape/o.het"]
+    assert replies == ["r 12,170", "r 13,170"]
+    con.lines = ["14 IEC501A M 171,NOPE,SL"]
+    with pytest.raises(sysgen.SysgenError, match="--tape NOPE=FILE"):
+        sysgen.answer_mounts(sent.append, con, 0, {}, set())
+
+
+def test_printer_file_reads_the_first_1403_and_smp_refuses_an_unstaged_work_dir(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "smp1.cnf").write_text("000C 3505 localhost:3505 sockdev\n000E 1403 prt/prt00e.txt crlf\n")
+    assert sysgen.printer_file(tmp_path, "conf/smp1.cnf") == tmp_path / "prt/prt00e.txt"
+    (tmp_path / "conf" / "none.cnf").write_text("001F 3215\n")
+    with pytest.raises(sysgen.SysgenError, match="no 1403"):
+        sysgen.printer_file(tmp_path, "conf/none.cnf")
+    with pytest.raises(sysgen.SysgenError, match="smp2.cnf missing"):
+        sysgen.smp_stage(tmp_path, "img", "n", "smp2", {})
+    with pytest.raises(sysgen.SysgenError, match="smpjob"):
+        sysgen.smp_stage(tmp_path, "img", "n", "smp1", {})
+
+
+def test_the_console_port_is_published_on_loopback_only():
+    h = sysgen.Hercules("/w", "conf/x.cnf", "img", "n", console_port=3270)
+    assert h.console_port == 3270
+    assert 'f"127.0.0.1:{self.console_port}:3270"' in (BOX / "sysgen.py").read_text()

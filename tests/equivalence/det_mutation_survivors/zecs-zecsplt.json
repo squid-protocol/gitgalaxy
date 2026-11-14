@@ -1407,8 +1407,11 @@
    "line": 317,
    "before": "lastAnswerBytes = task.returnedBytes();",
    "after": "/* lastAnswerBytes = task.returnedBytes(); */",
-   "verdict": "harness-gap",
-   "reason": "Remote region facade helper lastAnswerBytes is uncalled because equivalence harness does not invoke facade"
+   "verdict": "equivalent",
+   "reason": "ZECSPLT ends via EXEC CICS RETURN without TRANSID or COMMAREA (p11 calls task.returnTransid(null, null)), so task.returnedBytes() is null on every execution path and lastAnswerBytes remains null.",
+   "tried": [
+    "attack-bytes-return"
+   ]
   },
   {
    "id": "c2f827af07",

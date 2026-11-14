@@ -1,7 +1,7 @@
 """#8413 slice 2: IBM-written answers for PROC resolution and stepname.procstepname tests inside IF.
 
-`tests/equivalence/jcl/proc/` holds FLOW.jcl (five jobs: symbolics and SET, EXEC / DD overrides and an added DD,
-JCLLIB ORDER and INCLUDE twice, an IF over a procedure's steps), and scenarios.json (which also holds the library members).
+`tests/equivalence/jcl/proc/scenarios.json` holds the `flow_jcl` lines (five jobs: symbolics and SET, EXEC / DD overrides and an added DD,
+JCLLIB ORDER and INCLUDE twice, an IF over a procedure steps), the JCLLIB library members, and the answers.
 The answers were written from IBM's z/OS MVS JCL Reference (SA23-1385) BEFORE `gitgalaxy.core.jcl_proc` and
 `jcl_flow` ran on them; ASSUMED entries are named in the file. The last tests reproduce every `expect`.
 """
@@ -20,12 +20,12 @@ from gitgalaxy.core.jcl_proc import JclProcRefused, expand_flow_rows, resolve_jo
 ROOT = Path(__file__).resolve().parents[2]
 CASE = ROOT / "tests" / "equivalence" / "jcl" / "proc"
 DOC = json.loads((CASE / "scenarios.json").read_text(encoding="utf-8"))
-TEXT = (CASE / "FLOW.jcl").read_text(encoding="latin-1")
+TEXT = "\n".join(DOC["flow_jcl"]) + "\n"
 LIBS = {lib: {m: "\n".join(lines) + "\n" for m, lines in members.items()} for lib, members in DOC["libraries"].items()}
 
 
 def test_every_jcl_line_fits_columns_1_to_72():
-    texts = {"FLOW.jcl": TEXT} | {f"{lib}({m})": t for lib, ms in LIBS.items() for m, t in ms.items()}
+    texts = {"flow_jcl": TEXT} | {f"{lib}({m})": t for lib, ms in LIBS.items() for m, t in ms.items()}
     for name, text in texts.items():
         for n, ln in enumerate(text.splitlines(), 1):
             assert len(ln) <= 72, (name, n, ln)

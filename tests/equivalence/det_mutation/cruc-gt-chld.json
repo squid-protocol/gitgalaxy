@@ -5,18 +5,18 @@
  "case": "cruc-gt-chld",
  "entry": {
   "program": "GTCHLD",
-  "commit": "3be51bec1dad2c0957c8fc16ac3fa004bbf3968a",
-  "date": "2026-11-13",
+  "commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
+  "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
-  "mutants": 231,
+  "mutants": 237,
   "out_of_scope": 6,
-  "chosen": 231,
+  "chosen": 237,
   "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
    "killed": 28,
    "timeout": 0,
-   "survived": 197,
+   "survived": 203,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -1635,21 +1635,69 @@
     "line": 340,
     "before": "return 1;",
     "after": "return 2;"
+   },
+   {
+    "id": "035042bf71",
+    "op": "NEG",
+    "file": "service/GtchldService.java",
+    "line": 201,
+    "before": "} else if (ca instanceof HcrparWsV2) {",
+    "after": "} else if (!(ca instanceof HcrparWsV2)) {"
+   },
+   {
+    "id": "39e40fc4bd",
+    "op": "CON",
+    "file": "service/GtchldService.java",
+    "line": 202,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "3ab61f0f03",
+    "op": "NEG",
+    "file": "service/GtchldService.java",
+    "line": 199,
+    "before": "} else if (ca instanceof HcrparWsV1) {",
+    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+   },
+   {
+    "id": "597b685720",
+    "op": "DEL",
+    "file": "service/GtchldService.java",
+    "line": 202,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "8711f93043",
+    "op": "CON",
+    "file": "service/GtchldService.java",
+    "line": 200,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "ac763af932",
+    "op": "DEL",
+    "file": "service/GtchldService.java",
+    "line": 200,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
    }
   ],
   "inputs": {
-   "port": "5b42188c0aace46a77953d66fe8662b8c403e4f7768e738f51870a63aa5bde09",
+   "port": "73b40bd94e798d20d0551ac5d24e421edfc527dc5be201df2073b1085e7bdfaf",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
-   "generator": "d39d1fc47b391ed2a5908d9ce00d27609cca2c7fdbe26d8c7424e88c9b4112a5",
+   "generator": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
    "case": "2c9a45d35c36b5339851cbf6012cbd80833005f29f19daf6445ac077ee267995",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
   "components": {
    "generator": {
-    "generator:core": "6700b235258c233e546d162b29bdd3b0829e7af19d54d017870403607f422146",
+    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -1670,10 +1718,10 @@
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
    },
    "harness": {
-    "harness:cics": "2604c86b17e3bf1d401faebb6c3f2ae4efc6233eae604b508585133b7a6e7942",
+    "harness:cics": "46e0186da8c5397a378b0e282d0aa29a0b50c2edb6e8c4a2c703e7e130dd4198",
     "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    },
    "oracle": {
@@ -1682,6 +1730,12 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "01086162b9 034b928fe7 049153cbb4 0653161eb2 07b4f9d0bb 0a8360196a 0c98948488 0e8ddeafe9 0fa46ce702 11e3585a3e 126a86c8f7 14a96fafce 1988ef7ffd 1abaad4419 1acaef137a 1bb94934fa 1c10d504ce 1ccbaf2f6f 1e273cf1d7 1fd7f33e7b 2103a5760e 2218b5ab2a 22dd985e69 233e3acca2 23b8c68fc1 253e01d8f0 256443da46 260d9036c2 26e8727516 27ab5eb30f 2919a8cce5 2965f79268 2a34c26c2f 2b9411a0cb 2df1ec8c74 2e01f0cf7e 2e17a5dca7 315ab0b54c 31b7feedaf 33b0134dd1 3447bee466 346e01bff0 3921597708 3a3e8965b4 3cd664deee 405c78e3b2 415e2b7fe1 417ce8c46a 41e83c2b96 44431a2821 46eb3e2515 49bf136b0c 49da59257c 49e448c653 4bb48823e4 4c01f6db6c 4e62578d8c 4fbdbb6192 50e157fc06 5154735087 51ce3eafb8 532d785e02 5372c00e1a 538b164374 54b9ee40b7 55870567df 559fdb45e7 56ee344bca 5732a1b002 57d2d99737 585b24da8f 5a1a9dbaad 5b54790ebd 5da13a9a05 5de06b0f5b 5ee24387f0 5f1019d36c 5fdd813942 615231f9d9 6155ad2a13 6189ad9def 619925d594 61ec5a96ef 630924cc75 63e470f758 6480de51f8 6568a6a954 6757e56e75 6900baf3b3 69b46cf939 6a34148e76 6cdfe2117d 6d1b30cb2d 6f7636601e 7446f6b10f 74eca94db7 7643c45b9a 776c58d24b 7a0f97fe6e 7a922b90e4 7aefcf39ed 7b49079a80 7d1393c0e5 7dbd5c3e72 7dd2941075 80048554a3 8115321ef6 81c6b97d45 81e897ec20 820c30e403 823f3f0016 8440ec0170 852695582d 855b7a4b20 85c16ed66b 86d7e14597 872f4ceb84 881e67426e 8a60464252 8ada69e576 8b2079de2a 8d6dbea6f4 8e9bdc1709 90c8723ca4 923c052239 9387381425 94999996b1 94dea72798 954aa0e727 954c6318fb 968279de5c 97b9618383 97db188fe0 9867029195 9a1b950b4d 9ace9a8862 9b10d0ac76 9ba3897cdc 9c126a4daf 9c3ab3ac39 9d4b8b0e48 9da3710017 9dd514d2ca 9e809e9da5 9fc0fa0e05 a082d0f000 a0c60c5b23 a0dbcd977b a116929c28 a16ac69eb8 a2b8d6a83b a5e736bad3 a6300991f9 a7e4576448 a880d6253a a9acefedc1 ab2c54e9d1 ab91975128 aca8daedc4 acefa0a946 ad104352c3 adaa162769 ae3b597d0e aec3641976 b21f3d6a58 b30a73d5ee b35727f7e2 b41d4d4824 b5521f06d3 b616a70e05 b7629bb79b b87d4a19ce b8c982836c bdfd1eb603 beb5e00314 bf26f9479d c147eb846b c1a3e2a8ce c1de40cb97 c2c43cf898 c66341fab6 c72a34c52b c73f4e2bd8 c7c84853f2 c80fef5464 c81e9461e9 c89a09970b c91f097592 c929fc39f5 cbea205d4f ce8457dd08 cedb8b05f8 cfc2ee45b9 d220f53f62 d28b8a19b4 d32b29a15c d74a10355e d7a431d9e9 d90c059e56 db66b3bbb5 dbcc555bef dc33b3c8e4 dd3a49986a e11a0a9bba e57b846867 e80ae000f6 e94652d953 e996fad918 eac29e825c eb23d1c59c ebb18c7949 ebfea065e3 ee0964db8b ee23b1f346 efd2ae7fe6 f004d06bab f1590fa5dd f375ca6861 f4c63575d6 f4cf315551 f4e2a79b28 f6e623fd4c fb25745300 fb9c21dbd1 fbbaf883ab fc2056b5c5 fd317fd474 fdb5bb4680 fdedee1126 ff4af2c24f ffb07cd695"
+  "every": "01086162b9 034b928fe7 035042bf71 049153cbb4 0653161eb2 07b4f9d0bb 0a8360196a 0c98948488 0e8ddeafe9 0fa46ce702 11e3585a3e 126a86c8f7 14a96fafce 1988ef7ffd 1abaad4419 1acaef137a 1bb94934fa 1c10d504ce 1ccbaf2f6f 1e273cf1d7 1fd7f33e7b 2103a5760e 2218b5ab2a 22dd985e69 233e3acca2 23b8c68fc1 253e01d8f0 256443da46 260d9036c2 26e8727516 27ab5eb30f 2919a8cce5 2965f79268 2a34c26c2f 2b9411a0cb 2df1ec8c74 2e01f0cf7e 2e17a5dca7 315ab0b54c 31b7feedaf 33b0134dd1 3447bee466 346e01bff0 3921597708 39e40fc4bd 3a3e8965b4 3ab61f0f03 3cd664deee 405c78e3b2 415e2b7fe1 417ce8c46a 41e83c2b96 44431a2821 46eb3e2515 49bf136b0c 49da59257c 49e448c653 4bb48823e4 4c01f6db6c 4e62578d8c 4fbdbb6192 50e157fc06 5154735087 51ce3eafb8 532d785e02 5372c00e1a 538b164374 54b9ee40b7 55870567df 559fdb45e7 56ee344bca 5732a1b002 57d2d99737 585b24da8f 597b685720 5a1a9dbaad 5b54790ebd 5da13a9a05 5de06b0f5b 5ee24387f0 5f1019d36c 5fdd813942 615231f9d9 6155ad2a13 6189ad9def 619925d594 61ec5a96ef 630924cc75 63e470f758 6480de51f8 6568a6a954 6757e56e75 6900baf3b3 69b46cf939 6a34148e76 6cdfe2117d 6d1b30cb2d 6f7636601e 7446f6b10f 74eca94db7 7643c45b9a 776c58d24b 7a0f97fe6e 7a922b90e4 7aefcf39ed 7b49079a80 7d1393c0e5 7dbd5c3e72 7dd2941075 80048554a3 8115321ef6 81c6b97d45 81e897ec20 820c30e403 823f3f0016 8440ec0170 852695582d 855b7a4b20 85c16ed66b 86d7e14597 8711f93043 872f4ceb84 881e67426e 8a60464252 8ada69e576 8b2079de2a 8d6dbea6f4 8e9bdc1709 90c8723ca4 923c052239 9387381425 94999996b1 94dea72798 954aa0e727 954c6318fb 968279de5c 97b9618383 97db188fe0 9867029195 9a1b950b4d 9ace9a8862 9b10d0ac76 9ba3897cdc 9c126a4daf 9c3ab3ac39 9d4b8b0e48 9da3710017 9dd514d2ca 9e809e9da5 9fc0fa0e05 a082d0f000 a0c60c5b23 a0dbcd977b a116929c28 a16ac69eb8 a2b8d6a83b a5e736bad3 a6300991f9 a7e4576448 a880d6253a a9acefedc1 ab2c54e9d1 ab91975128 ac763af932 aca8daedc4 acefa0a946 ad104352c3 adaa162769 ae3b597d0e aec3641976 b21f3d6a58 b30a73d5ee b35727f7e2 b41d4d4824 b5521f06d3 b616a70e05 b7629bb79b b87d4a19ce b8c982836c bdfd1eb603 beb5e00314 bf26f9479d c147eb846b c1a3e2a8ce c1de40cb97 c2c43cf898 c66341fab6 c72a34c52b c73f4e2bd8 c7c84853f2 c80fef5464 c81e9461e9 c89a09970b c91f097592 c929fc39f5 cbea205d4f ce8457dd08 cedb8b05f8 cfc2ee45b9 d220f53f62 d28b8a19b4 d32b29a15c d74a10355e d7a431d9e9 d90c059e56 db66b3bbb5 dbcc555bef dc33b3c8e4 dd3a49986a e11a0a9bba e57b846867 e80ae000f6 e94652d953 e996fad918 eac29e825c eb23d1c59c ebb18c7949 ebfea065e3 ee0964db8b ee23b1f346 efd2ae7fe6 f004d06bab f1590fa5dd f375ca6861 f4c63575d6 f4cf315551 f4e2a79b28 f6e623fd4c fb25745300 fb9c21dbd1 fbbaf883ab fc2056b5c5 fd317fd474 fdb5bb4680 fdedee1126 ff4af2c24f ffb07cd695",
+  "refreshed": {
+   "from": "2026-11-13",
+   "survivors_rerun": 0,
+   "fresh": 6,
+   "stale": []
+  }
  }
 }

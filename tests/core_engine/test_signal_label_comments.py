@@ -100,6 +100,10 @@ def test_reflection_metaprogramming_comments_use_the_display_name():
         "swift",
         "m4",
         "objectivec",
+        "fortran",
+        "powershell",
+        "groovy",
+        "haskell",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"reflection_metaprogramming ({name}:" in text, stem

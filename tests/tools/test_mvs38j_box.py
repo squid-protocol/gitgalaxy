@@ -81,6 +81,13 @@ def test_smp_failed_steps_bounds_by_listed_expectation():
     assert sysgen.smp_failed_steps([{**ok, "executed": False, "cond_code": None}], exp) != []
 
 
+def test_smp_failed_steps_matches_a_listed_proc_step_name():
+    r = {"job": "J", "step": "SMP", "procstep": "DLBUCL", "executed": True, "cond_code": 8}
+    assert sysgen.smp_failed_steps([r], {("J", "DLBUCL"): (8, "why")}) == []
+    assert sysgen.smp_failed_steps([{**r, "cond_code": 12}], {("J", "DLBUCL"): (8, "why")}) != []
+    assert sysgen.smp_failed_steps([{**r, "procstep": None}], {("J", "DLBUCL"): (8, "why")}) != []
+
+
 def test_smp2_expected_has_a_reason_for_each_entry():
     assert all(cc > 0 and reason for cc, reason in sysgen.SMP2_EXPECTED.values())
 

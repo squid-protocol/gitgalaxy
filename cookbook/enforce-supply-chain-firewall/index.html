@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Modern applications are assembled, not written. A typical enterprise project contains thousands of transitive dependencies pulled from `npm`, `PyPI`,...">
+        <meta name="description" content="Set up the Supply Chain Firewall: import block and allow lists plus a secrets-risk gate. Known bug #8428: the standalone CLI does not block yet.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-to-enforce-a-zero-trust-supply-chain-firewall" class="md-skip">
+        <a href="#how-to-enforce-the-supply-chain-firewall" class="md-skip">
           Skip to content
         </a>
       
@@ -866,69 +866,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-firewall-mechanics" class="md-nav__link">
+  <a href="#what-the-firewall-gates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Firewall Mechanics
+        What the firewall gates
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="The Firewall Mechanics">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-zero-trust-package-verification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Zero-Trust Package Verification
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-structural-malware-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Structural Malware Detection
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#deployment-pipeline" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deployment Pipeline
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Deployment Pipeline">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#the-mission-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Mission Report
+        Configuration
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
   
 </li>
       
@@ -12326,55 +12292,49 @@
   
 
 
-<h1 id="how-to-enforce-a-zero-trust-supply-chain-firewall">How to Enforce a Zero-Trust Supply Chain Firewall</h1>
-<p>Modern applications are assembled, not written. A typical enterprise project contains thousands of transitive dependencies pulled from <code>npm</code>, <code>PyPI</code>, or <code>Maven</code>. </p>
-<p>Traditional Software Bill of Materials (SBOM) tools are passive—they tell you what you have installed, but they do not stop a compromised package (like the <code>xz</code> backdoor or <code>colors.js</code> sabotage) from executing malicious code. </p>
-<p>GitGalaxy shifts this paradigm from passive monitoring to active defense using the <strong>Supply Chain Firewall</strong>. It scans <code>node_modules</code> or <code>venv</code> directories during the CI/CD build process, blocking compromised packages <em>before</em> they are compiled into the production artifact.</p>
-<h2 id="the-firewall-mechanics">The Firewall Mechanics</h2>
-<p>The firewall operates on a two-pass funnel, combining Zero-Trust package verification with the raw structural threat detection of the GitGalaxy Physics Engine.</p>
-<h3 id="1-zero-trust-package-verification">1. Zero-Trust Package Verification</h3>
-<p>The firewall rips through the raw source code of your dependencies and extracts every <code>require()</code>, <code>import</code>, and <code>from</code> statement. It cross-references these against your enterprise <code>gitgalaxy_config.py</code>:</p>
-<ul>
-<li><strong>Audit Mode (Default):</strong> Blocks anything explicitly listed in <code>BLACKLISTED_IMPORTS</code> (known bad actors). Allows everything else.</li>
-<li><strong>Strict Mode (Air-Gapped):</strong> If <code>STRICT_IMPORT_MODE = True</code>, the firewall blocks <em>everything</em> except the packages explicitly listed in <code>APPROVED_IMPORTS</code>. If an engineer introduces a new, unvetted package, the build automatically fails.</li>
-</ul>
-<h3 id="2-structural-malware-detection">2. Structural Malware Detection</h3>
-<p>Attackers frequently use "typo-squatting" or Unicode Homoglyphs (replacing a standard 'a' with a Cyrillic 'а') to bypass simple scanners. </p>
-<p>The firewall subjects all external dependencies to the <code>SecurityLens</code>, specifically hunting for:
-* <strong>Unicode Homoglyphs &amp; Typo-squatting:</strong> Invisible characters or look-alike imports.
-* <strong>Shadow Imports:</strong> Steganography (e.g., hiding executable code inside a <code>.png</code> or <code>.pdf</code> file).
-* <strong>Tainted I/O:</strong> Untrusted network sockets combined with <code>eval()</code> or <code>exec()</code>.</p>
-<p><em>Note: The engine employs an "Inert Data Shield," intentionally bypassing static files like <code>.json</code>, <code>.md</code>, and <code>.css</code> to maintain extreme processing velocity.</em></p>
-<h2 id="deployment-pipeline">Deployment Pipeline</h2>
-<p>To deploy the firewall, bind it to a CI/CD workflow step immediately after dependencies are installed, but before the application builds.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Example: Scanning a Node.js project's dependencies</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># A directory target runs a GalaxyScope scan first; a GalaxyScope JSON graph is also accepted</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>supply-chain-firewall<span class="w"> </span>./node_modules
+<h1 id="how-to-enforce-the-supply-chain-firewall">How to Enforce the Supply Chain Firewall</h1>
+<blockquote>
+<p><strong>Known bug (#8428): the standalone <code>supply-chain-firewall</code> CLI, and <code>tool: supply-chain-firewall</code> in the GitHub Action, currently never block on real scan output.</strong> The CLI hands the gate entries from the audit JSON, which lack the <code>raw_imports</code> and <code>risk_vector</code> keys the gate reads, so every check is skipped and the run exits 0. Until #8428 is fixed, the steps below set the policy up but do not fail a build. The firewall does run inside a <code>galaxyscope</code> scan, where its result is recorded in the scan summary (<code>ecosystem_audits.firewall</code>) without failing the scan.</p>
+</blockquote>
+<h2 id="what-the-firewall-gates">What the firewall gates</h2>
+<p>The firewall checks the scanned repository's <strong>own</strong> files. It does not read installed dependencies: <code>node_modules</code>, <code>venv</code>, <code>.venv</code>, <code>vendor</code> and <code>third_party</code> are excluded by the default scan config. For each file it checks:</p>
+<ol>
+<li><strong>Imports against your lists</strong> (<code>gitgalaxy_config.py</code> or <code>.galaxyscope.yaml</code>):</li>
+<li><strong>Audit mode (default):</strong> blocks packages listed in <code>BLACKLISTED_IMPORTS</code>. The list ships empty, so add entries before relying on it.</li>
+<li><strong>Strict mode:</strong> with <code>STRICT_IMPORT_MODE = True</code>, also blocks every package not in <code>APPROVED_IMPORTS</code>.</li>
+<li><strong>One behavioural score:</strong> the engine's <code>secrets_risk</code> score for the file, flagged at 50 or above. The score is multiplied by 10 for setup.py, <code>build.rs</code>, <code>preinstall.js</code> and <code>postinstall.js</code>.</li>
+</ol>
+<p>Both checks are tested on hand-built inputs (<code>tests/security_auditing/test_supply_chain_firewall.py</code>). There is no measured detection rate on real compromised packages.</p>
+<p>What it does not check: network calls, typosquatting, Unicode homoglyphs, files hidden in images, I/O taint, or <code>package.json</code> install scripts (<code>.json</code> files are skipped). It also skips any path containing <code>/test/</code> or <code>/tests/</code> and any file name containing <code>test_</code> or <code>_test</code> (#8432). These gaps are tracked in #8432.</p>
+<h2 id="configuration">Configuration</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># gitgalaxy_config.py (or the same keys in .galaxyscope.yaml)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">STRICT_IMPORT_MODE</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">APPROVED_IMPORTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"requests"</span><span class="p">,</span> <span class="s2">"numpy"</span><span class="p">]</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">BLACKLISTED_IMPORTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"event-stream"</span><span class="p">]</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">FIREWALL_NETWORK_WEIGHTING</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># opt-in: raises the multiplier for highly central files</span>
 </code></pre></div>
-<h3 id="the-mission-report">The Mission Report</h3>
-<p>If a malicious package is detected—either via a Blacklist match or a structural malware density breach—the firewall triggers a <code>sys.exit(1)</code> to halt the build pipeline and provides exact forensic evidence.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>==========================================================
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> 🧱 SUPPLY CHAIN FIREWALL: MISSION REPORT
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>==========================================================
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> Mode               : Strict (Exclude Blacklist and Unknown)
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> Files Deep Scanned : 14,205
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a> Scan Velocity      : 2,140 files/sec
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>----------------------------------------------------------
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a> Approved Packages    : 142
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a> Banned Packages      : 1
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a> Unknown Packages     : 3
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>----------------------------------------------------------
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a> Active Threats       : 4
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a> File Denylist Blocks : 0
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a> File Allowlist Bypasses: 0
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>----------------------------------------------------------
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>🚨 [BLACKLISTED IMPORT] Malicious package 'node-ipc' blocked in: node-ipc/dao.js
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>🚨 [ZERO-TRUST BREACH] Unknown package 'random-string-gen' blocked by Strict Mode in: src/utils.js
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>❌ BUILD FAILED: 4 infected dependencies or policy violations blocked.
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>==========================================================
+<h2 id="running-it">Running it</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># A directory target runs a GalaxyScope scan first; a GalaxyScope audit JSON is also accepted.</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># Currently exits 0 on real input regardless of findings (#8428).</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>supply-chain-firewall<span class="w"> </span>.<span class="w"> </span>--config<span class="w"> </span>.galaxyscope.yaml
 </code></pre></div>
+<p>When the CLI counts a threat it prints a summary and exits 1:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>===========================================================================
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a> 🧱 SUPPLY CHAIN FIREWALL: SCAN SUMMARY
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>===========================================================================
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> Mode                 : Strict (Exclude Blacklist and Unknown)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a> Files Evaluated      : &lt;n&gt;
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>---------------------------------------------------------------------------
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a> Approved Packages    : &lt;n&gt;
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a> Banned Packages      : &lt;n&gt;
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a> Unknown Packages     : &lt;n&gt;
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>---------------------------------------------------------------------------
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a> Active Threats       : &lt;n&gt;
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a> Allowlist Bypasses   : &lt;n&gt;
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>---------------------------------------------------------------------------
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a> [BLOCKING ACTION] &lt;n&gt; high-risk dependencies or policy violations blocked.
+</code></pre></div>
+<p>This is the format <code>supply_chain_firewall.py</code> prints, with placeholders; it is not output from a real run.</p>
 <blockquote>
 <p><strong>Read the full technical specification:</strong> <a href="../../04-03-supply-chain-firewall/">Supply Chain Firewall</a></p>
 </blockquote>

@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#supply-chain-firewall-zero-trust-dependency-gate" class="md-skip">
+        <a href="#supply-chain-firewall-import-and-secrets-risk-gate" class="md-skip">
           Skip to content
         </a>
       
@@ -10214,17 +10214,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#problem-being-solved" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Problem Being Solved
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#design" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -10237,10 +10226,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#in-memory-graph-processing" class="md-nav__link">
+  <a href="#input" class="md-nav__link">
     <span class="md-ellipsis">
       
-        In-Memory Graph Processing
+        Input
       
     </span>
   </a>
@@ -10259,10 +10248,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#behavioral-policy-enforcement" class="md-nav__link">
+  <a href="#behavioural-gate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Behavioral Policy Enforcement
+        Behavioural Gate
       
     </span>
   </a>
@@ -10270,10 +10259,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#contextual-risk-multipliers" class="md-nav__link">
+  <a href="#multipliers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Contextual Risk Multipliers
+        Multipliers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skipped-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skipped files
       
     </span>
   </a>
@@ -10297,6 +10297,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tradeoffs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -10312,28 +10323,6 @@
     <span class="md-ellipsis">
       
         Limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#performance-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Performance Notes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future Work
       
     </span>
   </a>
@@ -12447,54 +12436,61 @@
   
 
 
-<h1 id="supply-chain-firewall-zero-trust-dependency-gate">Supply Chain Firewall (Zero-Trust Dependency Gate)</h1>
+<h1 id="supply-chain-firewall-import-and-secrets-risk-gate">Supply Chain Firewall (Import and Secrets-Risk Gate)</h1>
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py">gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py</a></p>
+<p><strong>Known bug (#8428):</strong> the standalone <code>supply-chain-firewall</code> CLI, and <code>tool: supply-chain-firewall</code> in the GitHub Action, currently never block on real scan output. The CLI hands the gate file entries from the audit JSON, which has neither <code>raw_imports</code> nor <code>risk_vector</code>, so every check is skipped and the run exits 0. The engine-internal call in <code>galaxyscope.py</code> (<code>run_firewall_audit(repository_graph, ...)</code>) receives the in-memory graph and works; its result is recorded in the scan summary (<code>ecosystem_audits.firewall</code>) and does not fail the scan. Other enforcement gaps: #8432.</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Modern applications heavily rely on third-party dependencies, which can introduce severe supply chain risks such as malicious updates, namespace hijacking, or embedded malware. Relying solely on asynchronous vulnerability scans allows bad code to enter the environment during the build phase. To proactively block threats, an in-memory logic gate evaluates package imports, resolves aliases, and enforces risk thresholds before third-party code reaches production build environments. This subsystem is the GitGalaxy Supply Chain Firewall.</p>
+<p>The Supply Chain Firewall is a gate over the scanned repository's own files. It compares each file's imports with configured block and allow lists, and checks one behavioural risk score the engine has already computed. It does not read installed dependency code: <code>node_modules</code>, <code>venv</code>, <code>.venv</code>, <code>vendor</code> and <code>third_party</code> are excluded by the default scan config (<code>gitgalaxy/standards/gitgalaxy_config.py</code>).</p>
 <h2 id="purpose">Purpose</h2>
-<p>To provide zero-trust dependency verification and behavioral policy enforcement during CI/CD execution, acting as an active gate to block malicious or unauthorized dependencies from executing.</p>
-<h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Vulnerability scanners often rely on post-build static analysis or asynchronous cloud alerts. By the time a malicious package is flagged, it may have already compromised the build environment via build scripts or hidden logic. The firewall evaluates dependencies deterministically at runtime.</p>
+<p>Fail a build when the repository imports a blocked package (audit mode) or an unapproved one (strict mode), or when a file's secrets-risk score crosses the threshold.</p>
 <h2 id="design">Design</h2>
-<h3 id="in-memory-graph-processing">In-Memory Graph Processing</h3>
-<p>The firewall operates directly on the pre-tokenized artifact graph (<code>parsed_files</code>), eliminating redundant file reads from disk. It evaluates raw package import declarations against configured allowlists, denylists, and policy flags from <code>.galaxyscope.yaml</code>.</p>
+<h3 id="input">Input</h3>
+<p>The firewall reads the engine's in-memory file graph (<code>parsed_files</code>): per file, <code>raw_imports</code>, <code>risk_vector</code> and, when centrality weighting is on, <code>telemetry.network_metrics</code>. Lists and flags come from the resolved config (<code>.galaxyscope.yaml</code> over <code>gitgalaxy_config.py</code>).</p>
 <h3 id="import-verification-alias-resolution">Import Verification &amp; Alias Resolution</h3>
-<p>The firewall normalizes packages (e.g., stripping relative imports, collapsing deep module paths to root package names). It actively dereferences manifest aliases to verify true package origins, preventing <strong>Dependency Confusion</strong> attacks. </p>
-<h3 id="behavioral-policy-enforcement">Behavioral Policy Enforcement</h3>
-<p>Rather than recomputing static analysis, the firewall reads risk vectors computed during metrics evaluation (<code>SignalProcessor.RISK_SCHEMA</code>). Risk categories (Hidden Malware, Data Injection, Secrets Leak) are evaluated against a sigmoid block threshold (<code>_FIREWALL_BLOCK_THRESHOLD = 50.0</code>). </p>
-<h3 id="contextual-risk-multipliers">Contextual Risk Multipliers</h3>
+<p>Imports are normalized to a root package name (relative imports dropped, deep module paths collapsed). Then:</p>
+<ul>
+<li><strong>Audit mode (default):</strong> a package in <code>BLACKLISTED_IMPORTS</code> is blocked; everything else passes. <code>BLACKLISTED_IMPORTS</code> ships empty, so audit mode blocks nothing until you add entries.</li>
+<li><strong>Strict mode (<code>STRICT_IMPORT_MODE = True</code>):</strong> anything not in <code>APPROVED_IMPORTS</code> is also blocked.</li>
+</ul>
+<p>When the engine supplies a manifest alias map, an aliased package is resolved to its true name before the blacklist check, so an alias cannot hide a blacklisted package (<code>test_alias_spoofing_detection</code>). The standalone CLI passes an empty alias map. The manifest auditor's other flags (namespace hijacking, direct-URI resolution, insecure registries) are written but not read by the firewall (#8432).</p>
+<h3 id="behavioural-gate">Behavioural Gate</h3>
+<p>The firewall reads one risk vector from <code>SignalProcessor.RISK_SCHEMA</code>: <code>secrets_risk</code>, labelled "Secrets Leak Risk" (<code>_FIREWALL_RISK_MAP</code> in <code>supply_chain_firewall.py</code>). A file is flagged when the score, after multipliers, reaches 50 (<code>_FIREWALL_BLOCK_THRESHOLD</code>). No other risk category is gated. This vector (now <code>credential_material</code>) is REWORK-flagged as a formula artifact (#2979); see <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>docs/vectors.md</code></a>.</p>
+<h3 id="multipliers">Multipliers</h3>
 <ol>
-<li><strong>Build-Time Execution Multiplier (<span class="arithmatex">\(10.0\times\)</span>):</strong> Risk scores for build scripts (Python install scripts, <code>postinstall.js</code>) are heavily multiplied because they execute automatically and can compromise host systems immediately.</li>
-<li><strong>Network Centrality Multiplier:</strong> High downstream blast radius files receive dynamic risk score multipliers.</li>
+<li><strong>Build-time multiplier (10x):</strong> the secrets-risk score is multiplied by 10 for files named setup.py, <code>build.rs</code>, <code>preinstall.js</code> or <code>postinstall.js</code> (<code>test_build_time_execution_multiplier</code>). <code>package.json</code> is also in the code's list, but <code>.json</code> files are skipped before this point, so it never gets the multiplier, and npm <code>scripts</code> hooks are not parsed.</li>
+<li><strong>Network-centrality multiplier (opt-in):</strong> off unless <code>FIREWALL_NETWORK_WEIGHTING = True</code>. When on, files with a normalized blast radius above 1.0 or betweenness above 0.05 get a higher multiplier (<code>test_network_weighting_*</code>).</li>
 </ol>
+<h3 id="skipped-files">Skipped files</h3>
+<ul>
+<li>Extensions treated as inert: <code>.svg</code>, <code>.xml</code>, <code>.jelly</code>, <code>.html</code>, <code>.css</code>, <code>.md</code>, <code>.json</code>, <code>.yaml</code>, <code>.yml</code>, <code>.txt</code>, <code>.properties</code>, and <code>.d.ts</code>.</li>
+<li>Any path containing <code>/test/</code> or <code>/tests/</code>, or a file name containing <code>test_</code> or <code>_test</code>. This is a substring match, so for example latest_config.py is skipped too (#8432).</li>
+<li>Paths in <code>ALLOWLIST_PATHS</code> are evaluated, but a flagged file there is counted as an allowlist bypass rather than a threat.</li>
+</ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
-<p>Inputs received include tokenized artifact graph data (<code>parsed_files</code>), alias maps, and configuration rules. Outputs produced are risk alerts, policy violation metrics, and a build pass/fail signal. Downstream CI/CD stages depend on this gate successfully passing.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph LR
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Tokenized Artifact Graph] --&gt; B[Import Normalizer &amp; Alias Resolver]
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    C[.galaxyscope.yaml Config] --&gt; B
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Policy &amp; Risk Evaluator]
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    D --&gt; E{Block Threshold Reached?}
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    E -- Yes --&gt; F[Fail CI/CD Pipeline]
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    E -- No --&gt; G[Proceed to Build]
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[In-memory file graph] --&gt; B[Import normalizer and alias resolver]
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    C[Resolved config] --&gt; B
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Blacklist / strict-mode check]
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    A --&gt; E[secrets_risk x multipliers &gt;= 50?]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    D --&gt; F[Firewall result]
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    E --&gt; F
 </code></pre></div>
+<p>In a <code>galaxyscope</code> scan the result is attached to the scan summary. The standalone CLI exits 1 when it counts threats, which with #8428 open does not happen on real input.</p>
+<h2 id="evidence">Evidence</h2>
+<p>The import checks, alias resolution and multipliers are tested with hand-built file entries (<code>tests/security_auditing/test_supply_chain_firewall.py</code>). No test runs the CLI end to end on a real scan, which is how #8428 went unnoticed. There is no measured detection rate on real compromised packages.</p>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
-<li><strong>Strict Policy vs. Developer Velocity:</strong> Enforcing <code>STRICT_IMPORT_MODE</code> (where only pre-approved imports are allowed) provides the highest security but increases friction for developers adding new legitimate dependencies.</li>
-<li><strong>Behavioral Multipliers vs. False Positives:</strong> The aggressive <span class="arithmatex">\(10.0\times\)</span> multiplier on build scripts may block legitimate complex installations, requiring explicit exceptions in <code>ALLOWLIST_PATHS</code>.</li>
+<li><strong>Strict mode vs. developer velocity:</strong> strict mode fails on every new dependency until it is approved.</li>
+<li><strong>Build-time multiplier vs. false positives:</strong> a build script with a modest secrets-risk score can be blocked; exempt it with <code>ALLOWLIST_PATHS</code>.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li>The firewall only analyzes static imports. Dynamic runtime imports (e.g., heavily obfuscated string evaluations of dependency paths) may bypass initial analysis.</li>
-<li>Dependent on the accuracy of the upstream tokenized artifact graph.</li>
-</ul>
-<h2 id="performance-notes">Performance Notes</h2>
-<p>Because the firewall consumes pre-tokenized in-memory graph data and applies vectorized block thresholds, it performs zero disk I/O and executes sub-second policy enforcement across massive dependency trees.</p>
-<h2 id="future-work">Future Work</h2>
-<ul>
-<li><strong>Current Behavior:</strong> Exits with status code <code>1</code> upon detecting threats, failing the pipeline securely.</li>
-<li><strong>Planned Improvements:</strong> Provide interactive dry-run modes that log warnings without halting builds during initial deployment phases.</li>
+<li>Only static imports are read. Dynamic imports (strings built at runtime) are not.</li>
+<li>Only <code>secrets_risk</code> is gated. Network calls, process execution, typosquatting and install hooks are not.</li>
+<li>Installed dependencies are excluded by the default config.</li>
+<li>Accuracy depends on the engine's import extraction for each language.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>

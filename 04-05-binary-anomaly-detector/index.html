@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="> **File Reference:** [gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy...">
+        <meta name="description" content="X-Ray (Binary Anomaly Detector): magic-byte mismatches, embedded executable headers, three entropy thresholds and an indexed-XOR trap; what it reads and what it skips.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -10270,17 +10270,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#problem-being-solved" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Problem Being Solved
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#design" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -10293,10 +10282,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#selective-binary-ingestion-logic" class="md-nav__link">
+  <a href="#selective-binary-ingestion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selective Binary Ingestion Logic
+        Selective Binary Ingestion
       
     </span>
   </a>
@@ -10304,10 +10293,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#8kb-header-inspection" class="md-nav__link">
+  <a href="#what-is-read" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8KB Header Inspection
+        What is read
       
     </span>
   </a>
@@ -10315,10 +10304,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#mathematical-entropy-header-checks" class="md-nav__link">
+  <a href="#checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mathematical Entropy &amp; Header Checks
+        Checks
       
     </span>
   </a>
@@ -10327,6 +10316,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
   
 </li>
       
@@ -10364,10 +10364,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#performance-notes" class="md-nav__link">
+  <a href="#memory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Performance Notes
+        Memory
       
     </span>
   </a>
@@ -12441,51 +12441,62 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py">gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Standard source code parsers drop binary assets to conserve memory and avoid parsing errors. However, attackers exploit this blind spot by embedding malware, packed executables, or steganographic payloads inside seemingly benign files like images or archives. To combat this, a heuristic file integrity scanner explicitly targets binary files, inspecting byte-level headers and calculating mathematical entropy to flag hidden threats. This subsystem is the GitGalaxy Binary Anomaly Detector.</p>
+<p>Source parsers usually skip binary files. The Binary Anomaly Detector (X-Ray) reads them on purpose and checks bytes rather than file extensions: a file whose first bytes do not match its extension, executable headers inside other files, dense high-entropy data, and a repeated indexed-XOR pattern.</p>
 <h2 id="purpose">Purpose</h2>
-<p>To perform high-speed triage of binary anomalies, magic byte mismatches, and obfuscated payloads within the build pipeline.</p>
-<h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Binary files (<code>.png</code>, <code>.zip</code>, <code>.dll</code>) are typically ignored by SAST tools. Attackers use this to bypass security checks by disguising executable payloads with benign file extensions. Discovering these threats requires byte-level inspection without loading massive gigabyte assets into memory.</p>
+<p>Triage of magic-byte mismatches, embedded executable headers and dense encoded or encrypted data in a repository, failing the run (exit 1) on a finding.</p>
 <h2 id="design">Design</h2>
-<h3 id="selective-binary-ingestion-logic">Selective Binary Ingestion Logic</h3>
-<p>The module explicitly overrides the standard <code>ApertureFilter</code> binary exclusion rules. It enqueues binary files while automatically whitelisting test fixtures (<code>/test/</code>, <code>/tests/</code>) and compressed configuration formats (<code>XRAY_BYPASS_EXTENSIONS</code>) to prevent false positives.</p>
-<h3 id="8kb-header-inspection">8KB Header Inspection</h3>
-<p>To maintain throughput and avoid out-of-memory risks, the detector reads only the first <span class="arithmatex">\(8\text{ KB}\)</span> (8,192 bytes) of a file.</p>
-<h3 id="mathematical-entropy-header-checks">Mathematical Entropy &amp; Header Checks</h3>
-<p>The 8KB chunk undergoes several evaluations:
-1. <strong>Magic Byte Mismatch:</strong> Compares the file's magic bytes against its declared file extension (e.g., flagging an executable disguised as a <code>.png</code>). Required headers cover <code>.png</code>, <code>.jpg</code>/<code>.jpeg</code>, <code>.gz</code>, <code>.xz</code>, <code>.zip</code>, <code>.pdf</code>, <code>.ico</code> and <code>.tar</code> (a tar has no magic at offset 0: <code>ustar</code> at byte 257, or a valid header checksum, or an all-zero empty archive). A bypassed type with no header here (<code>.json</code>, <code>.yml</code>) is not checked for a mismatch.
-2. <strong>Expected Shebang Exemption:</strong> Suppresses anomaly alerts for shell scripts (<code>.sh</code>, <code>.bash</code>) that legitimately contain executable header signatures.
-3. <strong>Shannon Entropy Validation:</strong> Calculates string entropy. If <span class="arithmatex">\(\text{Entropy} &gt; 4.8\)</span>, it flags the file as potentially containing packed executables or encrypted payloads.
-4. <strong>Bitwise Operation Traps:</strong> Flags three or more repeated in-place XORs on indexed bytes (<code>buf[i] ^= k;</code>). A plain XOR decode loop, and a <code>a ^ b ^ c</code> chain, are not detected.</p>
+<h3 id="selective-binary-ingestion">Selective Binary Ingestion</h3>
+<p>The module overrides the standard <code>ApertureFilter</code> binary exclusion so binary files are read. Files under a <code>test/</code>, <code>tests/</code> or <code>phpunit/</code> path segment, and paths in <code>ALLOWLIST_PATHS</code> or <code>XRAY_BYPASS_PATHS</code>, are still checked, but a finding there is counted as allowed and does not fail the run (<code>test_a_real_test_folder_stays_exempt</code>). Files with an extension in <code>XRAY_BYPASS_EXTENSIONS</code> (by default <code>.json</code>, <code>.gz</code>, <code>.zip</code>, <code>.tar</code>, <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.ico</code>, <code>.yml</code>) get the magic-byte check only: their entropy, embedded-header and XOR findings are ignored, but a file that does not start the way its type must still fails.</p>
+<h3 id="what-is-read">What is read</h3>
+<ul>
+<li><strong>The first 8 KB</strong> of every file, for the header, string-entropy, binary-entropy and XOR checks.</li>
+<li><strong>The whole file</strong> for the dense-run check, when it is text (no NUL byte in the first 8 KB) and no larger than 5 MB (<code>MAX_DENSE_SCAN_BYTES</code>). This is how a payload past the first 8 KB, or on one very long line, is caught (<code>test_a_large_payload_after_the_first_8_kb_fails</code>).</li>
+</ul>
+<p>Binary files, and text files over 5 MB, are examined only in their first 8 KB.</p>
+<h3 id="checks">Checks</h3>
+<ol>
+<li><strong>Magic-byte mismatch:</strong> the file's first bytes are compared with its extension (for example an executable named <code>logo.png</code>). Required headers cover <code>.png</code>, <code>.jpg</code>/<code>.jpeg</code>, <code>.gz</code>, <code>.xz</code>, <code>.zip</code>, <code>.pdf</code>, <code>.ico</code> and <code>.tar</code> (a tar has no magic at offset 0: <code>ustar</code> at byte 257, or a valid header checksum, or an all-zero empty archive). A bypassed type with no header here (<code>.json</code>, <code>.yml</code>) is not checked for a mismatch.</li>
+<li><strong>Embedded execution headers</strong> in the first 8 KB: ELF, Mach-O, WebAssembly and <code>#!/bin/</code> anywhere; <code>MZ</code> only at offset 0. A <code>#!/bin/</code> shebang in a <code>.sh</code>, <code>.bash</code>, <code>.zsh</code> or <code>.command</code> file is exempt (<code>test_xray_shebang_shield</code>).</li>
+<li><strong>Entropy, three thresholds with different scopes:</strong></li>
+<li>string literals in the first 8 KB (fewer than three spaces): Shannon entropy above <strong>4.8</strong> (<code>SecurityLens.scan_content</code>);</li>
+<li>the first 8 KB as raw bytes, when longer than 256 bytes: above <strong>7.95</strong> (<code>SecurityLens.scan_binary</code>);</li>
+<li>runs of 256 or more base64/URL-safe characters anywhere in a text file up to 5 MB (declared <code>data:</code> URIs removed): above <strong>5.0</strong> on the first 4,096 characters of the run (<code>DENSE_RUN_ENTROPY</code>).
+   Files with a bypassed extension, which includes the image and archive types, skip all three.</li>
+<li><strong>Bitwise operation trap:</strong> three or more repeated in-place XORs on indexed bytes (<code>buf[i] ^= k;</code>) are flagged (<code>test_repeated_indexed_xor_is_flagged_and_named_as_such</code>). A plain XOR decode loop, and a <code>a ^ b ^ c</code> chain, are not detected.</li>
+</ol>
+<h2 id="evidence">Evidence</h2>
+<p>Each check is tested on planted inputs (<code>tests/security_auditing/test_xray_control.py</code>, <code>test_binary_anomaly_detector.py</code>, <code>test_disguised_executable_4126.py</code>). There is no measured detection or false-positive rate on real malware or real repositories.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
-<p>Inputs received include raw binary file paths and configuration settings. Outputs produced are anomaly alerts and execution blocks (exit code <code>1</code>). It runs alongside or immediately after standard source code static analysis.</p>
+<p>Inputs are file paths and the resolved config. Outputs are anomaly messages and exit code <code>1</code> when any non-allowlisted anomaly is found. Inside a <code>galaxyscope</code> scan the result is recorded in the scan summary (<code>ecosystem_audits.xray</code>).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph LR
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Binary File Path] --&gt; B[Read First 8KB]
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; C[Magic Byte Check]
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Shannon Entropy Calc]
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    B --&gt; E[Bitwise XOR Search]
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    C --&gt; F{Threshold Met?}
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    D --&gt; F
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    E --&gt; F
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    F -- Yes --&gt; G[Block &amp; Alert]
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    F -- No --&gt; H[Allow]
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[File path] --&gt; B[Read first 8 KB]
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    A --&gt; C[Text and &lt;= 5 MB: read whole file]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Magic bytes and execution headers]
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    B --&gt; E[Entropy: literals 4.8, raw bytes 7.95]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    B --&gt; F[Indexed XOR x3]
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    C --&gt; G[Dense encoded run, entropy 5.0]
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    D --&gt; H{Any finding?}
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    E --&gt; H
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    F --&gt; H
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    G --&gt; H
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    H -- Yes --&gt; I[Report, exit 1]
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    H -- No --&gt; J[Pass]
 </code></pre></div>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
-<li><strong>8KB Truncation vs. Exhaustive Scanning:</strong> By only reading the first 8KB of a file, the system achieves massive speed gains and zero out-of-memory crashes on large video or archive files. However, it sacrifices the ability to detect payloads appended to the very end of massive legitimate files.</li>
-<li><strong>Heuristics vs. Signatures:</strong> Relying on Shannon entropy (&gt; 4.8) catches novel zero-day packed malware, but will generate false positives on heavily compressed benign files (like certain encrypted test fixtures or compressed data models).</li>
+<li><strong>8 KB head for binaries:</strong> a payload past the first 8 KB of a binary file, or of a text file over 5 MB, is not examined.</li>
+<li><strong>Entropy heuristics:</strong> dense benign data (compressed fixtures, embedded keys, minified bundles) can trip the thresholds; use <code>XRAY_BYPASS_EXTENSIONS</code> or <code>XRAY_BYPASS_PATHS</code>. Bypassed types, including images and archives, get the header check only.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li>Steganographic payloads embedded deep within large files (past the 8KB header) will not be detected.</li>
-<li>Heuristic thresholds for entropy require careful tuning via allowlists to avoid blocking legitimate binary data.</li>
+<li>Images are checked only for a matching header. Steganographic content in an image is not detected.</li>
+<li>Thresholds are fixed constants; they are not calibrated against a labelled corpus.</li>
 </ul>
-<h2 id="performance-notes">Performance Notes</h2>
-<p>Memory usage is capped at <span class="arithmatex">\(O(1)\)</span> per file (exactly 8,192 bytes allocated). Execution time is bound by raw disk read speed rather than CPU computation.</p>
+<h2 id="memory">Memory</h2>
+<p>Memory per file is bounded by the 8 KB head for binaries and by the file size (at most 5 MB) for text files.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li><strong>Current Behavior:</strong> Inspects 8KB headers and blocks based on magic byte and entropy math.</li>
-<li><strong>Planned Improvements:</strong> Implementing a dual-chunk read (first 8KB and last 8KB) to detect payloads appended to the EOF tail without loading the middle contents.</li>
+<li>A tail read (the last 8 KB) for binaries, to catch payloads appended to the end of large files.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>

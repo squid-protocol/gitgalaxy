@@ -1,0 +1,348 @@
+{
+  "fixture": "flow_jcl (in this file)",
+  "issue": 8413,
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), the JOB statement's RESTART parameter (stepname, stepname.procstepname, *, checkid, the SYSCHK DD) and the EXEC statement's RD parameter, plus the COND / IF rules of slice 1. Written before any restart code ran on it. The manual's text was read by section through IBM's published z/OS 2.1 library (page numbers are not cited); the 2.1 wording was not re-read against the current release.",
+  "scenario_input": "given: per step that starts in the restarted run, {rc: n}. Steps before the restart step have no entry (they do not execute).",
+  "scenario_answer": "expect: per step, skipped (not executed because of the restart), run, or bypass (the COND / IF of the restart step or a later step kept it from starting).",
+  "flow_jcl": [
+    "//*********************************************************************",
+    "//* #8413 slice 4: JOB RESTART= (deferred step restart, procedure step,",
+    "//* RESTART=*, deferred checkpoint restart with SYSCHK, RD=). Answers in",
+    "//* scenarios.json, written from IBM's z/OS MVS JCL Reference (SA23-1385",
+    "//* JOB RESTART) before any resolver ran.",
+    "//*********************************************************************",
+    "//RSTJOB1  JOB (ACCT),'STEP RESTART',CLASS=A,RESTART=S3",
+    "//S1       EXEC PGM=PGMA",
+    "//S2       EXEC PGM=PGMB",
+    "//S3       EXEC PGM=PGMC",
+    "//S4       EXEC PGM=PGMD,COND=(4,LT,S3)",
+    "//S5       EXEC PGM=PGME,COND=(0,NE)",
+    "//*",
+    "//RSTJOB2  JOB (ACCT),'RESTART STAR',CLASS=A,RESTART=*",
+    "//T1       EXEC PGM=PGMA",
+    "//T2       EXEC PGM=PGMB",
+    "//T3       EXEC PGM=PGMC,COND=(4,LT,T1)",
+    "//*",
+    "//RSTJOB3  JOB (ACCT),'PROC STEP',CLASS=A,RESTART=CALL1.P2",
+    "//PR       PROC",
+    "//P1       EXEC PGM=PGMA",
+    "//P2       EXEC PGM=PGMB",
+    "//P3       EXEC PGM=PGMC,COND=(4,LT,P2)",
+    "//         PEND",
+    "//U0       EXEC PGM=PGMX",
+    "//CALL1    EXEC PR",
+    "//U5       EXEC PGM=PGMY",
+    "//*",
+    "//RSTJOB4  JOB (ACCT),'CHECKPOINT',CLASS=A,RESTART=(V3,CK1)",
+    "//SYSCHK   DD DSN=CHK.DATASET,DISP=OLD",
+    "//V1       EXEC PGM=PGMA",
+    "//V2       EXEC PGM=PGMB",
+    "//V3       EXEC PGM=PGMC,RD=R",
+    "//V4       EXEC PGM=PGMD",
+    "//*",
+    "//RSTJOB5  JOB (ACCT),'IF AFTER',CLASS=A,RESTART=W2",
+    "//W1       EXEC PGM=PGMA",
+    "//W2       EXEC PGM=PGMB",
+    "//         IF (W2.RC = 0) THEN",
+    "//W3       EXEC PGM=PGMC",
+    "//         ELSE",
+    "//W4       EXEC PGM=PGMD",
+    "//         ENDIF",
+    "//*",
+    "//BADJOB1  JOB (ACCT),'COND REFERBACK',CLASS=A,RESTART=Z2",
+    "//Z1       EXEC PGM=PGMA",
+    "//Z2       EXEC PGM=PGMB",
+    "//Z3       EXEC PGM=PGMC,COND=(0,NE,Z1)",
+    "//*",
+    "//BADJOB2  JOB (ACCT),'NO SYSCHK',CLASS=A,RESTART=(Y2,CK9)",
+    "//Y1       EXEC PGM=PGMA",
+    "//Y2       EXEC PGM=PGMB",
+    "//*",
+    "//BADJOB3  JOB (ACCT),'NO SUCH STEP',CLASS=A,RESTART=NOSUCH",
+    "//X1       EXEC PGM=PGMA",
+    "//*",
+    "//BADJOB4  JOB (ACCT),'IF REFERBACK',CLASS=A,RESTART=R2",
+    "//R1       EXEC PGM=PGMA",
+    "//R2       EXEC PGM=PGMB",
+    "//         IF (R1.RC = 0) THEN",
+    "//R3       EXEC PGM=PGMC",
+    "//         ENDIF",
+    "//*",
+    "//BADJOB5  JOB (ACCT),'CALLING STEP',CLASS=A,RESTART=CALL2",
+    "//PR2      PROC",
+    "//Q1       EXEC PGM=PGMA",
+    "//         PEND",
+    "//CALL2    EXEC PR2",
+    "//"
+  ],
+  "scenarios": [
+    {
+      "id": "step-restart-all-zero",
+      "job": "RSTJOB1",
+      "given": {
+        "S3": {
+          "rc": 0
+        },
+        "S4": {
+          "rc": 0
+        },
+        "S5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1": "skipped",
+        "S2": "skipped",
+        "S3": "run",
+        "S4": "run",
+        "S5": "run"
+      },
+      "basis": "RESTART=S3 without a checkid is a deferred step restart: the steps before S3 are not executed, S3 and every step after it are. S4's test (4,LT,S3) is false at rc 0."
+    },
+    {
+      "id": "step-restart-cond-names-restart-step",
+      "job": "RSTJOB1",
+      "given": {
+        "S3": {
+          "rc": 8
+        }
+      },
+      "expect": {
+        "S1": "skipped",
+        "S2": "skipped",
+        "S3": "run",
+        "S4": "bypass",
+        "S5": "bypass"
+      },
+      "basis": "The restart step and later steps keep their COND tests: S3 ends 8, so (4,LT,S3) is true and S4 is bypassed; S5's (0,NE) tests the steps executed so far (S3 only, A1), 8 NE 0 true, bypassed."
+    },
+    {
+      "id": "step-restart-bare-cond-ignores-skipped",
+      "job": "RSTJOB1",
+      "given": {
+        "S3": {
+          "rc": 0
+        },
+        "S4": {
+          "rc": 0
+        },
+        "S5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1": "skipped",
+        "S2": "skipped",
+        "S3": "run",
+        "S4": "run",
+        "S5": "run"
+      },
+      "basis": "S5's bare COND=(0,NE) tests every preceding step that ran in this execution; the skipped steps have no return code this run (ASSUMED A1), so only S3 and S4 (both 0) are tested and S5 runs.",
+      "assumed": "A1"
+    },
+    {
+      "id": "restart-star-first-step",
+      "job": "RSTJOB2",
+      "given": {
+        "T1": {
+          "rc": 0
+        },
+        "T2": {
+          "rc": 0
+        },
+        "T3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "T1": "run",
+        "T2": "run",
+        "T3": "run"
+      },
+      "basis": "RESTART=* names the first step of the job: no step is skipped."
+    },
+    {
+      "id": "restart-star-cond",
+      "job": "RSTJOB2",
+      "given": {
+        "T1": {
+          "rc": 8
+        },
+        "T2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "T1": "run",
+        "T2": "run",
+        "T3": "bypass"
+      },
+      "basis": "As a normal run: T3's (4,LT,T1) is true at rc 8."
+    },
+    {
+      "id": "procstep-restart",
+      "job": "RSTJOB3",
+      "given": {
+        "CALL1.P2": {
+          "rc": 0
+        },
+        "CALL1.P3": {
+          "rc": 0
+        },
+        "U5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U0": "skipped",
+        "CALL1.P1": "skipped",
+        "CALL1.P2": "run",
+        "CALL1.P3": "run",
+        "U5": "run"
+      },
+      "basis": "RESTART=stepname.procstepname: stepname is the EXEC that calls the procedure, procstepname the procedure's step. Everything before CALL1.P2 (U0 and CALL1.P1) is skipped; P2, the rest of the procedure and the later job step run."
+    },
+    {
+      "id": "procstep-restart-cond-inside-proc",
+      "job": "RSTJOB3",
+      "given": {
+        "CALL1.P2": {
+          "rc": 8
+        },
+        "U5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U0": "skipped",
+        "CALL1.P1": "skipped",
+        "CALL1.P2": "run",
+        "CALL1.P3": "bypass",
+        "U5": "run"
+      },
+      "basis": "P3's COND=(4,LT,P2) names the restart step, which is allowed: rc 8 bypasses P3."
+    },
+    {
+      "id": "checkpoint-restart",
+      "job": "RSTJOB4",
+      "given": {
+        "V3": {
+          "rc": 0
+        },
+        "V4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "V1": "skipped",
+        "V2": "skipped",
+        "V3": "run",
+        "V4": "run"
+      },
+      "basis": "RESTART=(V3,CK1) with a SYSCHK DD before the first EXEC is a deferred checkpoint restart: V3 resumes at checkpoint CK1 (it still starts, and ends with a return code), the earlier steps are not executed, V4 runs."
+    },
+    {
+      "id": "checkpoint-restart-rd-does-not-change-the-steps",
+      "job": "RSTJOB4",
+      "given": {
+        "V3": {
+          "rc": 4
+        },
+        "V4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "V1": "skipped",
+        "V2": "skipped",
+        "V3": "run",
+        "V4": "run"
+      },
+      "basis": "RD=R on V3 governs automatic checkpoint restart after an abend of the running job; it does not change which steps a deferred restart runs."
+    },
+    {
+      "id": "step-restart-if-reads-restart-step",
+      "job": "RSTJOB5",
+      "given": {
+        "W2": {
+          "rc": 0
+        },
+        "W3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "W1": "skipped",
+        "W2": "run",
+        "W3": "run",
+        "W4": "bypass"
+      },
+      "basis": "The IF names the restart step W2, which ran in this execution: W2.RC = 0 is true, so the THEN clause (W3) runs."
+    },
+    {
+      "id": "step-restart-if-else",
+      "job": "RSTJOB5",
+      "given": {
+        "W2": {
+          "rc": 8
+        },
+        "W4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "W1": "skipped",
+        "W2": "run",
+        "W3": "bypass",
+        "W4": "run"
+      },
+      "basis": "W2.RC = 8 makes the IF false: the ELSE clause (W4) runs."
+    }
+  ],
+  "assumed": [
+    {
+      "id": "A1",
+      "text": "A step skipped by the restart has no return code in the restarted run, so a bare COND=(code,op) and a bare IF RC read only the steps that executed in it. IBM states the step-name referback restriction but not this; no real system's catalog of previous-run codes is consulted."
+    }
+  ],
+  "not_modelled": [
+    "Automatic restart after a failure of the running job (RD=R / RNC, system restart): an action during a run, not a resubmission; the resolver reads JOB RESTART= only and does not read RD."
+  ],
+  "refused": [
+    {
+      "id": "ref-cond-referback",
+      "job": "BADJOB1",
+      "match": "precedes the restart step",
+      "construct": "COND=(code,op,stepname) in the restart step or a later step naming a step before the restart step",
+      "reason": "IBM: the EXEC COND and PGM and the DD VOL=REF values naming a step that precedes the restart step must not be used in the restart step or later steps"
+    },
+    {
+      "id": "ref-checkid-without-syschk",
+      "job": "BADJOB2",
+      "match": "SYSCHK",
+      "construct": "RESTART=(step,checkid) with no SYSCHK DD before the first EXEC",
+      "reason": "IBM: a checkid needs a SYSCHK DD placed immediately before the first EXEC; without it the JCL is in error"
+    },
+    {
+      "id": "ref-unknown-step",
+      "job": "BADJOB3",
+      "match": "not a step",
+      "construct": "RESTART= naming a step the job does not have",
+      "reason": "IBM: the system cannot restart at a step that is not in the job"
+    },
+    {
+      "id": "ref-if-referback",
+      "job": "BADJOB4",
+      "match": "precedes the restart step",
+      "construct": "an IF relational expression naming a step before the restart step",
+      "reason": "IBM's RESTART text lists COND, PGM and VOL=REF referbacks only; what an IF does with a skipped step is not stated, so it is refused rather than guessed"
+    },
+    {
+      "id": "ref-calling-step",
+      "job": "BADJOB5",
+      "match": "procstepname",
+      "construct": "RESTART= naming the calling step of a procedure without a procstepname",
+      "reason": "IBM's syntax restarts at stepname.procstepname; the bare calling step is not stated"
+    }
+  ]
+}

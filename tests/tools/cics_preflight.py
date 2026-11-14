@@ -2,7 +2,7 @@
 
     python tests/tools/cics_census.py preflight [--census-corpora DIR] [--root DIR] [--t0 SHA]
 
-Six checks (#8112 adds the listing and duplicate counts to the first; #8111 adds the sixth), each printing a count and no corpus, program or member name:
+Seven checks (#8112 adds the listing and duplicate counts to the first; #8111 adds the sixth; #8412 the seventh), each printing a count and no corpus, program or member name:
   1. programs vs copy members in the census (`cics_census.copy_member_reason`): no program at all is a finding;
      listing-shaped files and duplicate PROGRAM-IDs (`cics_census.not_program_rows`) are counted apart, each a finding;
   2. copybook names COPY'd by census programs whose 3-letter prefix is in neither the estate's own members nor the
@@ -13,6 +13,9 @@ Six checks (#8112 adds the listing and duplicate counts to the first; #8111 adds
   5. the T0 SHA is recorded (`--t0`, else `census-t0.json` in the scratch root) and resolves in git;
   6. copybook resolution (#8111, `copy_resolution_census`): COPY / INCLUDE members the engine misses or mispicks although
      the census repos hold them, counted by class; any is a finding. One engine scan per census repo.
+  7. archive files (#8412, `gap_prevalence.archive_files`): zip / tar / XMIT / TERSE / unload files hide members from the
+     engine and from the file search alike; counted by name only, never opened. Any is a finding, and a clone with one
+     never earns the clone-defect label (`gap_prevalence.ARCHIVED`).
 """
 
 from __future__ import annotations
@@ -172,6 +175,10 @@ def run_preflight(
         note(f"unknown copybook prefixes {unk}", unk > 0)
         bad, line = copy_census(census, copy_engine or crc.engine_side)
         note(f"copy resolution: {line}", bad > 0)  # #8111
+        import gap_prevalence as gp
+
+        archives = sum(gp.archive_files(corpus) for _n, corpus in cc.corpus_dirs([census]))
+        note(f"archive files {archives} (members inside are invisible)", archives > 0)  # #8412
         problems = cc.census_root_problems(census)
         note(f"census dir: {len(problems)} problems" + (f" ({'; '.join(p.split(':')[0] for p in problems)})" if problems else ""),
              bool(problems))  # fmt: skip

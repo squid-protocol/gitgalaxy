@@ -8,10 +8,12 @@
 # ASSUMED (named in scenarios.json): A1 a step that never started is a bypassed step for a later COND test (false);
 # A2 `stepname.RUN = FALSE` on a step that did not start is true; A3 after an ordinary abend an IF that does not name
 # ABEND / ABENDCC starts nothing; A4 EVEN / ONLY follow IBM's prose.
-# Refused by name (JclFlowRefused): AND and OR mixed without parentheses, more than 8 COND tests, a COND test on a
-# PROC step (`a.b`), a bare `ABEND` / `RUN` keyword, `RC` before any step executed, an ABENDCC ordering comparison.
+# Refused by name (JclFlowRefused): AND and OR mixed without parentheses, more than 8 COND tests, a bare `RUN` with no
+# stepname, `RC` before any step executed, an ABENDCC ordering comparison.
 # Not modelled: JOB-statement COND, COND inside THEN / ELSE, the job's final completion code, RESTART, cancel / time
 # expiry (IBM: the remaining steps do not run whatever the tests say).
+# A procedure's step is a step named `CALLSTEP.PROCSTEP` (`jcl_proc.expand_flow_rows` splices them in, #8413): the
+# IF `CALLSTEP.PROCSTEP.RC` and the COND `(4,LT,CALLSTEP.PROCSTEP)` read it like any step name.
 from __future__ import annotations
 
 import re
@@ -117,8 +119,6 @@ def parse_cond(cond: str | None) -> tuple[list[tuple[int, str, str | None]], boo
             f = [x.strip() for x in item[1:-1].split(",")]
             if len(f) not in (2, 3) or not f[0].isdigit() or f[1].upper() not in _COND_OPS:
                 raise JclFlowRefused(f"COND test not understood: {item}")
-            if len(f) == 3 and "." in f[2]:
-                raise JclFlowRefused(f"COND test on a PROC step: {item}")
             tests.append((int(f[0]), _COND_OPS[f[1].upper()], f[2] if len(f) == 3 else None))
         else:
             raise JclFlowRefused(f"COND parameter not understood: {cond}")
@@ -133,6 +133,7 @@ class _Run:
     def __init__(self) -> None:
         self.order: list[str] = []
         self.out: dict[str, StepResult] = {}
+        self.if_done: dict[int, bool] = {}  # IF construct (its line) -> its result, fixed when first evaluated
 
     def abended(self) -> bool:
         return any(s.abend for s in self.out.values())
@@ -201,6 +202,11 @@ def _norm_op(tok: str) -> str:
     return _IF_OPS.get(tok.upper(), "")
 
 
+def _keyword_stands_alone(nxt: str | None) -> bool:
+    """True when the token after an ABEND / RUN keyword ends the relation (IBM's bare form, `IF ABEND THEN`)."""
+    return nxt is None or nxt in (")", "&", "|") or nxt.upper() in ("AND", "OR")
+
+
 def evaluate_if(expr: str, run: _Run) -> bool:
     """Evaluate an IF expression (the reader's `if_cond`: nested clauses are joined by ` AND `)."""
     toks = _tokens(expr.replace(" AND ", " & "))
@@ -225,6 +231,8 @@ def evaluate_if(expr: str, run: _Run) -> bool:
             if take() != ")":
                 raise JclFlowRefused(f"IF parenthesis not closed: {expr}")
             return v
+        if t.rpartition(".")[2].upper() in ("ABEND", "RUN") and _keyword_stands_alone(peek()):
+            return _relation(run, t, "==", "TRUE")  # IBM: IF ABEND THEN, IF stepname.RUN THEN mean "= TRUE"
         op = _norm_op(take())
         if not op:
             raise JclFlowRefused(f"IF operator not understood in: {expr}")
@@ -288,14 +296,24 @@ class JclFlow:
     @staticmethod
     def _starts(row: dict[str, Any], state: _Run) -> bool:
         abended = state.abended()
-        if row.get("if_cond"):
+        if row.get("if_chain"):
+            # IBM Example 9: an IF construct's result is fixed when it is evaluated and not re-evaluated for its later steps
+            for line, expr, in_else in row["if_chain"]:
+                if line not in state.if_done:
+                    if abended and not _names_abend(row["if_cond"]):
+                        return False  # A3: the row's whole nest is read, as for a flat if_cond
+                    state.if_done[line] = evaluate_if(expr, state)
+                if state.if_done[line] == in_else:
+                    return False
+        elif row.get("if_cond"):
             expr = row["if_cond"]
             if abended and not _names_abend(expr):
                 return False  # A3
             if not evaluate_if(expr, state):
                 return False
         tests, even, only = parse_cond(row.get("cond"))
-        if abended and not (even or only) and not (row.get("if_cond") and _names_abend(row["if_cond"])):
+        in_if = bool(row.get("if_cond")) and (bool(row.get("if_chain")) or _names_abend(row["if_cond"]))
+        if abended and not (even or only) and not in_if:
             return False  # after an abend: bypass unless EVEN / ONLY or an IF naming ABEND
         if only and not abended:
             return False

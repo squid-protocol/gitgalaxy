@@ -652,7 +652,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(Complex|RealFloat|Floating|Numeric\.LinearAlgebra|Matrix|Vector|ad|grad|jacobian|sin|cos|tan|exp|log|pi)\b"
         ),
-        # heat_triggers: Metaprogramming & Reflection. QuasiQuotes and Template Haskell.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto). QuasiQuotes and Template Haskell.
         "reflection_metaprogramming": re.compile(
             r"\b(TemplateHaskell|QuasiQuotes|TypeFamilies|GHC\.Generics|Generic)\b|\[[a-z_]+\||\$\(["
             + ID_CONTINUE

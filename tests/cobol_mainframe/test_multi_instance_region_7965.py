@@ -68,3 +68,93 @@ def test_the_statement_needs_a_reason_and_no_other_key():
         case = {**_case(), "region_instances": spec}
         with pytest.raises(EC.Unsupported):
             EC.region_instances(case, FILES)
+
+
+# ---- #7965 slice 2: per-instance seed and dump ----------------------------------------------------------------------
+def _stated(tmp_path, own, other, other_name="ZC02FILE"):
+    (tmp_path / "own.dat").write_bytes(own)
+    (tmp_path / "other.dat").write_bytes(other)
+    return {
+        "install_symbols": SYMBOLS,
+        "datasets": {"zcfile": {"input": str(tmp_path / "own.dat"), "entity": "ZcFile"}},
+        "region_instances": {
+            "values": [other_name],
+            "why": "the region also installs instance 02",
+            "datasets": {other_name: {"input": str(tmp_path / "other.dat")}},
+        },
+    }
+
+
+FILES1 = FILES[:1]
+
+
+def _rec(key):
+    return key.ljust(80).encode("ascii")
+
+
+def test_instance_records_are_the_stated_bytes_and_unstated_ones_are_empty(tmp_path):
+    case = _stated(tmp_path, _rec("AAAAAAAA"), _rec("BBBBBBBB"))
+    assert EC.instance_records(case, tmp_path, FILES1) == {"ZC02FILE": _rec("BBBBBBBB")}
+    assert list(EC.instance_data(case, FILES1)) == ["zcfile"]
+    plain = {"install_symbols": SYMBOLS, "region_instances": {"values": ["ZC02FILE"], "why": "x"}}
+    assert EC.instance_data(plain, FILES1) == {}  # nothing stated: the store is seeded and dumped as before
+    assert EC.instance_records(plain, tmp_path, FILES1) == {}
+
+
+def test_two_instances_holding_one_key_are_refused_until_the_key_has_the_instance(tmp_path):
+    case = _stated(tmp_path, _rec("AAAAAAAA"), _rec("AAAAAAAA"))
+    with pytest.raises(EC.Unsupported, match="both hold key"):
+        EC.instance_records(case, tmp_path, FILES1)
+
+
+@pytest.mark.parametrize(
+    "ds",
+    [
+        {"ZC09FILE": {"input": "x"}},
+        {"ZC02FILE": {"input": "@generate"}},
+        {"ZC02FILE": {"inp": "x"}},
+        {"ZC02FILE": "x"},
+        ["x"],
+    ],
+)
+def test_a_bad_instance_dataset_is_refused(ds):
+    spec = {"values": ["ZC02FILE"], "why": "x", "datasets": ds}
+    with pytest.raises(EC.Unsupported):
+        EC.region_instances({"install_symbols": SYMBOLS, "region_instances": spec}, FILES)
+
+
+def test_compare_files_judges_each_extra_instance(tmp_path):
+    case = _stated(tmp_path, _rec("AAAAAAAA"), _rec("BBBBBBBB"))
+    out = tmp_path / "out"
+    out.mkdir()
+    same = {"zcfile": _rec("AAAAAAAA"), "zcfile.ZC02FILE": _rec("BBBBBBBB")}
+    (out / "s.zcfile.out").write_bytes(_rec("AAAAAAAA"))
+    (out / "s.zcfile.ZC02FILE.out").write_bytes(_rec("BBBBBBBB"))
+    assert EC.compare_files(case, tmp_path, FILES1, same, out, "s") == {}
+    (out / "s.zcfile.ZC02FILE.out").write_bytes(b"")  # the port lost the other instance's row
+    assert list(EC.compare_files(case, tmp_path, FILES1, same, out, "s")) == ["zcfile.ZC02FILE"]
+
+
+def test_the_java_test_tags_and_filters_rows_by_instance_only_when_instances_state_data(tmp_path):
+    import equivalence_java as ej
+
+    (tmp_path / "service").mkdir()
+    (tmp_path / "service" / f"{ej._service_class('PROG')}.java").write_text("public void handleLink() {}")
+    case = {
+        **_stated(tmp_path, _rec("AAAAAAAA"), _rec("BBBBBBBB")),
+        "program": "PROG",
+        "commarea": None,
+        "scenarios": [],
+        "transid": "ABCD",
+        "name": "n",
+        "screens": {},
+        "clock": "2026/10/01 10:30:15.00",
+    }
+    java = EC.cics_equivalence_test(case, tmp_path, FILES1)
+    assert 'load(sc, "zcfile.ZC02FILE", 80,' in java and 'row.setVsamInstance("ZC02FILE")' in java
+    assert 'row.setVsamInstance("ZC01FILE")' in java
+    assert 'zcfile.ZC02FILE.out"' in java
+    assert '"ZC01FILE".equals(row.getVsamInstance())' in java
+    plain = {**case, "region_instances": {"values": ["ZC02FILE"], "why": "x"}}
+    java2 = EC.cics_equivalence_test(plain, tmp_path, FILES1)
+    assert "setVsamInstance" not in java2 and "getVsamInstance" not in java2

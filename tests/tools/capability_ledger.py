@@ -174,6 +174,7 @@ def proved_organizations() -> dict[str, int]:
 
 
 JCL_CASES = REPO / "tests" / "equivalence" / "jcl"
+IBM_WRITTEN_JCL_LEVELS = ("fixture", "ifelse")  # #4891 COND / IF; #8413 slice 1 IF / THEN / ELSE
 JCL_MEASURED = JCL_CASES / "carddemo" / "measured.json"  # the last CardDemo run, for runs without the corpus
 
 
@@ -218,9 +219,12 @@ def jcl_step_flow() -> dict[str, Any]:
     from gitgalaxy.core import job_flow
     from gitgalaxy.core.jcl_flow import JclFlow
 
-    fx = json.loads((JCL_CASES / "fixture" / "scenarios.json").read_text(encoding="utf-8"))
-    flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / "fixture" / "FLOW.jcl").read_text(encoding="latin-1")))
-    fx_ok = sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
+    fx_ok = fx_n = 0
+    for level in IBM_WRITTEN_JCL_LEVELS:  # each directory: FLOW.jcl + scenarios.json, answers written from the manual
+        fx = json.loads((JCL_CASES / level / "scenarios.json").read_text(encoding="utf-8"))
+        flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / level / "FLOW.jcl").read_text(encoding="latin-1")))
+        fx_ok += sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
+        fx_n += len(fx["scenarios"])
     cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
     n_cd = sum(len(j["scenarios"]) for j in cd["jobs"])
     corpus = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / cd["corpus"]
@@ -231,7 +235,7 @@ def jcl_step_flow() -> dict[str, Any]:
         rec = json.loads(JCL_MEASURED.read_text(encoding="utf-8"))
         if rec.get("answers_sha256") == _sha(JCL_CASES / "carddemo" / "scenarios.json") and rec.get("of") == n_cd:
             cd_ok = rec["matched"]
-    return {"fixture": (fx_ok, len(fx["scenarios"])), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"])}
+    return {"fixture": (fx_ok, fx_n), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"])}
 
 
 def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:

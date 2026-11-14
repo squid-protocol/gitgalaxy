@@ -1,60 +1,67 @@
 ---
 description: "> **File Reference:** [gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/t..."
 ---
-# Supply Chain Firewall (Zero-Trust Dependency Gate)
+# Supply Chain Firewall (Import and Secrets-Risk Gate)
 
 > **File Reference:** [gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py)
 
+> **Known bug (#8428):** the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, currently never block on real scan output. The CLI hands the gate file entries from the audit JSON, which has neither `raw_imports` nor `risk_vector`, so every check is skipped and the run exits 0. The engine-internal call in `galaxyscope.py` (`run_firewall_audit(repository_graph, ...)`) receives the in-memory graph and works; its result is recorded in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Other enforcement gaps: #8432.
+
 ## Engineering Summary
-Modern applications heavily rely on third-party dependencies, which can introduce severe supply chain risks such as malicious updates, namespace hijacking, or embedded malware. Relying solely on asynchronous vulnerability scans allows bad code to enter the environment during the build phase. To proactively block threats, an in-memory logic gate evaluates package imports, resolves aliases, and enforces risk thresholds before third-party code reaches production build environments. This subsystem is the GitGalaxy Supply Chain Firewall.
+The Supply Chain Firewall is a gate over the scanned repository's own files. It compares each file's imports with configured block and allow lists, and checks one behavioural risk score the engine has already computed. It does not read installed dependency code: `node_modules`, `venv`, `.venv`, `vendor` and `third_party` are excluded by the default scan config (`gitgalaxy/standards/gitgalaxy_config.py`).
 
 ## Purpose
-To provide zero-trust dependency verification and behavioral policy enforcement during CI/CD execution, acting as an active gate to block malicious or unauthorized dependencies from executing.
-
-## Problem Being Solved
-Vulnerability scanners often rely on post-build static analysis or asynchronous cloud alerts. By the time a malicious package is flagged, it may have already compromised the build environment via build scripts or hidden logic. The firewall evaluates dependencies deterministically at runtime.
+Fail a build when the repository imports a blocked package (audit mode) or an unapproved one (strict mode), or when a file's secrets-risk score crosses the threshold.
 
 ## Design
-### In-Memory Graph Processing
-The firewall operates directly on the pre-tokenized artifact graph (`parsed_files`), eliminating redundant file reads from disk. It evaluates raw package import declarations against configured allowlists, denylists, and policy flags from `.galaxyscope.yaml`.
+### Input
+The firewall reads the engine's in-memory file graph (`parsed_files`): per file, `raw_imports`, `risk_vector` and, when centrality weighting is on, `telemetry.network_metrics`. Lists and flags come from the resolved config (`.galaxyscope.yaml` over `gitgalaxy_config.py`).
 
 ### Import Verification & Alias Resolution
-The firewall normalizes packages (e.g., stripping relative imports, collapsing deep module paths to root package names). It actively dereferences manifest aliases to verify true package origins, preventing **Dependency Confusion** attacks. 
+Imports are normalized to a root package name (relative imports dropped, deep module paths collapsed). Then:
 
-### Behavioral Policy Enforcement
-Rather than recomputing static analysis, the firewall reads risk vectors computed during metrics evaluation (`SignalProcessor.RISK_SCHEMA`). Risk categories (Hidden Malware, Data Injection, Secrets Leak) are evaluated against a sigmoid block threshold (`_FIREWALL_BLOCK_THRESHOLD = 50.0`). 
+* **Audit mode (default):** a package in `BLACKLISTED_IMPORTS` is blocked; everything else passes. `BLACKLISTED_IMPORTS` ships empty, so audit mode blocks nothing until you add entries.
+* **Strict mode (`STRICT_IMPORT_MODE = True`):** anything not in `APPROVED_IMPORTS` is also blocked.
 
-### Contextual Risk Multipliers
-1. **Build-Time Execution Multiplier ($10.0\times$):** Risk scores for build scripts (Python install scripts, `postinstall.js`) are heavily multiplied because they execute automatically and can compromise host systems immediately.
-2. **Network Centrality Multiplier:** High downstream blast radius files receive dynamic risk score multipliers.
+When the engine supplies a manifest alias map, an aliased package is resolved to its true name before the blacklist check, so an alias cannot hide a blacklisted package (`test_alias_spoofing_detection`). The standalone CLI passes an empty alias map. The manifest auditor's other flags (namespace hijacking, direct-URI resolution, insecure registries) are written but not read by the firewall (#8432).
+
+### Behavioural Gate
+The firewall reads one risk vector from `SignalProcessor.RISK_SCHEMA`: `secrets_risk`, labelled "Secrets Leak Risk" (`_FIREWALL_RISK_MAP` in `supply_chain_firewall.py`). A file is flagged when the score, after multipliers, reaches 50 (`_FIREWALL_BLOCK_THRESHOLD`). No other risk category is gated. This vector (now `credential_material`) is REWORK-flagged as a formula artifact (#2979); see [`docs/vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md).
+
+### Multipliers
+1. **Build-time multiplier (10x):** the secrets-risk score is multiplied by 10 for files named setup.py, `build.rs`, `preinstall.js` or `postinstall.js` (`test_build_time_execution_multiplier`). `package.json` is also in the code's list, but `.json` files are skipped before this point, so it never gets the multiplier, and npm `scripts` hooks are not parsed.
+2. **Network-centrality multiplier (opt-in):** off unless `FIREWALL_NETWORK_WEIGHTING = True`. When on, files with a normalized blast radius above 1.0 or betweenness above 0.05 get a higher multiplier (`test_network_weighting_*`).
+
+### Skipped files
+* Extensions treated as inert: `.svg`, `.xml`, `.jelly`, `.html`, `.css`, `.md`, `.json`, `.yaml`, `.yml`, `.txt`, `.properties`, and `.d.ts`.
+* Any path containing `/test/` or `/tests/`, or a file name containing `test_` or `_test`. This is a substring match, so for example latest_config.py is skipped too (#8432).
+* Paths in `ALLOWLIST_PATHS` are evaluated, but a flagged file there is counted as an allowlist bypass rather than a threat.
 
 ## Pipeline Integration
-Inputs received include tokenized artifact graph data (`parsed_files`), alias maps, and configuration rules. Outputs produced are risk alerts, policy violation metrics, and a build pass/fail signal. Downstream CI/CD stages depend on this gate successfully passing.
-
 ```mermaid
 graph LR
-    A[Tokenized Artifact Graph] --> B[Import Normalizer & Alias Resolver]
-    C[.galaxyscope.yaml Config] --> B
-    B --> D[Policy & Risk Evaluator]
-    D --> E{Block Threshold Reached?}
-    E -- Yes --> F[Fail CI/CD Pipeline]
-    E -- No --> G[Proceed to Build]
+    A[In-memory file graph] --> B[Import normalizer and alias resolver]
+    C[Resolved config] --> B
+    B --> D[Blacklist / strict-mode check]
+    A --> E[secrets_risk x multipliers >= 50?]
+    D --> F[Firewall result]
+    E --> F
 ```
 
+In a `galaxyscope` scan the result is attached to the scan summary. The standalone CLI exits 1 when it counts threats, which with #8428 open does not happen on real input.
+
+## Evidence
+The import checks, alias resolution and multipliers are tested with hand-built file entries (`tests/security_auditing/test_supply_chain_firewall.py`). No test runs the CLI end to end on a real scan, which is how #8428 went unnoticed. There is no measured detection rate on real compromised packages.
+
 ## Tradeoffs
-* **Strict Policy vs. Developer Velocity:** Enforcing `STRICT_IMPORT_MODE` (where only pre-approved imports are allowed) provides the highest security but increases friction for developers adding new legitimate dependencies.
-* **Behavioral Multipliers vs. False Positives:** The aggressive $10.0\times$ multiplier on build scripts may block legitimate complex installations, requiring explicit exceptions in `ALLOWLIST_PATHS`.
+* **Strict mode vs. developer velocity:** strict mode fails on every new dependency until it is approved.
+* **Build-time multiplier vs. false positives:** a build script with a modest secrets-risk score can be blocked; exempt it with `ALLOWLIST_PATHS`.
 
 ## Limitations
-* The firewall only analyzes static imports. Dynamic runtime imports (e.g., heavily obfuscated string evaluations of dependency paths) may bypass initial analysis.
-* Dependent on the accuracy of the upstream tokenized artifact graph.
-
-## Performance Notes
-Because the firewall consumes pre-tokenized in-memory graph data and applies vectorized block thresholds, it performs zero disk I/O and executes sub-second policy enforcement across massive dependency trees.
-
-## Future Work
-* **Current Behavior:** Exits with status code `1` upon detecting threats, failing the pipeline securely.
-* **Planned Improvements:** Provide interactive dry-run modes that log warnings without halting builds during initial deployment phases.
+* Only static imports are read. Dynamic imports (strings built at runtime) are not.
+* Only `secrets_risk` is gated. Network calls, process execution, typosquatting and install hooks are not.
+* Installed dependencies are excluded by the default config.
+* Accuracy depends on the engine's import extraction for each language.
 
 ## Related Components
 * [GitGalaxy Platform](https://gitgalaxy.io/)

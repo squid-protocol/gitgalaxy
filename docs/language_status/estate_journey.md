@@ -161,6 +161,10 @@ Drawn at T0 from the 17 pre-registered candidates (drand round 6531446), after t
 
 ![Blind estate 1 of 17: ibm/example-health-apis (#8073)](estate_journey/blind-trial-1.svg)
 
+Amendment 3 (owner, 2026-11-08) took this estate to L2: cases were written after first contact, so its L2 climb is recorded apart from the L1 series and never drawn on the same axis. prs counts the trial's merged PRs since first contact: a title citing one of trial_issues, naming the estate, or one of the engine fixes the proof run booked as causes (#8225, #8246, #8269). That includes the lessons work (#8111-#8113), so the count is conservative.
+
+![Blind estate 1 of 17: ibm/example-health-apis (#8073): L2](estate_journey/blind-trial-1-l2.svg)
+
 **What we learned**
 
 - Plumbing, not semantics, decided first contact: 28 of 29 failures at T0 were the engine finding (or not finding) copybooks; once they resolved, 25 of 29 translated whole. (#8074, #8079, #8087)

@@ -5,7 +5,7 @@
 //* stepname.procstepname tests inside IF. The resolved step lists
 //* and the run / bypass answers are in scenarios.json, written from
 //* IBM's z/OS MVS JCL Reference (SA23-1385) before any evaluator ran
-//* on them. Library members: libs/<library>/<member>.jcl.
+//* on them. Library members: "libraries" in scenarios.json.
 //*********************************************************************
 //SYMJOB   JOB (ACCT),'SYMBOLICS',CLASS=A,MSGCLASS=X
 //CATP     PROC HLQ=PROD,SUF=DATA,PRM=ONE

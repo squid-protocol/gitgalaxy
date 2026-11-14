@@ -1,2 +1,0 @@
-//PRC2     PROC
-//L2       EXEC PGM=ONLYB

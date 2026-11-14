@@ -1,2 +1,0 @@
-//PRC1     PROC
-//L1       EXEC PGM=FROMA

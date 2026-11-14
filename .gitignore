@@ -294,4 +294,3 @@ tests/equivalence/linuxx64_odbc_cli.tar.gz
 !tests/equivalence/jcl/fixture/*.json
 !tests/equivalence/jcl/carddemo/*.json
 !tests/equivalence/jcl/ifelse/*.json
-!tests/equivalence/jcl/proc/*.json

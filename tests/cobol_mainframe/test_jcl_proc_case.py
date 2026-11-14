@@ -1,7 +1,7 @@
 """#8413 slice 2: IBM-written answers for PROC resolution and stepname.procstepname tests inside IF.
 
 `tests/equivalence/jcl/proc/` holds FLOW.jcl (five jobs: symbolics and SET, EXEC / DD overrides and an added DD,
-JCLLIB ORDER and INCLUDE twice, an IF over a procedure's steps), the library members under libs/ and scenarios.json.
+JCLLIB ORDER and INCLUDE twice, an IF over a procedure's steps), and scenarios.json (which also holds the library members).
 The answers were written from IBM's z/OS MVS JCL Reference (SA23-1385) BEFORE `gitgalaxy.core.jcl_proc` and
 `jcl_flow` ran on them; ASSUMED entries are named in the file. The last tests reproduce every `expect`.
 """
@@ -21,16 +21,14 @@ ROOT = Path(__file__).resolve().parents[2]
 CASE = ROOT / "tests" / "equivalence" / "jcl" / "proc"
 DOC = json.loads((CASE / "scenarios.json").read_text(encoding="utf-8"))
 TEXT = (CASE / "FLOW.jcl").read_text(encoding="latin-1")
-LIBS = {
-    d.name: {f.stem: f.read_text(encoding="latin-1") for f in sorted(d.glob("*.jcl"))}
-    for d in sorted((CASE / "libs").iterdir())
-}
+LIBS = {lib: {m: "\n".join(lines) + "\n" for m, lines in members.items()} for lib, members in DOC["libraries"].items()}
 
 
 def test_every_jcl_line_fits_columns_1_to_72():
-    for path in [CASE / "FLOW.jcl", *sorted((CASE / "libs").glob("*/*.jcl"))]:
-        for n, ln in enumerate(path.read_text(encoding="latin-1").splitlines(), 1):
-            assert len(ln) <= 72, (path.name, n, ln)
+    texts = {"FLOW.jcl": TEXT} | {f"{lib}({m})": t for lib, ms in LIBS.items() for m, t in ms.items()}
+    for name, text in texts.items():
+        for n, ln in enumerate(text.splitlines(), 1):
+            assert len(ln) <= 72, (name, n, ln)
 
 
 def test_the_libraries_hold_the_members_the_scenarios_search_for():

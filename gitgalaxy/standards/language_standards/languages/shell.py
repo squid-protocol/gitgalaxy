@@ -351,7 +351,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\{[0-9]+(?:\.\.|,)[0-9]+(?:\.\.[0-9]+)?\}|\{[a-zA-Z]\.\.[a-zA-Z]\}"),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(bc|awk|dc|expr|jq|RANDOM|SRANDOM)\b|\$\(\("),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Sub-languages and indirect expansion -- the code whose behaviour is
         # decided at runtime by a name, not written in the file. (ReDoS Shielded)
         # VOCABULARY LEAK FIX (#2722): two alternatives counted ordinary shell

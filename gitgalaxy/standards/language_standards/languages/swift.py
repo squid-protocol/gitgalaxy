@@ -326,7 +326,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(simd|Accelerate|Double|Float|Float16|CGFloat|Decimal|CoreML|CreateML|vDSP|sqrt|pow|sin|cos|tan)\b"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Reflection and Dynamic Dispatch.
         # BUG FIX: `@objc` is `@`-prefixed -- same leading-\b bug.
         "reflection_metaprogramming": re.compile(

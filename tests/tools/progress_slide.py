@@ -101,6 +101,7 @@ FAMILY_NAMES = {
 # Mainframe milestones shown, in story order, by plain name (the milestone titles are the project's own)
 MILESTONES = [10, 13, 15, 20, 24, 18, 27, 28, 19, 29, 30]
 NOT_MEASURED = "not measured"
+WIDE_UNTIL = 5  # owner, 2026-11-13: a drawn blind panel is two cells wide until this many draws are made
 MS_SHORT = {
     10: "Read mainframe code",
     13: "Score the evidence",
@@ -199,6 +200,134 @@ def state_icon(s: Svg, cx: float, cy: float, state: str) -> None:
         s.add(f'<circle cx="{cx}" cy="{cy}" r="6" class="st-none"/>')
 
 
+def _nice_prs(n: int) -> int:
+    """A round x-axis end for the trial-PR scale shared by every draw panel."""
+    for step in (10, 20, 25, 50, 100, 200, 250, 500):
+        if n <= step * 5:
+            return max(step, -(-n // step) * step)
+    return n
+
+
+def fresh_section(s: Svg, y: float, fr: dict[str, Any]) -> float:
+    """Code we had never seen: the blind draws, first contact then the climb. Each draw is one panel on a shared scale
+    (x: trial PRs since first contact; y: share of its programs), one measure per panel (L2 where cases were allowed,
+    else L1), never both on one axis, labelled with the PRs and days it took. The draws not yet made are empty slots,
+    so the pre-registered count shows and none can be left out; while fewer than WIDE_UNTIL are made, a drawn panel is
+    two cells wide. The census rehearsal is a row of the ladder below (census_row), not part of this section."""
+    blind, planned = fr.get("blind") or [], fr.get("planned") or 0
+    s.text(PAD, y, f"Blind trials: {len(blind)} of {planned} drawn", cls="t1", size=21, weight=700)
+    s.text(PAD, y + 24, "Measured from the first run on the estate, before any fix, then after each merged PR. Never in "
+           "the totals below. Public code may be in a model's training data; the translator uses no model.",
+           cls="t3", size=13.5)  # fmt: skip
+    y += 46
+
+    # two cards, every blind draw summed (so they scale to all draws)
+    def l1_sum(key: str) -> tuple[int, int]:
+        rows = [r["l1"] for r in blind if r.get("l1")]
+        if key == "first":
+            return sum(c["first"] for c in rows), sum(c["first_total"] for c in rows)
+        return sum(c["now"] for c in rows), sum(c["total"] for c in rows)
+
+    cards = []
+    if blind:
+        f0, ft = l1_sum("first"), l1_sum("now")
+        fast = [r["l1_milestone"] for r in blind if r.get("l1_milestone")]
+        cards.append((
+            f"Blind draws at first contact ({len(blind)} so far)",
+            f"{f0[0]}/{f0[1]} → {ft[0]}/{ft[1]}", "", "translate whole (L1)",
+            "; ".join(f"{m['value']} / {m['total']} after {m['prs']} trial PRs ({m['days']} days)" for m in fast[:2]),
+            "first contact: the engine as it was, before any fix",
+        ))  # fmt: skip
+        tries = [r["first_try"] for r in blind if r.get("first_try")]
+        if tries:
+            p1, j, fin = (sum(t[k] for t in tries) for k in ("proven_first", "judged", "proven_final"))
+            elig = sum(t["eligible"] for t in tries)
+            cards.append((
+                "First try: one attempt, frozen engine",
+                f"{p1} / {j}", pct(p1, j), "same output on the first try",
+                f"{fin} / {elig} same output after engine fixes (never first-try)",
+                "deterministic port vs GnuCOBOL, every scenario",
+            ))  # fmt: skip
+    gap, ch = 16, 150
+    cw = (W - 2 * PAD - gap * (len(cards) - 1)) / max(len(cards), 1)
+    for i, (head, big, p, lab, sub, sub2) in enumerate(cards):
+        x = PAD + i * (cw + gap)
+        s.rect(x, y, cw, ch, "card", rx=10)
+        s.text(x + 18, y + 26, head, cls="t3", size=13, weight=600)
+        s.text(x + 18, y + 62, big, cls="t1", size=28, weight=700)
+        if p:
+            s.text(x + cw - 16, y + 62, p, cls="hi", size=20, weight=700, anchor="end")
+        s.text(x + 18, y + 88, lab, cls="t1", size=15, weight=600)
+        s.text(x + 18, y + 110, sub, cls="t2", size=12.5)
+        s.text(x + 18, y + 130, sub2, cls="t3", size=12.5)
+    y += ch + 24
+
+    # the key, one line above the panels
+    xmax = _nice_prs(max([pt[0] for r in blind for c in (r.get("l2"), r.get("l1")) if c for pt in c["points"]] + [10]))
+    s.text(PAD, y + 4, f"Each panel: across, trial PRs since first contact (0 to {xmax}, the same for every draw); up, "
+           "the share of its programs.", cls="t2", size=13, weight=600)  # fmt: skip
+    lx = W - PAD - 300
+    s.add(f'<line x1="{lx}" x2="{lx + 22}" y1="{y}" y2="{y}" class="ln2"/>')
+    s.text(lx + 28, y + 4, "L2 same output", cls="t3", size=12.5)
+    s.add(f'<line x1="{lx + 140}" x2="{lx + 162}" y1="{y}" y2="{y}" class="ln1"/>')
+    s.text(lx + 168, y + 4, "L1 translates whole", cls="t3", size=12.5)
+    y += 18
+
+    # the panels: 6 cells a row, every planned draw a slot; a drawn panel spans two cells while few are drawn
+    cols, pg, ph = 6, 12, 150
+    cell = (W - 2 * PAD - pg * (cols - 1)) / cols
+    by_draw = {r["draw"]: r for r in blind if r.get("draw")}
+    span = 2 if len(blind) < WIDE_UNTIL else 1
+    col = row = 0
+    for k in range(1, max(planned, len(blind)) + 1):
+        r = by_draw.get(k)
+        w_cells = span if r else 1
+        if col + w_cells > cols:
+            col, row = 0, row + 1
+        x = PAD + col * (cell + pg)
+        yy = y + row * (ph + pg)
+        pw = w_cells * cell + (w_cells - 1) * pg
+        col += w_cells
+        if not r:
+            s.add(f'<rect x="{x:.1f}" y="{yy:.1f}" width="{pw:.1f}" height="{ph}" rx="8" class="slot"/>')
+            s.text(x + 12, yy + 22, f"Blind {k}", cls="t3", size=13, weight=700)
+            s.text(x + pw / 2, yy + ph / 2 + 10, "not yet drawn", cls="t3", size=12, anchor="middle")
+            continue
+        c, lv = (r["l2"], "L2") if r.get("l2") else (r["l1"], "L1")
+        s.rect(x, yy, pw, ph, "card", rx=8, title=f"Blind {k}: {r['name']}")
+        s.text(x + 12, yy + 20, f"Blind {k}", cls="t1", size=13, weight=700)
+        s.text(x + pw - 12, yy + 20, f"{r['basis']} programs", cls="t3", size=11.5, anchor="end")
+        s.text(x + 12, yy + 36, r.get("estate") or "", cls="t3", size=11.5)
+        x0, x1, top, bot = x + 14, x + pw - 14, yy + 50, yy + 96
+        s.add(f'<line x1="{x0}" x2="{x1:.1f}" y1="{bot}" y2="{bot}" class="rule"/>')
+        s.add(f'<line x1="{x0}" x2="{x1:.1f}" y1="{top}" y2="{top}" class="rule-soft"/>')
+        pts = []
+        for i, (px, pv) in enumerate(c["points"]):
+            cx = x0 + (x1 - x0) * px / xmax
+            cy = bot - (bot - top) * pv / c["total"]
+            if i:
+                pts.append(f"{cx:.1f},{pts[-1].split(',')[1]}")  # a step: the value holds until the PR that moves it
+            pts.append(f"{cx:.1f},{cy:.1f}")
+        tip = esc(f"Blind {k}: {lv} from {c['first']} to {c['now']} of {c['total']}")
+        line_cls = "ln2" if lv == "L2" else "ln1"
+        s.add(f'<polyline points="{" ".join(pts)}" class="{line_cls}"><title>{tip}</title></polyline>')
+        fx, fy = (float(v) for v in pts[0].split(","))
+        ex, ey = (float(v) for v in pts[-1].split(","))
+        s.add(f'<circle cx="{fx:.1f}" cy="{fy:.1f}" r="3.5" class="lv{LEVELS_IDX[lv]}"/>')
+        s.add(f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" class="lv{LEVELS_IDX[lv]}"/>')
+        s.text(ex - 4, ey - 7, f"{c['now']}/{c['total']}", cls="t1", size=11.5, weight=700, anchor="end")
+        # owner, 2026-11-13: two plain lines, what moved and how long it took
+        name = dict((lv_, nm_) for lv_, nm_, _ in LEVELS)[lv]
+        s.text(x + 12, yy + 118, f"{name} ({lv}): {c['first']} → {c['now']} of {c['total']}", cls="t1", size=13,
+               weight=600)  # fmt: skip
+        took = [f"{c['prs_to_now']} PRs"] + ([f"{c['days_to_now']:g} days"] if c.get("days_to_now") is not None else [])
+        s.text(x + 12, yy + 138, " · ".join(took), cls="t2", size=12.5)
+    y += (row + 1) * (ph + pg) + 6
+    s.text(PAD, y + 8, "L2 needs cases, written only after first contact (owner amendment, blind 1). First try counts "
+           "the frozen engine only: a later fix never turns a miss into a first-try pass.", cls="t3", size=13)  # fmt: skip
+    return y + 56
+
+
 def render(prog: dict[str, Any]) -> str:
     """The slide from a progress report (`progress_report.build()` / progress.json)."""
     lad, comp, eras, iss = prog["ladder"], prog["components"], prog["eras"], prog["issues"]
@@ -213,6 +342,7 @@ def render(prog: dict[str, Any]) -> str:
     l2p, l4p = tot["l2_plus"], tot["l4_plus"]
     det = comp["det_mutation"]
     caps = comp["capabilities"]
+    fresh = prog.get("fresh") or {}
 
     s = Svg()
     y = PAD
@@ -228,8 +358,7 @@ def render(prog: dict[str, Any]) -> str:
     s.text(
         PAD,
         y + 56,
-        f"{n_prog} programs from {len(estates)} real mainframe codebases we did not write, translated to Java and "
-        "checked one evidence step at a time.",
+        "Real mainframe COBOL translated to Java by fixed rules, and checked one evidence step at a time.",
         cls="t2",
         size=15,
         weight=600,
@@ -270,17 +399,6 @@ def render(prog: dict[str, Any]) -> str:
          f"of {judged:,} run; {total['L5']} programs pass L5", "Our test suite: L5 not yet started" if t_n else "",
          False),
     ]  # fmt: skip
-    for i, (big, p, lab, sub, sub2, hi) in enumerate(tiles):
-        x = PAD + i * (tw + gap)
-        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
-        s.text(x + 18, y + 44, big, cls="t1", size=30, weight=700)
-        s.text(x + tw - 16, y + 44, p, cls="hi" if hi else "t2", size=20, weight=700 if hi else 600, anchor="end")
-        s.text(x + 18, y + 74, lab, cls="t1", size=16, weight=600)
-        s.text(x + 18, y + 96, sub, cls="t3", size=13)
-        if sub2:
-            s.add(f'<line x1="{x + 18}" x2="{x + tw - 18}" y1="{y + 110}" y2="{y + 110}" class="rule-soft"/>')
-            s.text(x + 18, y + 128, sub2, cls="t2", size=13, weight=600)
-    y += th + 30
 
     # ---------------------------------------------------------------- how to read it: the six steps, defined once
     lw = (W - 2 * PAD) / len(LEVELS)
@@ -291,12 +409,27 @@ def render(prog: dict[str, Any]) -> str:
         s.text(x + 26, y + 33, desc, cls="t3", size=13)
     y += 92
 
-    # ---------------------------------------------------------------- results: levels | L5, one row per estate
+    # ---------------------------------------------------------------- blind trials (owner: first, under the level key)
+    if fresh.get("blind"):
+        y = fresh_section(s, y, fresh)
+
+    # ---------------------------------------------------------------- results: the four facts, then one row per estate
     section(
-        f"Results: {l4p} of {n_prog} real programs take every branch; {total['L5']} pass the planted-bug test",
+        f"Results: the {n_prog} training programs",
         "Each row is one codebase. Left: how far its programs have climbed (an L5 program counts at L4 here). "
         "Right: its planted-bug work (L5). Our own test estates sit below, never in a total.",
     )
+    for i, (big, p, lab, sub, sub2, hi) in enumerate(tiles):  # owner, 2026-11-13: the tiles belong to these results
+        x = PAD + i * (tw + gap)
+        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
+        s.text(x + 18, y + 44, big, cls="t1", size=30, weight=700)
+        s.text(x + tw - 16, y + 44, p, cls="hi" if hi else "t2", size=20, weight=700 if hi else 600, anchor="end")
+        s.text(x + 18, y + 74, lab, cls="t1", size=16, weight=600)
+        s.text(x + 18, y + 96, sub, cls="t3", size=13)
+        if sub2:
+            s.add(f'<line x1="{x + 18}" x2="{x + tw - 18}" y1="{y + 110}" y2="{y + 110}" class="rule-soft"/>')
+            s.text(x + 18, y + 128, sub2, cls="t2", size=13, weight=600)
+    y += th + 34
     name_w, gutter, row_h, bar_h = 210, 28, 44, 26
     bar_x = PAD + name_w
     bar_w = (W - 2 * PAD - name_w - gutter) * 0.56
@@ -385,9 +518,11 @@ def render(prog: dict[str, Any]) -> str:
 
     band(
         1,
-        f"Real codebases we did not write: {len(estates)} IBM and AWS sample applications, {n_prog} programs",
-        "We develop against these, so they are not blind tests; no blind codebase has been measured yet.",
-    )
+        f"Training codebases: {len(estates)} IBM and AWS samples",
+        "We develop against these, so they are not blind tests; "
+        + ("code we had never seen is measured apart, from first contact (above)."
+           if fresh.get("blind") else "no blind codebase has been measured yet."),
+    )  # fmt: skip
     for key, e in sorted(estates.items(), key=lambda kv: -kv[1]["programs"]):
         ladder_row(ESTATE_NAMES.get(key, key), e, m5.get(key))
     s.add(f'<line x1="{PAD + name_w}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule-soft"/>')
@@ -461,13 +596,13 @@ def render(prog: dict[str, Any]) -> str:
         lp = sum(lv["pass"] for lv in levels)
         parts = []
         if tests:
-            parts.append(f"{n_t} CICS test programs")
+            parts.append(f"{n_t} CICS test programs, one CICS behaviour each")
         if levels:
             parts.append(f"{len(levels)} Open World practice codebases (pinned {cc.get('ref')})")
         band(
             2,
-            "Our internal test suites: " + " and ".join(parts),
-            "Written by us to break the translator, never in a total. The CICS programs test one CICS behaviour each.\n"
+            "Our own test suites",
+            f"Written by us to break the translator, never in a total: {' and '.join(parts)}.\n"
             "The practice codebases come before translator support and are not translated yet by design (their first "
             f"run is measured once, rule 5); the scanner reads {lp} of their {lh} planted traps correctly.",
         )
@@ -497,7 +632,7 @@ def render(prog: dict[str, Any]) -> str:
 
     # ---------------------------------------------------------------- results by age of code
     section(
-        "Results by age of code: 1970s to today",
+        "Results by age of code",
         "Real codebases mix decades: 1980s programs LINK 1990s ones that call 2010s Db2 code. Each program is dated by "
         f"the features it uses (era_tags.py); {eras.get('none', {}).get('programs', 0)} show no dating clue.",
         gap_after=42,
@@ -531,7 +666,7 @@ def render(prog: dict[str, Any]) -> str:
     summary = ", ".join(f"{counts[st]} {capability_ledger.STATE_LABEL[st].lower()}" for st in capability_ledger.STATES
                         if counts[st])  # fmt: skip
     section(
-        f"What the translator can do: {len(rows)} mainframe areas, gaps included",
+        f"Capabilities: {len(rows)} mainframe areas",
         f"{summary[0].upper() + summary[1:]}. Counted from the code on every run; a bar appears only where IBM "
         "publishes a full list to count against.",
         gap_after=46,
@@ -552,7 +687,7 @@ def render(prog: dict[str, Any]) -> str:
             s.text(PAD + 110, y, r["name"], cls="t1", size=14, weight=600)
             s.text(PAD + 330, y, r["have"], cls="t3", size=13)
             if r["of"]:
-                bx, bw = W - PAD - 290, 110
+                bx, bw = W - PAD - 330, 110  # room for the unit after the count ("8 / 13 COND jobs checked")
                 s.rect(bx, y - 10, bw, 10, "track", rx=4)
                 s.rect(bx, y - 10, bw * r["done"] / r["of"], 10, "meter", rx=4,
                        title=f"{r['name']}: {r['done']} of {r['of']}")  # fmt: skip
@@ -561,6 +696,9 @@ def render(prog: dict[str, Any]) -> str:
                     "modelled; the rest refused by name", "modelled"), cls="t3", size=12.5, anchor="end")  # fmt: skip
             if r["note"]:
                 s.text(PAD + 330, y + 17, r["note"], cls="t3", size=12.5)
+                y += 17
+            if r.get("found"):  # what a fresh estate showed about this row: a gap it exposed, or a test it passed
+                s.text(PAD + 330, y + 17, r["found"], cls="hi", size=12.5, weight=600)
                 y += 17
             y += 27
         y += 8
@@ -580,7 +718,7 @@ def render(prog: dict[str, Any]) -> str:
     st_all = rules["status"]
     n_rules = rules["rules"]
     section(
-        f"How faithful the Java runtime is: {st_all.get('MATCHED', 0)} of {n_rules} rules match IBM's manuals",
+        f"Runtime fidelity: {st_all.get('MATCHED', 0)} of {n_rules} rules match IBM",
         "Each rule is one documented COBOL or CICS behaviour, judged against IBM's documentation. "
         f"Measured on z/OS: {rules['measured_on_zos']} of {n_rules} so far (#4702).",
         gap_after=42,
@@ -623,7 +761,7 @@ def render(prog: dict[str, Any]) -> str:
 
     # ---------------------------------------------------------------- the work behind it
     section(
-        "Work done: issues closed per project stage",
+        "Work done",
         "Issue counts measure activity, not evidence. The Gap Atlas lists mainframe features found but not yet chosen "
         "to build.",
         gap_after=46,
@@ -707,6 +845,9 @@ def render(prog: dict[str, Any]) -> str:
     {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_DARK))}
     .st-good {{ fill: #3ccf98; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
+    .slot {{ fill: none; stroke: #3a3d47; stroke-width: 1.5; stroke-dasharray: 5 5; }}
+    .ln2 {{ fill: none; stroke: {LADDER_DARK[2]}; stroke-width: 2.5; stroke-linejoin: round; }}
+    .ln1 {{ fill: none; stroke: {LADDER_DARK[1]}; stroke-width: 2.5; stroke-dasharray: 6 4; }}
   </style>"""
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H:.0f}" width="{W}" height="{H:.0f}" '

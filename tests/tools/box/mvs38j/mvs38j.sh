@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# mvs38j.sh <image|tapes|sysgen|start|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
+# Internal use only until counsel answers Q16. Never z/OS; never TK4-/TK5: the system is built from IBM's
+# distribution tapes (Jay Moseley's sysgen). Nothing here is committed or run in CI; the work dir holds the
+# system image and stays outside the repo. Heavy steps take a slot:  tests/tools/box/heavy-run.sh mvs38j.sh image
+set -euo pipefail
+HERE=$(cd "$(dirname "$0")" && pwd)
+WORK=${MVS38J_WORK:-/srv/storage_16tb/projects/gitgalaxy/mvs38j}
+IMAGE=${MVS38J_IMAGE:-gitgalaxy-mvs38j-hyperion}
+NAME=${MVS38J_NAME:-gg-mvs38j}
+BASE=https://www.jaymoseley.com/hercules/downloads/archives
+# archive, md5 as published on jaymoseley.com/hercules/installMVS/iPREREQv8.htm (checked 2026-11-13)
+TAPES=(
+  "vs2StarterTapes.tar.gz 7c12c99c387193c8650f8ef78b4771c3"
+  "vs2DistributionTapes.tar.gz ec9f1c8672bd406a4ff7bc00f139f5bc"
+  "mvsInstallationResources.tar.gz 129898e0f0881078448358553bc6b4c1"
+)
+usage() { sed -n '2,6p' "$0" >&2; exit 2; }
+[ $# -eq 1 ] || usage
+case "$1" in
+  image)
+    docker build -t "$IMAGE" "$HERE" ;;
+  tapes)
+    # each archive goes in its own empty dir under $WORK/dl; downloaded files are untrusted data (never executed here)
+    for t in "${TAPES[@]}"; do
+      read -r f md5 <<<"$t"; d="$WORK/dl/${f%.tar.gz}"
+      mkdir -p "$d"
+      [ -f "$d/$f" ] || curl -fsSL -o "$d/$f" "$BASE/$f"
+      echo "$md5  $d/$f" | md5sum -c - || { rm -f "$d/$f"; exit 1; }
+      [ -d "$d/x" ] || { mkdir "$d/x"; tar -xzf "$d/$f" -C "$d/x"; }
+    done ;;
+  sysgen)
+    # Jay Moseley's sysgen is a staged console procedure (starter system -> stage 1 -> stage 2 -> user mods).
+    # Driving it unattended is not done yet (see docs/jcl_oracle_mvs38j.md "Remaining slices").
+    echo "mvs38j.sh sysgen: not automated yet; follow docs/jcl_oracle_mvs38j.md" >&2; exit 3 ;;
+  start)
+    [ -f "$WORK/conf/mvs.conf" ] || { echo "no $WORK/conf/mvs.conf: generate the system first" >&2; exit 1; }
+    # the card reader is a socket device on the loopback only; jobs are submitted through it
+    docker run -d --rm --name "$NAME" -p 127.0.0.1:3505:3505 -p 127.0.0.1:3270:3270 -v "$WORK:/mvs" "$IMAGE" ;;
+  stop)
+    docker stop "$NAME" ;;
+  status)
+    docker ps --filter "name=$NAME" --format '{{.Names}} {{.Status}}'
+    for t in "${TAPES[@]}"; do read -r f _ <<<"$t"; [ -f "$WORK/dl/${f%.tar.gz}/$f" ] && echo "tape ok: $f" || echo "tape missing: $f"; done ;;
+  *) usage ;;
+esac

@@ -1,0 +1,2716 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cruc-gt-post-wait-event",
+ "entry": {
+  "program": "GTPOST",
+  "commit": "013bec263111627798b19cd999c48132dc2ea867",
+  "date": "2026-11-13",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 511,
+  "out_of_scope": 6,
+  "chosen": 511,
+  "coverage": "proven on 5 scenarios, covering 5/5 paragraphs and 7/9 branches",
+  "counts": {
+   "killed": 197,
+   "timeout": 0,
+   "survived": 304,
+   "stillborn": 10,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "007cf3236d",
+   "0085355365",
+   "01611be45b",
+   "0281df3bdf",
+   "02f94b9f92",
+   "039cdf5965",
+   "070f95fc25",
+   "09aa0e2a63",
+   "0d0083dc49",
+   "0ef12ed177",
+   "0fb148b152",
+   "1068818e56",
+   "107ce12298",
+   "119622a9c0",
+   "11ad07c060",
+   "1358461c57",
+   "1359ce58a5",
+   "16076f0653",
+   "161dd00530",
+   "16a8b0d229",
+   "1735d4650e",
+   "175f7df2d9",
+   "18034be2a9",
+   "19daf548a7",
+   "1b15b8362f",
+   "1b3fa5166f",
+   "1f81e179cc",
+   "2048f1c503",
+   "21b394fc65",
+   "2215457c7a",
+   "235ec01386",
+   "2406a15991",
+   "284d5838e2",
+   "28bb5aff70",
+   "2919037a44",
+   "2ac4191099",
+   "2e4f132407",
+   "2ec48d0275",
+   "2fee11c583",
+   "31f359061f",
+   "33877ea536",
+   "348e32a834",
+   "3625b4795c",
+   "367a1ba22a",
+   "37240b8f1c",
+   "37d3bba28d",
+   "38aecf9d2e",
+   "3b601c61a8",
+   "3c8da2d692",
+   "402c23708e",
+   "4194c5991f",
+   "41c513c173",
+   "46d2fdbd18",
+   "4707112210",
+   "49d2b5c598",
+   "4a175e13cc",
+   "4c4e6c6a06",
+   "4c816b8e45",
+   "4c908f9731",
+   "504af8b8e1",
+   "506993e0bf",
+   "51152239b8",
+   "53f283d1b9",
+   "53fa71642e",
+   "541622d204",
+   "5428421a3e",
+   "56a522a36e",
+   "573726d466",
+   "57599279cb",
+   "5ab5407ea0",
+   "5bbcd29803",
+   "5bcce36b68",
+   "5bebb96538",
+   "5cdb99bc26",
+   "5e873499d6",
+   "5fb4bd0042",
+   "607688fe49",
+   "60c81c9b71",
+   "61e1b8b3d5",
+   "623e004069",
+   "624b87da27",
+   "63bd696298",
+   "63e9f1e182",
+   "6478bf37ba",
+   "64db234934",
+   "6675a774e3",
+   "6837567503",
+   "6967c5c4c3",
+   "6ad65b3890",
+   "6bfbcf59b0",
+   "6c80f866e3",
+   "6d379e00d5",
+   "6ff35dcbed",
+   "700dcc1fb0",
+   "702f1a184d",
+   "712d14b666",
+   "72e10ff2e8",
+   "75dbcaa9e0",
+   "76933bdda2",
+   "77cdc2ac2a",
+   "784ce5b2da",
+   "7882212ccf",
+   "788f8a425b",
+   "78c1e6f1dc",
+   "7eb5c6cff3",
+   "80f8524cd2",
+   "8131c169d2",
+   "81d2ffd734",
+   "81f97d45b2",
+   "82fd58b256",
+   "84e012bd2c",
+   "852777a927",
+   "87072e2ce2",
+   "87b623536d",
+   "87ef7e3239",
+   "896069bf3f",
+   "8b0c7e5036",
+   "8c7cff1db4",
+   "8e1c57f981",
+   "8e78d7a0a0",
+   "8f722efb49",
+   "8fde644b2a",
+   "90a9b8b985",
+   "9769a72228",
+   "98d2be17f6",
+   "9a2aa85049",
+   "9be77f2398",
+   "9d2ee793db",
+   "9d56f19c0f",
+   "9db380ae66",
+   "a01c18b0ed",
+   "a0309a5061",
+   "a2c6400ee0",
+   "a5a1f06251",
+   "a616649cc3",
+   "a9210c497a",
+   "a9e17a869b",
+   "ac8ef5e8d2",
+   "b112dfa66b",
+   "b22c7c7c29",
+   "b30d95da27",
+   "b4195891d9",
+   "b4bbe0c239",
+   "b5f5018548",
+   "b767e69994",
+   "b90d4e9c75",
+   "b9bc135003",
+   "bb20e854dd",
+   "bc37153750",
+   "bc655b0cbe",
+   "beec0ae97e",
+   "c0d7ec3474",
+   "c56a8a0466",
+   "c577c7a35b",
+   "c5afc17367",
+   "c6fed7c5e6",
+   "c7077ebba6",
+   "c743d33000",
+   "c800f4c119",
+   "c885059926",
+   "c9ed7e2d76",
+   "ccfe7c6d2c",
+   "cdb965a183",
+   "d047b12595",
+   "d10f6cd242",
+   "d35f263f9d",
+   "d387e41d37",
+   "d3b4be0e90",
+   "d3b5c61615",
+   "d3c5e265d8",
+   "d4226fe041",
+   "d4721d1c98",
+   "d497c0e77e",
+   "d6ef119c62",
+   "d6f7a09cbb",
+   "dd92585a19",
+   "de0236e5a7",
+   "de6e924673",
+   "deb89d3a46",
+   "e520b722f4",
+   "e532cca359",
+   "e6aca42084",
+   "ea21b7ef4f",
+   "eabd16661f",
+   "eaeccd4d3d",
+   "ece6fa3743",
+   "ed5e9453a6",
+   "ee19269b98",
+   "ee854728a6",
+   "f013d73304",
+   "f0ba156ef0",
+   "f2a6485650",
+   "f467f613a4",
+   "f888b4955c",
+   "fa8d73986c",
+   "fc146d19a9",
+   "fd0126919b"
+  ],
+  "stillborn": [
+   "0727c1c82d",
+   "2e3201701f",
+   "4144df8b20",
+   "57cd26e085",
+   "77922445db",
+   "b85d5132f1",
+   "bc5e1d57e6",
+   "e1799295d3",
+   "e4b6a569b4",
+   "f8f3f9ee91"
+  ],
+  "survived": [
+   {
+    "id": "ba346c2da2",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 34,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "a4a141f88a",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 34,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "9bc0f59a21",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 38,
+    "before": "\"ICAgICAg\"));",
+    "after": "\"XCAgICAg\"));"
+   },
+   {
+    "id": "b41e37bc95",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 40,
+    "before": "\"AAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "f5b62cda94",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 42,
+    "before": "\"AAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "67c205f8a7",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 44,
+    "before": "\"MDA=\"));",
+    "after": "\"XDA=\"));"
+   },
+   {
+    "id": "a6d62b70b1",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 46,
+    "before": "\"MDA=\"));",
+    "after": "\"XDA=\"));"
+   },
+   {
+    "id": "129231a6fc",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 48,
+    "before": "\"MDA=\"));",
+    "after": "\"XDA=\"));"
+   },
+   {
+    "id": "67effdddfc",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 50,
+    "before": "\"T1RIUg==\"));",
+    "after": "\"X1RIUg==\"));"
+   },
+   {
+    "id": "8456a39b80",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 52,
+    "before": "\"Tk9UUFNU\"));",
+    "after": "\"Xk9UUFNU\"));"
+   },
+   {
+    "id": "ee236f152f",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 56,
+    "before": "\"Li4uLi4uLi4uLg==\"));",
+    "after": "\"Xi4uLi4uLi4uLg==\"));"
+   },
+   {
+    "id": "3af4b62dbd",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 58,
+    "before": "\"MDAwMA==\"));",
+    "after": "\"XDAwMA==\"));"
+   },
+   {
+    "id": "1085ce4f28",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 60,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "8fc575a942",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 64,
+    "before": "\"ICAgIA==\"));",
+    "after": "\"XCAgIA==\"));"
+   },
+   {
+    "id": "2e74848215",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 66,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "2862eb1f33",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 68,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "baef7bf002",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 86,
+    "before": "private final Field f1_WS_HEAD = Field.alphanumeric(s_WS_HEAD, 0, 6, false);",
+    "after": "private final Field f1_WS_HEAD = Field.alphanumeric(s_WS_HEAD, 0, 7, false);"
+   },
+   {
+    "id": "eb1c7ec481",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 87,
+    "before": "private final Field f5_WS_PTR = Field.group(s_WS_PTR, 0, 8);",
+    "after": "private final Field f5_WS_PTR = Field.group(s_WS_PTR, 0, 9);"
+   },
+   {
+    "id": "eaad2499f4",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 97,
+    "before": "private final Field f16_WS_LINE = Field.alphanumeric(s_WS_LINE, 0, 40, false);",
+    "after": "private final Field f16_WS_LINE = Field.alphanumeric(s_WS_LINE, 1, 40, false);"
+   },
+   {
+    "id": "b4700a36fb",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 97,
+    "before": "private final Field f16_WS_LINE = Field.alphanumeric(s_WS_LINE, 0, 40, false);",
+    "after": "private final Field f16_WS_LINE = Field.alphanumeric(s_WS_LINE, 0, 41, false);"
+   },
+   {
+    "id": "c6a35751c1",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 99,
+    "before": "private final Field f19_LS_TEC = Field.alphanumeric(s_LS_TEC, 0, 4, false);",
+    "after": "private final Field f19_LS_TEC = Field.alphanumeric(s_LS_TEC, 0, 5, false);"
+   },
+   {
+    "id": "8c910103eb",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 100,
+    "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "46d6d629d9",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 100,
+    "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "1136d297c2",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 100,
+    "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "c49a1390d8",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 101,
+    "before": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
+    "id": "c3d058368a",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 101,
+    "before": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "68fa62b9ec",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 101,
+    "before": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "e60ce76b1d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 102,
+    "before": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "5b4f861a00",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 102,
+    "before": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "fe0a7ca581",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 103,
+    "before": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "cd52cf1f62",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 103,
+    "before": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "b92019a0a7",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 103,
+    "before": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "164c660fda",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 104,
+    "before": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "aa4033329c",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 104,
+    "before": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "1534c4d8b8",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 105,
+    "before": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "e15a3c01c8",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 105,
+    "before": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "f10e3c1157",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 105,
+    "before": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "3145ff81c1",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 106,
+    "before": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);"
+   },
+   {
+    "id": "0b5ed29636",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 106,
+    "before": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "f9da279e06",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 106,
+    "before": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "dd2cc25084",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 107,
+    "before": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "25729ec7de",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 107,
+    "before": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "accef525d0",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 107,
+    "before": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "21118217d5",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 108,
+    "before": "private final Field f52_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f52_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "423cee6d3c",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 108,
+    "before": "private final Field f52_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f52_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "ea0e25f33b",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 108,
+    "before": "private final Field f52_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f52_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "74580585ea",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 125,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "b7108d3bd2",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 125,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "c0617b548f",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 125,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "f464242bf6",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 125,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "7f90801561",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 126,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "f0b581480f",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 131,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "f5355305ff",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 133,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "e445fe141f",
+    "op": "COR",
+    "file": "service/GtpostService.java",
+    "line": 133,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "c5c218dca1",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 136,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "f81621221d",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 136,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "d9b4561b65",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 140,
+    "before": "java.util.Map.entry(\"CONVERSE-REPLY\", 4),",
+    "after": "java.util.Map.entry(\"XONVERSE-REPLY\", 4),"
+   },
+   {
+    "id": "2b768cc283",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 140,
+    "before": "java.util.Map.entry(\"CONVERSE-REPLY\", 4),",
+    "after": "java.util.Map.entry(\"CONVERSE-REPLY\", 5),"
+   },
+   {
+    "id": "2c489c72ec",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 141,
+    "before": "java.util.Map.entry(\"POST-PAST\", 3),",
+    "after": "java.util.Map.entry(\"XOST-PAST\", 3),"
+   },
+   {
+    "id": "3d669e711d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 141,
+    "before": "java.util.Map.entry(\"POST-PAST\", 3),",
+    "after": "java.util.Map.entry(\"POST-PAST\", 4),"
+   },
+   {
+    "id": "9239f913d5",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 142,
+    "before": "java.util.Map.entry(\"WAIT-NULL\", 2),",
+    "after": "java.util.Map.entry(\"XAIT-NULL\", 2),"
+   },
+   {
+    "id": "e5c9844d8c",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 142,
+    "before": "java.util.Map.entry(\"WAIT-NULL\", 2),",
+    "after": "java.util.Map.entry(\"WAIT-NULL\", 3),"
+   },
+   {
+    "id": "d7b208899d",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 143,
+    "before": "java.util.Map.entry(\"POST-WAIT-CANCEL\", 1),",
+    "after": "java.util.Map.entry(\"XOST-WAIT-CANCEL\", 1),"
+   },
+   {
+    "id": "7d21f7cc3d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 143,
+    "before": "java.util.Map.entry(\"POST-WAIT-CANCEL\", 1),",
+    "after": "java.util.Map.entry(\"POST-WAIT-CANCEL\", 2),"
+   },
+   {
+    "id": "bd2a93c739",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 144,
+    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+    "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
+   },
+   {
+    "id": "da09379458",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 144,
+    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
+   },
+   {
+    "id": "a70dc8012f",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 149,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "13ff5a9e95",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 149,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "c231512a68",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 150,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "1700cf5839",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 162,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "966b3dec04",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 162,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "f980fac294",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 165,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "ab574772d4",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 166,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "2dc468b592",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 168,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "9878c9ef49",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 169,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "804af5e7ba",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 169,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "065200a61b",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 173,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "365e6fc5b7",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 173,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "c6337393b7",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 180,
+    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+   },
+   {
+    "id": "b70613af6d",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 190,
+    "before": "s_WS_HEAD.unalias();",
+    "after": "/* s_WS_HEAD.unalias(); */"
+   },
+   {
+    "id": "d3426468f3",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 191,
+    "before": "s_WS_PTR.unalias();",
+    "after": "/* s_WS_PTR.unalias(); */"
+   },
+   {
+    "id": "86e358000d",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 192,
+    "before": "s_WS_NPTR.unalias();",
+    "after": "/* s_WS_NPTR.unalias(); */"
+   },
+   {
+    "id": "8ab969bb64",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 193,
+    "before": "s_WS_D1.unalias();",
+    "after": "/* s_WS_D1.unalias(); */"
+   },
+   {
+    "id": "b3c32e8236",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 194,
+    "before": "s_WS_D2.unalias();",
+    "after": "/* s_WS_D2.unalias(); */"
+   },
+   {
+    "id": "5b0c15a5e6",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 195,
+    "before": "s_WS_D3.unalias();",
+    "after": "/* s_WS_D3.unalias(); */"
+   },
+   {
+    "id": "3d9af7ff3e",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 196,
+    "before": "s_WS_BEF.unalias();",
+    "after": "/* s_WS_BEF.unalias(); */"
+   },
+   {
+    "id": "0ed48bea90",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 197,
+    "before": "s_WS_AFT.unalias();",
+    "after": "/* s_WS_AFT.unalias(); */"
+   },
+   {
+    "id": "92ccd12ce4",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 198,
+    "before": "s_WS_PROMPT.unalias();",
+    "after": "/* s_WS_PROMPT.unalias(); */"
+   },
+   {
+    "id": "bff827f94f",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 199,
+    "before": "s_WS_REPLY.unalias();",
+    "after": "/* s_WS_REPLY.unalias(); */"
+   },
+   {
+    "id": "85881107cf",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 200,
+    "before": "s_WS_TOLEN_D.unalias();",
+    "after": "/* s_WS_TOLEN_D.unalias(); */"
+   },
+   {
+    "id": "4770994a99",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 201,
+    "before": "s_WS_LINE.unalias();",
+    "after": "/* s_WS_LINE.unalias(); */"
+   },
+   {
+    "id": "c4aba61c98",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 202,
+    "before": "s_WS_LPTR.unalias();",
+    "after": "/* s_WS_LPTR.unalias(); */"
+   },
+   {
+    "id": "cb99c0e437",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 203,
+    "before": "s_LS_TEC.unalias();",
+    "after": "/* s_LS_TEC.unalias(); */"
+   },
+   {
+    "id": "d46106103a",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 204,
+    "before": "s_DFHEIBLK.unalias();",
+    "after": "/* s_DFHEIBLK.unalias(); */"
+   },
+   {
+    "id": "65aca16acd",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 205,
+    "before": "s_GG_RETURN_CODE.unalias();",
+    "after": "/* s_GG_RETURN_CODE.unalias(); */"
+   },
+   {
+    "id": "c1a0645a86",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 206,
+    "before": "System.arraycopy(IMAGE_s_WS_HEAD, 0, s_WS_HEAD.bytes, 0, IMAGE_s_WS_HEAD.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_HEAD, 0, s_WS_HEAD.bytes, 0, IMAGE_s_WS_HEAD.length); */"
+   },
+   {
+    "id": "bb652c849b",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 207,
+    "before": "System.arraycopy(IMAGE_s_WS_PTR, 0, s_WS_PTR.bytes, 0, IMAGE_s_WS_PTR.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_PTR, 0, s_WS_PTR.bytes, 0, IMAGE_s_WS_PTR.length); */"
+   },
+   {
+    "id": "63202fae91",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 208,
+    "before": "System.arraycopy(IMAGE_s_WS_NPTR, 0, s_WS_NPTR.bytes, 0, IMAGE_s_WS_NPTR.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_NPTR, 0, s_WS_NPTR.bytes, 0, IMAGE_s_WS_NPTR.length); */"
+   },
+   {
+    "id": "87eac29ee7",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 209,
+    "before": "System.arraycopy(IMAGE_s_WS_D1, 0, s_WS_D1.bytes, 0, IMAGE_s_WS_D1.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_D1, 0, s_WS_D1.bytes, 0, IMAGE_s_WS_D1.length); */"
+   },
+   {
+    "id": "182f796bda",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 210,
+    "before": "System.arraycopy(IMAGE_s_WS_D2, 0, s_WS_D2.bytes, 0, IMAGE_s_WS_D2.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_D2, 0, s_WS_D2.bytes, 0, IMAGE_s_WS_D2.length); */"
+   },
+   {
+    "id": "a7084d0688",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 211,
+    "before": "System.arraycopy(IMAGE_s_WS_D3, 0, s_WS_D3.bytes, 0, IMAGE_s_WS_D3.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_D3, 0, s_WS_D3.bytes, 0, IMAGE_s_WS_D3.length); */"
+   },
+   {
+    "id": "02b47fb4da",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 212,
+    "before": "System.arraycopy(IMAGE_s_WS_BEF, 0, s_WS_BEF.bytes, 0, IMAGE_s_WS_BEF.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_BEF, 0, s_WS_BEF.bytes, 0, IMAGE_s_WS_BEF.length); */"
+   },
+   {
+    "id": "d306807c64",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 213,
+    "before": "System.arraycopy(IMAGE_s_WS_AFT, 0, s_WS_AFT.bytes, 0, IMAGE_s_WS_AFT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_AFT, 0, s_WS_AFT.bytes, 0, IMAGE_s_WS_AFT.length); */"
+   },
+   {
+    "id": "fd13f09283",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 216,
+    "before": "System.arraycopy(IMAGE_s_WS_TOLEN_D, 0, s_WS_TOLEN_D.bytes, 0, IMAGE_s_WS_TOLEN_D.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_TOLEN_D, 0, s_WS_TOLEN_D.bytes, 0, IMAGE_s_WS_TOLEN_D.length); */"
+   },
+   {
+    "id": "5a4e010a5d",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 217,
+    "before": "System.arraycopy(IMAGE_s_WS_LINE, 0, s_WS_LINE.bytes, 0, IMAGE_s_WS_LINE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_LINE, 0, s_WS_LINE.bytes, 0, IMAGE_s_WS_LINE.length); */"
+   },
+   {
+    "id": "902ecb0c84",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 219,
+    "before": "System.arraycopy(IMAGE_s_LS_TEC, 0, s_LS_TEC.bytes, 0, IMAGE_s_LS_TEC.length);",
+    "after": "/* System.arraycopy(IMAGE_s_LS_TEC, 0, s_LS_TEC.bytes, 0, IMAGE_s_LS_TEC.length); */"
+   },
+   {
+    "id": "a451f20bb9",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 220,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "66eb9da652",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 221,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "346156831b",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 222,
+    "before": "f2_WS_INLEN = 0L;",
+    "after": "/* f2_WS_INLEN = 0L; */"
+   },
+   {
+    "id": "aa6823740c",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 223,
+    "before": "f3_WS_RESP = -1L;",
+    "after": "/* f3_WS_RESP = -1L; */"
+   },
+   {
+    "id": "84762f41ef",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 224,
+    "before": "f4_WS_RESP2 = -1L;",
+    "after": "/* f4_WS_RESP2 = -1L; */"
+   },
+   {
+    "id": "6557a19ee0",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 225,
+    "before": "f14_WS_TOLEN = 0L;",
+    "after": "/* f14_WS_TOLEN = 0L; */"
+   },
+   {
+    "id": "95a213aae3",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 226,
+    "before": "f18_WS_LLEN = 0L;",
+    "after": "/* f18_WS_LLEN = 0L; */"
+   },
+   {
+    "id": "585cf28dee",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 227,
+    "before": "DC_1.reset();",
+    "after": "/* DC_1.reset(); */"
+   },
+   {
+    "id": "ec093eba4e",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 249,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "1de4643e92",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 250,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "7467c6b9f5",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 251,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "03eb7467e1",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 253,
+    "before": "Cobol.move(task.transid(), f23_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f23_EIBTRNID, CS); */"
+   },
+   {
+    "id": "27a42b9a36",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 255,
+    "before": "Cobol.store(f24_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f24_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "46969f8be5",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 257,
+    "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "9f67d9e7ba",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 257,
+    "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "4c5d3077f3",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 257,
+    "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "882dc149e6",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 257,
+    "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "4ba6649497",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 257,
+    "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "26e8f25341",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 258,
+    "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
+   },
+   {
+    "id": "863a56cfc3",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 258,
+    "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "db7fce58fc",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 258,
+    "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "7e6fb53015",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 258,
+    "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "83953c88ab",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 258,
+    "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "5acce1c679",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 259,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "827bf1f57a",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 263,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "42617e2c81",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 264,
+    "before": "if (ca instanceof CaaddrWsArea) {",
+    "after": "if (!(ca instanceof CaaddrWsArea)) {"
+   },
+   {
+    "id": "859965dc0e",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 265,
+    "before": "calen = cx(task, 20);",
+    "after": "/* calen = cx(task, 20); */"
+   },
+   {
+    "id": "4472e7caea",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 265,
+    "before": "calen = cx(task, 20);",
+    "after": "calen = cx(task, 21);"
+   },
+   {
+    "id": "79f394e8f8",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 266,
+    "before": "} else if (ca instanceof CabllDfhcommarea) {",
+    "after": "} else if (!(ca instanceof CabllDfhcommarea)) {"
+   },
+   {
+    "id": "9296193bea",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 267,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "59b5c4d673",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 267,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "517afe5bdd",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 268,
+    "before": "} else if (ca instanceof CaboffWsOut) {",
+    "after": "} else if (!(ca instanceof CaboffWsOut)) {"
+   },
+   {
+    "id": "7c5d6a35ea",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 269,
+    "before": "calen = cx(task, 16);",
+    "after": "/* calen = cx(task, 16); */"
+   },
+   {
+    "id": "fcd168445d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 269,
+    "before": "calen = cx(task, 16);",
+    "after": "calen = cx(task, 17);"
+   },
+   {
+    "id": "cdc2d10215",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 270,
+    "before": "} else if (ca instanceof CaboffWsPre) {",
+    "after": "} else if (!(ca instanceof CaboffWsPre)) {"
+   },
+   {
+    "id": "d94d2572d4",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 271,
+    "before": "calen = cx(task, 2);",
+    "after": "/* calen = cx(task, 2); */"
+   },
+   {
+    "id": "32f00dda26",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 271,
+    "before": "calen = cx(task, 2);",
+    "after": "calen = cx(task, 3);"
+   },
+   {
+    "id": "1203af3ed2",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 272,
+    "before": "} else if (ca instanceof CaboffWsSrc) {",
+    "after": "} else if (!(ca instanceof CaboffWsSrc)) {"
+   },
+   {
+    "id": "73b5ccc351",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 273,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "b1ade2eb38",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 273,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "2d8b573e00",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 274,
+    "before": "} else if (ca instanceof CabrerrWsData) {",
+    "after": "} else if (!(ca instanceof CabrerrWsData)) {"
+   },
+   {
+    "id": "b659cc457a",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 275,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "3e24be47df",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 275,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "3ed85c8da3",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 276,
+    "before": "} else if (ca instanceof CaccsidWsAsc) {",
+    "after": "} else if (!(ca instanceof CaccsidWsAsc)) {"
+   },
+   {
+    "id": "e91bc45712",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 277,
+    "before": "calen = cx(task, 6);",
+    "after": "/* calen = cx(task, 6); */"
+   },
+   {
+    "id": "cda25f5425",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 277,
+    "before": "calen = cx(task, 6);",
+    "after": "calen = cx(task, 7);"
+   },
+   {
+    "id": "e9bb5b90a0",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 278,
+    "before": "} else if (ca instanceof CachanWsBin) {",
+    "after": "} else if (!(ca instanceof CachanWsBin)) {"
+   },
+   {
+    "id": "1d763dd1f5",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 279,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "ec98b61666",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 279,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "db211483a9",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 280,
+    "before": "} else if (ca instanceof CachanWsMore) {",
+    "after": "} else if (!(ca instanceof CachanWsMore)) {"
+   },
+   {
+    "id": "44f0c60875",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 281,
+    "before": "calen = cx(task, 3);",
+    "after": "/* calen = cx(task, 3); */"
+   },
+   {
+    "id": "698ec94867",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 281,
+    "before": "calen = cx(task, 3);",
+    "after": "calen = cx(task, 4);"
+   },
+   {
+    "id": "a0e44afe8d",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 282,
+    "before": "} else if (ca instanceof CachanWsReq) {",
+    "after": "} else if (!(ca instanceof CachanWsReq)) {"
+   },
+   {
+    "id": "46e113f26f",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 283,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "1af0996ae8",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 283,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "700ac13e0e",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 284,
+    "before": "} else if (ca instanceof CachsubWsReply) {",
+    "after": "} else if (!(ca instanceof CachsubWsReply)) {"
+   },
+   {
+    "id": "b16e0cc205",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 285,
+    "before": "calen = cx(task, 11);",
+    "after": "/* calen = cx(task, 11); */"
+   },
+   {
+    "id": "026530b24b",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 285,
+    "before": "calen = cx(task, 11);",
+    "after": "calen = cx(task, 12);"
+   },
+   {
+    "id": "64913af9ed",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 286,
+    "before": "} else if (ca instanceof CachsubWsShort) {",
+    "after": "} else if (!(ca instanceof CachsubWsShort)) {"
+   },
+   {
+    "id": "2831e08038",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 287,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "2af065cd84",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 287,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "02fa71951b",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 288,
+    "before": "} else if (ca instanceof CachxbWsOwn) {",
+    "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
+   },
+   {
+    "id": "785fc4f2b5",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 289,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "88f0f50f2f",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 289,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "45d359ee99",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 290,
+    "before": "} else if (ca instanceof CagcstWsPtr) {",
+    "after": "} else if (!(ca instanceof CagcstWsPtr)) {"
+   },
+   {
+    "id": "147d1be24e",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 291,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "008398246d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 291,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "4b14bd9a58",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 292,
+    "before": "} else if (ca instanceof CagcstWsSrc2) {",
+    "after": "} else if (!(ca instanceof CagcstWsSrc2)) {"
+   },
+   {
+    "id": "a3a8e713c8",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 293,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "2a88e31935",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 293,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "7f8700823d",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 294,
+    "before": "} else if (ca instanceof GtasgnWsCa) {",
+    "after": "} else if (!(ca instanceof GtasgnWsCa)) {"
+   },
+   {
+    "id": "c6854ebe73",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 295,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "343b4a5d11",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 295,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "2c6ed74a30",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 296,
+    "before": "} else if (ca instanceof PcconfWsState) {",
+    "after": "} else if (!(ca instanceof PcconfWsState)) {"
+   },
+   {
+    "id": "524e70450e",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 297,
+    "before": "calen = cx(task, 30);",
+    "after": "/* calen = cx(task, 30); */"
+   },
+   {
+    "id": "55f68cc791",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 297,
+    "before": "calen = cx(task, 30);",
+    "after": "calen = cx(task, 31);"
+   },
+   {
+    "id": "1142020396",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 298,
+    "before": "} else if (ca instanceof PcrcaWsCarry) {",
+    "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
+   },
+   {
+    "id": "84aace9bd3",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 299,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "d0254e476d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 299,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "f240a220bb",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 300,
+    "before": "} else if (ca instanceof PcrcaWsModify) {",
+    "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
+   },
+   {
+    "id": "056642a2fb",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 301,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "72160e3bee",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 301,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "2cd7654637",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 302,
+    "before": "} else if (ca instanceof PcrcbWsExtra) {",
+    "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
+   },
+   {
+    "id": "cd8c56dab7",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 303,
+    "before": "calen = cx(task, 5);",
+    "after": "/* calen = cx(task, 5); */"
+   },
+   {
+    "id": "2b8471c9ca",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 303,
+    "before": "calen = cx(task, 5);",
+    "after": "calen = cx(task, 6);"
+   },
+   {
+    "id": "8f7b49cef3",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 304,
+    "before": "} else if (ca instanceof PcrcbWsNew1) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
+   },
+   {
+    "id": "c2607bcc56",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 305,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "abad4767aa",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 305,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "1d30c3ac49",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 306,
+    "before": "} else if (ca instanceof PcrcbWsNew2) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
+   },
+   {
+    "id": "0668d1b94f",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 307,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "6e456c73eb",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 307,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "d9c55b387e",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 308,
+    "before": "} else if (ca instanceof PcrclWsLinked) {",
+    "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
+   },
+   {
+    "id": "150127def8",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 309,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "4f5a5adaf9",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 309,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "4834f6196c",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 311,
+    "before": "if (calen == 0 && task.linkArea() != null) {",
+    "after": "if (calen != 0 && task.linkArea() != null) {"
+   },
+   {
+    "id": "48aad4da78",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 311,
+    "before": "if (calen == 0 && task.linkArea() != null) {",
+    "after": "if (calen == 1 && task.linkArea() != null) {"
+   },
+   {
+    "id": "5a7e72eaff",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 312,
+    "before": "calen = cx(task, task.linkArea().length);",
+    "after": "/* calen = cx(task, task.linkArea().length); */"
+   },
+   {
+    "id": "a2ee3acde6",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 314,
+    "before": "Cobol.store(f28_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f28_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "c36ad8c29b",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 316,
+    "before": "perform(0, 4);",
+    "after": "perform(0, 5);"
+   },
+   {
+    "id": "99df82fffd",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 321,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "d9fee09352",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 325,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "17bbcfe1bb",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 326,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "553f662194",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 333,
+    "before": "region.run(task, \"GTPOST\", this::runTask);",
+    "after": "region.run(task, \"XTPOST\", this::runTask);"
+   },
+   {
+    "id": "7478a2e93d",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 340,
+    "before": "lastAnswerBytes = task.returnedBytes();",
+    "after": "/* lastAnswerBytes = task.returnedBytes(); */"
+   },
+   {
+    "id": "a0a602116b",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 358,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "3fb615aec7",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 363,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "e456af26ea",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 364,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "9bf5ad0f9b",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 372,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "42cd073036",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 383,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "6a18d74c93",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 383,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "e58e8d7a80",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 383,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "28764aad6c",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 396,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "ed1e500b4c",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 396,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "64a9a093f5",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 396,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "210b7b5c17",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 396,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "6a824b29cf",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 396,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "9738b0187f",
+    "op": "AOR",
+    "file": "service/GtpostService.java",
+    "line": 396,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "fbe0cd510d",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 397,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "ccc4220b59",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 397,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "f411f533d3",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 402,
+    "before": "if (next >= 5) {",
+    "after": "if (!(next >= 5)) {"
+   },
+   {
+    "id": "26854d268e",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 402,
+    "before": "if (next >= 5) {",
+    "after": "if (next < 5) {"
+   },
+   {
+    "id": "2b7dd83be5",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 402,
+    "before": "if (next >= 5) {",
+    "after": "if (next > 5) {"
+   },
+   {
+    "id": "827f71ef37",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 402,
+    "before": "if (next >= 5) {",
+    "after": "if (next >= 6) {"
+   },
+   {
+    "id": "27dfd0ba2e",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 405,
+    "before": "i = next;",
+    "after": "/* i = next; */"
+   },
+   {
+    "id": "522e558847",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 408,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "f63b05adab",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 408,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "b343d869b1",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 412,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "fe86997b56",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 423,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "fd83c9d8cc",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 432,
+    "before": "f2_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received1.length()), 4, true, false, CS);",
+    "after": "/* f2_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received1.length()), 4, true, false, CS); */"
+   },
+   {
+    "id": "58c8a7cd1c",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 432,
+    "before": "f2_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received1.length()), 4, true, false, CS);",
+    "after": "f2_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received1.length()), 5, true, false, CS);"
+   },
+   {
+    "id": "f6e2831fc5",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 433,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(received1.resp())), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(received1.resp())), false, CS); */"
+   },
+   {
+    "id": "c2a6b7f7d3",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 434,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "c1d536ed07",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 434,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "e41548cac5",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 437,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "d5497436ed",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 437,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "3ca9971747",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 437,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "166431dd82",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 437,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "6ab7f4ba35",
+    "op": "BDM",
+    "file": "service/GtpostService.java",
+    "line": 461,
+    "before": "BigDecimal v2 = Cobol.subtract(Cobol.num(f17_WS_LPTR, CS), DC_1);",
+    "after": "BigDecimal v2 = Cobol.add(Cobol.num(f17_WS_LPTR, CS), DC_1);"
+   },
+   {
+    "id": "1086be0a1f",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 462,
+    "before": "f18_WS_LLEN = Cobol.binary(v2, 4, true, false, CS);",
+    "after": "f18_WS_LLEN = Cobol.binary(v2, 5, true, false, CS);"
+   },
+   {
+    "id": "565b3a2d4d",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 464,
+    "before": "CicsTask.TsResult ts3 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f16_WS_LINE, BigDecimal.valueOf(f18_WS_LLEN).intValue(), \"WRITEQ TS\", CS), CS, REGION));",
+    "after": "CicsTask.TsResult ts3 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f16_WS_LINE, BigDecimal.valueOf(f18_WS_LLEN).intValue(), \"XRITEQ TS\", CS), CS, REGION));"
+   },
+   {
+    "id": "14c3dae6c8",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 465,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts3.resp())), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts3.resp())), false, CS); */"
+   },
+   {
+    "id": "043856a26a",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 466,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "4806712d40",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 466,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "b79eaa5389",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 469,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "3d993facbb",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 469,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "5ccdfa974e",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 469,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "deef1f5615",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 469,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "7f6418188f",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 472,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "708878a9e4",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 473,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "10f6ab8ec5",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 475,
+    "before": "return 1;",
+    "after": "return 2;"
+   },
+   {
+    "id": "f6d681bade",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 481,
+    "before": "CicsTask.PostResult post4 = task.post(\"AFTER\", 0, null, null, 5, \"GTPOSTW\".strip());",
+    "after": "CicsTask.PostResult post4 = task.post(\"XFTER\", 0, null, null, 5, \"GTPOSTW\".strip());"
+   },
+   {
+    "id": "c35b69a72c",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 481,
+    "before": "CicsTask.PostResult post4 = task.post(\"AFTER\", 0, null, null, 5, \"GTPOSTW\".strip());",
+    "after": "CicsTask.PostResult post4 = task.post(\"AFTER\", 1, null, null, 5, \"GTPOSTW\".strip());"
+   },
+   {
+    "id": "d4b614c7e1",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 481,
+    "before": "CicsTask.PostResult post4 = task.post(\"AFTER\", 0, null, null, 5, \"GTPOSTW\".strip());",
+    "after": "CicsTask.PostResult post4 = task.post(\"AFTER\", 0, null, null, 6, \"GTPOSTW\".strip());"
+   },
+   {
+    "id": "88ca0fd29d",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 481,
+    "before": "CicsTask.PostResult post4 = task.post(\"AFTER\", 0, null, null, 5, \"GTPOSTW\".strip());",
+    "after": "CicsTask.PostResult post4 = task.post(\"AFTER\", 0, null, null, 5, \"XTPOSTW\".strip());"
+   },
+   {
+    "id": "9e726201d3",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 483,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(post4.resp())), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(post4.resp())), false, CS); */"
+   },
+   {
+    "id": "4a8fd4354d",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 484,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(post4.resp2()), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(post4.resp2()), false, CS); */"
+   },
+   {
+    "id": "f4da419a89",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 485,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(post4.resp())), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(post4.resp())), 9, true, false, CS);"
+   },
+   {
+    "id": "f335087973",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 487,
+    "before": "Cobol.move(BigDecimal.valueOf(f3_WS_RESP), f7_WS_D1, CS);",
+    "after": "/* Cobol.move(BigDecimal.valueOf(f3_WS_RESP), f7_WS_D1, CS); */"
+   },
+   {
+    "id": "05fa431e55",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 497,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited5[0]), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited5[0]), false, CS); */"
+   },
+   {
+    "id": "432d61c713",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 497,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited5[0]), false, CS);",
+    "after": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited5[1]), false, CS);"
+   },
+   {
+    "id": "e611158500",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 498,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(waited5[1]), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(waited5[1]), false, CS); */"
+   },
+   {
+    "id": "c164acdb02",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 499,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited5[0]), 8, true, false, CS);",
+    "after": "/* f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited5[0]), 8, true, false, CS); */"
+   },
+   {
+    "id": "58053a7f6d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 499,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited5[0]), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited5[1]), 8, true, false, CS);"
+   },
+   {
+    "id": "0076eb9389",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 499,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited5[0]), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited5[0]), 9, true, false, CS);"
+   },
+   {
+    "id": "41e524f5fc",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 501,
+    "before": "Cobol.move(BigDecimal.valueOf(f3_WS_RESP), f8_WS_D2, CS);",
+    "after": "/* Cobol.move(BigDecimal.valueOf(f3_WS_RESP), f8_WS_D2, CS); */"
+   },
+   {
+    "id": "95aa365e9f",
+    "op": "COR",
+    "file": "service/GtpostService.java",
+    "line": 503,
+    "before": "if ((Cobol.compare(f19_LS_TEC.ref(1, Integer.valueOf(1)), Cobol.hex(\"@\", CS), CS) == 0 && Cobol.compare(f19_LS_TEC.ref(3, Integer.valueOf(1)), Cobol.hex(\"\\200\", CS), CS) == 0)) {",
+    "after": "if ((Cobol.compare(f19_LS_TEC.ref(1, Integer.valueOf(1)), Cobol.hex(\"@\", CS), CS) == 0 || Cobol.compare(f19_LS_TEC.ref(3, Integer.valueOf(1)), Cobol.hex(\"\\200\", CS), CS) == 0)) {"
+   },
+   {
+    "id": "5abf38845a",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 508,
+    "before": "int cancelled6 = DetCics.resp(task.cancel(\"GTPOSTW\".strip()));",
+    "after": "int cancelled6 = DetCics.resp(task.cancel(\"XTPOSTW\".strip()));"
+   },
+   {
+    "id": "a4f11d1102",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 509,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(cancelled6), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(cancelled6), false, CS); */"
+   },
+   {
+    "id": "5c85a03e8d",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 510,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "93d78dd4c7",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 510,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "41df6d3d69",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 511,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(cancelled6), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(cancelled6), 9, true, false, CS);"
+   },
+   {
+    "id": "4b9c3194ff",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 516,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "a4ad5e4b7a",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 522,
+    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f6_WS_NPTR, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f6_WS_NPTR, CS); */"
+   },
+   {
+    "id": "4933832dab",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 525,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited7[0]), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited7[0]), false, CS); */"
+   },
+   {
+    "id": "df55702254",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 525,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited7[0]), false, CS);",
+    "after": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(waited7[1]), false, CS);"
+   },
+   {
+    "id": "921785bd4f",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 526,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(waited7[1]), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(waited7[1]), false, CS); */"
+   },
+   {
+    "id": "2e080d7675",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 527,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited7[0]), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(waited7[0]), 9, true, false, CS);"
+   },
+   {
+    "id": "a321c288b8",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 528,
+    "before": "f4_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(waited7[1]), 8, true, false, CS);",
+    "after": "f4_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(waited7[1]), 9, true, false, CS);"
+   },
+   {
+    "id": "590dddb1b6",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 535,
+    "before": "return 3;",
+    "after": "return 4;"
+   },
+   {
+    "id": "12817b06ac",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 541,
+    "before": "CicsTask.PostResult post8 = task.post(\"TIME\", 90000, null, null, null, \"GTPOSTP\".strip());",
+    "after": "CicsTask.PostResult post8 = task.post(\"TIME\", 90001, null, null, null, \"GTPOSTP\".strip());"
+   },
+   {
+    "id": "752ee26689",
+    "op": "LIT",
+    "file": "service/GtpostService.java",
+    "line": 541,
+    "before": "CicsTask.PostResult post8 = task.post(\"TIME\", 90000, null, null, null, \"GTPOSTP\".strip());",
+    "after": "CicsTask.PostResult post8 = task.post(\"TIME\", 90000, null, null, null, \"XTPOSTP\".strip());"
+   },
+   {
+    "id": "7613cea098",
+    "op": "NEG",
+    "file": "service/GtpostService.java",
+    "line": 542,
+    "before": "if (post8.handle() != 0) DetCics.setPointer(f5_WS_PTR, post8.handle());",
+    "after": "if (!(post8.handle() != 0)) DetCics.setPointer(f5_WS_PTR, post8.handle());"
+   },
+   {
+    "id": "4c85ec9815",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 542,
+    "before": "if (post8.handle() != 0) DetCics.setPointer(f5_WS_PTR, post8.handle());",
+    "after": "if (post8.handle() == 0) DetCics.setPointer(f5_WS_PTR, post8.handle());"
+   },
+   {
+    "id": "11a1e5710a",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 542,
+    "before": "if (post8.handle() != 0) DetCics.setPointer(f5_WS_PTR, post8.handle());",
+    "after": "if (post8.handle() != 1) DetCics.setPointer(f5_WS_PTR, post8.handle());"
+   },
+   {
+    "id": "fab13d9277",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 543,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(post8.resp())), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(post8.resp())), false, CS); */"
+   },
+   {
+    "id": "913a46d120",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 544,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(post8.resp2()), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(post8.resp2()), false, CS); */"
+   },
+   {
+    "id": "0e1f922763",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 545,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(post8.resp())), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(post8.resp())), 9, true, false, CS);"
+   },
+   {
+    "id": "fbb0f31b2e",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 550,
+    "before": "return 4;",
+    "after": "return 5;"
+   },
+   {
+    "id": "3fc9976a0e",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 557,
+    "before": "CicsTask.Received conversed10 = task.converse(text9.substring(0, Math.min(text9.length(), Math.max(8, 0))), 8, BigDecimal.valueOf(f14_WS_TOLEN).intValue(), false);",
+    "after": "CicsTask.Received conversed10 = task.converse(text9.substring(0, Math.min(text9.length(), Math.max(9, 0))), 8, BigDecimal.valueOf(f14_WS_TOLEN).intValue(), false);"
+   },
+   {
+    "id": "db4c930563",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 557,
+    "before": "CicsTask.Received conversed10 = task.converse(text9.substring(0, Math.min(text9.length(), Math.max(8, 0))), 8, BigDecimal.valueOf(f14_WS_TOLEN).intValue(), false);",
+    "after": "CicsTask.Received conversed10 = task.converse(text9.substring(0, Math.min(text9.length(), Math.max(8, 1))), 8, BigDecimal.valueOf(f14_WS_TOLEN).intValue(), false);"
+   },
+   {
+    "id": "6f21f939ac",
+    "op": "ROR",
+    "file": "service/GtpostService.java",
+    "line": 559,
+    "before": "if (conversed10.length() >= 0) f14_WS_TOLEN = Cobol.binary(BigDecimal.valueOf(conversed10.length()), 4, true, false, CS);",
+    "after": "if (conversed10.length() > 0) f14_WS_TOLEN = Cobol.binary(BigDecimal.valueOf(conversed10.length()), 4, true, false, CS);"
+   },
+   {
+    "id": "49ff2d60fb",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 559,
+    "before": "if (conversed10.length() >= 0) f14_WS_TOLEN = Cobol.binary(BigDecimal.valueOf(conversed10.length()), 4, true, false, CS);",
+    "after": "if (conversed10.length() >= 1) f14_WS_TOLEN = Cobol.binary(BigDecimal.valueOf(conversed10.length()), 4, true, false, CS);"
+   },
+   {
+    "id": "a3a0b22b4e",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 559,
+    "before": "if (conversed10.length() >= 0) f14_WS_TOLEN = Cobol.binary(BigDecimal.valueOf(conversed10.length()), 4, true, false, CS);",
+    "after": "if (conversed10.length() >= 0) f14_WS_TOLEN = Cobol.binary(BigDecimal.valueOf(conversed10.length()), 5, true, false, CS);"
+   },
+   {
+    "id": "69c3f9a9b4",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 560,
+    "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(conversed10.resp())), false, CS);",
+    "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(conversed10.resp())), false, CS); */"
+   },
+   {
+    "id": "78fe710a87",
+    "op": "DEL",
+    "file": "service/GtpostService.java",
+    "line": 561,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "4c47f60c3d",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 561,
+    "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "5c4b044ca9",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 562,
+    "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(conversed10.resp())), 8, true, false, CS);",
+    "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(conversed10.resp())), 9, true, false, CS);"
+   },
+   {
+    "id": "3760b00403",
+    "op": "CON",
+    "file": "service/GtpostService.java",
+    "line": 569,
+    "before": "return 5;",
+    "after": "return 6;"
+   }
+  ],
+  "inputs": {
+   "port": "76f617a00418b124b1addd48d23bb76fa6b1cecb1427b7de4c0081d17c07d354",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "d39d1fc47b391ed2a5908d9ce00d27609cca2c7fdbe26d8c7424e88c9b4112a5",
+   "case": "1963d18e36600dad970b483a422fd0071b85282b104a421a1ea3e089ff56193d",
+   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
+   "harness": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "6700b235258c233e546d162b29bdd3b0829e7af19d54d017870403607f422146",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   },
+   "harness": {
+    "harness:cics": "2604c86b17e3bf1d401faebb6c3f2ae4efc6233eae604b508585133b7a6e7942",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "0076eb9389 007cf3236d 008398246d 0085355365 01611be45b 026530b24b 0281df3bdf 02b47fb4da 02f94b9f92 02fa71951b 039cdf5965 03eb7467e1 043856a26a 056642a2fb 05fa431e55 065200a61b 0668d1b94f 070f95fc25 0727c1c82d 09aa0e2a63 0b5ed29636 0d0083dc49 0e1f922763 0ed48bea90 0ef12ed177 0fb148b152 1068818e56 107ce12298 1085ce4f28 1086be0a1f 10f6ab8ec5 1136d297c2 1142020396 119622a9c0 11a1e5710a 11ad07c060 1203af3ed2 12817b06ac 129231a6fc 1358461c57 1359ce58a5 13ff5a9e95 147d1be24e 14c3dae6c8 150127def8 1534c4d8b8 16076f0653 161dd00530 164c660fda 166431dd82 16a8b0d229 1700cf5839 1735d4650e 175f7df2d9 17bbcfe1bb 18034be2a9 182f796bda 19daf548a7 1af0996ae8 1b15b8362f 1b3fa5166f 1d30c3ac49 1d763dd1f5 1de4643e92 1f81e179cc 2048f1c503 210b7b5c17 21118217d5 21b394fc65 2215457c7a 235ec01386 2406a15991 25729ec7de 26854d268e 26e8f25341 27a42b9a36 27dfd0ba2e 2831e08038 284d5838e2 2862eb1f33 28764aad6c 28bb5aff70 2919037a44 2a88e31935 2ac4191099 2af065cd84 2b768cc283 2b7dd83be5 2b8471c9ca 2c489c72ec 2c6ed74a30 2cd7654637 2d8b573e00 2dc468b592 2e080d7675 2e3201701f 2e4f132407 2e74848215 2ec48d0275 2fee11c583 3145ff81c1 31f359061f 32f00dda26 33877ea536 343b4a5d11 346156831b 348e32a834 3625b4795c 365e6fc5b7 367a1ba22a 37240b8f1c 3760b00403 37d3bba28d 38aecf9d2e 3af4b62dbd 3b601c61a8 3c8da2d692 3ca9971747 3d669e711d 3d993facbb 3d9af7ff3e 3e24be47df 3ed85c8da3 3fb615aec7 3fc9976a0e 402c23708e 4144df8b20 4194c5991f 41c513c173 41df6d3d69 41e524f5fc 423cee6d3c 42617e2c81 42cd073036 432d61c713 4472e7caea 44f0c60875 45d359ee99 46969f8be5 46d2fdbd18 46d6d629d9 46e113f26f 4707112210 4770994a99 4806712d40 4834f6196c 48aad4da78 4933832dab 49d2b5c598 49ff2d60fb 4a175e13cc 4a8fd4354d 4b14bd9a58 4b9c3194ff 4ba6649497 4c47f60c3d 4c4e6c6a06 4c5d3077f3 4c816b8e45 4c85ec9815 4c908f9731 4f5a5adaf9 504af8b8e1 506993e0bf 51152239b8 517afe5bdd 522e558847 524e70450e 53f283d1b9 53fa71642e 541622d204 5428421a3e 553f662194 55f68cc791 565b3a2d4d 56a522a36e 573726d466 57599279cb 57cd26e085 58053a7f6d 585cf28dee 58c8a7cd1c 590dddb1b6 59b5c4d673 5a4e010a5d 5a7e72eaff 5ab5407ea0 5abf38845a 5acce1c679 5b0c15a5e6 5b4f861a00 5bbcd29803 5bcce36b68 5bebb96538 5c4b044ca9 5c85a03e8d 5ccdfa974e 5cdb99bc26 5e873499d6 5fb4bd0042 607688fe49 60c81c9b71 61e1b8b3d5 623e004069 624b87da27 63202fae91 63bd696298 63e9f1e182 6478bf37ba 64913af9ed 64a9a093f5 64db234934 6557a19ee0 65aca16acd 6675a774e3 66eb9da652 67c205f8a7 67effdddfc 6837567503 68fa62b9ec 6967c5c4c3 698ec94867 69c3f9a9b4 6a18d74c93 6a824b29cf 6ab7f4ba35 6ad65b3890 6bfbcf59b0 6c80f866e3 6d379e00d5 6e456c73eb 6f21f939ac 6ff35dcbed 700ac13e0e 700dcc1fb0 702f1a184d 708878a9e4 712d14b666 72160e3bee 72e10ff2e8 73b5ccc351 74580585ea 7467c6b9f5 7478a2e93d 752ee26689 75dbcaa9e0 7613cea098 76933bdda2 77922445db 77cdc2ac2a 784ce5b2da 785fc4f2b5 7882212ccf 788f8a425b 78c1e6f1dc 78fe710a87 79f394e8f8 7c5d6a35ea 7d21f7cc3d 7e6fb53015 7eb5c6cff3 7f6418188f 7f8700823d 7f90801561 804af5e7ba 80f8524cd2 8131c169d2 81d2ffd734 81f97d45b2 827bf1f57a 827f71ef37 82fd58b256 83953c88ab 8456a39b80 84762f41ef 84aace9bd3 84e012bd2c 852777a927 85881107cf 859965dc0e 863a56cfc3 86e358000d 87072e2ce2 87b623536d 87eac29ee7 87ef7e3239 882dc149e6 88ca0fd29d 88f0f50f2f 896069bf3f 8ab969bb64 8b0c7e5036 8c7cff1db4 8c910103eb 8e1c57f981 8e78d7a0a0 8f722efb49 8f7b49cef3 8fc575a942 8fde644b2a 902ecb0c84 90a9b8b985 913a46d120 921785bd4f 9239f913d5 9296193bea 92ccd12ce4 93d78dd4c7 95a213aae3 95aa365e9f 966b3dec04 9738b0187f 9769a72228 9878c9ef49 98d2be17f6 99df82fffd 9a2aa85049 9bc0f59a21 9be77f2398 9bf5ad0f9b 9d2ee793db 9d56f19c0f 9db380ae66 9e726201d3 9f67d9e7ba a01c18b0ed a0309a5061 a0a602116b a0e44afe8d a2c6400ee0 a2ee3acde6 a321c288b8 a3a0b22b4e a3a8e713c8 a451f20bb9 a4a141f88a a4ad5e4b7a a4f11d1102 a5a1f06251 a616649cc3 a6d62b70b1 a7084d0688 a70dc8012f a9210c497a a9e17a869b aa4033329c aa6823740c ab574772d4 abad4767aa ac8ef5e8d2 accef525d0 b112dfa66b b16e0cc205 b1ade2eb38 b22c7c7c29 b30d95da27 b343d869b1 b3c32e8236 b4195891d9 b41e37bc95 b4700a36fb b4bbe0c239 b5f5018548 b659cc457a b70613af6d b7108d3bd2 b767e69994 b79eaa5389 b85d5132f1 b90d4e9c75 b92019a0a7 b9bc135003 ba346c2da2 baef7bf002 bb20e854dd bb652c849b bc37153750 bc5e1d57e6 bc655b0cbe bd2a93c739 beec0ae97e bff827f94f c0617b548f c0d7ec3474 c164acdb02 c1a0645a86 c1d536ed07 c231512a68 c2607bcc56 c2a6b7f7d3 c35b69a72c c36ad8c29b c3d058368a c49a1390d8 c4aba61c98 c56a8a0466 c577c7a35b c5afc17367 c5c218dca1 c6337393b7 c6854ebe73 c6a35751c1 c6fed7c5e6 c7077ebba6 c743d33000 c800f4c119 c885059926 c9ed7e2d76 cb99c0e437 ccc4220b59 ccfe7c6d2c cd52cf1f62 cd8c56dab7 cda25f5425 cdb965a183 cdc2d10215 d0254e476d d047b12595 d10f6cd242 d306807c64 d3426468f3 d35f263f9d d387e41d37 d3b4be0e90 d3b5c61615 d3c5e265d8 d4226fe041 d46106103a d4721d1c98 d497c0e77e d4b614c7e1 d5497436ed d6ef119c62 d6f7a09cbb d7b208899d d94d2572d4 d9b4561b65 d9c55b387e d9fee09352 da09379458 db211483a9 db4c930563 db7fce58fc dd2cc25084 dd92585a19 de0236e5a7 de6e924673 deb89d3a46 deef1f5615 df55702254 e15a3c01c8 e1799295d3 e41548cac5 e445fe141f e456af26ea e4b6a569b4 e520b722f4 e532cca359 e58e8d7a80 e5c9844d8c e60ce76b1d e611158500 e6aca42084 e91bc45712 e9bb5b90a0 ea0e25f33b ea21b7ef4f eaad2499f4 eabd16661f eaeccd4d3d eb1c7ec481 ec093eba4e ec98b61666 ece6fa3743 ed1e500b4c ed5e9453a6 ee19269b98 ee236f152f ee854728a6 f013d73304 f0b581480f f0ba156ef0 f10e3c1157 f240a220bb f2a6485650 f335087973 f411f533d3 f464242bf6 f467f613a4 f4da419a89 f5355305ff f5b62cda94 f63b05adab f6d681bade f6e2831fc5 f81621221d f888b4955c f8f3f9ee91 f980fac294 f9da279e06 fa8d73986c fab13d9277 fbb0f31b2e fbe0cd510d fc146d19a9 fcd168445d fd0126919b fd13f09283 fd83c9d8cc fe0a7ca581 fe86997b56"
+ }
+}

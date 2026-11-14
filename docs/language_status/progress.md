@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `5b6b1b2a7` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `183fdce50` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -57,11 +57,11 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 |---|---|---|---|---|---|---|---|---|
 | `aws-mainframe-modernization-carddemo` | 44 | 25 | 5 | 0 | 50.9% (6149 of 12070) | 41.4% (12559 of 30369) | 2117 | 209 |
 | `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 94.2% (5767 of 6124) | 100.0% (6241 of 6241) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 8 | 2 | 0 | 44.1% (1920 of 4350) | 100.0% (4530 of 4530) | 925 | 381 |
+| `cics-banking-sample-application-cbsa` | 31 | 8 | 2 | 0 | 44.1% (1920 of 4349) | 100.0% (4530 of 4530) | 925 | 381 |
 | `cics-genapp` | 31 | 1 | 0 | 0 | 13.6% (149 of 1099) | 100.0% (1147 of 1147) | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
 | `zecs` | 7 | 4 | 0 | 0 | 47.9% (1215 of 2537) | 100.0% (2604 of 2604) | 846 | 365 |
-| **Total** | 129 | 50 | 7 | 0 | 57.9% (15522 of 26812) | 60.9% (27725 of 45535) | 4182 | 1025 |
+| **Total** | 129 | 50 | 7 | 0 | 57.9% (15522 of 26811) | 60.9% (27725 of 45535) | 4182 | 1025 |
 
 ## Capability ledger
 
@@ -130,11 +130,11 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-14T12:24:25Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-14T12:53:24Z.
 
-- `scope:core`: 17 open, 247 closed.
+- `scope:core`: 16 open, 248 closed.
 - Milestone 28: 0 open, 112 closed.
-- Last 7 days: 30 opened, 26 closed, net -4 closed.
+- Last 7 days: 30 opened, 27 closed, net -3 closed.
 - ETA (open / net closure rate): **not converging**.
 
 ## 5. Gap Atlas

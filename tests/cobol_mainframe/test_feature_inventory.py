@@ -358,7 +358,7 @@ def check_schema(data, node, root, where="$"):
 def test_schema_over_fixtures():
     schema = json.loads(SCHEMA_FILE.read_text())
     fixtures = sorted((TOOLS.parent / "fixtures" / "feature_inventory").glob("*.json"))
-    assert len(fixtures) == 6  # noqa: S101 -- one per burned estate
+    assert len(fixtures) == 7  # noqa: S101 -- one per burned estate (blind 1, example-health-apis, since #8157)
     for f in fixtures:
         check_schema(json.loads(f.read_text()), schema, schema, f.name)
     for f in fixtures:  # #5117: every program the inventory counts has an era tag, and the summary adds up

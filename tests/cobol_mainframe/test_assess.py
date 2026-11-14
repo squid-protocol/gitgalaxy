@@ -24,7 +24,7 @@ REPO = Path(__file__).resolve().parents[2]
 FIXTURES = REPO / "tests" / "fixtures" / "feature_inventory"
 OPTIONS = REPO / "tests" / "equivalence" / "estate_options"
 CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora"))
-BURNED = sorted(p.stem for p in FIXTURES.glob("*.json"))  # the six burned estates' corpus directories
+BURNED = sorted(p.stem for p in FIXTURES.glob("*.json"))  # the seven burned estates' corpus directories
 TEXT_SUFFIXES = {".cbl", ".cob", ".cobol", ".cpy", ".copy", ".bms", ".asm", ".mac", ".jcl", ".prc", ".proc", ".sql", ""}
 
 
@@ -33,7 +33,7 @@ def _env() -> dict[str, str]:
 
 
 def test_every_burned_estate_has_an_inventory():
-    assert len(BURNED) == 6, BURNED  # estate4_draw.BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB, async credit card
+    assert len(BURNED) == 7, BURNED  # estate4_draw.BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB, async credit card, blind 1 (#8157)
 
 
 def _inventory(estate: str) -> dict:

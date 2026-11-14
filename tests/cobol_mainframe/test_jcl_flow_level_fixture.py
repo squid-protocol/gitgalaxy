@@ -17,7 +17,7 @@ from gitgalaxy.core import job_flow
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "equivalence" / "jcl" / "fixture"
 DOC = json.loads((FIXTURE / "scenarios.json").read_text(encoding="utf-8"))
-FLOW = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="latin-1"))
+FLOW = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8"))
 
 
 def _steps_by_job() -> dict[str, list[dict]]:
@@ -33,7 +33,7 @@ def _steps_by_job() -> dict[str, list[dict]]:
 
 
 def test_every_line_of_the_jcl_fits_columns_1_to_72():
-    for n, ln in enumerate((FIXTURE / "FLOW.jcl").read_text(encoding="latin-1").splitlines(), 1):
+    for n, ln in enumerate((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8").splitlines(), 1):
         assert len(ln) <= 72, (n, ln)
 
 
@@ -124,7 +124,7 @@ def test_the_flow_evaluator_reproduces_every_scenario():
 # --- #8413 tier 1: IF / THEN / ELSE / ENDIF beyond the first fixture (IFFLOW.jcl, ifflow_scenarios.json) ---
 
 IF_DOC = json.loads((FIXTURE / "ifflow_scenarios.json").read_text(encoding="utf-8"))
-IF_FLOW = job_flow.jcl_job_flow((FIXTURE / "IFFLOW.jcl").read_text(encoding="latin-1"))
+IF_FLOW = job_flow.jcl_job_flow((FIXTURE / "IFFLOW.jcl").read_text(encoding="utf-8"))
 
 # Scenarios whose IBM answer the engine does not yet reproduce. Each is a real gap, named here so the list stays honest:
 # the test below fails both when one of these starts to match (remove it) and when any other scenario stops matching.
@@ -149,7 +149,7 @@ def _if_steps_by_job() -> dict[str, list[str]]:
 
 
 def test_ifflow_every_line_of_the_jcl_fits_columns_1_to_72():
-    for n, ln in enumerate((FIXTURE / "IFFLOW.jcl").read_text(encoding="latin-1").splitlines(), 1):
+    for n, ln in enumerate((FIXTURE / "IFFLOW.jcl").read_text(encoding="utf-8").splitlines(), 1):
         assert len(ln) <= 72, (n, ln)
 
 

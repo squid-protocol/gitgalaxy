@@ -312,7 +312,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math|Complex|Rational|Matrix|Vector|Numo::NArray|BigDecimal)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and runtime object extensions.
         # BUG FIX: `respond_to_missing\?` ends on `?` (non-word), so the
         # shared trailing \b could never fire. Never matched.

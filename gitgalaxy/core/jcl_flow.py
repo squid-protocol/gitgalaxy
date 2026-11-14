@@ -8,10 +8,12 @@
 # ASSUMED (named in scenarios.json): A1 a step that never started is a bypassed step for a later COND test (false);
 # A2 `stepname.RUN = FALSE` on a step that did not start is true; A3 after an ordinary abend an IF that does not name
 # ABEND / ABENDCC starts nothing; A4 EVEN / ONLY follow IBM's prose.
-# Refused by name (JclFlowRefused): AND and OR mixed without parentheses, more than 8 COND tests, a COND test on a
-# PROC step (`a.b`), a bare `RUN` with no stepname, `RC` before any step executed, an ABENDCC ordering comparison.
+# Refused by name (JclFlowRefused): AND and OR mixed without parentheses, more than 8 COND tests, a bare `RUN` with no
+# stepname, `RC` before any step executed, an ABENDCC ordering comparison.
 # Not modelled: JOB-statement COND, COND inside THEN / ELSE, the job's final completion code, RESTART, cancel / time
 # expiry (IBM: the remaining steps do not run whatever the tests say).
+# A procedure's step is a step named `CALLSTEP.PROCSTEP` (`jcl_proc.expand_flow_rows` splices them in, #8413): the
+# IF `CALLSTEP.PROCSTEP.RC` and the COND `(4,LT,CALLSTEP.PROCSTEP)` read it like any step name.
 from __future__ import annotations
 
 import re
@@ -117,8 +119,6 @@ def parse_cond(cond: str | None) -> tuple[list[tuple[int, str, str | None]], boo
             f = [x.strip() for x in item[1:-1].split(",")]
             if len(f) not in (2, 3) or not f[0].isdigit() or f[1].upper() not in _COND_OPS:
                 raise JclFlowRefused(f"COND test not understood: {item}")
-            if len(f) == 3 and "." in f[2]:
-                raise JclFlowRefused(f"COND test on a PROC step: {item}")
             tests.append((int(f[0]), _COND_OPS[f[1].upper()], f[2] if len(f) == 3 else None))
         else:
             raise JclFlowRefused(f"COND parameter not understood: {cond}")

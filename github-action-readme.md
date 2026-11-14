@@ -1,10 +1,9 @@
-# GitGalaxy: Zero-Trust DevSecOps Action
+# GitGalaxy: DevSecOps Action
 
 [![Marketplace](https://img.shields.io/badge/GitHub-Marketplace-blue.svg)](#)
 [![Architecture](https://img.shields.io/badge/Architecture-AST--Free_Physics-00BFFF.svg)](#)
-[![Security](https://img.shields.io/badge/Security-Zero--Trust_Enforcement-FF4500.svg)](#)
 
-Gitgalaxy is a static analysis tool that can assess full repos, comprised of mixes of 50+ different languages and map out the architecture, provide risk exposures and actionable fixes to lower those exposures. The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. 
+Gitgalaxy is a static analysis tool that can assess full repos, comprised of mixes of [59 languages](README.md#languages) and map out the architecture, provide risk exposures and actionable fixes to lower those exposures. The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. 
 
 This GitHub Action drops our security sentinels, AI-agent guardrails, and architectural cartography tools directly into your CI/CD pipeline, and can automatically generate living architectural documentation.
 
@@ -14,7 +13,7 @@ For a deep dive into the methodology, see [The blAST Paradigm](docs/wiki/01-03-t
 
 ## The "Golden Path" (Recommended Pipeline)
 
-For standard PR gating, use the **3-job Zero-Trust Sentinel pipeline**: `vault-sentinel`, `xray-inspector`, and `supply-chain-firewall` run in parallel, and any one of them can fail the build.
+For standard PR gating, use the **3-job sentinel pipeline**: `vault-sentinel`, `xray-inspector`, and `supply-chain-firewall` run in parallel, and any one of them can fail the build.
 
 Rather than pasting the workflow here (which is exactly how our version pins drifted out of sync last time), use the maintained template directly:
 
@@ -68,13 +67,13 @@ This is genuinely optional, and separate for a reason: it's the only job in this
 The `tool` input determines which GitGalaxy program executes. Choose the right tool for your specific pipeline stage:
 
 ### 1. The Orchestrator (Reporting & Observability)
-* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)** (alias: `blast`): The core mapping engine. It calculates the 13 per-file structural vectors ([reference](docs/vectors.md)), runs ML threat inference when an XGBoost model is supplied and `full_precision` is on, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Reports only by default: it fails the pipeline only when you pass a gate (`--fail-on-secrets`, `--fail-on-malware`, `--max-risk-exposure`, `--max-systemic-threat`). Gates do not run on an `--incremental` scan.*
+* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)** (alias: `blast`): The core mapping engine. It calculates the 13 per-file structural vectors ([reference](docs/vectors.md)) and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Reports only by default: it fails the pipeline only when you pass a gate (`--fail-on-secrets`, `--max-risk-exposure`, `--max-systemic-threat`), on full and `--incremental` scans alike.* *It does no ML threat classification: no trained model ships, the Action has no input to supply one, and the hash-pinned `full` requirements lack `scikit-learn`, so inference never runs and `--fail-on-malware` cannot fire. That also makes the template's "ML Malware Gate" a no-op ([#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430)).*
 
-### 2. The Sentinels (Zero-Trust Enforcement)
+### 2. The Sentinels (Build-Breaking Gates)
 *These tools are designed to `sys.exit(1)` and break the build instantly if a threat is detected.*
 * **[`vault-sentinel`](docs/wiki/04-04-vault-sentinel.md)**: High-speed secrets scanner. Drops the hammer on hardcoded API keys, exposed `.env` variables, and cryptographic vault leaks.
 * **[`xray-inspector`](docs/wiki/04-05-binary-anomaly-detector.md)**: Binary and Obfuscation scanner. Hunts for high-entropy encrypted payloads, sub-atomic XOR loops, and hidden executables disguised via magic byte mismatches (e.g., malware hidden in a `.png`).
-* **[`supply-chain-firewall`](docs/wiki/04-03-supply-chain-firewall.md)**: Dependency execution verifyer. Blocks blacklisted imports, identifies shadowed/steganographic imports, and flags tainted I/O access.
+* **[`supply-chain-firewall`](docs/wiki/04-03-supply-chain-firewall.md)**: Import and secrets gate. Inside a `galaxyscope` scan it checks imports against a blacklist (audit mode; `BLACKLISTED_IMPORTS` ships empty) or an allowlist (strict mode), and blocks files whose `secrets_risk` is 50 or more. It does not look for steganography or tainted I/O. The standalone CLI, which `tool: supply-chain-firewall` runs, currently never blocks on real scan output ([#8428](https://github.com/squid-protocol/gitgalaxy/issues/8428)); other enforcement gaps are in [#8432](https://github.com/squid-protocol/gitgalaxy/issues/8432).
 
 ### 3. AI Agent Guardrails
 These are not separate `tool` values. They run inside `galaxyscope` as its Phase 5, off by default: pass `args: '--ai-guardrails'` ([AI AppSec sensor](docs/wiki/02-17-ai-appsec-sensor.md), [dev-agent firewall](docs/wiki/02-18-dev-agent-firewall.md)). The prompt-injection and agentic-RCE detectors these once described were removed (#1020, #1102).
@@ -96,7 +95,7 @@ Configure the GitGalaxy action via the `with` block in your workflow step.
 | `target` | Yes | `.` | The directory or specific file path to scan. |
 | `args` | No | `""` | Additional CLI arguments passed directly to the tool. |
 | `version` | No | `latest` | `latest` installs the hash-pinned release the action ships with (`templates/requirements/`, `--require-hashes`). An explicit version (see [GitHub Releases](https://github.com/squid-protocol/gitgalaxy/releases)) is exact-pinned but not hash-verified, and a release older than the `full` extra silently runs in Zero-Dependency Mode even with `full_precision: 'true'`. |
-| `full_precision` | No | `false` | Set to `'true'` to install the optional engines (`tiktoken`, `xgboost`, `pandas`, `numpy`) for token counts and ML threat inference. Graph metrics such as Blast Radius need none of them. |
+| `full_precision` | No | `false` | Set to `'true'` to install the optional engines (`tiktoken`, `xgboost`, `pandas`, `numpy`) for token counts. It does not enable ML threat inference: no model ships and `scikit-learn` is not installed (#8430). Graph metrics such as Blast Radius need none of them. |
 
 ### Understanding the `--paranoid` Flag
 
@@ -111,7 +110,7 @@ When passing arguments via `args`, the `--paranoid` flag raises the sensitivity 
 
 The snippets below pin the action to the same commit as [`templates/github/gitgalaxy-pipeline.yml`](templates/github/gitgalaxy-pipeline.yml); when that template's pin moves, use its new SHA here too. No release tag ships the hash-pinned lockfiles yet (see the template's header note).
 
-### Universal Zero-Trust SBOM Generation
+### CycloneDX SBOM Generation
 Generate a physical-verified CycloneDX SBOM to attach to a release. SBOM generation is native to `galaxyscope` — see the [SBOM generator reference](docs/wiki/04-02-sbom-generator.md).
 
 ```yaml

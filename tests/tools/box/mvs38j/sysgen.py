@@ -152,13 +152,20 @@ def starter(work, image, name):
 # ---- SMP stages: IPL the starter system, then feed jobs through the reader and answer the operator console ----
 JOB_ENDED_RE = re.compile(r"\$HASP395\s+(\S+)\s+ENDED")
 # `*IEC501A M 170,MVS38J,SL,6250 BPI,` (live 2026-11-14): a mount is satisfied by readying the drive, so it carries no reply id
-MOUNT_RE = re.compile(r"IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
+MOUNT_RE = re.compile(r"(?:IEC501A|IEF233A)\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
 # `*02 IEF238D JOB - REPLY DEVICE NAME OR 'CANCEL'`: no online unit fits the job's tape DD (seen live, smp4p44, 2026-11-14)
 DEVICE_ASK_RE = re.compile(r"(\d+)\s+IEF238D\s+\S+\s+-\s+REPLY DEVICE NAME")
 # `*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD`: a mounted volume (START1 holding SYS1.PROCLIB) is not yet in use; use it
 USE_ASK_RE = re.compile(r"(\d+)\s+IEC507D\s+REPLY\s+'U'")
+# `*01 IEF166D REPLY Y/N TO EXECUTE/SUPPRESS COMMAND`: smp2's reader-preloaded smpmount.jcl issues `M 148,...` (live 2026-11-14)
+COMMAND_ASK_RE = re.compile(r"(\d+)\s+IEF166D\s+REPLY Y/N")
+# `*06 IEH841D 148    CONFIRM REQUEST TO INITIALIZE`: IEHDASDR ANALYZE of an offline volume asks once per device; `U` confirms
+INIT_ASK_RE = re.compile(r"(\d+)\s+IEH841D\s+(\S+)\s+CONFIRM REQUEST TO INITIALIZE")
 SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC(?!502E)\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
 SMP_IPL_UNIT, SMP_READER = "150", "12"
+SMP_TARGET_UNITS = ("148", "149", "14A")  # SMP000 / WORK00 / WORK01 (smp4p44.jcl S5)
+# IEHDASDR / IEBUPDTE refuse in a message that is not an E-message: `IEH824I  ANALYZE TERMINATED. DEVICE NOT OFF-LINE`
+PRINTER_REFUSED_RE = re.compile(r"\bIEH\d{3}I\s+.*TERMINATED")
 
 
 def printer_file(work, conf):
@@ -206,9 +213,20 @@ def tape_unit(work, conf):
     raise SysgenError(f"no 3420 tape drive in {conf}")
 
 
+# volumes the SMP jobs ask for (verified live 2026-11-14 except where the job's DD names them), by tape file under tape/;
+# `--tape VOLSER=FILE` overrides. A volser not here is looked up as tape/<volser>.het.
+DEFAULT_TAPES = {
+    "MVS38J": "tape/zdlib1.het",
+    "T74172": "tape/smp4b.het",
+    "PTFS20": "tape/ptfs.het",
+    "J90012": "tape/j90012.het",
+}
+
+
 def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
     """Answer each new IEC501A mount request on the console: `devinit` the tape for its volser (no reply).
     An `IEF238D REPLY DEVICE NAME` ask is answered with `unit` (the config's tape drive); the mount request follows."""
+    tapes = {**DEFAULT_TAPES, **tapes}
     for line in con.lines[since:]:
         d = DEVICE_ASK_RE.search(line)
         if d and unit and d.group(1) not in seen:
@@ -219,6 +237,11 @@ def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
         if u and u.group(1) not in seen:
             seen.add(u.group(1))
             con.send(f"r {u.group(1)},u")
+            continue
+        i = INIT_ASK_RE.search(line)
+        if i and i.group(1) not in seen:
+            seen.add(i.group(1))
+            con.send(f"r {i.group(1)},u")
             continue
         m = MOUNT_RE.search(line)
         if not m or m.groups() in seen:
@@ -248,12 +271,25 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         con.wait(r"\$HASP426|SPECIFY OPTIONS", 300)
         con.send("r 0,format,noreq")
         line = con.wait(
-            r"\$HASP436|\$HASP099", 300
-        )  # a fresh spool asks to confirm the checkpoint change; a warm one does not
+            r"\$HASP436|\$HASP099|IEF166D", 300
+        )  # a fresh spool asks to confirm the checkpoint change; a warm one does not; smp2's preloaded job asks first
         if "HASP436" in line:
             rid = re.search(r"(\d+)\s+\$HASP436", line)
             con.send(f"r {rid.group(1) if rid else '01'},y")
-            con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE", 300)
+            line = con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE|IEF166D", 300)
+        if stage == "smp2":  # the reader was preloaded with smpmount.jcl by the config: confirm its MOUNT command
+            ask = line if COMMAND_ASK_RE.search(line) else con.wait(COMMAND_ASK_RE.pattern, 300)
+            con.send(f"r {COMMAND_ASK_RE.search(ask).group(1)},y")
+            con.wait(r"\$HASP395\s+SMPMOUNT\s+ENDED", 300)
+            print(f"{stage}: SMPMOUNT ended")
+        if (
+            stage == "smp1"
+        ):  # IEHDASDR ANALYZE (S5) refuses a device that is online: IEH824I "DEVICE NOT OFF-LINE" (live 2026-11-14)
+            for unit in SMP_TARGET_UNITS:
+                con.send(f"v {unit},offline")
+                time.sleep(3)  # the starter system echoes nothing for VARY (seen live)
+        printed = printer_file(work, conf)
+        printed_from = printed.stat().st_size if printed.exists() else 0
         for job in jobs:
             since, seen = con.mark(), set()
             herc.send(f"devinit {SMP_READER} {job.relative_to(work)}")
@@ -273,7 +309,11 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
             if bad:
                 raise SysgenError(f"{job.name}: {bad[0].strip()}")
             print(f"{stage}: {job.name} ended")
-        results = step_results(printer_file(work, conf).read_text(errors="backslashreplace"))
+        text = printed.read_bytes()[printed_from:].decode("latin-1")
+        refused = [ln.strip() for ln in text.splitlines() if PRINTER_REFUSED_RE.search(ln)]
+        if refused:
+            raise SysgenError(f"{stage}: {refused[0]}")
+        results = step_results(text)
         failed = [r for r in results if not r["executed"] or (r["cond_code"] or 0) > 4]
         if failed:
             raise SysgenError(f"{stage}: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")

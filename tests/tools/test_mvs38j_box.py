@@ -267,6 +267,31 @@ def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
     assert replies == ["r 02,170", "r 03,u"]
 
 
+def test_smp2_console_asks_are_answered_once_and_default_tapes_resolve():
+    con = console.Console()
+    con.lines = [
+        "*02 IEH841D 148    CONFIRM REQUEST TO INITIALIZE",
+        "*03 IEH841D 149    CONFIRM REQUEST TO INITIALIZE",
+        "*IEF233A M 170,MVS38J,,SMPJOB01,SMP",  # smp2 mounts come as IEF233A, smp1's as IEC501A
+        "*IEC501A M 170,PTFS20,SL,6250 BPI,",
+    ]
+    replies, sent, seen = [], [], set()
+    con.send = replies.append
+    for _ in range(2):  # the second pass must not repeat any answer
+        sysgen.answer_mounts(sent.append, con, 0, {}, seen)
+    assert replies == ["r 02,u", "r 03,u"]
+    assert sent == ["devinit 170 tape/zdlib1.het", "devinit 170 tape/ptfs.het"]
+    assert sysgen.COMMAND_ASK_RE.search("*01 IEF166D REPLY Y/N TO EXECUTE/SUPPRESS COMMAND").group(1) == "01"
+    sysgen.answer_mounts(sent.append, con, 0, {"PTFS20": "tape/other.het"}, set())  # --tape overrides the default
+    assert sent[-1] == "devinit 170 tape/other.het"
+
+
+def test_a_terminated_utility_in_the_printer_text_is_refused():
+    line = "IEH824I  ANALYZE TERMINATED. DEVICE NOT OFF-LINE AND CONFIRMED. TODD= 148"
+    assert sysgen.PRINTER_REFUSED_RE.search(line)
+    assert not sysgen.PRINTER_REFUSED_RE.search("IEH839I  HIGHEST RETURN CODE ENCOUNTERED WAS 08")
+
+
 def test_a_tape_keep_message_is_not_a_console_error():
     assert not sysgen.SMP_CONSOLE_ERRORS.search(" IEC502E K 170,MVS38J,SL,SMP4P44,S2")
     assert sysgen.SMP_CONSOLE_ERRORS.search(" IEC145E I/O ERROR 170")

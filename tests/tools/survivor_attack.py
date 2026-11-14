@@ -1791,6 +1791,7 @@ def cmd_auto_state(case: str, work: Path, dry_run: bool = False) -> int:
 def cmd_facts_all(cases: list[str], work: Path, auto_state: bool = False, limit: int | None = None) -> int:
     """Batch `facts` (and optionally `auto-state`) grouped by corpus so each corpus is translated once."""
     import collections  # noqa: PLC0415
+    import subprocess  # noqa: PLC0415
 
     ledger = dm.load()
     survivors = dm.load_survivors()
@@ -1811,7 +1812,13 @@ def cmd_facts_all(cases: list[str], work: Path, auto_state: bool = False, limit:
         if not batch:
             break
         cwork = work / corpus
-        dm.translate(batch, cwork)
+        try:
+            dm.translate(batch, cwork)
+        except subprocess.CalledProcessError as e:
+            print(f"{corpus}: translate failed (exit {e.returncode}), skipping {len(batch)} case(s)")
+            rc = 1
+            ran += len(batch)
+            continue
         for case in batch:
             rc |= cmd_auto_state(case, cwork) if auto_state else cmd_facts(case, cwork)
             ran += 1

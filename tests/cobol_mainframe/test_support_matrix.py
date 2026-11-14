@@ -340,7 +340,12 @@ def test_every_burned_estate_has_an_era_section(capsys):
 
 
 def test_burned_estates_are_the_inventory_fixtures():
-    assert sm.estates() == sorted(p.stem for p in sm.INVENTORY.glob("*.json"))
+    # every estate with a report has its inventory. The converse stopped holding with Blind 1 (#8409): its inventory
+    # is committed, while the report fixtures here (tests/fixtures/evidence_report/) are still the six from before it.
+    inventories = {p.stem for p in sm.INVENTORY.glob("*.json")}
+    reported = sorted(d.name for d in sm.REPORTS.iterdir() if (d / "report.json").is_file())
+    assert sm.estates() == reported
+    assert set(reported) <= inventories
     assert len(sm.estates()) >= 6
 
 

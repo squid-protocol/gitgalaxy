@@ -5,11 +5,10 @@ Internal use only until counsel answers Q16. Stdlib only; runs on the host and s
 (`docker run -i`), feeding it commands on stdin and reading its log (which carries the integrated 1052-C console) on
 stdout. Stages are small functions over `Hercules`; each one checks the messages and PSW the guide documents and raises
 `SysgenError` rather than carry on. Implemented: `starter` (the two stand-alone programs per volume) and `smp1` / `smp2` (starter-system
-IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). Not yet: stage 1,
-stage 2, user mods: see docs/jcl_oracle_mvs38j.md "Remaining slices".
+IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`). Not yet: stage 2, user mods: see docs/jcl_oracle_mvs38j.md "Remaining slices".
 
     sysgen.py starter [--work DIR] [--image IMG] [--name NAME]
-    sysgen.py smp1|smp2 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
+    sysgen.py smp1|smp2|stage1 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
     sysgen.py condcode PRINTER_FILE JOB|ALL [--expect STEP=CC ...]
 """
 
@@ -156,7 +155,8 @@ MOUNT_RE = re.compile(r"(?:IEC501A|IEF233A)\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
 # `*02 IEF238D JOB - REPLY DEVICE NAME OR 'CANCEL'`: no online unit fits the job's tape DD (seen live, smp4p44, 2026-11-14)
 DEVICE_ASK_RE = re.compile(r"(\d+)\s+IEF238D\s+\S+\s+-\s+REPLY DEVICE NAME")
 # `*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD`: a mounted volume (START1 holding SYS1.PROCLIB) is not yet in use; use it
-USE_ASK_RE = re.compile(r"(\d+)\s+IEC507D\s+REPLY\s+'U'")
+# and `*02 ICK003D REPLY U TO ALTER VOLUME 149 CONTENTS, ELSE T` (sysgen00's ICKDSF INIT of each target volume, live 2026-11-14)
+USE_ASK_RE = re.compile(r"(\d+)\s+(?:IEC507D\s+REPLY\s+'U'|ICK003D\s+REPLY U )")
 # `*01 IEF166D REPLY Y/N TO EXECUTE/SUPPRESS COMMAND`: smp2's reader-preloaded smpmount.jcl issues `M 148,...` (live 2026-11-14)
 COMMAND_ASK_RE = re.compile(r"(\d+)\s+IEF166D\s+REPLY Y/N")
 # `*06 IEH841D 148    CONFIRM REQUEST TO INITIALIZE`: IEHDASDR ANALYZE of an offline volume asks once per device; `U` confirms
@@ -235,6 +235,7 @@ DEFAULT_TAPES = {
     "T74172": "tape/smp4b.het",
     "PTFS20": "tape/ptfs.het",
     "J90012": "tape/j90012.het",
+    "STAGE1": "tape/stage1.het",  # sysgen01's continuation job writes the stage 2 deck here (IEBGENER to tape 170)
 }
 
 
@@ -253,6 +254,11 @@ def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
             seen.add(u.group(1))
             con.send(f"r {u.group(1)},u")
             continue
+        c = COMMAND_ASK_RE.search(line)
+        if c and c.group(1) not in seen:
+            seen.add(c.group(1))
+            con.send(f"r {c.group(1)},y")
+            continue
         i = INIT_ASK_RE.search(line)
         if i and i.group(1) not in seen:
             seen.add(i.group(1))
@@ -268,6 +274,49 @@ def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
         herc_cmd(f"devinit {unit} {tapes[volser]}")
 
 
+def ipl_starter(herc, con):
+    """IPL the starter system (`ipl 150`), answer `clpa` and `format,noreq`, and return the first line after the spool
+    questions (`$HASP099`, or smp2's preloaded job's `IEF166D`)."""
+    herc.send(f"ipl {SMP_IPL_UNIT}")
+    con.wait(r"IEA101A|SPECIFY SYSTEM PARAMETERS", 300)
+    con.send("r 0,clpa")
+    con.wait(r"\$HASP426|SPECIFY OPTIONS", 300)
+    con.send("r 0,format,noreq")
+    # a fresh spool asks to confirm the checkpoint change; a warm one does not; smp2's preloaded job asks first
+    line = con.wait(r"\$HASP436|\$HASP099|IEF166D", 300)
+    if "HASP436" in line:
+        rid = re.search(r"(\d+)\s+\$HASP436", line)
+        con.send(f"r {rid.group(1) if rid else '01'},y")
+        line = con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE|IEF166D", 300)
+    return line
+
+
+def run_deck(herc, con, work, conf, job, tapes, timeout, ended=1):
+    """Feed `job` through the reader and answer the console until `ended` `$HASP395 ... ENDED` lines (the job, plus any it
+    submits to the internal reader) have appeared and none of the console lines is an error; return the console mark taken
+    before the deck, so the caller can read what the deck printed."""
+    since, seen = con.mark(), set()
+    herc.send(f"devinit {SMP_READER} {Path(job).relative_to(work)}")
+    end = time.monotonic() + timeout
+    while True:
+        if sum(1 for ln in con.lines[since:] if JOB_ENDED_RE.search(ln)) >= ended:
+            break
+        jcl_err = [ln for ln in con.lines[since:] if "IEF452I" in ln]
+        if jcl_err or time.monotonic() > end:
+            tail = " | ".join(ln.strip() for ln in con.lines[-8:])
+            why = jcl_err[0].strip() if jcl_err else f"{ended} x $HASP395 ENDED not seen within {timeout}s"
+            raise SysgenError(f"{Path(job).name}: {why}; console tail: {tail}")
+        answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf))
+        time.sleep(2)
+    return since
+
+
+# smpjob07 submits a second job of the same name through the internal reader (`$HASP100 SMPJOB07 ON INTRDR  LINK UTILITIES`)
+# that relinks ICKDSF into SYS1.LINKLIB; quitting Hercules after the first `ENDED` left the starter without ICKDSF, and
+# sysgen00's ICKDSF step then abended S806 (live 2026-11-14).
+SMP_ENDED = {"smpjob07.jcl": 2}
+
+
 def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
     """IPL the starter system with `conf/<stage>.cnf`, run each smpjob deck and check its steps ran (condcode)."""
     conf = f"conf/{stage}.cnf"
@@ -280,18 +329,7 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
     herc.wait(r"HHC01024I", 60)  # the console listener; docker's proxy accepts earlier and then drops the connection
     con = telnet_console.Console(port=port).connect()
     try:
-        herc.send(f"ipl {SMP_IPL_UNIT}")
-        con.wait(r"IEA101A|SPECIFY SYSTEM PARAMETERS", 300)
-        con.send("r 0,clpa")
-        con.wait(r"\$HASP426|SPECIFY OPTIONS", 300)
-        con.send("r 0,format,noreq")
-        line = con.wait(
-            r"\$HASP436|\$HASP099|IEF166D", 300
-        )  # a fresh spool asks to confirm the checkpoint change; a warm one does not; smp2's preloaded job asks first
-        if "HASP436" in line:
-            rid = re.search(r"(\d+)\s+\$HASP436", line)
-            con.send(f"r {rid.group(1) if rid else '01'},y")
-            line = con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE|IEF166D", 300)
+        line = ipl_starter(herc, con)
         if stage == "smp2":  # the reader was preloaded with smpmount.jcl by the config: confirm its MOUNT command
             ask = line if COMMAND_ASK_RE.search(line) else con.wait(COMMAND_ASK_RE.pattern, 300)
             con.send(f"r {COMMAND_ASK_RE.search(ask).group(1)},y")
@@ -306,20 +344,7 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         printed = printer_file(work, conf)
         printed_from = printed.stat().st_size if printed.exists() else 0
         for job in jobs:
-            since, seen = con.mark(), set()
-            herc.send(f"devinit {SMP_READER} {job.relative_to(work)}")
-            end = time.monotonic() + job_timeout
-            while True:
-                try:
-                    con.wait(JOB_ENDED_RE.pattern, 5, since)
-                    break
-                except telnet_console.ConsoleError:
-                    jcl_err = [ln for ln in con.lines[since:] if "IEF452I" in ln]
-                    if jcl_err or time.monotonic() > end:
-                        tail = " | ".join(ln.strip() for ln in con.lines[-8:])
-                        why = jcl_err[0].strip() if jcl_err else f"no $HASP395 ENDED within {job_timeout}s"
-                        raise SysgenError(f"{job.name}: {why}; console tail: {tail}") from None
-                    answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf))
+            since = run_deck(herc, con, work, conf, job, tapes, job_timeout, SMP_ENDED.get(job.name, 1))
             bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
             if bad:
                 raise SysgenError(f"{job.name}: {bad[0].strip()}")
@@ -336,6 +361,65 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
     finally:
         con.close()
         herc.quit()
+
+
+# ---- stage 1: initialise the target volumes (sysgen00) and assemble the stage 1 deck onto tape (sysgen01) ----
+# Steps of sysgen00 / sysgen01 allowed above CC 0 on a fresh build: key (JOB, STEP) -> (CC, reason); filled from live runs.
+STAGE1_EXPECTED = {
+    ("SYSGEN00", "IEHPROGM"): (8, "SCRATCH of work datasets a fresh WORK01 never held (IEH207I)"),
+    ("SYSGEN01", "CLEANUP"): (8, "deletes the previous run's stage 1 output, absent on a fresh build"),
+}
+# (deck, `$HASP395 ENDED` count: the deck plus the jobs it submits). FDZ1D02 (ICKDSF R13) is NOT run here: it names the target
+# master catalog as JOBCAT, so it belongs after sysgen00 has defined it (its IEWL step is `IEF212I JOBCAT - DATA SET NOT
+# FOUND`, not executed, when run first; Moseley runs it last, after the target system is generated).
+STAGE1_DECKS = (("sysgen00.jcl", 3), ("sysgen01.jcl", 2))
+
+
+def stage1(work, image, name, tapes, port=3270, job_timeout=1800):
+    """IPL the starter system with `conf/sysgen.cnf`, attach the target volumes (`conf/sysgen.script`), run sysgen00 then
+    sysgen01, and extract `stage1.output` from `tape/stage1.het` with the image's `hetget` for stage 2."""
+    conf = "conf/sysgen.cnf"
+    for need in (conf, "conf/sysgen.script", "jcl/sysgen00.jcl", "jcl/sysgen01.jcl", "tape/stage1.het"):
+        if not (Path(work) / need).is_file():
+            raise SysgenError(f"{work}/{need} missing: run mvs38j.sh stage first")
+    herc = Hercules(work, conf, image, name, console_port=port).start()
+    herc.wait(r"HHC01024I", 60)
+    con = telnet_console.Console(port=port).connect()
+    try:
+        ipl_starter(herc, con)
+        for ln in (Path(work) / "conf/sysgen.script").read_text(errors="backslashreplace").splitlines():
+            if ln.strip().lower().startswith("attach "):
+                herc.send(
+                    ln.strip()
+                )  # the volumes sysgen00 initialises (149 MVSRES, 14A MVS000, 14B SPOOL1, 14C PAGE00)
+        printed = printer_file(work, conf)
+        printed_from = printed.stat().st_size if printed.exists() else 0
+        for deck, ended in STAGE1_DECKS:
+            since = run_deck(herc, con, work, conf, Path(work) / "jcl" / deck, tapes, job_timeout, ended)
+            bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
+            if bad:
+                raise SysgenError(f"{deck}: {bad[0].strip()}")
+            print(f"stage1: {deck} ended")
+        text = printed.read_bytes()[printed_from:].decode("latin-1")
+        results = step_results(text)
+        failed = smp_failed_steps(results, STAGE1_EXPECTED)
+        if failed:
+            raise SysgenError(f"stage1: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")
+        print(f"stage1: {len(results)} steps checked (condcode)")
+    finally:
+        con.close()
+        herc.quit()
+    hetget(work, image, name, "tape/stage1.het", "stage1.output", 1)
+
+
+def hetget(work, image, name, het, out, fileno):
+    """Extract file `fileno` of a tape image as ASCII text into `work/out` with the image's `hetget -a`."""
+    cmd = ["docker", "run", "--rm", "--name", f"{name}-hetget", "--user", f"{os.getuid()}:{os.getgid()}"]
+    cmd += ["-v", f"{work}:/mvs", "-w", "/mvs", "--entrypoint", "hetget", image, "-a", het, out, str(fileno)]
+    r = subprocess.run(cmd, capture_output=True, text=True, check=False)  # noqa: S603
+    if r.returncode != 0 or not (Path(work) / out).stat().st_size:
+        raise SysgenError(f"hetget {het} -> {out} failed (rc {r.returncode}): {r.stdout.strip()[-300:]}")
+    print(f"stage1: {out} extracted from {het} ({(Path(work) / out).stat().st_size} bytes)")
 
 
 # IEF142I: step executed with its completion code; IEF272I: step not executed (COND bypass / flushed).
@@ -394,7 +478,7 @@ def main(argv=None):
     st.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
     st.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
     st.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
-    for stage in ("smp1", "smp2"):
+    for stage in ("smp1", "smp2", "stage1"):
         sp = sub.add_parser(stage)
         sp.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
         sp.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
@@ -410,8 +494,11 @@ def main(argv=None):
         if args.cmd == "starter":
             starter(args.work, args.image, args.name)
             return 0
-        if args.cmd in ("smp1", "smp2"):
+        if args.cmd in ("smp1", "smp2", "stage1"):
             tapes = dict(t.split("=", 1) for t in args.tape)
+            if args.cmd == "stage1":
+                stage1(args.work, args.image, args.name, tapes, args.port)
+                return 0
             smp_stage(args.work, args.image, args.name, args.cmd, tapes, args.port)
             return 0
         results = step_results(Path(args.printer_file).read_text(errors="backslashreplace"), args.job)

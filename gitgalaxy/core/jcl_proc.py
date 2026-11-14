@@ -167,7 +167,7 @@ def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str)
     main: list[tuple[int, str, str, str]] = []
     i = 0
     while i < len(stmts):
-        line, name, op, field = stmts[i]
+        _line, name, op, field = stmts[i]
         if op == "JCLLIB":
             raw = dict(_split(field)).get("ORDER", "")
             order = [x.strip().upper() for x in raw.strip("()").split(",") if x.strip()]
@@ -237,9 +237,10 @@ def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any
         if r["proc"] not in procs:
             raise JclProcRefused(f"procedure {r['proc']} is not in-stream: expand_flow_rows reads in-stream procedures")
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}
+        call = r["step_name"]
         for ps in procs[r["proc"]]:
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
-                cond = _COND_STEP.sub(lambda m: f"{m.group(1)}{r['step_name']}.{m.group(2)}{m.group(3)}", cond)
+                cond = _COND_STEP.sub(lambda m: f"{m.group(1)}{call}.{m.group(2)}{m.group(3)}", cond)
             out.append(dict(ps, step_name=f"{r['step_name']}.{ps['step_name']}", cond=cond, if_cond=r["if_cond"]))
     return out

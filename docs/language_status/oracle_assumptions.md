@@ -2582,6 +2582,15 @@ given no area tells them apart, and both the attack and the mutation run use `--
 facade-enabled attack. Unaccounted: GETCOMPY 1, GETSCODE 1 as the table counts them. CBSA does not reach L5: UPDACC
 (P123) and ZECS003 `db732fe82d` also remain.
 
+**Slice 15 (#7954), a facade-enabled typed LINK.** The premise of slice 14 was partly wrong: the mutation run already
+enters through the facades; what never reached `handleLink(request, byte[] area)` was a typed LINK given no area,
+because only `link_bytes` scenarios chose that overload. A `dto_entry` scenario of a LINKed case now enters it with a
+null area (the Java scenario JSON carries `dto_entry`; `FacadeRegion.rawArea` is on for it), and the driver already
+requires `lastLinkBytes()` to answer null. Full run (sample 0): the `&&` -> `||` rows of GETCOMPY (`2bcd761161`) and
+GETSCODE (`7cddf4101a`) are killed and dropped; no stated verdict refuted. The UPDACC run (715 mutants) was stopped
+part-way and not recorded, so UPDACC's 26 `harness-gap` rows (its `lastLinkBytes` rows are the same mechanism) and ZECS003
+`db732fe82d` remain. CBSA does not reach L5.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

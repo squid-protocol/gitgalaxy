@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen starter|smp1|smp2|start|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
+# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen starter|smp1|smp2|start|run DECK|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
 # Internal use only until counsel answers Q16. Never z/OS; never TK4-/TK5: the system is built from IBM's
 # distribution tapes (Jay Moseley's sysgen). Nothing here is committed or run in CI; the work dir holds the
 # system image and stays outside the repo. Heavy steps take a slot:  tests/tools/box/heavy-run.sh mvs38j.sh image
@@ -56,6 +56,21 @@ case "$1" in
     [ -f "$WORK/conf/mvs.conf" ] || { echo "no $WORK/conf/mvs.conf: generate the system first" >&2; exit 1; }
     # the card reader is a socket device on the loopback only; jobs are submitted through it
     docker run -d --rm --name "$NAME" -p 127.0.0.1:3505:3505 -p 127.0.0.1:3270:3270 -v "$WORK:/mvs" "$IMAGE" ;;
+  run)
+    # submit one JCL deck through the card reader of a started box and print the parsed JES2 job log as JSON
+    # (runner.py, provenance mvs38j-run). The printer file defaults to the first 1403 of conf/mvs.conf.
+    [ $# -ge 2 ] || { echo "usage: $0 run DECK [runner.py submit options]" >&2; exit 2; }
+    deck=$2; shift 2
+    [ -f "$deck" ] || { echo "no deck: $deck" >&2; exit 1; }
+    case " $* " in
+      *" --printer "*) ;;
+      *)
+        [ -f "$WORK/conf/mvs.conf" ] || { echo "no $WORK/conf/mvs.conf: generate the system first" >&2; exit 1; }
+        prt=$(awk 'tolower($2) == "1403" { print $3; exit }' "$WORK/conf/mvs.conf")
+        [ -n "$prt" ] || { echo "no 1403 printer in $WORK/conf/mvs.conf" >&2; exit 1; }
+        set -- --printer "$WORK/$prt" "$@" ;;
+    esac
+    exec python3 -I "$HERE/runner.py" submit "$deck" "$@" ;;
   stop)
     docker stop "$NAME" ;;
   status)

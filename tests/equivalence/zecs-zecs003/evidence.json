@@ -184,7 +184,7 @@
   "digest": "e6ecdd3568ae879c4efb72a11803b7d944576177afe37749f66164381e8e194c"
  },
  "proof": {
-  "at": "2026-11-14T14:45:57Z",
+  "at": "2026-11-14T15:35:57Z",
   "verdict": "proven",
   "source": "det-sweep",
   "runs": 37,
@@ -199,14 +199,14 @@
    "stale_inputs": [],
    "scenarios": 37
   },
-  "harness_commit": "868bedc9d57da11776e772c5716b63d923df8ca0+uncommitted",
+  "harness_commit": "ebd96794ed2ef3ca8e123ed475a3428ed4bfd99d+uncommitted",
   "inputs_digest": "e6ecdd3568ae879c4efb72a11803b7d944576177afe37749f66164381e8e194c",
   "det_mutation": {
    "score": 0.4852,
    "survived": 505,
-   "accounted": 504,
-   "unaccounted": 1,
-   "l5": false,
+   "accounted": 505,
+   "unaccounted": 0,
+   "l5": true,
    "current": true
   }
  },

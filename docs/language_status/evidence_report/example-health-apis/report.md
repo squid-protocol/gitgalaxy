@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `74db51397ea9247595e38542a410c1f22cefdbc6` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `094a1b0618918e9bc2d521312e48ff38f6f19870` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `e21b40fc19a4`).
 
@@ -927,6 +927,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 
 - **Next level needs:** translated whole (refused whole by the translator)
 - **Translation:** refused whole: missing copybook LGCMAREA
+- **Not a translator gap:** clone defect (a member the published repository does not hold) (#8073): its COPY member LGCMAREA is not in the published repository: a plain case-insensitive file search of the pinned clone, any extension, finds no member (docs/language_status/blind1_remeasure.md), so no compiler can build it as published; out of scope since trial-001 started (tests/cobol_mainframe/trials.json)
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
@@ -968,9 +969,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `74db51397ea9247595e38542a410c1f22cefdbc6`
+- translator commit (the survey's): `094a1b0618918e9bc2d521312e48ff38f6f19870`
 - corpus pin: `example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76`
-- crucible pins: cics `v0.18.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.18.0 (a1d0fc0f)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.19.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -978,8 +979,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 74db51397ea9247595e38542a410c1f22cefdbc6
-python tests/tools/evidence_report.py example-health-apis --baseline --sha 74db51397ea9247595e38542a410c1f22cefdbc6
+python tests/tools/cics_census.py survey --baseline --sha 094a1b0618918e9bc2d521312e48ff38f6f19870
+python tests/tools/evidence_report.py example-health-apis --baseline --sha 094a1b0618918e9bc2d521312e48ff38f6f19870
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

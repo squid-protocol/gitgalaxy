@@ -43,14 +43,14 @@ tree-sitter==0.26.0 \
     --hash=sha256:ff527388df14cb5009f9274faf78cc69a7393ae6acf3b04784b8acca249519c5 \
     --hash=sha256:ff80d4833d330a73184a3ac5132abe93c575d2dea31975c6f15c0d21fef238aa
     # via tree-sitter-language-pack
-tree-sitter-language-pack==1.24.0 \
-    --hash=sha256:047f46f961b0279c2999cea86d46282f8ea210e45750821f195d9f6675ce2457 \
-    --hash=sha256:34fbf193db44952ca7aa0c650b01736b6bec8fb31f9b98e8beed6cfe006b7d14 \
-    --hash=sha256:b3e7b5e12e4b1db5deb7cdbb98bb046841b7177eaf01fc6c47580496c146e419 \
-    --hash=sha256:bcae1d553b7c8f40f8a23bd29b192f178995c9e5f11a976f38fe89c4df1ca188 \
-    --hash=sha256:e08e76a19eeabc4e8203934a7dd9a3af15552c469b1cf92d7397493cb2d5e27f \
-    --hash=sha256:eee904138cda2a2cb6e6519babdb7ddf3575ca16616b74ac6b49f706d014b6da \
-    --hash=sha256:f295d27ddad4dbbaecd86ff05f8b84da1940c42c9d6dceb963f69ccbfcbce0e1
+tree-sitter-language-pack==1.22.1 \
+    --hash=sha256:34e4e7a77d02d102abf95c7b088962fcd56825bd48eabbe80f93e1d43665e7ad \
+    --hash=sha256:624d90afb8b210584bdcb871935385035872eeb12b26e41f487c0c8e1cab350b \
+    --hash=sha256:852a0129463a94f898dda2aa9616fb19e598d9a0a9d3024ec9dc2bffb3fa7945 \
+    --hash=sha256:8a476b71c2f6c71f23b0b63f5ff6f72a8ba2c11901db63c360ebcaf1fc51af5c \
+    --hash=sha256:b85116c8a8d7bbdca2e1be8068d6c3d4f0ac66e95b3310a6dbdd21fc87332323 \
+    --hash=sha256:d34a528bdd845d024c42da3fa43495c5d51c66151597ea6e46a1e9d79d863e89 \
+    --hash=sha256:e0cba16312890fc7747da5fb5edb7aabfc68aac7db0ebab5212986a67cd01ed4
     # via -r treesitter.in
 z3-solver==5.3.3.0 \
     --hash=sha256:0431023a82278dab706c02a320f63178ee0755fb8f10a5c980f0bfe3c84f6f96 \

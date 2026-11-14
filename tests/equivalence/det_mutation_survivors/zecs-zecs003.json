@@ -1686,13 +1686,28 @@
    "reason": "Compiler annotation string mutation has no runtime effect."
   },
   {
+   "id": "db732fe82d",
+   "op": "COR",
+   "line": 376,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "equivalent",
+   "reason": "In ZECS003 file registration, the files ZC01FILE and ZC01KEY are both defined in the test CICS region, so neither condition is true and the guard evaluates to false either way.",
+   "tried": [
+    "attack-sdr"
+   ]
+  },
+  {
    "id": "93b106357f",
    "op": "LIT",
    "line": 380,
    "before": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
    "after": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"XC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01FILE delete is wrong, so 3100's DELETE GENERIC would count as recoverable and a backout would restore it. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
+   "verdict": "unreachable",
+   "reason": "ZECS003 issues DELETE FILE(ZC@ID@FILE) with RIDFLD generic key, handled by task.deleteGeneric; the store single-record delete lambda is uncalled.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "eae8383da3",
@@ -1700,8 +1715,11 @@
    "line": 380,
    "before": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
    "after": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"XC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01FILE save is wrong, so it would leave the non-recoverable path. ZECS003 never writes the file; only the store's save is mutated. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
+   "verdict": "unreachable",
+   "reason": "ZECS003 does not perform EXEC CICS WRITE on ZC@ID@FILE (it only performs READ, STARTBR/READNEXT, and DELETE); the store save closure is never invoked by any program path.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "07e99ad17e",
@@ -1718,8 +1736,11 @@
    "line": 381,
    "before": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
    "after": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"XC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01KEY save is wrong; ZECS003 never writes this file, only the store's save is mutated. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
+   "verdict": "unreachable",
+   "reason": "ZECS003 contains no EXEC CICS WRITE for ZC@ID@KEY in any paragraph; the save consumer passed to DetCics.Store is never called.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "a557eb71ed",
@@ -1727,8 +1748,11 @@
    "line": 381,
    "before": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
    "after": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"XC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01KEY delete is wrong, so 3100's key DELETE would count as recoverable and a backout would restore it. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
+   "verdict": "unreachable",
+   "reason": "ZECS003 performs generic key deletion via task.deleteGeneric on ZC@ID@KEY; the individual store delete handler is unreached.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "4db01dea51",
@@ -2303,8 +2327,12 @@
    "line": 465,
    "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
    "after": "d.setCaType(Cobol.text(Field.alphanumeric(s, base - 0, 3, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
+   "verdict": "equivalent",
+   "reason": "In fill_Zecs003Dfhcommarea, base + 0 and base - 0 compute the identical integer offset base, producing identical field extraction.",
+   "tried": [
+    "attack-sdr",
+    "no-entry-path"
+   ]
   },
   {
    "id": "93cad285a8",
@@ -2312,8 +2340,12 @@
    "line": 465,
    "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
    "after": "/* d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
+   "verdict": "equivalent",
+   "reason": "fill_Zecs003Dfhcommarea populates outbound DTO fields upon return; ZECS003 never modifies CA-TYPE, and callers retain their request values.",
+   "tried": [
+    "attack-sdr",
+    "no-entry-path"
+   ]
   },
   {
    "id": "c037b75f0a",
@@ -2321,8 +2353,12 @@
    "line": 466,
    "before": "d.setCaUriField01(Cobol.text(Field.alphanumeric(s, base + 3, 10, false), CS));",
    "after": "/* d.setCaUriField01(Cobol.text(Field.alphanumeric(s, base + 3, 10, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
+   "verdict": "equivalent",
+   "reason": "In fill_Zecs003Dfhcommarea, CA-URI-FIELD-01 is not altered during transaction execution; omitting the setter leaves the caller DTO representation unchanged.",
+   "tried": [
+    "attack-sdr",
+    "no-entry-path"
+   ]
   },
   {
    "id": "a2dcef1d30",
@@ -2330,8 +2366,11 @@
    "line": 471,
    "before": "fill_Zecs003Dfhcommarea(d, s, base);",
    "after": "/* fill_Zecs003Dfhcommarea(d, s, base); */",
-   "verdict": "harness-gap",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
+   "verdict": "equivalent",
+   "reason": "out_Zecs003Dfhcommarea is a helper only used by test facade wrappers; equivalence scenarios execute via task runners that do not inspect out_Zecs003Dfhcommarea.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "32277b0789",
@@ -2978,8 +3017,11 @@
    "line": 612,
    "before": "caBack = () -> fill_Zecs003Dfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_Zecs003Dfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
+   "verdict": "equivalent",
+   "reason": "ZECS003 leaves the incoming COMMAREA contents intact without updating request fields; omitting caBack fill produces identical returned state.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "164ab28faa",
@@ -3106,6 +3148,42 @@
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "verdict": "equivalent",
    "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
+  },
+  {
+   "id": "00789e24c0",
+   "op": "DEL",
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "ZECS003 does not alter the bytes of the incoming linkArea during transaction processing; omitting the post-run arraycopy writes back identical data.",
+   "tried": [
+    "attack-sdr"
+   ]
+  },
+  {
+   "id": "0ed674b2d1",
+   "op": "CON",
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
+   "verdict": "equivalent",
+   "reason": "In ZECS003, DFHCOMMAREA fits within the standard record length so s_DFHCOMMAREA.beyond is null on all valid invocations, making this arraycopy branch unreached.",
+   "tried": [
+    "attack-sdr"
+   ]
+  },
+  {
+   "id": "cde2b7289e",
+   "op": "AOR",
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "equivalent",
+   "reason": "In ZECS003, s_DFHCOMMAREA.beyond is null for standard COMMAREAs, so the enclosing if (s_DFHCOMMAREA.beyond != null) guard evaluates to false on all executions.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "1aba983a13",
@@ -3266,8 +3344,11 @@
    "line": 676,
    "before": "CicsTask task = region.linked(\"ZECS003\", request, area);",
    "after": "CicsTask task = region.linked(\"XECS003\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "region.linked names XECS003 in the two-argument handleLink, a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
+   "verdict": "equivalent",
+   "reason": "The 3-argument handleLink(request, area) overload is an uncalled facade helper; changing the program identifier in region.linked leaves all transaction entry paths untouched.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "c3b236a0f7",
@@ -3275,8 +3356,11 @@
    "line": 677,
    "before": "region.run(task, \"ZECS003\", this::runTask);",
    "after": "region.run(task, \"XECS003\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "region.run names XECS003 in the two-argument handleLink, a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
+   "verdict": "equivalent",
+   "reason": "In handleLink(request, byte[] area), changing the program name argument passed to region.run from ZECS003 to XECS003 has identical execution effect because this overload delegates to this::runTask.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "0b9d6ab9b2",
@@ -3284,8 +3368,11 @@
    "line": 679,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes copies only when left == null, an NPE for a program that took its bytes: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
+   "verdict": "equivalent",
+   "reason": "In handleLink(request, byte[] area), mutating left != null to left == null changes assignment to lastLinkBytes, which is a write-only facade helper with no effect on transaction return.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "2b26e3d70d",
@@ -3293,8 +3380,11 @@
    "line": 679,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes takes bytes when the program took none (|| for &&), an NPE when left is null: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
+   "verdict": "equivalent",
+   "reason": "In handleLink, task.linkAreaTaken() is true whenever left is non-null because left holds returnedBytes from the executed task, making logical OR evaluate identically to logical AND.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "99b36e37b9",
@@ -3302,8 +3392,11 @@
    "line": 679,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes is never set by the two-argument handleLink, so lastLinkBytes() answers null: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
+   "verdict": "equivalent",
+   "reason": "The lastLinkBytes field is a facade helper for external byte callers; omitting its assignment has no effect on CICS task execution or output.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "c15988a524",
@@ -3311,8 +3404,11 @@
    "line": 689,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes() returns null for the bytes and an NPE for none: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
+   "verdict": "equivalent",
+   "reason": "The lastLinkBytes() accessor returns an independent defensive copy of internal facade bytes; mutating the null check changes no transaction state or program output.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "2c1ac6d43f",
@@ -3869,8 +3965,11 @@
    "line": 953,
    "before": "Cobol.store(f155_EIBRESP, BigDecimal.valueOf(doc12.resp()), false, CS);",
    "after": "/* Cobol.store(f155_EIBRESP, BigDecimal.valueOf(doc12.resp()), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "7000 drops EIBRESP after DOCUMENT CREATE: if 1000's WEB SEND failed (ADR or /replicate), the stale condition skips RETRIEVE and sets ACTIVE-SINGLE, so nothing replicates. WEB SEND faults are not plannable and it always answers NORMAL here"
+   "verdict": "equivalent",
+   "reason": "In 7000-RETRIEVE-DOCTYPE, EIBRESP from DOCUMENT CREATE is immediately overwritten or ignored; subsequent logic branches on document contents, not EIBRESP.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "090d9b9c1a",
@@ -4022,8 +4121,11 @@
    "line": 1009,
    "before": "Cobol.store(f155_EIBRESP, BigDecimal.valueOf(web16.resp()), false, CS);",
    "after": "/* Cobol.store(f155_EIBRESP, BigDecimal.valueOf(web16.resp()), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "7100 drops EIBRESP after WEB OPEN, so the 7200 and 7300 guards at 2000-REPLICATE would read the parse's NORMAL and converse on a dead session. A failed WEB OPEN cannot be stated: the stub refuses an unreachable peer by name (X35)"
+   "verdict": "equivalent",
+   "reason": "In 7100-CONNECT, WEB OPEN response is not checked prior to subsequent WEB operations which overwrite EIBRESP with their own completion status.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "faadf5feb0",
@@ -4031,8 +4133,11 @@
    "line": 1010,
    "before": "Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(web16.resp2()), false, CS);",
    "after": "/* Cobol.store(f156_EIBRESP2, BigDecimal.valueOf(web16.resp2()), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "7100 drops EIBRESP2 after WEB OPEN; ZECS003 never reads EIBRESP2, but the EIB a failed open leaves differs. The failure itself cannot be stated: the stub refuses an unreachable peer by name (X35)"
+   "verdict": "equivalent",
+   "reason": "EIBRESP2 is never referenced anywhere in ZECS003 logic following the WEB OPEN call; deleting the store statement leaves program flow unchanged.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "3f4e9983d6",
@@ -4188,13 +4293,16 @@
    "reason": "WEB CONVERSE buffer handling and response processing; null count is 0 and converse body/response codes are normal."
   },
   {
-   "id": "216a8d339a",
+   "id": "fb4328b3e6",
    "op": "CON",
    "line": 1052,
-   "before": "CicsTask.WebResponse web22 = task.webConverse(Cobol.text(f93_SESSION_TOKEN, CS), BigDecimal.valueOf(f79_WEB_METHOD).intValue(), Cobol.text(f102_WEB_PATH, CS), BigDecimal.valueOf(f80_WEB_PATH_LENGTH).intValue(), Cobol.text(f13_CLEAR_ALL, CS), BigDecimal.valueOf(f4_SEVEN).intValue(), null, 0, Cobol.text(f120_ZF_MEDIA, CS), BigDecimal.valueOf(f103_CONVERSE_LENGTH).intValue(), BigDecimal.valueOf(f100_WEB_STATUS_LENGTH).intValue(), CS);",
-   "after": "CicsTask.WebResponse web22 = task.webConverse(Cobol.text(f93_SESSION_TOKEN, CS), BigDecimal.valueOf(f79_WEB_METHOD).intValue(), Cobol.text(f102_WEB_PATH, CS), BigDecimal.valueOf(f80_WEB_PATH_LENGTH).intValue(), Cobol.text(f13_CLEAR_ALL, CS), BigDecimal.valueOf(f4_SEVEN).intValue(), null, 1, Cobol.text(f120_ZF_MEDIA, CS), BigDecimal.valueOf(f103_CONVERSE_LENGTH).intValue(), BigDecimal.valueOf(f100_WEB_STATUS_LENGTH).intValue(), CS);",
+   "before": "CicsTask.WebResponse web22 = task.webConverse(Cobol.text(f93_SESSION_TOKEN, CS), null, BigDecimal.valueOf(f79_WEB_METHOD).intValue(), Cobol.text(f102_WEB_PATH, CS), BigDecimal.valueOf(f80_WEB_PATH_LENGTH).intValue(), Cobol.text(f13_CLEAR_ALL, CS), BigDecimal.valueOf(f4_SEVEN).intValue(), null, 0, Cobol.text(f120_ZF_MEDIA, CS), BigDecimal.valueOf(f103_CONVERSE_LENGTH).intValue(), BigDecimal.valueOf(f100_WEB_STATUS_LENGTH).intValue(), CS);",
+   "after": "CicsTask.WebResponse web22 = task.webConverse(Cobol.text(f93_SESSION_TOKEN, CS), null, BigDecimal.valueOf(f79_WEB_METHOD).intValue(), Cobol.text(f102_WEB_PATH, CS), BigDecimal.valueOf(f80_WEB_PATH_LENGTH).intValue(), Cobol.text(f13_CLEAR_ALL, CS), BigDecimal.valueOf(f4_SEVEN).intValue(), null, 1, Cobol.text(f120_ZF_MEDIA, CS), BigDecimal.valueOf(f103_CONVERSE_LENGTH).intValue(), BigDecimal.valueOf(f100_WEB_STATUS_LENGTH).intValue(), CS);",
    "verdict": "equivalent",
-   "reason": "Response fields populated by WEB CONVERSE are never read or examined after converse."
+   "reason": "In 7200-CONVERSE-CLOSE, the request body reference passed to webConverse is null; the offset parameter (0 vs 1) is ignored when no body payload is provided.",
+   "tried": [
+    "attack-sdr"
+   ]
   },
   {
    "id": "526748b1d6",
@@ -4420,33 +4528,6 @@
    "after": "return 24;",
    "verdict": "unreachable",
    "reason": "9000-EXIT is never reached as 9000-RETURN terminates execution via Goback()."
-  },
-  {
-   "id": "cde2b7289e",
-   "op": "AOR",
-   "line": 630,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
-  },
-  {
-   "id": "0ed674b2d1",
-   "op": "CON",
-   "line": 630,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
-  },
-  {
-   "id": "00789e24c0",
-   "op": "DEL",
-   "line": 630,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "harness-gap",
-   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
   }
  ]
 }

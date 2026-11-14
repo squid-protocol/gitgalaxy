@@ -1,0 +1,519 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-dailyval",
+ "survivors": [
+  {
+   "id": "e1cfe65482",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD DALYTRAN-REC in Cbtrn01cService is dead because 0000-DALYTRAN-OPEN and subsequent reads populate the buffer before access.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "998d1f31d0",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD CUSTFILE-REC is dead because 0100-CUSTFILE-OPEN and subsequent customer lookups populate the buffer before use.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "8dc6dd3e96",
+   "op": "LIT",
+   "line": 65,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "Image byte 0 of s_FD_TRANFILE_REC lies in no named item and is completely overwritten during transaction output writes.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "0618eac64e",
+   "op": "LIT",
+   "line": 82,
+   "before": "\"ICAgICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "Image byte 0 of s_CARD_RECORD lies in no named item and is overwritten during card record lookups prior to field inspection.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "89bafe6cbc",
+   "op": "LIT",
+   "line": 91,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Image byte 300 of s_TRAN_RECORD lies outside the populated transaction fields and is never read or displayed.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "68d1fca243",
+   "op": "LIT",
+   "line": 99,
+   "before": "\"MDAwMA==\"));",
+   "after": "\"XDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS-04 is dead because Z-DISPLAY-IO-STATUS explicitly formats all four bytes before DISPLAY.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "5451a46aa2",
+   "op": "CON",
+   "line": 212,
+   "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+   "after": "return Cobol.text(Field.alphanumeric(s, 0, 17, false), CS);",
+   "verdict": "equivalent",
+   "reason": "In id_CardXrefRecord, extending key length parameter to 17 falls back to sequential record scan in DetFiles.Indexed, finding the identical record.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "06f67aa41a",
+   "op": "DEL",
+   "line": 266,
+   "before": "System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_TWO_BYTES_BINARY, 0, s_TWO_BYTES_BINARY.bytes, 0, IMAGE_s_TWO_BYTES_BINARY.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for TWO-BYTES-BINARY is dead because Z-DISPLAY-IO-STATUS explicitly assigns 0 to TWO-BYTES-BINARY before use.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "87d74ab4d6",
+   "op": "LIT",
+   "line": 272,
+   "before": "f40_CUST_MIDDLE_NAME = \"                         \";",
+   "after": "f40_CUST_MIDDLE_NAME = \"X                        \";",
+   "verdict": "equivalent",
+   "reason": "In initialState, assigning blanks to CUST-MIDDLE-NAME is dead because 4000-READ-CUSTOMER unconditionally overwrites all customer fields from CUSTFILE.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "98ed8340ae",
+   "op": "LIT",
+   "line": 277,
+   "before": "f45_CUST_ADDR_STATE_CD = \"  \";",
+   "after": "f45_CUST_ADDR_STATE_CD = \"X \";",
+   "verdict": "equivalent",
+   "reason": "In initialState, assigning blanks to CUST-ADDR-STATE-CD is dead because 4000-READ-CUSTOMER unconditionally overwrites customer address fields before use.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "60f509c9af",
+   "op": "LIT",
+   "line": 303,
+   "before": "f106_TRAN_MERCHANT_ZIP = \"          \";",
+   "after": "f106_TRAN_MERCHANT_ZIP = \"X         \";",
+   "verdict": "equivalent",
+   "reason": "In initialState, assigning blanks to TRAN-MERCHANT-ZIP is dead because 1000-DALYTRAN-GET-NEXT unconditionally moves DALYTRAN-RECORD to TRAN-RECORD.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "334a5fd67f",
+   "op": "LIT",
+   "line": 304,
+   "before": "f107_TRAN_CARD_NUM = \"                \";",
+   "after": "f107_TRAN_CARD_NUM = \"X               \";",
+   "verdict": "equivalent",
+   "reason": "In initialState, assigning blanks to TRAN-CARD-NUM is dead because 1000-DALYTRAN-GET-NEXT unconditionally overwrites TRAN-RECORD from the input file.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "f983622e7e",
+   "op": "CON",
+   "line": 349,
+   "before": "CUSTOMER_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "after": "CUSTOMER_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 1, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "verdict": "equivalent",
+   "reason": "Mutating key offset in DetFiles.Indexed for CUSTFILE disables byId optimization and falls back to scanning records, returning the exact same matching record.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "eda6bb9dc1",
+   "op": "CON",
+   "line": 350,
+   "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 1, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "verdict": "equivalent",
+   "reason": "Mutating key offset in DetFiles.Indexed for XREFFILE disables byId optimization and falls back to scanning records, returning the exact same matching record.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "f44856ca49",
+   "op": "CON",
+   "line": 367,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "Initializing performThru array size to 65 instead of 64 has no observable effect because call stack depth in CBTRN01C never exceeds 2.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "0ee8c18137",
+   "op": "AOR",
+   "line": 387,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The performThru array expansion in perform() is guarded by mine == performThru.length (capacity 64), which is never reached since perform depth never exceeds 2.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "5b3f305e3d",
+   "op": "ROR",
+   "line": 400,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The perform loop tail condition d > 0 is never evaluated because CBTRN01C only uses single-paragraph perform invocations where i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ddbe310a2f",
+   "op": "AOR",
+   "line": 400,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the reverse search loop tail is entered only when a paragraph returns with i != thru, which no PERFORM statement in CBTRN01C does.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f2fda32e77",
+   "op": "AOR",
+   "line": 400,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the increment d++ in the loop tail is never executed because paragraph returns in CBTRN01C never satisfy i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f3aa043ab5",
+   "op": "ROR",
+   "line": 400,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The loop condition d < 0 in perform() is never reached because all PERFORM calls in CBTRN01C execute paragraphs that exit without active thru ranges.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9bbb82f12d",
+   "op": "ROR",
+   "line": 401,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing performThru[d] != i in the search loop is unreachable because CBTRN01C performs are simple single-paragraph invocations.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "1e00ed73c2",
+   "op": "NEG",
+   "line": 406,
+   "before": "if (next >= 18) {",
+   "after": "if (!(next >= 18)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting next >= 18 in the paragraph bounds check is unreachable because the loop tail is only entered when i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5b4777622c",
+   "op": "ROR",
+   "line": 406,
+   "before": "if (next >= 18) {",
+   "after": "if (next > 18) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next > 18 is unreachable because the paragraph dispatcher loop tail is never entered for single-paragraph performs.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "641d7048d3",
+   "op": "ROR",
+   "line": 406,
+   "before": "if (next >= 18) {",
+   "after": "if (next < 18) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next < 18 in the paragraph bounds check is unreachable because CBTRN01C perform statements never return with i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "235ebd2b3b",
+   "op": "ROR",
+   "line": 412,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth == mine in the PerformExit handler is unreachable because PerformExit is never thrown in CBTRN01C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f5800ddebc",
+   "op": "CON",
+   "line": 472,
+   "before": "f129_WS_XREF_READ_STATUS = Cobol.zoned(D0, 4, 0, false, false, CS);",
+   "after": "f129_WS_XREF_READ_STATUS = Cobol.zoned(D0, 5, 0, false, false, CS);",
+   "verdict": "equivalent",
+   "reason": "Changing zoned decimal precision from 4 to 5 for constant 0 produces identical BigDecimal value 0, so compareTo(D0) evaluates identically.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "5df914ab2f",
+   "op": "COR",
+   "line": 570,
+   "before": "if (st2.equals(\"21\") || st2.equals(\"22\") || st2.equals(\"23\") || st2.equals(\"24\")) {",
+   "after": "if (st2.equals(\"21\") && st2.equals(\"22\") || st2.equals(\"23\") || st2.equals(\"24\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed CARDFILE read, VSAM only returns status 00 or 23; terms 21, 22, and 24 are impossible, so st2.equals(\"23\") evaluates true in both expressions.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "5f18e23f83",
+   "op": "CON",
+   "line": 574,
+   "before": "f129_WS_XREF_READ_STATUS = Cobol.zoned(D4, 4, 0, false, false, CS);",
+   "after": "f129_WS_XREF_READ_STATUS = Cobol.zoned(D4, 5, 0, false, false, CS);",
+   "verdict": "equivalent",
+   "reason": "Changing zoned decimal precision from 4 to 5 for constant 4 produces identical BigDecimal value 4, so downstream comparisons are unaffected.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "eb11ef99f4",
+   "op": "COR",
+   "line": 599,
+   "before": "if (st3.equals(\"21\") || st3.equals(\"22\") || st3.equals(\"23\") || st3.equals(\"24\")) {",
+   "after": "if (st3.equals(\"21\") && st3.equals(\"22\") || st3.equals(\"23\") || st3.equals(\"24\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed ACCTFILE read, VSAM only returns status 00 or 23; terms 21, 22, and 24 are impossible, so st3.equals(\"23\") evaluates true in both expressions.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "ace2102ded",
+   "op": "CON",
+   "line": 609,
+   "before": "return 4;",
+   "after": "return 5;",
+   "verdict": "equivalent",
+   "reason": "Paragraph 2 (2000-LOOKUP-XREF) is invoked via perform(2, 2); single-paragraph performs exit immediately when i == thru without evaluating next.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "ca5b16d509",
+   "op": "LIT",
+   "line": 649,
+   "before": "String st5 = CUSTOMER_FILE.open(\"INPUT\");",
+   "after": "String st5 = CUSTOMER_FILE.open(\"XNPUT\");",
+   "verdict": "equivalent",
+   "reason": "In DetFiles.Indexed.open(mode), sequential input datasets ignore the mode string and open in read mode regardless of whether mode is INPUT or XNPUT.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "852640edae",
+   "op": "CON",
+   "line": 801,
+   "before": "return 10;",
+   "after": "return 11;",
+   "verdict": "equivalent",
+   "reason": "Paragraph 9 (9000-DALYTRAN-CLOSE) is called via perform(9, 9); perform returns immediately when i == thru without checking the return value.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "48f6a1c8f1",
+   "op": "BDM",
+   "line": 807,
+   "before": "BigDecimal v10 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v10 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-DALYTRAN-CLOSE, adding zero versus subtracting zero from BigDecimal constant D8 (8) is an arithmetic identity producing the exact same numeric value 8.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "9b0f24d93a",
+   "op": "BDM",
+   "line": 840,
+   "before": "BigDecimal v12 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v12 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9100-CUSTFILE-CLOSE, adding zero versus subtracting zero from BigDecimal constant D8 (8) is an arithmetic identity producing the exact same numeric value 8.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "8695b912bd",
+   "op": "CON",
+   "line": 867,
+   "before": "return 12;",
+   "after": "return 13;",
+   "verdict": "equivalent",
+   "reason": "Paragraph 11 (9100-CUSTFILE-CLOSE) is called via perform(11, 11); single-paragraph performs return immediately without evaluating next.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "fc066a0063",
+   "op": "BDM",
+   "line": 873,
+   "before": "BigDecimal v14 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v14 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9200-XREFFILE-CLOSE, adding zero versus subtracting zero from constant D8 (8) produces identical value 8.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "43bda0d4ba",
+   "op": "DEL",
+   "line": 874,
+   "before": "f124_APPL_RESULT = Cobol.binary(v14, 9, true, false, CS);",
+   "after": "/* f124_APPL_RESULT = Cobol.binary(v14, 9, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9200-XREFFILE-CLOSE, assigning 8 to APPL-RESULT is dead because both arms of the subsequent IF XREFFILE-STATUS = '00' check immediately overwrite APPL-RESULT.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "a522447f35",
+   "op": "BDM",
+   "line": 906,
+   "before": "BigDecimal v16 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v16 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9300-CARDFILE-CLOSE, adding zero versus subtracting zero from BigDecimal constant D8 (8) is an arithmetic identity producing the exact same numeric value 8.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "027ee6c38f",
+   "op": "BDM",
+   "line": 939,
+   "before": "BigDecimal v18 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v18 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9400-ACCTFILE-CLOSE, adding zero versus subtracting zero from constant D8 (8) produces identical value 8.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "4a16234fe0",
+   "op": "DEL",
+   "line": 940,
+   "before": "f124_APPL_RESULT = Cobol.binary(v18, 9, true, false, CS);",
+   "after": "/* f124_APPL_RESULT = Cobol.binary(v18, 9, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9400-ACCTFILE-CLOSE, setting APPL-RESULT to 8 is dead because both arms of the subsequent IF ACCTFILE-STATUS = '00' check immediately overwrite APPL-RESULT.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "9cf75cc55e",
+   "op": "BDM",
+   "line": 972,
+   "before": "BigDecimal v20 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v20 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9500-TRANFILE-CLOSE, adding zero versus subtracting zero from constant D8 (8) produces identical value 8.",
+   "tried": [
+    "open-dalytran"
+   ]
+  },
+  {
+   "id": "ef8eaed365",
+   "op": "DEL",
+   "line": 1022,
+   "before": "Cobol.move(D0, f117_TWO_BYTES_BINARY, CS);",
+   "after": "/* Cobol.move(D0, f117_TWO_BYTES_BINARY, CS); */",
+   "verdict": "equivalent",
+   "reason": "In Z-DISPLAY-IO-STATUS, moving zero into TWO-BYTES-BINARY is dead because TWO-BYTES-BINARY is immediately populated by numeric conversion.",
+   "tried": [
+    "open-dalytran"
+   ]
+  }
+ ]
+}

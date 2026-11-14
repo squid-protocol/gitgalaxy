@@ -1407,8 +1407,11 @@
    "line": 317,
    "before": "lastAnswerBytes = task.returnedBytes();",
    "after": "/* lastAnswerBytes = task.returnedBytes(); */",
-   "verdict": "harness-gap",
-   "reason": "Remote region facade helper lastAnswerBytes is uncalled because equivalence harness does not invoke facade"
+   "verdict": "equivalent",
+   "reason": "ZECSPLT has no COMMAREA and terminates via task.returnTransid(null, null), so task.returnedBytes() is null on every path and deleting the assignment leaves lastAnswerBytes null.",
+   "tried": [
+    "attack-no-urimap"
+   ]
   },
   {
    "id": "c2f827af07",

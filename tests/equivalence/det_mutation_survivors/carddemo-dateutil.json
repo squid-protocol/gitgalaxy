@@ -1,0 +1,867 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-dateutil",
+ "survivors": [
+  {
+   "id": "42fa84882e",
+   "op": "LIT",
+   "line": 38,
+   "before": "\"AAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_WS_DATE_TO_TEST is overwritten by move of LS-DATE at line 294 before CEEDAYS invocation",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "e042e075f5",
+   "op": "LIT",
+   "line": 40,
+   "before": "\"AAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_WS_DATE_FORMAT is overwritten by move of LS-DATE-FORMAT at line 299 before CEEDAYS is called",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "fc6dbf2a76",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_OUTPUT_LILLIAN is overwritten with zero before CEEDAYS and its output is never read by the program",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "101ae3602a",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"ICAgIE1lc2cgQ29kZTogICAgICAgICAgICAgICAgICAgICAgVHN0RGF0ZTogICAgICAgICAgICBNYXNrIHVzZWQ6ICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgIE1lc2cgQ29kZTogICAgICAgICAgICAgICAgICAgICAgVHN0RGF0ZTogICAgICAgICAgICBNYXNrIHVzZWQ6ICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_WS_MESSAGE is overwritten by INITIALIZE WS-MESSAGE at line 271 before being populated",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "493e4c401e",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"AAAAACAgICAAAAAA\"));",
+   "after": "\"XAAAACAgICAAAAAA\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_FEEDBACK_CODE is overwritten by CEEDAYS runtime feedback return token",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "d82f3794d5",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"ICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_LS_DATE is linkage storage populated from caller parameter arg1 in handleCall",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "79fe4e5263",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"ICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_LS_DATE_FORMAT is linkage storage populated from caller parameter arg2 in handleCall",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "9438b454e1",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_LS_RESULT is linkage storage overwritten by move of WS-MESSAGE at line 281",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "538ab615ea",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_GG_RETURN_CODE is overwritten by move of WS-SEVERITY-N at line 283",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "36dec160df",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f9_OUTPUT_LILLIAN = Field.binary(s_OUTPUT_LILLIAN, 0, 9, 0, true, false);",
+   "after": "private final Field f9_OUTPUT_LILLIAN = Field.binary(s_OUTPUT_LILLIAN, 0, 9, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Scale modification on f9_OUTPUT_LILLIAN field descriptor has no effect because OUTPUT-LILLIAN is never read",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "9047fbcf83",
+   "op": "CON",
+   "line": 77,
+   "before": "private final Field f23_WS_DATE_FMT = Field.alphanumeric(s_WS_MESSAGE, 66, 10, false);",
+   "after": "private final Field f23_WS_DATE_FMT = Field.alphanumeric(s_WS_MESSAGE, 66, 11, false);",
+   "verdict": "equivalent",
+   "reason": "Altering f23_WS_DATE_FMT length to 11 does not alter output because LS-DATE-FORMAT only provides 10 characters",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "94a8031e9e",
+   "op": "CON",
+   "line": 85,
+   "before": "private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f40_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "Scale modification on f40_GG_RETURN_CODE evaluates to identical return code value as return code is converted via intValue",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "d4e4af86f6",
+   "op": "DEL",
+   "line": 101,
+   "before": "System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_DATE_TO_TEST, 0, s_WS_DATE_TO_TEST.bytes, 0, IMAGE_s_WS_DATE_TO_TEST.length); */",
+   "verdict": "equivalent",
+   "reason": "Deleting arraycopy of IMAGE_s_WS_DATE_TO_TEST in initialState is masked because line 294 populates VSTRING-TEXT",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "6662bb4f34",
+   "op": "DEL",
+   "line": 102,
+   "before": "System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_DATE_FORMAT, 0, s_WS_DATE_FORMAT.bytes, 0, IMAGE_s_WS_DATE_FORMAT.length); */",
+   "verdict": "equivalent",
+   "reason": "Deleting arraycopy of IMAGE_s_WS_DATE_FORMAT in initialState is masked because line 299 populates VSTRING-TEXT",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "bf694026c0",
+   "op": "DEL",
+   "line": 103,
+   "before": "System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length); */",
+   "verdict": "equivalent",
+   "reason": "Omitting arraycopy of IMAGE_s_OUTPUT_LILLIAN in initialState is masked because line 302 moves zero to OUTPUT-LILLIAN",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "b3c6f2ef1a",
+   "op": "DEL",
+   "line": 108,
+   "before": "System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length);",
+   "after": "/* System.arraycopy(IMAGE_s_LS_RESULT, 0, s_LS_RESULT.bytes, 0, IMAGE_s_LS_RESULT.length); */",
+   "verdict": "equivalent",
+   "reason": "Omitting arraycopy of IMAGE_s_LS_RESULT in initialState is masked because linkage parameter arg3 is populated by caller",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "6c84ca373f",
+   "op": "DEL",
+   "line": 109,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "Deleting arraycopy of IMAGE_s_GG_RETURN_CODE in initialState is masked because line 283 moves WS-SEVERITY-N to return code",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "b3f1b36b9b",
+   "op": "DEL",
+   "line": 115,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "unreachable",
+   "reason": "initialState invocation in runProgram is unreachable because CSUTLDTC is a subprogram invoked via handleCall",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "1d9305d288",
+   "op": "DEL",
+   "line": 116,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
+   "verdict": "unreachable",
+   "reason": "performDepth reset in runProgram is unreachable because standalone execution is not used for subprogram CSUTLDTC",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "c2ca50f7df",
+   "op": "DEL",
+   "line": 131,
+   "before": "this.callAreas = areas;",
+   "after": "/* this.callAreas = areas; */",
+   "verdict": "unreachable",
+   "reason": "callAreas assignment in withCallAreas is unreachable because CSUTLDTC calls pass standard string references",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "1d0082ffea",
+   "op": "CON",
+   "line": 141,
+   "before": "System.arraycopy(areas[0], 0, f37_LS_DATE.storage().bytes, f37_LS_DATE.offset(), Math.min(areas[0].length, f37_LS_DATE.length()));",
+   "after": "System.arraycopy(areas[0], 1, f37_LS_DATE.storage().bytes, f37_LS_DATE.offset(), Math.min(areas[0].length, f37_LS_DATE.length()));",
+   "verdict": "unreachable",
+   "reason": "Raw byte arraycopy for areas[0] at line 141 is unreachable because callAreas remains null during standard calls",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "5b9b07ecb1",
+   "op": "CON",
+   "line": 142,
+   "before": "System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+   "after": "System.arraycopy(areas[1], 1, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+   "verdict": "unreachable",
+   "reason": "Destination offset change in areas[1] arraycopy is unreachable because callAreas is null",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "fbea2f003b",
+   "op": "DEL",
+   "line": 142,
+   "before": "System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+   "after": "/* System.arraycopy(areas[1], 0, f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), Math.min(areas[1].length, f38_LS_DATE_FORMAT.length())); */",
+   "verdict": "unreachable",
+   "reason": "Raw byte arraycopy for areas[1] at line 142 is unreachable because callAreas is never initialized",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "d89dbdac56",
+   "op": "CON",
+   "line": 143,
+   "before": "System.arraycopy(areas[2], 0, f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), Math.min(areas[2].length, f39_LS_RESULT.length()));",
+   "after": "System.arraycopy(areas[3], 0, f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), Math.min(areas[2].length, f39_LS_RESULT.length()));",
+   "verdict": "unreachable",
+   "reason": "Destination offset change in areas[2] arraycopy is unreachable because callAreas is not used",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "3e0f86939e",
+   "op": "ROR",
+   "line": 147,
+   "before": "Cobol.move(arg3.get() == null ? \"\" : arg3.get(), f39_LS_RESULT, CS);",
+   "after": "Cobol.move(arg3.get() != null ? \"\" : arg3.get(), f39_LS_RESULT, CS);",
+   "verdict": "equivalent",
+   "reason": "arg3.get() null check comparison change in handleCall produces identical empty string move when arg3 is empty",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "e617bb8df6",
+   "op": "DEL",
+   "line": 154,
+   "before": "arg1.set(Cobol.text(f37_LS_DATE, CS));",
+   "after": "/* arg1.set(Cobol.text(f37_LS_DATE, CS)); */",
+   "verdict": "equivalent",
+   "reason": "Deleting arg1.set in handleCall does not alter output because input parameter LS-DATE is not modified by CSUTLDTC",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "2bf9539c42",
+   "op": "DEL",
+   "line": 155,
+   "before": "arg2.set(Cobol.text(f38_LS_DATE_FORMAT, CS));",
+   "after": "/* arg2.set(Cobol.text(f38_LS_DATE_FORMAT, CS)); */",
+   "verdict": "equivalent",
+   "reason": "Deleting arg2.set in handleCall does not alter output because input parameter LS-DATE-FORMAT is not modified",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "99375a2850",
+   "op": "CON",
+   "line": 159,
+   "before": "System.arraycopy(f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), areas[1], 0, Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+   "after": "System.arraycopy(f38_LS_DATE_FORMAT.storage().bytes, f38_LS_DATE_FORMAT.offset(), areas[2], 0, Math.min(areas[1].length, f38_LS_DATE_FORMAT.length()));",
+   "verdict": "unreachable",
+   "reason": "Writeback offset mutation for areas[1] at line 156 is unreachable because callAreas is null",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "13cac0b227",
+   "op": "DEL",
+   "line": 160,
+   "before": "System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));",
+   "after": "/* System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length())); */",
+   "verdict": "unreachable",
+   "reason": "Writeback arraycopy deletion for areas[2] at line 157 is unreachable because callAreas is null",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "87b5643cf5",
+   "op": "CON",
+   "line": 160,
+   "before": "System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[2], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));",
+   "after": "System.arraycopy(f39_LS_RESULT.storage().bytes, f39_LS_RESULT.offset(), areas[3], 0, Math.min(areas[2].length, f39_LS_RESULT.length()));",
+   "verdict": "unreachable",
+   "reason": "Writeback offset change for areas[2] at line 157 is unreachable because callAreas is not populated",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "deb7d5e5f9",
+   "op": "DEL",
+   "line": 165,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "Omitting swapNumprocPfd restoration in handleCall finally block has no observable impact on call return",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "f08589d060",
+   "op": "DEL",
+   "line": 175,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Deleting super constructor invocation in Goback exception does not alter catch and exit mechanics",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "0835801c4d",
+   "op": "CON",
+   "line": 206,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "Increasing performThru array initial capacity from 64 to 65 has no effect on shallow perform dispatch",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "39a0f6d760",
+   "op": "DEL",
+   "line": 226,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "performThru reallocation branch is unreachable because performDepth never exceeds capacity 64",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "9e6787a909",
+   "op": "AOR",
+   "line": 226,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru reallocation size calculation is unreachable because perform recursion depth is at most 2",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "ae697db76b",
+   "op": "NEG",
+   "line": 236,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "unreachable",
+   "reason": "Negation of jumped check at line 236 is unreachable because CSUTLDTC paragraphs contain no GO TO jumps",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "e68459a18f",
+   "op": "ROR",
+   "line": 236,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "equivalent",
+   "reason": "Paragraph thru boundary condition check at line 236 exits cleanly when reaching thru paragraph 2",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "6fd536e2fc",
+   "op": "CON",
+   "line": 239,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "unreachable",
+   "reason": "Loop bound d >= 1 at line 239 is unreachable because execution does not reach the stack search loop",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "bbdebef6b5",
+   "op": "ROR",
+   "line": 239,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Loop termination check d < 0 at line 239 is unreachable because control returns before stack unwinding",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "ca6527d9ff",
+   "op": "AOR",
+   "line": 239,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Stack search loop initialization at line 239 is unreachable because paragraphs do not fall through unhandled",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "ccd5a8dac1",
+   "op": "ROR",
+   "line": 239,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Loop termination check d > 0 at line 239 is unreachable because perform range exits via return at line 237",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "830a97bfb6",
+   "op": "ROR",
+   "line": 245,
+   "before": "if (next >= 3) {",
+   "after": "if (next > 3) {",
+   "verdict": "unreachable",
+   "reason": "Paragraph limit condition next >= 3 check is unreachable because run dispatch returns only paragraphs 1 through 2",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "bcc9aa4282",
+   "op": "ROR",
+   "line": 251,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "PerformExit depth equality check at line 251 is unreachable because PerformExit exception is never raised",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "d0914ba44f",
+   "op": "NEG",
+   "line": 251,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "PerformExit depth check at line 251 is unreachable because PerformExit is never thrown in non-nested execution",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "689ce827b1",
+   "op": "DEL",
+   "line": 255,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Resetting performDepth in finally block has no observable effect because the program terminates upon return",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "3d6c209a83",
+   "op": "LIT",
+   "line": 264,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "IllegalStateException default message in run switch is unreachable because only valid paragraphs 0, 1, 2 are dispatched",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "72ee307fbe",
+   "op": "DEL",
+   "line": 271,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "Clearing severity field in WS-MESSAGE at line 271 is redundant because line 308 overwrites WS-SEVERITY-N from CEEDAYS",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "f9518240f5",
+   "op": "AOR",
+   "line": 271,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 0, 4, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() - 0, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "Arithmetic offset alteration in WS-MESSAGE clearing at line 271 is masked by subsequent move of feedback severity",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "d46f9d23f6",
+   "op": "DEL",
+   "line": 272,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 4, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 4, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "Clearing message number field in WS-MESSAGE at line 272 is redundant because line 310 overwrites WS-MSG-NO-N from CEEDAYS",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "e0afc88b0f",
+   "op": "CON",
+   "line": 272,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 4, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 15, 5, false), CS);",
+   "verdict": "equivalent",
+   "reason": "Length mutation in clearing WS-MSG-NO-N at line 272 is masked because line 310 moves MSG-NO from FEEDBACK-CODE",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "3045bba977",
+   "op": "DEL",
+   "line": 273,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 20, 15, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 20, 15, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "Clearing WS-RESULT field at line 273 is redundant because the EVALUATE block moves a result string for all cases",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "dddcaae960",
+   "op": "CON",
+   "line": 273,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 20, 15, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 21, 15, false), CS);",
+   "verdict": "equivalent",
+   "reason": "Offset mutation in clearing WS-RESULT at line 273 is masked because EVALUATE assigns result text to f17_WS_RESULT",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "e58f400f13",
+   "op": "DEL",
+   "line": 274,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 45, 10, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 45, 10, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "Clearing WS-DATE field at line 274 is redundant because lines 295 and 306 overwrite WS-DATE with tested date text",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "53f4fca57d",
+   "op": "CON",
+   "line": 275,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 66, 10, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f10_WS_MESSAGE.storage(), f10_WS_MESSAGE.offset() + 67, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "Offset mutation in clearing WS-DATE-FMT at line 275 is masked because line 300 moves LS-DATE-FORMAT into f23_WS_DATE_FMT",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "44211f50f5",
+   "op": "DEL",
+   "line": 277,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f20_WS_DATE, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f20_WS_DATE, CS); */",
+   "verdict": "equivalent",
+   "reason": "Clearing f20_WS_DATE at line 277 is redundant because line 295 immediately overwrites WS-DATE with LS-DATE",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "1bf3764398",
+   "op": "NEG",
+   "line": 285,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "Skipping Goback throw at line 285 causes p0 to return 1 which falls through naturally into paragraph p1",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "8d5d908d14",
+   "op": "CON",
+   "line": 297,
+   "before": "Cobol.move(BigDecimal.valueOf(10), f6_VSTRING_LENGTH, CS);",
+   "after": "Cobol.move(BigDecimal.valueOf(11), f6_VSTRING_LENGTH, CS);",
+   "verdict": "equivalent",
+   "reason": "Moving length 11 to f6_VSTRING_LENGTH is equivalent because LS-DATE-FORMAT is truncated or padded to 10 characters",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "a09fbeeb55",
+   "op": "LIT",
+   "line": 317,
+   "before": "Cobol.move(\"Insufficient\", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xnsufficient\", f17_WS_RESULT, CS);",
+   "verdict": "unreachable",
+   "reason": "Moving Insufficient to f17_WS_RESULT is unreachable because CEEDAYS never returns FC-INSUFFICIENT-DATA for standard masks",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "d1a2b80966",
+   "op": "LIT",
+   "line": 323,
+   "before": "Cobol.move(\"Invalid Era    \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xnvalid Era    \", f17_WS_RESULT, CS);",
+   "verdict": "unreachable",
+   "reason": "Moving Invalid Era to f17_WS_RESULT is unreachable because era date formats are not used in CSUTLDTC date validation",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "3496938a59",
+   "op": "LIT",
+   "line": 329,
+   "before": "Cobol.move(\"Invalid month  \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xnvalid month  \", f17_WS_RESULT, CS);",
+   "verdict": "unreachable",
+   "reason": "Moving Invalid month to f17_WS_RESULT is unreachable because invalid months produce FC-BAD-DATE-VALUE in CEEDAYS",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "ce0b3e4775",
+   "op": "LIT",
+   "line": 332,
+   "before": "Cobol.move(\"Bad Pic String \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xad Pic String \", f17_WS_RESULT, CS);",
+   "verdict": "unreachable",
+   "reason": "Moving Bad Pic String to f17_WS_RESULT is unreachable because date format strings conform to standard picture syntax",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "8ef3aae5a5",
+   "op": "NEG",
+   "line": 336,
+   "before": "} else if ((isFcYearInEraZero())) {",
+   "after": "} else if (!((isFcYearInEraZero()))) {",
+   "verdict": "unreachable",
+   "reason": "isFcYearInEraZero condition evaluation at line 336 is unreachable because era picture strings are not evaluated",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "40551fbb99",
+   "op": "LIT",
+   "line": 338,
+   "before": "Cobol.move(\"YearInEra is 0 \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"XearInEra is 0 \", f17_WS_RESULT, CS);",
+   "verdict": "unreachable",
+   "reason": "Moving YearInEra is 0 to f17_WS_RESULT is unreachable because YearInEra feedback condition is never produced",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "4827e7a66d",
+   "op": "NEG",
+   "line": 339,
+   "before": "} else if (true) {",
+   "after": "} else if (!(true)) {",
+   "verdict": "unreachable",
+   "reason": "Negation of default branch at line 339 is unreachable because preceding WHEN conditions handle all active feedback codes",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "e5fcbf0064",
+   "op": "LIT",
+   "line": 341,
+   "before": "Cobol.move(\"Date is invalid\", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xate is invalid\", f17_WS_RESULT, CS);",
+   "verdict": "unreachable",
+   "reason": "Default Date is invalid text assignment at line 341 is unreachable because feedback token matches prior WHEN clauses",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "b836d11a32",
+   "op": "LIT",
+   "line": 356,
+   "before": "private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\313Y\\303\\305\\305\", CS), CS) == 0; }",
+   "after": "private boolean isFcInsufficientData() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\313Y\\303\\305\\305\", CS), CS) == 0; }",
+   "verdict": "unreachable",
+   "reason": "isFcInsufficientData token comparison method is unreachable because CEEDAYS does not return insufficient data token",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "733156b311",
+   "op": "LIT",
+   "line": 362,
+   "before": "private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\315Y\\303\\305\\305\", CS), CS) == 0; }",
+   "after": "private boolean isFcInvalidEra() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\315Y\\303\\305\\305\", CS), CS) == 0; }",
+   "verdict": "unreachable",
+   "reason": "isFcInvalidEra token comparison method is unreachable because era-based calendar validation is not performed",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "4aa4ed9453",
+   "op": "LIT",
+   "line": 368,
+   "before": "private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\325Y\\303\\305\\305\", CS), CS) == 0; }",
+   "after": "private boolean isFcInvalidMonth() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\325Y\\303\\305\\305\", CS), CS) == 0; }",
+   "verdict": "unreachable",
+   "reason": "isFcInvalidMonth token comparison method is unreachable because invalid months map to bad date value condition",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "0c140d9ad4",
+   "op": "LIT",
+   "line": 371,
+   "before": "private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\326Y\\303\\305\\305\", CS), CS) == 0; }",
+   "after": "private boolean isFcBadPicString() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\326Y\\303\\305\\305\", CS), CS) == 0; }",
+   "verdict": "unreachable",
+   "reason": "isFcBadPicString token comparison method is unreachable because picture string format syntax is valid",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "19687d9fdf",
+   "op": "LIT",
+   "line": 377,
+   "before": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }",
+   "after": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"X00\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }",
+   "verdict": "unreachable",
+   "reason": "isFcYearInEraZero token comparison literal mutation is unreachable because era calendar validation is not used",
+   "tried": [
+    "attack-call-valid"
+   ]
+  },
+  {
+   "id": "b0c316e207",
+   "op": "ROR",
+   "line": 377,
+   "before": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) == 0; }",
+   "after": "private boolean isFcYearInEraZero() { return Cobol.compare(f27_FEEDBACK_TOKEN_VALUE, Cobol.hex(\"\\000\\003\\011\\331Y\\303\\305\\305\", CS), CS) != 0; }",
+   "verdict": "unreachable",
+   "reason": "isFcYearInEraZero token comparison relational operator mutation is unreachable because era condition is never tested",
+   "tried": [
+    "attack-call-valid"
+   ]
+  }
+ ]
+}

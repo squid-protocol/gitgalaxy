@@ -377,8 +377,11 @@
    "line": 683,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "raw byte[] COMMAREA longer than DFHCOMMAREA record is unexercised because scenarios enter with typed DTO"
+   "verdict": "unreachable",
+   "reason": "the byte[] COMMAREA branch (ca instanceof byte[]) runs only for an invocation passing raw bytes; COADM01C is a terminal menu program reached via XCTL/TRANSID CA00 with a typed CarddemoCommarea DTO, so cb.length is never evaluated against s_DFHCOMMAREA.bytes.length.",
+   "tried": [
+    "attack-no-ca"
+   ]
   },
   {
    "id": "b90f5cabd3",
@@ -386,8 +389,11 @@
    "line": 684,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "raw byte[] COMMAREA longer than DFHCOMMAREA record is unexercised because scenarios enter with typed DTO"
+   "verdict": "unreachable",
+   "reason": "COADM01C is a terminal menu program entered with typed CarddemoCommarea DTO; the raw byte[] COMMAREA branch is unreached by any program in the CardDemo suite, so s_DFHCOMMAREA.beyond is never assigned from copyOfRange.",
+   "tried": [
+    "attack-no-ca"
+   ]
   },
   {
    "id": "32622e01d5",

@@ -208,6 +208,30 @@
         }
       ],
       "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing ACCTFILE after every account: 'ERROR CLOSING ACCOUNT FILE' from 9000-ACCTFILE-CLOSE, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "outfile-write-status-10",
+      "plan": [
+        {
+          "dd": "OUTFILE",
+          "op": "WRITE",
+          "nth": 1,
+          "status": "10"
+        }
+      ],
+      "why": "10: sequential write end-of-volume/file status (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on first OUTFILE record: 1350-WRITE-ACCT-RECORD treats '10' as non-fatal (NOT = '00' AND NOT = '10'); kills mutant 2b0db45401"
+    },
+    {
+      "name": "vbrcfile-write-status-10",
+      "plan": [
+        {
+          "dd": "VBRCFILE",
+          "op": "WRITE",
+          "nth": 2,
+          "status": "10"
+        }
+      ],
+      "why": "10: sequential write status 10 on second VBRCFILE record: 1575-WRITE-VB2-RECORD treats '10' as non-fatal (NOT = '00' AND NOT = '10'); kills mutant 595a5c13e1"
     }
   ]
 }

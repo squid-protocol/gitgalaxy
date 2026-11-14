@@ -1511,7 +1511,7 @@
    "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
    "harness": "42881ee1c8e93c0170d3cf51f8a11ffb3c2ab40034dcbf4c23eb4de8d2aa72ec",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "b645dcfd6ff98eb7bce1d5e8f4365072687d11b683d3b658750b55528bb09ee5"
+   "survivors": "ce5778b17705c79a470c1163aba20f0fbad2acc2beeb1ac1d6133e6cda73e67d"
   },
   "components": {
    "generator": {

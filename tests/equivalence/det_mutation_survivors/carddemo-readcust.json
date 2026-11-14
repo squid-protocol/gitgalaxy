@@ -1,0 +1,603 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-readcust",
+ "survivors": [
+  {
+   "id": "8d371156c1",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD CUSTFILE-REC in Cbcus01cService is dead because 1000-CUSTFILE-GET-NEXT executes READ into CUSTOMER-RECORD before any buffer read.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "9b0c95e2a6",
+   "op": "LIT",
+   "line": 43,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The trailing bytes of the initial image for FD CUSTFILE-REC are dead because reading CUSTFILE completely repopulates the record buffer before access.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "c0c0276c14",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"MDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwICAgICAgICAgICAg\",",
+   "after": "\"XDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for CUSTOMER-RECORD is dead because 1000-CUSTFILE-GET-NEXT unconditionally overwrites CUSTOMER-RECORD via READ CUSTFILE INTO CUSTOMER-RECORD prior to DISPLAY.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "95a9b94db9",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The second segment of the initial image literal for CUSTOMER-RECORD is overwritten during sequential reads before any display or inspection.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "eadaa7db8e",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for CUSTFILE-STATUS is dead because 0000-CUSTFILE-OPEN executes OPEN INPUT CUSTFILE which populates CUSTFILE-STATUS before any condition check.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "5de21f56f0",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS is dead because IO-STATUS is only read in Z-DISPLAY-IO-STATUS, which is always preceded by a MOVE to IO-STATUS.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "9cfc0006ad",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for TWO-BYTES-BINARY is dead because Z-DISPLAY-IO-STATUS explicitly executes Cobol.move(0, TWO_BYTES_BINARY) before use.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "65f59fb807",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"MDAwMA==\"));",
+   "after": "\"XDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS-04 is dead because Z-DISPLAY-IO-STATUS overwrites all four characters of IO-STATUS-04 before displaying it.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "9c964721bd",
+   "op": "CON",
+   "line": 75,
+   "before": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f41_GG_RETURN_CODE is only read from s_GG_RETURN_CODE whose initial image is all zeros and never written; any binary window read evaluates to 0.",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "f534b923b7",
+   "op": "CON",
+   "line": 83,
+   "before": "return Cobol.num(Field.zoned(s, 0, 9, 0, false, false, false), CS).intValue();",
+   "after": "return Cobol.num(Field.zoned(s, 1, 9, 0, false, false, false), CS).intValue();",
+   "verdict": "unreachable",
+   "reason": "The repository id_CustomerRecord helper is registered for findById queries, but CBCUS01C executes sequential batch reads via findAll, so findById is never invoked.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "3c91f0e381",
+   "op": "DEL",
+   "line": 102,
+   "before": "System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for FD CUSTFILE-REC is dead because 1000-CUSTFILE-GET-NEXT populates the buffer from CUSTFILE before any read.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "97c159f03b",
+   "op": "DEL",
+   "line": 103,
+   "before": "System.arraycopy(IMAGE_s_CUSTOMER_RECORD, 0, s_CUSTOMER_RECORD.bytes, 0, IMAGE_s_CUSTOMER_RECORD.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_RECORD, 0, s_CUSTOMER_RECORD.bytes, 0, IMAGE_s_CUSTOMER_RECORD.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for CUSTOMER-RECORD is dead because 1000-CUSTFILE-GET-NEXT unconditionally reads the next sequential record into CUSTOMER-RECORD before DISPLAY.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "fe23c8c8ea",
+   "op": "DEL",
+   "line": 104,
+   "before": "System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for CUSTFILE-STATUS is dead because 0000-CUSTFILE-OPEN immediately issues OPEN INPUT CUSTFILE which sets CUSTFILE-STATUS.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "7e899863f2",
+   "op": "DEL",
+   "line": 105,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for IO-STATUS is dead because IO-STATUS is only read in Z-DISPLAY-IO-STATUS, which is always preceded by MOVE to IO-STATUS.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "bce8a2d383",
+   "op": "DEL",
+   "line": 107,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for IO-STATUS-04 is dead because Z-DISPLAY-IO-STATUS explicitly formats all four bytes before DISPLAY.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "8faf28a0c4",
+   "op": "DEL",
+   "line": 109,
+   "before": "f37_APPL_RESULT = 0L;",
+   "after": "/* f37_APPL_RESULT = 0L; */",
+   "verdict": "equivalent",
+   "reason": "In initialState(), zeroing f37_APPL_RESULT is dead because 0000-CUSTFILE-OPEN unconditionally assigns 8L to APPL-RESULT before any condition check.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "5dbf134128",
+   "op": "DEL",
+   "line": 111,
+   "before": "f39_ABCODE = 0L;",
+   "after": "/* f39_ABCODE = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Every read of f39_ABCODE in Z-ABEND-PROGRAM follows an unconditional store of 999 into ABCODE, so the initial zero store is never read.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "a906011be3",
+   "op": "DEL",
+   "line": 118,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "unreachable",
+   "reason": "runProgram() is an uncalled standalone method never invoked during batch execution, which enters exclusively via runBatch.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "91e2899a82",
+   "op": "DEL",
+   "line": 119,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
+   "verdict": "unreachable",
+   "reason": "In the uncalled standalone runProgram() entry point, clearing performDepth is never reached because batch execution runs via runBatch.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "3bc40afb19",
+   "op": "CON",
+   "line": 121,
+   "before": "perform(0, 5);",
+   "after": "perform(1, 5);",
+   "verdict": "unreachable",
+   "reason": "The PERFORM statement in runProgram() is unreachable because CBCUS01C runs in batch mode through runBatch and never invokes runProgram().",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "d10008e6a6",
+   "op": "CON",
+   "line": 148,
+   "before": "CUSTFILE_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "after": "CUSTFILE_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 1, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "verdict": "unreachable",
+   "reason": "The key offset parameter in DetFiles.Indexed is only used for index key extraction on random access, but CBCUS01C reads CUSTFILE sequentially via findAll.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "6c6c782724",
+   "op": "CON",
+   "line": 162,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "Initializing performThru array size to 65 instead of 64 has no observable effect because call stack depth in CBCUS01C never exceeds 2.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "574f7a078d",
+   "op": "DEL",
+   "line": 171,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "unreachable",
+   "reason": "PerformExit is never thrown in CBCUS01C because all PERFORM calls execute single paragraphs, so constructor super-call details are never observed.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9c73572214",
+   "op": "AOR",
+   "line": 182,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The performThru array expansion in perform() is guarded by mine == performThru.length (capacity 64), which is never reached since perform depth never exceeds 2.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "a5b6fa0469",
+   "op": "CON",
+   "line": 182,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "unreachable",
+   "reason": "Array reallocation in perform() is never reached because the call stack depth in CBCUS01C never approaches the initial 64-element capacity of performThru.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "05c3c01350",
+   "op": "ROR",
+   "line": 195,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The loop condition d < 0 in perform() is never reached because all PERFORM calls in CBCUS01C execute paragraphs that exit without active thru ranges.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7de5dfb28d",
+   "op": "AOR",
+   "line": 195,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the increment d++ in the loop tail is never executed because paragraph returns in CBCUS01C never satisfy i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "887c6856d8",
+   "op": "AOR",
+   "line": 195,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the reverse search loop tail is entered only when a paragraph returns with i != thru, which no PERFORM statement in CBCUS01C does.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b326979908",
+   "op": "ROR",
+   "line": 195,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The perform loop tail condition d > 0 is never evaluated because CBCUS01C only uses single-paragraph perform invocations where i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3a849c0db0",
+   "op": "NEG",
+   "line": 196,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting the performThru match condition is unreachable because the enclosing loop is never entered when i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a62f24d4b0",
+   "op": "ROR",
+   "line": 196,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing performThru[d] != i in the search loop is unreachable because CBCUS01C performs are simple single-paragraph invocations.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "20606708ef",
+   "op": "ROR",
+   "line": 201,
+   "before": "if (next >= 6) {",
+   "after": "if (next < 6) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next < 6 in the paragraph bounds check is unreachable because CBCUS01C perform statements never return with i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6cac80c81a",
+   "op": "NEG",
+   "line": 201,
+   "before": "if (next >= 6) {",
+   "after": "if (!(next >= 6)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting next >= 6 in the paragraph bounds check is unreachable because the loop tail is only entered when i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8eb2fa5aa2",
+   "op": "ROR",
+   "line": 201,
+   "before": "if (next >= 6) {",
+   "after": "if (next > 6) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next > 6 is unreachable because the paragraph dispatcher loop tail is never entered for single-paragraph performs.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "31d74094fa",
+   "op": "ROR",
+   "line": 207,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth == mine in the PerformExit handler is unreachable because PerformExit is never thrown in CBCUS01C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "aa74a926e3",
+   "op": "NEG",
+   "line": 207,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth != mine in the PerformExit catch block is unreachable because PerformExit is never thrown in CBCUS01C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a1e714988c",
+   "op": "LIT",
+   "line": 223,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "In the paragraph dispatch switch of perform(), the default arm is unreachable because all paragraph indices in CBCUS01C are between 0 and 5.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "1028a3bcf3",
+   "op": "DEL",
+   "line": 266,
+   "before": "f37_APPL_RESULT = 0L;",
+   "after": "/* f37_APPL_RESULT = 0L; */",
+   "verdict": "equivalent",
+   "reason": "f37_APPL_RESULT is set to 0L at the start of paragraph 0, but 0000-CUSTFILE-OPEN immediately assigns 8L to APPL-RESULT, so deleting this assignment has no effect.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "971a1618df",
+   "op": "CON",
+   "line": 299,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "In 1000-CUSTFILE-GET-NEXT, the return value next is ignored by perform(1, 1) because single-paragraph performs exit immediately when i == thru without evaluating next.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "5095204754",
+   "op": "LIT",
+   "line": 307,
+   "before": "String st2 = CUSTFILE_FILE.open(\"INPUT\");",
+   "after": "String st2 = CUSTFILE_FILE.open(\"XNPUT\");",
+   "verdict": "equivalent",
+   "reason": "In DetFiles.Indexed.open(mode), sequential input datasets ignore the mode string and open in read mode regardless of whether mode is INPUT or XNPUT.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "b35c1eca00",
+   "op": "DEL",
+   "line": 315,
+   "before": "f37_APPL_RESULT = 12L;",
+   "after": "/* f37_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 0000-CUSTFILE-OPEN failure path, APPL-RESULT is already non-zero (8L) so isApplAok() returns false, and subsequent abend halts execution without APPL-RESULT ever being read.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "34c544d22e",
+   "op": "CON",
+   "line": 328,
+   "before": "perform(4, 4);",
+   "after": "perform(4, 5);",
+   "verdict": "unreachable",
+   "reason": "In 0000-CUSTFILE-OPEN, paragraph 4 is Z-ABEND-PROGRAM which unconditionally throws CobolAbend.user, so paragraph 5 in the PERFORM range is never reached.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "c9771a50a4",
+   "op": "BDM",
+   "line": 337,
+   "before": "BigDecimal v3 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v3 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-CUSTFILE-CLOSE, adding zero versus subtracting zero from BigDecimal constant D8 (8) is an arithmetic identity producing the exact same numeric value 8.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "9ba9930b96",
+   "op": "DEL",
+   "line": 338,
+   "before": "f37_APPL_RESULT = Cobol.binary(v3, 9, true, false, CS);",
+   "after": "/* f37_APPL_RESULT = Cobol.binary(v3, 9, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9000-CUSTFILE-CLOSE, setting APPL-RESULT to 8 is dead because both arms of the subsequent IF CUSTFILE-STATUS = '00' check immediately overwrite APPL-RESULT.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "728a10da94",
+   "op": "BDM",
+   "line": 349,
+   "before": "BigDecimal v7 = D12.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v7 = D12.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-CUSTFILE-CLOSE error path, adding zero versus subtracting zero from constant D12 (12) produces identical value 12.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "bbc2934382",
+   "op": "DEL",
+   "line": 350,
+   "before": "f37_APPL_RESULT = Cobol.binary(v7, 9, true, false, CS);",
+   "after": "/* f37_APPL_RESULT = Cobol.binary(v7, 9, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9000-CUSTFILE-CLOSE error branch, APPL-RESULT remains non-zero (8) from prior store so isApplAok() evaluates false, and subsequent Z-ABEND-PROGRAM terminates without reading APPL-RESULT.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "3aa02089a7",
+   "op": "DEL",
+   "line": 374,
+   "before": "f40_TIMING = 0L;",
+   "after": "/* f40_TIMING = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Every read of f40_TIMING in Z-ABEND-PROGRAM follows an unconditional store of 0 into TIMING, so the initial zero store in Cbcus01cService is never read.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "927387e0fa",
+   "op": "LIT",
+   "line": 378,
+   "before": "if (true) throw CobolAbend.user(BigDecimal.valueOf(f39_ABCODE).intValue(), \"CEE3ABD\");",
+   "after": "if (true) throw CobolAbend.user(BigDecimal.valueOf(f39_ABCODE).intValue(), \"XEE3ABD\");",
+   "verdict": "equivalent",
+   "reason": "In Z-ABEND-PROGRAM, the routine name string passed to CobolAbend.user is informational and does not alter the abend code 999 or any observable output.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  },
+  {
+   "id": "247251bb8e",
+   "op": "DEL",
+   "line": 389,
+   "before": "Cobol.move(D0, f30_TWO_BYTES_BINARY, CS);",
+   "after": "/* Cobol.move(D0, f30_TWO_BYTES_BINARY, CS); */",
+   "verdict": "equivalent",
+   "reason": "In Z-DISPLAY-IO-STATUS, non-VSAM status values take the else branch where TWO-BYTES-BINARY is never read, and VSAM status codes overwrite the field.",
+   "tried": [
+    "open-custfile-abend"
+   ]
+  }
+ ]
+}

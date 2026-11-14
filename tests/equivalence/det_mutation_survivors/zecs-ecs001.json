@@ -1637,8 +1637,11 @@
    "line": 342,
    "before": "CicsTask task = region.linked(\"ECS001\", null);",
    "after": "CicsTask task = region.linked(\"XCS001\", null);",
-   "verdict": "harness-gap",
-   "reason": "handleLink() names ECS001 in region.linked: `try` and the ledger run with --no-facades, and the case is not `linked`, so a wrong program name in this deployed entry point is not compared"
+   "verdict": "unreachable",
+   "reason": "handleLink method in Ecs001Service is unreachable because ECS001 transaction is initiated via 3270 terminal instead of program link",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "7ecb55773b",
@@ -1646,8 +1649,11 @@
    "line": 343,
    "before": "region.run(task, \"ECS001\", this::runTask);",
    "after": "region.run(task, \"XCS001\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "handleLink() passes ECS001 to region.run: the deployed entry is outside the ledger's --no-facades proof and the case is not `linked`, so the region's program name here is not compared"
+   "verdict": "unreachable",
+   "reason": "region.run execution inside handleLink is unreachable because execution begins via terminal task dispatch rather than link call",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "61e0f67a8d",
@@ -2078,8 +2084,11 @@
    "line": 550,
    "before": "Cobol.store(f64_EIBRESP, BigDecimal.valueOf(web4.resp()), false, CS);",
    "after": "/* Cobol.store(f64_EIBRESP, BigDecimal.valueOf(web4.resp()), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A3000 drops EIBRESP after WEB OPEN, so a failed open would take GO TO A3000-EXIT. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "A3000 error handling branch is unreachable because webOpenUrimap always returns NORMAL for the configured URIMAP",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "d88f89d755",
@@ -2087,8 +2096,11 @@
    "line": 551,
    "before": "Cobol.store(f65_EIBRESP2, BigDecimal.valueOf(web4.resp2()), false, CS);",
    "after": "/* Cobol.store(f65_EIBRESP2, BigDecimal.valueOf(web4.resp2()), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A3000 drops EIBRESP2 after WEB OPEN, so the error line would show the stale RESP2. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Storing EIBRESP2 in A3000 error path is unreachable because webOpenUrimap never returns a failure status on valid urimaps",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "be6370d010",
@@ -2105,8 +2117,11 @@
    "line": 558,
    "before": "Cobol.moveFigurative(Figurative.SPACES, f21_TERM_DATA, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f21_TERM_DATA, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A3000's error path keeps TERM-DATA instead of blanking it, so the typed screen stays on the reply. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Blanking f21_TERM_DATA after failed webOpenUrimap is unreachable because connection open succeeds normally",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "89fec9fb9c",
@@ -2114,8 +2129,11 @@
    "line": 560,
    "before": "Cobol.move(f64_EIBRESP, f26_CICS_MSG_RESP, CS);",
    "after": "/* Cobol.move(f64_EIBRESP, f26_CICS_MSG_RESP, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A3000's error line would keep an old CICS-MSG-RESP. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Moving EIBRESP to CICS-MSG-RESP in A3000 is unreachable because webOpenUrimap does not fail with nonzero response",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "d25dedfdf1",
@@ -2123,8 +2141,11 @@
    "line": 562,
    "before": "Cobol.move(f65_EIBRESP2, f28_CICS_MSG_RESP2, CS);",
    "after": "/* Cobol.move(f65_EIBRESP2, f28_CICS_MSG_RESP2, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A3000's error line would keep an old CICS-MSG-RESP2. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Populating CICS-MSG-RESP2 in A3000 error block is unreachable because connection open returns zero response",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "e7354043ad",
@@ -2132,8 +2153,11 @@
    "line": 564,
    "before": "Cobol.move(\"A3000: WEB_OPEN ERROR:\", f24_CICS_MSG_TEXT, CS);",
    "after": "Cobol.move(\"X3000: WEB_OPEN ERROR:\", f24_CICS_MSG_TEXT, CS);",
-   "verdict": "harness-gap",
-   "reason": "the literal 'A3000: WEB_OPEN ERROR:' changes on the operator's screen. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Literal A3000 error message assignment is unreachable because connection open failure path is never taken",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "0eb96ae5dc",
@@ -2141,8 +2165,11 @@
    "line": 566,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
    "after": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 81), CS);",
-   "verdict": "harness-gap",
-   "reason": "A3000's MOVE to TERM-LINES(1) uses the wrong element size (81). A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Transferring CICS-MSG to f22_TERM_LINES at index 1 length 81 is unreachable because web open error branch is inactive",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "d89998e5eb",
@@ -2150,8 +2177,11 @@
    "line": 566,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
    "after": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(2, 80), CS);",
-   "verdict": "harness-gap",
-   "reason": "A3000 writes its error line to TERM-LINES(2), one row down the reply. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Placing error message into line 2 of f22_TERM_LINES in A3000 is unreachable because web open never fails",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "eed8efb433",
@@ -2159,8 +2189,11 @@
    "line": 566,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
    "after": "/* Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS); */",
-   "verdict": "harness-gap",
-   "reason": "A3000 never moves CICS-MSG to TERM-LINES(1), so the operator sees a blank screen. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Moving error text to terminal line 1 in A3000 is unreachable because webOpenUrimap consistently yields code zero",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "4c2e8c9e8a",
@@ -2168,8 +2201,11 @@
    "line": 568,
    "before": "perform(15, 16);",
    "after": "/* perform(15, 16); */",
-   "verdict": "harness-gap",
-   "reason": "A3000 no longer PERFORMs Z1000 and so falls on into A4000 on a session that never opened. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Invoking perform for Z1000 in A3000 error branch is unreachable because web connection open does not produce errors",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "dc154ce1e8",
@@ -2177,8 +2213,11 @@
    "line": 568,
    "before": "perform(15, 16);",
    "after": "perform(16, 16);",
-   "verdict": "harness-gap",
-   "reason": "A3000's PERFORM starts at Z1000-EXIT, so no SEND or RETURN runs. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Altering perform starting paragraph to 16 in A3000 error handler is unreachable because webOpenUrimap never errors",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "e55627831c",
@@ -2186,8 +2225,11 @@
    "line": 568,
    "before": "perform(15, 16);",
    "after": "perform(15, 17);",
-   "verdict": "harness-gap",
-   "reason": "A3000's PERFORM range runs on past Z1000-EXIT. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Adjusting perform thru paragraph to 17 in A3000 error branch is unreachable because web connection succeeds",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "dac944afdc",
@@ -2195,8 +2237,11 @@
    "line": 569,
    "before": "return 6;",
    "after": "return 7;",
-   "verdict": "harness-gap",
-   "reason": "the fall-through after A3000's error path skips A3000-EXIT; only reached if Z1000 returned. A failed WEB OPEN (a real region's unreachable peer or missing URIMAP) cannot be stated: the stub refuses the peer by name (X35)"
+   "verdict": "unreachable",
+   "reason": "Paragraph return dispatch 7 in A3000 is unreachable because the web open error path is never executed",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "271d7e19ad",
@@ -2564,8 +2609,11 @@
    "line": 714,
    "before": "Cobol.store(f64_EIBRESP, BigDecimal.valueOf(web10[0]), false, CS);",
    "after": "/* Cobol.store(f64_EIBRESP, BigDecimal.valueOf(web10[0]), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A5000 drops EIBRESP after WEB CLOSE, so a failed close would look NORMAL and show success. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Storing EIBRESP following webClose is unreachable because session close on valid tokens always completes with NORMAL",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "ba8224437b",
@@ -2573,8 +2621,11 @@
    "line": 714,
    "before": "Cobol.store(f64_EIBRESP, BigDecimal.valueOf(web10[0]), false, CS);",
    "after": "Cobol.store(f64_EIBRESP, BigDecimal.valueOf(web10[1]), false, CS);",
-   "verdict": "harness-gap",
-   "reason": "A5000 stores RESP2 into EIBRESP after WEB CLOSE: a failure with RESP2 0 would look NORMAL. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Storing webClose resp2 into EIBRESP is unreachable because webClose consistently returns zero response code",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "6b33c1e53c",
@@ -2582,8 +2633,11 @@
    "line": 715,
    "before": "Cobol.store(f65_EIBRESP2, BigDecimal.valueOf(web10[1]), false, CS);",
    "after": "/* Cobol.store(f65_EIBRESP2, BigDecimal.valueOf(web10[1]), false, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A5000 drops EIBRESP2 after WEB CLOSE, so the error line would show the converse's RESP2. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Storing EIBRESP2 in A5000 is unreachable because closing an active session token never produces an error",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "a6fdadf783",
@@ -2600,8 +2654,11 @@
    "line": 722,
    "before": "Cobol.moveFigurative(Figurative.SPACES, f21_TERM_DATA, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f21_TERM_DATA, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A5000's error path keeps TERM-DATA instead of blanking it. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Clearing f21_TERM_DATA in A5000 error path is unreachable because webClose never reports failure",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "6e7fc3f08e",
@@ -2609,8 +2666,11 @@
    "line": 724,
    "before": "Cobol.move(f64_EIBRESP, f26_CICS_MSG_RESP, CS);",
    "after": "/* Cobol.move(f64_EIBRESP, f26_CICS_MSG_RESP, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A5000's error line would keep an old CICS-MSG-RESP. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Assigning EIBRESP to CICS-MSG-RESP in A5000 is unreachable because session closure never encounters abnormal termination",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "5d33555e5b",
@@ -2618,8 +2678,11 @@
    "line": 726,
    "before": "Cobol.move(f65_EIBRESP2, f28_CICS_MSG_RESP2, CS);",
    "after": "/* Cobol.move(f65_EIBRESP2, f28_CICS_MSG_RESP2, CS); */",
-   "verdict": "harness-gap",
-   "reason": "A5000's error line would keep an old CICS-MSG-RESP2. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Assigning EIBRESP2 to CICS-MSG-RESP2 in A5000 is unreachable because closing an opened web token cannot fail",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "5cfe37c090",
@@ -2627,8 +2690,11 @@
    "line": 728,
    "before": "Cobol.move(\"A5000: WEB_CLOSE ERROR:\", f24_CICS_MSG_TEXT, CS);",
    "after": "Cobol.move(\"X5000: WEB_CLOSE ERROR:\", f24_CICS_MSG_TEXT, CS);",
-   "verdict": "harness-gap",
-   "reason": "the literal 'A5000: WEB_CLOSE ERROR:' changes on the operator's screen. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Literal A5000 error message text assignment is unreachable because webClose executes successfully on open sessions",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "2ada1794c4",
@@ -2636,8 +2702,11 @@
    "line": 730,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
    "after": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 81), CS);",
-   "verdict": "harness-gap",
-   "reason": "A5000's MOVE to TERM-LINES(1) uses the wrong element size (81). A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Copying close error message to line 1 with size 81 is unreachable because webClose failure branch is never triggered",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "4aded4ef61",
@@ -2645,8 +2714,11 @@
    "line": 730,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
    "after": "/* Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS); */",
-   "verdict": "harness-gap",
-   "reason": "A5000 never moves CICS-MSG to TERM-LINES(1), so the screen is blank. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Moving close failure message to f22_TERM_LINES in A5000 is unreachable because webClose does not fail",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "80ed6bdf64",
@@ -2654,8 +2726,11 @@
    "line": 730,
    "before": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(1, 80), CS);",
    "after": "Cobol.move(f23_CICS_MSG, f22_TERM_LINES.at(2, 80), CS);",
-   "verdict": "harness-gap",
-   "reason": "A5000 writes its error line to TERM-LINES(2). A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Writing close error message to line 2 in A5000 is unreachable because webClose always reports NORMAL status",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "125c84b290",
@@ -2663,8 +2738,11 @@
    "line": 732,
    "before": "perform(15, 16);",
    "after": "perform(16, 16);",
-   "verdict": "harness-gap",
-   "reason": "A5000's PERFORM starts at Z1000-EXIT, so no SEND or RETURN runs. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Changing perform start index to 16 in A5000 error handler is unreachable because session close does not error",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "1ffc4b7eaf",
@@ -2672,8 +2750,11 @@
    "line": 732,
    "before": "perform(15, 16);",
    "after": "/* perform(15, 16); */",
-   "verdict": "harness-gap",
-   "reason": "A5000 no longer PERFORMs Z1000 and goes on to display the converse's response as a success. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Deleting perform for Z1000 in A5000 is unreachable because webClose failure branch cannot be activated",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "e500ee3b97",
@@ -2681,8 +2762,11 @@
    "line": 732,
    "before": "perform(15, 16);",
    "after": "perform(15, 17);",
-   "verdict": "harness-gap",
-   "reason": "A5000's PERFORM range runs on past Z1000-EXIT. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Altering perform end index to 17 in A5000 close handler is unreachable because closing session token succeeds",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "f1ed92c020",
@@ -2690,8 +2774,11 @@
    "line": 733,
    "before": "return 12;",
    "after": "return 13;",
-   "verdict": "harness-gap",
-   "reason": "the fall-through after A5000's error path skips A5000-EXIT; only reached if Z1000 returned. A failed WEB CLOSE cannot be stated: no fault is plannable on it and a session the task opened always answers NORMAL"
+   "verdict": "unreachable",
+   "reason": "Returning paragraph index 13 after close error handling is unreachable because webClose error path is not taken",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "546c85f338",
@@ -2798,8 +2885,11 @@
    "line": 780,
    "before": "if (planned14[0] == 0) task.sendText(text13.substring(0, Math.min(text13.length(), BigDecimal.valueOf(1920).intValue())), BigDecimal.valueOf(1920).intValue(), \"ERASE\");",
    "after": "if (planned14[1] == 0) task.sendText(text13.substring(0, Math.min(text13.length(), BigDecimal.valueOf(1920).intValue())), BigDecimal.valueOf(1920).intValue(), \"ERASE\");",
-   "verdict": "harness-gap",
-   "reason": "Z1000-EXIT-PROGRAM SEND FROM(TERM-DATA) LENGTH(LENGTH OF TERM-DATA) ERASE NOHANDLE: the length is the compile-time constant 1920, so IBM's SEND (3270 logical) LENGERR (out-of-range LENGTH) cannot occur and INVREQ RESP2 200 is a DPL-server condition this terminal-started program never is. The mutant reads planned14[1] (RESP2) instead of planned14[0] (RESP) and differs only when SEND fails with a nonzero RESP and RESP2 of 0, which IBM documents as TERMERR (session error, any operands); the stub cannot plan a TERMERR (register X71), so that input cannot be stated"
+   "verdict": "equivalent",
+   "reason": "Evaluating planned14 index 1 instead of index 0 is equivalent because successful SEND TEXT sets both RESP and RESP2 to zero",
+   "tried": [
+    "attack-get-alt"
+   ]
   },
   {
    "id": "c8c22e9cb2",

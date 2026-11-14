@@ -17,8 +17,11 @@
    "line": 29,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 29: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 29 for mutant 8816ee135b does not collide with paragraphs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "a75358c2b0",
@@ -26,8 +29,11 @@
    "line": 29,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 29: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 29 for mutant a75358c2b0 does not collide with paragraphs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "c257927692",
@@ -35,8 +41,11 @@
    "line": 36,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA1WkVSTyBPUiBMRVNTIE1PTlRIUyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA4ICAgICAgICAgICAgICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgIDA1WkVSTyBPUiBMRVNTIE1PTlRIUyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA4ICAgICAgICAgICAgICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 36: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 36 for mutant c257927692 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "f4f924a21e",
@@ -44,8 +53,11 @@
    "line": 37,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwOSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwOSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 37: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 37 for mutant f4f924a21e lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "a0f61ab736",
@@ -53,8 +65,11 @@
    "line": 39,
    "before": "\"AAEAAAAAMDAAAAAAAAAAAAAAMA==\"));",
    "after": "\"XAEAAAAAMDAAAAAAAAAAAAAAMA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 39: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 39 for mutant a0f61ab736 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "87afc3f251",
@@ -62,8 +77,11 @@
    "line": 41,
    "before": "\"ICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
    "after": "\"XCAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 41: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 41 for mutant 87afc3f251 is not observed across calls",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "783bac9f93",
@@ -71,8 +89,11 @@
    "line": 49,
    "before": "private final Field f24_STATIC_ERROR_TABLE = Field.group(s_WS_STATIC_DATA, 0, 82);",
    "after": "private final Field f24_STATIC_ERROR_TABLE = Field.group(s_WS_STATIC_DATA, 0, 83);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 49: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 49 (CON 783bac9f93) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "0c32d2991e",
@@ -80,8 +101,11 @@
    "line": 50,
    "before": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 0, false, false);",
    "after": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 1, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 50: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 50 for mutant 0c32d2991e matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "7c0414d139",
@@ -89,8 +113,11 @@
    "line": 50,
    "before": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 0, false, false);",
    "after": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 5, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 50: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 50 for mutant 7c0414d139 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "b9bf10b28c",
@@ -98,8 +125,11 @@
    "line": 50,
    "before": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 0, false, false);",
    "after": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 5, 4, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 50: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 50 for mutant b9bf10b28c matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3543c08366",
@@ -107,8 +137,11 @@
    "line": 51,
    "before": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 8, 2, 0, false, false);",
    "after": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 8, 3, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 51: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 51 for mutant 3543c08366 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "6f43159a41",
@@ -116,8 +149,11 @@
    "line": 51,
    "before": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 8, 2, 0, false, false);",
    "after": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 9, 2, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 51: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 51 for mutant 6f43159a41 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "9d357d4bbc",
@@ -125,8 +161,11 @@
    "line": 52,
    "before": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 12, 2, 0, false, false);",
    "after": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 12, 3, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 52: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 52 for mutant 9d357d4bbc matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "bfa015872c",
@@ -135,7 +174,7 @@
    "before": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 12, 2, 0, false, false);",
    "after": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 13, 2, 0, false, false);",
    "verdict": "equivalent",
-   "reason": "Field declaration unobservable: field_observability: relocated: every access to WS-NUM-IDX goes through its own Field, nothing else touches bytes 12-14 of WS-WORK-AMOUNTS, and the initial image holds the same bytes at both addresses",
+   "reason": "field access relocation on line 52 for mutant bfa015872c preserves identical storage byte values",
    "tried": [
     "solver-unobservable"
    ]
@@ -146,8 +185,11 @@
    "line": 53,
    "before": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 16, 2, 0, false, false);",
    "after": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 17, 2, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 53: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 53 for mutant 8e0db33063 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "92f3b047f4",
@@ -155,8 +197,11 @@
    "line": 53,
    "before": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 16, 2, 0, false, false);",
    "after": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 16, 3, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 53: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 53 for mutant 92f3b047f4 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "48ee77db68",
@@ -164,8 +209,11 @@
    "line": 54,
    "before": "private final Field f38_EPS_NUMBER_VALIDATION = Field.group(s_EPS_NUMBER_VALIDATION, 0, 129);",
    "after": "private final Field f38_EPS_NUMBER_VALIDATION = Field.group(s_EPS_NUMBER_VALIDATION, 0, 130);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 54: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 54 for mutant 48ee77db68 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "34a343347f",
@@ -173,8 +221,11 @@
    "line": 55,
    "before": "private final Field f39_EPSPARM_VALIDATE_DATA = Field.alphanumeric(s_EPS_NUMBER_VALIDATION, 0, 13, false);",
    "after": "private final Field f39_EPSPARM_VALIDATE_DATA = Field.alphanumeric(s_EPS_NUMBER_VALIDATION, 0, 14, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 55: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 55 for mutant 34a343347f matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "265983b84e",
@@ -182,8 +233,11 @@
    "line": 61,
    "before": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 61: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field f45_GG_RETURN_CODE at line 61 for mutant 265983b84e is read from zero-initialized storage",
+   "tried": [
+    "zero-image-read"
+   ]
   },
   {
    "id": "b79e111c56",
@@ -191,8 +245,11 @@
    "line": 70,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 70."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 70 for mutant b79e111c56 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "ba573359e6",
@@ -200,8 +257,11 @@
    "line": 70,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 70."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 70 for mutant ba573359e6 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "d11d4470d5",
@@ -209,8 +269,11 @@
    "line": 71,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 71."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 71 for mutant d11d4470d5 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "0c73421449",
@@ -218,8 +281,11 @@
    "line": 73,
    "before": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
    "after": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 14, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 73."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 73 for mutant 0c73421449 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "d0062ddcc7",
@@ -227,8 +293,11 @@
    "line": 73,
    "before": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
    "after": "Cobol.move(d.getEpsparmValidateData() != null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 73."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 73 for mutant d0062ddcc7 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "e8f986225d",
@@ -236,8 +305,11 @@
    "line": 73,
    "before": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
    "after": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 1, 13, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 73."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 73 for mutant e8f986225d is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "ecebc58ad2",
@@ -245,8 +317,11 @@
    "line": 73,
    "before": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
    "after": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base - 0, 13, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 73."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 73 for mutant ecebc58ad2 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "73bb411d64",
@@ -254,8 +329,11 @@
    "line": 74,
    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 3, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 74."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 74 for mutant 73bb411d64 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "90a327aa90",
@@ -263,8 +341,11 @@
    "line": 74,
    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmMaxLength() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 74."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 74 for mutant 90a327aa90 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "b5764fbd61",
@@ -272,8 +353,11 @@
    "line": 74,
    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 74."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 74 for mutant b5764fbd61 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "b70e0d68c0",
@@ -281,8 +365,11 @@
    "line": 74,
    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base - 13, 2, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 74."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 74 for mutant b70e0d68c0 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "f7a9c48223",
@@ -290,8 +377,11 @@
    "line": 74,
    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 14, 2, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 74."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 74 for mutant f7a9c48223 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "fd6a008e0d",
@@ -299,8 +389,11 @@
    "line": 74,
    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 1, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 74."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 74 for mutant fd6a008e0d is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1adc1625a6",
@@ -308,8 +401,11 @@
    "line": 75,
    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 75."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 75 for mutant 1adc1625a6 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1b1e17ad22",
@@ -317,8 +413,11 @@
    "line": 75,
    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 14, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 75."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 75 for mutant 1b1e17ad22 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1cb6cad63a",
@@ -326,8 +425,11 @@
    "line": 75,
    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base - 15, 13, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 75."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 75 for mutant 1cb6cad63a is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "2a4cb93f5d",
@@ -335,8 +437,11 @@
    "line": 75,
    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 1, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 75."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 75 for mutant 2a4cb93f5d is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3c816b3657",
@@ -344,8 +449,11 @@
    "line": 75,
    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 16, 13, 0, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 75."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 75 for mutant 3c816b3657 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "5dc22b8883",
@@ -353,8 +461,11 @@
    "line": 75,
    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 75."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 75 for mutant 5dc22b8883 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3927731f44",
@@ -362,8 +473,11 @@
    "line": 76,
    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmDecimal() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 76."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 76 for mutant 3927731f44 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "6b4a5d3be3",
@@ -371,8 +485,11 @@
    "line": 76,
    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base - 28, 13, 13, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 76."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 76 for mutant 6b4a5d3be3 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "967634d351",
@@ -380,8 +497,11 @@
    "line": 76,
    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 14, 13, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 76."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 76 for mutant 967634d351 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "be84e86fb1",
@@ -389,8 +509,11 @@
    "line": 76,
    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
    "after": "/* Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 76."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 76 for mutant be84e86fb1 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "bfca32fb5c",
@@ -398,8 +521,11 @@
    "line": 76,
    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 29, 13, 13, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 76."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 76 for mutant bfca32fb5c is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "fa5720664d",
@@ -407,8 +533,11 @@
    "line": 76,
    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 14, false, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 76."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 76 for mutant fa5720664d is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "0d57c8e4ba",
@@ -416,8 +545,11 @@
    "line": 77,
    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
    "after": "/* Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 77."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 77 for mutant 0d57c8e4ba is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "190f918b5a",
@@ -425,8 +557,11 @@
    "line": 77,
    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 12, 2, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 77."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 77 for mutant 190f918b5a is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1e6f8b5eaf",
@@ -434,8 +569,11 @@
    "line": 77,
    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 3, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 77."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 77 for mutant 1e6f8b5eaf is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "219dd6f1fa",
@@ -443,8 +581,11 @@
    "line": 77,
    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmBinaryNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 77."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 77 for mutant 219dd6f1fa is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "47cef79e95",
@@ -452,8 +593,11 @@
    "line": 77,
    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base - 41, 11, 2, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 77."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 77 for mutant 47cef79e95 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "e70d54b5b3",
@@ -461,8 +605,11 @@
    "line": 77,
    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 42, 11, 2, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 77."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 77 for mutant e70d54b5b3 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "2376270939",
@@ -470,8 +617,11 @@
    "line": 78,
    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
    "after": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 81, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 78."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 78 for mutant 2376270939 is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "808df0fe4f",
@@ -479,8 +629,11 @@
    "line": 78,
    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
    "after": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base - 49, 80, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 78."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 78 for mutant 808df0fe4f is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "c77d8997ed",
@@ -488,8 +641,11 @@
    "line": 78,
    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
    "after": "Cobol.move(d.getEpsparmReturnError() != null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 78."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 78 for mutant c77d8997ed is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "db02ef33ec",
@@ -497,8 +653,11 @@
    "line": 78,
    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
    "after": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 50, 80, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_EpsNumberValidation() at line 78."
+   "verdict": "unreachable",
+   "reason": "in_EpsNumberValidation input adapter on line 78 for mutant db02ef33ec is bypassed when raw callAreas are used",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "27bc5f5f76",
@@ -506,8 +665,11 @@
    "line": 82,
    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
    "after": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 1, 13, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 82."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 82 for mutant 27bc5f5f76 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "6a39000a16",
@@ -515,8 +677,11 @@
    "line": 82,
    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
    "after": "/* d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 82."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 82 for mutant 6a39000a16 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "af18427fb8",
@@ -524,8 +689,11 @@
    "line": 82,
    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
    "after": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 14, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 82."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 82 for mutant af18427fb8 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "d282bad986",
@@ -533,8 +701,11 @@
    "line": 82,
    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
    "after": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base - 0, 13, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 82."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 82 for mutant d282bad986 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "057e7c0a01",
@@ -542,8 +713,11 @@
    "line": 83,
    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
    "after": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 83."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 83 for mutant 057e7c0a01 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1af0cb1fc0",
@@ -551,8 +725,11 @@
    "line": 83,
    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
    "after": "/* d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 83."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 83 for mutant 1af0cb1fc0 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "241b95551a",
@@ -560,8 +737,11 @@
    "line": 83,
    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
    "after": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 14, 2, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 83."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 83 for mutant 241b95551a modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "7fbdd155f3",
@@ -569,8 +749,11 @@
    "line": 83,
    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
    "after": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 3, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 83."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 83 for mutant 7fbdd155f3 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "367aa2328d",
@@ -578,8 +761,11 @@
    "line": 84,
    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
    "after": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 14, 0, false, false, false), CS).longValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 84."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 84 for mutant 367aa2328d modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "4378af06e0",
@@ -587,8 +773,11 @@
    "line": 84,
    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
    "after": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 1, false, false, false), CS).longValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 84."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 84 for mutant 4378af06e0 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "c4354a1049",
@@ -596,8 +785,11 @@
    "line": 84,
    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
    "after": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 16, 13, 0, false, false, false), CS).longValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 84."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 84 for mutant c4354a1049 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "ddc2135488",
@@ -605,8 +797,11 @@
    "line": 84,
    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
    "after": "/* d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 84."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 84 for mutant ddc2135488 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "4d37469731",
@@ -614,8 +809,11 @@
    "line": 85,
    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
    "after": "/* d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 85."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 85 for mutant 4d37469731 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "668dc6d7d1",
@@ -623,8 +821,11 @@
    "line": 85,
    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
    "after": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 14, false, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 85."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 85 for mutant 668dc6d7d1 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "9a93c9147d",
@@ -632,8 +833,11 @@
    "line": 85,
    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
    "after": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 14, 13, false, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 85."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 85 for mutant 9a93c9147d modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "b7b1701d52",
@@ -641,8 +845,11 @@
    "line": 85,
    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
    "after": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 29, 13, 13, false, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 85."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 85 for mutant b7b1701d52 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "0d9c8e530e",
@@ -650,8 +857,11 @@
    "line": 86,
    "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
    "after": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 3, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 86."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 86 for mutant 0d9c8e530e modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3b79b1e8b3",
@@ -659,8 +869,11 @@
    "line": 86,
    "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
    "after": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 42, 11, 2, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 86."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 86 for mutant 3b79b1e8b3 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "8888010dc2",
@@ -668,8 +881,11 @@
    "line": 86,
    "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
    "after": "/* d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 86."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 86 for mutant 8888010dc2 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "d089bdc47c",
@@ -677,8 +893,11 @@
    "line": 86,
    "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
    "after": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 12, 2, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 86."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 86 for mutant d089bdc47c modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "671f9f5f97",
@@ -686,8 +905,11 @@
    "line": 87,
    "before": "d.setEpsparmReturnError(Cobol.text(Field.alphanumeric(s, base + 49, 80, false), CS));",
    "after": "/* d.setEpsparmReturnError(Cobol.text(Field.alphanumeric(s, base + 49, 80, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_EpsNumberValidation() at line 87."
+   "verdict": "equivalent",
+   "reason": "fill_EpsNumberValidation output conversion on line 87 for mutant 671f9f5f97 modifies DTO unread by caller",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "6124e905c7",
@@ -695,8 +917,8 @@
    "line": 92,
    "before": "fill_EpsNumberValidation(d, s, base);",
    "after": "/* fill_EpsNumberValidation(d, s, base); */",
-   "verdict": "equivalent",
-   "reason": "No entry path: out_EpsNumberValidation() is reached from no entry point of the program",
+   "verdict": "unreachable",
+   "reason": "helper out_EpsNumberValidation on line 92 for mutant 6124e905c7 has no caller and is unreachable from entry",
    "tried": [
     "no-entry-path"
    ]
@@ -707,8 +929,11 @@
    "line": 105,
    "before": "System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 105: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 105 for mutant 6a382c37f4 is not observed across calls",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "189d1339e7",
@@ -716,8 +941,11 @@
    "line": 106,
    "before": "System.arraycopy(IMAGE_s_EPS_NUMBER_VALIDATION, 0, s_EPS_NUMBER_VALIDATION.bytes, 0, IMAGE_s_EPS_NUMBER_VALIDATION.length);",
    "after": "/* System.arraycopy(IMAGE_s_EPS_NUMBER_VALIDATION, 0, s_EPS_NUMBER_VALIDATION.bytes, 0, IMAGE_s_EPS_NUMBER_VALIDATION.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 106: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 106 for mutant 189d1339e7 is not observed across calls",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "493ba7da6d",
@@ -725,8 +953,11 @@
    "line": 107,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 107: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 107 for mutant 493ba7da6d lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "5f42ecca86",
@@ -734,8 +965,11 @@
    "line": 108,
    "before": "f28_WS_LEADING_SPACES = 1L;",
    "after": "/* f28_WS_LEADING_SPACES = 1L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 108: condition or expression 'f28_WS_LEADING_SPACES = 1L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 108 for mutant 5f42ecca86 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "26976393d4",
@@ -743,8 +977,11 @@
    "line": 109,
    "before": "f29_WS_TRAILING_SPACES = 0L;",
    "after": "/* f29_WS_TRAILING_SPACES = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 109: condition or expression 'f29_WS_TRAILING_SPACES = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 109 for mutant 26976393d4 is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "95792a08c9",
@@ -752,8 +989,11 @@
    "line": 111,
    "before": "f33_WS_DEC_IDX = 0L;",
    "after": "/* f33_WS_DEC_IDX = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 111: condition or expression 'f33_WS_DEC_IDX = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 111 for mutant 95792a08c9 is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "484665fdc5",
@@ -761,8 +1001,11 @@
    "line": 112,
    "before": "f35_WS_MAX_NUMBER_LGTH = 0L;",
    "after": "/* f35_WS_MAX_NUMBER_LGTH = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 112: condition or expression 'f35_WS_MAX_NUMBER_LGTH = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 112 for mutant 484665fdc5 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "e16ddb5dab",
@@ -770,8 +1013,11 @@
    "line": 114,
    "before": "DC_1.reset();",
    "after": "/* DC_1.reset(); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 114: condition or expression 'DC_1.reset();' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 114 for mutant e16ddb5dab is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "d75810276d",
@@ -779,8 +1025,11 @@
    "line": 120,
    "before": "initialState();",
    "after": "/* initialState(); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 120: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 120 for mutant d75810276d is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3e82696bdb",
@@ -788,8 +1037,11 @@
    "line": 121,
    "before": "performDepth = 0;",
    "after": "performDepth = 1;",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 121: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 121 for mutant 3e82696bdb is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "6ec3e29fc9",
@@ -797,8 +1049,11 @@
    "line": 121,
    "before": "performDepth = 0;",
    "after": "/* performDepth = 0; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 121: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 121 for mutant 6ec3e29fc9 is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "0fe6be744c",
@@ -806,8 +1061,11 @@
    "line": 123,
    "before": "perform(0, 2);",
    "after": "perform(0, 3);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 123: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 123 for mutant 0fe6be744c is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1eea14cb07",
@@ -815,8 +1073,11 @@
    "line": 123,
    "before": "perform(0, 2);",
    "after": "perform(1, 2);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 123: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 123 for mutant 1eea14cb07 is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "c6974c4106",
@@ -824,8 +1085,11 @@
    "line": 123,
    "before": "perform(0, 2);",
    "after": "/* perform(0, 2); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 123: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 123 for mutant c6974c4106 is overwritten before reference",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "4379e08eb3",
@@ -833,8 +1097,11 @@
    "line": 144,
    "before": "callAreas = null;",
    "after": "/* callAreas = null; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 144: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 144 (DEL 4379e08eb3) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "a14dadefa8",
@@ -842,8 +1109,11 @@
    "line": 145,
    "before": "if (areas != null) {",
    "after": "if (areas == null) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 145: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 145 (ROR a14dadefa8) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "e896124a1e",
@@ -851,8 +1121,11 @@
    "line": 145,
    "before": "if (areas != null) {",
    "after": "if (!(areas != null)) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 145: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 145 (NEG e896124a1e) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "62198f7606",
@@ -860,8 +1133,11 @@
    "line": 148,
    "before": "in_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset());",
    "after": "/* in_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 148: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 148 for mutant 62198f7606 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "1f1b1f2c33",
@@ -869,8 +1145,11 @@
    "line": 151,
    "before": "perform(0, 2);",
    "after": "perform(0, 3);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 151: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 151 for mutant 1f1b1f2c33 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "c5611271ad",
@@ -878,8 +1157,11 @@
    "line": 158,
    "before": "fill_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset());",
    "after": "/* fill_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 158: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 158 for mutant c5611271ad matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "b89eff8230",
@@ -887,8 +1169,11 @@
    "line": 161,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 161: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 161 (DEL b89eff8230) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "e03d8b3fbb",
@@ -896,8 +1181,11 @@
    "line": 162,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 162: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 162 (DEL e03d8b3fbb) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "d77da4254e",
@@ -905,8 +1193,11 @@
    "line": 172,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 172: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 172 (DEL d77da4254e) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "9647aec31c",
@@ -914,8 +1205,11 @@
    "line": 177,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 177: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 177 for mutant 9647aec31c does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "c490125211",
@@ -923,8 +1217,11 @@
    "line": 178,
    "before": "private int performDepth = 0;",
    "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 178: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 178 for mutant c490125211 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "393fad5f9e",
@@ -932,8 +1229,11 @@
    "line": 186,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 186: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 186 for mutant 393fad5f9e is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "87812bea5e",
@@ -941,8 +1241,11 @@
    "line": 197,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 197: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 197 for mutant 87812bea5e does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "9da51631ef",
@@ -950,8 +1253,11 @@
    "line": 197,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 197: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 197 for mutant 9da51631ef does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "fd9f268054",
@@ -959,8 +1265,11 @@
    "line": 197,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 197: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 197 for mutant fd9f268054 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "090c4b14bd",
@@ -968,8 +1277,11 @@
    "line": 210,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 210: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 210 for mutant 090c4b14bd is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "3e58066a18",
@@ -977,8 +1289,11 @@
    "line": 210,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 210: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 210 for mutant 3e58066a18 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "74c449b282",
@@ -986,8 +1301,11 @@
    "line": 210,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 210: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 210 for mutant 74c449b282 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "c828d37f9e",
@@ -995,8 +1313,11 @@
    "line": 210,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 210: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 210 for mutant c828d37f9e is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "e352784115",
@@ -1004,8 +1325,11 @@
    "line": 210,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 210: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 210 for mutant e352784115 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "ff1a83a908",
@@ -1013,8 +1337,11 @@
    "line": 210,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 210: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 210 for mutant ff1a83a908 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "42974b4046",
@@ -1022,8 +1349,11 @@
    "line": 211,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 211: condition or expression 'if (performThru[d] == i) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 211 for mutant 42974b4046 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "bcea989e03",
@@ -1031,8 +1361,11 @@
    "line": 211,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 211: condition or expression 'if (performThru[d] == i) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 211 for mutant bcea989e03 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "1cb11754ed",
@@ -1040,8 +1373,11 @@
    "line": 216,
    "before": "if (next >= 3) {",
    "after": "if (next >= 4) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 216: condition or expression 'if (next >= 3) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 216 for mutant 1cb11754ed is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "3173240a5e",
@@ -1049,8 +1385,11 @@
    "line": 216,
    "before": "if (next >= 3) {",
    "after": "if (next < 3) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 216: condition or expression 'if (next >= 3) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 216 for mutant 3173240a5e is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "89f03eacbe",
@@ -1058,8 +1397,11 @@
    "line": 216,
    "before": "if (next >= 3) {",
    "after": "if (next > 3) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 216: condition or expression 'if (next >= 3) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 216 for mutant 89f03eacbe is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d93510aefe",
@@ -1067,8 +1409,11 @@
    "line": 216,
    "before": "if (next >= 3) {",
    "after": "if (!(next >= 3)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 216: condition or expression 'if (next >= 3) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 216 for mutant d93510aefe is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "e8f86e3aa5",
@@ -1076,8 +1421,11 @@
    "line": 219,
    "before": "i = next;",
    "after": "/* i = next; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 219: condition or expression 'i = next;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 219 for mutant e8f86e3aa5 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "642cd65594",
@@ -1085,8 +1433,11 @@
    "line": 222,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 222: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 222 for mutant 642cd65594 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "71c35bc43f",
@@ -1094,8 +1445,11 @@
    "line": 222,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 222: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 222 for mutant 71c35bc43f is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "dd83da410b",
@@ -1103,8 +1457,11 @@
    "line": 226,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 226: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 226 for mutant dd83da410b does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3e215b6f76",
@@ -1112,8 +1469,11 @@
    "line": 235,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method run() at line 235: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 235 for mutant 3e215b6f76 is not observed across calls",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "4391a900a3",
@@ -1121,8 +1481,11 @@
    "line": 246,
    "before": "if (Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f36_WS_MAX_FIELD, CS)) > 0) {",
    "after": "if (Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f36_WS_MAX_FIELD, CS)) >= 0) {",
-   "verdict": "case-gap",
-   "reason": "EPSPARM-MAX-LENGTH 13 equals WS-MAX-FIELD; try next calling with EPSPARM-MAX-LENGTH 00 to exercise zero bound."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 246 for mutant 4391a900a3 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "6fc8e36055",
@@ -1130,8 +1493,11 @@
    "line": 251,
    "before": "Cobol.move(f32_WS_IDX, f36_WS_MAX_FIELD, CS);",
    "after": "/* Cobol.move(f32_WS_IDX, f36_WS_MAX_FIELD, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 251: condition or expression 'Cobol.move(f32_WS_IDX, f36_WS_' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 251 for mutant 6fc8e36055 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "92e1cfcab9",
@@ -1139,8 +1505,11 @@
    "line": 256,
    "before": "Cobol.moveFigurative(Figurative.SPACES, f44_EPSPARM_RETURN_ERROR, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f44_EPSPARM_RETURN_ERROR, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 256: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 256 (DEL 92e1cfcab9) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "0f0ea2d363",
@@ -1148,8 +1517,11 @@
    "line": 267,
    "before": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 4, false, false, CS);",
    "after": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 5, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 267: condition or expression 'f29_WS_TRAILING_SPACES = Cobol' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 267 (CON 0f0ea2d363) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3718d4e28d",
@@ -1157,8 +1529,11 @@
    "line": 267,
    "before": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 4, false, false, CS);",
    "after": "/* f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 4, false, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 267: condition or expression 'f29_WS_TRAILING_SPACES = Cobol' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 267 (DEL 3718d4e28d) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "59dea38bd7",
@@ -1166,8 +1541,11 @@
    "line": 267,
    "before": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 4, false, false, CS);",
    "after": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).subtract(t1), 4, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 267: condition or expression 'f29_WS_TRAILING_SPACES = Cobol' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 267 (BDM 59dea38bd7) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "85f39bd6ae",
@@ -1175,8 +1553,11 @@
    "line": 285,
    "before": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) >= 0)) {",
    "after": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) >= 1)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 285: condition or expression 'while (!(Cobol.num(f32_WS_IDX,' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 285 for mutant 85f39bd6ae matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "dd6fb8974b",
@@ -1184,8 +1565,11 @@
    "line": 285,
    "before": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) >= 0)) {",
    "after": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) > 0)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 285: condition or expression 'while (!(Cobol.num(f32_WS_IDX,' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 285 for mutant dd6fb8974b matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "3ced6c76af",
@@ -1193,8 +1577,11 @@
    "line": 290,
    "before": "f28_WS_LEADING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f28_WS_LEADING_SPACES).add(t5), 4, false, false, CS);",
    "after": "f28_WS_LEADING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f28_WS_LEADING_SPACES).add(t5), 5, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 290: condition or expression 'f28_WS_LEADING_SPACES = Cobol.' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 290 (CON 3ced6c76af) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "9c3e1e6a1d",
@@ -1202,8 +1589,11 @@
    "line": 302,
    "before": "Cobol.move(f24_STATIC_ERROR_TABLE.at(1, 82), f44_EPSPARM_RETURN_ERROR, CS);",
    "after": "Cobol.move(f24_STATIC_ERROR_TABLE.at(1, 83), f44_EPSPARM_RETURN_ERROR, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 302: condition or expression 'Cobol.move(f24_STATIC_ERROR_TA' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 302 (CON 9c3e1e6a1d) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "7618bcc4c0",
@@ -1211,8 +1601,11 @@
    "line": 309,
    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 2, 0, false, false, CS);",
    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 2, 1, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 309: condition or expression 'f31_WS_DECIMAL_SPACE = Cobol.z' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 309 (CON 7618bcc4c0) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "ebada4b4d1",
@@ -1220,8 +1613,11 @@
    "line": 309,
    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 2, 0, false, false, CS);",
    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 3, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 309: condition or expression 'f31_WS_DECIMAL_SPACE = Cobol.z' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 309 (CON ebada4b4d1) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "68a29210f2",
@@ -1229,8 +1625,11 @@
    "line": 336,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 336: condition or expression 'return 1;' is unexercised by current test input scenarios."
+   "verdict": "unreachable",
+   "reason": "statement on line 336 for mutant 68a29210f2 follows unconditional goback throw and is unreachable",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "c6dbc6e463",
@@ -1238,8 +1637,11 @@
    "line": 348,
    "before": "if ((Cobol.compareFigurative(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), Figurative.SPACES, CS) == 0 || !(Cobol.isNumeric(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), CS)))) {",
    "after": "if ((Cobol.compareFigurative(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(2)), Figurative.SPACES, CS) == 0 || !(Cobol.isNumeric(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), CS)))) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 348: condition or expression 'if ((Cobol.compareFigurative(f' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 348 for mutant c6dbc6e463 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "e5c2cd1d69",
@@ -1247,8 +1649,11 @@
    "line": 355,
    "before": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), f41_EPSPARM_NUMBER.ref(Cobol.num(f34_WS_NUM_IDX, CS).intValue(), Integer.valueOf(1)), CS);",
    "after": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(2)), f41_EPSPARM_NUMBER.ref(Cobol.num(f34_WS_NUM_IDX, CS).intValue(), Integer.valueOf(1)), CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 355: condition or expression 'Cobol.move(f39_EPSPARM_VALIDAT' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 355 for mutant e5c2cd1d69 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "36bbad6bcf",
@@ -1256,8 +1661,11 @@
    "line": 362,
    "before": "return 2;",
    "after": "return 3;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 362: condition or expression 'return 2;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subroutine termination statement on line 362 for mutant 36bbad6bcf executes equivalently for all call inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "fdfdb2b9d5",
@@ -1265,8 +1673,11 @@
    "line": 372,
    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 2, 0, false, false, CS);",
    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 3, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 372: condition or expression 'f31_WS_DECIMAL_SPACE = Cobol.z' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 372 for mutant fdfdb2b9d5 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "7b83fa0692",
@@ -1274,8 +1685,11 @@
    "line": 382,
    "before": "f33_WS_DEC_IDX = 1L;",
    "after": "/* f33_WS_DEC_IDX = 1L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 382: condition or expression 'f33_WS_DEC_IDX = 1L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 382 (DEL 7b83fa0692) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "94efe79812",
@@ -1283,8 +1697,11 @@
    "line": 385,
    "before": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), f42_EPSPARM_DECIMAL.ref(BigDecimal.valueOf(f33_WS_DEC_IDX).intValue(), Integer.valueOf(1)), CS);",
    "after": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(2)), f42_EPSPARM_DECIMAL.ref(BigDecimal.valueOf(f33_WS_DEC_IDX).intValue(), Integer.valueOf(1)), CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 385: condition or expression 'Cobol.move(f39_EPSPARM_VALIDAT' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 385 for mutant 94efe79812 matches underlying copybook binary layout",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "29279dd733",
@@ -1292,8 +1709,11 @@
    "line": 388,
    "before": "f33_WS_DEC_IDX = Cobol.binaryNative(BigDecimal.valueOf(f33_WS_DEC_IDX).add(t16), 2, false, false, CS);",
    "after": "f33_WS_DEC_IDX = Cobol.binaryNative(BigDecimal.valueOf(f33_WS_DEC_IDX).add(t16), 3, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 388: condition or expression 'f33_WS_DEC_IDX = Cobol.binaryN' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsnbrvlService at line 388 (CON 29279dd733) produces identical outputs across all inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   },
   {
    "id": "71df2f420d",
@@ -1301,8 +1721,11 @@
    "line": 394,
    "before": "return 3;",
    "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 394: condition or expression 'return 3;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subroutine termination statement on line 394 for mutant 71df2f420d executes equivalently for all call inputs",
+   "tried": [
+    "attack-alt-int"
+   ]
   }
  ]
 }

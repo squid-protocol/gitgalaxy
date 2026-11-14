@@ -259,12 +259,12 @@ def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
     (tmp_path / "conf" / "s.cnf").write_text("0150 3350 dasd/x\n0170 3420 *\n0171 3420 *\n")
     assert sysgen.tape_unit(tmp_path, "conf/s.cnf") == "170"
     con = console.Console()
-    con.lines = ["*02 IEF238D SMP4P44 - REPLY DEVICE NAME OR 'CANCEL'."]
+    con.lines = ["*02 IEF238D SMP4P44 - REPLY DEVICE NAME OR 'CANCEL'.", "*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD"]
     replies, seen = [], set()
     con.send = replies.append
     sysgen.answer_mounts(lambda c: None, con, 0, {}, seen, "170")
     sysgen.answer_mounts(lambda c: None, con, 0, {}, seen, "170")
-    assert replies == ["r 02,170"]
+    assert replies == ["r 02,170", "r 03,u"]
 
 
 def test_printer_file_reads_the_first_1403_and_smp_refuses_an_unstaged_work_dir(tmp_path):

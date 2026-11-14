@@ -155,6 +155,8 @@ JOB_ENDED_RE = re.compile(r"\$HASP395\s+(\S+)\s+ENDED")
 MOUNT_RE = re.compile(r"IEC501A\s+M\s+([0-9A-F]{3}),(\S+?)[,\s]")
 # `*02 IEF238D JOB - REPLY DEVICE NAME OR 'CANCEL'`: no online unit fits the job's tape DD (seen live, smp4p44, 2026-11-14)
 DEVICE_ASK_RE = re.compile(r"(\d+)\s+IEF238D\s+\S+\s+-\s+REPLY DEVICE NAME")
+# `*03 IEC507D REPLY 'U'-USE OR 'M'-UNLOAD`: a mounted volume (START1 holding SYS1.PROCLIB) is not yet in use; use it
+USE_ASK_RE = re.compile(r"(\d+)\s+IEC507D\s+REPLY\s+'U'")
 SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC\d{3}E\b|\bABEND\b|\$HASP\d+\s+.*ERROR|HHC00828E")
 SMP_IPL_UNIT, SMP_READER = "150", "12"
 
@@ -196,6 +198,11 @@ def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
         if d and unit and d.group(1) not in seen:
             seen.add(d.group(1))
             con.send(f"r {d.group(1)},{unit}")
+            continue
+        u = USE_ASK_RE.search(line)
+        if u and u.group(1) not in seen:
+            seen.add(u.group(1))
+            con.send(f"r {u.group(1)},u")
             continue
         m = MOUNT_RE.search(line)
         if not m or m.groups() in seen:

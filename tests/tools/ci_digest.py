@@ -488,7 +488,11 @@ def digest(
                 kind, stale = "main", "source"  # main's fix was in source only, the PR touches none of it (#5276)
         ids = RUN_JOB.search(r.get("details_url") or "")
         if kind == "real" and flaky and name in flaky and ids and first_attempt(api, int(ids.group(2))):
-            kind = "flake"  # a learned flake's first failure gets one rerun; a second failure is real
+            # a learned flake's first failure gets one rerun; a second failure is real. Not when the log names failing
+            # tests and reruns of this check's test failures fail again (the learned list's real_causes): then the
+            # failure is the PR's own and a rerun only spends a CI round (PR #8169: seven reruns, each failed again)
+            own = bool(ex["tests"]) and "test_failure" in getattr(flaky, "real_causes", {}).get(name, ())
+            kind = "real" if own else "flake"
         out.append({"check": name, "conclusion": r.get("conclusion"), "url": r.get("html_url") or r.get("details_url"),
                     "run_id": int(ids.group(1)) if ids else None, "job_id": int(ids.group(2)) if ids else None,
                     "triage": kind, "repro": repro(name, ex, kind, stale), **ex})  # fmt: skip

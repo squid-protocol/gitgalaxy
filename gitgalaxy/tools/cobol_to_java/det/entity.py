@@ -57,6 +57,8 @@ def id_method(java_root: Path, entity: str, factory) -> IdMethod | None:
     if path is None:
         return None
     text = path.read_text(encoding="utf-8")
+    if "@IdClass(" in text:  # #7965 (X22): the id is the key and the instance (InstanceKey): the scan stays
+        return None
     m = _ID.search(text)
     if m is None:
         return None

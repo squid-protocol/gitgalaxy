@@ -3,13 +3,11 @@
 This directory contains the validation suite for GitGalaxy's security, auditing, and threat
 intelligence sensors.
 
-Most enterprise security tools rely on dynamic execution, sandboxing, or manifest-only
-scanning, which misses typosquatting and hidden payloads. GitGalaxy's sensors work entirely
-from static structural signals instead. This suite validates that the AST-free engine can
-detect supply-chain anomalies, Shadow APIs, and algorithmic-complexity risks using pure static
-analysis, without ever executing the target code — and, just as importantly, that it doesn't
-claim to detect things a static, dataflow-free engine structurally can't (see the
-`test_ai_appsec_sensor.py` entry below for a concrete example of that boundary).
+The sensors read source text and file bytes; they never execute the target code. These tests
+check each sensor's logic against planted or synthetic input, and, where a sensor used to claim
+more than a static, dataflow-free engine can do, that the claim stays removed (see the
+`test_ai_appsec_sensor.py` entry below). Most tests prove logic, not detection quality on real
+code: no recall has been measured.
 
 ---
 
@@ -28,7 +26,7 @@ python -m pytest tests/security_auditing/ -v
 
 #### 1. AI Governance & Agent Guardrails
 Validates the sensors that monitor LLMs and autonomous agents interacting with the codebase.
-* **`test_dev_agent_firewall.py`** — Validates the [Dev Agent Firewall](../../docs/wiki/02-18-dev-agent-firewall.md). Proves the engine flags files whose size/complexity would blow an agent's context budget ($O(N^3)$ files), flags mutations to files with low test coverage, and enforces human-in-the-loop gates based on calculated blast radius.
+* **`test_dev_agent_firewall.py`** — Validates the [Dev Agent Firewall](../../docs/wiki/02-18-dev-agent-firewall.md). Proves the engine flags files whose size/complexity would blow an agent's context budget (`token_mass` above 8,000), flags mutations to files with low test coverage, and enforces human-in-the-loop gates based on calculated blast radius.
 * **`test_ai_appsec_sensor.py`** — Validates the [AI AppSec Sensor](../../docs/wiki/02-17-ai-appsec-sensor.md). As of [#1102](https://github.com/squid-protocol/gitgalaxy/issues/1102), this only proves one signal: an over-permissioned agent binding — an LLM orchestration framework (LangChain, LlamaIndex) imported alongside raw network/disk I/O and below-threshold defensive-programming density. A regex-only engine with no dataflow tracing can't prove code execution or exfiltration actually occurs, so the sensor no longer claims to detect it; `test_report_no_longer_contains_removed_cooccurrence_keys` is a regression test guarding against that claim quietly coming back.
 * **`test_tensor_auditor.py`** — Validates the [Neural Auditor](../../docs/wiki/02-19-neural-auditor.md). Proves the local scanner can parse `.safetensors` and `.gguf` binary headers to extract quantization and parameter counts without loading the full model into memory.
 
@@ -41,7 +39,7 @@ Validates the perimeter defenses that block hostile dependencies and credential 
 
 #### 3. Graph Analysis & Ecosystem Compliance
 Validates the dependency-graph math and destructive-cleanup pipelines.
-* **`test_security_auditor.py`** — Validates the [Security Auditor](../../docs/wiki/02-20-security-auditor.md). Proves the XGBoost multiclass inference engine correctly formats spatial data into pandas matrices for threat prediction, and that its dependency-graph resolution (GitGalaxy's own exact graph engine, #3040; no NetworkX at runtime) matches NetworkX's counts, compared only where NetworkX is installed.
+* **`test_security_auditor.py`** — Validates the [Security Auditor](../../docs/wiki/02-20-security-auditor.md). No trained malware model ships with GitGalaxy, so the XGBoost inference path never runs in a shipped build; this file patches the classifier with a mock (`test_ml_real_model_2986.py` uses a synthetic stand-in model instead) and proves only that features are formatted into the pandas matrix correctly, not that anything is classified correctly. It also checks that the dependency-graph resolution (GitGalaxy's own exact graph engine, #3040; no NetworkX at runtime) matches NetworkX's counts, compared only where NetworkX is installed.
 * **`test_network_risk_sensor.py`** — Validates the [Network Risk Sensor](../../docs/wiki/02-16-network-risk-sensor.md). Proves the engine computes PageRank (blast radius) and betweenness centrality correctly across the dependency graph.
 
 #### 4. Other suites in this directory

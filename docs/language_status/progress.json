@@ -1,5 +1,5 @@
 {
- "commit": "b7d1cd314",
+ "commit": "ae7e860a4",
  "components": {
   "capabilities": {
    "groups": [
@@ -582,14 +582,14 @@
      "equivalent": 925,
      "l5": 2,
      "measured": 8,
-     "mutants": 4530,
+     "mutants": 4531,
      "programs": 31,
      "raw_pct": 44.1,
      "ready": 0,
-     "sampled": 4530,
+     "sampled": 4531,
      "sampled_pct": 100.0,
      "survived": 2429,
-     "unreachable": 381
+     "unreachable": 382
     },
     "cics-genapp": {
      "caught": 149,
@@ -653,14 +653,14 @@
     "equivalent": 4182,
     "l5": 7,
     "measured": 50,
-    "mutants": 45535,
+    "mutants": 45536,
     "programs": 158,
     "raw_pct": 57.9,
     "ready": 0,
-    "sampled": 27725,
+    "sampled": 27726,
     "sampled_pct": 60.9,
     "survived": 11289,
-    "unreachable": 1025
+    "unreachable": 1026
    }
   },
   "mutation": {
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-14T14:22:47Z",
+  "as_of": "2026-11-14T14:29:43Z",
   "core": {
    "closed": 248,
    "open": 16,

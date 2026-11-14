@@ -5,7 +5,7 @@
  "case": "cruc-gt-work",
  "entry": {
   "program": "GTWORK",
-  "commit": "7d101cd9b8517558f097a50ac19c4a07f105f28d",
+  "commit": "77f843ecd2b5db1b9f52f83b975469f027ccab48+uncommitted",
   "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
@@ -14,18 +14,19 @@
   "chosen": 275,
   "coverage": "proven on 4 scenarios, covering 1/1 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 44,
-   "timeout": 3,
-   "survived": 197,
+   "killed": 53,
+   "timeout": 6,
+   "survived": 210,
    "stillborn": 6,
    "error": 0,
-   "pending": 25
+   "pending": 0
   },
   "killed": [
    "02aa6ba113",
    "02aaadaf5b",
    "052867208e",
    "05c6c26508",
+   "0cb9ecc294",
    "0cd3e872ac",
    "0fd6679e84",
    "113b2081e8",
@@ -34,8 +35,10 @@
    "23d4f768d3",
    "2467e58470",
    "26645a1fc6",
+   "3763e02534",
    "379930590f",
    "39e17576bb",
+   "3fe6190e44",
    "425df9e7e2",
    "42fc23877a",
    "452c7f2d6d",
@@ -43,14 +46,17 @@
    "59eeddc69a",
    "5a06fd20bc",
    "5cf696e768",
+   "60db1af958",
    "68b3d8a801",
    "6c67601ae6",
    "6e1d11f529",
    "6f72017433",
+   "78848d4a3b",
    "7b3bfef3f7",
    "81c422ee27",
    "897e210b03",
    "8e6cdbc1bf",
+   "8f3447b455",
    "96548591eb",
    "9843e4e85f",
    "a1c947c610",
@@ -59,16 +65,22 @@
    "a5a06bc721",
    "a7b91e4fe7",
    "aadca00601",
+   "ace3a13f34",
    "ad41171de2",
+   "bff2f01acd",
    "c6cd91b4a7",
+   "cc3712ddce",
    "ce9aca67c5",
    "d44ae2f481",
+   "d833b2a0fc",
    "dd29f9f25a",
+   "de837872f3",
    "ee81969825",
    "eef6493594",
    "f1ec72b6a8",
    "f8d7c99d27",
-   "fb3b7652fe"
+   "fb3b7652fe",
+   "fffabfbf26"
   ],
   "stillborn": [
    "69c1e4a299",
@@ -1654,6 +1666,110 @@
     "line": 355,
     "before": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(retrieved1.resp())), 8, true, false, CS);",
     "after": "f3_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(retrieved1.resp())), 9, true, false, CS);"
+   },
+   {
+    "id": "043a85fb19",
+    "op": "CON",
+    "file": "service/GtworkService.java",
+    "line": 373,
+    "before": "CicsTask.TsResult ts2 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f5_WS_LOG, 34, \"WRITEQ TS\", CS), CS, REGION));",
+    "after": "CicsTask.TsResult ts2 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f5_WS_LOG, 35, \"WRITEQ TS\", CS), CS, REGION));"
+   },
+   {
+    "id": "a04e885bfb",
+    "op": "LIT",
+    "file": "service/GtworkService.java",
+    "line": 373,
+    "before": "CicsTask.TsResult ts2 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f5_WS_LOG, 34, \"WRITEQ TS\", CS), CS, REGION));",
+    "after": "CicsTask.TsResult ts2 = task.writeqTs(\"GTLOG\".strip(), DetCics.toRegion(DetCics.padded(f5_WS_LOG, 34, \"XRITEQ TS\", CS), CS, REGION));"
+   },
+   {
+    "id": "30ecc535f4",
+    "op": "DEL",
+    "file": "service/GtworkService.java",
+    "line": 374,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS);",
+    "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS); */"
+   },
+   {
+    "id": "7498f44f62",
+    "op": "DEL",
+    "file": "service/GtworkService.java",
+    "line": 375,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "a582cbc15b",
+    "op": "CON",
+    "file": "service/GtworkService.java",
+    "line": 375,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "c7a530f8d9",
+    "op": "NEG",
+    "file": "service/GtworkService.java",
+    "line": 378,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "e2d3f52424",
+    "op": "ROR",
+    "file": "service/GtworkService.java",
+    "line": 378,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "d041d71818",
+    "op": "ROR",
+    "file": "service/GtworkService.java",
+    "line": 378,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "5778ad8a4f",
+    "op": "CON",
+    "file": "service/GtworkService.java",
+    "line": 378,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "adb8cd94fc",
+    "op": "DEL",
+    "file": "service/GtworkService.java",
+    "line": 382,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "648821a293",
+    "op": "DEL",
+    "file": "service/GtworkService.java",
+    "line": 383,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "80bfe560a0",
+    "op": "NEG",
+    "file": "service/GtworkService.java",
+    "line": 384,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "272e2ffd91",
+    "op": "CON",
+    "file": "service/GtworkService.java",
+    "line": 385,
+    "before": "return 1;",
+    "after": "return 2;"
    }
   ],
   "inputs": {

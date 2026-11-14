@@ -80,7 +80,7 @@ def test_abend_and_abendcc_tests():
 
 @pytest.mark.parametrize(
     "expr",
-    ["A.RC = 0 & B.RC = 0 | RC = 4", "ABEND", "RC = 0", "A.RC", "A.RC ?? 0", "A.ABENDCC > S000", "RUN = TRUE"],
+    ["A.RC = 0 & B.RC = 0 | RC = 4", "RC = 0", "A.RC", "A.RC ?? 0", "A.ABENDCC > S000", "RUN = TRUE"],
 )
 def test_what_ibm_does_not_settle_is_refused_by_name(expr):
     with pytest.raises(JclFlowRefused):

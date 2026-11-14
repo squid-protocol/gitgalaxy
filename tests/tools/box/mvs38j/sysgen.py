@@ -165,6 +165,17 @@ SMP_CONSOLE_ERRORS = re.compile(r"\bIEA\d{3}E\b|IEC(?!502E)\d{3}E\b|\bABEND\b|\$
 SMP_IPL_UNIT, SMP_READER = "150", "12"
 SMP_TARGET_UNITS = ("148", "149", "14A")  # SMP000 / WORK00 / WORK01 (smp4p44.jcl S5)
 # IEHDASDR / IEBUPDTE refuse in a message that is not an E-message: `IEH824I  ANALYZE TERMINATED. DEVICE NOT OFF-LINE`
+# Steps of the smp2 decks that end above CC 0 on a fresh build, read from their SMP SYSPRINT (live 2026-11-14).
+# Key (JOB, STEP) -> (expected CC, reason). Any other step must end CC 4 or less; a listed step must end at exactly its CC.
+SMP2_EXPECTED = {
+    ("SMPJOB00", "DLBUCL"): (
+        8,
+        "UCLIN PTS: DEL SYS removes a system entry a freshly scratched PTS never had (HMA2532)",
+    ),
+    ("SMPJOB03", "DLBUCL4"): (4, "ACCEPT: linkage editor warnings on the AOSC5 modules (HMA2391 RETURN CODE=04)"),
+    ("SMPJOB05", "DLBUCL"): (4, "ACCEPT USERMODS: linkage editor warnings (HMA2391 RETURN CODE=04)"),
+    ("SMPJOB06", "DLBUCL"): (4, "REJECT: sysmods never applied or accepted (HMA4081, REJECT RC 04)"),
+}
 PRINTER_REFUSED_RE = re.compile(r"\bIEH\d{3}I\s+.*TERMINATED")
 
 
@@ -314,7 +325,7 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         if refused:
             raise SysgenError(f"{stage}: {refused[0]}")
         results = step_results(text)
-        failed = [r for r in results if not r["executed"] or (r["cond_code"] or 0) > 4]
+        failed = smp_failed_steps(results, SMP2_EXPECTED if stage == "smp2" else {})
         if failed:
             raise SysgenError(f"{stage}: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")
         print(f"{stage}: {len(results)} steps checked (condcode)")
@@ -328,6 +339,21 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
 STEP_RE = re.compile(
     r"(IEF142I|IEF272I)\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+STEP WAS (NOT )?EXECUTED(?:.*?COND CODE (\d{4}))?"
 )
+
+
+def smp_failed_steps(results, expected):
+    """Steps not executed, or over CC 4 unless `expected` ({(job, step): (cc, reason)}) lists them; a listed step must match."""
+    out = []
+    for r in results:
+        want = expected.get((r["job"], r["step"]))
+        if not r["executed"]:
+            out.append(r)
+        elif want is not None:
+            if r["cond_code"] != want[0]:
+                out.append(r)
+        elif (r["cond_code"] or 0) > 4:
+            out.append(r)
+    return out
 
 
 def step_results(printer_text, job="ALL"):

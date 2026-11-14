@@ -10164,10 +10164,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#machine-learning-graph-based-threat-classification" class="md-nav__link">
+  <a href="#graph-metrics-and-the-ml-classifier-that-does-not-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Machine Learning &amp; Graph-Based Threat Classification
+        Graph metrics, and the ML classifier that does not run
       
     </span>
   </a>
@@ -12441,7 +12441,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_auditor.py">gitgalaxy/security/security_auditor.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>The DevSecOps ecosystem is populated by static analysis and software composition analysis (SCA) platforms that traditionally rely on full source code compilation, heavy Abstract Syntax Tree (AST) generation, or reliance on external vulnerability databases. These approaches introduce performance bottlenecks in high-throughput CI/CD pipelines, making real-time analysis difficult. To address this, a compilation-free, multi-language static security analysis framework evaluates raw code structures, lexical patterns, and heuristic signatures across 50+ programming languages simultaneously. By computing risk metrics, generating call reachability graphs, and identifying potential vulnerabilities without pre-compiled build artifacts, it provides low-latency feedback. This subsystem is the GitGalaxy analysis engine.</p>
+<p>The DevSecOps ecosystem is populated by static analysis and software composition analysis (SCA) platforms that traditionally rely on full source code compilation, heavy Abstract Syntax Tree (AST) generation, or reliance on external vulnerability databases. These approaches introduce performance bottlenecks in high-throughput CI/CD pipelines, making real-time analysis difficult. To address this, a compilation-free, multi-language static analysis engine reads raw source with regular-expression signatures. Its security lens has been checked with a planted-secret probe in 44 languages (<a href="../validation.md">validation</a>). It describes each file's security-relevant surface (signature counts such as hardcoded secrets, dynamic execution and TLS bypasses, plus structural vectors) and builds an import graph and function call graph, without build artifacts. These are descriptions of the code, not vulnerability findings: per-file structural risk was tested against real fix history and does not predict defects (<a href="../validation.md">validation</a>: "Per-file standing structural risk does not predict defects"). No security detector has a measured recall, precision or false-positive rate on real-world samples. This subsystem is the GitGalaxy analysis engine.</p>
 <h2 id="purpose">Purpose</h2>
 <p>To provide fast, compilation-free static security auditing that can run directly on raw source code, eliminating the need for build environments or external database lookups.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
@@ -12449,31 +12449,31 @@
 <h2 id="design">Design</h2>
 <h3 id="compilation-free-lexical-analysis">Compilation-Free Lexical Analysis</h3>
 <p>Instead of building ASTs or requiring binary packaging, the system parses raw source code directly. Security rules are defined using standardized regular expression patterns and keyword permutations. Because core language constructs follow predictable structural patterns, a unified rule set can analyze multiple languages efficiently in a single pass.</p>
-<h3 id="machine-learning-graph-based-threat-classification">Machine Learning &amp; Graph-Based Threat Classification</h3>
-<p>The system evaluates structural mass, cyclomatic complexity, ownership entropy, and dependency topology to identify anomalous files and potential Trojans. </p>
+<h3 id="graph-metrics-and-the-ml-classifier-that-does-not-run">Graph metrics, and the ML classifier that does not run</h3>
+<p>The system computes structural mass, cyclomatic complexity, ownership entropy and dependency topology for every file. The code also contains an XGBoost malware classifier, but no trained model ships, so it never runs in any install (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>; see <a href="../02-20-security-auditor/">Security Auditor</a>).</p>
 <h3 id="architectural-comparison">Architectural Comparison</h3>
 <ul>
 <li><strong>Black Duck, npm audit, Snyk:</strong> Traditionally rely on exact signature matching and proprietary cloud databases for known CVEs. The system operates fully offline, scanning actual source files directly alongside manifests. It uses configurable regular expression patterns and heuristic signature vectors to flag security risks.</li>
 <li><strong>Checkmarx, SonarQube:</strong> Traditionally use deep data-flow and control-flow analysis on compiled artifacts or ASTs. The system operates entirely without source code compilation, constructing function call graphs via lightweight lexical parsing.</li>
 <li><strong>CodeQL:</strong> Traditionally builds a relational database representation of the codebase. The system bypasses database compilation completely.</li>
-<li><strong>Dependabot, Socket.dev, Phylum:</strong> Monitor dependency manifests and package behavior via cloud APIs. The system inspects installed package files locally on disk for hidden payloads, structural anomalies, and file spoofing using entropy analysis.</li>
-<li><strong>Endor Labs, govulncheck:</strong> Use semantic call-graph analysis within compiled environments. The system generates function reachability graphs natively using unified pattern definitions across 50+ languages.</li>
-<li><strong>Semgrep:</strong> Applies lightweight AST-based pattern matching. The system utilizes regular expression signatures and heuristic density scoring without building ASTs, complemented by ML threat classification.</li>
+<li><strong>Dependabot, Socket.dev, Phylum:</strong> Monitor dependency manifests and package behavior via cloud APIs. The SBOM recorder reads the first 8 KB of each <code>.js</code>, <code>.py</code>, <code>.ts</code>, <code>.php</code> and <code>.rs</code> file in an installed package and marks the package as an anomaly when a file has a dense string (entropy above 4.8 in a string literal of 64 to about 248 characters) or a language-identity anomaly. That anomaly flag has no measured false-positive rate, and no comparison with these tools has been run.</li>
+<li><strong>Endor Labs, govulncheck:</strong> Use call-graph analysis to decide whether a known vulnerable function is reachable. The system builds a function call graph, but does not link it to vulnerable symbols, so it does no CVE reachability analysis.</li>
+<li><strong>Semgrep:</strong> Applies lightweight AST-based pattern matching. The system uses regular expression signatures and density scoring without building ASTs.</li>
 <li><strong>Trivy:</strong> Focuses on manifest parsing and CVE lookup tables. The system extends manifest scanning to include physical source file inspection.</li>
 <li><strong>Veracode:</strong> Requires binary packaging and cloud processing. The system runs entirely on local developer hardware or self-hosted runners.</li>
 </ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
-<p>Inputs received include raw source code files and configuration settings (<code>.galaxyscope.yaml</code>). Outputs produced are risk metrics, call reachability graphs, and vulnerability flags. The subsystem relies on standard Python libraries like <code>NetworkX</code> or optimized deque traversals.</p>
+<p>Inputs received include raw source code files and configuration settings (<code>.galaxyscope.yaml</code>). Outputs produced are per-file signature counts, structural vectors, and import and call graphs. Graph traversal is the engine's own standard-library code (<code>gitgalaxy/core/graph_engine.py</code>); networkx is not used at runtime (<code>tests/core_engine/test_no_networkx_runtime.py</code>).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Raw Source Code] --&gt; B[Lexical Analysis Engine]
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    C[.galaxyscope.yaml] --&gt; B
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[ML &amp; Graph Classification]
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    D --&gt; E[Risk Metrics &amp; Vulnerability Flags]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Graph Metrics]
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    D --&gt; E[Signature Counts &amp; Structural Vectors]
 </code></pre></div>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
 <li><strong>Lexical vs. Semantic Analysis:</strong> By choosing compilation-free lexical analysis over deep data-flow analysis on ASTs, the system sacrifices semantic understanding (e.g., precise taint tracking across complex data structures) for speed and the ability to scan uncompiled code.</li>
-<li><strong>Heuristics vs. Exact CVE Matching:</strong> Relying on heuristics and patterns allows for offline scanning and zero-day detection, but may increase false positives compared to exact CVE hash matching. False positive rates are controlled via configurable allowlists.</li>
+<li><strong>Heuristics vs. Exact CVE Matching:</strong> Relying on heuristics and patterns allows offline scanning without a CVE database, but no false-positive rate has been measured. Findings can be suppressed with configurable allowlists.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
@@ -12486,7 +12486,7 @@
 <h2 id="future-work">Future Work</h2>
 <ul>
 <li><strong>Planned Improvements:</strong> Enhancing the precision of reachability graphs without sacrificing compilation-free speed.</li>
-<li><strong>Future Additions:</strong> Refining the XGBoost multi-class classifier to reduce false positive rates on heuristic rules across more language paradigms.</li>
+<li><strong>Open decision:</strong> ship a measured model for the XGBoost classifier, or remove it (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>).</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>

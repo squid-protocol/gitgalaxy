@@ -31,7 +31,7 @@ def test_unknown_subcommand_is_refused():
 def test_bare_sysgen_is_refused_with_the_automated_stage_named():
     r = _run("sysgen")
     assert r.returncode == 3
-    assert "only 'sysgen starter|smp1|smp2' are automated" in r.stderr
+    assert "only 'sysgen starter|smp1|smp2|stage1' are automated" in r.stderr
 
 
 def test_every_tape_pin_is_an_md5():
@@ -172,8 +172,8 @@ def test_the_starter_plan_covers_both_volumes_with_distinct_readers_and_tapes():
 
 
 def test_sysgen_subcommand_refuses_a_stage_that_is_not_automated():
-    r = _run("sysgen", "stage1")
-    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2'" in r.stderr
+    r = _run("sysgen", "stage2")
+    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1'" in r.stderr
 
 
 # --- console.py: the telnet 3215 client, against an in-process fake server ---
@@ -383,3 +383,23 @@ def test_run_takes_the_printer_from_the_first_1403_in_the_conf(tmp_path):
     # the runner is reached (it refuses a deck with no JCL card) and never touched a socket
     assert r.returncode != 0
     assert "does not start with a JCL card" in r.stderr or "first card" in r.stderr
+
+
+def test_stage1_answers_the_ickdsf_alter_ask_and_lists_its_decks_and_expected_codes():
+    con = console.Console()
+    con.lines = ["*02 ICK003D REPLY U TO ALTER VOLUME 149 CONTENTS, ELSE T"]
+    replies = []
+    con.send = replies.append
+    sysgen.answer_mounts(lambda c: None, con, 0, {}, set())
+    assert replies == ["r 02,u"]
+    assert [d for d, _ in sysgen.STAGE1_DECKS] == [
+        "sysgen00.jcl",
+        "sysgen01.jcl",
+    ]  # fdz1d02 needs the target catalog: not here
+    assert all(cc > 0 and reason for cc, reason in sysgen.STAGE1_EXPECTED.values())
+    assert sysgen.SMP_ENDED == {"smpjob07.jcl": 2}  # its INTRDR job relinks ICKDSF: stop only after both ended
+
+
+def test_stage1_refuses_an_unstaged_work_dir(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="run mvs38j.sh stage first"):
+        sysgen.stage1(str(tmp_path), "img", "n", {})

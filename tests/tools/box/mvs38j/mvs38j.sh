@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen starter|smp1|smp2|start|run DECK|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
+# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen starter|smp1|smp2|stage1|start|run DECK|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
 # Internal use only until counsel answers Q16. Never z/OS; never TK4-/TK5: the system is built from IBM's
 # distribution tapes (Jay Moseley's sysgen). Nothing here is committed or run in CI; the work dir holds the
 # system image and stays outside the repo. Heavy steps take a slot:  tests/tools/box/heavy-run.sh mvs38j.sh image
@@ -49,7 +49,7 @@ case "$1" in
   sysgen)
     # Jay Moseley's sysgen is a staged console procedure (starter system -> stage 1 -> stage 2 -> user mods), driven
     # by sysgen.py over Hercules' console. Only `starter` is automated so far (docs/jcl_oracle_mvs38j.md).
-    case "${2:-}" in starter | smp1 | smp2) ;; *) echo "mvs38j.sh sysgen: only 'sysgen starter|smp1|smp2' are automated so far; see docs/jcl_oracle_mvs38j.md" >&2; exit 3 ;; esac
+    case "${2:-}" in starter | smp1 | smp2 | stage1) ;; *) echo "mvs38j.sh sysgen: only 'sysgen starter|smp1|smp2|stage1' are automated so far; see docs/jcl_oracle_mvs38j.md" >&2; exit 3 ;; esac
     stage=$2; shift 2
     MVS38J_WORK="$WORK" MVS38J_IMAGE="$IMAGE" MVS38J_NAME="$NAME" exec python3 -I "$HERE/sysgen.py" "$stage" "$@" ;;
   start)

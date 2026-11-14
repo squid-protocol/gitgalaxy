@@ -692,15 +692,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#zero-trust-architecture" class="md-nav__link">
+  <a href="#privacy-and-local-processing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔒 Zero-Trust Architecture
+        🔒 Privacy and Local Processing
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🔒 Zero-Trust Architecture">
+    <nav class="md-nav" aria-label="🔒 Privacy and Local Processing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -12514,7 +12514,7 @@
 * 📜 <a href="01-07-the-shbom-standard/">The SHBOM Standard (Structural Health Bill of Materials)</a>
 * 🤖 <a href="01-08-autonomous-ai-guardrails/">Autonomous AI Guardrails (Dev Agent Firewall)</a>
 * ⏱️ <a href="01-09-the-continuous-delta-paradigm/">The Continuous Delta Paradigm (CI/CD Integration)</a>
-* 🗄️ <a href="cookbook/enforce-supply-chain-firewall/">Cookbook: Enforce a Zero-Trust Supply Chain Firewall</a></p>
+* 🗄️ <a href="cookbook/enforce-supply-chain-firewall/">Cookbook: Enforce a Supply Chain Firewall</a></p>
 <h3 id="for-legacy-modernization-teams">🏦 For Legacy Modernization Teams</h3>
 <p>If you are tasked with breaking apart 40-year-old IBM monoliths without using an emulator:
 * 🌉 <a href="01-04-the-legacy-bridge/">The Legacy Bridge (Mainframe Modernization Philosophy)</a>
@@ -12534,8 +12534,8 @@
 <h3 id="2-the-spokes-enterprise-operations">2. The Spokes: Enterprise Operations</h3>
 <p>The core engine powers a massive ecosystem of specialized tools:
 * <strong>Legacy Modernization:</strong> Automated pipelines to map, slice, and refactor legacy COBOL into modern Java microservices.
-* <strong>Security &amp; Auditing:</strong> Zero-trust firewalls that verify physical dependencies, hunt Shadow APIs, and perform Binary X-Rays.
-* <strong>AI Governance:</strong> Threat sensors designed to hunt RCE Funnels, God-Mode Agents, and Context Window Shredders.</p>
+* <strong>Security &amp; Auditing:</strong> a secrets scanner (Vault Sentinel), an SBOM recorder that samples installed packages for anomalies, a Shadow API mapper that compares source routes with the OpenAPI spec, Binary X-Ray, and a dependency firewall. These are tested on planted inputs; none has a measured real-world recall. The firewall gates imports (blacklist or strict allowlist) and <code>secrets_risk</code> when it runs inside a <code>galaxyscope</code> scan; its standalone CLI currently never blocks on real scan output (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8428">#8428</a>), and <a href="https://github.com/squid-protocol/gitgalaxy/issues/8432">#8432</a> tracks its enforcement gaps.
+* <strong>AI Governance:</strong> heuristics that flag an agent framework import alongside disk or network I/O and few safety checks (over-permissioned agents), and files whose token mass exceeds 8,000 (too large for an agent's context). No classifier or data-flow analysis is involved.</p>
 <h3 id="3-the-presentation-the-observatory">3. The Presentation: The Observatory</h3>
 <p>Drop your <code>_galaxy_gpu.json</code> into the free viewer at <a href="https://gitgalaxy.io">GitGalaxy.io</a> or use the repo's <code>airgap_observatory</code>, a standalone WebGPU visualizer. Both visualizers read the JSON contract and render the entire codebase as a procedural 3D galaxy where files are stars, allowing humans to visually map scale and risk exposure instantly.</p>
 <hr />
@@ -12684,16 +12684,17 @@ Point the GalaxyScope at any local repository or ZIP archive. The engine runs en
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>galaxyscope<span class="w"> </span>/path/to/your/local/repo
 </code></pre></div></p>
 <p><strong>3. View the Galaxy</strong>
-GitGalaxy offers two ways to visualize your 3D architecture, both built on a strict Zero-Trust Privacy Model where your code never leaves your machine.
+GitGalaxy offers two ways to visualize your 3D architecture. Both read the <code>_galaxy_gpu.json</code> file the scan wrote; neither needs your source code.
 * <strong>The Web Viewer (Frictionless):</strong> Drag and drop your generated <code>_galaxy_gpu.json</code> file directly into <a href="https://gitgalaxy.io">GitGalaxy.io</a>. All rendering and scanning happens entirely in your browser's local memory.
 * <strong>The Local Server (Enterprise &amp; Offline):</strong> For teams operating under strict compliance rules, GitGalaxy includes a 100% static, zero-telemetry local viewer called the Airgap Observatory.</p>
 <hr />
-<h2 id="zero-trust-architecture">🔒 Zero-Trust Architecture</h2>
-<p>Whether you are running the command-line engine or the WebGL visualizer, GitGalaxy operates on a strict Zero-Trust Privacy Model: <strong>Your code never leaves your computer.</strong></p>
+<h2 id="privacy-and-local-processing">🔒 Privacy and Local Processing</h2>
+<p>The scanner (<code>galaxyscope</code>) and the analysis tools run locally and make no network calls: <strong>a scan does not send your code anywhere.</strong></p>
 <ul>
-<li><strong>No Data Transmission:</strong> Source code is never transmitted to any API, cloud database, or third-party LLM service.</li>
-<li><strong>Air-Gap Ready:</strong> The entire suite of tools is designed to run in highly secure, internet-disconnected environments.</li>
-<li><strong>Ephemeral Memory Processing:</strong> Repositories are unpacked into a volatile memory buffer and are automatically purged when the operation completes.</li>
+<li><strong>No data transmission from the scanner:</strong> a scan does not send source code to any API, cloud database or LLM service.</li>
+<li><strong>One opt-in exception:</strong> the COBOL-to-Java port runner (<code>gitgalaxy/tools/cobol_to_java/port_runner.py</code>) sends prompts built from your source to the model endpoint you choose with <code>--backend openai</code> (any OpenAI-compatible URL) or <code>--backend anthropic</code>, and <code>--backend command</code> hands them to a command you supply, which may call a model. It only does so when you run it with one of those backends; its <code>det</code> backend is deterministic and makes no network call.</li>
+<li><strong>Air-gap use:</strong> the scanner and the other tools run without network access; the port runner's model backends need whatever endpoint you point them at.</li>
+<li><strong>What is written to disk:</strong> a <code>.zip</code> target is extracted to an on-disk temporary directory (<code>tempfile.mkdtemp</code>), which is deleted when the scan ends, including on failure. Scan outputs go where you direct them, and by default a scan also writes a dependency-audit cache to <code>&lt;target&gt;/.gitgalaxy/dependency_cache.db</code> (<code>--no-dependency-cache</code> turns it off).</li>
 </ul>
 <p><br><br></p>
 <hr />

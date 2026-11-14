@@ -854,6 +854,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#known-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known limits
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -12311,57 +12322,61 @@
 
 <h1 id="how-to-hunt-shadow-apis-and-undocumented-endpoints">How to Hunt Shadow APIs and Undocumented Endpoints</h1>
 <p>In modern microservice architectures, documentation drift is inevitable. Developers rapidly add endpoints to Express, FastAPI, or Spring Boot controllers, but forget to update the official OpenAPI/Swagger specifications. </p>
-<p>When security teams audit the application, they only test the documented endpoints. This leaves undocumented <strong>Shadow APIs</strong> (like legacy <code>v1</code> routes or unauthenticated <code>/debug</code> endpoints) exposed to the public internet, creating a massive blind spot for attackers to exploit.</p>
-<p>GitGalaxy closes this gap using the <strong>Full API Network Map</strong>, comparing the physical routing logic compiled in your source code against your official security documentation using mathematical Set Theory.</p>
+<p>When security teams audit the application, they only test the documented endpoints. Undocumented <strong>Shadow APIs</strong> (legacy <code>v1</code> routes, <code>/debug</code> endpoints) can then go untested. Each one needs review: some are harmless internal routes, some are exposed and unauthenticated.</p>
+<p>GitGalaxy's <strong>Full API Network Map</strong> lists the routes it can find in your source code and compares them with the routes in your OpenAPI/Swagger file.</p>
 <h2 id="the-network-mapper">The Network Mapper</h2>
-<p>Instead of relying on network traffic sniffing (which misses dormant endpoints), GitGalaxy uses AST-free structural parsing to extract the exact physical routing reality directly from the source code across Python, Node.js, Java, C#, PHP, Rust, Ruby, and Golang.</p>
+<p>Instead of watching network traffic (which misses routes nobody calls), the mapper reads route definitions from source with one regex per framework: Python (FastAPI/Flask decorators), Node.js (Express/Fastify/Koa calls), Java (Spring <code>@...Mapping</code>), C# (<code>[Http...]</code> attributes and minimal-API <code>Map...</code> calls), PHP (<code>Route::...</code>), Rust (Actix/Rocket attributes), Ruby (Rails/Sinatra verbs) and Go (<code>.GET(...)</code>-style calls). Routes defined any other way are not seen; see the limits below. The mapper is tested on fixtures in <code>tests/</code> (<code>test_api_network_map.py</code>); its recall on real services has not been measured.</p>
 <h3 id="1-execute-the-scan-auto-discovery">1. Execute the Scan (Auto-Discovery)</h3>
 <p>Point the mapper at your source code directory. The engine features a smart Auto-Discovery handshake that automatically hunts down your primary <code>swagger.json</code> or <code>openapi.yaml</code> file while safely ignoring fake schemas generated inside testing directories to prevent documentation pollution.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>gitgalaxy/tools/network_auditing/full_api_network_map.py<span class="w"> </span>/path/to/source_code
 </code></pre></div>
 <p><em>(Note: If working in a complex monorepo with multiple valid schemas, you can still manually specify a target using the <code>--swagger /path/to/schema.json</code> flag, or union them all using the <code>--merge-all</code> flag).</em></p>
 <h3 id="2-analyze-the-gap-set-theory">2. Analyze the Gap (Set Theory)</h3>
-<p>The engine builds two sets of data: the <em>Approved APIs</em> (from Swagger) and the <em>Physical APIs</em> (from the code). It then subtracts the sets to immediately highlight the discrepancies.</p>
+<p>The tool builds two sets: the <em>Approved APIs</em> (from Swagger) and the <em>Physical APIs</em> (found in the code). A code route matches a documented one with the same method whose path is equal or ends with the code route's path (so a route missing its router prefix still matches). What is left over on each side is reported.</p>
 <ul>
-<li><strong>Shadow APIs:</strong> Code that is physically active and listening for traffic, but hidden from the security team. </li>
-<li><strong>Ghost APIs:</strong> Endpoints that the security team thinks exist, but have actually been deleted from the codebase (Documentation Bloat).</li>
+<li><strong>Shadow APIs:</strong> routes found in the code but not in the spec.</li>
+<li><strong>Ghost APIs:</strong> routes in the spec that the mapper did not find in the code. Either the code was deleted, or the route is defined in a way the mapper cannot read: check before deleting the spec entry.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>🗺️  GitGalaxy Network Mapper analyzing physical endpoints in: trpc...
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> 🔍 No --swagger file provided. Initiating auto-discovery...
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> 🎯 Auto-discovered Primary Swagger: examples/openapi-codegen/openapi.json
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> 🛡️  Safely bypassed 9 schemas detected in test directories:
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    - [Assumed Test] packages/openapi/test/routers/mongoEjsonRouter.openapi.json
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    - [Assumed Test] packages/openapi/test/routers/appRouter.openapi.json
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    - [Assumed Test] packages/openapi/test/routers/edgeCaseRouter.openapi.json
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    - [Assumed Test] packages/openapi/test/routers/errorFormatterRouter.openapi.json
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    - [Assumed Test] packages/openapi/test/routers/descriptionsRouter.openapi.json
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    - [Assumed Test] packages/openapi/test/routers/cyclicTypesRouter.openapi.json
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    - [Assumed Test] packages/openapi/test/routers/amazonIonRouter.openapi.json
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    - [Assumed Test] packages/openapi/test/routers/nodeModulesJsDocRouter.openapi.json
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    - [Assumed Test] packages/openapi/test/routers/superjsonRouter.openapi.json
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>==========================================================
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a> 📡 SHADOW API SECURITY AUDIT
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>==========================================================
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a> Physical Frameworks Tracked    : Node.js (Express/Fastify/Koa)
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a> Documented Endpoints (Swagger) : 3
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a> Physical Endpoints (Source)    : 1
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>----------------------------------------------------------
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a> 🚨 SHADOW APIS DETECTED: 1 (Critical Risk)
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    ↳ GET /                     [Found in: server.ts]
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>----------------------------------------------------------
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a> 👻 GHOST APIS DETECTED: 3 (Documentation Bloat)
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>    ↳ GET /user.byId            [Missing from source code]
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    ↳ GET /user.list            [Missing from source code]
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    ↳ POST /user.create         [Missing from source code]
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>==========================================================
+<p>For example, a small Express service whose <code>openapi.json</code> documents <code>GET /users</code>, <code>POST /users</code> and <code>GET /v1/orders</code>, and whose <code>server.js</code> defines:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/users'</span><span class="p">,</span><span class="w"> </span><span class="nx">listUsers</span><span class="p">);</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">'/users'</span><span class="p">,</span><span class="w"> </span><span class="nx">createUser</span><span class="p">);</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/debug/config'</span><span class="p">,</span><span class="w"> </span><span class="nx">dumpConfig</span><span class="p">);</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">'/admin'</span><span class="p">,</span><span class="w"> </span><span class="nx">router</span><span class="p">);</span>
 </code></pre></div>
+<p>gives (license banner trimmed):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>🗺️  GitGalaxy API Network Mapper analyzing physical endpoints in: shadowdemo...
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a> 🔍 No --swagger file provided. Initiating auto-discovery...
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> [DISCOVERY] Primary Swagger specification identified: docs/openapi.json
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>==========================================================
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a> 📡 SHADOW API SECURITY AUDIT
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>==========================================================
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a> Physical Frameworks Tracked    : Node.js (Express/Fastify/Koa)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a> Documented Endpoints (Swagger) : 3
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a> Physical Endpoints (Source)    : 3
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>----------------------------------------------------------
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a> 🚨 SHADOW APIs DETECTED: 1 (Critical Risk)
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    ↳ GET /debug/config         [Found in: server.js]
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>----------------------------------------------------------
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a> 👻 GHOST APIs DETECTED: 1 (Documentation Bloat)
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    ↳ GET /v1/orders            [Missing from executable source code]
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>==========================================================
+</code></pre></div>
+<p>The route is reported as <code>/debug/config</code>, not <code>/admin/debug/config</code>: the mapper does not join a router's mount prefix (see the limits below).</p>
 <h3 id="3-security-remediation">3. Security Remediation</h3>
-<p>Every Shadow API represents a critical security risk. Because the tool outputs the exact filename where the rogue route is defined (<code>server.ts</code>), DevSecOps can immediately open a ticket to either:
+<p>Each undocumented route needs review. The tool prints "(Critical Risk)" next to the count, but it does not check whether a route is exposed, authenticated or reachable. Because it names the file where the route is defined (<code>server.js</code> above), a reviewer can decide to either:
 1. Delete the forgotten code.
-2. Officially document the endpoint in the Swagger file so it falls under the jurisdiction of the Web Application Firewall (WAF) and authentication middleware.</p>
+2. Document the endpoint in the spec so it is covered by whatever testing, gateway or WAF rules are driven from that spec.</p>
+<h3 id="known-limits">Known limits</h3>
+<ul>
+<li><strong>Frameworks it cannot read produce false Ghost APIs.</strong> Routes declared as procedures or schemas rather than verb calls (tRPC routers, GraphQL resolvers, Django URLconf <code>path()</code> entries, Rails <code>resources</code>) are not extracted. On a tRPC codebase every documented procedure shows up as a Ghost API, which is a mapper miss, not dead documentation.</li>
+<li><strong>Node.js:</strong> only <code>app.</code>, <code>router.</code> or <code>server.</code> followed by <code>get/post/put/delete/patch</code> with a literal string path is read. Other object names (<code>api.get(...)</code>, <code>r.get(...)</code>), route chains (<code>router.route('/x').get(...)</code>) and computed paths are missed.</li>
+<li><strong>Prefixes are not resolved.</strong> Router mounts and class-level prefixes are not joined to the route, and the suffix match can hide a shadow route: a code route <code>/profile</code> counts as documented if the spec has <code>/admin/profile</code>, even when the code actually serves it under another prefix.</li>
+<li><strong>Go:</strong> any <code>.GET(</code>/<code>.POST(</code>-style call with a string literal counts as a route, including HTTP client calls.</li>
+<li><strong>No reachability check:</strong> a route that is defined but never mounted is still reported.</li>
+</ul>
 <blockquote>
 <p><strong>Read the full technical specification:</strong> <a href="../../04-01-full-api-network-map/">Full API Network Map</a></p>
 </blockquote>

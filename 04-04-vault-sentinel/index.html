@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#vault-sentinel-high-speed-secrets-scanner" class="md-skip">
+        <a href="#vault-sentinel-secrets-scanner" class="md-skip">
           Skip to content
         </a>
       
@@ -12436,28 +12436,28 @@
   
 
 
-<h1 id="vault-sentinel-high-speed-secrets-scanner">Vault Sentinel (High-Speed Secrets Scanner)</h1>
+<h1 id="vault-sentinel-secrets-scanner">Vault Sentinel (Secrets Scanner)</h1>
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/vault_sentinel.py">gitgalaxy/tools/supply_chain_security/vault_sentinel.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Developer environments often accidentally leak sensitive credentials via hardcoded keys or committed configuration files. Catching these leaks requires scanning code before it enters version control. To solve this, a high-speed secret scanning module acts as a pre-commit hook and CI/CD validator, detecting hardcoded API keys, SaaS credentials, private key certificates, and uncommitted <code>.env</code> files. It emphasizes sub-second execution speeds to avoid blocking local developer workflows. This subsystem is the GitGalaxy Vault Sentinel.</p>
+<p>Developer environments often accidentally leak sensitive credentials via hardcoded keys or committed configuration files. Catching these leaks requires scanning code before it enters version control. Vault Sentinel is a secret scanner meant for pre-commit hooks and CI: it fails the run on secret-named files (<code>.pem</code>, <code>id_rsa</code>, <code>.env</code> and similar) and on file contents that match the engine's <code>hardcoded_secrets</code> signature or three extra patterns (AWS secret access keys, Google API keys, JWTs). It runs one signature instead of the full engine so it can stay inside a commit hook; no benchmark of its speed is committed. Its detection is tested on planted secrets (<code>tests/security_auditing/test_vault_sentinel_control.py</code>); there is no measured recall on real leaks.</p>
 <h2 id="purpose">Purpose</h2>
-<p>To provide high-speed, low-latency secret scanning for developer pre-commit hooks and CI/CD pipelines, blocking the accidental commit or deployment of sensitive credentials.</p>
+<p>To fail a pre-commit hook or CI job when a credential-shaped file or string is about to be committed or deployed.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Standard security scanners apply hundreds of heavy regex patterns and AST rules, which can take minutes to execute. If a pre-commit hook takes too long, developers bypass it. Vault Sentinel isolates only critical credential signatures to execute in milliseconds, ensuring compliance without impacting developer velocity.</p>
+<p>Standard security scanners apply hundreds of heavy regex patterns and AST rules, which can take minutes to execute. If a pre-commit hook takes too long, developers bypass it. Vault Sentinel runs only the credential signature, so it does far less work per file than a full scan. Its run time has not been benchmarked; the summary it prints reports the time and files per second of each run.</p>
 <h2 id="design">Design</h2>
 <h3 id="sensor-optimization">Sensor Optimization</h3>
-<p>The tool narrows the scope of <code>SecurityLens</code> signature matching exclusively to high-priority targets (<code>hardcoded_secrets</code> and <code>dead_code</code>). By stripping general AST, cyclomatic complexity, and non-credential regex rules, the scanner maximizes file throughput.</p>
+<p>The tool restricts <code>SecurityLens</code> to one signature, <code>hardcoded_secrets</code> (<code>security.restrict_signatures(("hardcoded_secrets",))</code>), and adds three patterns of its own (<code>EXTRA_SECRETS</code>: AWS secret access keys, Google <code>AIza</code> keys, JWTs). Nothing else is read: no <code>dead_code</code>, no entropy, no other threat signature. Long lines are split into chunks first (<code>chunk_long_lines</code>), so a secret on a minified line of 250+ characters is still read here, unlike in the main engine scan.</p>
 <h3 id="two-pass-detection-pipeline">Two-Pass Detection Pipeline</h3>
 <ol>
-<li><strong>Phase 1: Path Surface Radar (Zero-I/O Checks):</strong> Evaluates file paths against ignore patterns (<code>ApertureFilter</code>), wildcard denylists (<code>DENYLIST_PATTERNS</code>, e.g., <code>*.pem</code>, <code>.env*</code>), and path integrity checks. Matching paths block execution immediately without opening file handles.</li>
-<li><strong>Phase 2: Deep Content Inspection:</strong> Files passing Phase 1 are loaded into memory. The optimized <code>SecurityLens</code> hunts for cloud tokens, SaaS keys, and commented-out credentials. Detected secret snippets are redacted in console logs to prevent exposure in build output.</li>
+<li><strong>Phase 1: path checks.</strong> Each file path is checked against the ignore rules (<code>ApertureFilter</code>), against <code>DENYLIST_PATTERNS</code> (wildcards matched on the file name; the list is empty by default, and the config file shows commented examples such as <code>master_key.*</code>), and against the aperture's secret-file lists: <code>SECRETS_EXTENSIONS</code> (<code>.pem</code>, <code>.key</code>, <code>.p12</code>, <code>.pfx</code>, <code>.jks</code> and others) and <code>SECRETS_EXACT</code> (<code>id_rsa</code>, <code>.env</code>, <code>.env.local</code>, <code>.env.production</code>, <code>.npmrc</code>, <code>credentials.json</code> and others). A match counts as a leak without a content scan. This phase is not free of I/O: every file is <code>stat</code>ed, and a key- or certificate-named file is opened to check whether it holds only public material (a certificate or public key is not counted).</li>
+<li><strong>Phase 2: content scan.</strong> Remaining text files (anything without a NUL byte in its first 8 KB, up to 5 MB) are read and scanned with the restricted <code>SecurityLens</code> plus <code>EXTRA_SECRETS</code>. Secrets in comments are read too, because the raw text is scanned, though no test plants one there. The console never prints any part of a match: each hit prints <code>********[REDACTED]********</code>.</li>
 </ol>
 <h3 id="configuration-allowlist-management">Configuration &amp; Allowlist Management</h3>
-<p>Settings are resolved via <code>resolve_config()</code>. <code>ALLOWLIST_PATHS</code> bypasses checks for test fixtures, while <code>APERTURE_CONFIG</code> controls max file size limits to prevent scanning enormous binary blobs.</p>
+<p>Settings are resolved via <code>resolve_config()</code> (the defaults in <code>gitgalaxy/standards/gitgalaxy_config.py</code>, overridable with <code>--config .galaxyscope.yaml</code>). A file on <code>ALLOWLIST_PATHS</code> is still scanned, but a hit is logged as an allowlist bypass and does not fail the run. <strong>The default allowlist contains <code>tests/</code></strong>, and a folder entry matches at the start of any path segment or after <code>_</code> or <code>-</code>, so every file under <code>tests/</code>, <code>src/tests/</code> or <code>unit_tests/</code> is exempt by default. A real secret committed under a tests folder will not fail the run unless you remove that entry. <code>APERTURE_CONFIG</code> holds the secret-file lists and the engine's size limits.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
-<p>Inputs received include local repository files and <code>.galaxyscope.yaml</code> configurations. Outputs produced are scan velocity metrics, leak counts, and console-redacted evidence. It functions as an active blocking gate upstream of the main build process.</p>
+<p>Inputs received include local repository files and <code>.galaxyscope.yaml</code> configurations. Outputs produced are the run's elapsed time and files per second, leak counts, and the paths of flagged files (matched text redacted). It functions as an active blocking gate upstream of the main build process.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph TD
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Repository Files] --&gt; B[Phase 1: Path Radar]
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B -- Denylist Match --&gt; C[Block &amp; Alert]
@@ -12467,16 +12467,20 @@
 </code></pre></div>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
-<li><strong>Speed vs. Exhaustive Scanning:</strong> By limiting the <code>SecurityLens</code> signatures strictly to <code>hardcoded_secrets</code> and <code>dead_code</code>, the tool sacrifices the ability to catch general code vulnerabilities during this phase in exchange for sub-second credential scanning.</li>
-<li><strong>Regex Matching vs. Entropy Analysis:</strong> The sentinel relies primarily on regex matching and path checks. It does not perform deep Shannon entropy analysis (used by other GitGalaxy modules) on file contents to find obfuscated secrets, prioritizing speed over deep anomaly detection.</li>
+<li><strong>One signature vs. a full scan:</strong> By limiting <code>SecurityLens</code> to <code>hardcoded_secrets</code>, the tool does not report any other code issue.</li>
+<li><strong>Regex matching only, no entropy:</strong> The sentinel uses regex and path checks only. It does not run Shannon entropy (used elsewhere in GitGalaxy), so a secret with no recognised name or token format is not found.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
 <li>Custom, proprietary internal key formats will not be detected unless manually added to the <code>THREAT_SIGNATURES</code>.</li>
-<li>Large text files exceeding <code>APERTURE_CONFIG</code> file size limits may be bypassed to maintain performance SLAs.</li>
+<li>Files under any <code>tests/</code> folder are exempt by default (see the allowlist above).</li>
+<li>Only the exact secret-file names in <code>SECRETS_EXACT</code> are caught by name: <code>.env.staging</code>, for example, is not, unless you add a <code>DENYLIST_PATTERNS</code> entry such as <code>.env*</code>.</li>
+<li>Text files over 5 MB, symlinks, and files with a NUL byte in their first 8 KB are not content-scanned unless the engine's aperture accepts them.</li>
+<li>A file that cannot be read is counted under "Files Not Scanned" and does not fail the run.</li>
+<li>Detection is tested on planted secrets only; recall on real-world leaks has not been measured.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
-<p>Phase 1 operates with zero-I/O by evaluating paths before opening file handles. Phase 2 leverages optimized regex compilation to achieve processing velocities measured in thousands of files per second.</p>
+<p>Phase 1 does no content read for most files (one <code>stat</code> each; key- and certificate-named files are opened for the public-material check). No throughput figure is committed; each run prints its own elapsed time and files per second.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
 <li><strong>Current Behavior:</strong> Blocks commits based on static regex and path matching.</li>

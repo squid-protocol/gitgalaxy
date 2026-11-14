@@ -12441,23 +12441,26 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/sbom_recorder.py">gitgalaxy/recorders/sbom_recorder.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Software supply chains rely heavily on declarative package manifests (like <code>package.json</code> or <code>requirements.txt</code>) to determine the bill of materials. However, relying solely on manifests fails to confirm whether the deployed code on disk matches what was declared, exposing environments to malware payloads and dependency spoofing. A physical verification tool inspects installed packages on disk to ensure component integrity before generating CycloneDX 1.4 compliant records. This subsystem is the GitGalaxy SbomRecorder.</p>
+<p>Software supply chains rely heavily on declarative package manifests (like <code>package.json</code> or <code>requirements.txt</code>) to determine the bill of materials. A manifest says what was declared, not what is installed. This recorder also samples the installed package files on disk and marks a package when a sampled file looks anomalous (a dense high-entropy string, or a file whose content conflicts with its extension), then writes a CycloneDX 1.4 record. The marks are anomaly flags for review, not proof of tampering, and their false-positive rate has not been measured. This subsystem is the GitGalaxy SbomRecorder.</p>
 <h2 id="purpose">Purpose</h2>
-<p>To generate enterprise-compliant CycloneDX 1.4 Software Bill of Materials (SBOM) documents backed by physical verification of installed third-party dependencies on disk.</p>
+<p>To generate CycloneDX 1.4 Software Bill of Materials (SBOM) documents, with a per-package note on whether the installed files were found and whether a sample of them raised an anomaly flag.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Declarative package manifests can be easily modified or spoofed. Standard SBOM tools blindly trust these manifests without verifying the actual installed code. This creates a vulnerability gap where hidden malware payloads, spoofed packages, or encrypted blobs can bypass audits.</p>
+<p>Declarative package manifests can be modified or spoofed. An SBOM built only from manifests says nothing about the installed code. This recorder adds a cheap look at the installed files; it has not been compared with other SCA or SBOM tools.</p>
 <h2 id="design">Design</h2>
 <h3 id="universal-manifest-parsing">Universal Manifest Parsing</h3>
 <p>The generator delegates manifest extraction to <code>UniversalManifestSlicer</code>, supporting multiple ecosystems (NPM, Packagist, PyPI, Cargo) within polyglot repositories.</p>
 <h3 id="physical-dependency-verification">Physical Dependency Verification</h3>
-<p>For every dependency, the tool locates the physical package on disk. It flags missing packages (<code>UNVERIFIED_MISSING_ON_DISK</code>).
-* <strong>Candidate Sampling:</strong> Candidate files are ordered by risk priority (common entry points like <code>index</code>, <code>main</code> first, shallow depth).
-* <strong>Structural Anomaly Inspection:</strong> Scanned files undergo dual evaluation:
-  * <em>High-Entropy Payload Check:</em> Identifies dense string blobs (Shannon Entropy &gt; 4.8).
-  * <em>Language Anomaly Verification:</em> Verifies file extension against structural heuristics. Mismatches trigger <code>SPOOF_DETECTED</code> warnings.
+<p>For every dependency, the tool looks for the installed package on disk. A package not found is marked <code>UNVERIFIED_MISSING_ON_DISK</code>.
+* <strong>Candidate files:</strong> only <code>.js</code>, <code>.py</code>, <code>.ts</code>, <code>.php</code> and <code>.rs</code> files are candidates. With the dependency cache they are ordered entry points first (<code>index</code>, <code>main</code>, <code>__init__</code>, <code>app</code>, <code>setup</code>), then shallow before deep; without it, at most five files per directory are scanned.
+* <strong>What is read:</strong> only the <strong>first 8,192 bytes</strong> of each sampled file. Anything later in the file is not inspected.
+* <strong>Two checks per file;</strong> either one marks the whole package <code>SPOOF_DETECTED</code>:
+  * <em>Entropy:</em> any quoted string of 64 to 1,024 characters, with fewer than three spaces, whose Shannon entropy is above 4.8. Base64 data, hashes, minified bundles and embedded keys all qualify, so one such string is enough. Files that look machine-generated are skipped by this check. The check runs on the engine's ReDoS-armored text, where every line of 250+ characters is blanked, so a string on a long line is never checked (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8429">#8429</a>).
+  * <em>Language identity:</em> the language detector's <code>anomaly_flags</code> (content that conflicts with the file's extension).
+* <strong><code>SPOOF_DETECTED</code> is an anomaly flag, not a verdict.</strong> It means a sampled file tripped one of the two checks. No false-positive rate has been measured, and <code>tests/tools_recorders/test_sbom_generator.py</code> tests the status logic with the security lens mocked, not detection on real packages. <code>VERIFIED_SAFE</code> means only that no sampled file tripped either check.
+* <strong>Stateful Caching:</strong> File contents are hashed, and verdicts cached per file hash across scan sessions, respecting <code>fresh_scan_budget</code>.
 * <strong>Stateful Caching:</strong> File contents are hashed, and verdicts cached per file hash across scan sessions, respecting <code>fresh_scan_budget</code>.</p>
 <h3 id="cyclonedx-14-serialization">CycloneDX 1.4 Serialization</h3>
-<p>The final report is a CycloneDX 1.4 JSON document enriched with custom properties representing the <code>gitgalaxy:trust_status</code> (e.g., <code>VERIFIED_SAFE</code>, <code>SPOOF_DETECTED</code>, <code>PARTIALLY_VERIFIED</code>).</p>
+<p>The final report is a CycloneDX 1.4 JSON document enriched with custom properties: <code>gitgalaxy:trust_status</code> (<code>VERIFIED_SAFE</code>, <code>SPOOF_DETECTED</code>, <code>PARTIALLY_VERIFIED</code>, <code>UNVERIFIED_MISSING_ON_DISK</code>) and <code>gitgalaxy:anomaly_notes</code> (which check fired, in which file).</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs received include pipeline census data (<code>manifest_paths</code>), parsed artifact graphs, and session metadata. Outputs produced are structured CycloneDX JSON files. The generator integrates with <code>UniversalManifestSlicer</code> upstream and downstream compliance aggregators.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph LR
@@ -12470,18 +12473,22 @@
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
 <li><strong>Physical Scanning vs. Generation Speed:</strong> Scanning physical files adds overhead compared to simply parsing manifests. To mitigate this, stateful caching and prioritized entry point sampling (<code>fresh_scan_budget</code>) are used, trading exhaustive file scanning for timely feedback.</li>
-<li><strong>Heuristics vs. Determinism:</strong> Using Shannon Entropy (&gt; 4.8) is a heuristic that can flag benign compressed or encrypted blobs as suspicious, requiring manual verification but increasing defense-in-depth against obfuscated malware.</li>
+<li><strong>Heuristic flags:</strong> Shannon entropy above 4.8 flags benign encoded data (base64 assets, hashes, keys, minified code) as readily as an obfuscated payload. Every <code>SPOOF_DETECTED</code> needs manual review; how often it is a false alarm is unknown.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
 <li>If <code>fresh_scan_budget</code> is exceeded, deep nested files in large packages may be marked <code>PARTIALLY_VERIFIED</code> and left uninspected until subsequent runs.</li>
+<li>Without the dependency cache, at most five candidate files per directory are scanned; coverage is reported as <code>scanned/total</code> in the record.</li>
+<li>Only the first 8 KB of each file is read, and only the five extensions above are candidates (no <code>.mjs</code>, <code>.cjs</code>, native binaries or data files).</li>
+<li>Strings on lines of 250+ characters and strings longer than 1,024 characters are not entropy-checked.</li>
+<li>Detection on real malicious packages has not been measured.</li>
 <li>Highly dynamic dependency loading that bypasses package managers cannot be tracked.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>The implementation is optimized using a <code>DependencyAuditCache</code>. Hashing files and looking up verdicts enables <span class="arithmatex">\(O(1)\)</span> result retrieval for unmodified packages, drastically reducing I/O and CPU overhead on repeated CI runs.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li><strong>Current Behavior:</strong> Inspects physical files and emits CycloneDX 1.4 metadata based on static and entropy checks.</li>
+<li><strong>Current Behavior:</strong> Samples installed files and emits CycloneDX 1.4 metadata with anomaly flags from the entropy and language-identity checks.</li>
 <li><strong>Planned Improvements:</strong> Expand support to system-level package managers (e.g., APT, RPM) and integrate deeper binary artifact inspection.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>

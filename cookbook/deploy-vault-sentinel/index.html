@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Hardcoded secrets (AWS keys, database passwords, API tokens) are the leading cause of enterprise data breaches. If a developer accidentally commits a...">
+        <meta name="description" content="Hardcoded secrets (AWS keys, database passwords, API tokens) committed to Git stay in its history. Vault Sentinel fails a pre-commit hook or CI job when one is found...">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -12310,41 +12310,41 @@
 
 
 <h1 id="how-to-block-hardcoded-secrets-in-cicd">How to Block Hardcoded Secrets in CI/CD</h1>
-<p>Hardcoded secrets (AWS keys, database passwords, API tokens) are the leading cause of enterprise data breaches. If a developer accidentally commits a credential, it becomes permanently etched into the Git history. </p>
-<p>To prevent this, organizations must block the secret <em>before</em> it leaves the developer's laptop. However, traditional security scanners are often too slow to run as local pre-commit hooks, causing developers to bypass them.</p>
-<p>GitGalaxy solves this with the <strong>Vault Sentinel</strong>, a hyper-optimized, high-velocity secrets scanner designed specifically for pre-commit hooks and CI/CD pipelines.</p>
+<p>Hardcoded secrets (AWS keys, database passwords, API tokens) are a common way credentials leak. If a developer commits one, it stays in the Git history even after the file is fixed.</p>
+<p>The cheapest place to stop it is before the commit. A full security scan is often too slow for a pre-commit hook, and a slow hook gets skipped.</p>
+<p>GitGalaxy's <strong>Vault Sentinel</strong> is a secrets scanner for pre-commit hooks and CI pipelines. It runs one signature instead of the full engine; no speed benchmark is committed.</p>
 <h2 id="the-vault-sentinel">The Vault Sentinel</h2>
-<p>The Sentinel is a lightweight spoke of the GitGalaxy engine. It bypasses the heavy 3D dependency mapping and uses a "neutered" Security Lens—running only the mathematical string extraction and Shannon Entropy calculations necessary to catch high-density cryptographic payloads and known API key formats.</p>
+<p>The Sentinel is a spoke of the GitGalaxy engine. It skips the dependency graph and runs the Security Lens restricted to the <code>hardcoded_secrets</code> signature (credential names and known token formats), plus three patterns of its own: AWS secret access keys, Google <code>AIza</code> keys and JWTs. It does not use Shannon entropy, so a high-density string with no recognised name or format is not reported. It is tested on planted secrets (<code>tests/security_auditing/test_vault_sentinel_control.py</code>); recall on real-world leaks has not been measured.</p>
 <h3 id="1-deploy-the-sentinel-pre-commit-hook">1. Deploy the Sentinel (Pre-Commit Hook)</h3>
 <p>You can run the Sentinel manually, or bind it to your repository's <code>.git/hooks/pre-commit</code> pipeline to scan files the moment a developer types <code>git commit</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>vault-sentinel<span class="w"> </span>/path/to/target_directory
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># or: python -m gitgalaxy.tools.supply_chain_security.vault_sentinel /path/to/target_directory</span>
 </code></pre></div>
 <h3 id="2-the-mission-report-hard-blocking">2. The Mission Report &amp; Hard Blocking</h3>
-<p>The Sentinel executes a two-pass funnel. First, it scans physical file paths to instantly block unauthorized extensions (e.g., <code>id_rsa</code>, <code>.pem</code>, <code>.env</code>). Then, it deep-scans the internal contents of the remaining files.</p>
-<p>If a leak is found, the Sentinel outputs the exact snippet and triggers a <code>sys.exit(1)</code>, halting the CI/CD pipeline or Git commit instantly.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>==========================================================
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> 🛡️  VAULT SENTINEL: MISSION REPORT
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>==========================================================
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> Files Evaluated    : 4,512
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> Files Deep Scanned : 1,204
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a> Time Elapsed       : 1.15 seconds
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a> Scan Velocity      : 1,047 files/sec
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>----------------------------------------------------------
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a> UNCONTROLLED LEAKS : 1
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a> Denylist Blocks    : 0
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a> Allowlist Bypasses : 2
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>----------------------------------------------------------
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a> 🚨 [CONTENT BREACH] Hardcoded Credential: src/auth/aws_client.py
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>   -&gt; secret_key = "AKIAIOSFODNN7EXAMPLE"
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a> ❌ FAILED: 1 unauthorized secrets exposed. Blocking commit/PR.
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>==========================================================
+<p>The Sentinel makes two passes. First it checks file names: secret-file names and extensions (e.g., <code>id_rsa</code>, <code>.env</code>, <code>.pem</code>; a <code>.pem</code> holding only a certificate or public key is not counted) fail the run without a content scan. Then it scans the contents of the remaining text files.</p>
+<p>If a leak is found, the Sentinel prints the file path, one redacted line per match (it never prints any part of the secret), and exits with status 1, which fails the CI job or Git commit. The output looks like this (illustrative numbers):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[CONTENT BREACH] Hardcoded Credential: src/auth/aws_client.py
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   -&gt; ********[REDACTED]********
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>===========================================================================
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> 🛡️  VAULT SENTINEL: SCAN SUMMARY
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>===========================================================================
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a> Files Evaluated    : 4,512
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a> Files Deep Scanned : 1,204
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a> Time Elapsed       : 1.15 seconds
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a> Scan Velocity      : 1,047 files/sec
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>---------------------------------------------------------------------------
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a> SECRETS DETECTED     : 1
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a> Denylist Blocks      : 0
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a> Allowlist Bypasses   : 2
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a> Files Not Scanned    : 0
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>---------------------------------------------------------------------------
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a> [BLOCKING ACTION] 1 unauthorized secrets exposed. Failing pipeline.
 </code></pre></div>
 <h3 id="3-managing-exceptions-the-allowlist">3. Managing Exceptions (The Allowlist)</h3>
-<p>In enterprise environments, developers often need to commit "mock" or "dummy" credentials for unit testing. If the Sentinel flags a safe mock file, it will block the build.</p>
-<p>Instead of turning off the scanner, DevSecOps can explicitly whitelist the safe file. 
-Open <code>gitgalaxy/standards/gitgalaxy_config.py</code> and add the exact file path to the <code>ALLOWLIST_PATHS</code> array. The Sentinel will safely bypass it on the next run while keeping the rest of the vault sealed.</p>
+<p>Teams often commit mock or dummy credentials for unit tests. If the Sentinel flags one, it fails the build.</p>
+<p>Instead of turning off the scanner, add the file path to <code>ALLOWLIST_PATHS</code>, either in <code>gitgalaxy/standards/gitgalaxy_config.py</code> or under <code>galaxyscope:</code> in a <code>.galaxyscope.yaml</code> passed with <code>--config</code>. An allowlisted file is still scanned; a hit is logged as an allowlist bypass and does not fail the run. An entry is a partial match on the path (an entry ending in <code>/</code> matches a folder).</p>
+<p><strong>Check the default first:</strong> <code>ALLOWLIST_PATHS</code> ships with <code>tests/</code>, which exempts every file under any <code>tests/</code> folder (including <code>src/tests/</code> and <code>unit_tests/</code>). A real secret committed there will not fail the run. Remove that entry if your test folders should be scanned.</p>
 <blockquote>
 <p><strong>Read the full technical specification:</strong> <a href="../../04-04-vault-sentinel/">Vault Sentinel</a></p>
 </blockquote>

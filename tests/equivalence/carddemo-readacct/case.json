@@ -219,7 +219,7 @@
           "status": "10"
         }
       ],
-      "why": "10: sequential write end-of-volume/file status (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on first OUTFILE record: 1350-WRITE-ACCT-RECORD treats '10' as non-fatal (NOT = '00' AND NOT = '10'); kills mutant 2b0db45401"
+      "why": "Inject status '10' on first OUTFILE WRITE (IBM Enterprise COBOL defines '10' for sequential READ at end-of-file, not WRITE) to exercise the defensive NOT = '00' AND NOT = '10' guard in 1350-WRITE-ACCT-RECORD"
     },
     {
       "name": "vbrcfile-write-status-10",
@@ -231,7 +231,7 @@
           "status": "10"
         }
       ],
-      "why": "10: sequential write status 10 on second VBRCFILE record: 1575-WRITE-VB2-RECORD treats '10' as non-fatal (NOT = '00' AND NOT = '10'); kills mutant 595a5c13e1"
+      "why": "Inject status '10' on second VBRCFILE WRITE (IBM Enterprise COBOL defines '10' for sequential READ at end-of-file, not WRITE) to exercise the defensive NOT = '00' AND NOT = '10' guard in 1575-WRITE-VB2-RECORD"
     }
   ]
 }

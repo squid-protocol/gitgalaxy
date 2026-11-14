@@ -1,0 +1,241 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "carddemo-readacct",
+ "program": "CBACT01C",
+ "kind": "batch",
+ "port": {
+  "paths": [],
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "entry_points": [],
+  "det_port": true
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/carddemo-readacct/port/**"
+   ],
+   "files": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/carddemo-readacct/**"
+   ],
+   "files": 2,
+   "sha256": "134250b563eeae244235bf692a996ca1b2526718b54b0723fd9be31480f906d6"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_compare.py",
+    "tests/tools/equivalence_cics_containers.py",
+    "tests/tools/equivalence_cics_filecontrol.py",
+    "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_faults.py",
+    "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
+    "tests/tools/equivalence_cics_counters.py",
+    "tests/tools/equivalence_cics_program.py",
+    "tests/tools/equivalence_cics_storage.py",
+    "tests/tools/equivalence_cics_system.py",
+    "tests/tools/equivalence_cics_tdqueue.py",
+    "tests/tools/equivalence_cics_terminal.py",
+    "tests/tools/equivalence_cics_web.py",
+    "tests/tools/equivalence_cics_pointer.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/equivalence_ims.py"
+   ],
+   "files": 27,
+   "sha256": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "components": {
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+   }
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/odbc_cli.pin",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py",
+    "tests/equivalence/ims/ggdli.c"
+   ],
+   "files": 59,
+   "sha256": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "components": {
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 143,
+   "sha256": "8d1ff1516347542b895d9918a9fe3ea1d28ce9c8f443ff2b567405b6cb693a75",
+   "components": {
+    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   }
+  },
+  "corpus": {
+   "name": "aws-mainframe-modernization-carddemo",
+   "ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+   "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "options": {
+   "sha256": "eb617c677d4fa68b04a11bcd104dca518d3f512287161f4ef6125b4e964353dc",
+   "semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "legacy_semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "estate": "aws-mainframe-modernization-carddemo",
+   "effective": {
+    "estate": "aws-mainframe-modernization-carddemo",
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "ZONEDATA(PFD)",
+     "APOST",
+     "LIST",
+     "MAP",
+     "NUMBER",
+     "NOSEQ"
+    ],
+    "declared_parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "ZONEDATA(PFD)",
+     "APOST",
+     "LIST",
+     "MAP",
+     "NUMBER",
+     "NOSEQ"
+    ],
+    "semantic": {
+     "ARITH": "COMPAT",
+     "INTDATE": "ANSI",
+     "NUMPROC": "NOPFD",
+     "TRUNC": "STD"
+    },
+    "runtime": {
+     "le": {
+      "runtime_options.ABTERMENC": "ABEND",
+      "runtime_options.STORAGE": "NONE,NONE,NONE,0K",
+      "runtime_options.TRAP": "ON,SPIE"
+     },
+     "db2": {
+      "bind.CURRENTDATA": "YES",
+      "bind.ISOLATION": "CS",
+      "ccsid.SQLCCSID": "NO",
+      "format.DATE": "ISO",
+      "format.DEC": "15",
+      "format.DECPT": ".",
+      "format.TIME": "ISO",
+      "precompile.PARM": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     "cics": {
+      "region.LOCALCCSID": "037",
+      "translator.options": "CICS"
+     }
+    }
+   },
+   "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
+  },
+  "digest": "f13c9cb95f384c83519afcba4d8d294f05f557679f2cd1a210870afea79e4f40"
+ },
+ "proof": {
+  "at": "2026-11-14T16:29:55Z",
+  "verdict": "proven",
+  "source": "det-sweep",
+  "runs": 16,
+  "fault_runs": null,
+  "environments": null,
+  "outputs": {},
+  "java_failed": false,
+  "det_sweep": {
+   "ledger": "tests/equivalence/det_sweep_coverage/carddemo-readacct.json",
+   "ledger_sha256": "3164252c2ae80b1edd26a4179c8e6b13aff5f5b114b0f885dde2b0022faa02b0",
+   "measured_at": "36e79c81294c8e71a0c5f43fb9022e63bdc4093b",
+   "stale_inputs": [],
+   "scenarios": 16
+  },
+  "harness_commit": "36e79c81294c8e71a0c5f43fb9022e63bdc4093b+uncommitted",
+  "inputs_digest": "f13c9cb95f384c83519afcba4d8d294f05f557679f2cd1a210870afea79e4f40",
+  "det_mutation": {
+   "score": 0.7622,
+   "survived": 34,
+   "accounted": 0,
+   "unaccounted": 34,
+   "l5": false,
+   "current": true
+  }
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 16,
+   "live": 16
+  },
+  "branches": {
+   "covered": 43,
+   "total": 44
+  },
+  "uncovered_branches": null,
+  "handler_labels": {
+   "covered": null,
+   "total": null
+  },
+  "source": "det sweep at 36e79c81294c8e71a0c5f43fb9022e63bdc4093b (det_coverage_ledger.py)",
+  "inputs_digest": "f13c9cb95f384c83519afcba4d8d294f05f557679f2cd1a210870afea79e4f40"
+ },
+ "reach": null,
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": null,
+  "source": "the det sweep's GnuCOBOL runs",
+  "image": null
+ },
+ "provenance": {
+  "written_by": "det",
+  "model": null,
+  "author": null,
+  "note": "the det port: generated by the translator on every run, no committed port"
+ },
+ "approvals": []
+}

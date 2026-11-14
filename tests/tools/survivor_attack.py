@@ -959,6 +959,7 @@ def goto_flag_bit(text: str, spans: dict[str, list[tuple[int, int]]], mutant: di
 
 _EIB = "s_DFHEIBLK"
 _EIB_STORE = re.compile(r"^(\s*)Cobol\.store\((f\d+_\w+), BigDecimal\.valueOf\((-?\w+(?:\[[01]\])?)\), (?:true|false), CS\);\s*$")  # fmt: skip
+_EIB_TIME_DATE_STORE = re.compile(r"^(\s*)Cobol\.store\((f\d+_EIB(?:TIME|DATE)), BigDecimal\.valueOf\(([^;]+)\), (?:true|false), CS\);\s*$")  # fmt: skip
 _RESP_LOCAL = re.compile(r"^(\s*int )(resp\d+)( = )(.+);\s*$")
 _RESP_KEEP = re.compile(r"^\s*(f\d+_\w+) = Cobol\.binary\(BigDecimal\.valueOf\((resp\d+)\), \d+, (?:true|false), (?:true|false), CS\);\s*$")  # fmt: skip
 _RESP_TOKENS = re.compile(r"planned\d+\[[01]\]|received\d+\.isPresent\(\)")
@@ -1008,7 +1009,7 @@ def eib_resp_unread(
     bytes no read EIB item covers (inside the image). The stores drop high digits, so no value can fail."""
     before, after = mutant.get("before") or "", mutant.get("after") or ""
     state = None
-    store, decl = _EIB_STORE.match(before), _FIELD_LINE.match(before)
+    store, decl = _EIB_STORE.match(before) or _EIB_TIME_DATE_STORE.match(before), _FIELD_LINE.match(before)
     local, keep = _RESP_LOCAL.match(before), _RESP_KEEP.match(before)
     if not (store or decl or local or keep):
         return None
@@ -1018,7 +1019,7 @@ def eib_resp_unread(
     unread, read, size = state
     fact = None
     if store and store.group(2) in unread:
-        again = _EIB_STORE.match(after)
+        again = _EIB_STORE.match(after) or _EIB_TIME_DATE_STORE.match(after)
         if after.strip().startswith("/*") or (again and again.group(2) == store.group(2)):
             fact = f"{store.group(2)} is only stored into and no read EIB item shares its bytes: the stored value is never seen"  # fmt: skip
     elif decl and decl.group(1) in unread:

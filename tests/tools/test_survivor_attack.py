@@ -1130,3 +1130,15 @@ def test_auto_state_and_apply_inputs(tmp_path, monkeypatch):
     assert recorded["m1"]["verdict"] == "equivalent"
     assert recorded["m2"]["verdict"] == "unreachable"
     assert recorded["m1"]["tried"] == ["inert-image"]
+
+
+def test_eib_time_and_date_unread_are_settled():
+    t = _EIBTXT.replace(
+        "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+        "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);\n"
+        "    private final Field f144_EIBTIME = Field.packed(s_DFHEIBLK, 8, 7, 0, true);",
+    )
+    before = "        Cobol.store(f144_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+    t = t.replace("    }\n", before + "\n    }\n", 1)
+    after = before.replace("* 10000L", "/ 10000L")
+    assert _eib_settled(t, before, after)

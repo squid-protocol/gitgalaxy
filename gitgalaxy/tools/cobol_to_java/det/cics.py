@@ -872,12 +872,20 @@ class Cics(
                 # #7965 slice 3b (X22): a Store per instance (`n`, the run-time name, is the instance): its rows are the
                 # table's rows of that instance, a saved row is stamped with it, and findById (the key alone) is not used
                 get, put = inst[0].format(r="r"), inst[1].format(r="e", i="n.stripTrailing()")
+                # the instance is in the @EmbeddedId: a keyed read is findById of the key with the instance set (not a scan
+                # that decodes every row of every instance, quadratic in a 501-record file); an @IdClass entity scans
+                by_id = ""
+                if inst[0].startswith("{r}.getId()") and prop is None:
+                    by_id = (
+                        f".withFindById(rec -> {{ var p = {entity}.fromRecord(rec, CS); "
+                        f"{inst[1].format(r='p', i='n.stripTrailing()')}; return {repo}.findById(p.getId()); }})"
+                    )
                 self.stores[name] = (
                     f"new DetCics.Store<{entity}>(() -> {repo}.findAll().stream().filter(r -> "
                     f"n.stripTrailing().equals({get})).toList(), e -> e.toRecord(CS), "
                     f"b -> {entity}.fromRecord(b, CS), e -> task.write({G_jstr(name)}, () -> {{ {put}; {repo}.save(e); }}), "
                     f"e -> task.write({G_jstr(name)}, () -> {repo}.delete(e)), {off}, {length}, CS)"
-                    f".withLengths(CicsTask.recordLengths({G_jstr(entity)}))"
+                    f"{by_id}.withLengths(CicsTask.recordLengths({G_jstr(entity)}))"
                 )
                 self.g.entities.add(entity)
                 continue

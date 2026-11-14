@@ -5,16 +5,16 @@
  "case": "asynccc-getpol",
  "entry": {
   "program": "GETPOL",
-  "commit": "46afda46dfdb395a45500c854177cbb1cd72401c+uncommitted",
-  "date": "2026-11-04",
+  "commit": "74db51397ea9247595e38542a410c1f22cefdbc6+uncommitted",
+  "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
-  "mutants": 181,
+  "mutants": 183,
   "out_of_scope": 6,
-  "chosen": 181,
+  "chosen": 183,
   "coverage": "proven on 2 scenarios, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 161,
+   "killed": 163,
    "timeout": 0,
    "survived": 14,
    "stillborn": 6,
@@ -77,6 +77,7 @@
    "4c50af6ced",
    "508d44a40b",
    "52376786d4",
+   "53428bb71f",
    "5654d23a10",
    "5a02e9ee8f",
    "5adb626552",
@@ -125,6 +126,7 @@
    "a7f4879b33",
    "a843549541",
    "a949ba555a",
+   "ac7d797103",
    "acd0c066d9",
    "af3eea09b0",
    "afd26a8a1d",
@@ -194,14 +196,6 @@
   ],
   "survived": [
    {
-    "id": "17122a137b",
-    "op": "LIT",
-    "file": "service/GetpolService.java",
-    "line": 271,
-    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-    "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");"
-   },
-   {
     "id": "2c97437c95",
     "op": "CON",
     "file": "service/GetpolService.java",
@@ -210,44 +204,12 @@
     "after": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(planned1[1]), false, CS);"
    },
    {
-    "id": "6b07eb78b6",
-    "op": "NEG",
-    "file": "service/GetpolService.java",
-    "line": 68,
-    "before": "if (CicsTask.undefinableFile(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name))) {"
-   },
-   {
     "id": "9a45da41e1",
     "op": "DEL",
     "file": "service/GetpolService.java",
     "line": 273,
     "before": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS);",
     "after": "/* Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS); */"
-   },
-   {
-    "id": "9e45999526",
-    "op": "NEG",
-    "file": "service/GetpolService.java",
-    "line": 271,
-    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-    "after": "if (!(planned1[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
-   },
-   {
-    "id": "bbe447d435",
-    "op": "CON",
-    "file": "service/GetpolService.java",
-    "line": 271,
-    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-    "after": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
-   },
-   {
-    "id": "bc24359b0e",
-    "op": "CON",
-    "file": "service/GetpolService.java",
-    "line": 271,
-    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-    "after": "if (planned1[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
    },
    {
     "id": "bdddff64da",
@@ -264,22 +226,6 @@
     "line": 274,
     "before": "if (planned1[0] != 0) {",
     "after": "if (planned1[1] != 0) {"
-   },
-   {
-    "id": "e9f57fcfb5",
-    "op": "CON",
-    "file": "service/GetpolService.java",
-    "line": 271,
-    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-    "after": "if (planned1[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
-   },
-   {
-    "id": "f816579b39",
-    "op": "ROR",
-    "file": "service/GetpolService.java",
-    "line": 271,
-    "before": "if (planned1[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
-    "after": "if (planned1[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
    },
    {
     "id": "365abad6f8",
@@ -304,58 +250,114 @@
     "line": 175,
     "before": "calen = cx(task, task.linkArea().length);",
     "after": "/* calen = cx(task, task.linkArea().length); */"
+   },
+   {
+    "id": "4dd23176c7",
+    "op": "CON",
+    "file": "service/GetpolService.java",
+    "line": 274,
+    "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "8f86e05ecb",
+    "op": "LIT",
+    "file": "service/GetpolService.java",
+    "line": 274,
+    "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");"
+   },
+   {
+    "id": "937ced58b1",
+    "op": "CON",
+    "file": "service/GetpolService.java",
+    "line": 274,
+    "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "if (planned1[1] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "a11bc1b65f",
+    "op": "CON",
+    "file": "service/GetpolService.java",
+    "line": 274,
+    "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "if (planned1[0] == 1) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "bb2a7d5f75",
+    "op": "CON",
+    "file": "service/GetpolService.java",
+    "line": 274,
+    "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "cf00f8400e",
+    "op": "COR",
+    "file": "service/GetpolService.java",
+    "line": 68,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "fd42e61e1c",
+    "op": "NEG",
+    "file": "service/GetpolService.java",
+    "line": 68,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
    }
   ],
   "inputs": {
-   "port": "d2ff40d199b2fefd6512a8e2889934061adcaaf757b8364086987c473dcd8f78",
-   "generator": "21cb74d4c59906891bfd11a3bc3cae9b05e7207bbb0a2b927a70e66aa8dfd1dd",
+   "port": "e1279c0fdce928eb2d2001b2c8a318fe1b40d2ad0c05821ed18e16c14c551846",
+   "generator": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
    "case": "aa75f5e4d61bb89b69222ea3a4fa9c66fe449a028f9a12594a74bcb326bebd34",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "4cc2713333c7b4e849a7b2f12b1002f12b7a0db90ee160b0b5c02d3e5b44fdcb",
-   "oracle": "998254835f75ef2bad46bd6bf9915ae3c5a33f476009fe247a0517013de9084f",
-   "runtime": "011e509284cbb54363033548b8320a9ff79f9f11edb89eac357894cd3e7b8ae4",
+   "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "survivors": "c05abc3a9a7fbd97ab4963d487a8df3cf927784fa779bd75384591ea92240010"
   },
   "components": {
    "generator": {
-    "generator:core": "3d80397ce800bd178915783c485fb52fa183b058c456c18719070c08eaad230c",
+    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
-    "generator:det/cics_conditions": "3ebd12a753735f4cfb594d4e5d80ec98f3c19a1e30fe9a9d945ccc142cdb8752",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
-    "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
-    "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
-    "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "97c5616a74f33437435a9143d2576034b9d39e7129473e883f5d6ed861d247b8",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "f36fe2ecd15ba11f9be78644f40f637de19d03fa7c31c39aa95b790372c75e76",
-    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
    },
    "harness": {
-    "harness:cics": "f85bdf18b4f5d531256b5c869c0a597bc672ee78c11a87996632e063a1f8ae32",
-    "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
+    "harness:cics": "46e0186da8c5397a378b0e282d0aa29a0b50c2edb6e8c4a2c703e7e130dd4198",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    },
    "oracle": {
-    "oracle:cics-stub": "4eb31d216668f440a482062c448b947ebba319c5694a2557ad2ea544a4e8a03b",
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "022f736994 05e4b573bd 0756ccbc59 0cb4049e59 0d5b98816c 0d6ab93514 0e344173d2 0ef9be3b3b 1046f71866 10fa5cac01 110e1452b2 11b6d29999 122a0461a7 143bd21cd5 14c13c5bff 14d08b5805 17122a137b 1796836e7b 181253a1a0 186840b9d3 1a0411747d 1aabb5571d 1baf7cf52f 1bedb64235 1cc0b6fdbc 1ecf87fe93 2028a4c129 24e4602fac 258c7f6d72 269755ccf0 271e3d87a2 2739a34612 279bc502da 28c5ba4800 2a55f5a2c1 2aaa2422d2 2c055369c4 2c10f25d2f 2c88c0ea58 2c97437c95 2da67d4043 3120da66e4 3302175c70 340e35244e 343e0f4a83 3518be5278 363588c47a 365abad6f8 37ea6ed111 390ae4e538 3a44c3ecf5 3c66be3368 3cc31fe856 3d76682605 3dbb44dc1b 436a121b48 43f081666f 493d0eb458 4c50af6ced 508d44a40b 52376786d4 5654d23a10 56d6669699 584faee118 5a02e9ee8f 5adb626552 5b607cfc4b 6043f26cf9 60cda2f211 61786d4a90 65b19144fe 6879f37cc3 688a01fb9b 693246816f 6b07eb78b6 6b601920cd 6f9887c3b9 706ca6dd33 7126043a6e 71583c81cb 71c0214085 72afb031d3 733292bcd0 75d76be31f 7bb2ab6d06 7d430cf988 7e547bd985 7ebe0d2acd 808889056c 840c7da7a1 84e554dd87 883a380812 8871e15762 897ef1c311 8bb0dce7e8 8dbb15eb86 922fa0d7c0 9430858797 97ffc4d20d 9a06e43c43 9a45da41e1 9ad214eac3 9ba1d616b6 9e45999526 9efba36927 9f930979be a035851921 a165956226 a2aca0cf4b a39d9f1582 a6dc11369a a6ec7a4c3b a7f4879b33 a843549541 a949ba555a acd0c066d9 af3eea09b0 afd26a8a1d b2a3ff7a96 b70303fb00 b830061a89 bb83d96cee bbe447d435 bc24359b0e bd16599019 bdddff64da c27a805ac5 c2c6a43400 c3cce72c02 c510cea2d4 c833387f74 c9f2a72a22 cada35d44b cb36779206 cc2049ba3e cce1904871 ce0f956f9c ce636e7608 cf3aa52995 cf6eb872e0 d00405d128 d1cde5261b d4ef5e0ca2 d766a62086 d767e4d123 d844012453 d844f0cedc d981120866 dc114d7e48 dd233847fc e0e0becb35 e1aeaff2f0 e47453d8fc e4f06ad1fa e53c9a4448 e60c7dda6d e93cc6243f e9f57fcfb5 eaaa1a87eb ebb08202a2 ec1198e9ef edf6ad3841 ee7feb22b0 f2a21015c3 f2c53c0668 f4d7ca3e38 f5fb398497 f604f78370 f60cf75101 f630c419aa f703eca69e f717d113b0 f79ff2ef39 f7cbcc612d f816579b39 f8fef3f5eb f927dfeaf5 fb621a913c fbe468afd6 fc5c6cac71 fd56413523",
+  "every": "022f736994 05e4b573bd 0756ccbc59 0cb4049e59 0d5b98816c 0d6ab93514 0e344173d2 0ef9be3b3b 1046f71866 10fa5cac01 110e1452b2 11b6d29999 122a0461a7 143bd21cd5 14c13c5bff 14d08b5805 1796836e7b 181253a1a0 186840b9d3 1a0411747d 1aabb5571d 1baf7cf52f 1bedb64235 1cc0b6fdbc 1ecf87fe93 2028a4c129 24e4602fac 258c7f6d72 269755ccf0 271e3d87a2 2739a34612 279bc502da 28c5ba4800 2a55f5a2c1 2aaa2422d2 2c055369c4 2c10f25d2f 2c88c0ea58 2c97437c95 2da67d4043 3120da66e4 3302175c70 340e35244e 343e0f4a83 3518be5278 363588c47a 365abad6f8 37ea6ed111 390ae4e538 3a44c3ecf5 3c66be3368 3cc31fe856 3d76682605 3dbb44dc1b 436a121b48 43f081666f 493d0eb458 4c50af6ced 4dd23176c7 508d44a40b 52376786d4 53428bb71f 5654d23a10 56d6669699 584faee118 5a02e9ee8f 5adb626552 5b607cfc4b 6043f26cf9 60cda2f211 61786d4a90 65b19144fe 6879f37cc3 688a01fb9b 693246816f 6b601920cd 6f9887c3b9 706ca6dd33 7126043a6e 71583c81cb 71c0214085 72afb031d3 733292bcd0 75d76be31f 7bb2ab6d06 7d430cf988 7e547bd985 7ebe0d2acd 808889056c 840c7da7a1 84e554dd87 883a380812 8871e15762 897ef1c311 8bb0dce7e8 8dbb15eb86 8f86e05ecb 922fa0d7c0 937ced58b1 9430858797 97ffc4d20d 9a06e43c43 9a45da41e1 9ad214eac3 9ba1d616b6 9efba36927 9f930979be a035851921 a11bc1b65f a165956226 a2aca0cf4b a39d9f1582 a6dc11369a a6ec7a4c3b a7f4879b33 a843549541 a949ba555a ac7d797103 acd0c066d9 af3eea09b0 afd26a8a1d b2a3ff7a96 b70303fb00 b830061a89 bb2a7d5f75 bb83d96cee bd16599019 bdddff64da c27a805ac5 c2c6a43400 c3cce72c02 c510cea2d4 c833387f74 c9f2a72a22 cada35d44b cb36779206 cc2049ba3e cce1904871 ce0f956f9c ce636e7608 cf00f8400e cf3aa52995 cf6eb872e0 d00405d128 d1cde5261b d4ef5e0ca2 d766a62086 d767e4d123 d844012453 d844f0cedc d981120866 dc114d7e48 dd233847fc e0e0becb35 e1aeaff2f0 e47453d8fc e4f06ad1fa e53c9a4448 e60c7dda6d e93cc6243f eaaa1a87eb ebb08202a2 ec1198e9ef edf6ad3841 ee7feb22b0 f2a21015c3 f2c53c0668 f4d7ca3e38 f5fb398497 f604f78370 f60cf75101 f630c419aa f703eca69e f717d113b0 f79ff2ef39 f7cbcc612d f8fef3f5eb f927dfeaf5 fb621a913c fbe468afd6 fc5c6cac71 fd42e61e1c fd56413523",
   "refreshed": {
-   "from": "2026-10-31",
+   "from": "2026-11-04",
    "survivors_rerun": 0,
-   "fresh": 6,
+   "fresh": 9,
    "stale": []
   }
  }

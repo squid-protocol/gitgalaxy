@@ -5,16 +5,16 @@
  "case": "asynccc-crdtchk",
  "entry": {
   "program": "CRDTCHK",
-  "commit": "46afda46dfdb395a45500c854177cbb1cd72401c+uncommitted",
-  "date": "2026-11-04",
+  "commit": "74db51397ea9247595e38542a410c1f22cefdbc6",
+  "date": "2026-11-14",
   "mode": "fast",
   "seed": 0,
-  "mutants": 236,
+  "mutants": 238,
   "out_of_scope": 6,
-  "chosen": 236,
+  "chosen": 238,
   "coverage": "proven on 4 scenarios, covering 1/1 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 212,
+   "killed": 214,
    "timeout": 0,
    "survived": 18,
    "stillborn": 6,
@@ -47,6 +47,7 @@
    "1d637b911b",
    "1e2c13049c",
    "21c49dad36",
+   "2500142ee7",
    "25ce83f5df",
    "25e2a01bd1",
    "260445673f",
@@ -195,6 +196,7 @@
    "c32bee984f",
    "c334c63537",
    "c353ab3a2c",
+   "c4ec549ee0",
    "c595b4524b",
    "c769392f2a",
    "cc8b306b48",
@@ -245,14 +247,6 @@
   ],
   "survived": [
    {
-    "id": "087cc83267",
-    "op": "LIT",
-    "file": "service/CrdtchkService.java",
-    "line": 314,
-    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-    "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");"
-   },
-   {
     "id": "14747ec0a6",
     "op": "DEL",
     "file": "service/CrdtchkService.java",
@@ -275,14 +269,6 @@
     "line": 315,
     "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
     "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */"
-   },
-   {
-    "id": "4bb8661ec1",
-    "op": "ROR",
-    "file": "service/CrdtchkService.java",
-    "line": 314,
-    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-    "after": "if (planned2[0] != 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
    },
    {
     "id": "50ac6fc762",
@@ -309,52 +295,12 @@
     "after": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);"
    },
    {
-    "id": "63eeef6274",
-    "op": "NEG",
-    "file": "service/CrdtchkService.java",
-    "line": 314,
-    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-    "after": "if (!(planned2[0] == 0)) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
-   },
-   {
-    "id": "781dbcc16e",
-    "op": "NEG",
-    "file": "service/CrdtchkService.java",
-    "line": 92,
-    "before": "if (CicsTask.undefinableFile(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name))) {"
-   },
-   {
-    "id": "8fd20ba8c4",
-    "op": "CON",
-    "file": "service/CrdtchkService.java",
-    "line": 314,
-    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-    "after": "if (planned2[0] == 1) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
-   },
-   {
     "id": "ab7034e588",
     "op": "DEL",
     "file": "service/CrdtchkService.java",
     "line": 327,
     "before": "Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS);",
     "after": "/* Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont3.resp2()), false, CS); */"
-   },
-   {
-    "id": "bf9f1efd29",
-    "op": "CON",
-    "file": "service/CrdtchkService.java",
-    "line": 314,
-    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-    "after": "if (planned2[1] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
-   },
-   {
-    "id": "d5e202914a",
-    "op": "CON",
-    "file": "service/CrdtchkService.java",
-    "line": 314,
-    "before": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
-    "after": "if (planned2[0] == 0) task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");"
    },
    {
     "id": "f9310f210d",
@@ -387,58 +333,114 @@
     "line": 205,
     "before": "calen = cx(task, task.linkArea().length);",
     "after": "/* calen = cx(task, task.linkArea().length); */"
+   },
+   {
+    "id": "09af300d8f",
+    "op": "COR",
+    "file": "service/CrdtchkService.java",
+    "line": 92,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "3db7645b65",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 317,
+    "before": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[1] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "4f9b42aebe",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 317,
+    "before": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "6816225e04",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 92,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "85d4d4ec10",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 317,
+    "before": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 1) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "8d4e98c420",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 317,
+    "before": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "c879b2fcfe",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 317,
+    "before": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "if (planned2[0] == 0) planned2 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), CicsTask.delayRange(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");"
    }
   ],
   "inputs": {
-   "port": "ffc499321035bbb6d1c22b1e5f511dac3f76117d6ee3b624b56c9f435f319e72",
-   "generator": "21cb74d4c59906891bfd11a3bc3cae9b05e7207bbb0a2b927a70e66aa8dfd1dd",
+   "port": "1ae050c3ef5a63e2bdbf636ee8dcbed00811c542d5f2b15d30fbbeea6e61f67c",
+   "generator": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
    "case": "26c3cc713040f04ebb4d42b2e5a46d4116496a4b0c971e65f98ed7f869c52b18",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "4cc2713333c7b4e849a7b2f12b1002f12b7a0db90ee160b0b5c02d3e5b44fdcb",
-   "oracle": "998254835f75ef2bad46bd6bf9915ae3c5a33f476009fe247a0517013de9084f",
-   "runtime": "011e509284cbb54363033548b8320a9ff79f9f11edb89eac357894cd3e7b8ae4",
+   "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "survivors": "4da4a3156492fe20eebd504d0d7630430fd13af6b1bb4eafc17ca9a88ed5342d"
   },
   "components": {
    "generator": {
-    "generator:core": "3d80397ce800bd178915783c485fb52fa183b058c456c18719070c08eaad230c",
+    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
-    "generator:det/cics_conditions": "3ebd12a753735f4cfb594d4e5d80ec98f3c19a1e30fe9a9d945ccc142cdb8752",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
-    "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
-    "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
-    "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "97c5616a74f33437435a9143d2576034b9d39e7129473e883f5d6ed861d247b8",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "f36fe2ecd15ba11f9be78644f40f637de19d03fa7c31c39aa95b790372c75e76",
-    "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
    },
    "harness": {
-    "harness:cics": "f85bdf18b4f5d531256b5c869c0a597bc672ee78c11a87996632e063a1f8ae32",
-    "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
+    "harness:cics": "46e0186da8c5397a378b0e282d0aa29a0b50c2edb6e8c4a2c703e7e130dd4198",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    },
    "oracle": {
-    "oracle:cics-stub": "4eb31d216668f440a482062c448b947ebba319c5694a2557ad2ea544a4e8a03b",
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "003b12912c 02ef9160e0 0337262ef5 0367401e7f 046437376b 048751419a 051d29fab1 05dab9301d 05de1089bd 083965fe13 087cc83267 09fa808fb1 0a8dde2469 0ab5db610e 0d0279c6cd 1020067bdb 10e4d6d69f 14747ec0a6 1524aa4960 16cc85076d 1782c8d460 17b96546cb 1aa3c13db2 1b8a0b6b10 1befa8bfa4 1d637b911b 1d9aee4d3d 1e2c13049c 2044888223 21c49dad36 25ce83f5df 25e2a01bd1 260445673f 26dd4d9d01 27dfc48b49 281c3bf041 29f7b3de42 2ca4c30a14 2eb0e2b465 2ec3b302a2 30f158d20d 311cf346d7 381df69703 382d92f8b9 39ca64c6f2 39cbe9e06d 39f94f2226 3b8f1720a9 3caef86881 3d42ef7305 3ef44e3a65 4000bfedb1 402c3203fa 40ec0e066a 4122288f3a 417b2bf77b 42be71a3e6 44ea252d89 44f87df72f 4508124c24 467e99c9c2 47280ce10d 49b6c3845c 4a332288c5 4a7dec1ba3 4bb8661ec1 4c01278dd4 4c379408ed 4dd0406964 5008ce5ce5 50ac6fc762 5214bcc2df 52311a13fb 5243556f8f 54e0e6b54a 55407bfe42 563036f99a 575cf83b88 5780029473 5a8bfb49bd 5bef0cefc0 5c692bc62f 5cdbc52ac5 5cebc1bcb0 5e25b6e0a9 5e9e634a30 5eb995428b 5fa707643a 61edf7095e 626fa44ff8 63eeef6274 63f0b86042 656b486fda 694f7fd80d 69ef7b476f 6a8d1542e3 6aa2d32658 6b6081c211 6c37bf3bbb 6e12a77be0 6f2f5b4ddf 7184848634 718ef610c4 71c01fe7b0 71d5e7c29a 74100925e5 754ab8fd54 781dbcc16e 786dedb483 7a1e0dccd5 7a53f47f4e 7c1ddd4083 7c73c6ae62 7e87b0387b 7ecbc7f8cb 7f4fc89d6b 7f6f7871de 8057a9a7f9 80ba181f38 82cb539ee2 83947badfb 83bb01b863 83cc3fa4df 83fe18b39d 86a9a6f1db 8701c5f809 87219904ce 87484dd3ca 89763e3550 89b584ee72 8a1652e59f 8b5004af39 8db29e75a6 8e1c3aa267 8fd20ba8c4 8ffa447dc3 91c523cbe4 928b2942f0 93d7c571ca 94aa556bdf 96b41211b0 9800bee6b8 9811169dec 9812546add 9aaddf4154 9acb7b8153 9b31b5d151 9b753950e1 9d6872adc9 9d8585d50e 9ddeeb5289 9efb160f49 9f9abab40b 9fef9fd50f a10fd90fa8 a27aace154 a2f1e8ea80 a398266b34 a4a51fb92e a5eaca80c1 a619d666c5 a781b39407 a7e0edef7c a8880e3f46 a946b4c8cf aa76b6dc40 ab0adba5b5 ab7034e588 acff1690a0 ad096c2a81 ae334d10ac aeabf11b32 af404238e5 b52981da60 b62215a7c0 b6e812c56f b7ed62a2e2 b8c5a1f3be b8ee40893a b9c3e92dbf b9fb10cc71 ba01597087 bc5afc605f bcc5539e32 bf21092399 bf9f1efd29 bfba6fb8d4 c00b7d0309 c0e563ee8b c2e3b513dd c303af90d7 c32bee984f c334c63537 c353ab3a2c c595b4524b c769392f2a cc8b306b48 cd0cf7894e cde8d052ac ce6399a0c4 d2e5bfc902 d3bdcafe30 d4265546d6 d5e202914a d6ab114337 d756c19387 d8ad4c37b3 d8cd8547e4 da1d44a735 da339e7b21 dcfb755a01 de3a280f14 e201cfa28a e512a4e784 e5dc9fc598 e6707fd2ab e7fb749bd4 ea9f1b856d ebc0f2ef87 ed6b880d9a ee83a0356f f1aecaaed3 f1dc276df1 f25a05b8e8 f2b18f9f08 f499897c22 f4c414438a f72470c125 f9310f210d facc898f16 fb22537b1e fbd7893df1 fbf40f7594 ff001b0cfe ff805cdaa8 ffb6fef677",
+  "every": "003b12912c 02ef9160e0 0337262ef5 0367401e7f 046437376b 048751419a 051d29fab1 05dab9301d 05de1089bd 083965fe13 09af300d8f 09fa808fb1 0a8dde2469 0ab5db610e 0d0279c6cd 1020067bdb 10e4d6d69f 14747ec0a6 1524aa4960 16cc85076d 1782c8d460 17b96546cb 1aa3c13db2 1b8a0b6b10 1befa8bfa4 1d637b911b 1d9aee4d3d 1e2c13049c 2044888223 21c49dad36 2500142ee7 25ce83f5df 25e2a01bd1 260445673f 26dd4d9d01 27dfc48b49 281c3bf041 29f7b3de42 2ca4c30a14 2eb0e2b465 2ec3b302a2 30f158d20d 311cf346d7 381df69703 382d92f8b9 39ca64c6f2 39cbe9e06d 39f94f2226 3b8f1720a9 3caef86881 3d42ef7305 3db7645b65 3ef44e3a65 4000bfedb1 402c3203fa 40ec0e066a 4122288f3a 417b2bf77b 42be71a3e6 44ea252d89 44f87df72f 4508124c24 467e99c9c2 47280ce10d 49b6c3845c 4a332288c5 4a7dec1ba3 4c01278dd4 4c379408ed 4dd0406964 4f9b42aebe 5008ce5ce5 50ac6fc762 5214bcc2df 52311a13fb 5243556f8f 54e0e6b54a 55407bfe42 563036f99a 575cf83b88 5780029473 5a8bfb49bd 5bef0cefc0 5c692bc62f 5cdbc52ac5 5cebc1bcb0 5e25b6e0a9 5e9e634a30 5eb995428b 5fa707643a 61edf7095e 626fa44ff8 63f0b86042 656b486fda 6816225e04 694f7fd80d 69ef7b476f 6a8d1542e3 6aa2d32658 6b6081c211 6c37bf3bbb 6e12a77be0 6f2f5b4ddf 7184848634 718ef610c4 71c01fe7b0 71d5e7c29a 74100925e5 754ab8fd54 786dedb483 7a1e0dccd5 7a53f47f4e 7c1ddd4083 7c73c6ae62 7e87b0387b 7ecbc7f8cb 7f4fc89d6b 7f6f7871de 8057a9a7f9 80ba181f38 82cb539ee2 83947badfb 83bb01b863 83cc3fa4df 83fe18b39d 85d4d4ec10 86a9a6f1db 8701c5f809 87219904ce 87484dd3ca 89763e3550 89b584ee72 8a1652e59f 8b5004af39 8d4e98c420 8db29e75a6 8e1c3aa267 8ffa447dc3 91c523cbe4 928b2942f0 93d7c571ca 94aa556bdf 96b41211b0 9800bee6b8 9811169dec 9812546add 9aaddf4154 9acb7b8153 9b31b5d151 9b753950e1 9d6872adc9 9d8585d50e 9ddeeb5289 9efb160f49 9f9abab40b 9fef9fd50f a10fd90fa8 a27aace154 a2f1e8ea80 a398266b34 a4a51fb92e a5eaca80c1 a619d666c5 a781b39407 a7e0edef7c a8880e3f46 a946b4c8cf aa76b6dc40 ab0adba5b5 ab7034e588 acff1690a0 ad096c2a81 ae334d10ac aeabf11b32 af404238e5 b52981da60 b62215a7c0 b6e812c56f b7ed62a2e2 b8c5a1f3be b8ee40893a b9c3e92dbf b9fb10cc71 ba01597087 bc5afc605f bcc5539e32 bf21092399 bfba6fb8d4 c00b7d0309 c0e563ee8b c2e3b513dd c303af90d7 c32bee984f c334c63537 c353ab3a2c c4ec549ee0 c595b4524b c769392f2a c879b2fcfe cc8b306b48 cd0cf7894e cde8d052ac ce6399a0c4 d2e5bfc902 d3bdcafe30 d4265546d6 d6ab114337 d756c19387 d8ad4c37b3 d8cd8547e4 da1d44a735 da339e7b21 dcfb755a01 de3a280f14 e201cfa28a e512a4e784 e5dc9fc598 e6707fd2ab e7fb749bd4 ea9f1b856d ebc0f2ef87 ed6b880d9a ee83a0356f f1aecaaed3 f1dc276df1 f25a05b8e8 f2b18f9f08 f499897c22 f4c414438a f72470c125 f9310f210d facc898f16 fb22537b1e fbd7893df1 fbf40f7594 ff001b0cfe ff805cdaa8 ffb6fef677",
   "refreshed": {
-   "from": "2026-10-31",
+   "from": "2026-11-04",
    "survivors_rerun": 0,
-   "fresh": 6,
+   "fresh": 9,
    "stale": []
   }
  }

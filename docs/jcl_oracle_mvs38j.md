@@ -27,6 +27,7 @@ tests/tools/box/mvs38j/mvs38j.sh sysgen smp1 [--tape VOLSER=FILE ...]   # starte
 tests/tools/box/mvs38j/mvs38j.sh sysgen starter   # START1 + SPOOL0: DASDI then DUMP/RESTORE per volume, driven over the console (~11 s)
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
 tests/tools/box/mvs38j/mvs38j.sh start     # needs $MVS38J_WORK/conf/mvs.conf (the generated system)
+tests/tools/box/mvs38j/mvs38j.sh run DECK  # submit a deck, wait for the job, print the parsed JES2 log as JSON
 tests/tools/box/mvs38j/mvs38j.sh stop
 ```
 
@@ -62,13 +63,27 @@ tape file from `--tape VOLSER=FILE`), stops on `IEA...E` / `IEC...E` / ABEND, an
 first 1403 printer file of the config (any step not executed or over CC 4 fails the stage). Message ids and the job list are
 from Moseley's guide as remembered, not yet read off a live run: the first live run may need the patterns adjusted.
 
+## Job runner
+
+`tests/tools/box/mvs38j/runner.py` (stdlib, host side; **fixture-tested only, not yet run against a live 3.8J log**) is
+reached through `mvs38j.sh run DECK [--timeout S] [--host H] [--port P] [--printer FILE]`. It needs a started box
+(`mvs38j.sh start`). The deck's first card must be `//NAME JOB ...`; each line is padded to an 80-column card image and sent
+to the socket reader on 127.0.0.1:3505, and the connection closing ends the deck. `--printer` defaults to the first 1403
+printer of `$MVS38J_WORK/conf/mvs.conf`. The runner waits for `$HASP395 NAME ENDED` (or `IEF452I` JCL error), then prints JSON
+with provenance `mvs38j-run`, per job: steps (`IEF142I` executed with its completion code; `IEF272I` / `IEF202I` not
+executed), dataset dispositions (`IEF285I`), abends (`IEF450I`), the JCL-error flag and the SYSOUT line count. A message
+it does not know is counted in `unparsed_ief`, never guessed. `runner.py parse PRINTER_FILE [JOB]` parses a captured
+printer file without a box. Exit 1 on a timeout or a deck without a JOB card; 2 on a missing deck or usage error.
+Results are internal only (Q16).
+
 ### Remaining slices (#8414)
 
 1. First live run of `sysgen smp1` / `smp2` on nyx: confirm the console message patterns, the `--tape` volsers each SMP job
    asks for, whether smp2 uses the same job list, and the CC bound.
 2. Stage 1 and stage 2 (`sysgen01` output to `stage1.output`, `stage2.rexx`/`awk` port or call, the socket reader on 3505),
    then the user mods and `mvs.cnf` first IPL of the generated system.
-3. Job runner: submit a deck to `localhost:3505`, capture the printer file, parse to JSON with provenance `mvs38j-run`.
+3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the
+   runner's message patterns against a live log; merge `sysgen.step_results` onto `runner.parse_log`.
 
 ## What this tier cannot test
 

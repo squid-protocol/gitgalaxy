@@ -1,5 +1,6 @@
 """MVS 3.8J oracle box (#8414): the script's pins and refusals; nothing here builds, downloads or needs docker."""
 
+import os
 import re
 import subprocess
 import sys
@@ -269,3 +270,34 @@ def test_the_console_port_is_published_on_loopback_only():
     h = sysgen.Hercules("/w", "conf/x.cnf", "img", "n", console_port=3270)
     assert h.console_port == 3270
     assert 'f"127.0.0.1:{self.console_port}:3270"' in (BOX / "sysgen.py").read_text()
+
+
+def test_run_without_a_deck_is_a_usage_error():
+    assert _run("run").returncode == 2
+
+
+def test_run_with_a_missing_deck_is_refused(tmp_path):
+    r = _run("run", str(tmp_path / "nope.jcl"))
+    assert r.returncode == 1
+    assert "no deck" in r.stderr
+
+
+def test_run_without_a_generated_system_names_the_conf(tmp_path):
+    deck = tmp_path / "d.jcl"
+    deck.write_text("//J JOB\n")
+    env = {**os.environ, "MVS38J_WORK": str(tmp_path)}
+    r = subprocess.run(["bash", str(SCRIPT), "run", str(deck)], capture_output=True, text=True, timeout=30, env=env)  # noqa: S603, S607
+    assert r.returncode == 1
+    assert "conf/mvs.conf" in r.stderr
+
+
+def test_run_takes_the_printer_from_the_first_1403_in_the_conf(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "mvs.conf").write_text("00c 3505 sockdev ebcdic\n00e 1403 prt/prt00e.txt crlf\n")
+    deck = tmp_path / "d.jcl"
+    deck.write_text("not a job card\n")
+    env = {**os.environ, "MVS38J_WORK": str(tmp_path)}
+    r = subprocess.run(["bash", str(SCRIPT), "run", str(deck)], capture_output=True, text=True, timeout=30, env=env)  # noqa: S603, S607
+    # the runner is reached (it refuses a deck with no JCL card) and never touched a socket
+    assert r.returncode != 0
+    assert "does not start with a JCL card" in r.stderr or "first card" in r.stderr

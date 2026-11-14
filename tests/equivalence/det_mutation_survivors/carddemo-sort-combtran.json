@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -131,12 +132,12 @@
    "reason": "f3_O_REC is populated via putRaw which copies the record directly; declared field length does not affect putRaw or sequential file write."
   },
   {
-   "id": "c76b484361",
+   "id": "3078f8613b",
    "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 71,
    "before": "private final Field f11_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f11_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "after": "private final Field f11_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -151,22 +152,12 @@
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
   {
-   "id": "3078f8613b",
+   "id": "c76b484361",
    "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 71,
    "before": "private final Field f11_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-   "after": "private final Field f11_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
-   "verdict": "unreachable",
-   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
-  },
-  {
-   "id": "7144b20334",
-   "op": "CON",
-   "file": "service/DfsortstService.java",
-   "line": 72,
-   "before": "private final Field f12_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
-   "after": "private final Field f12_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "after": "private final Field f11_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -191,12 +182,12 @@
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
   {
-   "id": "62e86ac560",
+   "id": "7144b20334",
    "op": "CON",
    "file": "service/DfsortstService.java",
-   "line": 73,
-   "before": "private final Field f13_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
-   "after": "private final Field f13_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "line": 72,
+   "before": "private final Field f12_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f12_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -211,12 +202,12 @@
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
   {
-   "id": "65fad321a8",
+   "id": "62e86ac560",
    "op": "CON",
    "file": "service/DfsortstService.java",
-   "line": 74,
-   "before": "private final Field f14_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-   "after": "private final Field f14_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "line": 73,
+   "before": "private final Field f13_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f13_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -227,6 +218,16 @@
    "line": 74,
    "before": "private final Field f14_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
    "after": "private final Field f14_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "unreachable",
+   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
+  },
+  {
+   "id": "65fad321a8",
+   "op": "CON",
+   "file": "service/DfsortstService.java",
+   "line": 74,
+   "before": "private final Field f14_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f14_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -271,22 +272,22 @@
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
   {
-   "id": "b7eec0e7d3",
-   "op": "CON",
-   "file": "service/DfsortstService.java",
-   "line": 76,
-   "before": "private final Field f18_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f18_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
-   "verdict": "unreachable",
-   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
-  },
-  {
    "id": "877c3173ca",
    "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 76,
    "before": "private final Field f18_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f18_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "unreachable",
+   "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
+  },
+  {
+   "id": "b7eec0e7d3",
+   "op": "CON",
+   "file": "service/DfsortstService.java",
+   "line": 76,
+   "before": "private final Field f18_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f18_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
    "verdict": "unreachable",
    "reason": "an EIB field accessor: a batch step has no EIB and the program names none of them."
   },
@@ -321,12 +322,12 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
-   "id": "efd501e488",
-   "op": "ROR",
+   "id": "7bfb8fab83",
+   "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 91,
    "before": "if (task.level() > 1) {",
-   "after": "if (task.level() <= 1) {",
+   "after": "if (task.level() > 2) {",
    "verdict": "unreachable",
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
@@ -341,12 +342,12 @@
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
   {
-   "id": "7bfb8fab83",
-   "op": "CON",
+   "id": "efd501e488",
+   "op": "ROR",
    "file": "service/DfsortstService.java",
    "line": 91,
    "before": "if (task.level() > 1) {",
-   "after": "if (task.level() > 2) {",
+   "after": "if (task.level() <= 1) {",
    "verdict": "unreachable",
    "reason": "abended() ends a CICS task by ABEND; a batch step issues no EXEC CICS, so nothing abends it."
   },
@@ -371,12 +372,36 @@
    "reason": "compiler annotation has no effect on runtime execution."
   },
   {
-   "id": "b30704d885",
-   "op": "NEG",
-   "file": "service/DfsortstService.java",
+   "id": "2279e1a78f",
+   "op": "COR",
    "line": 99,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the lowered DFSORT step: it serves EXEC CICS file commands and a batch sort step issues none, so the undefined-file guard on the CICS file store never runs (survivor_attack.py facts: no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "6b11188d6d",
+   "op": "NEG",
+   "line": 99,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the lowered DFSORT step: it serves EXEC CICS file commands and a batch sort step issues none, so the undefined-file guard on the CICS file store never runs (survivor_attack.py facts: no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "24e0c2159b",
+   "op": "LIT",
+   "file": "service/DfsortstService.java",
+   "line": 102,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; a batch step names no CICS file."
   },
@@ -391,14 +416,14 @@
    "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; a batch step names no CICS file."
   },
   {
-   "id": "24e0c2159b",
-   "op": "LIT",
+   "id": "7becdac4d4",
+   "op": "CON",
    "file": "service/DfsortstService.java",
-   "line": 102,
-   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "line": 106,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
    "verdict": "unreachable",
-   "reason": "the CICS file-store lookup (EXEC CICS file commands) and its paragraph-name table for HANDLE labels; a batch step names no CICS file."
+   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
   },
   {
    "id": "b4e92c75e7",
@@ -407,16 +432,6 @@
    "line": 106,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
-   "verdict": "unreachable",
-   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
-  },
-  {
-   "id": "7becdac4d4",
-   "op": "CON",
-   "file": "service/DfsortstService.java",
-   "line": 106,
-   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
-   "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
    "verdict": "unreachable",
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
   },
@@ -451,22 +466,22 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
   },
   {
-   "id": "6246a0d457",
-   "op": "NEG",
-   "file": "service/DfsortstService.java",
-   "line": 124,
-   "before": "if (h != null) {",
-   "after": "if (!(h != null)) {",
-   "verdict": "unreachable",
-   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
-  },
-  {
    "id": "321de0a848",
    "op": "ROR",
    "file": "service/DfsortstService.java",
    "line": 124,
    "before": "if (h != null) {",
    "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
+  },
+  {
+   "id": "6246a0d457",
+   "op": "NEG",
+   "file": "service/DfsortstService.java",
+   "line": 124,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
    "verdict": "unreachable",
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
   },
@@ -521,22 +536,22 @@
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
   },
   {
-   "id": "6566823eae",
-   "op": "NEG",
-   "file": "service/DfsortstService.java",
-   "line": 135,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "unreachable",
-   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
-  },
-  {
    "id": "1fc494b438",
    "op": "ROR",
    "file": "service/DfsortstService.java",
    "line": 135,
    "before": "if (label == null) {",
    "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
+  },
+  {
+   "id": "6566823eae",
+   "op": "NEG",
+   "file": "service/DfsortstService.java",
+   "line": 135,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
    "verdict": "unreachable",
    "reason": "HANDLE CONDITION / label dispatch for EXEC CICS; the program has none, so condition() and paragraph() are dead."
   },
@@ -651,22 +666,22 @@
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
   },
   {
-   "id": "c0bb7dc405",
-   "op": "DEL",
-   "file": "service/DfsortstService.java",
-   "line": 177,
-   "before": "performDepth = 0;",
-   "after": "/* performDepth = 0; */",
-   "verdict": "unreachable",
-   "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
-  },
-  {
    "id": "2ca9d1de95",
    "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 177,
    "before": "performDepth = 0;",
    "after": "performDepth = 1;",
+   "verdict": "unreachable",
+   "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
+  },
+  {
+   "id": "c0bb7dc405",
+   "op": "DEL",
+   "file": "service/DfsortstService.java",
+   "line": 177,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
    "verdict": "unreachable",
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
   },
@@ -681,22 +696,22 @@
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
   },
   {
-   "id": "fa6ae3abbe",
-   "op": "CON",
-   "file": "service/DfsortstService.java",
-   "line": 179,
-   "before": "perform(0, 0);",
-   "after": "perform(1, 0);",
-   "verdict": "unreachable",
-   "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
-  },
-  {
    "id": "84f8275392",
    "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 179,
    "before": "perform(0, 0);",
    "after": "perform(0, 1);",
+   "verdict": "unreachable",
+   "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
+  },
+  {
+   "id": "fa6ae3abbe",
+   "op": "CON",
+   "file": "service/DfsortstService.java",
+   "line": 179,
+   "before": "perform(0, 0);",
+   "after": "perform(1, 0);",
    "verdict": "unreachable",
    "reason": "runProgram is the standalone entry; a batch case calls runBatch only (det_mutation SCOPE leaves runTask and runProgram in for compile coverage)."
   },
@@ -791,16 +806,6 @@
    "reason": "suppresses the stack trace of an exception used as control flow; nothing shows it."
   },
   {
-   "id": "fc0bd1a39b",
-   "op": "DEL",
-   "file": "service/DfsortstService.java",
-   "line": 295,
-   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
-  },
-  {
    "id": "27ed76ca5b",
    "op": "AOR",
    "file": "service/DfsortstService.java",
@@ -821,6 +826,16 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
+   "id": "fc0bd1a39b",
+   "op": "DEL",
+   "file": "service/DfsortstService.java",
+   "line": 295,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
+  },
+  {
    "id": "eaa44bd6f6",
    "op": "AOR",
    "file": "service/DfsortstService.java",
@@ -831,22 +846,22 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
-   "id": "b618f4ab05",
-   "op": "ROR",
-   "file": "service/DfsortstService.java",
-   "line": 302,
-   "before": "boolean jumped = (next & GOTO) != 0;",
-   "after": "boolean jumped = (next & GOTO) == 0;",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
-  },
-  {
    "id": "ad05057d2f",
    "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 302,
    "before": "boolean jumped = (next & GOTO) != 0;",
    "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
+  },
+  {
+   "id": "b618f4ab05",
+   "op": "ROR",
+   "file": "service/DfsortstService.java",
+   "line": 302,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
@@ -891,52 +906,12 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
-   "id": "7f5cbaa3ac",
-   "op": "AOR",
-   "file": "service/DfsortstService.java",
-   "line": 308,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
-  },
-  {
-   "id": "674344ca89",
-   "op": "CON",
-   "file": "service/DfsortstService.java",
-   "line": 308,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
-  },
-  {
    "id": "27f5b81778",
    "op": "ROR",
    "file": "service/DfsortstService.java",
    "line": 308,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
-  },
-  {
-   "id": "5f621546d5",
-   "op": "ROR",
-   "file": "service/DfsortstService.java",
-   "line": 308,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
-  },
-  {
-   "id": "f8dc8f4b2d",
-   "op": "CON",
-   "file": "service/DfsortstService.java",
-   "line": 308,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 1; d--) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
@@ -951,12 +926,42 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
-   "id": "c2d393ac4b",
-   "op": "NEG",
+   "id": "5f621546d5",
+   "op": "ROR",
    "file": "service/DfsortstService.java",
-   "line": 309,
-   "before": "if (performThru[d] == i) {",
-   "after": "if (!(performThru[d] == i)) {",
+   "line": 308,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
+  },
+  {
+   "id": "674344ca89",
+   "op": "CON",
+   "file": "service/DfsortstService.java",
+   "line": 308,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
+  },
+  {
+   "id": "7f5cbaa3ac",
+   "op": "AOR",
+   "file": "service/DfsortstService.java",
+   "line": 308,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
+  },
+  {
+   "id": "f8dc8f4b2d",
+   "op": "CON",
+   "file": "service/DfsortstService.java",
+   "line": 308,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
@@ -971,22 +976,22 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
-   "id": "f62d31ff4d",
+   "id": "c2d393ac4b",
    "op": "NEG",
    "file": "service/DfsortstService.java",
-   "line": 314,
-   "before": "if (next >= 1) {",
-   "after": "if (!(next >= 1)) {",
+   "line": 309,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
-   "id": "9d7497129c",
-   "op": "ROR",
+   "id": "08c9035b33",
+   "op": "CON",
    "file": "service/DfsortstService.java",
    "line": 314,
    "before": "if (next >= 1) {",
-   "after": "if (next < 1) {",
+   "after": "if (next >= 2) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
@@ -1001,12 +1006,22 @@
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
   {
-   "id": "08c9035b33",
-   "op": "CON",
+   "id": "9d7497129c",
+   "op": "ROR",
    "file": "service/DfsortstService.java",
    "line": 314,
    "before": "if (next >= 1) {",
-   "after": "if (next >= 2) {",
+   "after": "if (next < 1) {",
+   "verdict": "unreachable",
+   "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
+  },
+  {
+   "id": "f62d31ff4d",
+   "op": "NEG",
+   "file": "service/DfsortstService.java",
+   "line": 314,
+   "before": "if (next >= 1) {",
+   "after": "if (!(next >= 1)) {",
    "verdict": "unreachable",
    "reason": "PERFORM-stack bookkeeping for a paragraph that falls through to an outer PERFORM's end or a GO TO (outer loop exit); this step has no GO TO and only one paragraph, which ends in GOBACK."
   },
@@ -1061,14 +1076,14 @@
    "reason": "paragraph dispatch for out-of-range paragraph numbers; only paragraph 0 exists."
   },
   {
-   "id": "c7c9748039",
+   "id": "193ca94627",
    "op": "LIT",
    "file": "service/DfsortstService.java",
    "line": 338,
    "before": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
-   "after": "sort_S_FILE = new Sort(\"X-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
+   "after": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"XB\", CS),",
    "verdict": "unreachable",
-   "reason": "the SD file's name appears only in a refusal message (equal keys, mixed lengths, a collation disagreement); the case produces none."
+   "reason": "the alphabet's name appears only in a refusal message (a comparison the two collations decide differently); the case's keys agree under both collations."
   },
   {
    "id": "bd2e4ac1e8",
@@ -1081,14 +1096,14 @@
    "reason": "the sort's record width only sizes the stored copy of each record (one byte more is read past the SD record buffer into unreferenced space)."
   },
   {
-   "id": "193ca94627",
+   "id": "c7c9748039",
    "op": "LIT",
    "file": "service/DfsortstService.java",
    "line": 338,
    "before": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
-   "after": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"XB\", CS),",
+   "after": "sort_S_FILE = new Sort(\"X-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
    "verdict": "unreachable",
-   "reason": "the alphabet's name appears only in a refusal message (a comparison the two collations decide differently); the case's keys agree under both collations."
+   "reason": "the SD file's name appears only in a refusal message (equal keys, mixed lengths, a collation disagreement); the case produces none."
   },
   {
    "id": "a73c67716b",

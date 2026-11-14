@@ -353,7 +353,7 @@ docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/g
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
 docs/language_status/det_survey.md	tests/tools/test_progress_report.py
 docs/language_status/estate4_burned_basenames.json	tests/tools/estate4_draw.py
-docs/language_status/estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/progress_report.py
+docs/language_status/estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/estate_journey.py,tests/tools/progress_report.py
 docs/language_status/estate4_candidates.md	tests/tools/estate4_draw.py
 docs/language_status/estate4_candidates_requests.json	tests/cobol_mainframe,tests/tools/estate4_draw.py
 docs/language_status/estate4_devdata_repos.json	tests/tools/estate4_draw.py
@@ -480,7 +480,7 @@ does_not_exist.md	tests/core_engine
 doom-port-study.md	tests/tools/doom_speedrun
 est/report.md	tests/tools/test_generated_readers.py
 estate4_burned_basenames.json	tests/tools/estate4_draw.py
-estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/progress_report.py
+estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/estate_journey.py,tests/tools/progress_report.py
 estate4_candidates.md	tests/tools/estate4_draw.py
 estate4_candidates_requests.json	tests/cobol_mainframe,tests/tools/estate4_draw.py
 estate4_dbb_mortgage.md	tests/tools/test_status_page_snapshots.py

@@ -97,7 +97,7 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
                 }
             )
         elif op == "DD" and steps:
-            keyed = dict(kv for kv in _split(field) if kv[0])
+            keyed = {k: v for k, v in _split(field) if k}
             ddname = name
             target = steps[-1]
             if "." in ddname:
@@ -111,7 +111,7 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
             for _l, ddn, iop, ifield in inc_body:
                 if iop != "DD":
                     raise JclProcRefused("INCLUDE of anything but DD statements is not answered")
-                steps[-1]["dd"].append((ddn.upper(), dict(kv for kv in _split(ifield) if kv[0])))
+                steps[-1]["dd"].append((ddn.upper(), {k: v for k, v in _split(ifield) if k}))
     return steps
 
 

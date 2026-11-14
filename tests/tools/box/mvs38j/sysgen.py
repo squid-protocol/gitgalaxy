@@ -168,6 +168,10 @@ SMP_TARGET_UNITS = ("148", "149", "14A")  # SMP000 / WORK00 / WORK01 (smp4p44.jc
 # Steps of the smp2 decks that end above CC 0 on a fresh build, read from their SMP SYSPRINT (live 2026-11-14).
 # Key (JOB, STEP) -> (expected CC, reason). Any other step must end CC 4 or less; a listed step must end at exactly its CC.
 SMP2_EXPECTED = {
+    ("SMPJOB00", "IEHPROGM"): (
+        8,
+        "SCRATCH of the 53 SYS1.A* dataset names a fresh SMP000 never held: IEH207I DATA SET OR MEMBER NOT FOUND, UNUSUAL END",
+    ),
     ("SMPJOB00", "DLBUCL"): (
         8,
         "UCLIN PTS: DEL SYS removes a system entry a freshly scratched PTS never had (HMA2532)",
@@ -345,7 +349,8 @@ def smp_failed_steps(results, expected):
     """Steps not executed, or over CC 4 unless `expected` ({(job, step): (cc, reason)}) lists them; a listed step must match."""
     out = []
     for r in results:
-        want = expected.get((r["job"], r["step"]))
+        # a PROC step logs as `JOB STEP PROCSTEP` (SMPJOB00 `SMP DLBUCL`): a listed key may name either (live 2026-11-14)
+        want = expected.get((r["job"], r["step"])) or expected.get((r["job"], r.get("procstep")))
         if not r["executed"]:
             out.append(r)
         elif want is not None:

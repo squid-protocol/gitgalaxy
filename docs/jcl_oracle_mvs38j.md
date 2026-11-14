@@ -74,8 +74,9 @@ written during the stage (the file is `noclear`, so it accumulates across runs; 
 any `IEHnnnI ... TERMINATED`. Traps: repeated smp1 runs fill `START1` (`E37` on `SYS1.LINKLIB`): recreate the starter DASD
 and rerun `sysgen starter` first. smp2 ran live through `$HASP395 ENDED` for every job (2026-11-14); `SMPJOB00` `DLBUCL`
 ended CC 8 on every run: its `UCLIN PTS` / `DEL SYS .` deletes a system entry that a just-scratched PTS never has (`HMA2532`,
-`HMASMP` RC 08), by design of the deck. `sysgen.SMP2_EXPECTED` lists the four steps allowed above CC 0 with a reason each
-(`SMPJOB00` `DLBUCL` 8; `SMPJOB03` `DLBUCL4`, `SMPJOB05`, `SMPJOB06` 4: link-edit warnings and a REJECT of sysmods never
+`HMASMP` RC 08), by design of the deck. `sysgen.SMP2_EXPECTED` lists the five steps allowed above CC 0 with a reason each
+(`SMPJOB00` `IEHPROGM` 8, found on the 2026-11-14 fresh-volume run: `SCRATCH` of 53 `SYS1.A*` names a fresh SMP000 never held,
+`IEH207I` DATA SET OR MEMBER NOT FOUND; `SMPJOB00` `DLBUCL` 8; `SMPJOB03` `DLBUCL4`, `SMPJOB05`, `SMPJOB06` 4: link-edit warnings and a REJECT of sysmods never
 applied); every other smp2 step must end CC 4 or less, and a listed step must match exactly.
 
 ## Job runner
@@ -93,8 +94,7 @@ Results are internal only (Q16).
 
 ### Remaining slices (#8414)
 
-1. Run `sysgen smp2` end to end with the expected codes (not re-run live after this change; the 2026-11-14 printer file
-   shows every step inside the bound); the Hercules restart between smp1 and smp2.
+1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Stage 1 and stage 2 (`sysgen01` output to `stage1.output`, `stage2.rexx`/`awk` port or call, the socket reader on 3505),
    then the user mods and `mvs.cnf` first IPL of the generated system.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the

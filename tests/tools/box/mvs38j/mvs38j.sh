@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# mvs38j.sh <image|tapes|sysgen|start|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
+# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen|start|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
 # Internal use only until counsel answers Q16. Never z/OS; never TK4-/TK5: the system is built from IBM's
 # distribution tapes (Jay Moseley's sysgen). Nothing here is committed or run in CI; the work dir holds the
 # system image and stays outside the repo. Heavy steps take a slot:  tests/tools/box/heavy-run.sh mvs38j.sh image
@@ -16,7 +16,7 @@ TAPES=(
   "mvsInstallationResources.tar.gz 129898e0f0881078448358553bc6b4c1"
 )
 usage() { sed -n '2,6p' "$0" >&2; exit 2; }
-[ $# -eq 1 ] || usage
+[ $# -ge 1 ] || usage
 case "$1" in
   image)
     docker build -t "$IMAGE" "$HERE" ;;
@@ -29,6 +29,23 @@ case "$1" in
       echo "$md5  $d/$f" | md5sum -c - || { rm -f "$d/$f"; exit 1; }
       [ -d "$d/x" ] || { mkdir "$d/x"; tar -xzf "$d/$f" -C "$d/x"; }
     done ;;
+  stage)
+    # lay the three unpacked archives out the way Jay Moseley's configs expect (conf/ jcl/ tape/ sajobs/ dasd/, paths
+    # relative to $WORK). Idempotent; the tapes are copied, never moved, so `tapes` stays the verified source.
+    R="$WORK/dl/mvsInstallationResources/x"
+    [ -d "$R" ] && [ -d "$WORK/dl/vs2StarterTapes/x" ] && [ -d "$WORK/dl/vs2DistributionTapes/x" ] \
+      || { echo "run '$0 tapes' first" >&2; exit 1; }
+    mkdir -p "$WORK/dasd" "$WORK/tape"
+    cp -a "$R/conf" "$R/jcl" "$R/sajobs" "$R/create.dasd.sh" "$R/submit.sh" "$R/stage2.rexx" "$R/stage2.awk" "$R/condcode.rexx" "$WORK/"
+    cp -a "$R"/tape/*.het "$WORK/dl/vs2StarterTapes/x/tape/"*.het "$WORK/dl/vs2DistributionTapes/x/tape/"*.het "$WORK/tape/"
+    echo "staged into $WORK" ;;
+  dasd)
+    # create one stage's empty DASD volumes with the image's dasdinit, answering "n" to the compression prompt
+    [ $# -eq 2 ] || { echo "usage: $0 dasd starter|dlibs|sysgen|user" >&2; exit 2; }
+    case "$2" in starter | dlibs | sysgen | user) ;; *) echo "unknown stage: $2" >&2; exit 2 ;; esac
+    [ -f "$WORK/create.dasd.sh" ] || { echo "run '$0 stage' first" >&2; exit 1; }
+    echo n | docker run --rm -i --name "${NAME}-dasd" --user "$(id -u):$(id -g)" -v "$WORK:/mvs" -w /mvs \
+      --entrypoint sh "$IMAGE" ./create.dasd.sh "$2" ;;
   sysgen)
     # Jay Moseley's sysgen is a staged console procedure (starter system -> stage 1 -> stage 2 -> user mods).
     # Driving it unattended is not done yet (see docs/jcl_oracle_mvs38j.md "Remaining slices").

@@ -21,6 +21,8 @@ The md5s are the ones Jay Moseley publishes in "Installing MVS 3.8j - Gathering 
 ```bash
 tests/tools/box/heavy-run.sh tests/tools/box/mvs38j/mvs38j.sh image   # build the Hyperion image (~25 s warm)
 tests/tools/box/mvs38j/mvs38j.sh tapes     # fetch + verify + unpack the three archives into $MVS38J_WORK/dl/
+tests/tools/box/mvs38j/mvs38j.sh stage     # lay conf/ jcl/ tape/ sajobs/ and the helper scripts out under $MVS38J_WORK
+tests/tools/box/mvs38j/mvs38j.sh dasd starter   # empty DASD volumes of one stage (starter | dlibs | sysgen | user), via dasdinit in the image
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
 tests/tools/box/mvs38j/mvs38j.sh start     # needs $MVS38J_WORK/conf/mvs.conf (the generated system)
 tests/tools/box/mvs38j/mvs38j.sh stop
@@ -30,7 +32,10 @@ tests/tools/box/mvs38j/mvs38j.sh stop
 committed. `start` binds the card-reader socket (3505) and the console (3270) to 127.0.0.1 only. Scratch containers are
 named `churn-<issue>-<n>` (`MVS38J_NAME`).
 
-## System generation (not automated yet)
+## System generation (staging automated, the console procedure not yet)
+
+`stage` and `dasd` are verified (2026-11-13): all four stages' volumes create in about 4 GB of sparse files, answering "n" to
+`create.dasd.sh`'s compression prompt. Moseley's configs use paths relative to `$MVS38J_WORK`, which `stage` reproduces.
 
 Jay Moseley's sysgen is staged: starter system IPL, stage 1 (`jcl/`), stage 2 (`stage2.rexx`, `stage2.awk`), then user
 mods. The resources archive ships `create.dasd.sh`, `submit.sh`, `condcode.rexx` and `conf/` for it. `mvs38j.sh sysgen`

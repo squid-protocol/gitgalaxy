@@ -50,3 +50,16 @@ def test_the_box_never_names_a_turnkey_or_zos_image():
 
 def test_the_hyperion_tag_is_pinned():
     assert re.search(r"ARG HYPERION_TAG=Release_\d+\.\d+", (BOX / "Dockerfile").read_text())
+
+
+def test_dasd_refuses_an_unknown_stage_and_a_missing_one():
+    assert _run("dasd", "bogus").returncode == 2
+    assert _run("dasd").returncode == 2
+
+
+def test_dasd_and_stage_refuse_an_unstaged_work_dir(tmp_path):
+    env = {"MVS38J_WORK": str(tmp_path), "PATH": "/usr/bin:/bin"}
+    for args in (("dasd", "starter"), ("stage",)):
+        r = subprocess.run(["bash", str(SCRIPT), *args], capture_output=True, text=True, timeout=30, env=env)  # noqa: S603, S607
+        assert r.returncode == 1
+        assert "first" in r.stderr

@@ -2,7 +2,8 @@
 
 Internal use only until counsel answers Q16. Stdlib only. The SMP stages of Jay Moseley's sysgen (smp1.cnf, smp2.cnf)
 run on the telnet 3215 at 001F, not on the integrated 1052-C `/` console `sysgen.py` uses for the stand-alone programs.
-The client answers option negotiation by refusing everything except suppress-go-ahead, binary and echo, strips IAC
+The client answers option negotiation by refusing everything except suppress-go-ahead, binary, echo and terminal-type (it
+identifies as ANSI: Hercules attaches the 3215 only after that), strips IAC
 sequences from the received stream, and collects text on a thread so `wait` can match console messages.
 """
 
@@ -12,7 +13,10 @@ import threading
 import time
 
 IAC, DONT, DO, WONT, WILL, SB, SE = 255, 254, 253, 252, 251, 250, 240
-ACCEPT = {0, 1, 3}  # binary, echo, suppress-go-ahead
+TERMINAL_TYPE = 24
+ACCEPT = {0, 1, 3, TERMINAL_TYPE}  # binary, echo, suppress-go-ahead, terminal-type
+# Hercules asks DO TERMINAL-TYPE and attaches no console until the client answers SB IS "ANSI" (verified live, SDL 4.9.1).
+TERMINAL_NAME = b"ANSI"
 
 
 class ConsoleError(RuntimeError):
@@ -48,6 +52,8 @@ def strip_telnet(data, state):
             end = buf.find(bytes([IAC, SE]), i + 2)
             if end < 0:
                 break
+            if buf[i + 2 : i + 4] == bytes([TERMINAL_TYPE, 1]):  # SB TERMINAL-TYPE SEND
+                replies += bytes([IAC, SB, TERMINAL_TYPE, 0]) + TERMINAL_NAME + bytes([IAC, SE])
             i = end + 2
         else:
             i += 2

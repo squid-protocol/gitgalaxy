@@ -169,14 +169,15 @@ def test_strip_telnet_answers_negotiation_and_keeps_text_across_chunks():
     st = {}
     text, rep = console.strip_telnet(bytes([IAC, DO, 24, IAC, WILL, 1, IAC, DO, 3]) + b"HELLO", st)
     assert text == b"HELLO"
-    assert rep == bytes([IAC, WONT, 24, IAC, console.DO, 1, IAC, WILL, 3])
+    assert rep == bytes([IAC, WILL, 24, IAC, console.DO, 1, IAC, WILL, 3])
     # a sequence split over two reads, an escaped 255 and a subnegotiation
     t1, r1 = console.strip_telnet(b"a" + bytes([IAC]), st)
     t2, r2 = console.strip_telnet(
         bytes([DO, 99]) + b"b" + bytes([IAC, IAC]) + bytes([IAC, 250, 24, 1, IAC, 240]) + b"c", st
     )
     assert (t1, r1) == (b"a", b"")
-    assert (t2, r2) == (b"b\xffc", bytes([IAC, WONT, 99]))
+    ans = bytes([IAC, 250, 24, 0]) + b"ANSI" + bytes([IAC, 240])  # SB TERMINAL-TYPE SEND is answered IS ANSI
+    assert (t2, r2) == (b"b\xffc", bytes([IAC, WONT, 99]) + ans)
 
 
 def _serve(script):
@@ -214,7 +215,7 @@ def test_console_waits_on_a_prompt_with_no_newline_and_sends_crlf_lines():
         assert "IEA101A" in con.wait(r"IEA101A", 5)  # the prompt has no trailing newline
         con.send("r 0,clpa")
         assert "HASP426" in con.wait(r"\$HASP426", 5)
-        assert b"".join(got).startswith(bytes([IAC, WONT, 24]))
+        assert b"".join(got).startswith(bytes([IAC, WILL, 24]))
         assert b"r 0,clpa\r\n" in b"".join(got)
     finally:
         con.close()

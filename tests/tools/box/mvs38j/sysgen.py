@@ -166,8 +166,11 @@ def printer_file(work, conf):
 
 
 def smp_jobs(work, stage):
-    """The stage's job decks in order (jcl/smpjobNN.jcl). Which jobs belong to smp1 and which to smp2 is unconfirmed: every deck runs for either stage."""
-    jobs = sorted(Path(work, "jcl").glob("smpjob*.jcl"))
+    """The stage's job decks in order, from Moseley's configs (verified live 2026-11-14): smp1 runs `smp4p44.jcl` alone (it
+    builds SMP 4.44 and needs an IPL after), smp2 (reader preloaded with `smpmount.jcl`) runs `smpjob00..07`."""
+    jcl = Path(work, "jcl")
+    jobs = [jcl / "smp4p44.jcl"] if stage == "smp1" else sorted(jcl.glob("smpjob*.jcl"))
+    jobs = [j for j in jobs if j.is_file()]
     if not jobs:
         raise SysgenError(f"{work}/jcl/smpjob*.jcl missing: run mvs38j.sh stage first")
     return jobs
@@ -194,6 +197,7 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         raise SysgenError(f"{work}/{conf} missing: run mvs38j.sh stage first")
     jobs = smp_jobs(work, stage)
     herc = Hercules(work, conf, image, name, console_port=port).start()
+    herc.wait(r"HHC01024I", 60)  # the console listener; docker's proxy accepts earlier and then drops the connection
     con = telnet_console.Console(port=port).connect()
     try:
         herc.send(f"ipl {SMP_IPL_UNIT}")
@@ -201,7 +205,11 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
         con.send("r 0,clpa")
         con.wait(r"\$HASP426|SPECIFY OPTIONS", 300)
         con.send("r 0,format,noreq")
-        con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE", 300)
+        line = con.wait(r"\$HASP436|\$HASP099", 300)  # a fresh spool asks to confirm the checkpoint change; a warm one does not
+        if "HASP436" in line:
+            rid = re.search(r"(\d+)\s+\$HASP436", line)
+            con.send(f"r {rid.group(1) if rid else '01'},y")
+            con.wait(r"\$HASP099|ALL AVAILABLE FUNCTIONS COMPLETE", 300)
         for job in jobs:
             since, seen = con.mark(), set()
             herc.send(f"devinit {SMP_READER} {job.relative_to(work)}")
@@ -211,8 +219,11 @@ def smp_stage(work, image, name, stage, tapes, port=3270, job_timeout=1800):
                     con.wait(JOB_ENDED_RE.pattern, 5, since)
                     break
                 except telnet_console.ConsoleError:
-                    if time.monotonic() > end:
-                        raise SysgenError(f"{job.name}: no $HASP395 ENDED within {job_timeout}s") from None
+                    jcl_err = [ln for ln in con.lines[since:] if "IEF452I" in ln]
+                    if jcl_err or time.monotonic() > end:
+                        tail = " | ".join(ln.strip() for ln in con.lines[-8:])
+                        why = jcl_err[0].strip() if jcl_err else f"no $HASP395 ENDED within {job_timeout}s"
+                        raise SysgenError(f"{job.name}: {why}; console tail: {tail}") from None
                     answer_mounts(herc.send, con, since, tapes, seen)
             bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
             if bad:

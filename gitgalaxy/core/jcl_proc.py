@@ -241,6 +241,6 @@ def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any
         for ps in procs[r["proc"]]:
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
-                cond = _COND_STEP.sub(lambda m, call=call: f"{m.group(1)}{call}.{m.group(2)}{m.group(3)}", cond)
+                cond = _COND_STEP.sub(rf"\g<1>{call}.\g<2>\g<3>", cond)
             out.append(dict(ps, step_name=f"{r['step_name']}.{ps['step_name']}", cond=cond, if_cond=r["if_cond"]))
     return out

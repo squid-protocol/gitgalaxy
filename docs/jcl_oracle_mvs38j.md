@@ -73,7 +73,10 @@ writes the console transcript, the way to see why a stage stalls. Finally the co
 written during the stage (the file is `noclear`, so it accumulates across runs; the stage reads only the new part) and refuses
 any `IEHnnnI ... TERMINATED`. Traps: repeated smp1 runs fill `START1` (`E37` on `SYS1.LINKLIB`): recreate the starter DASD
 and rerun `sysgen starter` first. smp2 ran live through `$HASP395 ENDED` for every job (2026-11-14); `SMPJOB00` `DLBUCL`
-ended CC 8 even on fresh volumes and its cause is not established, so the condcode bound for smp2 is still open.
+ended CC 8 on every run: its `UCLIN PTS` / `DEL SYS .` deletes a system entry that a just-scratched PTS never has (`HMA2532`,
+`HMASMP` RC 08), by design of the deck. `sysgen.SMP2_EXPECTED` lists the four steps allowed above CC 0 with a reason each
+(`SMPJOB00` `DLBUCL` 8; `SMPJOB03` `DLBUCL4`, `SMPJOB05`, `SMPJOB06` 4: link-edit warnings and a REJECT of sysmods never
+applied); every other smp2 step must end CC 4 or less, and a listed step must match exactly.
 
 ## Job runner
 
@@ -90,8 +93,8 @@ Results are internal only (Q16).
 
 ### Remaining slices (#8414)
 
-1. The smp2 condcode bound: why `SMPJOB00` `DLBUCL` ends CC 8 (read its SMP SYSPRINT), then per-job expected codes with a
-   stated reason each; the Hercules restart between smp1 and smp2.
+1. Run `sysgen smp2` end to end with the expected codes (not re-run live after this change; the 2026-11-14 printer file
+   shows every step inside the bound); the Hercules restart between smp1 and smp2.
 2. Stage 1 and stage 2 (`sysgen01` output to `stage1.output`, `stage2.rexx`/`awk` port or call, the socket reader on 3505),
    then the user mods and `mvs.cnf` first IPL of the generated system.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the

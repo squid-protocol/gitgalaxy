@@ -120,7 +120,8 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:Sin|Cos|Sqrt|FixedSqrt|VectorAngle|VectorLength|FixedMul|FixedDiv|Random|RandomFixed|Abs)[ \t]*\(",
             re.I,
         ),
-        # 23. reflection_metaprogramming: actor-class lookups by name.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto):
+        # actor-class lookups by name.
         "reflection_metaprogramming": re.compile(
             r"\b(?:CheckActorClass|CheckClass|GetActorClass|GetWeapon|PlayerClass)[ \t]*\(", re.I
         ),

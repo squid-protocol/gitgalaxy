@@ -25,7 +25,7 @@
     "tests/equivalence/carddemo-dailyval/**"
    ],
    "files": 1,
-   "sha256": "d6d40b47bbaf498dc80623a03ebd4f87baddfb17b9aafa10365ef95c48765e17"
+   "sha256": "5ddbfb92127c2e2f8890250ef2691a9c6f6382246a2956166e3b70097f7dc705"
   },
   "harness": {
    "paths": [
@@ -58,7 +58,7 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 27,
-   "sha256": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
+   "sha256": "6d0b2f467a992665a68cbb2f11f2fadc7fc52caf151de5647cc2ab572ada0a59",
    "components": {
     "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
    }
@@ -88,7 +88,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 143,
-   "sha256": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
+   "sha256": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
    "components": {
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
@@ -181,21 +181,21 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "d8b8f32e209dbd2df6e4f689dfb0342465b8f002192c186a8a53b6555cc8b8c9"
+  "digest": "5d51202003543060e8469cc066b34b35f44eff214096072b127dde70d7e7b4a9"
  },
  "proof": {
-  "at": "2026-11-14T16:39:17Z",
+  "at": "2026-11-14T21:51:07Z",
   "verdict": "proven",
-  "runs": 21,
-  "fault_runs": 20,
+  "runs": 22,
+  "fault_runs": 21,
   "environments": null,
   "outputs": {},
   "return_code_equal": true,
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
-  "inputs_digest": "d8b8f32e209dbd2df6e4f689dfb0342465b8f002192c186a8a53b6555cc8b8c9"
+  "harness_commit": "e8ddad27f9a2860c81043841135f2fa67bb8866f+uncommitted",
+  "inputs_digest": "5d51202003543060e8469cc066b34b35f44eff214096072b127dde70d7e7b4a9"
  },
  "coverage": {
   "paragraphs": {
@@ -219,7 +219,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d8b8f32e209dbd2df6e4f689dfb0342465b8f002192c186a8a53b6555cc8b8c9"
+  "inputs_digest": "5d51202003543060e8469cc066b34b35f44eff214096072b127dde70d7e7b4a9"
  },
  "reach": {
   "entry_points": [
@@ -282,7 +282,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+   "id": "sha256:b1f7f6f12200e9f8c6584375de7bf78c8fea7fe859266f529bbc138ba0162743",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

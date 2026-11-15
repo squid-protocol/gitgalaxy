@@ -171,6 +171,18 @@
       "why": "9x: implementor-defined condition (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 9910-DISPLAY-IO-STATUS's non-numeric / 9 arm, then ABEND U0999"
     },
     {
+      "name": "tcatbalf-status-92",
+      "plan": [
+        {
+          "dd": "TCATBALF",
+          "op": "READ",
+          "nth": 1,
+          "status": "92"
+        }
+      ],
+      "why": "92: logic error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): numeric status with IO-STAT1 = '9', exercising the second arm of 9910-DISPLAY-IO-STATUS when first arm is false; kills mutant 784410e034"
+    },
+    {
       "name": "account-not-found",
       "plan": [
         {

@@ -226,7 +226,7 @@ def test_survivor_attack_defaults_to_one_jvm(tmp_path: Path, monkeypatch):
     })
     monkeypatch.setattr(mu, "baseline_classpath", lambda *a: "")
     monkeypatch.setattr(mu, "write_mutant", lambda p, m, d: d)
-    monkeypatch.setattr(mu, "compiles", lambda *a: (True, ""))
+    monkeypatch.setattr(mu, "compiles", lambda *a, **kw: (True, ""))
     prove_calls = []
 
     def fake_prove(c, port, d, t, flags):

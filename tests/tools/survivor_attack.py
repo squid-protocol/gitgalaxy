@@ -130,6 +130,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         return {"result": "constant-unused", "fact": f"{constant.group(1)} is declared and never read"}
     for infra in (
         local_unread,
+        local_assign_unread,
         never_populated,
         store_dominates_read,
         subfield_unset,
@@ -139,6 +140,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         perform_plumbing,
         annotation_text,
         inert_image,
+        cobol_store_dominated,
         map_length_scale,
         goto_flag_bit,
         eib_resp_unread,
@@ -190,6 +192,41 @@ def local_unread(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dic
     return {
         "result": "local-unread",
         "fact": f"{var} is a local map only ever put into: nothing reads it or passes it on",
+    }
+
+
+_CX_ASSIGN = re.compile(r"^\s*(calen)\s*=\s*cx\(\s*\w+\s*,\s*\d+\s*\)\s*;\s*$")
+
+
+def local_assign_unread(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """`calen = cx(task, N);` whose local `calen` is never read after `at` in its method before being overwritten or returning."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    m = _CX_ASSIGN.match(before)
+    at = int(mutant["line"])
+    where = _span(spans, at)
+    if not m or not where or not _comment_or(_CX_ASSIGN, after):
+        return None
+    var = m.group(1)
+    lines = text.splitlines()
+    decl = re.compile(rf"\bint\s+{var}\b")
+    if not any(decl.search(ln) for ln in lines[where[0] - 1 : at]):
+        return None
+    depth = _depth_starts(text)
+    base_depth = depth[at - 1]
+    for s in range(at + 1, where[1] + 1):
+        ln = lines[s - 1]
+        if depth[s - 1] <= base_depth and _CX_ASSIGN.match(ln) and "->" not in ln:
+            return {
+                "result": "local-unread",
+                "fact": f"local {var} at line {at} is overwritten at line {s} before any read",
+            }
+        if _word(var, ln):
+            return None
+    return {
+        "result": "local-unread",
+        "fact": f"local {var} assigned at line {at} is never read in the rest of its method",
     }
 
 
@@ -278,9 +315,11 @@ def store_dominates_read(
 
 
 def _field_bytes(kind: str, size: int) -> int | None:
-    """Bytes a Field declaration covers: `size` is the length (alphanumeric / group) or the digits (binary)."""
-    if kind in ("alphanumeric", "group"):
+    """Bytes a Field declaration covers: `size` is the length (alphanumeric / group / zoned), digits (binary / packed)."""
+    if kind in ("alphanumeric", "group", "zoned"):
         return size
+    if kind == "packed":
+        return (size // 2) + 1
     if kind == "binary":
         return 2 if size <= 4 else 4 if size <= 9 else 8
     return None
@@ -662,13 +701,89 @@ def _storage_users(text: str, storage: str) -> list[str] | None:
     return names
 
 
+_COBOL_STORE = re.compile(r"^\s*Cobol\.store\(\s*(f\d+_\w+)\s*,")
+_COBOL_MOVE = re.compile(r"^\s*Cobol\.move\(\s*(.+?)\s*,\s*(f\d+_\w+)\s*,\s*CS\s*\);\s*$")
+
+
+def _storage_field_ranges(lines: list[str], storage: str) -> dict[str, tuple[int, int]] | None:
+    """Map field name -> [start, end) byte offsets on `storage`, or None if any field size is unknown."""
+    ranges: dict[str, tuple[int, int]] = {}
+    for ln in lines:
+        d = _FIELD_LINE.match(ln)
+        if d and d.group(3) == storage:
+            size = _field_bytes(d.group(2), int(d.group(5)))
+            if size is None:
+                return None
+            off = int(d.group(4))
+            ranges[d.group(1)] = (off, off + size)
+    return ranges
+
+
+def _pure_cobol_store(line: str, overlapping: set[str]) -> str | None:
+    """Target field name if `line` is `Cobol.store(G, rhs, ...)` or `Cobol.move(src, G, CS)` whose source reads no field in `overlapping`."""
+    if "->" in line:
+        return None
+    m = _COBOL_STORE.match(line)
+    if m:
+        rhs = line.split(",", 1)[1] if "," in line else ""
+        if "perform(" in rhs or any(_word(f, rhs) for f in overlapping):
+            return None
+        return m.group(1)
+    mv = _COBOL_MOVE.match(line)
+    if mv:
+        src, dst = mv.group(1), mv.group(2)
+        if "perform(" in src or any(_word(f, src) for f in overlapping):
+            return None
+        return dst
+    return None
+
+
+def _all_reads_dominated(
+    text: str, spans: dict[str, list[tuple[int, int]]], lines: list[str], storage: str, changed: list[int]
+) -> bool:
+    """True when every read of every field on `storage` overlapping `changed` is dominated by a top-level
+    `Cobol.store(G, ...)` in the same method that covers that field's byte range."""
+    ranges = _storage_field_ranges(lines, storage)
+    if ranges is None:
+        return False
+    covering = {
+        name: (a, b) for name, (a, b) in ranges.items() if any(a <= o < b for o in changed)
+    }
+    if not covering:
+        return True
+    depth = _depth_starts(text)
+    all_names = set(ranges)
+    # Precompute pure top-level stores per line: line_no -> stored_field
+    stores: dict[int, str] = {}
+    for i, ln in enumerate(lines, 1):
+        if depth[i - 1] == 2:
+            target = _pure_cobol_store(ln, all_names)
+            if target and target in ranges:
+                stores[i] = target
+    for name, (fa, fb) in covering.items():
+        for r, ln in enumerate(lines, 1):
+            if not _word(name, ln) or _FIELD_LINE.match(ln):
+                continue
+            if _pure_cobol_store(ln, all_names) == name:
+                continue
+            where = _span(spans, r)
+            if not where or "->" in ln:
+                return False
+            if not any(
+                where[0] < s < r and ranges[g][0] <= fa and ranges[g][1] >= fb
+                for s, g in stores.items()
+            ):
+                return False
+    return True
+
+
 def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
     """A storage's initial image, when nothing observes what the image sets:
     - the image copy (`System.arraycopy(IMAGE_s_X, ...)`) deleted: a no-op when the image is all X'00' (a new Storage
       is zero-filled) and every item on the storage is only read (`Cobol.num` / `Cobol.text` / first argument of a
-      move), so nothing ever changes the storage;
-    - a changed byte of the image (the literal line edited): no item declared on the storage covers it, or every item
-      that does is named nowhere but its declaration."""
+      move), OR every read of any field on the storage is dominated by a top-level `Cobol.store` in its own method;
+    - a changed byte of the image (the literal line edited): no item declared on the storage covers it, every item
+      that does is named nowhere but its declaration, or every read of covering items is dominated by `Cobol.store`."""
     before, after = mutant.get("before") or "", mutant.get("after") or ""
     line = int(mutant["line"])
     lines = text.splitlines()
@@ -677,13 +792,22 @@ def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict
         storage = copy.group(1)
         names = _storage_users(text, storage)
         img = _image(text, storage)
-        if names is None or img is None or any(img):
+        if names is None or img is None:
             return None
-        for n in names:
-            for ln in lines:
-                if _word(n, ln) and not _FIELD_LINE.match(ln) and _word(n, re.sub(_READ_ONLY.format(n=re.escape(n)), "", ln)):  # fmt: skip
-                    return None
-        return {"result": "inert-image", "fact": f"{storage} is all X'00' and its items are only read: restoring it changes nothing"}  # fmt: skip
+        if not any(img):
+            readonly = True
+            for n in names:
+                for ln in lines:
+                    if _word(n, ln) and not _FIELD_LINE.match(ln) and _word(n, re.sub(_READ_ONLY.format(n=re.escape(n)), "", ln)):  # fmt: skip
+                        readonly = False
+                        break
+                if not readonly:
+                    break
+            if readonly:
+                return {"result": "inert-image", "fact": f"{storage} is all X'00' and its items are only read: restoring it changes nothing"}  # fmt: skip
+        if _all_reads_dominated(text, spans, lines, storage, list(range(len(img)))):
+            return {"result": "inert-image", "fact": f"every read of {storage}'s items follows a top-level Cobol.store in its own method; initial image is never read"}  # fmt: skip
+        return None
     literal = re.match(r'^\s*"[A-Za-z0-9+/=]*"\)*;?,?\s*$', before)
     if not literal or line < 2 or not re.match(r'^\s*"[A-Za-z0-9+/=]*"\)*;?,?\s*$', after):
         return None
@@ -706,9 +830,60 @@ def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict
                 return None
             if any(int(d.group(4)) <= o < int(d.group(4)) + size for o in changed):
                 covering.add(d.group(1))
-    if any(sum(1 for ln in lines if _word(n, ln)) != 1 for n in covering):
+    if all(sum(1 for ln in lines if _word(n, ln)) == 1 for n in covering):
+        return {"result": "inert-image", "fact": f"image byte(s) {changed} of {owner} lie in no item the program names"}
+    if _all_reads_dominated(text, spans, lines, owner, changed):
+        return {"result": "inert-image", "fact": f"every read of image byte(s) {changed} of {owner} follows a top-level Cobol.store in its own method"}  # fmt: skip
+    return None
+
+
+def cobol_store_dominated(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """A `Cobol.store(fX, ...)` deleted or mutated whose target field is unconditionally overwritten by a subsequent
+    `Cobol.store(G, ...)` at the same block depth in the same method before any read, call, or exit."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    m = _COBOL_STORE.match(before)
+    mv = None if m else _COBOL_MOVE.match(before)
+    if m:
+        if not _comment_or(_COBOL_STORE, after):
+            return None
+        target = m.group(1)
+    elif mv:
+        if not _comment_or(_COBOL_MOVE, after):
+            return None
+        target = mv.group(2)
+    else:
         return None
-    return {"result": "inert-image", "fact": f"image byte(s) {changed} of {owner} lie in no item the program names"}
+    at = int(mutant["line"])
+    where = _span(spans, at)
+    if not where or "->" in before:
+        return None
+    lines = text.splitlines()
+    owner = next(
+        (d.group(3) for ln in lines if (d := _FIELD_LINE.match(ln)) and d.group(1) == target),
+        None,
+    )
+    if owner is None or _storage_users(text, owner) is None:
+        return None
+    ranges = _storage_field_ranges(lines, owner)
+    if ranges is None or target not in ranges:
+        return None
+    fa, fb = ranges[target]
+    overlapping = {n for n, (a, b) in ranges.items() if a < fb and b > fa}
+    depth = _depth_starts(text)
+    base_depth = depth[at - 1]
+    for s in range(at + 1, where[1]):
+        ln = lines[s - 1]
+        if depth[s - 1] < base_depth:
+            return None
+        if depth[s - 1] == base_depth and "->" not in ln:
+            g = _pure_cobol_store(ln, overlapping)
+            if g and g in ranges and ranges[g][0] <= fa and ranges[g][1] >= fb:
+                return {"result": "store-dominates-read", "fact": f"{target} at line {at} is unconditionally overwritten by {g} at line {s} before any read"}  # fmt: skip
+        if any(_word(f, ln) for f in overlapping) or any(kw in ln for kw in ("perform(", "return", "throw")):
+            return None
+    return None
 
 
 _BINARY_FULL = re.compile(r"^(\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), )(\d+)(, (?:true|false), (?:true|false)\);\s*)$")  # fmt: skip
@@ -784,6 +959,7 @@ def goto_flag_bit(text: str, spans: dict[str, list[tuple[int, int]]], mutant: di
 
 _EIB = "s_DFHEIBLK"
 _EIB_STORE = re.compile(r"^(\s*)Cobol\.store\((f\d+_\w+), BigDecimal\.valueOf\((-?\w+(?:\[[01]\])?)\), (?:true|false), CS\);\s*$")  # fmt: skip
+_EIB_TIME_DATE_STORE = re.compile(r"^(\s*)Cobol\.store\((f\d+_EIB(?:TIME|DATE)), BigDecimal\.valueOf\(([^;]+)\), (?:true|false), CS\);\s*$")  # fmt: skip
 _RESP_LOCAL = re.compile(r"^(\s*int )(resp\d+)( = )(.+);\s*$")
 _RESP_KEEP = re.compile(r"^\s*(f\d+_\w+) = Cobol\.binary\(BigDecimal\.valueOf\((resp\d+)\), \d+, (?:true|false), (?:true|false), CS\);\s*$")  # fmt: skip
 _RESP_TOKENS = re.compile(r"planned\d+\[[01]\]|received\d+\.isPresent\(\)")
@@ -833,7 +1009,7 @@ def eib_resp_unread(
     bytes no read EIB item covers (inside the image). The stores drop high digits, so no value can fail."""
     before, after = mutant.get("before") or "", mutant.get("after") or ""
     state = None
-    store, decl = _EIB_STORE.match(before), _FIELD_LINE.match(before)
+    store, decl = _EIB_STORE.match(before) or _EIB_TIME_DATE_STORE.match(before), _FIELD_LINE.match(before)
     local, keep = _RESP_LOCAL.match(before), _RESP_KEEP.match(before)
     if not (store or decl or local or keep):
         return None
@@ -843,7 +1019,7 @@ def eib_resp_unread(
     unread, read, size = state
     fact = None
     if store and store.group(2) in unread:
-        again = _EIB_STORE.match(after)
+        again = _EIB_STORE.match(after) or _EIB_TIME_DATE_STORE.match(after)
         if after.strip().startswith("/*") or (again and again.group(2) == store.group(2)):
             fact = f"{store.group(2)} is only stored into and no read EIB item shares its bytes: the stored value is never seen"  # fmt: skip
     elif decl and decl.group(1) in unread:
@@ -1147,7 +1323,7 @@ def attack(
     here.mkdir(parents=True, exist_ok=True)
     cf = here / "case.json"
     cf.write_text(json.dumps({k: v for k, v in trial.items() if k != "name"}, indent=1) + "\n", encoding="utf-8")
-    flags = ("--case-file", str(cf), "--no-facades", "--faults", faults)
+    flags = ("--case-file", str(cf), "--no-facades", "--faults", faults, "--one-jvm")
     print(f"{case_name}: proving the port on {len(proposals)} new input(s); the trial case: {cf}", flush=True)
     base = mu.prove(case_name, port, here / "baseline", 3600, flags)
     names = [p["name"] for p in proposals]
@@ -1162,7 +1338,7 @@ def attack(
             record["result"] = judge(base, {"verdict": "error"})
             record["detail"] = (base.get("why") or str((base.get("report") or {}).get("feedback") or ""))[:400]
         else:
-            ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes")
+            ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes", only_file=m.file)
             if not ok:
                 record.update(result="stillborn", detail=why[:400])
             else:
@@ -1186,6 +1362,130 @@ def attack(
             results[i] = record
             print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
     add_attempts(work, results)
+    return results
+
+
+def _stage_java_inputs(trial: dict[str, Any], corpus: Path, inputs_dir: Path) -> None:
+    """Write batch dataset `.in` files into `inputs_dir` without invoking Docker/GnuCOBOL."""
+    import equivalence as eq  # noqa: PLC0415
+    import equivalence_inputs  # noqa: PLC0415
+
+    inputs_dir.mkdir(parents=True, exist_ok=True)
+    enc = eq.data_encoding(trial)
+    generated = equivalence_inputs.generate_inputs(trial, corpus)
+    for dd, spec in trial.get("datasets", {}).items():
+        if dd in generated:
+            (inputs_dir / f"{dd}.in").write_bytes(generated[dd])
+        elif "input" in spec:
+            (inputs_dir / f"{dd}.in").write_bytes(eq._fixed(eq._input_path(trial, corpus, spec["input"]), spec["reclen"], enc))
+
+
+def screen(
+    case_name: str,
+    ids: list[str],
+    inputs: Path,
+    work: Path,
+    jobs: int = 1,
+    base: str | None = None,
+    promote: bool = False,
+    timeout: float = 600,
+) -> dict[str, dict[str, Any]]:
+    """Java-only divergence screener: run baseline Java vs each mutant Java on `inputs` without Docker/COBOL.
+    With `promote=True`, automatically runs full `attack()` on any mutant that diverges from baseline Java."""
+    import concurrent.futures  # noqa: PLC0415
+    import equivalence as eq  # noqa: PLC0415
+    import equivalence_java as ej  # noqa: PLC0415
+    import mainframe_corpus as mc  # noqa: PLC0415
+    import mutation as mu  # noqa: PLC0415
+    import strengthen as st  # noqa: PLC0415
+
+    case = eq.load_case(base or case_name)
+    if base and base != case_name and case.get("corpus") != eq.load_case(case_name).get("corpus"):
+        raise SystemExit(f"{base}: not a sibling of {case_name} (another corpus entry)")
+    kind = case.get("kind", "batch")
+    if kind != "batch" and kind not in st.KINDS:
+        raise SystemExit(f"{case_name}: kind {kind}: `screen` handles batch, {', '.join(sorted(st.KINDS))}")
+    (corpus_entry,) = mc.select([case["corpus"]])
+    corpus = mc.require_clone(corpus_entry)
+    proposals = json.loads(inputs.read_text(encoding="utf-8"))
+    stamp = time.strftime("%Y%m%dT%H%M%S")
+    here = work / "screen" / stamp
+    if kind == "batch":
+        trial = batch_trial(case, corpus, proposals, here)
+        faults_list = trial.get("faults", []) if trial.get("faults") else []
+    else:
+        trial, _ = attack_case(case, proposals, st.commarea_names(case, corpus)), "none"
+        faults_list = []
+    port = det_port(case_name, work)
+    mutants = find_mutants(case_name, port, ids)
+    here.mkdir(parents=True, exist_ok=True)
+    inputs_dir = here / "inputs"
+    _stage_java_inputs(trial, corpus, inputs_dir)
+    envs = [ej.environment(trial.get("environment", "default"))]
+    faults_arg = tuple(
+        (
+            f["name"],
+            eq.fault_plan(f),
+            "\n".join(f.get("sql_plan", [])),
+            ej.run_parm(f.get("parm", "")) if f.get("parm") is not None else "",
+            f.get("sysin", "") if f.get("sysin") is not None else "",
+            None,
+        )
+        for f in faults_list
+    )
+    entries = tuple(ej.entry_names(trial))
+    print(f"{case_name}: screening {len(mutants)} mutant(s) on {len(proposals)} input(s) (Java-only)", flush=True)
+    base_runs = ej.run_java_environments(
+        trial, corpus, here / "baseline", inputs_dir, envs, port=True, port_dir=port,
+        faults=faults_arg, entries=entries, one_jvm=True,
+    )
+    classpath = mu.baseline_classpath(here / "baseline", here)
+    names = [p["name"] for p in proposals]
+    results: dict[str, dict[str, Any]] = {}
+
+    def screen_one(item: tuple[str, Any]) -> tuple[str, Any, dict[str, Any]]:
+        i, m = item
+        record: dict[str, Any] = {"inputs": names, "date": time.strftime("%Y-%m-%d")}
+        mdir = here / i
+        ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes", only_file=m.file)
+        if not ok:
+            record.update(result="stillborn", detail=why[:400])
+            return i, m, record
+        diverged_on: list[str] = []
+
+        def diverges(name: str, outs: dict[str, bytes]) -> bool:
+            if outs != base_runs.get(name):
+                diverged_on.append(name)
+                return True
+            return False
+
+        ej.run_java_environments(
+            trial, corpus, mdir / "java", inputs_dir, envs, port=True, port_dir=mdir / "port",
+            faults=faults_arg, stop=diverges, entries=entries, one_jvm=True,
+        )
+        if diverged_on:
+            record.update(result="diverged", diverged_on=diverged_on)
+        else:
+            record.update(result="survived-java")
+        return i, m, record
+
+    if jobs > 1:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+            for i, m, record in pool.map(screen_one, mutants.items()):
+                results[i] = record
+                print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
+    else:
+        for i, m in mutants.items():
+            _, _, record = screen_one((i, m))
+            results[i] = record
+            print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
+
+    diverged_ids = [i for i, r in results.items() if r["result"] == "diverged"]
+    if promote and diverged_ids:
+        print(f"{case_name}: promoting {len(diverged_ids)} diverged mutant(s) to full COBOL+Java `try`", flush=True)
+        promoted = attack(case_name, diverged_ids, inputs, work, timeout, jobs, base)
+        for i, rec in promoted.items():
+            results[i] = rec
     return results
 
 
@@ -1394,6 +1694,178 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
     return 0
 
 
+def _norm_snippet(text: str) -> str:
+    """Normalize generated field/temp numbers (`f123_` -> `fN_`, trailing digits on temps) for cross-case clustering."""
+    s = " ".join(text.strip().split())
+    s = re.sub(r"\bf\d+_", "fN_", s)
+    return re.sub(r"\b(cont|planned|web|file|ts|td|rec)(\d+)\b", r"\1N", s)
+
+
+def cmd_clusters(cases: list[str], limit: int) -> int:
+    """Group open survivors by normalized (op, before, after) across cases to find high-leverage patterns."""
+    import collections  # noqa: PLC0415
+
+    ledger = dm.load()
+    survivors = dm.load_survivors()
+    scope = set(cases) if cases else None
+    groups: dict[tuple[str, str, str], list[tuple[str, str]]] = collections.defaultdict(list)
+    for case, entry in sorted(ledger.items()):
+        if scope is not None and case not in scope:
+            continue
+        triaged = {s["id"] for s in survivors.get(case, [])}
+        for s in entry.get("survived", []):
+            if s["id"] in triaged:
+                continue
+            key = (str(s.get("op", "")), _norm_snippet(str(s.get("before", ""))), _norm_snippet(str(s.get("after", ""))))
+            groups[key].append((case, s["id"]))
+    ranked_groups = sorted(groups.items(), key=lambda kv: (-len(kv[1]), -len({c for c, _ in kv[1]}), kv[0]))
+    for (op, bef, aft), items in ranked_groups[:limit]:
+        case_count = len({c for c, _ in items})
+        sample_cases = ", ".join(f"{c}:{i}" for c, i in items[:4])
+        print(f"{len(items):5d} ({case_count:3d} cases) {op:4s} {bef[:65]} -> {aft[:45]}  [{sample_cases}]")
+    return 0
+
+
+_FAULT_HINT = re.compile(
+    r"EIBRESP|RESP\b|STATUS|STAT[12]\b|SQLCODE|AT_END|END_OF_FILE|NOTFND|DUPREC|LENGERR|IO_STAT|FILE_STATUS",
+    re.IGNORECASE,
+)
+
+
+def cmd_fault_candidates(cases: list[str], limit: int) -> int:
+    """Rank cases that have uncovered branches in det_sweep_coverage and open fault-related survivors."""
+    ledger = dm.load()
+    survivors = dm.load_survivors()
+    cov_dir = dm.CASES / "det_sweep_coverage"
+    scope = set(cases) if cases else None
+    rows: list[tuple[int, int, str, int, int, list[str]]] = []
+    for case, entry in sorted(ledger.items()):
+        if scope is not None and case not in scope:
+            continue
+        cov_file = cov_dir / f"{case}.json"
+        if not cov_file.is_file():
+            continue
+        cov = json.loads(cov_file.read_text(encoding="utf-8"))
+        br = cov.get("branches") or {}
+        uncov = int(br.get("total", 0)) - int(br.get("covered", 0))
+        if uncov <= 0:
+            continue
+        triaged = {s["id"] for s in survivors.get(case, [])}
+        hits = [
+            s for s in entry.get("survived", [])
+            if s["id"] not in triaged and _FAULT_HINT.search(str(s.get("before", "")))
+        ]
+        if hits:
+            rows.append((len(hits), uncov, case, int(br.get("covered", 0)), int(br.get("total", 0)), [h["id"] for h in hits[:5]]))
+    rows.sort(reverse=True)
+    for hit_n, uncov, case, cov_n, tot_n, sample_ids in rows[:limit]:
+        print(f"{hit_n:4d} fault-survivors  {uncov:3d} uncov branches ({cov_n}/{tot_n})  {case:30s}  [{', '.join(sample_ids)}]")
+    return 0
+
+
+_UNREACHABLE_RESULTS = {"no-entry-path", "solver-dead"}
+
+
+def cmd_auto_state(case: str, work: Path, dry_run: bool = False) -> int:
+    """Run `facts` for `case` and automatically apply `det_mutation.py state` for every settled survivor."""
+    cmd_facts(case, work)
+    attempts = load_attempts(work)
+    stated = dm.stated(case)
+    entry = dm.load().get(case) or {}
+    triage: dict[str, dict[str, Any]] = {}
+    for s in entry.get("survived", []):
+        mid = s["id"]
+        if mid in stated:
+            continue
+        recs = [a for a in attempts.get(mid, []) if a.get("result") in dm.ATTACK_SETTLED]
+        if not recs:
+            continue
+        rec = recs[-1]
+        res = str(rec["result"])
+        fact = str(rec.get("fact") or res)
+        verdict = "unreachable" if res in _UNREACHABLE_RESULTS else "equivalent"
+        reason = f"{fact} ({res})"
+        if len(reason) < dm.MIN_REASON:
+            reason = f"{reason}: settled by static port/COBOL fact"
+        triage[mid] = {"verdict": verdict, "reason": reason, "tried": [res]}
+    if not triage:
+        print(f"{case}: auto-state found 0 new settled survivors")
+        return 0
+    if dry_run:
+        print(f"{case}: auto-state dry-run would triage {len(triage)} survivor(s): {', '.join(list(triage)[:8])}")
+        return 0
+    rc = dm.state(case, triage, attempts)
+    if rc == 0:
+        print(f"{case}: auto-state triaged {len(triage)} survivor(s)")
+    return rc
+
+
+def cmd_facts_all(cases: list[str], work: Path, auto_state: bool = False, limit: int | None = None) -> int:
+    """Batch `facts` (and optionally `auto-state`) grouped by corpus so each corpus is translated once."""
+    import collections  # noqa: PLC0415
+    import subprocess  # noqa: PLC0415
+
+    ledger = dm.load()
+    survivors = dm.load_survivors()
+    scope = set(cases) if cases else None
+    by_corpus: dict[str, list[str]] = collections.defaultdict(list)
+    for case, entry in sorted(ledger.items()):
+        if scope is not None and case not in scope:
+            continue
+        triaged = {s["id"] for s in survivors.get(case, [])}
+        if not any(s["id"] not in triaged for s in entry.get("survived", [])):
+            continue
+        spec = json.loads((dm.CASES / case / "case.json").read_text(encoding="utf-8"))
+        by_corpus[spec["corpus"]].append(case)
+    ran = 0
+    rc = 0
+    for corpus, corpus_cases in sorted(by_corpus.items()):
+        batch = corpus_cases[: limit - ran] if limit is not None else corpus_cases
+        if not batch:
+            break
+        cwork = work / corpus
+        try:
+            dm.translate(batch, cwork)
+        except subprocess.CalledProcessError as e:
+            print(f"{corpus}: translate failed (exit {e.returncode}), skipping {len(batch)} case(s)")
+            rc = 1
+            ran += len(batch)
+            continue
+        for case in batch:
+            rc |= cmd_auto_state(case, cwork) if auto_state else cmd_facts(case, cwork)
+            ran += 1
+    return rc
+
+
+def apply_inputs(case_name: str, inputs: Path) -> int:
+    """Append proposals from `inputs` into `tests/equivalence/<case>/case.json` (`calls`, `scenarios`, or `faults`)."""
+    case_path = dm.CASES / case_name / "case.json"
+    case = json.loads(case_path.read_text(encoding="utf-8"))
+    proposals = json.loads(inputs.read_text(encoding="utf-8"))
+    kind = case.get("kind", "batch")
+    if kind == "call":
+        key = "calls"
+    elif kind == "cics":
+        key = "scenarios"
+    elif all(isinstance(p, dict) and ("plan" in p or "sql_plan" in p or "sysin" in p or "parm" in p) for p in proposals):
+        key = "faults"
+    else:
+        print(f"{case_name}: `--apply` supports `call`, `cics`, or batch fault proposals; add batch dataset inputs manually")
+        return 0
+    existing = case.setdefault(key, [])
+    seen = {e.get("name") for e in existing if isinstance(e, dict)}
+    added = 0
+    for p in proposals:
+        if p.get("name") not in seen:
+            existing.append(p)
+            seen.add(p.get("name"))
+            added += 1
+    if added:
+        case_path.write_text(json.dumps(case, indent=1) + "\n", encoding="utf-8")
+        print(f"{case_name}: appended {added} entry(s) to {case_path.relative_to(dm.CASES.parent.parent)} ({key})")
+    return added
+
+
 def cmd_lint(cases: list[str]) -> int:
     bad = 0
     ledger = dm.load()
@@ -1433,8 +1905,34 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--timeout", type=float, default=600, help="seconds per mutant")
     t.add_argument("--jobs", type=int, default=_default_jobs(), help="parallel mutants to prove")
     t.add_argument("--as", dest="base", metavar="SIBLING", help="enter it the way this sibling case does (e.g. LINK)")
+    t.add_argument("--apply", action="store_true", help="append winning inputs into the case's case.json")
+    sc = sub.add_parser("screen")
+    sc.add_argument("case")
+    sc.add_argument("ids", help="mutant ids, comma separated")
+    sc.add_argument("--inputs", type=Path, required=True, help="a JSON array of inputs in the case's format")
+    sc.add_argument("--work", type=Path, required=True)
+    sc.add_argument("--jobs", type=int, default=1, help="parallel mutants to screen")
+    sc.add_argument("--as", dest="base", metavar="SIBLING", help="enter it the way this sibling case does (e.g. LINK)")
+    sc.add_argument("--promote", action="store_true", help="run full COBOL+Java `try` on any mutant that diverges")
+    sc.add_argument("--apply", action="store_true", help="with --promote, append winning inputs into case.json")
+    sc.add_argument("--timeout", type=float, default=600, help="seconds per mutant if --promote is used")
+    au = sub.add_parser("auto-state")
+    au.add_argument("case")
+    au.add_argument("--work", type=Path, required=True)
+    au.add_argument("--dry-run", action="store_true")
+    fa = sub.add_parser("facts-all")
+    fa.add_argument("cases", nargs="*")
+    fa.add_argument("--work", type=Path, required=True)
+    fa.add_argument("--auto-state", action="store_true")
+    fa.add_argument("--limit", type=int, default=None)
     li = sub.add_parser("lint")
     li.add_argument("cases", nargs="*")
+    cl = sub.add_parser("clusters")
+    cl.add_argument("cases", nargs="*")
+    cl.add_argument("--limit", type=int, default=30)
+    fc = sub.add_parser("fault-candidates")
+    fc.add_argument("cases", nargs="*")
+    fc.add_argument("--limit", type=int, default=30)
     args = ap.parse_args(argv)
     if args.cmd == "next":
         return cmd_next(args.cases, args.limit)
@@ -1444,14 +1942,42 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_packet(args.case, args.id, args.work.resolve())
     if args.cmd == "lint":
         return cmd_lint(args.cases)
+    if args.cmd == "clusters":
+        return cmd_clusters(args.cases, args.limit)
+    if args.cmd == "fault-candidates":
+        return cmd_fault_candidates(args.cases, args.limit)
+    if args.cmd == "auto-state":
+        return cmd_auto_state(args.case, args.work.resolve(), args.dry_run)
+    if args.cmd == "facts-all":
+        return cmd_facts_all(args.cases, args.work.resolve(), args.auto_state, args.limit)
+    if args.cmd == "screen":
+        results = screen(
+            args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.jobs, args.base,
+            args.promote, args.timeout,
+        )
+        div = [i for i, r in results.items() if r["result"] == "diverged"]
+        if div:
+            print(f"diverged (Java-only): {', '.join(div)} — re-run with --promote or `try` to confirm on COBOL")
+        wins = [i for i, r in results.items() if r["result"] == "killed"]
+        if wins:
+            if args.apply:
+                apply_inputs(args.base or args.case, args.inputs)
+            else:
+                print(
+                    f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
+                )
+        return 0
     results = attack(
         args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout, args.jobs, args.base
     )
     wins = [i for i, r in results.items() if r["result"] == "killed"]
     if wins:
-        print(
-            f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
-        )
+        if args.apply:
+            apply_inputs(args.base or args.case, args.inputs)
+        else:
+            print(
+                f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
+            )
     if any(r["result"] == "port-differs" for r in results.values()):
         print(
             "port-differs: the port is not equal to the COBOL on this input. Stop and report it: that is a real finding"

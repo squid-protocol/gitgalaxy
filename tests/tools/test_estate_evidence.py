@@ -76,6 +76,7 @@ MUTATION_UNREVIEWED = {
     "carddemo-copaus1c",
     "carddemo-sort-tranrept",  # #4268: no mutation run yet
     "carddemo-sort-combtran",  # #4268: no mutation run yet
+    "carddemo-readacct",  # #8439: det port; L5 det-mutation run has 34 survivors awaiting review (proof.det_mutation), no mutation section
 }
 
 

@@ -5,18 +5,18 @@
  "case": "cruc-gt-web-parse-url",
  "entry": {
   "program": "GTWPARS",
-  "commit": "8d79a8a16bbe9a45ac6b470116eacff462fbb8ca+uncommitted",
+  "commit": "3d98e60b86e52355b2b117ce7d5964e565ecdf81+uncommitted",
   "date": "2026-11-15",
   "mode": "fast",
   "seed": 0,
   "mutants": 526,
   "out_of_scope": 6,
   "chosen": 526,
-  "coverage": "proven on 6 scenarios, covering 5/5 paragraphs and 8/10 branches",
+  "coverage": null,
   "counts": {
-   "killed": 227,
+   "killed": 229,
    "timeout": 0,
-   "survived": 289,
+   "survived": 287,
    "stillborn": 10,
    "error": 0,
    "pending": 0
@@ -126,6 +126,7 @@
    "715909f759",
    "72395cd967",
    "73637b2280",
+   "73eabe6659",
    "75738e7991",
    "76dc2a315b",
    "76fc418b2f",
@@ -147,6 +148,7 @@
    "87b6a41c2a",
    "8937a26679",
    "8a1884b550",
+   "8ab6712d8a",
    "8c05256320",
    "8c901702f7",
    "8ce46eaf82",
@@ -2024,14 +2026,6 @@
     "after": "f3_WS_MODE = Cobol.moveText(f1_WS_INPUT.ref(6, Integer.valueOf(2)), 1, CS);"
    },
    {
-    "id": "8ab6712d8a",
-    "op": "CON",
-    "file": "service/GtwparsService.java",
-    "line": 435,
-    "before": "if (planned3[0] == 0) task.sendText(text2.substring(0, Math.min(text2.length(), 8)), 8, \"ERASE\");",
-    "after": "if (planned3[1] == 0) task.sendText(text2.substring(0, Math.min(text2.length(), 8)), 8, \"ERASE\");"
-   },
-   {
     "id": "1281155b7b",
     "op": "CON",
     "file": "service/GtwparsService.java",
@@ -2062,14 +2056,6 @@
     "line": 437,
     "before": "Cobol.store(f68_EIBRESP2, BigDecimal.valueOf(planned3[1]), false, CS);",
     "after": "/* Cobol.store(f68_EIBRESP2, BigDecimal.valueOf(planned3[1]), false, CS); */"
-   },
-   {
-    "id": "73eabe6659",
-    "op": "CON",
-    "file": "service/GtwparsService.java",
-    "line": 438,
-    "before": "if (planned3[0] != 0) {",
-    "after": "if (planned3[1] != 0) {"
    },
    {
     "id": "ae6830063b",
@@ -2580,7 +2566,7 @@
    "port": "53e3b6af111672eaff8eaec24893697c58d7f4faaa63578d3ab3c7544eb5fcb9",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "generator": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
-   "case": "592c735016e28b88c8549a63dedeb89e1a61e562b0f266f82f8e78b8fb2bd9e5",
+   "case": "66b6bc286baa22f94f2875aa0d0c353ccc3a47ee59880da9d7d08c77db14c61d",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "6d0b2f467a992665a68cbb2f11f2fadc7fc52caf151de5647cc2ab572ada0a59",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",

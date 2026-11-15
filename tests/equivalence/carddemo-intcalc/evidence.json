@@ -58,9 +58,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 27,
-   "sha256": "6d0b2f467a992665a68cbb2f11f2fadc7fc52caf151de5647cc2ab572ada0a59",
+   "sha256": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
    "components": {
-    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
    }
   },
   "oracle": {
@@ -192,10 +192,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "f2ca1a33ccacdb6c683a3c1e13dcd0909ddf65f729db0e23198dfe9290e2b373"
+  "digest": "39f42ec99d862017b28bf60c47b1a49eb720448f376c4bec7fb0f095aae0da17"
  },
  "proof": {
-  "at": "2026-11-14T21:55:17Z",
+  "at": "2026-11-15T20:56:21Z",
   "verdict": "proven",
   "runs": 21,
   "fault_runs": 20,
@@ -214,8 +214,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "e8ddad27f9a2860c81043841135f2fa67bb8866f+uncommitted",
-  "inputs_digest": "f2ca1a33ccacdb6c683a3c1e13dcd0909ddf65f729db0e23198dfe9290e2b373"
+  "harness_commit": "7972c65ac7f4819a315a5e2be98c926a3b3fec3f+uncommitted",
+  "inputs_digest": "39f42ec99d862017b28bf60c47b1a49eb720448f376c4bec7fb0f095aae0da17"
  },
  "coverage": {
   "paragraphs": {
@@ -239,7 +239,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "f2ca1a33ccacdb6c683a3c1e13dcd0909ddf65f729db0e23198dfe9290e2b373"
+  "inputs_digest": "39f42ec99d862017b28bf60c47b1a49eb720448f376c4bec7fb0f095aae0da17"
  },
  "reach": {
   "entry_points": [
@@ -327,7 +327,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:b1f7f6f12200e9f8c6584375de7bf78c8fea7fe859266f529bbc138ba0162743",
+   "id": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

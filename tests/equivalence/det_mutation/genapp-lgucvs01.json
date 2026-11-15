@@ -6634,7 +6634,7 @@
    "generator": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
    "case": "e5248dcddd13c42b8425c65a8ea14936637facc86438ca88289e2b2e6e92c75a",
    "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-   "harness": "6d0b2f467a992665a68cbb2f11f2fadc7fc52caf151de5647cc2ab572ada0a59",
+   "harness": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "84f49ad886f20bfd2adba9a7929a962662580d695f88a4e8fccdce12003e945c"
   },
@@ -6730,8 +6730,8 @@
     "generator:det/tso": "7e4c6c4847b0154df35b1e64082aef52cd46e867900b2ce987ed523cdac86502"
    },
    "harness": {
-    "harness:cics": "9beb0b114520ccef5378269601e659cb2f460d77df9c41d7f042092783658807",
-    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+    "harness:cics": "b789ce34c2ad4fb105ca9867f1e1702d1deb234c4571e30a07091a33c2174103",
+    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
    },
    "oracle": {
     "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",

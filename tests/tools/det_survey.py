@@ -28,7 +28,7 @@ import sys
 import traceback
 from collections import Counter
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -67,17 +67,7 @@ def jdk() -> str:
     return os.environ.get("JDK_17") or os.environ.get("JAVA_HOME") or "/usr/lib/jvm/java-17-openjdk-amd64"
 
 
-def estate(corpus: Path, work: Path) -> tuple[Path, bool]:
-    """(the generated project, whether it built)."""
-    done = work / "project.txt"
-    if done.is_file():
-        project, built = done.read_text(encoding="utf-8").split()
-        return Path(project), built == "built"
-    import java_target_matrix as jtm
-
-    work.mkdir(parents=True, exist_ok=True)
-    clean = jtm.refactor(corpus, work, scan=True)
-    project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
+def _mvn_compile_estate(project: Path, work: Path) -> bool:
     env = maven_utf8_env(dict(os.environ, JAVA_HOME=jdk()))
     log = work / "mvn.log"
     with log.open("wb") as fh:
@@ -88,8 +78,46 @@ def estate(corpus: Path, work: Path) -> tuple[Path, bool]:
         except subprocess.TimeoutExpired:
             fh.write(f"\n[ERROR] mvn compile timed out after {MVN_COMPILE_TIMEOUT}s\n".encode())
             rc = 124
-    done.write_text(f"{project} {'built' if rc == 0 else 'failed'}\n", encoding="utf-8")
-    return project, rc == 0
+    return rc == 0
+
+
+def estate(
+    corpus: Path,
+    work: Path,
+    *,
+    compile_estate: bool = True,
+    scan_cache: Path | None = None,
+) -> tuple[Path, bool]:
+    """(the generated project, whether it built). Skips `mvn compile` when `compile_estate=False` (--no-compile)
+    and reuses `equivalence_cache.refactor` for git-backed corpora (#5142)."""
+    done = work / "project.txt"
+    if done.is_file():
+        project_str, status = done.read_text(encoding="utf-8").split()[:2]
+        project = Path(project_str)
+        if status == "built":
+            return project, True
+        if status == "generated" and compile_estate:
+            ok = _mvn_compile_estate(project, work)
+            done.write_text(f"{project} {'built' if ok else 'failed'}\n", encoding="utf-8")
+            return project, ok
+        return project, False
+    import equivalence_cache
+    import java_target_matrix as jtm
+
+    work.mkdir(parents=True, exist_ok=True)
+    if scan_cache is not None:
+        clean = jtm.refactor(corpus, work, scan=True, scan_cache=scan_cache)
+    elif (corpus / ".git").exists():
+        clean = equivalence_cache.refactor(corpus, work, scan=True)
+    else:
+        clean = jtm.refactor(corpus, work, scan=True)
+    project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
+    if not compile_estate:
+        done.write_text(f"{project} generated\n", encoding="utf-8")
+        return project, False
+    ok = _mvn_compile_estate(project, work)
+    done.write_text(f"{project} {'built' if ok else 'failed'}\n", encoding="utf-8")
+    return project, ok
 
 
 def copy_dirs(corpus: Path) -> list[Path]:
@@ -143,8 +171,52 @@ def work_key(program: str) -> str:
     return program.replace("\\", "/").replace("/", "__")
 
 
-def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path], work: Path,
-                   unmask: str | None = None, layouts: str | None = "engine") -> dict[str, Any]:  # fmt: skip
+_CICS_TRANSFER = re.compile(r"\bEXEC\s+CICS\s+(?:LINK|XCTL)\b(.*?)\bEND-EXEC\b", re.S)
+_CICS_PROGRAM_OPT = re.compile(r"\bPROGRAM\s*\(\s*([^)]+?)\s*\)")
+_PROGRAM_NAME = re.compile(r"^[A-Z0-9@#$]{1,8}$")
+
+
+def static_cics_links(source_text: str) -> list[str]:
+    """Static EXEC CICS LINK / XCTL PROGRAM(...) targets from COBOL source text (#4803)."""
+    import cics_census as cc
+
+    src = cc.fixed_format_text(source_text)
+    data_div, _, proc_div = src.partition("PROCEDURE DIVISION")
+    body = proc_div if proc_div else src
+    targets: set[str] = set()
+    for m in _CICS_TRANSFER.finditer(body):
+        pm = _CICS_PROGRAM_OPT.search(m.group(1))
+        if not pm:
+            continue
+        arg = pm.group(1).strip()
+        if len(arg) >= 2 and arg[0] == arg[-1] and arg[0] in ("'", '"'):
+            cand = arg[1:-1].strip()
+        elif re.fullmatch(r"[A-Z][A-Z0-9-]*", arg) and proc_div:
+            vals = re.findall(
+                rf"\b{re.escape(arg)}\b[^.]*?\bVALUE\s+(?:IS\s+)?['\"]([A-Z0-9@#$ _-]+)['\"]",
+                data_div,
+            )
+            cands = {v.strip() for v in vals if v.strip()}
+            cand = next(iter(cands)) if len(cands) == 1 else ""
+        else:
+            cand = ""
+        if cand and _PROGRAM_NAME.fullmatch(cand):
+            targets.add(cand)
+    return sorted(targets)
+
+
+def survey_program(
+    program: Path,
+    corpus: Path,
+    project: Path,
+    dirs: list[Path],
+    work: Path,
+    unmask: str | None = None,
+    layouts: str | None = "engine",
+    *,
+    estate_files: dict[str, Any] | None = None,
+    source_text: str | None = None,
+) -> dict[str, Any]:
     """`layouts` (#5649): the translator's record-layout mode: "engine" (the engine's layouts taken; a record
     that does not pair with the engine's fields is the row's error, LayoutDisagrees), or None (the translator's own alone)."""
     import contextlib
@@ -154,7 +226,6 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
 
     from gitgalaxy.tools.cobol_to_java.det import source as S
 
-    from gitgalaxy.core.cobol_source_format import ispf_screens
     from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES
     from gitgalaxy.tools.cobol_to_java.det import hlasm
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -170,13 +241,27 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
         stub = hlasm.service_stub(program.stem, PKG)  # #5859: the forge makes none for an HLASM program
     own = [program.parent, *[d for d in dirs if d != program.parent]]
     what_if = S.survey_unmask(unmask) if unmask else contextlib.nullcontext()
+    cics_links: list[str] = []
+    if program.suffix.lower() in EXTS:
+        if source_text is None:
+            from gitgalaxy.core.source_text import read_source
+
+            try:
+                source_text = read_source(program).text
+            except OSError:
+                source_text = None
+        if source_text is not None:
+            cics_links = static_cics_links(source_text)
+    files_map = P.estate_files(project) if estate_files is None else estate_files
     try:
         with what_if:
             lay = engine_layouts(project, corpus, row["program"], layouts) if layouts else None
-            r = P.translate(program, own, stub, PKG, P.estate_files(project), project, layouts=lay)
+            r = P.translate(program, own, stub, PKG, files_map, project, layouts=lay)
     except Exception as e:  # a program the translator cannot take is a result
         row["error"] = f"{type(e).__name__}: {str(e)[:300]}"
         row["where"] = traceback.extract_tb(e.__traceback__)[-1].name
+        if cics_links:
+            row["cics_links"] = cics_links
         return row
     port = work / "ports" / work_key(row["program"]) / "service"
     port.mkdir(parents=True, exist_ok=True)
@@ -185,11 +270,35 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
                 "holes": list(r.stats["holes"]), "inferred": r.stats.get("inferred", []),
                 "kind": "cics" if "runTask(CicsTask" in stub else "call" if "handleCall(" in stub else
                 "batch" if "runBatch(" in stub else "other"})  # fmt: skip
+    if r.stats.get("program"):
+        row["program_id"] = r.stats["program"]
+    if r.stats.get("callees"):
+        row["callees"] = sorted(r.stats["callees"])
+    if cics_links:
+        row["cics_links"] = cics_links
     if r.stats.get("engine_layouts"):
         row["engine_layouts"] = r.stats[
             "engine_layouts"
         ]  # {"engine": records laid by the engine, "own": by the translator}
     return row
+
+
+def _survey_worker(
+    task: tuple[Path, Path, Path, list[Path], Path, str | None, str | None, dict[str, Any] | None, str | None],
+) -> dict[str, Any]:
+    """Top-level worker wrapper for ProcessPoolExecutor parallel translation."""
+    prog, corpus, project, dirs, work, unmask, layouts, estate_files, source_text = task
+    return survey_program(
+        prog,
+        corpus,
+        project,
+        dirs,
+        work,
+        unmask,
+        layouts,
+        estate_files=estate_files,
+        source_text=source_text,
+    )
 
 
 def assembler_rows(
@@ -311,12 +420,13 @@ def main() -> int:
     ap.add_argument("--work", type=Path, required=True)
     ap.add_argument("--corpus", action="append", help="a corpus name (default: every fetched one)")
     ap.add_argument("--no-compile", action="store_true")
-    ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--jobs", type=int, default=min(os.cpu_count() or 4, 8))
     ap.add_argument("--program", action="append", help="only this program (its path in the corpus; repeatable)")
     ap.add_argument("--unmask", help="WHAT-IF: translate with this refusal check off (det.source.UNMASKABLE)")
     ap.add_argument("--layouts", choices=["engine", "off"], default="engine",
                     help="record layouts (#5649): the engine's alone (default), or the translator's own alone")  # fmt: skip
     ap.add_argument("--estate-from", type=Path, help="reuse DIR/<corpus>/estate of an earlier survey")
+    ap.add_argument("--scan-cache", type=Path, help="optional engine scan cache directory (#5142)")
     args = ap.parse_args()
     import mainframe_corpus as mc
 
@@ -334,7 +444,12 @@ def main() -> int:
             (work / "estate").mkdir(parents=True, exist_ok=True)
             shutil.copyfile(reuse, work / "estate" / "project.txt")
         try:
-            project, built = estate(corpus, work / "estate")
+            project, built = estate(
+                corpus,
+                work / "estate",
+                compile_estate=not args.no_compile,
+                scan_cache=args.scan_cache,
+            )
         except (Exception, SystemExit) as e:  # an estate the generator cannot take is a result too -- also when the
             # refactor controller sys.exit()s ("No executable COBOL files found"), which silently ended the whole
             # survey with status 0 and no survey.json
@@ -346,12 +461,13 @@ def main() -> int:
                    if screens else f"generation failed: {type(e).__name__}: {e}")  # fmt: skip
             rows_by[name] = [{"program": "(estate)", "error": msg}]
             continue
-        # the runtime for this estate (its batch adapters only where the project has a batch package)
+        # the runtime for this estate (needed only when compiling ports)
         runtime = work / "runtime"
-        shutil.rmtree(runtime, ignore_errors=True)
-        for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
-            (runtime / rel).parent.mkdir(parents=True, exist_ok=True)
-            (runtime / rel).write_text(text, encoding="utf-8")
+        if not args.no_compile:
+            shutil.rmtree(runtime, ignore_errors=True)
+            for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
+                (runtime / rel).parent.mkdir(parents=True, exist_ok=True)
+                (runtime / rel).write_text(text, encoding="utf-8")
         # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)
         bms = [p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() == ".bms" and ".git" not in p.parts]
         made = bms_copybooks(bms, work / "bms-copy")
@@ -377,20 +493,44 @@ def main() -> int:
             {p.as_posix(): srcs[p] for p in progs if not copies[p]},
             {p.as_posix(): p.relative_to(corpus).parts for p in progs},
         )
-        rows = [
-            {"program": p.relative_to(corpus).as_posix(), "copy_member": copies[p]} if copies[p] else
-            {"program": p.relative_to(corpus).as_posix(), "not_program": others[p.as_posix()]}
-            if p.as_posix() in others else
-            survey_program(p, corpus, project, dirs, work, args.unmask, None if args.layouts == "off" else args.layouts)
-            for p in progs
-        ]  # fmt: skip
+        layouts_mode = None if args.layouts == "off" else args.layouts
+        estate_files_map = P.estate_files(project)
+        rows: list[dict[str, Any]] = [{}] * len(progs)
+        todo_idx: list[int] = []
+        todo_tasks: list[tuple[Path, Path, Path, list[Path], Path, str | None, str | None, dict[str, Any] | None, str | None]] = []
+        for idx, p in enumerate(progs):
+            rel = p.relative_to(corpus).as_posix()
+            if copies[p]:
+                rows[idx] = {"program": rel, "copy_member": copies[p]}
+            elif p.as_posix() in others:
+                rows[idx] = {"program": rel, "not_program": others[p.as_posix()]}
+            else:
+                todo_idx.append(idx)
+                todo_tasks.append(
+                    (p, corpus, project, dirs, work, args.unmask, layouts_mode, estate_files_map, srcs[p])
+                )
+        if args.jobs > 1 and len(todo_tasks) > 1:
+            with ProcessPoolExecutor(max_workers=min(args.jobs, len(todo_tasks))) as ex:
+                translated_rows = list(ex.map(_survey_worker, todo_tasks))
+        else:
+            translated_rows = [_survey_worker(t) for t in todo_tasks]
+        for idx, row in zip(todo_idx, translated_rows, strict=True):
+            rows[idx] = row
         if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
             rows += assembler_rows(
                 corpus,
                 {Path(p).as_posix() for p in args.program} if args.program else None,
-                partial(survey_program, corpus=corpus, project=project, dirs=dirs, work=work, unmask=args.unmask,
-                        layouts=None if args.layouts == "off" else args.layouts),
-            )  # fmt: skip
+                partial(
+                    survey_program,
+                    corpus=corpus,
+                    project=project,
+                    dirs=dirs,
+                    work=work,
+                    unmask=args.unmask,
+                    layouts=layouts_mode,
+                    estate_files=estate_files_map,
+                ),
+            )
         if built and not args.no_compile:
             cp = classpath(project)
             todo = [r for r in rows if "statements" in r]

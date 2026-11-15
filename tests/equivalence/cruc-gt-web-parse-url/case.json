@@ -34,6 +34,25 @@
       "commarea": null,
       "terminal": "GT71 Z",
       "why": "takes the EVALUATE/IF arm no crucible scenario reaches: a mode no WHEN names (falls through)"
+    },
+    {
+      "name": "send-fault",
+      "commarea": null,
+      "terminal": "GT71 E",
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "the final SEND TEXT fails with INVREQ: the program's reaction to a failed reply (kills the RESP-check and reply-length mutants)"
+    },
+    {
+      "name": "mode-p-trailing",
+      "commarea": null,
+      "terminal": "GT71 PQRSTUV",
+      "why": "mode P with extra bytes after the mode byte: only WS-INPUT(6:1) selects the arm, the trailing bytes do not change the parse"
     }
   ]
 }

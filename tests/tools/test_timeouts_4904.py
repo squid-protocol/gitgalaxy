@@ -165,11 +165,13 @@ def test_det_survey_compile_port_timeout(monkeypatch, tmp_path):
 
 def test_mutation_compiles_timeout(monkeypatch, tmp_path):
     """mutation.compiles turns TimeoutExpired into (False, 'javac timed out...')."""
+    import javac_server
 
     def fake_run(cmd, *args, **kwargs):
         raise subprocess.TimeoutExpired(cmd, timeout=kwargs.get("timeout", 60))
 
     monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr(javac_server, "javac", fake_run)
 
     ok, why = mutation.compiles(tmp_path, "cp", tmp_path / "out")
     assert ok is False

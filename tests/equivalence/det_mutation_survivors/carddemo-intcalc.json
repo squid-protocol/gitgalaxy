@@ -1,0 +1,159 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-intcalc",
+ "survivors": [
+  {
+   "id": "3d0ef9ec27",
+   "op": "LIT",
+   "line": 61,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_TCATBALF_STATUS follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "6afaed65d6",
+   "op": "LIT",
+   "line": 78,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_TRANFILE_STATUS follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "94d01c5d26",
+   "op": "DEL",
+   "line": 269,
+   "before": "System.arraycopy(IMAGE_s_TCATBALF_STATUS, 0, s_TCATBALF_STATUS.bytes, 0, IMAGE_s_TCATBALF_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_TCATBALF_STATUS, 0, s_TCATBALF_STATUS.bytes, 0, IMAGE_s_TCATBALF_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_TCATBALF_STATUS's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "ee33df5178",
+   "op": "DEL",
+   "line": 281,
+   "before": "System.arraycopy(IMAGE_s_COBOL_TS, 0, s_COBOL_TS.bytes, 0, IMAGE_s_COBOL_TS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_COBOL_TS, 0, s_COBOL_TS.bytes, 0, IMAGE_s_COBOL_TS.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_COBOL_TS's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "3ed4fe6191",
+   "op": "AOR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "76b3d18928",
+   "op": "ROR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9851207f9f",
+   "op": "ROR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cc523f6bd3",
+   "op": "AOR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "23c747349c",
+   "op": "ROR",
+   "line": 388,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bf59c18f12",
+   "op": "ROR",
+   "line": 393,
+   "before": "if (next >= 23) {",
+   "after": "if (next < 23) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ee9e2a0390",
+   "op": "ROR",
+   "line": 393,
+   "before": "if (next >= 23) {",
+   "after": "if (next > 23) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8d278ed206",
+   "op": "ROR",
+   "line": 399,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  }
+ ]
+}

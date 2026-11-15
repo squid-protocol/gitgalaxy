@@ -1,0 +1,99 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-dateutil",
+ "survivors": [
+  {
+   "id": "fc6dbf2a76",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_OUTPUT_LILLIAN follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "bf694026c0",
+   "op": "DEL",
+   "line": 103,
+   "before": "System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_OUTPUT_LILLIAN, 0, s_OUTPUT_LILLIAN.bytes, 0, IMAGE_s_OUTPUT_LILLIAN.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_OUTPUT_LILLIAN's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "a09fbeeb55",
+   "op": "LIT",
+   "line": 317,
+   "before": "Cobol.move(\"Insufficient\", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xnsufficient\", f17_WS_RESULT, CS);",
+   "verdict": "equivalent",
+   "reason": "f17_WS_RESULT at line 317 is unconditionally overwritten by f17_WS_RESULT at line 320 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "d1a2b80966",
+   "op": "LIT",
+   "line": 323,
+   "before": "Cobol.move(\"Invalid Era    \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xnvalid Era    \", f17_WS_RESULT, CS);",
+   "verdict": "equivalent",
+   "reason": "f17_WS_RESULT at line 323 is unconditionally overwritten by f17_WS_RESULT at line 326 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "3496938a59",
+   "op": "LIT",
+   "line": 329,
+   "before": "Cobol.move(\"Invalid month  \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xnvalid month  \", f17_WS_RESULT, CS);",
+   "verdict": "equivalent",
+   "reason": "f17_WS_RESULT at line 329 is unconditionally overwritten by f17_WS_RESULT at line 332 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "ce0b3e4775",
+   "op": "LIT",
+   "line": 332,
+   "before": "Cobol.move(\"Bad Pic String \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"Xad Pic String \", f17_WS_RESULT, CS);",
+   "verdict": "equivalent",
+   "reason": "f17_WS_RESULT at line 332 is unconditionally overwritten by f17_WS_RESULT at line 335 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "40551fbb99",
+   "op": "LIT",
+   "line": 338,
+   "before": "Cobol.move(\"YearInEra is 0 \", f17_WS_RESULT, CS);",
+   "after": "Cobol.move(\"XearInEra is 0 \", f17_WS_RESULT, CS);",
+   "verdict": "equivalent",
+   "reason": "f17_WS_RESULT at line 338 is unconditionally overwritten by f17_WS_RESULT at line 341 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  }
+ ]
+}

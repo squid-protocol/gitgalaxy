@@ -1,0 +1,147 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-readacct",
+ "survivors": [
+  {
+   "id": "acae78362c",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_ACCTFILE_STATUS follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "1079e4f2de",
+   "op": "DEL",
+   "line": 191,
+   "before": "System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_ACCTFILE_STATUS's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "500f5f090b",
+   "op": "ROR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "88b2663eea",
+   "op": "AOR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9b2bd29a58",
+   "op": "ROR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cae967833a",
+   "op": "AOR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9ba8631a0e",
+   "op": "NEG",
+   "line": 293,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ca4419b6dd",
+   "op": "ROR",
+   "line": 293,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5444efed8d",
+   "op": "ROR",
+   "line": 298,
+   "before": "if (next >= 17) {",
+   "after": "if (next > 17) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b5940be1ae",
+   "op": "NEG",
+   "line": 298,
+   "before": "if (next >= 17) {",
+   "after": "if (!(next >= 17)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d22815de57",
+   "op": "ROR",
+   "line": 298,
+   "before": "if (next >= 17) {",
+   "after": "if (next < 17) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  }
+ ]
+}

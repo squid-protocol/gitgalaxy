@@ -1,0 +1,231 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-coacct01",
+ "survivors": [
+  {
+   "id": "6fe17841e3",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"AAAAAAAAAAAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "after": "\"XAAAAAAAAAAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_WS_CICS_RESP_CDS lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "8226d4f385",
+   "op": "CON",
+   "line": 217,
+   "before": "private final Field f226_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f226_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f226_EIBCALEN is only stored into: bytes 24..27 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "af42995ce9",
+   "op": "LIT",
+   "line": 314,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "2c46d35bd3",
+   "op": "LIT",
+   "line": 362,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "b18107f0d5",
+   "op": "DEL",
+   "line": 439,
+   "before": "f101_MQRC_BUFFER_LENGTH_ERROR = 2005L;",
+   "after": "/* f101_MQRC_BUFFER_LENGTH_ERROR = 2005L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f101_MQRC_BUFFER_LENGTH_ERROR follows a top-level store of it in its own method; the initial value is never read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "6766d3010b",
+   "op": "DEL",
+   "line": 476,
+   "before": "f138_MQMT_DATAGRAM = 8L;",
+   "after": "/* f138_MQMT_DATAGRAM = 8L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f138_MQMT_DATAGRAM follows a top-level store of it in its own method; the initial value is never read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "210a6021f3",
+   "op": "AOR",
+   "line": 521,
+   "before": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f220_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "631c0725bf",
+   "op": "AOR",
+   "line": 521,
+   "before": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f220_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "887d999f0e",
+   "op": "AOR",
+   "line": 521,
+   "before": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f220_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1bfe19f974",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f219_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4129a9f37d",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f219_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "559f72ec72",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f219_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9fa163025e",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f219_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "86e25acbf6",
+   "op": "DEL",
+   "line": 533,
+   "before": "calen = cx(task, 873);",
+   "after": "/* calen = cx(task, 873); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 533 is overwritten at line 535 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "f4247717db",
+   "op": "CON",
+   "line": 710,
+   "before": "Cobol.store(f248_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f248_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f248_EIBRESP2 at line 710 is unconditionally overwritten by f248_EIBRESP2 at line 713 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "05c1cc015b",
+   "op": "DEL",
+   "line": 916,
+   "before": "Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS);",
+   "after": "/* Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_MQ_APPL_REASON_CODE at line 916 is unconditionally overwritten by f37_MQ_APPL_REASON_CODE at line 919 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "1f8afdd636",
+   "op": "DEL",
+   "line": 1036,
+   "before": "Cobol.move(D1000, f21_MQ_BUFFER_LENGTH, CS);",
+   "after": "/* Cobol.move(D1000, f21_MQ_BUFFER_LENGTH, CS); */",
+   "verdict": "equivalent",
+   "reason": "f21_MQ_BUFFER_LENGTH at line 1036 is unconditionally overwritten by f21_MQ_BUFFER_LENGTH at line 1039 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "7d03149636",
+   "op": "DEL",
+   "line": 1056,
+   "before": "Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS);",
+   "after": "/* Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_MQ_APPL_REASON_CODE at line 1056 is unconditionally overwritten by f37_MQ_APPL_REASON_CODE at line 1059 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  }
+ ]
+}

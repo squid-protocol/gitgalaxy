@@ -5,7 +5,7 @@
  "case": "cruc-gt-web-parse-url",
  "entry": {
   "program": "GTWPARS",
-  "commit": "3d98e60b86e52355b2b117ce7d5964e565ecdf81+uncommitted",
+  "commit": "54af490d7908f5071d55ae4d0c55aa6398b84185+uncommitted",
   "date": "2026-11-15",
   "mode": "fast",
   "seed": 0,
@@ -14,9 +14,9 @@
   "chosen": 526,
   "coverage": null,
   "counts": {
-   "killed": 229,
+   "killed": 230,
    "timeout": 0,
-   "survived": 287,
+   "survived": 286,
    "stillborn": 10,
    "error": 0,
    "pending": 0
@@ -186,6 +186,7 @@
    "aff6f1c1be",
    "b0e3492e40",
    "b113bd8257",
+   "b2377a71ee",
    "b354f967b3",
    "b612222585",
    "b6efae84fe",
@@ -808,14 +809,6 @@
     "line": 172,
     "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
     "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
-   },
-   {
-    "id": "b2377a71ee",
-    "op": "DEL",
-    "file": "service/GtwparsService.java",
-    "line": 182,
-    "before": "System.arraycopy(IMAGE_s_WS_INPUT, 0, s_WS_INPUT.bytes, 0, IMAGE_s_WS_INPUT.length);",
-    "after": "/* System.arraycopy(IMAGE_s_WS_INPUT, 0, s_WS_INPUT.bytes, 0, IMAGE_s_WS_INPUT.length); */"
    },
    {
     "id": "5028f54000",
@@ -2566,11 +2559,11 @@
    "port": "53e3b6af111672eaff8eaec24893697c58d7f4faaa63578d3ab3c7544eb5fcb9",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "generator": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
-   "case": "66b6bc286baa22f94f2875aa0d0c353ccc3a47ee59880da9d7d08c77db14c61d",
+   "case": "5b3f5d941d3daf1a5d7af68d8e23d2a9661395ca1b4756e3f94330a0c82765af",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "6d0b2f467a992665a68cbb2f11f2fadc7fc52caf151de5647cc2ab572ada0a59",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+   "survivors": "32b3f8af84b5957979812cf64b3f916685bd37959a71fb92b1f41a5ff2833586"
   },
   "components": {
    "generator": {

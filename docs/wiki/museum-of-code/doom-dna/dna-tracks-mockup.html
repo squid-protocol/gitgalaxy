@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DOOM DNA — 16 Call-Graph Community Tracks (Live Data)</title>
+<style>
+  :root {
+    --bg: #fafaf9; --card: #ffffff; --ink: #1c1917; --muted: #78716c; --border: #e7e5e4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  .wrap { max-width: 1220px; margin: 0 auto; }
+  header { margin-bottom: 16px; }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); font-size: 13.5px; margin: 0; line-height: 1.45; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 7px; border-radius: 999px; background: #dcfce7; color: #166534;
+    vertical-align: middle; margin-left: 8px;
+  }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 14px;
+  }
+  .port-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    border: 1px solid var(--border); background: #fff; color: var(--ink);
+    padding: 6px 11px; border-radius: 7px; font-size: 12.5px; cursor: pointer;
+    font-weight: 500; transition: all .12s;
+  }
+  .pill:hover { border-color: #a8a29e; }
+  .pill.active { background: #1c1917; color: #fff; border-color: #1c1917; }
+  .spacer { flex: 1; }
+  .toggle-group { display: flex; gap: 12px; align-items: center; font-size: 12.5px; color: var(--muted); }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 16px; margin-bottom: 14px; font-size: 12.5px;
+  }
+  .leg-item { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .leg-item.dim { opacity: 0.35; }
+  .swatch { width: 18px; height: 6px; border-radius: 3px; }
+  .swatch.base { height: 2px; background: #1c1917; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .grid.two { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 960px) { .grid.two { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; gap: 8px; }
+  .card-title { font-size: 16px; font-weight: 700; }
+  .card-meta { font-size: 12px; color: var(--muted); }
+  .summary-bar {
+    display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px;
+    color: var(--muted); margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-bar strong { color: var(--ink); }
+  .track-row {
+    display: grid; grid-template-columns: 205px 1fr 62px; align-items: center;
+    gap: 10px; height: 24px;
+  }
+  .track-label {
+    font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #44403c; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .track-loc {
+    font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--muted); text-align: right;
+  }
+  .track-svg { width: 100%; height: 20px; display: block; overflow: visible; }
+  .tooltip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: #1c1917; color: #fafaf9; padding: 8px 10px; border-radius: 7px;
+    font-size: 12px; line-height: 1.4; max-width: 340px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18); display: none;
+  }
+  .err { padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>DOOM DNA — 16 Call-Graph Community Tracks <span class="badge">LIVE DATA</span></h1>
+    <p class="sub">
+      All <strong>16 tracks</strong> are communities discovered directly from <code>linuxdoom</code>'s call graph (zero filename rules). Horizontal additions (like <code>textscreen</code>) and port-unique functions are placed into the call-graph system they connect to: <strong>Grey</strong> = unique to this port; <strong>colored bands</strong> = matched by Seed-and-Extend or structural twins to an ancestor/donor.
+    </p>
+  </header>
+
+  <div class="controls">
+    <div class="port-pills" id="portPills"></div>
+    <div class="spacer"></div>
+    <div class="toggle-group">
+      <label>Palette:
+        <select id="paletteSelect" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;">
+          <option value="contrast">High-Contrast (Red / Blue / Green / Purple / Cyan)</option>
+          <option value="okabe">Okabe-Ito Colorblind-Safe</option>
+          <option value="vivid">Vivid Print (Crimson / Cobalt / Gold / Magenta / Teal)</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="compareToggle" /> Compare vs. <code>linuxdoom</code></label>
+      <label><input type="checkbox" id="scaleToggle" checked /> Scale track by log(LOC)</label>
+    </div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+  <div class="grid" id="cardsGrid"><div class="card">Loading <code>dna_tracks_data.json</code>...</div></div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const PALETTES = {
+  contrast: {
+    'linuxdoom': '#dc2626', 'chocolate-doom': '#2563eb', 'prboom-plus': '#16a34a',
+    'doomgeneric': '#9333ea', 'woof': '#0891b2', unique: '#e5e5e5'
+  },
+  okabe: {
+    'linuxdoom': '#d55e00', 'chocolate-doom': '#0072b2', 'prboom-plus': '#009e73',
+    'doomgeneric': '#cc79a7', 'woof': '#56b4e9', unique: '#e5e5e5'
+  },
+  vivid: {
+    'linuxdoom': '#be123c', 'chocolate-doom': '#1d4ed8', 'prboom-plus': '#eab308',
+    'doomgeneric': '#a21caf', 'woof': '#0d9488', unique: '#e2e8f0'
+  }
+};
+
+const ANCESTORS = [
+  { id: 'linuxdoom',      label: 'linuxdoom (1993 C core)' },
+  { id: 'chocolate-doom', label: 'chocolate-doom (textscreen/hexen/man)' },
+  { id: 'prboom-plus',    label: 'prboom-plus / dsda (deh/MBF21)' },
+  { id: 'doomgeneric',    label: 'doomgeneric (DG_* shim)' },
+  { id: 'woof',           label: 'woof (MBF/WinMBF)' }
+];
+const ANC_MAP = Object.fromEntries(ANCESTORS.map(a => [a.id, a]));
+let activePalette = 'contrast';
+const ancColor = (id) => PALETTES[activePalette][id];
+const uniqueColor = () => PALETTES[activePalette].unique;
+
+let DATA = null;
+let activePort = 'eternity';
+const hiddenAnc = new Set();
+
+const pillsEl = document.getElementById('portPills');
+const legendEl = document.getElementById('legend');
+const gridEl = document.getElementById('cardsGrid');
+const compareEl = document.getElementById('compareToggle');
+const scaleEl = document.getElementById('scaleToggle');
+const paletteEl = document.getElementById('paletteSelect');
+const tipEl = document.getElementById('tooltip');
+
+function renderControls() {
+  pillsEl.innerHTML = '';
+  Object.keys(DATA.ports).forEach(name => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (name === activePort ? ' active' : '');
+    b.textContent = name;
+    b.onclick = () => { activePort = name; renderControls(); renderCards(); };
+    pillsEl.appendChild(b);
+  });
+
+  legendEl.innerHTML = `<div class="leg-item"><span class="swatch" style="background:${uniqueColor()}"></span><span>Unique to this port</span></div>`;
+  ANCESTORS.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'leg-item' + (hiddenAnc.has(a.id) ? ' dim' : '');
+    item.innerHTML = `<span class="swatch" style="background:${ancColor(a.id)}"></span><span>${a.label}</span>`;
+    item.onclick = () => {
+      if (hiddenAnc.has(a.id)) hiddenAnc.delete(a.id); else hiddenAnc.add(a.id);
+      renderControls(); renderCards();
+    };
+    legendEl.appendChild(item);
+  });
+}
+
+function renderCard(portName) {
+  const port = DATA.ports[portName];
+  const trackLocs = port.tracks.map(fns => fns.reduce((s, f) => s + f[1], 0));
+  const maxLog = Math.max(...trackLocs.map(l => Math.log1p(l)), 1);
+  const totalLoc = trackLocs.reduce((a, b) => a + b, 0);
+
+  const ancTotals = {};
+  port.tracks.forEach(fns => fns.forEach(([, loc, donor]) => {
+    if (donor && !hiddenAnc.has(donor)) ancTotals[donor] = (ancTotals[donor] || 0) + loc;
+  }));
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  const chips = ANCESTORS.filter(a => (ancTotals[a.id] || 0) > 0)
+    .map(a => `<span><strong style="color:${ancColor(a.id)}">${(100 * ancTotals[a.id] / Math.max(1, totalLoc)).toFixed(1)}%</strong> ${a.id}</span>`)
+    .join(' &middot; ') || '<strong>0.0%</strong> matched ancestor DNA';
+
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="card-title">${portName}</div>
+      <div class="card-meta">${port.meta}</div>
+    </div>
+    <div class="summary-bar">
+      <span><strong>${totalLoc.toLocaleString()}</strong> total LOC</span>
+      <span>${chips}</span>
+    </div>
+  `;
+
+  DATA.subsystems.forEach((sub, idx) => {
+    const fns = port.tracks[idx];
+    const loc = trackLocs[idx];
+    const row = document.createElement('div');
+    row.className = 'track-row';
+    const trackPct = scaleEl.checked ? (loc === 0 ? 4 : Math.max(10, (Math.log1p(loc) / maxLog) * 100)) : 100;
+    const W = 400;
+    const lineW = (trackPct / 100) * W;
+
+    let segs = `<line x1="0" y1="10" x2="${lineW.toFixed(1)}" y2="10" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>`;
+    if (fns.length > 0 && loc > 0) {
+      let x = 0;
+      // Sort functions deterministically by name so bands sit in consistent order across the track
+      const ordered = [...fns].sort((a, b) => a[0].localeCompare(b[0]));
+      ordered.forEach(([fnName, fnLoc, donor, refName]) => {
+        const w = (fnLoc / loc) * lineW;
+        const isDonor = donor && !hiddenAnc.has(donor) && ANC_MAP[donor];
+        const fill = isDonor ? ancColor(donor) : uniqueColor();
+        segs += `<rect class="gene" data-fn="${fnName}" data-loc="${fnLoc}" data-donor="${isDonor ? donor : ''}" data-ref="${refName || ''}" x="${x.toFixed(2)}" y="4.5" width="${w.toFixed(2)}" height="11" fill="${fill}"/>`;
+        x += w;
+      });
+    }
+
+    row.innerHTML = `
+      <div class="track-label" title="${sub}">${sub}</div>
+      <svg class="track-svg" viewBox="0 0 ${W} 20" preserveAspectRatio="none">${segs}</svg>
+      <div class="track-loc">${loc}L</div>
+    `;
+    row.onmousemove = (e) => {
+      const target = e.target;
+      tipEl.style.display = 'block';
+      tipEl.style.left = (e.clientX + 14) + 'px';
+      tipEl.style.top = (e.clientY + 14) + 'px';
+      if (target && target.classList && target.classList.contains('gene')) {
+        const fn = target.getAttribute('data-fn');
+        const fl = target.getAttribute('data-loc');
+        const dn = target.getAttribute('data-donor');
+        const rf = target.getAttribute('data-ref');
+        if (dn && ANC_MAP[dn]) {
+          tipEl.innerHTML = `<strong>${portName}: ${fn}</strong> (${fl} LOC)<br>Matched: <span style="color:${ancColor(dn)};font-weight:700">${dn}</span> &rarr; <code>${rf}</code>`;
+        } else {
+          tipEl.innerHTML = `<strong>${portName}: ${fn}</strong> (${fl} LOC)<br><span style="color:#d6d3d1">Unique to ${portName}</span>`;
+        }
+      } else {
+        tipEl.innerHTML = `<strong>${portName} — ${sub}</strong><br>${fns.length} functions, ${loc.toLocaleString()} LOC`;
+      }
+    };
+    row.onmouseleave = () => { tipEl.style.display = 'none'; };
+    card.appendChild(row);
+  });
+
+  return card;
+}
+
+function renderCards() {
+  gridEl.innerHTML = '';
+  const showCompare = compareEl.checked && activePort !== 'linuxdoom';
+  gridEl.className = 'grid' + (showCompare ? ' two' : '');
+  gridEl.appendChild(renderCard(activePort));
+  if (showCompare) gridEl.appendChild(renderCard('linuxdoom'));
+}
+
+compareEl.onchange = renderCards;
+scaleEl.onchange = renderCards;
+paletteEl.onchange = () => { activePalette = paletteEl.value; renderControls(); renderCards(); };
+
+fetch('dna_tracks_data.json')
+  .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+  .then(json => { DATA = json; renderControls(); renderCards(); })
+  .catch(err => {
+    gridEl.innerHTML = `<div class="err">Could not load <code>dna_tracks_data.json</code> (${err.message}). Serve <code>article/</code> over HTTP (e.g. <code>python3 -m http.server</code>).</div>`;
+  });
+</script>
+</body>
+</html>

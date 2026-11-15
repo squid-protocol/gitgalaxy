@@ -263,46 +263,76 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
 .srchead { font-family: var(--font-display); font-weight: 800; color: var(--measured); }
 .dlbtn { margin-top: 0.3rem; align-self: flex-start; }
 #dlnote { font-style: normal; }
+.claims-list { margin: 1rem 0 1.4rem; padding-left: 1.25rem; }
+.claims-list li { margin-bottom: 0.55rem; line-height: 1.5; }
+.gif-figure { margin: 1.4rem auto; text-align: center; }
+.gif-figure img { max-width: 100%; border-radius: 10px; border: 1px solid var(--rule); display: block; margin: 0 auto; }
+.dna-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.dna-pills { display: flex; flex-wrap: wrap; gap: 5px; max-height: 132px; overflow-y: auto; padding: 2px 0; }
+.dna-pill { border: 1px solid var(--rule); background: var(--panel); color: var(--ink); padding: 4px 9px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+.dna-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.dna-legend { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 12px; margin: 8px 0 12px; padding: 8px 12px; background: var(--bg); border-radius: 8px; }
+.dna-leg-item { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+.dna-leg-item.dim { opacity: 0.35; }
+.dna-swatch { width: 16px; height: 6px; border-radius: 3px; display: inline-block; }
+.dna-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.dna-grid.two { grid-template-columns: 1fr 1fr; }
+@media (max-width: 960px) { .dna-grid.two { grid-template-columns: 1fr; } }
+.dna-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; }
+.dna-track-row { display: grid; grid-template-columns: 195px 1fr 56px; align-items: center; gap: 8px; height: 22px; }
+.dna-track-label { font-size: 11px; font-family: var(--font-mono); color: var(--ink-2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dna-track-loc { font-size: 11px; font-family: var(--font-mono); color: var(--ink-3); text-align: right; }
+.dna-track-svg { width: 100%; height: 18px; display: block; overflow: visible; }
 </style>
 
 </head>
 <body>
 <div class="wrap">
   <header class="col">
-    <div class="kicker accent">Software archaeology · The DOOM study</div>
-    <h1 class="mast">DOOM's DNA<small>How code keeps its family resemblance</small></h1>
-    <p class="dek">Forty-one programs come from the 1997 release of DOOM's source code or rebuild its engine. Measure
-      only their shape and you can still tell who copied whom, and which translations kept the original blueprint.</p>
-    <p class="byline">By <b>Joe Esquibel</b> · 31 October 2026 · Everything on this page is interactive: tap, hover, pick.</p>
+    <div class="kicker accent">Software archaeology · The DOOM study (Updated with Seed-and-Extend, DOOM-E5 &amp; Horizontal Transfers)</div>
+    <h1 class="mast">DOOM's DNA<small>What survives translation, porting, and rewriting</small></h1>
+    <p class="dek">55 programs measured: 41 DOOM descendants, 5 preregistered held-out <code>DOOM-E5</code> targets, and 9 permissive controls across C, Go, Rust, Python, Scheme, COBOL, Fortran, Java, C#, Kotlin, and SQL. Strip every identifier and you can still trace who copied whom.</p>
+    <p class="byline">By <b>Joe Esquibel</b> · November 2026 · Everything on this page is interactive: tap, hover, pick.</p>
   </header>
 
   <figure class="hero band" id="hero">
-    <svg id="collage" viewBox="0 0 1200 600" role="img" aria-label="The names of the 43 programs in the study, with the original, linuxdoom, at the centre; each name is sized by how many functions the program has"></svg>
-    <figcaption>The 43 programs we scanned, around the original. Each name is sized by how many functions the program has, from
-      the Claude-written COBOL raycaster's 45 to Doomsday's 25,482. Tap one to open it.</figcaption>
+    <svg id="collage" viewBox="0 0 1200 600" role="img" aria-label="The names of the 55 programs in the study, with the original, linuxdoom, at the centre; each name is sized by how many functions the program has"></svg>
+    <figcaption>All 55 programs in the updated study around <code>linuxdoom</code>. Each name is sized by how many functions it has. Tap any name to open its profile and 16-track DNA gene map.</figcaption>
   </figure>
 
   <section class="col prose">
-    <p class="lede">Strip a program of every name, every comment, every line of readable text. What's left is its
-      shape: how long each function is, how often it branches, which parts of the program call which. That shape, it
-      turns out, works like a fingerprint.</p>
-    <p>DOOM is the perfect place to test it. When id Software released the game's source code in 1997 (the version known
-      as <b>linuxdoom</b>), programmers started copying it, porting it and rebuilding it, and they have not stopped. We
-      gathered 41 of those descendants and rebuilds: faithful copies, souped-up source ports, translations into about
-      twenty languages, from Go and Scheme to Fortran, COBOL and even SQL, and engines rewritten from scratch. The other
-      two of the 43 are not DOOM engines and stay in only as checks: Doom 3: BFG Edition, a different engine (id Tech 4) whose repository also bundles classic DOOM, and Freedoom, a free set of game data with no engine. Then we fed them to a code-measuring engine that
-      never reads the code, and asked it where each one came from.</p>
+    <h2>Core Claims</h2>
+    <ul class="claims-list">
+      <li><b>A function's structural shape + call-graph neighborhood acts like DNA, even with zero names read.</b> Unsupervised <b>Seed-and-Extend</b> (<code>composition</code> mode + Fused Gromov–Wasserstein + <code>delta</code> offset + 3-hop extension) recovers <b>65–95%</b> of 1-to-1 functions across C ports (<code>mood</code> 95.3%, <code>puredoom</code> 89.0%, <code>doomgeneric</code> 84.9%, <code>sdl-doom</code> 82.3%, <code>doom-ascii</code> 80.8%, <code>doom-wasm</code> 78.8%, <code>chocolate-doom</code> 65.0%).</li>
+      <li><b>Structural DNA survives cross-language translation.</b> Ported to Go (<code>gore</code>, flat directory layout, 0.2% filename match), Seed-and-Extend calibrates the <code>C &rarr; Go</code> translation vector and recovers <b>426 / 561 (75.9%)</b> exact 1-to-1 functions (<b>92.5%</b> on Tier-1 seeds).</li>
+      <li><b>True from-scratch rewrites and unrelated controls sit at ~0% noise.</b> Across <b>9</b> permissive controls (<code>lua</code>, <code>quake</code>, <code>quake2</code>, <code>carddemo-cobol-ctrl</code>, <code>c-raycasting</code>, <code>c-raycasting2</code>, <code>goom3d</code>, <code>bubbletea</code>, <code>macroquad</code>) and <b>66</b> cross-pair permutations of novel/from-scratch/agentic repos, every non-DOOM pair scores <b>0–1</b> accidental hits.</li>
+      <li><b>Paradigm shifts erase call-graph DNA.</b> In preregistered held-out test <code>DOOM-E5</code>, <code>cydoomgeneric</code> hit <b>100.0%</b> Tier-1 (156/156, <code>FGW_cost=0.313</code>) against <code>doomgeneric</code>, while <code>iron-doom</code> (ported from Chocolate Doom into <b>Bevy ECS</b>) dropped to <b>0.0%</b> (0/147).</li>
+      <li><b>Horizontal borrowing across separate branches is visible without names.</b> Subtracting <code>linuxdoom</code> isolates Chocolate Doom's <code>textscreen</code> inside <code>odamex</code>, <code>eternity</code>, <code>woof</code>, and <code>doom-wasm</code>; <code>src/hexen</code> inside <code>dsda-doom</code>; MBF21 pointers between <code>dsda-doom</code> and <code>woof</code>; and hidden ancestry (<code>doom-ios</code> embedding <code>prboom-plus</code>, <code>sdl-doom</code> matching <code>doomgeneric</code>).</li>
+      <li><b>The 16 subsystems don't need manual filename buckets.</b> Community detection on <code>linuxdoom</code>'s call graph discovers 16 organic call-graph tracks directly from call edges, so single-header (<code>puredoom</code>) and flat-dir (<code>gore</code>) ports light up the exact systems they belong to.</li>
+    </ul>
+
+    <figure class="gif-figure">
+      <div class="over">Visual 1 · Function Fingerprint</div>
+      <h3>How one function's structural fingerprint moves across ports</h3>
+      <img src="function-c.gif" alt="Function-level structural fingerprint comparison across C and ported DOOM functions" />
+    </figure>
+
+    <figure class="gif-figure">
+      <div class="over">Visual 2 · Corpus Comparison</div>
+      <h3>Comparing DOOM ports &amp; controls side by side</h3>
+      <img src="doom-ports.gif" alt="DOOM ports structural comparison across the corpus" />
+    </figure>
   </section>
 
   <div class="bigfacts col" aria-label="The three headline facts">
-    <div class="bigfact"><b>86% / 33%</b><span>Chocolate Doom keeps 86% of the original's function names, but only 33% of the code inside them is unchanged</span></div>
-    <div class="bigfact"><b>0 to 0.6%</b><span>of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 48%</span></div>
-    <div class="bigfact"><b>60% vs 20%</b><span>with every name hidden, a Go translation's functions still land in the right part of the game; guessing manages 20%</span></div>
+    <div class="bigfact"><b>65–95% / 75.9%</b><span>Unsupervised Seed-and-Extend recovers 65–95% of 1-to-1 functions across C ports and 75.9% across C &rarr; Go (<code>gore</code>, 92.5% Tier-1)</span></div>
+    <div class="bigfact"><b>0 to 0.6%</b><span>across all 9 permissive controls &amp; 66 cross-pair permutations; Bevy ECS rewrite <code>iron-doom</code> also drops to 0.0%</span></div>
+    <div class="bigfact"><b>16 tracks · 49 targets</b><span>Pure call-graph communities discovered directly from <code>linuxdoom</code>'s edges, with horizontal transfers highlighted</span></div>
   </div>
 
   <nav class="jump col" aria-label="Jump to an interactive">
     <span>Jump to the toys:</span>
-    <a href="#follow">Follow a function</a><a href="#tree-band">The family tree</a><a href="#wiring-band">Compare the wiring</a><a href="#explore">Explore all 43</a>
+    <a href="#dna-map-band">16-Track DNA Gene Map</a><a href="#se-band">Seed-and-Extend &amp; DOOM-E5</a><a href="#follow">Follow a function</a><a href="#tree-band">The family tree</a><a href="#wiring-band">Compare the wiring</a><a href="#explore">Explore all 54</a>
   </nav>
 
   <section class="col prose">
@@ -454,17 +484,44 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
     <p class="cap" id="wirenote"></p>
   </section>
 
+  <section class="band card" id="dna-map-band" aria-label="16-Track Call-Graph DNA Gene Map">
+    <div class="bandhead"><div class="kicker accent">Recalculated Gene Map · All 49 Targets</div><h2>16-Track Call-Graph DNA Gene Map</h2>
+      <p class="cap">All <b>16 tracks</b> are communities discovered directly from <code>linuxdoom</code>'s call graph (zero filename rules). Horizontal additions (<code>textscreen</code>, <code>src/hexen</code>, <code>DG_*</code>) and port-unique functions are placed into the call-graph system they connect to: <b>Grey</b> = unique to that port; <b>colored bands</b> = Seed-and-Extend or structural twin matches to an ancestor/donor. <i>Note: <code>doom3-bfg</code>, <code>doomsday</code>, and <code>gzdoom</code> (&gt;10k funcs) are omitted from the dense FGW pass.</i></p></div>
+    <div class="dna-controls">
+      <div class="dna-pills" id="dnaPills"></div>
+      <label style="font-size:12px;">Palette:
+        <select id="dnaPalette" style="padding:4px 8px;border-radius:6px;border:1px solid var(--rule);font-size:12px;">
+          <option value="contrast">High-Contrast (Red / Blue / Green / Purple / Cyan)</option>
+          <option value="okabe">Okabe-Ito Colorblind-Safe</option>
+          <option value="vivid">Vivid Print (Crimson / Cobalt / Gold / Magenta / Teal)</option>
+        </select>
+      </label>
+      <label style="font-size:12px;"><input type="checkbox" id="dnaCompare" /> Compare vs. <code>linuxdoom</code></label>
+      <label style="font-size:12px;"><input type="checkbox" id="dnaScale" checked /> Scale track by log(LOC)</label>
+    </div>
+    <div class="dna-legend" id="dnaLegend"></div>
+    <div class="dna-grid" id="dnaGrid"><p class="loading">Loading <code>dna_tracks_data.json</code> (49 targets)...</p></div>
+  </section>
+
+  <section class="band card" id="se-band" aria-label="Seed-and-Extend, DOOM-E5 & Horizontal Transfers">
+    <div class="bandhead"><div class="kicker accent">Recalculated Evidence</div><h2>Seed-and-Extend, Held-Out DOOM-E5 &amp; Horizontal Transfers</h2>
+      <p class="cap">Unsupervised Seed-and-Extend recovery (name precision after 3-hop extension &amp; Tier-1 seeds) across C ports, Go (<code>gore</code>), <code>DOOM-E5</code> held-out targets, and 9 permissive controls — plus cross-branch horizontal borrows.</p></div>
+    <div class="chart" id="chart-se"></div>
+    <details><summary>Show Seed-and-Extend + DOOM-E5 + Controls table</summary><div class="tablewrap" id="table-se"></div></details>
+    <h3 style="margin-top:1.2rem;">Horizontal Transfers &amp; Hidden Lineage</h3>
+    <div class="tablewrap" id="table-horizontal"></div>
+  </section>
+
   <section class="col prose">
-    <h2>Explore all 43</h2>
-    <p>Every descendant has its own story: when it started, how big it grew, which famous functions it kept, how far it
-      drifted year by year. Pick one from the list, or compare any two.</p>
+    <h2>Explore all 54</h2>
+    <p>Every descendant, held-out <code>DOOM-E5</code> target, and permissive control has its own profile: Seed-and-Extend recovery, 16-track DNA gene map, famous functions, wiring, and history. Pick one from the list, or compare any two.</p>
   </section>
 
   <div class="layout band" id="explore">
     <aside class="card" aria-label="Descendants">
       <div class="controls">
-        <label class="kicker" for="q">Find a descendant</label>
-        <input type="search" id="q" placeholder="name or language, e.g. scheme" autocomplete="off">
+        <label class="kicker" for="q">Find a descendant or control</label>
+        <input type="search" id="q" placeholder="name or language, e.g. gore, cydoomgeneric" autocomplete="off">
         <div class="chips" role="group" aria-label="Filter by kind" id="chips"></div>
         <div class="sortrow"><label for="sort">Sort by</label>
           <select id="sort">
@@ -479,8 +536,8 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
           </select>
         </div>
       </div>
-      <div class="listhead"><span>descendant</span><span>DOOM wiring</span><span>vs chance</span></div>
-      <div class="list" id="list"><p class="loading">Loading the 43 programs...</p></div>
+      <div class="listhead"><span>program</span><span>DOOM wiring</span><span>vs chance</span></div>
+      <div class="list" id="list"><p class="loading">Loading the 54 programs...</p></div>
       <div class="legend"><span><span class="sw" style="background:var(--chance);border-radius:50%"></span>chance</span><span><span class="sw" style="background:var(--measured);border-radius:50%"></span>measured</span></div>
     </aside>
     <main class="detail" id="detail" aria-live="polite"><p class="loading">Loading...</p></main>
@@ -1055,10 +1112,12 @@ function renderDetail(p) {
       <div class="stats">
         ${stat(sv ? sv.name.toFixed(0) + "% / " + (sv.exact < 1 ? sv.exact.toFixed(1) : sv.exact.toFixed(0)) + "%" : "n/a", "of the original's functions it still has by name / with the code unchanged", !sv)}
         ${stat(p.shared_with_linuxdoom == null ? "n/a" : pctFine(p.shared_with_linuxdoom), "of its code shape matches the original's, measured without reading it (unrelated C programs: 0 to 0.6%)", p.shared_with_linuxdoom == null)}
+        ${stat(p.seed_extend ? (p.seed_extend.se_prec * 100).toFixed(1) + "% (" + (p.seed_extend.t1_prec * 100).toFixed(1) + "% T1)" : "n/a", p.seed_extend ? `Seed-and-Extend 3-hop name precision (${p.seed_extend.se_hits}/${p.seed_extend.se_n}; T1 ${p.seed_extend.t1_hits}/${p.seed_extend.t1_n})${p.seed_extend.best_anchor ? ` · best anchor ${p.seed_extend.best_anchor} ${(p.seed_extend.best_t1_prec * 100).toFixed(0)}% T1` : ""}` : "not run in Seed-and-Extend", !p.seed_extend)}
         ${stat(sgn(p.gap), `how much more its parts connect like DOOM's than chance would (0 = chance; Chocolate Doom +0.51)`, p.gap == null)}
         ${stat(bl ? pct(bl.accuracy) + " vs " + pct(bl.accuracy_null) : "not tested", bl ? "of its functions put in the right part of the game with every name hidden, vs chance" : "the blind test was run on 14 descendants", !bl)}
       </div>
     </section>
+    <section class="card" id="detail-dna" hidden><h3>16-Track Call-Graph DNA Gene Map</h3><div id="detail-dna-body"></div></section>
     ${compareHTML(p, BY[state.cmp])}
     <div class="two">${sizeHTML(p)}${heroHTML(p)}</div>
     ${famousHTML(p)}
@@ -1105,6 +1164,7 @@ function renderDetail(p) {
   document.getElementById("map-port").appendChild(subwayMap(p, { labels: true }));
   document.getElementById("map-ref").appendChild(subwayMap(REF, { labels: true }));
   drawDrift(p);
+  renderPortDnaInDetail(p.name);
   document.getElementById("showall")?.addEventListener("click", (e) => {
     document.querySelectorAll("tr.extra").forEach((r) => (r.hidden = false)); e.target.remove();
   });
@@ -1122,6 +1182,7 @@ fetch("data.json").then((r) => { if (!r.ok) throw new Error(r.status); return r.
   renderChips();
   renderRecords();
   drawArticleCharts();
+  renderSeAndHorizontal();
   renderCollage();
   renderFnSection();
   renderWiringDemo("gore");
@@ -1336,8 +1397,8 @@ async function renderCollage() {
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
   const W = 1200, H = 600, pad = 7;
-  const fmax = Math.max(...DATA.ports.map((p) => p.facts?.size?.code_functions || 1));
-  const items = DATA.ports.map((p) => ({ name: p.name, n: p.facts?.size?.code_functions || 1 }))
+  const fmax = Math.max(...DATA.ports.map((p) => p.facts?.size?.code_functions || p.functions || 1));
+  const items = DATA.ports.map((p) => ({ name: p.name, n: p.facts?.size?.code_functions || p.functions || 1 }))
     .sort((a, b) => (a.name === DATA.reference ? -1 : b.name === DATA.reference ? 1 : b.n - a.n));
   const placed = [];
   const hits = (r) => r.x < 4 || r.y < 4 || r.x + r.w > W - 4 || r.y + r.h > H - 4 ||
@@ -1414,6 +1475,215 @@ function renderWiringDemo(name) {
   const verdict = g == null ? "" : g >= 0.4 ? "That is as much as a straight C copy keeps." : g >= 0.15 ? "Some of the original's design survives." : g > -0.05 ? "No more than chance: the original's design did not survive, or this test can't see it." : "Below chance: its parts are wired differently from the original's.";
   document.getElementById("wirenote").innerHTML = `<span class="wirestat">${esc(name)}: ${sgn(g)} above chance</span> · wiring match ${f2(p.cross_wiring)}, against ${f2(p.cross_null)} with its functions shuffled. ${verdict} <a href="#${esc(name)}">Open ${esc(name)} below</a>.`;
 }
+
+// ---------------------------------------------------------------- Seed-and-Extend, DOOM-E5 & Horizontal Transfers
+function renderSeAndHorizontal() {
+  const seGroups = [
+    { g: "C ports (Seed-and-Extend vs linuxdoom)", rows: ["mood", "puredoom", "doomgeneric", "sdl-doom", "doom-ascii", "doom-wasm", "chocolate-doom"] },
+    { g: "Cross-language translation (C -> Go)", rows: ["gore"] },
+    { g: "Held-out DOOM-E5 targets", rows: ["cydoomgeneric", "iron-doom", "doomarkable", "DOOM-style-Game", "doome"] },
+    { g: "9 Permissive controls (unrelated / non-DOOM)", rows: ["lua", "quake", "quake2", "carddemo-cobol-ctrl", "c-raycasting", "c-raycasting2", "goom3d", "bubbletea", "macroquad"] },
+  ].map((grp) => ({
+    g: grp.g,
+    rows: grp.rows.map((n) => BY[n]).filter((p) => p && p.seed_extend).map((p) => [p.name, lang(p), p.seed_extend.se_prec, p.seed_extend.t1_prec])
+  }));
+
+  const chartBox = document.getElementById("chart-se");
+  if (chartBox) {
+    chartBox.innerHTML = "";
+    const W = 640, left = 175, right = 110, rowH = 24, groupH = 26, top = 26;
+    const n = seGroups.reduce((a, g) => a + g.rows.length, 0);
+    const H = top + seGroups.length * groupH + n * rowH + 10;
+    const x = (v) => left + v * (W - left - right);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Seed-and-Extend 3-hop and Tier-1 name precision across ports, DOOM-E5, and controls" });
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      el("line", { x1: x(t), x2: x(t), y1: top - 6, y2: H - 6, class: "grid" }, svg);
+      el("text", { x: x(t), y: top - 12, "text-anchor": "middle" }, svg, Math.round(t * 100) + "%");
+    }
+    let y = top;
+    for (const g of seGroups) {
+      y += groupH;
+      el("text", { x: 0, y: y - 8, class: "grp" }, svg, g.g);
+      for (const [name, lg, seP, t1P] of g.rows) {
+        const cy = y + rowH / 2 - 4;
+        el("text", { x: 0, y: cy + 4, class: "lab" }, svg, name);
+        el("text", { x: left - 10, y: cy + 4, "text-anchor": "end" }, svg, lg);
+        el("line", { x1: x(0), x2: x(seP), y1: cy, y2: cy, stroke: "var(--measured)", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+        el("circle", { cx: x(t1P), cy, r: 4.5, fill: "var(--deep)", stroke: "var(--panel)", "stroke-width": 1.5 }, svg);
+        el("text", { x: W - right + 10, y: cy + 4, class: "lab" }, svg, `${(seP * 100).toFixed(1)}% SE · ${(t1P * 100).toFixed(0)}% T1`);
+        const hit = el("rect", { x: 0, y: cy - rowH / 2, width: W, height: rowH, class: "hit" }, svg);
+        hit.addEventListener("mousemove", (e) => showTip(e, `<b>${esc(name)}</b> (${esc(lg)})<br>3-hop SE: ${(seP * 100).toFixed(1)}% · Tier-1 seeds: ${(t1P * 100).toFixed(1)}%`));
+        hit.addEventListener("mouseleave", hideTip);
+        y += rowH;
+      }
+    }
+    chartBox.appendChild(svg);
+  }
+
+  const seRows = DATA.ports.filter((p) => p.seed_extend).sort((a, b) => (b.seed_extend.se_prec - a.seed_extend.se_prec) || (b.seed_extend.t1_prec - a.seed_extend.t1_prec));
+  const tse = document.getElementById("table-se");
+  if (tse) {
+    tse.innerHTML = "";
+    const tbl = document.createElement("table");
+    tbl.innerHTML = `<thead><tr><th>program</th><th>lang / class</th><th class="n">funcs</th><th class="n">Tier-1 seeds</th><th class="n">3-hop SE</th></tr></thead><tbody>` +
+      seRows.map((p) => {
+        const s = p.seed_extend;
+        return `<tr><td><a href="#${esc(p.name)}">${esc(p.name)}</a></td><td>${esc(lang(p))} · ${esc(p.class || "")}</td><td class="n">${p.functions.toLocaleString()}</td><td class="n">${s.t1_hits}/${s.t1_n} (${(s.t1_prec * 100).toFixed(1)}%)</td><td class="n"><b>${s.se_hits}/${s.se_n} (${(s.se_prec * 100).toFixed(1)}%)</b></td></tr>`;
+      }).join("") + `</tbody>`;
+    tse.appendChild(tbl);
+  }
+
+  const th = document.getElementById("table-horizontal");
+  if (th && DATA.horizontal_transfers) {
+    th.innerHTML = "";
+    const tbl = document.createElement("table");
+    tbl.innerHTML = `<thead><tr><th>pair</th><th class="n">twins</th><th class="n">exact names</th><th>shared module</th><th>finding</th></tr></thead><tbody>` +
+      DATA.horizontal_transfers.map((h) => `<tr><td><a href="#${esc(h.a)}">${esc(h.a)}</a> &harr; <a href="#${esc(h.b)}">${esc(h.b)}</a></td><td class="n">${esc(h.twins)}</td><td class="n">${esc(h.exact)}</td><td><code>${esc(h.module)}</code></td><td>${esc(h.finding)}</td></tr>`).join("") +
+      `</tbody>`;
+    th.appendChild(tbl);
+  }
+}
+
+// ---------------------------------------------------------------- 16-Track Call-Graph DNA Gene Map (embedded)
+const DNA_PALETTES = {
+  contrast: { 'linuxdoom': '#dc2626', 'chocolate-doom': '#2563eb', 'prboom-plus': '#16a34a', 'doomgeneric': '#9333ea', 'woof': '#0891b2', unique: '#e5e5e5' },
+  okabe:    { 'linuxdoom': '#d55e00', 'chocolate-doom': '#0072b2', 'prboom-plus': '#009e73', 'doomgeneric': '#cc79a7', 'woof': '#56b4e9', unique: '#e5e5e5' },
+  vivid:    { 'linuxdoom': '#be123c', 'chocolate-doom': '#1d4ed8', 'prboom-plus': '#eab308', 'doomgeneric': '#a21caf', 'woof': '#0d9488', unique: '#e2e8f0' }
+};
+const DNA_ANC = [
+  { id: 'linuxdoom', label: 'linuxdoom (1993 C core)' },
+  { id: 'chocolate-doom', label: 'chocolate-doom (textscreen/hexen/man)' },
+  { id: 'prboom-plus', label: 'prboom-plus / dsda (deh/MBF21)' },
+  { id: 'doomgeneric', label: 'doomgeneric (DG_* shim)' },
+  { id: 'woof', label: 'woof (MBF/WinMBF)' }
+];
+const DNA_ANC_MAP = Object.fromEntries(DNA_ANC.map((a) => [a.id, a]));
+let DNA_DATA = null;
+let DNA_PORT = 'eternity';
+let DNA_PAL = 'contrast';
+const DNA_HIDDEN = new Set();
+
+function buildDnaCard(portName, scaleLog) {
+  const port = DNA_DATA.ports[portName];
+  if (!port) return null;
+  const ancColor = (id) => DNA_PALETTES[DNA_PAL][id];
+  const uniqColor = () => DNA_PALETTES[DNA_PAL].unique;
+  const trackLocs = port.tracks.map((fns) => fns.reduce((s, f) => s + f[1], 0));
+  const maxLog = Math.max(...trackLocs.map((l) => Math.log1p(l)), 1);
+  const totalLoc = trackLocs.reduce((a, b) => a + b, 0);
+  const ancTotals = {};
+  port.tracks.forEach((fns) => fns.forEach(([, loc, donor]) => {
+    if (donor && !DNA_HIDDEN.has(donor)) ancTotals[donor] = (ancTotals[donor] || 0) + loc;
+  }));
+  const chips = DNA_ANC.filter((a) => (ancTotals[a.id] || 0) > 0)
+    .map((a) => `<span><b style="color:${ancColor(a.id)}">${(100 * ancTotals[a.id] / Math.max(1, totalLoc)).toFixed(1)}%</b> ${a.id}</span>`)
+    .join(' &middot; ') || '<b>0.0%</b> matched ancestor DNA';
+
+  const card = document.createElement('div');
+  card.className = 'dna-card';
+  card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;">
+    <strong style="font-size:15px;">${esc(portName)}</strong>
+    <span style="font-size:12px;color:var(--ink-3);">${esc(port.meta)}</span></div>
+    <div style="font-size:12px;color:var(--ink-3);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--rule);display:flex;gap:12px;flex-wrap:wrap;">
+      <span><b>${totalLoc.toLocaleString()}</b> total LOC</span><span>${chips}</span></div>`;
+
+  DNA_DATA.subsystems.forEach((sub, idx) => {
+    const fns = port.tracks[idx];
+    const loc = trackLocs[idx];
+    const row = document.createElement('div');
+    row.className = 'dna-track-row';
+    const trackPct = scaleLog ? (loc === 0 ? 4 : Math.max(10, (Math.log1p(loc) / maxLog) * 100)) : 100;
+    const W = 400, lineW = (trackPct / 100) * W;
+    let segs = `<line x1="0" y1="9" x2="${lineW.toFixed(1)}" y2="9" stroke="#1c1917" stroke-width="1.2" stroke-linecap="round"/>`;
+    if (fns.length > 0 && loc > 0) {
+      let x = 0;
+      const ordered = [...fns].sort((a, b) => a[0].localeCompare(b[0]));
+      ordered.forEach(([fnName, fnLoc, donor, refName]) => {
+        const w = (fnLoc / loc) * lineW;
+        const isDonor = donor && !DNA_HIDDEN.has(donor) && DNA_ANC_MAP[donor];
+        const fill = isDonor ? ancColor(donor) : uniqColor();
+        segs += `<rect class="dna-gene" data-fn="${esc(fnName)}" data-loc="${fnLoc}" data-donor="${isDonor ? esc(donor) : ''}" data-ref="${esc(refName || '')}" x="${x.toFixed(2)}" y="3.5" width="${w.toFixed(2)}" height="11" fill="${fill}"/>`;
+        x += w;
+      });
+    }
+    row.innerHTML = `<div class="dna-track-label" title="${esc(sub)}">${esc(sub)}</div><svg class="dna-track-svg" viewBox="0 0 ${W} 18" preserveAspectRatio="none">${segs}</svg><div class="dna-track-loc">${loc}L</div>`;
+    row.addEventListener('mousemove', (e) => {
+      const t = e.target;
+      if (t && t.classList && t.classList.contains('dna-gene')) {
+        const dn = t.getAttribute('data-donor');
+        showTip(e, dn ? `<b>${esc(portName)}: ${esc(t.getAttribute('data-fn'))}</b> (${t.getAttribute('data-loc')} LOC)<br>Matched: <b style="color:${ancColor(dn)}">${esc(dn)}</b> &rarr; <code>${esc(t.getAttribute('data-ref'))}</code>`
+          : `<b>${esc(portName)}: ${esc(t.getAttribute('data-fn'))}</b> (${t.getAttribute('data-loc')} LOC)<br>Unique to ${esc(portName)}`);
+      } else {
+        showTip(e, `<b>${esc(portName)} — ${esc(sub)}</b><br>${fns.length} functions, ${loc.toLocaleString()} LOC`);
+      }
+    });
+    row.addEventListener('mouseleave', hideTip);
+    card.appendChild(row);
+  });
+  return card;
+}
+
+function renderDnaBand() {
+  if (!DNA_DATA) return;
+  const pills = document.getElementById('dnaPills');
+  const leg = document.getElementById('dnaLegend');
+  const grid = document.getElementById('dnaGrid');
+  const cmp = document.getElementById('dnaCompare');
+  const scl = document.getElementById('dnaScale');
+  if (!pills || !leg || !grid) return;
+
+  pills.innerHTML = '';
+  Object.keys(DNA_DATA.ports).forEach((name) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dna-pill' + (name === DNA_PORT ? ' active' : '');
+    b.textContent = name;
+    b.onclick = () => { DNA_PORT = name; renderDnaBand(); };
+    pills.appendChild(b);
+  });
+
+  const pal = DNA_PALETTES[DNA_PAL];
+  leg.innerHTML = `<div class="dna-leg-item"><span class="dna-swatch" style="background:${pal.unique}"></span><span>Unique to this port</span></div>`;
+  DNA_ANC.forEach((a) => {
+    const item = document.createElement('div');
+    item.className = 'dna-leg-item' + (DNA_HIDDEN.has(a.id) ? ' dim' : '');
+    item.innerHTML = `<span class="dna-swatch" style="background:${pal[a.id]}"></span><span>${a.label}</span>`;
+    item.onclick = () => { if (DNA_HIDDEN.has(a.id)) DNA_HIDDEN.delete(a.id); else DNA_HIDDEN.add(a.id); renderDnaBand(); };
+    leg.appendChild(item);
+  });
+
+  grid.innerHTML = '';
+  const showCmp = cmp && cmp.checked && DNA_PORT !== 'linuxdoom';
+  grid.className = 'dna-grid' + (showCmp ? ' two' : '');
+  const c1 = buildDnaCard(DNA_PORT, !scl || scl.checked);
+  if (c1) grid.appendChild(c1);
+  if (showCmp) {
+    const c2 = buildDnaCard('linuxdoom', !scl || scl.checked);
+    if (c2) grid.appendChild(c2);
+  }
+}
+
+function renderPortDnaInDetail(portName) {
+  const sec = document.getElementById('detail-dna');
+  const body = document.getElementById('detail-dna-body');
+  if (!sec || !body) return;
+  if (!DNA_DATA || !DNA_DATA.ports[portName]) { sec.hidden = true; return; }
+  sec.hidden = false;
+  body.innerHTML = '';
+  const card = buildDnaCard(portName, true);
+  if (card) body.appendChild(card);
+}
+
+document.getElementById('dnaCompare')?.addEventListener('change', renderDnaBand);
+document.getElementById('dnaScale')?.addEventListener('change', renderDnaBand);
+document.getElementById('dnaPalette')?.addEventListener('change', (e) => { DNA_PAL = e.target.value; renderDnaBand(); if (state.port) renderPortDnaInDetail(state.port); });
+
+fetch('dna_tracks_data.json').then((r) => r.ok ? r.json() : null).then((j) => {
+  if (!j) return;
+  DNA_DATA = j;
+  renderDnaBand();
+  if (state.port) renderPortDnaInDetail(state.port);
+}).catch(() => {});
 </script>
 
 </body>

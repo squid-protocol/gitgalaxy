@@ -58,9 +58,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 27,
-   "sha256": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
+   "sha256": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
    "components": {
-    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
    }
   },
   "oracle": {
@@ -88,7 +88,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 143,
-   "sha256": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
+   "sha256": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
    "components": {
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
@@ -181,10 +181,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "bbe80b595d41852112244b276756be61cb9de8be797724fcad1f43096f2709e0"
+  "digest": "317fa59e795e5a434d57502be944a89c92dd9cc9662e8209de2db5f4c5d65d78"
  },
  "proof": {
-  "at": "2026-11-14T16:43:24Z",
+  "at": "2026-11-15T20:58:07Z",
   "verdict": "proven",
   "runs": 25,
   "fault_runs": 24,
@@ -199,8 +199,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
-  "inputs_digest": "bbe80b595d41852112244b276756be61cb9de8be797724fcad1f43096f2709e0"
+  "harness_commit": "7972c65ac7f4819a315a5e2be98c926a3b3fec3f+uncommitted",
+  "inputs_digest": "317fa59e795e5a434d57502be944a89c92dd9cc9662e8209de2db5f4c5d65d78"
  },
  "coverage": {
   "paragraphs": {
@@ -224,7 +224,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "bbe80b595d41852112244b276756be61cb9de8be797724fcad1f43096f2709e0"
+  "inputs_digest": "317fa59e795e5a434d57502be944a89c92dd9cc9662e8209de2db5f4c5d65d78"
  },
  "reach": {
   "entry_points": [

@@ -174,6 +174,8 @@ DEFINITION: dict[str, Any] = {
         "generics": None,
         "comprehensions": None,
         "scientific": None,
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto): none, CSD has no
+        # reflection construct.
         "reflection_metaprogramming": None,
         # import: a DEFINE TRANSACTION binds the PROGRAM it routes to (and a MAPSET
         # a program SENDs); the PROGRAM(...) attribute is the cross-resource edge.

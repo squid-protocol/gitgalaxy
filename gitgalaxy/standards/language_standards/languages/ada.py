@@ -305,8 +305,8 @@ DEFINITION: dict[str, Any] = {
         # scientific: Ada.Numerics and its generic elementary-functions
         # children.
         "scientific": re.compile(r"\bAda\.Numerics\b", re.I),
-        # reflection_metaprogramming: tagged-type dispatch/RTTI --
-        # 'Class and 'Tag attributes, Ada.Tags.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto): tagged-type
+        # dispatch/RTTI -- 'Class and 'Tag attributes, Ada.Tags.
         "reflection_metaprogramming": re.compile(r"'Class\b|'Tag\b|\bAda\.Tags\b", re.I),
         # import: context-clause `with` (compilation-unit dependency),
         # explicitly excluding the same known aspect-mark vocabulary

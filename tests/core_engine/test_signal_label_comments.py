@@ -113,6 +113,10 @@ def test_reflection_metaprogramming_comments_use_the_display_name():
         "cobol",
         "matlab",
         "makefile",
+        "ada",
+        "csd",
+        "acs",
+        "crystal",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"reflection_metaprogramming ({name}:" in text, stem

@@ -1935,24 +1935,6 @@
    "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
-   "id": "362d45a825",
-   "op": "DEL",
-   "line": 367,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
-  },
-  {
-   "id": "520e44e27a",
-   "op": "CON",
-   "line": 367,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
-  },
-  {
    "id": "8f8fcdc78e",
    "op": "ROR",
    "line": 368,
@@ -2095,15 +2077,6 @@
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
    "verdict": "equivalent",
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
-  },
-  {
-   "id": "12d12301d2",
-   "op": "COR",
-   "line": 429,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "5ba9f085a7",

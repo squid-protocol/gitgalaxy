@@ -1,5 +1,5 @@
 {
- "commit": "4d54ca282",
+ "commit": "93618204e",
  "components": {
   "capabilities": {
    "groups": [
@@ -560,7 +560,7 @@
      "ready": 0,
      "sampled": 12558,
      "sampled_pct": 41.3,
-     "survived": 5921,
+     "survived": 5922,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
@@ -578,17 +578,17 @@
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 1925,
+     "caught": 1932,
      "equivalent": 925,
      "l5": 2,
      "measured": 8,
      "mutants": 4533,
      "programs": 31,
-     "raw_pct": 44.3,
+     "raw_pct": 44.4,
      "ready": 0,
      "sampled": 4533,
      "sampled_pct": 100.0,
-     "survived": 2425,
+     "survived": 2418,
      "unreachable": 382
     },
     "cics-genapp": {
@@ -634,22 +634,22 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 1215,
+     "caught": 1186,
      "equivalent": 846,
      "l5": 0,
      "measured": 4,
      "mutants": 2658,
      "programs": 7,
-     "raw_pct": 47.9,
+     "raw_pct": 47.7,
      "ready": 0,
      "sampled": 2657,
      "sampled_pct": 100.0,
-     "survived": 1322,
+     "survived": 1302,
      "unreachable": 365
     }
    },
    "total": {
-    "caught": 15527,
+    "caught": 15505,
     "equivalent": 4182,
     "l5": 7,
     "measured": 50,
@@ -659,7 +659,7 @@
     "ready": 0,
     "sampled": 27823,
     "sampled_pct": 61.0,
-    "survived": 11285,
+    "survived": 11259,
     "unreachable": 1026
    }
   },
@@ -976,15 +976,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-15T12:43:24Z",
+  "as_of": "2026-11-15T15:14:26Z",
   "core": {
    "closed": 248,
    "open": 16,
    "total": 264
   },
   "core_last_window": {
-   "closed": 23,
-   "net_closed": 7,
+   "closed": 21,
+   "net_closed": 5,
    "opened": 16
   },
   "core_milestone": {
@@ -1000,7 +1000,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "16 days",
+  "eta": "22 days",
   "frontier": {
    "closed": 128,
    "found_last_window": 6,

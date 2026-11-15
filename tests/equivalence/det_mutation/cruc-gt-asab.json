@@ -5,18 +5,18 @@
  "case": "cruc-gt-asab",
  "entry": {
   "program": "GTASAB",
-  "commit": "93618204e07c5fae873c3ef78e8604ae88f49420+uncommitted",
+  "commit": "7972c65ac7f4819a315a5e2be98c926a3b3fec3f+uncommitted",
   "date": "2026-11-15",
   "mode": "fast+one-jvm",
   "seed": 0,
   "mutants": 279,
   "out_of_scope": 6,
   "chosen": 279,
-  "coverage": "proven on 4 scenarios, covering 1/1 paragraphs and 0/0 branches",
+  "coverage": "proven on 5 scenarios, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 47,
+   "killed": 50,
    "timeout": 0,
-   "survived": 226,
+   "survived": 223,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -36,6 +36,7 @@
    "3eca4a6706",
    "3f6de3df21",
    "429238b70a",
+   "45d51507c5",
    "4cf79b63b2",
    "501fb5d1c7",
    "5f929c456d",
@@ -55,8 +56,10 @@
    "a23eb0e2fa",
    "a25e0106ac",
    "a78739f9cd",
+   "ad39e9cd67",
    "c7168a6c5f",
    "c7a8b3f210",
+   "cb4285d93e",
    "ce9bfd9af2",
    "cfd3a079ab",
    "d4e4443522",
@@ -542,14 +545,6 @@
     "line": 166,
     "before": "Cobol.move(task.transid(), f7_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f7_EIBTRNID, CS); */"
-   },
-   {
-    "id": "cb4285d93e",
-    "op": "ROR",
-    "file": "service/GtasabService.java",
-    "line": 167,
-    "before": "Cobol.move(task.termid() == null ? \"\" : task.termid(), f9_EIBTRMID, CS);",
-    "after": "Cobol.move(task.termid() != null ? \"\" : task.termid(), f9_EIBTRMID, CS);"
    },
    {
     "id": "968d2cd544",
@@ -1672,22 +1667,6 @@
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "ad39e9cd67",
-    "op": "NEG",
-    "file": "service/GtasabService.java",
-    "line": 352,
-    "before": "if (assign2 == 0) {",
-    "after": "if (!(assign2 == 0)) {"
-   },
-   {
-    "id": "45d51507c5",
-    "op": "ROR",
-    "file": "service/GtasabService.java",
-    "line": 352,
-    "before": "if (assign2 == 0) {",
-    "after": "if (assign2 != 0) {"
-   },
-   {
     "id": "5f939e8f09",
     "op": "CON",
     "file": "service/GtasabService.java",
@@ -1892,11 +1871,11 @@
    "port": "a01769e4e8be892425e27b0559eadfa0f24521a3a07b51b02dc67c106840d50e",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "generator": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
-   "case": "93697e610fd50ffb1fcea748400626e9c21206de22d127a594499b64f687fb42",
+   "case": "088d795c73ba51de829000d41a4a95a103dfbf3f980fe75cacdffc1e5fbab4ba",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "45c14f48f0b28a6ba9661b6b9af37310892165b23b55670eea287843e13b79fc"
+   "survivors": "3b0dbb1635135d6e53f9b7230babb8f4fa1f5361d890fdf7d73f18f61af682f7"
   },
   "components": {
    "generator": {

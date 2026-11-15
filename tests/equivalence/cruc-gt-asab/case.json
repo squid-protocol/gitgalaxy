@@ -86,6 +86,15 @@
         }
       ],
       "why": "the closing breadcrumb write answers NOTAUTH"
+    },
+    {
+      "name": "no-terminal",
+      "commarea": null,
+      "terminal": "GT34",
+      "startcode": "S",
+      "termid": "",
+      "userid": "CICSUSER",
+      "why": "GT34 as a START with no terminal: ASSIGN FACILITY answers INVREQ, no RESP, the default action ends the task"
     }
   ]
 }

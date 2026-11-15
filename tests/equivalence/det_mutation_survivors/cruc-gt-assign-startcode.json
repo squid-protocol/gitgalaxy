@@ -84,6 +84,30 @@
    ]
   },
   {
+   "id": "b1910ceb2d",
+   "op": "LIT",
+   "line": 43,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "868c19158e",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
    "id": "3dd7512bcd",
    "op": "CON",
    "line": 55,
@@ -129,6 +153,18 @@
    "reason": "CON at line 56 (`private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 4,`): field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
    "tried": [
     "solver-unobservable"
+   ]
+  },
+  {
+   "id": "780f3178d9",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
    ]
   },
   {
@@ -1308,6 +1344,18 @@
    ]
   },
   {
+   "id": "1d19861e10",
+   "op": "DEL",
+   "line": 139,
+   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_DFHEIBLK's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
    "id": "7c50b9b3a1",
    "op": "DEL",
    "line": 140,
@@ -1404,6 +1452,222 @@
    ]
   },
   {
+   "id": "2372baf1c3",
+   "op": "AOR",
+   "line": 170,
+   "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f6_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "3e8f01c630",
+   "op": "AOR",
+   "line": 170,
+   "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f6_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5b89b05e62",
+   "op": "DEL",
+   "line": 170,
+   "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f6_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c2af6fc0f3",
+   "op": "AOR",
+   "line": 170,
+   "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f6_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d82cf51bdd",
+   "op": "CON",
+   "line": 170,
+   "before": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f6_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "3b310237a1",
+   "op": "AOR",
+   "line": 171,
+   "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f5_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "485a36a9da",
+   "op": "AOR",
+   "line": 171,
+   "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f5_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5d431534d4",
+   "op": "AOR",
+   "line": 171,
+   "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f5_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ba1d99ddac",
+   "op": "DEL",
+   "line": 171,
+   "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f5_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "edf979af10",
+   "op": "AOR",
+   "line": 171,
+   "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f5_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c49309ce2b",
+   "op": "DEL",
+   "line": 178,
+   "before": "calen = cx(task, 20);",
+   "after": "/* calen = cx(task, 20); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 178 is overwritten at line 180 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "c7889044ce",
+   "op": "CON",
+   "line": 178,
+   "before": "calen = cx(task, 20);",
+   "after": "calen = cx(task, 21);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 178 is overwritten at line 180 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "5bf4861865",
+   "op": "DEL",
+   "line": 180,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 180 is overwritten at line 182 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a17c070684",
+   "op": "CON",
+   "line": 180,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 180 is overwritten at line 182 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "4428b26009",
+   "op": "DEL",
+   "line": 182,
+   "before": "calen = cx(task, 16);",
+   "after": "/* calen = cx(task, 16); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 182 is overwritten at line 184 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "dc14e68207",
+   "op": "CON",
+   "line": 182,
+   "before": "calen = cx(task, 16);",
+   "after": "calen = cx(task, 17);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 182 is overwritten at line 184 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "1abae9588b",
+   "op": "CON",
+   "line": 184,
+   "before": "calen = cx(task, 2);",
+   "after": "calen = cx(task, 3);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 184 is overwritten at line 186 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "c5de634001",
+   "op": "DEL",
+   "line": 184,
+   "before": "calen = cx(task, 2);",
+   "after": "/* calen = cx(task, 2); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 184 is overwritten at line 186 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
    "id": "fed4c8bc0a",
    "op": "DEL",
    "line": 185,
@@ -1413,6 +1677,30 @@
    "reason": "DEL at line 185 (`handlers.clear();`): handlers is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
    "tried": [
     "never-populated"
+   ]
+  },
+  {
+   "id": "2486e944a7",
+   "op": "DEL",
+   "line": 186,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 186 is overwritten at line 188 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "4b28a72178",
+   "op": "CON",
+   "line": 186,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 186 is overwritten at line 188 before any read (local-unread)",
+   "tried": [
+    "local-unread"
    ]
   },
   {
@@ -1428,6 +1716,438 @@
    ]
   },
   {
+   "id": "76a77bd643",
+   "op": "DEL",
+   "line": 188,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 188 is overwritten at line 190 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "b8715885e8",
+   "op": "CON",
+   "line": 188,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 188 is overwritten at line 190 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "1abeff8c19",
+   "op": "DEL",
+   "line": 190,
+   "before": "calen = cx(task, 6);",
+   "after": "/* calen = cx(task, 6); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 190 is overwritten at line 192 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "7c4927903a",
+   "op": "CON",
+   "line": 190,
+   "before": "calen = cx(task, 6);",
+   "after": "calen = cx(task, 7);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 190 is overwritten at line 192 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "04895cdef1",
+   "op": "CON",
+   "line": 192,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 192 is overwritten at line 194 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "055009120b",
+   "op": "AOR",
+   "line": 192,
+   "before": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f25_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4e2a1448c3",
+   "op": "AOR",
+   "line": 192,
+   "before": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f25_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "63a3a7531b",
+   "op": "DEL",
+   "line": 192,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 192 is overwritten at line 194 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "9738347625",
+   "op": "CON",
+   "line": 192,
+   "before": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f25_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "fe49eaa3cd",
+   "op": "DEL",
+   "line": 192,
+   "before": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f25_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "fe6ecfbf76",
+   "op": "AOR",
+   "line": 192,
+   "before": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f25_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f25_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "388204bf10",
+   "op": "AOR",
+   "line": 193,
+   "before": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f24_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5198252296",
+   "op": "AOR",
+   "line": 193,
+   "before": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f24_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5f8afab168",
+   "op": "AOR",
+   "line": 193,
+   "before": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f24_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d2c8efd0cd",
+   "op": "AOR",
+   "line": 193,
+   "before": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f24_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f61c70380d",
+   "op": "DEL",
+   "line": 193,
+   "before": "Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f24_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f24_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "297021987a",
+   "op": "DEL",
+   "line": 194,
+   "before": "calen = cx(task, 3);",
+   "after": "/* calen = cx(task, 3); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 194 is overwritten at line 196 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "9736c35205",
+   "op": "CON",
+   "line": 194,
+   "before": "calen = cx(task, 3);",
+   "after": "calen = cx(task, 4);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 194 is overwritten at line 196 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "626a4b36db",
+   "op": "CON",
+   "line": 196,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 196 is overwritten at line 198 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "9c332132a1",
+   "op": "DEL",
+   "line": 196,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 196 is overwritten at line 198 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "1d87e8f982",
+   "op": "DEL",
+   "line": 198,
+   "before": "calen = cx(task, 11);",
+   "after": "/* calen = cx(task, 11); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 198 is overwritten at line 200 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "bdf6fc542a",
+   "op": "CON",
+   "line": 198,
+   "before": "calen = cx(task, 11);",
+   "after": "calen = cx(task, 12);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 198 is overwritten at line 200 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "73b4ab4403",
+   "op": "CON",
+   "line": 200,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 200 is overwritten at line 202 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "e8d72ffaad",
+   "op": "DEL",
+   "line": 200,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 200 is overwritten at line 202 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "f0dd34e51b",
+   "op": "CON",
+   "line": 200,
+   "before": "calen = cx(task, 20);",
+   "after": "calen = cx(task, 21);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 200 is overwritten at line 202 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "f2442e389f",
+   "op": "DEL",
+   "line": 200,
+   "before": "calen = cx(task, 20);",
+   "after": "/* calen = cx(task, 20); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 200 is overwritten at line 202 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "7b865c06e4",
+   "op": "DEL",
+   "line": 202,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 202 is overwritten at line 204 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "9c5bb49cbd",
+   "op": "CON",
+   "line": 202,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 202 is overwritten at line 204 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "aaa9879c04",
+   "op": "DEL",
+   "line": 202,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 202 is overwritten at line 204 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "f7c661ed06",
+   "op": "CON",
+   "line": 202,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 202 is overwritten at line 204 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "024011600f",
+   "op": "DEL",
+   "line": 204,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 204 is overwritten at line 206 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "8f32e06edd",
+   "op": "DEL",
+   "line": 204,
+   "before": "calen = cx(task, 16);",
+   "after": "/* calen = cx(task, 16); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 204 is overwritten at line 206 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "bcfd92c97f",
+   "op": "CON",
+   "line": 204,
+   "before": "calen = cx(task, 16);",
+   "after": "calen = cx(task, 17);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 204 is overwritten at line 206 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "c974609cf5",
+   "op": "CON",
+   "line": 204,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 204 is overwritten at line 206 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "1f00fc71fa",
+   "op": "DEL",
+   "line": 206,
+   "before": "calen = cx(task, 2);",
+   "after": "/* calen = cx(task, 2); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 206 is overwritten at line 208 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "3fc794d5b0",
+   "op": "CON",
+   "line": 206,
+   "before": "calen = cx(task, 2);",
+   "after": "calen = cx(task, 3);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 206 is overwritten at line 208 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
    "id": "902769ceb0",
    "op": "DEL",
    "line": 206,
@@ -1440,6 +2160,534 @@
    ]
   },
   {
+   "id": "b76cab2673",
+   "op": "DEL",
+   "line": 206,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 206 is overwritten at line 208 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "c2112f520c",
+   "op": "CON",
+   "line": 206,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 206 is overwritten at line 208 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "00808109f3",
+   "op": "DEL",
+   "line": 208,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 208 is overwritten at line 210 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "6091eeead0",
+   "op": "DEL",
+   "line": 208,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 208 is overwritten at line 210 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "6f57737a52",
+   "op": "CON",
+   "line": 208,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 208 is overwritten at line 210 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a66ba3e3d2",
+   "op": "CON",
+   "line": 208,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 208 is overwritten at line 210 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "009a798331",
+   "op": "CON",
+   "line": 210,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 210 is overwritten at line 212 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "1412571414",
+   "op": "DEL",
+   "line": 210,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 210 is overwritten at line 212 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "943554d338",
+   "op": "CON",
+   "line": 210,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 210 is overwritten at line 212 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a89a2bad3b",
+   "op": "DEL",
+   "line": 210,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 210 is overwritten at line 212 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "3ffd0e9cae",
+   "op": "DEL",
+   "line": 212,
+   "before": "calen = cx(task, 6);",
+   "after": "/* calen = cx(task, 6); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 212 is overwritten at line 214 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "5a7382b6a4",
+   "op": "CON",
+   "line": 212,
+   "before": "calen = cx(task, 6);",
+   "after": "calen = cx(task, 7);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 212 is overwritten at line 214 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "75c688d588",
+   "op": "DEL",
+   "line": 212,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 212 is overwritten at line 214 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "848babd415",
+   "op": "CON",
+   "line": 212,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 212 is overwritten at line 214 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "41fb32b1c2",
+   "op": "DEL",
+   "line": 214,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 214 is overwritten at line 216 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "aa79516e6a",
+   "op": "DEL",
+   "line": 214,
+   "before": "calen = cx(task, 30);",
+   "after": "/* calen = cx(task, 30); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 214 is overwritten at line 216 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "be57ffc925",
+   "op": "CON",
+   "line": 214,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 214 is overwritten at line 216 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "c979546fd2",
+   "op": "CON",
+   "line": 214,
+   "before": "calen = cx(task, 30);",
+   "after": "calen = cx(task, 31);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 214 is overwritten at line 216 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "22d07917d7",
+   "op": "CON",
+   "line": 216,
+   "before": "calen = cx(task, 3);",
+   "after": "calen = cx(task, 4);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 216 is overwritten at line 218 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "5fa99c4219",
+   "op": "CON",
+   "line": 216,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 216 is overwritten at line 218 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "6f4c4e3cee",
+   "op": "DEL",
+   "line": 216,
+   "before": "calen = cx(task, 3);",
+   "after": "/* calen = cx(task, 3); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 216 is overwritten at line 218 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "76a983f2fb",
+   "op": "DEL",
+   "line": 216,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 216 is overwritten at line 218 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "22b5068d57",
+   "op": "DEL",
+   "line": 218,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 218 is overwritten at line 220 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "3252b0d1cf",
+   "op": "CON",
+   "line": 218,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 218 is overwritten at line 220 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "e09b5a8c14",
+   "op": "DEL",
+   "line": 218,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 218 is overwritten at line 220 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "ee12fa3e46",
+   "op": "CON",
+   "line": 218,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 218 is overwritten at line 220 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "4635bdf5bb",
+   "op": "DEL",
+   "line": 220,
+   "before": "calen = cx(task, 5);",
+   "after": "/* calen = cx(task, 5); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 220 is overwritten at line 222 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "ca030255b2",
+   "op": "CON",
+   "line": 220,
+   "before": "calen = cx(task, 11);",
+   "after": "calen = cx(task, 12);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 220 is overwritten at line 222 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "d65e5da14f",
+   "op": "DEL",
+   "line": 220,
+   "before": "calen = cx(task, 11);",
+   "after": "/* calen = cx(task, 11); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 220 is overwritten at line 222 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "e230c084a3",
+   "op": "CON",
+   "line": 220,
+   "before": "calen = cx(task, 5);",
+   "after": "calen = cx(task, 6);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 220 is overwritten at line 222 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "0068502b0c",
+   "op": "CON",
+   "line": 222,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 222 is overwritten at line 224 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "29be2c62c3",
+   "op": "CON",
+   "line": 222,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 222 is overwritten at line 224 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "40836f32c7",
+   "op": "DEL",
+   "line": 222,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 222 is overwritten at line 224 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a20999e8c3",
+   "op": "DEL",
+   "line": 222,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 222 is overwritten at line 224 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "25d44d0088",
+   "op": "CON",
+   "line": 224,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 224 is overwritten at line 226 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "34ba92aa8c",
+   "op": "CON",
+   "line": 224,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 224 is overwritten at line 226 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "dd931c7f75",
+   "op": "DEL",
+   "line": 224,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 224 is overwritten at line 226 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "f8b6bd01ba",
+   "op": "DEL",
+   "line": 224,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 224 is overwritten at line 226 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "33f66d7e0e",
+   "op": "CON",
+   "line": 226,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 226 is overwritten at line 228 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "b8755c4dba",
+   "op": "DEL",
+   "line": 226,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 226 is overwritten at line 228 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "918458b6e5",
+   "op": "CON",
+   "line": 228,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 228 is overwritten at line 230 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a61d29e7f8",
+   "op": "DEL",
+   "line": 228,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 228 is overwritten at line 230 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "1544402a4f",
+   "op": "CON",
+   "line": 230,
+   "before": "calen = cx(task, 4);",
+   "after": "calen = cx(task, 5);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 230 is overwritten at line 232 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "e03f8b95b0",
+   "op": "DEL",
+   "line": 230,
+   "before": "calen = cx(task, 4);",
+   "after": "/* calen = cx(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 230 is overwritten at line 232 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
    "id": "e078a481f5",
    "op": "DEL",
    "line": 231,
@@ -1449,6 +2697,30 @@
    "reason": "DEL at line 231 (`Cobol.store(f12_EIBCALEN, BigDecimal.valueOf(calen), false, `): f12_EIBCALEN is only stored into and no read EIB item shares its bytes: the stored value is never seen. Settled by survivor_attack.py facts (eib-resp-unread); no input of the program can show a difference.",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4e2c458946",
+   "op": "CON",
+   "line": 232,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 232 is overwritten at line 234 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "e49ea72aea",
+   "op": "DEL",
+   "line": 232,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 232 is overwritten at line 234 before any read (local-unread)",
+   "tried": [
+    "local-unread"
    ]
   },
   {
@@ -1476,6 +2748,294 @@
    ]
   },
   {
+   "id": "c69fa7e322",
+   "op": "CON",
+   "line": 234,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 234 is overwritten at line 236 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "ea9ebc59aa",
+   "op": "DEL",
+   "line": 234,
+   "before": "calen = cx(task, 10);",
+   "after": "/* calen = cx(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 234 is overwritten at line 236 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "98dd1d50c5",
+   "op": "CON",
+   "line": 236,
+   "before": "calen = cx(task, 30);",
+   "after": "calen = cx(task, 31);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 236 is overwritten at line 238 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a34f7ce796",
+   "op": "DEL",
+   "line": 236,
+   "before": "calen = cx(task, 30);",
+   "after": "/* calen = cx(task, 30); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 236 is overwritten at line 238 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "0cbbeed8cf",
+   "op": "DEL",
+   "line": 238,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 238 is overwritten at line 240 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "710489fc0e",
+   "op": "CON",
+   "line": 238,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 238 is overwritten at line 240 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "0f72cb1785",
+   "op": "AOR",
+   "line": 240,
+   "before": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f27_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4d8c26ecfb",
+   "op": "AOR",
+   "line": 240,
+   "before": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f27_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "6910fe3118",
+   "op": "AOR",
+   "line": 240,
+   "before": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f27_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "90eada95fe",
+   "op": "CON",
+   "line": 240,
+   "before": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f27_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "cbe8b15cb6",
+   "op": "DEL",
+   "line": 240,
+   "before": "Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f27_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f27_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f51840d9fb",
+   "op": "CON",
+   "line": 240,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 240 is overwritten at line 242 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "fbe42e68ab",
+   "op": "DEL",
+   "line": 240,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 240 is overwritten at line 242 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "362eb910dd",
+   "op": "AOR",
+   "line": 241,
+   "before": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f26_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8a1bf1a95b",
+   "op": "AOR",
+   "line": 241,
+   "before": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f26_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9f2ddcebef",
+   "op": "AOR",
+   "line": 241,
+   "before": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f26_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a0e9aeb2ef",
+   "op": "DEL",
+   "line": 241,
+   "before": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f26_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c8261fd758",
+   "op": "AOR",
+   "line": 241,
+   "before": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f26_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f26_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b32c4b7ad2",
+   "op": "DEL",
+   "line": 242,
+   "before": "calen = cx(task, 5);",
+   "after": "/* calen = cx(task, 5); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 242 is overwritten at line 244 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "dd69f3829c",
+   "op": "CON",
+   "line": 242,
+   "before": "calen = cx(task, 5);",
+   "after": "calen = cx(task, 6);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 242 is overwritten at line 244 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "56b3b6bd62",
+   "op": "DEL",
+   "line": 244,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 244 is overwritten at line 246 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "c70a9a6da7",
+   "op": "CON",
+   "line": 244,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 244 is overwritten at line 246 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "8642a0199d",
+   "op": "CON",
+   "line": 246,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen at line 246 is overwritten at line 248 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "a65104f045",
+   "op": "DEL",
+   "line": 246,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen at line 246 is overwritten at line 248 before any read (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
    "id": "323645dd51",
    "op": "DEL",
    "line": 253,
@@ -1495,6 +3055,18 @@
    "after": "private int[] performThru = new int[65];",
    "verdict": "equivalent",
    "reason": "CON at line 280 (`private int[] performThru = new int[64];`): the PERFORM stack never holds more than 2 entries, so a capacity of 65 is never filled. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8cc5a000b9",
+   "op": "DEL",
+   "line": 289,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen (flow-plumbing)",
    "tried": [
     "flow-plumbing"
    ]
@@ -1543,6 +3115,114 @@
    "after": "private int[] performThru = new int[65];",
    "verdict": "equivalent",
    "reason": "CON at line 302 (`private int[] performThru = new int[64];`): the PERFORM stack never holds more than 2 entries, so a capacity of 65 is never filled. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "34a834e9fb",
+   "op": "DEL",
+   "line": 311,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "072b0e1655",
+   "op": "ROR",
+   "line": 313,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "29be1d9175",
+   "op": "CON",
+   "line": 313,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2a9381780b",
+   "op": "AOR",
+   "line": 313,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a98e85bfa6",
+   "op": "AOR",
+   "line": 313,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c005e37137",
+   "op": "ROR",
+   "line": 313,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c5fdd0fcdf",
+   "op": "CON",
+   "line": 313,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "54a94ea40a",
+   "op": "NEG",
+   "line": 314,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bc085215e5",
+   "op": "ROR",
+   "line": 314,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
    "tried": [
     "flow-plumbing"
    ]
@@ -1680,6 +3360,78 @@
    ]
   },
   {
+   "id": "1aab362cb8",
+   "op": "ROR",
+   "line": 335,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5d4f587899",
+   "op": "CON",
+   "line": 335,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6a949c7a15",
+   "op": "AOR",
+   "line": 335,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6f1573eeb1",
+   "op": "CON",
+   "line": 335,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "91cd5133c3",
+   "op": "AOR",
+   "line": 335,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f8464c5b87",
+   "op": "ROR",
+   "line": 335,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "1cc3b31b36",
    "op": "LIT",
    "line": 336,
@@ -1687,6 +3439,30 @@
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
    "verdict": "equivalent",
    "reason": "LIT at line 336 (`default: throw new IllegalStateException(\"paragraph \" + i);`): run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "908c2aa16d",
+   "op": "NEG",
+   "line": 336,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c84016aeff",
+   "op": "ROR",
+   "line": 336,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
    "tried": [
     "flow-plumbing"
    ]
@@ -2088,6 +3864,18 @@
    ]
   },
   {
+   "id": "c90ac47103",
+   "op": "CON",
+   "line": 373,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "line 373 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
    "id": "7f57a27f6a",
    "op": "CON",
    "line": 378,
@@ -2148,6 +3936,30 @@
    ]
   },
   {
+   "id": "11e822e6f5",
+   "op": "DEL",
+   "line": 381,
+   "before": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
+   "after": "/* Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f53_EIBRESP2 at line 381 is unconditionally overwritten by f53_EIBRESP2 at line 403 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "528605da33",
+   "op": "ROR",
+   "line": 381,
+   "before": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
+   "after": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 != 0 ? 0 : 5)), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f53_EIBRESP2 at line 381 is unconditionally overwritten by f53_EIBRESP2 at line 403 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
    "id": "a3110724ad",
    "op": "DEL",
    "line": 381,
@@ -2157,6 +3969,42 @@
    "reason": "DEL at line 381 (`i = next;`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b8f15bbea6",
+   "op": "CON",
+   "line": 381,
+   "before": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
+   "after": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 1 ? 0 : 5)), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f53_EIBRESP2 at line 381 is unconditionally overwritten by f53_EIBRESP2 at line 403 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "e0bc272aca",
+   "op": "CON",
+   "line": 381,
+   "before": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
+   "after": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 6)), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f53_EIBRESP2 at line 381 is unconditionally overwritten by f53_EIBRESP2 at line 403 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "e383307794",
+   "op": "CON",
+   "line": 381,
+   "before": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 0 : 5)), false, CS);",
+   "after": "Cobol.store(f53_EIBRESP2, BigDecimal.valueOf((assign1 == 0 ? 1 : 5)), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f53_EIBRESP2 at line 381 is unconditionally overwritten by f53_EIBRESP2 at line 403 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
    ]
   },
   {
@@ -2241,6 +4089,18 @@
    "reason": "ROR at line 406 (`if (to >= 0) return GOTO | to;`): `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "63c196c5ac",
+   "op": "CON",
+   "line": 412,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "line 412 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
    ]
   },
   {

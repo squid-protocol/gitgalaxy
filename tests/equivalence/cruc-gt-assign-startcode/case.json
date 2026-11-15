@@ -94,6 +94,68 @@
         80
       ],
       "why": "a mode no WHEN names: no START, the screen text still goes out"
+    },
+    {
+      "name": "sendtext-invreq-p",
+      "commarea": null,
+      "terminal": "GT31 P",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "SEND TEXT answers INVREQ in mode P"
+    },
+    {
+      "name": "sendtext-ioerr-q",
+      "commarea": null,
+      "terminal": "GT31 Q",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "TSIOERR"
+        }
+      ],
+      "why": "the closing SEND TEXT answers IOERR"
+    },
+    {
+      "name": "second-sendtext-fault",
+      "commarea": {
+        "WS-CA": "NEXT"
+      },
+      "terminal": "GT31 P",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "the second run's SEND TEXT answers INVREQ"
     }
   ]
 }

@@ -5236,6 +5236,106 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                              for m, sids in sorted(by_method.items())]}  # fmt: skip
 
 
+def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, java_out: Path,
+                          files: list[dict[str, Any]], cobol: dict[str, Any], java: dict[str, list[dict[str, Any]]],
+                          quiet: bool = False) -> tuple[bool, dict[str, dict[str, Any]]]:  # fmt: skip
+    """Compare COBOL vs Java CICS scenario outcomes; returns `(ok, outputs_by_scenario)`."""
+    ok = True
+    outputs: dict[str, dict[str, Any]] = {}
+    for name, res in cobol.items():
+        clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
+        ran = cics_compare.cobol_events(res)
+        cev = mask_clock_events(case, cics_compare.linked_result(case, ran), clock)
+        jev = mask_clock_events(case, cics_compare.linked_result(case, java.get(name, [])), clock)
+        sc = next(x for x in case["scenarios"] if x["name"] == name)
+        if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
+            cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])  # sides judged up to it
+        cev, jev, x6 = x6_judged(sc, java_out, cev, jev)
+        undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
+        cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
+        d = cics_compare.compare_events(cev, jev)
+        moved = caller_bytes_diff(
+            sc, cobol_work / "scenarios" / name / "out", java_raw(java_out, name), case
+        )
+        outputs[name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
+                         "cobol": cev, "java": jev,
+                         **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
+        if cics_compare.executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
+            outputs[name]["commands"] = cics_compare.executed_commands(ran)
+        ok &= d["equal"] == d["events"]
+        if moved:  # #7607: only when non-empty (python-test-traps.md)
+            outputs[name]["caller_bytes"] = moved
+            ok = False
+            if not quiet:
+                print(f"{case['program']} {name}: the bytes left in the caller's COMMAREA differ: {moved}")
+        if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
+            # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
+            # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not
+            s = compare_task_sysout(
+                res.get("sysout", b""), java_out / f"{name}.sysout", common.data_encoding(case)
+            )
+            outputs[name]["sysout"] = s
+            if s["compared"] and s["differing"]:
+                ok = False
+                if not quiet:
+                    print(f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}")
+        if sc.get("derived"):
+            outputs[name]["sql_faults"] = sc["sql_plan"]
+        if res.get("x6_padded"):  # X6 (ASSUMED): the task ran on through a WRITEQ past FROM, padded on both sides
+            outputs[name]["x6_padded"] = res["x6_padded"]
+        if x6:
+            outputs[name]["judged_to"], outputs[name]["x6"] = judged_to(x6), x6
+            if not x6["ok"]:
+                ok = False
+                if not quiet:
+                    print(f"{case['program']} {name}: only one side refused ({x6['assumes']}): {x6}")
+        if sc.get("prefix_link"):
+            outputs[name]["judged_to"] = (
+                f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"
+            )
+            area = _link_area(case, res, java.get(name, []), sc["prefix_link"])
+            outputs[name]["link_area"] = area
+            if area.get("equal") is False:
+                ok = False
+                if not quiet:
+                    print(f"{case['program']} {name}: the COMMAREA LINKed to {sc['prefix_link']} differs: {area}")
+        # #4023 follow-up (#4173: SQL faults too): the same injected conditions fired on both sides, and at least one
+        if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
+            fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt", "latin-1"),
+                     "java": _fired(java_out / f"{name}.faults")}  # fmt: skip
+            outputs[name]["fired"] = fired
+            if not fired["cobol"] or fired["cobol"] != fired["java"]:
+                ok = False
+                if not quiet:
+                    print(f"{case['program']} {name}: faults fired differ or none fired: {fired}")
+        if not quiet:
+            print(f"{case['program']} {name}: {d['equal']}/{d['events']} events equal")
+            for x in d["diffs"][:6]:
+                print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
+        end_state = not sc.get("prefix_link") and not x6
+        changed = {} if not end_state else compare_files(case, corpus, files, res.get("files", {}), java_out, name)
+        if end_state:
+            changed.update(compare_db2(case, res.get("db2", {}), java_out, name, clock))
+        sql = compare_sql(case, sc, res, java_out)  # #4507: what Db2 answered each side
+        if sql is not None:
+            outputs[name]["sql"] = sql
+            if sql["equal"] != sql["statements"]:
+                ok = False
+                if not quiet:
+                    print(f"{case['program']} {name}: {sql['equal']}/{sql['statements']} SQL statements answered alike")
+        if clock[0]:
+            outputs[name]["clock_masked"] = clock[0]
+        if undefined[0]:
+            outputs[name]["undefined_commarea_fields"] = undefined[0]
+        if changed:  # file updates: what the task left in a file differs
+            outputs[name]["files"] = changed
+            ok = False
+            if not quiet:
+                for base, fd in changed.items():
+                    print(f"{case['program']} {name}: file {base}: {fd['equal']}/{fd['records']} records equal")
+    return ok, outputs
+
+
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
              cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False,
              one_jvm: bool = False) -> int:  # fmt: skip
@@ -5304,91 +5404,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     linked = work / "java" / ej.LINKED_FILE
     if linked.is_file():  # #4188: where each LINKed program's Java came from
         report["linked_programs"] = json.loads(linked.read_text(encoding="utf-8"))
-    ok = True
-    for name, res in cobol.items():
-        clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
-        ran = cics_compare.cobol_events(res)
-        cev = mask_clock_events(case, cics_compare.linked_result(case, ran), clock)
-        jev = mask_clock_events(case, cics_compare.linked_result(case, java.get(name, [])), clock)
-        sc = next(x for x in case["scenarios"] if x["name"] == name)
-        if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
-            cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])  # sides judged up to it
-        cev, jev, x6 = x6_judged(sc, work / "java" / "out", cev, jev)
-        undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
-        cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
-        d = cics_compare.compare_events(cev, jev)
-        moved = caller_bytes_diff(
-            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name), case
-        )
-        report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
-                                   "cobol": cev, "java": jev,
-                                   **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
-        if cics_compare.executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
-            report["outputs"][name]["commands"] = cics_compare.executed_commands(ran)
-        ok &= d["equal"] == d["events"]
-        if moved:  # #7607: only when non-empty (python-test-traps.md)
-            report["outputs"][name]["caller_bytes"] = moved
-            ok = False
-            print(f"{case['program']} {name}: the bytes left in the caller's COMMAREA differ: {moved}")
-        if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
-            # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
-            # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not
-            s = compare_task_sysout(
-                res.get("sysout", b""), work / "java" / "out" / f"{name}.sysout", common.data_encoding(case)
-            )
-            report["outputs"][name]["sysout"] = s
-            if s["compared"] and s["differing"]:
-                ok = False
-                print(f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}")
-        if sc.get("derived"):
-            report["outputs"][name]["sql_faults"] = sc["sql_plan"]
-        if res.get("x6_padded"):  # X6 (ASSUMED): the task ran on through a WRITEQ past FROM, padded on both sides
-            report["outputs"][name]["x6_padded"] = res["x6_padded"]
-        if x6:
-            report["outputs"][name]["judged_to"], report["outputs"][name]["x6"] = judged_to(x6), x6
-            if not x6["ok"]:
-                ok = False
-                print(f"{case['program']} {name}: only one side refused ({x6['assumes']}): {x6}")
-        if sc.get("prefix_link"):
-            report["outputs"][name]["judged_to"] = (
-                f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"
-            )
-            area = _link_area(case, res, java.get(name, []), sc["prefix_link"])
-            report["outputs"][name]["link_area"] = area
-            if area.get("equal") is False:
-                ok = False
-                print(f"{case['program']} {name}: the COMMAREA LINKed to {sc['prefix_link']} differs: {area}")
-        # #4023 follow-up (#4173: SQL faults too): the same injected conditions fired on both sides, and at least one
-        if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
-            fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt", "latin-1"),
-                     "java": _fired(work / "java" / "out" / f"{name}.faults")}  # fmt: skip
-            report["outputs"][name]["fired"] = fired
-            if not fired["cobol"] or fired["cobol"] != fired["java"]:
-                ok = False
-                print(f"{case['program']} {name}: faults fired differ or none fired: {fired}")
-        print(f"{case['program']} {name}: {d['equal']}/{d['events']} events equal")
-        for x in d["diffs"][:6]:
-            print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
-        end_state = not sc.get("prefix_link") and not x6
-        changed = {} if not end_state else compare_files(case, corpus, files, res.get("files", {}),
-                                                         work / "java" / "out", name)  # fmt: skip
-        if end_state:
-            changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
-        sql = compare_sql(case, sc, res, work / "java" / "out")  # #4507: what Db2 answered each side
-        if sql is not None:
-            report["outputs"][name]["sql"] = sql
-            if sql["equal"] != sql["statements"]:
-                ok = False
-                print(f"{case['program']} {name}: {sql['equal']}/{sql['statements']} SQL statements answered alike")
-        if clock[0]:
-            report["outputs"][name]["clock_masked"] = clock[0]
-        if undefined[0]:
-            report["outputs"][name]["undefined_commarea_fields"] = undefined[0]
-        if changed:  # file updates: what the task left in a file differs
-            report["outputs"][name]["files"] = changed
-            ok = False
-            for base, fd in changed.items():
-                print(f"{case['program']} {name}: file {base}: {fd['equal']}/{fd['records']} records equal")
+    ok, report["outputs"] = evaluate_cics_outputs(case, corpus, work / "cobol", work / "java" / "out", files, cobol, java)
     report["proven"] = ok
     if (case.get("db2") or {}).get("seed") == "@generate":  # #4507: the rows each table started every task with
         rows, _ = equivalence_db2.generate_rows(case, corpus)

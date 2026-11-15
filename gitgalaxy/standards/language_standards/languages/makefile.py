@@ -166,7 +166,7 @@ DEFINITION: dict[str, Any] = {
         # following whitespace before invoking the shell, so both "-rm" and "- rm" are
         # valid, equally common ignore-errors forms.
         "safety_bypasses": re.compile(r"^\t[ \t]*-[ \t]*[a-zA-Z0-9_./$]|\|\|[ \t]*(?:true|exit[ \t]+0)\b", re.M),
-        # Heavily destructive sequence patterns or overriding permissions. (Eval is categorized under heat_triggers).
+        # Heavily destructive sequence patterns or overriding permissions. (Eval is categorized under reflection_metaprogramming).
         # #2878 contract C4: root-only recursive delete (a `$(VAR)` target is cleanup's form,
         # as yaml already reads it); any kill except the -0 probe / -l listing (C1a).
         "high_risk_execution": re.compile(
@@ -265,7 +265,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # Launching explicit calculation boundaries outside the Make environment natively.
         "scientific": re.compile(r"\b(?:bc|expr|awk)\b|\$\(shell[ \t]+expr[ \t]+"),
-        # Extremely dense meta-programming manipulations drastically raising cognitive load during debugging.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Extremely dense meta-programming
+        # manipulations drastically raising cognitive load during debugging.
         "reflection_metaprogramming": re.compile(
             r"\$\((?:eval|call|value|origin|flavor|shell)[ \t]+|\.SECONDEXPANSION:"
         ),

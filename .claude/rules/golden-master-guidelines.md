@@ -30,4 +30,4 @@ The test scripts resolve the `LANGUAGE_CRUCIBLE_PATH` corpus relative to the rep
   `statistical_auditor`; skip only the Security Lens (#5441).
 * `crucible_check.py` on pristine HEAD can show ~11k differences when box load is above 6: compare against an
   unchanged-engine control before reading drift as yours (#6298). `doom_speedrun.py scan` reuses `<work>/scans/<engine-sha>`
-  at the same HEAD: `rm -rf` it to rescan after an engine edit (#6298).
+  at the same HEAD: `rm -rf` it to rescan after an engine edit (#6298). A frozen-engine run must override `PYTHONPATH` (the preset one points at main) or it silently regenerates at main (#8340).

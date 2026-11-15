@@ -286,7 +286,36 @@ def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
         (work / "FAULTS").unlink(missing_ok=True)
 
 
-def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, Any] | None = None) -> dict[str, bytes]:
+def _reuse_shared_binary(shared: Path | None, work: Path, name: str) -> bool:
+    if shared is None:
+        return False
+    src = shared / name
+    if not src.is_file():
+        return False
+    shutil.copy2(src, work / name)
+    return True
+
+
+def _shared_program_matches(shared: Path | None, src: Path) -> bool:
+    if shared is None or not (shared / "program").is_file():
+        return False
+    for name in ("EQDRIVER.cbl", "PROGRAM.cbl"):
+        prev, cur = shared / "src" / name, src / name
+        if not prev.is_file() or not cur.is_file() or prev.read_bytes() != cur.read_bytes():
+            return False
+    return True
+
+
+def run_cobol(
+    case: dict[str, Any],
+    corpus: Path,
+    work: Path,
+    fault: dict[str, Any] | None = None,
+    *,
+    shared: Path | None = None,
+    cobol_session: equivalence_common.CobolSession | None = None,
+    compile_fault_stub: bool = False,
+) -> dict[str, bytes]:
     """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
     when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
     faults that fired (#4023 follow-up; the plan is injected by faults/ggfault.c)."""
@@ -336,7 +365,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         if spec.get("organization") == "indexed":
             (src / f"LD{dd}.cbl").write_text(cobol_loader(dd, spec["reclen"], spec["keys"]), encoding="ascii")
             (src / f"UL{dd}.cbl").write_text(cobol_unloader(dd, spec["reclen"], spec["keys"]), encoding="ascii")
-            script += [f"cobc -x {flags} -o ld{dd} src/LD{dd}.cbl", f"cobc -x {flags} -o ul{dd} src/UL{dd}.cbl"]
+            if not _reuse_shared_binary(shared, work, f"ld{dd}"):
+                script.append(f"cobc -x {flags} -o ld{dd} src/LD{dd}.cbl")
+            if not _reuse_shared_binary(shared, work, f"ul{dd}"):
+                script.append(f"cobc -x {flags} -o ul{dd} src/UL{dd}.cbl")
             if "input" in spec:
                 script.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
         elif "input" in spec:
@@ -371,18 +403,25 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     sql = f" src/ggsql.c {equivalence_db2.COBOL_LINK}" if db2 else ""
     sql += " src/ggdli.c" if ims else ""
     le = "".join(f" src/{m.name}" for m in models)
-    script.append(
-        f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl{subs} src/ggabend.c{le}{sql}"
-    )
+    if _shared_program_matches(shared, src):
+        shutil.copy2(shared / "program", work / "program")
+    else:
+        script.append(
+            f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl{subs} src/ggabend.c{le}{sql}"
+        )
     # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
-    script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
+    if not _reuse_shared_binary(shared, work, "ggdisplay.so"):
+        script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
     inject = "LD_PRELOAD=/work/ggdisplay.so "
+    if compile_fault_stub and fault is None:
+        script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
     if fault is not None:
         plan = fault_plan(fault)
         (work / "fault.plan").write_text(
             "".join(x + "\n" for x in plan.splitlines() if not x.startswith("# ")), encoding="ascii"
         )
-        script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
+        if not _reuse_shared_binary(shared, work, "ggfault.so"):
+            script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
         inject = (
             "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD='/work/ggfault.so /work/ggdisplay.so' "
         )
@@ -418,8 +457,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     fresh_fault_log(work, fault)
     if db2 and not step_reused(work):
         equivalence_db2.reset(case, corpus)
-    proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
-            else run_cobol_step(work))  # fmt: skip
+    step_kw = {"session": cobol_session} if cobol_session is not None else {}
+    proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case)), **step_kw) if db2
+            else run_cobol_step(work, **step_kw))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
@@ -824,10 +864,10 @@ def main() -> int:
                    "(mutation testing: many ports of one case)")  # fmt: skip
     r.add_argument("--first-difference", action="store_true", help="stop at the first run that differs: the "
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
-    r.add_argument("--one-jvm", action="store_true", help="a batch proof's runs in the first environment (it, the "
-                   "faults, the entries), or a call / CICS proof's runs (task, facade), in one JVM, each on a fresh "
-                   "Spring context, instead of a JVM each; Db2 / IMS "
-                   "cases and a project that cannot run without Maven keep a JVM per run (mutation testing)")  # fmt: skip
+    r.add_argument("--one-jvm", action=argparse.BooleanOptionalAction, default=False, help="a batch proof's runs in "
+                   "the first environment (it, the faults, the entries), or a call / CICS proof's runs (task, facade), "
+                   "in one JVM, each on a fresh Spring context, instead of a JVM each; Db2 / IMS cases and a project "
+                   "that cannot run without Maven keep a JVM per run")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     r.add_argument("--no-facades", action="store_true", help="#4449: a CICS case's port is proven through runTask "
@@ -847,13 +887,13 @@ def main() -> int:
         return 0
     import mainframe_corpus as mc
 
-    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.one_jvm or args.generated_only
+    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
                         or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
                         or args.no_facades or args.corpus_dir):  # fmt: skip
         raise SystemExit(
             "--record proves the committed port on the committed case as it is: drop --port / "
-            "--case-file / --reuse / --first-difference / --one-jvm / --generated-only / --cobol-only / --no-facades / --corpus-dir "
+            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades / --corpus-dir "
             "and the overrides"
         )
     case = load_case(args.case, args.case_file)
@@ -908,40 +948,50 @@ def main() -> int:
                                                  facades=not args.no_facades,
                                                  one_jvm=args.one_jvm))  # fmt: skip
     faults = selected_faults(case, args.faults)
+    has_faults = bool(faults) or (bool(case.get("db2")) and args.sql_faults == "auto" and args.faults != "none")
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         with equivalence_common.phase("db2_create"):  # #5882
             equivalence_db2.create(case, corpus)
-    try:
-        with equivalence_common.phase("cobol_run"):
-            cobol = run_cobol(case, corpus, work / "cobol")
-    except RuntimeError as e:
-        failed = cobc_failure_report(case, work / "cobol", str(e))
-        if failed is None:
-            raise
-        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
-        print(f"{case['program']}: cobc did not compile it -- see {work / 'report.json'}")
-        return _recorded(args, work, 1)
-    if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
-        import equivalence_cics as ec
-
-        table = (work / "cobol" / "stmts.txt").read_text(encoding="latin-1")
-        for f in faults:
-            if f.get("sql_faults"):
-                f["sql_plan"] = ec.sql_fault_plan(case, {"name": f["name"], **f}, table)
-        if args.sql_faults == "auto" and args.faults != "none":
-            faults = [*faults, *enumerated_batch_sql_faults(work / "cobol", table)]
-    cobol_faults, unrunnable = {}, {}
-    for f in faults:
+        cobol_image, cobol_docker_args = equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))
+    else:
+        cobol_image, cobol_docker_args = IMAGE, ()
+    with equivalence_common.CobolSession(work, cobol_image, cobol_docker_args) as cobol_session:
         try:
-            with equivalence_common.phase("cobol_fault_runs"):  # #5882
-                cobol_faults[f["name"]] = run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f)
+            with equivalence_common.phase("cobol_run"):
+                cobol = run_cobol(
+                    case, corpus, work / "cobol", cobol_session=cobol_session, compile_fault_stub=has_faults
+                )
         except RuntimeError as e:
-            # #5561: a derived SQL fault whose oracle run is "not runnable faithfully" (BANKDATA's failed DELETE
-            # shows SQLERRMC(1:SQLERRML), length 0 under an injected fault: X8) has no oracle: named in the report,
-            # never proven or guessed. A declared fault, or any other failure, still stops the proof.
-            if not f.get("derived") or "not runnable faithfully" not in str(e):
+            failed = cobc_failure_report(case, work / "cobol", str(e))
+            if failed is None:
                 raise
-            unrunnable[f["name"]] = str(e).strip().splitlines()[0]
+            (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+            print(f"{case['program']}: cobc did not compile it -- see {work / 'report.json'}")
+            return _recorded(args, work, 1)
+        if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
+            import equivalence_cics as ec
+
+            table = (work / "cobol" / "stmts.txt").read_text(encoding="latin-1")
+            for f in faults:
+                if f.get("sql_faults"):
+                    f["sql_plan"] = ec.sql_fault_plan(case, {"name": f["name"], **f}, table)
+            if args.sql_faults == "auto" and args.faults != "none":
+                faults = [*faults, *enumerated_batch_sql_faults(work / "cobol", table)]
+        cobol_faults, unrunnable = {}, {}
+        for f in faults:
+            try:
+                with equivalence_common.phase("cobol_fault_runs"):  # #5882
+                    cobol_faults[f["name"]] = run_cobol(
+                        case, corpus, work / "faults" / f["name"] / "cobol", f,
+                        shared=work / "cobol", cobol_session=cobol_session,
+                    )  # fmt: skip
+            except RuntimeError as e:
+                # #5561: a derived SQL fault whose oracle run is "not runnable faithfully" (BANKDATA's failed DELETE
+                # shows SQLERRMC(1:SQLERRML), length 0 under an injected fault: X8) has no oracle: named in the report,
+                # never proven or guessed. A declared fault, or any other failure, still stops the proof.
+                if not f.get("derived") or "not runnable faithfully" not in str(e):
+                    raise
+                unrunnable[f["name"]] = str(e).strip().splitlines()[0]
     faults = [f for f in faults if f["name"] in cobol_faults]
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
@@ -958,6 +1008,10 @@ def main() -> int:
     import equivalence_java as ej
 
     envs = _environments(args.environments, case)
+    order_env = os.environ.get("GITGALAXY_FAULTS_ORDER", "")
+    if args.first_difference and order_env:
+        rank = {name: i for i, name in enumerate(order_env.split(",")) if name}
+        faults = sorted(faults, key=lambda f: rank.get(f["name"], len(rank)))
     by_name = {f"fault:{f['name']}": f for f in faults}
     entries = ej.entry_names(case)  # #4048 follow-up: the step once more through each entry method
 

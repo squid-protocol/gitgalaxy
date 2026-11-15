@@ -1566,15 +1566,6 @@
    "reason": "Cobol runtime swap restoration: TRUNC and NUMPROC flags are default"
   },
   {
-   "id": "661ba858a8",
-   "op": "COR",
-   "line": 387,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
    "id": "73e9db0c81",
    "op": "DEL",
    "line": 403,

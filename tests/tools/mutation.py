@@ -36,13 +36,18 @@ import contextlib
 import hashlib
 import json
 import os
+import queue
 import random
 import re
 import shutil
 import signal
 import subprocess
 import sys
+import tempfile
+import threading
 import time
+import xml.etree.ElementTree as ET
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -52,7 +57,13 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
-from equivalence_java import JAVAC_JVM_OPTIONS  # noqa: E402
+from equivalence_java import (  # noqa: E402
+    JAVAC_JVM_OPTIONS,
+    JAVAC_OPTIONS,
+    PRECOMPILED_MANIFEST,
+    PRECOMPILED_OVERLAY_ENV,
+    TEST_CLASSPATH,
+)
 from maven_exe import maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
 
 EQUIVALENCE = TOOLS / "equivalence.py"
@@ -316,12 +327,45 @@ def _java_env() -> dict[str, str]:
     return env
 
 
+def _cached_baseline_classpath(project: Path) -> str | None:
+    """Fast path: read the compile classpath from `baseline`'s surefire report or recorded `TEST_CLASSPATH`."""
+    classes = project / "target" / "classes"
+    if not classes.is_dir():
+        return None
+    reports = sorted(project.glob("target/surefire-reports/TEST-*.xml"))
+    if reports:
+        try:
+            props = {p.get("name"): p.get("value") for p in ET.parse(reports[0]).iter("property")}  # noqa: S314
+            raw = props.get("surefire.test.class.path") or ""
+            old = str(reports[0].parents[2])
+            entries = [e.replace(old, str(project)) for e in raw.split(os.pathsep) if e]
+        except (OSError, ET.ParseError):
+            entries = []
+    elif (project / TEST_CLASSPATH).is_file():
+        entries = [e for e in (project / TEST_CLASSPATH).read_text(encoding="utf-8").split(os.pathsep) if e]
+    else:
+        return None
+    cp_entries = [
+        e
+        for e in entries
+        if not e.replace("\\", "/").endswith("/test-classes") and not e.endswith("test-classes")
+    ]
+    if not cp_entries or str(classes) not in cp_entries:
+        return None
+    if not all(Path(e).exists() for e in cp_entries if e.endswith(".jar")):
+        return None
+    return os.pathsep.join(cp_entries)
+
+
 def baseline_classpath(baseline: Path, work: Path) -> str:
-    """The compile classpath of the baseline's generated project: Maven's own (-X), from a clean copy."""
+    """The compile classpath of the baseline's generated project: cached surefire/TEST_CLASSPATH first, else Maven -X."""
     (pom,) = sorted(baseline.glob("java/*/pom.xml"))[:1] or [None]
     if pom is None:
         raise SystemExit(f"no generated project under {baseline / 'java'}")
     project = pom.parent
+    cached = _cached_baseline_classpath(project)
+    if cached is not None:
+        return cached
     scratch = work / "classpath-project"
     if scratch.exists():
         shutil.rmtree(scratch)
@@ -339,6 +383,16 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
     return m.group(1).replace(str(scratch / "target" / "classes"), str(project / "target" / "classes"))
 
 
+def _write_overlay_manifest(out: Path, mutant_port: Path) -> None:
+    sources = {
+        p.relative_to(mutant_port).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in sorted(mutant_port.rglob("*.java"))
+    }
+    (out / PRECOMPILED_MANIFEST).write_text(
+        json.dumps({"javac_options": JAVAC_OPTIONS, "sources": sources}) + "\n", encoding="utf-8"
+    )
+
+
 def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None = None) -> tuple[bool, str]:
     import javac_server  # noqa: PLC0415
 
@@ -353,17 +407,144 @@ def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None
     javac_exe = str(Path(_java_env()["JAVA_HOME"]) / "bin" / "javac")
     try:
         proc = javac_server.javac(
-            [javac_exe, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sp, *sources],
+            [javac_exe, *JAVAC_OPTIONS, "-d", str(out), "-cp", classpath, *sp, *sources],
             capture_output=True, text=True, encoding="utf-8", check=False, timeout=JAVAC_MUTANT_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
         return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
     errors = [x for x in proc.stderr.splitlines() if ": error: " in x]
+    if proc.returncode == 0:
+        _write_overlay_manifest(out, mutant_port)
     return proc.returncode == 0, (errors[0].split(": error: ", 1)[1] if errors else proc.stderr.strip()[:200])
 
 
+JAVAC_SESSION_DONE = "@@JAVAC-DONE@@"
+JAVAC_SESSION_SRC = f"""import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import javax.tools.*;
+
+public class MutantJavacSession {{
+    public static void main(String[] args) throws Exception {{
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {{
+            System.exit(2);
+        }}
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+        String outDir;
+        while ((outDir = in.readLine()) != null && !outDir.equals("quit")) {{
+            String cp = in.readLine();
+            if (cp == null) break;
+            List<String> sources = new ArrayList<>();
+            String s;
+            while ((s = in.readLine()) != null && !s.isEmpty()) {{
+                sources.add(s);
+            }}
+            DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<>();
+            boolean ok;
+            try (StandardJavaFileManager fm = compiler.getStandardFileManager(null, Locale.ROOT, StandardCharsets.UTF_8)) {{
+                List<String> opts = List.of("-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn", "-d", outDir, "-cp", cp);
+                Iterable<? extends JavaFileObject> units = fm.getJavaFileObjectsFromStrings(sources);
+                ok = Boolean.TRUE.equals(compiler.getTask(null, fm, diags, opts, null, units).call());
+            }}
+            String firstError = "";
+            if (!ok) {{
+                for (Diagnostic<? extends JavaFileObject> d : diags.getDiagnostics()) {{
+                    if (d.getKind() == Diagnostic.Kind.ERROR) {{
+                        firstError = d.getMessage(Locale.ROOT).replace('\\r', ' ').replace('\\n', ' ');
+                        break;
+                    }}
+                }}
+            }}
+            System.out.println("{JAVAC_SESSION_DONE} " + (ok ? "0" : "1") + " " + firstError);
+            System.out.flush();
+        }}
+    }}
+}}
+"""
+
+
+def _javac_session_bin(env: dict[str, str]) -> Path | None:
+    java_home = env.get("JAVA_HOME", "")
+    key = hashlib.sha256((java_home + JAVAC_SESSION_SRC).encode()).hexdigest()[:12]
+    target = Path(tempfile.gettempdir()) / f"gitgalaxy-javac-session-{key}"
+    if (target / "MutantJavacSession.class").is_file():
+        return target
+    build = Path(tempfile.mkdtemp(prefix="javac-session-"))
+    (build / "MutantJavacSession.java").write_text(JAVAC_SESSION_SRC, encoding="utf-8")
+    javac = str(Path(java_home) / "bin" / "javac") if java_home else "javac"
+    proc = subprocess.run([javac, *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-d", str(build),  # noqa: S603
+                           str(build / "MutantJavacSession.java")], env=env, capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    if proc.returncode != 0:
+        shutil.rmtree(build, ignore_errors=True)
+        return None
+    try:
+        build.rename(target)
+    except OSError:
+        shutil.rmtree(build, ignore_errors=True)
+    return target if (target / "MutantJavacSession.class").is_file() else None
+
+
+class JavacSession:
+    """Persistent warm `javax.tools.JavaCompiler` worker so compiling N mutants pays JVM startup once per worker."""
+
+    def __init__(self, bin_dir: Path, env: dict[str, str]) -> None:
+        java_home = env.get("JAVA_HOME", "")
+        java = str(Path(java_home) / "bin" / "java") if java_home else "java"
+        jvm_flags = [x[2:] for x in JAVAC_JVM_OPTIONS if x.startswith("-J")]
+        self.proc = subprocess.Popen([java, *jvm_flags, "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(bin_dir), "MutantJavacSession"],  # noqa: S603
+                                     env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                     text=True, encoding="utf-8", bufsize=1)  # fmt: skip
+        self._lines: queue.Queue[str | None] = queue.Queue()
+        threading.Thread(target=self._pump, daemon=True).start()
+
+    def _pump(self) -> None:
+        assert self.proc.stdout is not None
+        for line in self.proc.stdout:
+            self._lines.put(line)
+        self._lines.put(None)
+
+    def compile(self, mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str] | None:
+        out.mkdir(parents=True, exist_ok=True)
+        sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+        assert self.proc.stdin is not None
+        try:
+            self.proc.stdin.write(f"{out}\n{classpath}\n" + "\n".join(sources) + "\n\n")
+            self.proc.stdin.flush()
+        except OSError:
+            return None
+        deadline = time.monotonic() + JAVAC_MUTANT_TIMEOUT
+        while True:
+            try:
+                line = self._lines.get(timeout=max(0.0, deadline - time.monotonic()))
+            except queue.Empty:
+                self.proc.kill()
+                return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
+            if line is None:
+                return None
+            if line.startswith(JAVAC_SESSION_DONE):
+                rest = line[len(JAVAC_SESSION_DONE) + 1 :].rstrip("\r\n")
+                code, _, msg = rest.partition(" ")
+                ok = code == "0"
+                if ok:
+                    _write_overlay_manifest(out, mutant_port)
+                return ok, msg
+
+    def close(self) -> None:
+        try:
+            assert self.proc.stdin is not None
+            self.proc.stdin.write("quit\n")
+            self.proc.stdin.flush()
+            self.proc.stdin.close()
+            self.proc.wait(timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            self.proc.kill()
+            self.proc.wait()
+
+
 # ---- proving one mutant ---------------------------------------------------------------------------------------------
-def prove(case: str, port: Path | None, work: Path, timeout: float, extra: tuple[str, ...] = ()) -> dict[str, Any]:
+def prove(case: str, port: Path | None, work: Path, timeout: float, extra: tuple[str, ...] = (),
+          env: dict[str, str] | None = None) -> dict[str, Any]:  # fmt: skip
     """`equivalence.py run <case> [--port]` in its own process group; the report, or TIMEOUT."""
     argv = [sys.executable, str(EQUIVALENCE), "run", case, "--keep", str(work)]
     if port is not None:
@@ -372,7 +553,7 @@ def prove(case: str, port: Path | None, work: Path, timeout: float, extra: tuple
     start = time.time()
     with (work.parent / f"{work.name}.log").open("w", encoding="utf-8") as log:
         proc = subprocess.Popen(argv, cwd=REPO_ROOT, stdout=log, stderr=subprocess.STDOUT,  # noqa: S603
-                                start_new_session=True)  # fmt: skip
+                                env=env, start_new_session=True)  # fmt: skip
         try:
             proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
@@ -409,6 +590,340 @@ def killers(report: dict[str, Any]) -> list[str]:
         return out
     out = ["main"] if not all(e.get("ok") for e in report.get("environments", [{"ok": True}])) else []
     return out + [f["name"] for f in report.get("faults", []) if not f.get("ok")]
+
+
+_ORIGINAL_PROVE = prove
+
+
+class _MutantWorker:
+    """One persistent worker owning a warm `JvmSession` (`--mutant-session`) and a private copy of `target/classes`."""
+
+    def __init__(self, worker_id: int, work: Path, ctx: _DirectContext) -> None:
+        self.ctx = ctx
+        self.classes_dir = work / f".worker-{worker_id}" / "classes"
+        self.session: Any = None
+        self.cp = ""
+
+    def _ensure(self) -> Any:
+        if self.session is not None:
+            return self.session
+        import equivalence_java as ej
+
+        if self.classes_dir.exists():
+            shutil.rmtree(self.classes_dir, ignore_errors=True)
+        shutil.copytree(self.ctx.base_classes, self.classes_dir)
+        started = ej.start_mutant_session(self.ctx.project, self.ctx.env_default, cwd=self.classes_dir.parent)
+        if started is None:
+            return None
+        self.session, _, test_classes = started
+        self.cp = os.pathsep.join([str(self.classes_dir), str(test_classes)])
+        return self.session
+
+    def reset(self) -> None:
+        if self.session is not None:
+            self.session.close()
+            self.session = None
+
+    def swap_and_restore(self, mutant_classes: Path) -> list[tuple[Path, bool]]:
+        """Ensure the worker JVM & classes copy exist, then install `mutant_classes` into `self.classes_dir`."""
+        if self._ensure() is None:
+            raise RuntimeError("mutant session unavailable")
+        rels = [p.relative_to(mutant_classes) for p in mutant_classes.rglob("*.class")]
+        touched: set[Path] = set()
+        stems = {(r.parent, r.name.split("$", 1)[0].removesuffix(".class")) for r in rels}
+        for parent, stem in stems:
+            wdir = self.classes_dir / parent
+            if wdir.is_dir():
+                for existing in list(wdir.glob(f"{stem}.class")) + list(wdir.glob(f"{stem}$*.class")):
+                    touched.add(existing.relative_to(self.classes_dir))
+                    existing.unlink()
+        for r in rels:
+            touched.add(r)
+            dest = self.classes_dir / r
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(mutant_classes / r, dest)
+        return [(r, (self.ctx.base_classes / r).is_file()) for r in touched]
+
+    def rollback(self, entries: list[tuple[Path, bool]]) -> None:
+        for r, existed in entries:
+            dest = self.classes_dir / r
+            if existed:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(self.ctx.base_classes / r, dest)
+            else:
+                dest.unlink(missing_ok=True)
+
+
+class _DirectContext:
+    """In-process Batch / CICS runner backed by persistent `--mutant-session` JVMs (fast+one-jvm non-Db2/non-IMS)."""
+
+    def __init__(self, *, kind: str, case: dict[str, Any], corpus: Path, project: Path, base_classes: Path,
+                 env_default: dict[str, str], base_jvm_flags: str, shell: dict[str, str],
+                 inputs: Path, faults: list[dict[str, Any]] | None = None,
+                 cobol_batch: dict[str, bytes] | None = None, cobol_faults: dict[str, dict[str, bytes]] | None = None,
+                 fault_props: dict[str, str] | None = None, cics_in: Path | None = None, cics_cobol_work: Path | None = None,
+                 cics_files: list[dict[str, Any]] | None = None, cics_cobol: dict[str, Any] | None = None,
+                 cics_shape: Any = None, cics_ret_read: Any = None) -> None:  # fmt: skip
+        self.kind = kind
+        self.case = case
+        self.corpus = corpus
+        self.project = project
+        self.base_classes = base_classes
+        self.env_default = env_default
+        self.base_jvm_flags = base_jvm_flags
+        self.shell = shell
+        self.inputs = inputs
+        self.faults = faults or []
+        self.cobol_batch = cobol_batch or {}
+        self.cobol_faults = cobol_faults or {}
+        self.fault_props = fault_props or {}
+        self.cics_in = cics_in
+        self.cics_cobol_work = cics_cobol_work
+        self.cics_files = cics_files or []
+        self.cics_cobol = cics_cobol or {}
+        self.cics_shape = cics_shape
+        self.cics_ret_read = cics_ret_read
+
+    @classmethod
+    def build(cls, case_name: str, case_file: Path | None, baseline_work: Path, base: dict[str, Any],
+              one_jvm: bool, full: bool) -> _DirectContext | None:  # fmt: skip
+        if full or not one_jvm or prove is not _ORIGINAL_PROVE:
+            return None
+        report = base.get("report") or {}
+        if report.get("java") != "ported":
+            return None
+        import equivalence as eq
+        import equivalence_java as ej
+        import mainframe_corpus as mc
+
+        case = eq.load_case(case_name, case_file)
+        if (case.get("db2") or case.get("ims") or case.get("entries") or case.get("environments")
+                or case.get("kind") in ("job", "call")):  # fmt: skip
+            return None
+        (pom,) = sorted((baseline_work / "java").glob("*/pom.xml"))[:1] or [None]
+        if pom is None:
+            return None
+        project = pom.parent
+        shell = _java_env()
+        if ej._direct_parts(project, shell) is None:
+            return None
+        (corpus_entry,) = mc.select([case["corpus"]])
+        corpus = mc.require_clone(corpus_entry)
+        env0 = ej.environment("default")
+        base_flags = f"{ej.JVM_SHORT_RUN_FLAGS} {ej.jvm_args(env0)} {ej.data_charset_arg(case)}".strip()
+        base_classes = (project / "target" / "classes").resolve()
+        if not base_classes.is_dir():
+            return None
+
+        if case.get("kind") == "cics":
+            import equivalence_cache
+            import equivalence_cics as ec
+            import equivalence_inputs
+            from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+
+            cics_in = baseline_work / "java" / "in"
+            cobol_work = baseline_work / "cobol"
+            if not (cics_in / "scenarios.json").is_file() or not (cobol_work / "refused.json").is_file():
+                return None
+            ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, baseline_work / "scan"))
+            symbols = ec.install_symbols(case.get("install_symbols"))
+            files = ec.stub_files(ir, case["program_source"], case.get("datasets"), symbols)
+            for extra in case.get("programs", []):
+                files += [f for f in ec.stub_files(ir, extra["program_source"], case.get("datasets"), symbols)
+                          if f["file"] not in {x["file"] for x in files}]  # fmt: skip
+            case = equivalence_inputs.prepare_cics_case(case, corpus, files)
+            refused = set(json.loads((cobol_work / "refused.json").read_text(encoding="utf-8")))
+            refused.update((report.get("refused") or {}).keys())
+            kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
+            case = {**case, "scenarios": kept}
+            src = project / "src/main/java"
+            svc = ej._service_class(case["program"])
+            svc_file = next(src.rglob(f"{svc}.java"))
+            ca_cls = ec.commarea_class(case, src, svc_file)
+            shape = ec.dto_shape(src, ca_cls, svc_file) if ca_cls else {}
+            ca_fields = ec.commarea_fields(corpus, case)
+            ret_read = ec.commarea_fields(corpus, case, occurrences=True) or ec.return_fields(corpus, case, True)
+            cobol = {sc["name"]: ec.outputs(cobol_work / "scenarios" / sc["name"] / "out", case, corpus,
+                                            ca_fields or ec.return_fields(corpus, case, True))
+                     for sc in kept}  # fmt: skip
+            return cls(
+                kind="cics", case=case, corpus=corpus, project=project, base_classes=base_classes,
+                env_default=env0, base_jvm_flags=base_flags, shell=shell, inputs=cics_in,
+                cics_in=cics_in, cics_cobol_work=cobol_work, cics_files=files, cics_cobol=cobol,
+                cics_shape=shape, cics_ret_read=ret_read,
+            )
+
+        inputs = baseline_work / "cobol"
+        if not inputs.is_dir():
+            return None
+        cobol = eq.run_cobol(case, corpus, inputs)
+        faults = eq.selected_faults(case, "all")
+        cobol_faults: dict[str, dict[str, bytes]] = {}
+        fault_props: dict[str, str] = {}
+        stage = baseline_work / "_fault_inputs"
+        stage.mkdir(parents=True, exist_ok=True)
+        enc = eq.equivalence_common.data_encoding(case)
+        for f in faults:
+            f_cobol = baseline_work / "faults" / f["name"] / "cobol"
+            if not f_cobol.is_dir():
+                return None
+            cobol_faults[f["name"]] = eq.run_cobol(case, corpus, f_cobol, f)
+            fdir = stage / f["name"]
+            fdir.mkdir(parents=True, exist_ok=True)
+            (fdir / "fault.plan").write_text(eq.fault_plan(f), encoding="ascii")
+            fp = f"-Dgitgalaxy.faults.plan={fdir / 'fault.plan'}"
+            if f.get("parm") is not None:
+                fp += f" -Dequivalence.parm={ej.run_parm(eq.run_parm(case, f))}"
+            if f.get("sysin") is not None:
+                sysin = f["sysin"] if f["sysin"].endswith("\n") else f["sysin"] + "\n"
+                (fdir / "SYSIN.in").write_bytes(sysin.encode(enc))
+                fp += f" -Dequivalence.sysin={fdir / 'SYSIN.in'}"
+            fault_props[f["name"]] = fp
+        return cls(
+            kind="batch", case=case, corpus=corpus, project=project, base_classes=base_classes,
+            env_default=env0, base_jvm_flags=base_flags, shell=shell, inputs=inputs,
+            faults=faults, cobol_batch=cobol, cobol_faults=cobol_faults, fault_props=fault_props,
+        )
+
+    def _run_batch_area(self, worker: _MutantWorker, m_id: str, area: Path, timeout: float,
+                        extra_props: str = "") -> tuple[int, dict[str, bytes] | None]:  # fmt: skip
+        datasets, out = area / "datasets", area / "out"
+        datasets.mkdir(parents=True, exist_ok=True)
+        out.mkdir(parents=True, exist_ok=True)
+        for dd, spec in self.case["datasets"].items():
+            if "input" in spec and not spec.get("entity"):
+                shutil.copy(self.inputs / f"{dd}.in", datasets / dd)
+        sysout = out / "SYSOUT"
+        sysout.unlink(missing_ok=True)
+        (out / "FAULTS").unlink(missing_ok=True)
+        props = extra_props
+        if self.case.get("mvs_step") is not None:
+            props = f"{props} -Dgitgalaxy.mvs.step={self.case['mvs_step']}"
+        if self.case.get("sysin") is not None and "-Dequivalence.sysin=" not in props:
+            props = f"{props} -Dequivalence.sysin={self.inputs / 'SYSIN.in'}"
+        argline = (
+            f"{self.base_jvm_flags} -Dequivalence.in={self.inputs} -Dequivalence.out={out} "
+            f"-Dequivalence.datasets={datasets} -Dgitgalaxy.sysout={sysout} {props}"
+        ).strip()
+        session = worker._ensure()
+        if session is None:
+            return -1, None
+        proc = session.run(argline, timeout, epoch=m_id, cp=worker.cp)
+        if proc.returncode == 124:
+            worker.reset()
+            return 124, None
+        if "the session JVM" in proc.stderr:
+            worker.reset()
+            return -1, None
+        if proc.returncode != 0:
+            return 1, None
+        outs = {dd: out / f"{dd}.out" for dd, spec in self.case["datasets"].items() if spec.get("compare")}
+        for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
+            outs[extra] = out / extra
+        read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}
+        read["SYSOUT"] = sysout.read_bytes() if sysout.is_file() else b""
+        for extra in ("RETURN-CODE", "ABEND"):
+            if extra in read:
+                read[extra] = read[extra].strip()
+        return 0, read
+
+    def run_mutant(self, worker: _MutantWorker, m: Mutant, mw: Path, limit: float, keep: bool,
+                   fault_ranks: dict[str, int]) -> dict[str, Any] | None:  # fmt: skip
+        classes = mw / "classes"
+        if not classes.is_dir():
+            return None
+        started = time.time()
+        deadline = time.monotonic() + limit
+        try:
+            rollback = worker.swap_and_restore(classes)
+        except (OSError, RuntimeError):
+            worker.reset()
+            return None
+        poisoned = False
+        try:
+            proof = mw / "proof"
+            if self.kind == "cics":
+                out, datasets = proof / "java" / "out", proof / "java" / "datasets"
+                out.mkdir(parents=True, exist_ok=True)
+                datasets.mkdir(parents=True, exist_ok=True)
+                session = worker._ensure()
+                if session is None:
+                    return None
+                argline = (
+                    f"{self.base_jvm_flags} -Dequivalence.in={self.cics_in} "
+                    f"-Dequivalence.out={out} -Dequivalence.datasets={datasets}"
+                )
+                proc = session.run(argline, limit, epoch=m.id, cp=worker.cp)
+                secs = round(time.time() - started)
+                if proc.returncode == 124:
+                    poisoned = True
+                    worker.reset()
+                    return {"verdict": "timeout", "seconds": secs}
+                if "the session JVM" in proc.stderr:
+                    poisoned = True
+                    worker.reset()
+                    return None
+                if proc.returncode != 0:
+                    return {"verdict": "killed", "seconds": secs, "killed_by": ["java"]}
+                import equivalence_cics as ec
+
+                assert self.cics_cobol_work is not None
+                java = ec._java_events(self.case, out, self.cics_shape, self.cics_ret_read)
+                ok, outs = ec.evaluate_cics_outputs(
+                    self.case, self.corpus, self.cics_cobol_work, out, self.cics_files,
+                    self.cics_cobol, java, quiet=True,
+                )
+                kb = [] if ok else killers({"kind": "cics", "outputs": outs})
+                return {"verdict": "survived" if ok else "killed", "seconds": secs, "killed_by": kb}
+
+            import equivalence as eq
+
+            rc, java = self._run_batch_area(worker, m.id, proof / "java", max(1.0, deadline - time.monotonic()))
+            secs = round(time.time() - started)
+            if rc == 124:
+                poisoned = True
+                return {"verdict": "timeout", "seconds": secs}
+            if rc < 0:
+                poisoned = True
+                return None
+            if rc != 0:
+                return {"verdict": "killed", "seconds": secs, "killed_by": ["java"]}
+            assert java is not None
+            if not eq.compare_run(self.case, self.corpus, self.cobol_batch, java)["ok"]:
+                return {"verdict": "killed", "seconds": secs, "killed_by": ["main"]}
+            ordered = sorted(enumerate(self.faults), key=lambda it: (-fault_ranks.get(it[1]["name"], 0), it[0]))
+            for _, f in ordered:
+                rem = deadline - time.monotonic()
+                if rem <= 0:
+                    poisoned = True
+                    worker.reset()
+                    return {"verdict": "timeout", "seconds": round(time.time() - started)}
+                f_area = proof / "java" / "faults" / f["name"]
+                f_props = f"{self.fault_props[f['name']]} -Dgitgalaxy.faults.log={f_area / 'out' / 'FAULTS'}"
+                rc, f_java = self._run_batch_area(worker, m.id, f_area, rem, f_props)
+                secs = round(time.time() - started)
+                if rc == 124:
+                    poisoned = True
+                    return {"verdict": "timeout", "seconds": secs}
+                if rc < 0:
+                    poisoned = True
+                    return None
+                if rc != 0:
+                    return {"verdict": "killed", "seconds": secs, "killed_by": ["java"]}
+                assert f_java is not None
+                f_java.setdefault("FAULTS", b"")
+                if not eq.compare_run(self.case, self.corpus, self.cobol_faults[f["name"]], f_java, fault=f)["ok"]:
+                    return {"verdict": "killed", "seconds": secs, "killed_by": [f["name"]]}
+            return {"verdict": "survived", "seconds": round(time.time() - started), "killed_by": []}
+        finally:
+            if poisoned:
+                shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
+            else:
+                try:
+                    worker.rollback(rollback)
+                except OSError:
+                    worker.reset()
+                    shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
 
 
 # ---- the run -----------------------------------------------------------------------------------------------------
@@ -449,47 +964,124 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
           flush=True)  # fmt: skip
     results: dict[str, dict[str, Any]] = {}
 
+    java_env = _java_env()
+    javac_bin = _javac_session_bin(java_env)
+    compile_lock = threading.Lock()
+    javac_sessions: list[JavacSession] = []
+    local_javac = threading.local()
+
     def javac(m: Mutant) -> tuple[bool, str]:
         mdir = write_mutant(port, m, work / "mutants" / m.id / "port")
-        return compiles(mdir, classpath, work / "mutants" / m.id / "classes", only_file=m.file)
+        out_dir = work / "mutants" / m.id / "classes"
+        if javac_bin is not None:
+            sess = getattr(local_javac, "sess", None)
+            if sess is None:
+                sess = JavacSession(javac_bin, java_env)
+                local_javac.sess = sess
+                with compile_lock:
+                    javac_sessions.append(sess)
+            compiled = sess.compile(mdir, classpath, out_dir)
+            if compiled is not None:
+                return compiled
+            with compile_lock:
+                if sess in javac_sessions:
+                    javac_sessions.remove(sess)
+            local_javac.sess = None
+            sess.close()
+        return compiles(mdir, classpath, out_dir, only_file=m.file)
 
     live: list[Mutant] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:  # (javac, --jobs at a time)
-        for m, (ok, why) in zip(chosen, pool.map(javac, chosen), strict=True):
-            if ok:
-                live.append(m)
-            else:
-                results[m.id] = {"verdict": "stillborn", "why": why}
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:  # (javac, --jobs at a time)
+            for m, (ok, why) in zip(chosen, pool.map(javac, chosen), strict=True):
+                if ok:
+                    live.append(m)
+                else:
+                    results[m.id] = {"verdict": "stillborn", "why": why}
+    finally:
+        for sess in javac_sessions:
+            sess.close()
     print(f"{case}: {len(chosen) - len(live)} stillborn (javac), {len(live)} to prove, {jobs} at a time", flush=True)
 
-    def one(m: Mutant) -> tuple[Mutant, dict[str, Any]]:
+    direct = _DirectContext.build(case, case_file, work / "baseline", base, one_jvm, full)
+    claim_text = _baseline_claim(work)
+    kill_counts: Counter[str] = Counter()
+    state_lock = threading.Lock()
+    work_iter = iter(live)
+    done = 0
+    last_save = time.monotonic()
+
+    def fallback_prove(m: Mutant) -> dict[str, Any]:
         mw = work / "mutants" / m.id
-        res = prove(case, mw / "port", mw / "proof", limit, fast)
+        with state_lock:
+            order = ",".join(k for k, _ in kill_counts.most_common() if k not in ("main", "java"))
+        env = dict(os.environ, **{PRECOMPILED_OVERLAY_ENV: str(mw / "classes")})
+        if order:
+            env["GITGALAXY_FAULTS_ORDER"] = order
+        res = prove(case, mw / "port", mw / "proof", limit, fast, env=env)
         res.pop("report", None)
         res["verdict"] = {"proven": "survived", "refuted": "killed"}.get(res["verdict"], res["verdict"])
-        if not keep and res["verdict"] in ("killed", "timeout"):
-            shutil.rmtree(mw / "proof", ignore_errors=True)
-        return m, res
+        return res
 
-    done = 0
-    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
-        for m, res in pool.map(one, live):
-            results[m.id] = res
-            done += 1
-            print(f"  [{done}/{len(live)}] {m.op} {m.file}:{m.line} {res['verdict']} "
-                  f"{','.join(res.get('killed_by', []))[:60]}", flush=True)  # fmt: skip
-            if done % 10 == 0:
-                _save(work, case, base, every, chosen, results, started, seed, mode)
-    return _save(work, case, base, every, chosen, results, started, seed, mode)
+    def run_worker(worker_id: int) -> None:
+        nonlocal done, last_save
+        worker = _MutantWorker(worker_id, work, direct) if direct is not None else None
+        try:
+            while True:
+                with state_lock:
+                    m = next(work_iter, None)
+                    ranks = dict(kill_counts)
+                if m is None:
+                    break
+                res: dict[str, Any] | None = None
+                mw = work / "mutants" / m.id
+                if worker is not None and direct is not None:
+                    res = direct.run_mutant(worker, m, mw, limit, keep, ranks)
+                    if res is None:
+                        shutil.rmtree(mw / "proof", ignore_errors=True)
+                if res is None:
+                    res = fallback_prove(m)
+                if not keep and res["verdict"] in ("killed", "timeout"):
+                    shutil.rmtree(mw / "proof", ignore_errors=True)
+                with state_lock:
+                    results[m.id] = res
+                    done += 1
+                    for kb in res.get("killed_by", []):
+                        kill_counts[kb] += 1
+                    print(f"  [{done}/{len(live)}] {m.op} {m.file}:{m.line} {res['verdict']} "
+                          f"{','.join(res.get('killed_by', []))[:60]}", flush=True)  # fmt: skip
+                    now = time.monotonic()
+                    if now - last_save >= 2.0 or done % 10 == 0:
+                        last_save = now
+                        _save(work, case, base, every, chosen, results, started, seed, mode, claim=claim_text)
+        finally:
+            if worker is not None:
+                worker.reset()
+                shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, min(jobs, max(len(live), 1)))) as pool:
+        futs = [pool.submit(run_worker, i) for i in range(max(1, min(jobs, max(len(live), 1))))]
+        for fut in concurrent.futures.as_completed(futs):
+            fut.result()
+    return _save(work, case, base, every, chosen, results, started, seed, mode, claim=claim_text)
+
+
+def _baseline_claim(work: Path) -> str | None:
+    log = work / "baseline.log"
+    if not log.is_file():
+        return None
+    m = re.search(r"COBOL coverage: (.+)", log.read_text(encoding="utf-8"))
+    return m.group(1) if m else None
 
 
 def _save(work: Path, case: str, base: dict[str, Any], every: list[Mutant], chosen: list[Mutant],
-          results: dict[str, dict[str, Any]], started: float, seed: int, mode: str) -> dict[str, Any]:  # fmt: skip
-    log = work / "baseline.log"
-    claim = re.search(r"COBOL coverage: (.+)", log.read_text(encoding="utf-8")) if log.is_file() else None
+          results: dict[str, dict[str, Any]], started: float, seed: int, mode: str,
+          claim: str | None = None) -> dict[str, Any]:  # fmt: skip
+    if claim is None:
+        claim = _baseline_claim(work)
     summary = {"case": case, "program": (base.get("report") or {}).get("program"), "mutants": len(every),
                "chosen": len(chosen), "seed": seed, "mode": mode, "seconds": round(time.time() - started),
-               "coverage": claim.group(1) if claim else None,
+               "coverage": claim,
                "results": [{**{k: v for k, v in asdict(m).items() if k not in ("offset", "length", "replacement")},
                             **results.get(m.id, {"verdict": "pending"})} for m in chosen]}  # fmt: skip
     (work / "mutation.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

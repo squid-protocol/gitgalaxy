@@ -1282,13 +1282,23 @@ def find_mutants(case: str, port: Path, ids: list[str]) -> dict[str, Any]:
     return out
 
 
+def _default_jobs() -> int:
+    import os
+
+    return min(os.cpu_count() or 4, 4)
+
+
 def attack(
-    case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float, jobs: int = 1, base: str | None = None
+    case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float,
+    jobs: int | None = None, base: str | None = None,
 ) -> dict[str, dict[str, Any]]:
     import equivalence as eq
     import mainframe_corpus as mc
     import mutation as mu
     import strengthen as st
+
+    if jobs is None:
+        jobs = _default_jobs()
 
     # `base`: a sibling case of the same program (#6166: carddemo-userlist-linked enters COUSR00C by LINK, `linked` being
     # a case-level flag): its case.json carries the entry mode, the inputs go on it, the mutants are the case's own.
@@ -1333,7 +1343,7 @@ def attack(
                 record.update(result="stillborn", detail=why[:400])
             else:
                 res = mu.prove(case_name, mdir / "port", mdir / "proof", timeout,
-                               (*flags, "--reuse", str(here / "baseline"), "--first-difference"))  # fmt: skip
+                               (*flags, "--reuse", str(here / "baseline"), "--first-difference", "--one-jvm"))  # fmt: skip
                 record.update(result=judge(base, res), killed_by=res.get("killed_by", []))
         return i, m, record
 
@@ -1341,7 +1351,9 @@ def attack(
         import concurrent.futures
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
-            for i, m, record in pool.map(evaluate_one, mutants.items()):
+            futs = [pool.submit(evaluate_one, item) for item in mutants.items()]
+            for fut in concurrent.futures.as_completed(futs):
+                i, m, record = fut.result()
                 results[i] = record
                 print(f"  {i} {m.op} {m.file}:{m.line}: {record['result']}", flush=True)
     else:
@@ -1891,7 +1903,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--inputs", type=Path, required=True, help="a JSON array of inputs in the case's format")
     t.add_argument("--work", type=Path, required=True)
     t.add_argument("--timeout", type=float, default=600, help="seconds per mutant")
-    t.add_argument("--jobs", type=int, default=1, help="parallel mutants to prove")
+    t.add_argument("--jobs", type=int, default=_default_jobs(), help="parallel mutants to prove")
     t.add_argument("--as", dest="base", metavar="SIBLING", help="enter it the way this sibling case does (e.g. LINK)")
     t.add_argument("--apply", action="store_true", help="append winning inputs into the case's case.json")
     sc = sub.add_parser("screen")

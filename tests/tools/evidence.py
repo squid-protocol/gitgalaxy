@@ -50,6 +50,7 @@ KEY is an equivalence case (`carddemo-dateutil`) or a crucible port (`crucible:c
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import datetime
 import fnmatch
 import functools
@@ -60,6 +61,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -1522,7 +1524,13 @@ def migrate_components(keys: list[str] | None = None, write: bool = True, histor
 
 
 # ---- running proofs ----------------------------------------------------------------------------------------------------
-def prove(t: Target, work_root: Path, crucible: Path | None = None, offline: bool = False) -> dict[str, Any]:
+def prove(
+    t: Target,
+    work_root: Path,
+    crucible: Path | None = None,
+    offline: bool = False,
+    one_jvm: bool = True,
+) -> dict[str, Any]:
     """Run the target's proof on the committed port and case, and write its record. An infrastructure failure (no
     report at all) leaves the record as it was and is returned as {"error": ...}."""
     work = work_root / t.slug
@@ -1548,6 +1556,8 @@ def prove(t: Target, work_root: Path, crucible: Path | None = None, offline: boo
             return {"key": t.key, "error": str(e)}
     else:
         argv = [sys.executable, str(TOOLS / "equivalence.py"), "run", t.case, "--keep", str(work), "--record"]
+        if one_jvm:
+            argv.append("--one-jvm")
         proc = subprocess.run(argv, capture_output=True, text=True, check=False, env=env)  # noqa: S603
         if not (work / "report.json").is_file() or not t.record.is_file():
             return {"key": t.key, "error": (proc.stderr or proc.stdout).strip()[-2000:]}
@@ -1571,6 +1581,16 @@ def _parse_shard(text: str) -> tuple[int, int]:
     if not 1 <= i <= n:
         raise argparse.ArgumentTypeError(f"--shard {text}: I must be 1..N")
     return i, n
+
+
+def _positive_int(text: str) -> int:
+    try:
+        n = int(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"--jobs wants a positive integer, not {text!r}") from None
+    if n < 1:
+        raise argparse.ArgumentTypeError(f"--jobs must be >= 1, not {text!r}")
+    return n
 
 
 def ledgered_facade_only(key: str, rec: dict[str, Any] | None, ledger: Path | None = None) -> str | None:
@@ -1638,6 +1658,10 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--only-db2", action="store_true", help="only the Db2 cases (#4733: Evidence Refresh's Db2 job)")
         p.add_argument("--shard", type=_parse_shard, metavar="I/N",
                        help="only the I-th of N slices of the records this run would prove (#4744: parallel runners)")  # fmt: skip
+        p.add_argument("--jobs", type=_positive_int, default=1, metavar="N",
+                       help="run up to N independent proofs in parallel (Db2 targets stay serialized)")  # fmt: skip
+        p.add_argument("--one-jvm", action=argparse.BooleanOptionalAction, default=True,
+                       help="run each equivalence proof's Java runs in one session JVM (default on; --no-one-jvm for one per run)")  # fmt: skip
     sub.add_parser("mutation")
     m = sub.add_parser("migrate", help="#4731: add per-component fingerprints to the records that are current on them")
     m.add_argument("keys", nargs="*")
@@ -1676,9 +1700,25 @@ def main(argv: list[str] | None = None) -> int:
         if args.only_db2 and args.skip_db2:
             ap.error("--only-db2 and --skip-db2 leave out each other's cases")
         work = (args.work or Path(tempfile.mkdtemp(prefix="evidence_"))).resolve()
+        selected = _selected(args)
+        prove_kw = {"one_jvm": args.one_jvm} if not args.one_jvm else {}
+        db2_lock = threading.Lock()
+
+        def _run_one(target: Target) -> dict[str, Any]:
+            if target.db2:
+                with db2_lock:
+                    return prove(target, work, args.crucible, args.offline, **prove_kw)
+            return prove(target, work, args.crucible, args.offline, **prove_kw)
+
+        if args.jobs <= 1 or len(selected) <= 1:
+            results = [(t, _run_one(t)) for t in selected]
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=min(args.jobs, len(selected))) as pool:
+                futs = [(t, pool.submit(_run_one, t)) for t in selected]
+                results = [(t, fut.result()) for t, fut in futs]
+
         failed = 0
-        for t in _selected(args):
-            got = prove(t, work, args.crucible, args.offline)
+        for t, got in results:
             if "error" in got:
                 failed += 1
                 print(f"{t.key}: NOT RUN -- {got['error'].splitlines()[-1] if got['error'] else 'no report'}")

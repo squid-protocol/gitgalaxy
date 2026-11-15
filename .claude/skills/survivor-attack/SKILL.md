@@ -87,6 +87,7 @@ Add the input to the case, then re-run the ledger with `det_mutation.py run CASE
 case re-judges its survivors. A stated verdict the new input kills makes `check` fail: remove that entry, the claim was wrong.
 
 - Hand-pruning a `det_mutation_survivors` file stales the ledger: run `det_mutation.py refresh CASE --work <run dir>` after (#8043).
+- An empty `commarea_hex` is refused by the harness (EIBCALEN 0 = no COMMAREA), and one refused input makes `survivor_attack.py try` report every mutant refused: read `baseline.log` in the attacks dir; delete `attempts.json` between `try` runs if batches should not merge (#8389).
 - `survivor_attack.py facts` re-settles only what main already states: check the ledger before counting it as yield (#8047).
 - Check main first (`git fetch`, `git log HEAD..origin/main`) before redoing a slice a handoff calls "never pushed": #7955's redo duplicated #8007.
 - A derived pattern like `s_{storage}` is vacuous when the captured storage name already starts with `s_`; detector test snippets need `public` methods, else a private uncalled method settles as `no-entry-path` first (#7955).

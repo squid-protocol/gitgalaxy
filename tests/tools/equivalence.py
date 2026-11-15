@@ -1008,6 +1008,10 @@ def main() -> int:
     import equivalence_java as ej
 
     envs = _environments(args.environments, case)
+    order_env = os.environ.get("GITGALAXY_FAULTS_ORDER", "")
+    if args.first_difference and order_env:
+        rank = {name: i for i, name in enumerate(order_env.split(",")) if name}
+        faults = sorted(faults, key=lambda f: rank.get(f["name"], len(rank)))
     by_name = {f"fault:{f['name']}": f for f in faults}
     entries = ej.entry_names(case)  # #4048 follow-up: the step once more through each entry method
 

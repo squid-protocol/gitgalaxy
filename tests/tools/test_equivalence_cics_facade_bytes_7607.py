@@ -63,7 +63,9 @@ def test_a_scenario_with_no_untyped_bytes_is_not_judged(tmp_path):
 def test_run_case_judges_the_caller_bytes_and_reports_them():
     import inspect
 
-    src = inspect.getsource(ec.run_case)
-    assert "moved = caller_bytes_diff(" in src
-    assert "java_raw(work" in src
-    assert 'report["outputs"][name]["caller_bytes"] = moved' in src
+    run_src = inspect.getsource(ec.run_case)
+    assert 'ok, report["outputs"] = evaluate_cics_outputs(' in run_src
+    eval_src = inspect.getsource(ec.evaluate_cics_outputs)
+    assert "moved = caller_bytes_diff(" in eval_src
+    assert "java_raw(java_out" in eval_src
+    assert 'outputs[name]["caller_bytes"] = moved' in eval_src

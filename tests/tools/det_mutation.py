@@ -58,16 +58,23 @@ from __future__ import annotations
 
 import argparse
 import collections
+import concurrent.futures
 import datetime
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
+import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+
+
+def _default_jobs() -> int:
+    return min(os.cpu_count() or 4, 8)
 
 TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parents[1]
@@ -306,7 +313,10 @@ def write(case: str, entry: dict[str, Any], path: Path = LEDGER) -> None:
     """The case's ledger entry, as path/<CASE>.json."""
     path.mkdir(parents=True, exist_ok=True)
     body = {"format": FORMAT, "issue": "#4628", "about": ABOUT, "case": case, "entry": entry}
-    (path / f"{case}.json").write_text(json.dumps(body, indent=1) + "\n", encoding="utf-8")
+    dest = path / f"{case}.json"
+    tmp = path / f".{case}.{threading.get_ident()}.tmp"
+    tmp.write_text(json.dumps(body, indent=1) + "\n", encoding="utf-8")
+    tmp.replace(dest)
 
 
 def write_survivors(case: str, entries: list[dict[str, Any]], path: Path = SURVIVORS) -> None:
@@ -516,10 +526,22 @@ def check(ledger: dict[str, dict[str, Any]] | None = None, survivors: dict[str, 
 # ---- running ---------------------------------------------------------------------------------------------------------
 def translate(cases: list[str], work: Path) -> Path:
     """The det ports of `cases`, translated by this checkout (det_port.py run --translate-only) under work/det."""
+    return _translate_impl(cases, work, _default_jobs())
+
+
+_ORIGINAL_TRANSLATE = translate
+
+
+def _translate_impl(cases: list[str], work: Path, jobs: int) -> Path:
     det = work / "det"
-    argv = [sys.executable, str(TOOLS / "det_port.py"), "run", *cases, "--translate-only", "--work", str(det)]
+    argv = [sys.executable, str(TOOLS / "det_port.py"), "run", *cases, "--translate-only", "--jobs", str(jobs),
+            "--work", str(det)]  # fmt: skip
     subprocess.run(argv, cwd=REPO, check=True)  # noqa: S603
     return det
+
+
+def _run_translate(cases: list[str], work: Path, jobs: int) -> Path:
+    return _translate_impl(cases, work, jobs) if translate is _ORIGINAL_TRANSLATE else translate(cases, work)
 
 
 def record(case: str, run_dir: Path, port: Path) -> int:
@@ -550,25 +572,34 @@ def record(case: str, run_dir: Path, port: Path) -> int:
     return 1 if s["refuted"] else 0
 
 
-def run(cases: list[str], work: Path, sample: int | None, seed: int, jobs: int, full: bool) -> int:
+def run(cases: list[str], work: Path, sample: int | None, seed: int, jobs: int, full: bool,
+        case_jobs: int = 1) -> int:  # fmt: skip
     import mutation as mu
 
-    det = translate(cases, work)
-    rc = 0
-    for case in cases:
+    det = _run_translate(cases, work, max(jobs, case_jobs))
+
+    def _run_one(case: str) -> int:
         port = det / case / "port"
         if not port.is_dir():
             print(f"{case}: no det port (translation failed: see {det / 'summary.json'})")
-            rc = 1
-            continue
+            return 1
         try:
             mu.run(case, work / case, jobs, sample, seed, set(mu.OPERATORS), None, False, full, port=port,
-                   files=FILES, select=scope_filter(case_kind(case), port))  # fmt: skip
+                   files=FILES, select=scope_filter(case_kind(case), port), one_jvm=not full)  # fmt: skip
         except SystemExit as e:  # the det port is not proven: nothing to measure; the batch goes on
             print(f"{case}: {e}")
-            rc = 1
-            continue
-        rc |= record(case, work / case, port)
+            return 1
+        return record(case, work / case, port)
+
+    if case_jobs <= 1 or len(cases) <= 1:
+        rc = 0
+        for case in cases:
+            rc |= _run_one(case)
+        return rc
+    rc = 0
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(case_jobs, len(cases))) as pool:
+        for res in pool.map(_run_one, cases):
+            rc |= res
     return rc
 
 
@@ -609,7 +640,7 @@ def sibling(case: str, sib: str, work: Path, jobs: int) -> int:
     if not port.is_dir():
         raise SystemExit(f"{case}: no det port (translation failed)")
     mu.run(sib, work / sib, jobs, None, 0, set(mu.OPERATORS), None, False, False, port=port, files=FILES,
-           select=lambda ms: [m for m in ms if m.id in ids])  # fmt: skip
+           select=lambda ms: [m for m in ms if m.id in ids], one_jvm=True)  # fmt: skip
     run = json.loads((work / sib / "mutation.json").read_text(encoding="utf-8"))
     return apply_sibling(case, sib, run["results"])
 
@@ -632,16 +663,18 @@ def renew_siblings(entry: dict[str, Any], verdicts: dict[str, list[dict[str, Any
     return lost
 
 
-def rejudge_siblings(entry: dict[str, Any], port: Path, work: Path) -> list[str]:
+def rejudge_siblings(entry: dict[str, Any], port: Path, work: Path, jobs: int | None = None) -> list[str]:
     """Run the recorded kills of each moved sibling case against the case's det port; see `renew_siblings`."""
     import mutation as mu
 
+    n_jobs = jobs if jobs is not None else _default_jobs()
     verdicts: dict[str, list[dict[str, Any]]] = {}
     for tag in sibling_moved(entry):
         name = tag.removeprefix("sibling:")
         ids = set(entry["siblings"][name]["killed"])
-        res = mu.run(name, work / name / "rejudge", 3, None, entry["seed"], set(mu.OPERATORS), None, False, False,
-                     port=port, files=FILES, select=lambda ms, ids=ids: [m for m in ms if m.id in ids])  # fmt: skip
+        res = mu.run(name, work / name / "rejudge", n_jobs, None, entry["seed"], set(mu.OPERATORS), None, False, False,
+                     port=port, files=FILES, select=lambda ms, ids=ids: [m for m in ms if m.id in ids],
+                     one_jvm=True)  # fmt: skip
         verdicts[name] = res["results"]
     return renew_siblings(entry, verdicts)
 
@@ -741,7 +774,7 @@ SECONDS_PER_MUTANT = 10  # measured on the nightly lane: 150 mutants in 18-26 mi
 
 
 def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
-                clock: Callable[[], float] = time.monotonic) -> tuple[list[str], int]:  # fmt: skip
+                clock: Callable[[], float] = time.monotonic, jobs: int | None = None) -> tuple[list[str], int]:  # fmt: skip
     """`run` each case whose det port moved, with the sample, seed and mode its ledger entry was cut with (so the new
     score is comparable), oldest entry first; no new case starts once `budget_min` minutes are spent (None: no limit),
     and a case its own size says cannot fit what is left is passed over, so it cannot run into the job's time limit and
@@ -749,6 +782,7 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
     the next night, or one whose run failed, keeps its flag (#5862)."""
     ledger = load()
     order = sorted(cases, key=lambda c: (str(ledger[c].get("date") or ""), c))
+    n_jobs = jobs if jobs is not None else _default_jobs()
     start, rc, slowest, took, failed, passed = clock(), 0, 0.0, [], [], []
     for i, case in enumerate(order):
         used = clock() - start
@@ -760,7 +794,7 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
             passed.append(case)
             continue
         t0 = clock()
-        rc_case = run([case], work, e.get("chosen") or None, e.get("seed") or 0, 3, e.get("mode") == "full")
+        rc_case = run([case], work, e.get("chosen") or None, e.get("seed") or 0, n_jobs, e.get("mode") == "full")
         secs = clock() - t0
         slowest = max(slowest, secs)
         took.append(secs)
@@ -809,7 +843,7 @@ def shard_cases(cases: list[str], ledger: dict[str, dict[str, Any]], shard: tupl
 
 
 def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: float | None = None,
-            shard: tuple[int, int] | None = None) -> int:  # fmt: skip
+            shard: tuple[int, int] | None = None, jobs: int | None = None, case_jobs: int = 1) -> int:  # fmt: skip
     """Renew each stale or drifted entry whose det port bytes did not move (#5862). Only generator / harness / oracle
     drifted: translate again, compare the port's bytes, renew the fingerprints. Case / corpus / survivors list moved:
     re-run only the recorded survivors (same seed, operators, scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
@@ -828,6 +862,7 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
     import mutation as mu
 
     start = time.monotonic()
+    n_jobs = jobs if jobs is not None else _default_jobs()
     ledger = load()
     todo = [c for c in (cases or sorted(ledger))
             if c in ledger and (CASES / c / "case.json").is_file() and _outdated(ledger[c], fingerprints(c))]  # fmt: skip
@@ -838,25 +873,23 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
         print("det mutation: nothing stale")
         return 0
     print(f"det mutation: {len(todo)} of {len(ledger)} ledger(s) stale")
-    det = translate(todo, work)
+    det = _run_translate(todo, work, max(n_jobs, case_jobs))
+    lock = threading.Lock()
     rc, port_moved, moved_ports = 0, False, []
-    for case in todo:
+
+    def _refresh_one(case: str) -> tuple[int, bool, str | None]:
         entry, port = ledger[case], det / case / "port"
         every = mutant_ids(case, port) if port.is_dir() else set()
         same_port = port.is_dir() and port_sha(port) == entry["inputs"]["port"]
         fresh = None if not port.is_dir() else [] if same_port else fresh_mutants(entry, every)
         if fresh is None:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
-            port_moved = True
-            if port.is_dir():
-                moved_ports.append(case)
             if port.is_dir() and not entry.get("port_moved"):  # stale until `run` records the new port
                 write(case, {**entry, "port_moved": True})
-            continue
+            return 0, True, case if port.is_dir() else None
         if budget_min is not None and time.monotonic() - start >= budget_min * 60:
             print(f"{case}: left for the next run: the budget of {budget_min:g} min is spent")
-            port_moved = True
-            continue
+            return 0, True, None
         if not same_port:
             entry = rebase_entry(entry, every)
             print(f"{case}: the program moved: {len(fresh)} new mutant(s) to run")
@@ -869,27 +902,25 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
         if budget_min is not None and (fresh or again) and time.monotonic() - start + need >= budget_min * 60:
             print(f"{case}: left for the next run: re-running {len(again) + len(fresh)} mutant(s) (~{need / 60:.0f} min) "
                   f"does not fit what is left of the budget of {budget_min:g} min")  # fmt: skip
-            port_moved = True
-            continue
+            return 0, True, None
         if fresh or again:
             only = work / case / "survivors"
             only.mkdir(parents=True, exist_ok=True)
             results = [{"id": i, "verdict": "survived"} for i in [*again, *fresh]]
             (only / "mutation.json").write_text(json.dumps({"results": results}), encoding="utf-8")
             try:
-                res = mu.run(case, work / case / "rerun", 3, None, entry["seed"], set(mu.OPERATORS), None, False,
+                res = mu.run(case, work / case / "rerun", n_jobs, None, entry["seed"], set(mu.OPERATORS), None, False,
                              entry.get("mode") == "full", only=only, port=port, files=FILES,
-                             select=scope_filter(case_kind(case), port))  # fmt: skip
+                             select=scope_filter(case_kind(case), port),
+                             one_jvm=entry.get("mode") != "full")  # fmt: skip
             except SystemExit as e:  # the det port is not proven now: nothing to carry
                 print(f"{case}: {e}")
-                rc = 1
-                continue
+                return 1, False, None
             merged = merge_survivors(entry, res["results"]) if again else entry
             merged = merged and add_fresh(merged, res["results"], fresh)
             if merged is None:
                 print(f"{case}: a recorded survivor was not re-run or moved: re-run (det_mutation.py run {case})")
-                rc = 1
-                continue
+                return 1, False, None
             merged["refreshed"] = {"from": entry.get("date"), "survivors_rerun": len(again),
                                    "fresh": len(fresh), "stale": moved}  # fmt: skip
             merged["date"] = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
@@ -897,10 +928,10 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
             if res.get("coverage"):
                 merged["coverage"] = res["coverage"]
             entry = merged
-        lost = rejudge_siblings(entry, port, work) if sibling_moved(entry) else []
+        lost = rejudge_siblings(entry, port, work, jobs=n_jobs) if sibling_moved(entry) else []
         for i in lost:
             print(f"{case}: sibling kill {i} no longer dies on the moved sibling case: re-run `sibling {case} ...`")
-        rc = 1 if lost else rc
+        case_rc = 1 if lost else 0
         entry.pop("port_moved", None)  # (the entry speaks for this port again)
         entry["every"], entry["inputs"]["port"] = " ".join(sorted(every)), port_sha(port)
         entry["inputs"]["runtime"] = runtime_sha(port)
@@ -910,10 +941,23 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
                 entry.setdefault("components", {})[n] = v["components"]
         write(case, entry)
         s = summary(case, entry)
-        print(f"{case}: renewed ({', '.join(moved + info)}){'' if same_port else ', program moved'}; {_row(s)}")
-        for i in s["refuted"]:
-            print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
-            rc = 1
+        with lock:
+            print(f"{case}: renewed ({', '.join(moved + info)}){'' if same_port else ', program moved'}; {_row(s)}")
+            for i in s["refuted"]:
+                print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
+                case_rc = 1
+        return case_rc, False, None
+
+    if case_jobs <= 1 or len(todo) <= 1 or budget_min is not None:
+        outcomes = [_refresh_one(c) for c in todo]
+    else:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(case_jobs, len(todo))) as pool:
+            outcomes = list(pool.map(_refresh_one, todo))
+    for case_rc, moved_flag, moved_case in outcomes:
+        rc |= case_rc
+        port_moved |= moved_flag
+        if moved_case is not None:
+            moved_ports.append(moved_case)
     if run_moved and moved_ports:
         spent = (time.monotonic() - start) / 60
         left, rc_run = rerun_moved(moved_ports, work, None if budget_min is None else max(0, budget_min - spent))
@@ -1249,7 +1293,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--work", type=Path, required=True)
     r.add_argument("--sample", type=int, default=150, help="mutants per port (default 150; 0: all)")
     r.add_argument("--seed", type=int, default=0)
-    r.add_argument("--jobs", type=int, default=3)
+    r.add_argument("--jobs", type=int, default=_default_jobs())
+    r.add_argument("--case-jobs", type=int, default=1, help="cases to run concurrently")
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (mutation.py --full)")
     rec = sub.add_parser("record")
     rec.add_argument("case")
@@ -1265,11 +1310,13 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument(
         "--shard", type=_shard_arg, metavar="I/N", help="only shard I of N of the stale cases (balanced by survivors)"
     )
+    rf.add_argument("--jobs", type=int, default=_default_jobs())
+    rf.add_argument("--case-jobs", type=int, default=1, help="stale cases to refresh concurrently")
     sb = sub.add_parser("sibling")
     sb.add_argument("case")
     sb.add_argument("sibling")
     sb.add_argument("--work", type=Path, required=True)
-    sb.add_argument("--jobs", type=int, default=3)
+    sb.add_argument("--jobs", type=int, default=_default_jobs())
     sub.add_parser("check")
     sc = sub.add_parser("stale-check")
     sc.add_argument("--vs", metavar="REF", help="only the cases this branch changes against REF (merge base)")
@@ -1283,11 +1330,13 @@ def main(argv: list[str] | None = None) -> int:
     sv.add_argument("cases", nargs="*")
     args = ap.parse_args(argv)
     if args.cmd == "run":
-        return run(args.cases, args.work, args.sample or None, args.seed, args.jobs, args.full)
+        return run(args.cases, args.work, args.sample or None, args.seed, args.jobs, args.full,
+                   case_jobs=args.case_jobs)  # fmt: skip
     if args.cmd == "record":
         return record(args.case, args.run_dir, args.port)
     if args.cmd == "refresh":
-        return refresh(args.cases, args.work, args.run_moved, args.budget_min, args.shard)
+        return refresh(args.cases, args.work, args.run_moved, args.budget_min, args.shard,
+                       jobs=args.jobs, case_jobs=args.case_jobs)  # fmt: skip
     if args.cmd == "sibling":
         return sibling(args.case, args.sibling, args.work, args.jobs)
     if args.cmd == "stale-check":

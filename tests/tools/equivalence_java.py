@@ -560,6 +560,7 @@ public class EquivalenceMain {{
         java.util.List<String> set = new java.util.ArrayList<>();
         String line;
         while ((line = in.readLine()) != null && !line.equals("quit")) {{
+            System.setIn(new java.io.ByteArrayInputStream(new byte[0]));  // previous run may have replaced System.in
             for (String k : set) {{
                 System.clearProperty(k);
             }}

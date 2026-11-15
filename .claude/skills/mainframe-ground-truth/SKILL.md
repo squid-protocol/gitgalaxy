@@ -154,7 +154,7 @@ unseen corpora (with a census) or reviewing a private estate.
 **Port-side blockers are a separate ledger** (#5051). A det-port, transaction-forge, facade, harness or runtime blocker (not an
 engine/forge fact defect) gets a row in `tests/cobol_mainframe/port_blockers.json` in the PR that finds or fixes it: `side`,
 `class`, the burned `estate` (or `estate: null` with `found_by` review / crucible / sibling sweep and `after_round`), `programs`,
-`issue` and/or `fixed_by`, `refused_by_name`. Burned estates only. Then `tests/tools/port_blockers.py report --write`;
+`issue` and/or `fixed_by`, `refused_by_name`. Burned estates only. A row's `issue` / `fixed_by` number must be unique across rows: with none, name the blocker in the PR body (#8233). Then `tests/tools/port_blockers.py report --write`;
 `test_port_blockers.py` fails on an invalid ledger or a stale `docs/language_status/port_blockers.md`.
 
 ## COBOL reader traps that have bitten every reader (the key's, the forge's and the engine's)

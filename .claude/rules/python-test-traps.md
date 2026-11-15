@@ -67,12 +67,12 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
   aborts collection: give lazily-built payloads explicit `ids=` (#6257).
 * **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
-* **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
+* **A bare `cat > file` (no heredoc) hangs Bash on stdin (write scratch scripts with the Write tool) or truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
   lands empty (#6323).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).
-* **Two concurrent `doom_rosetta_check` runs need separate `--work` dirs** (#5960).
+* **Two concurrent `doom_rosetta_check` runs need separate `--work` dirs** (#5960). After an engine macro change it shows many engine-only edges until `callgraph_oracle.macro_body_callees` applies the same rule: fix the oracle, don't bless (#8377).
 * On a path-filtered workflow, key caches by `hashFiles` of the inputs, not the sha: the sha only has an entry for
   commits that triggered the workflow (#5184).
 * A step that runs `git diff origin/main...HEAD` needs `fetch-depth: 0`; the shallow default has no merge base, so a

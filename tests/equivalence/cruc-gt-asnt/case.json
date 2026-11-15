@@ -32,6 +32,44 @@
       "termid": "",
       "userid": "CICSUSER",
       "why": "a started task with no terminal: ASSIGN FACILITY is INVREQ (RESP2 5), the else arm logs the response"
+    },
+    {
+      "name": "wq-invreq-t",
+      "commarea": null,
+      "terminal": "GT32",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 1,
+          "file": "GTLOG",
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "the log write answers INVREQ on a terminal task"
+    },
+    {
+      "name": "wq-ioerr-nt",
+      "commarea": null,
+      "terminal": null,
+      "startcode": "S",
+      "termid": "",
+      "userid": "CICSUSER",
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 1,
+          "file": "GTLOG",
+          "resp": "IOERR"
+        }
+      ],
+      "why": "the log write answers IOERR with no terminal"
     }
   ]
 }

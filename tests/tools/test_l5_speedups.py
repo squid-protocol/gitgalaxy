@@ -322,7 +322,7 @@ def test_equivalence_main_mutant_session_isolates_epochs(tmp_path: Path):
     runner_dir = tmp_path / "runner"
     runner_dir.mkdir()
     (runner_dir / "EquivalenceMain.java").write_text(ej.RUNNER, encoding="utf-8")
-    subprocess.run([javac, "-d", str(runner_dir), "-cp", fw_cp, str(runner_dir / "EquivalenceMain.java")], check=True, env=shell)
+    subprocess.run([javac, "-encoding", "UTF-8", "-d", str(runner_dir), "-cp", fw_cp, str(runner_dir / "EquivalenceMain.java")], check=True, env=shell)
 
     ep1 = tmp_path / "ep1"
     ep2 = tmp_path / "ep2"
@@ -334,7 +334,7 @@ def test_equivalence_main_mutant_session_isolates_epochs(tmp_path: Path):
             f"public class EquivalenceRunTest {{ @Test void run() {{ {body} }} }}\n",
             encoding="utf-8",
         )
-        subprocess.run([javac, "-d", str(ep), "-cp", fw_cp, str(pkg / "EquivalenceRunTest.java")], check=True, env=shell)
+        subprocess.run([javac, "-encoding", "UTF-8", "-d", str(ep), "-cp", fw_cp, str(pkg / "EquivalenceRunTest.java")], check=True, env=shell)
 
     sess = ej.JvmSession(
         [java, "-cp", f"{fw_cp}{os.pathsep}{runner_dir}", "EquivalenceMain", "--mutant-session"],

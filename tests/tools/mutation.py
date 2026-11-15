@@ -387,7 +387,7 @@ def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
     out.mkdir(parents=True, exist_ok=True)
     sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
     try:
-        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, *JAVAC_OPTIONS, "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
+        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", *JAVAC_OPTIONS, "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
                               env=_java_env(), capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired:
@@ -454,7 +454,7 @@ def _javac_session_bin(env: dict[str, str]) -> Path | None:
     (build / "MutantJavacSession.java").write_text(JAVAC_SESSION_SRC, encoding="utf-8")
     javac = str(Path(java_home) / "bin" / "javac") if java_home else "javac"
     proc = subprocess.run([javac, *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-d", str(build),  # noqa: S603
-                           str(build / "MutantJavacSession.java")], env=env, capture_output=True, text=True, check=False)  # fmt: skip
+                           str(build / "MutantJavacSession.java")], env=env, capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     if proc.returncode != 0:
         shutil.rmtree(build, ignore_errors=True)
         return None
@@ -472,7 +472,7 @@ class JavacSession:
         java_home = env.get("JAVA_HOME", "")
         java = str(Path(java_home) / "bin" / "java") if java_home else "java"
         jvm_flags = [x[2:] for x in JAVAC_JVM_OPTIONS if x.startswith("-J")]
-        self.proc = subprocess.Popen([java, *jvm_flags, "-Dfile.encoding=UTF-8", "-cp", str(bin_dir), "MutantJavacSession"],  # noqa: S603
+        self.proc = subprocess.Popen([java, *jvm_flags, "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(bin_dir), "MutantJavacSession"],  # noqa: S603
                                      env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                      text=True, encoding="utf-8", bufsize=1)  # fmt: skip
         self._lines: queue.Queue[str | None] = queue.Queue()

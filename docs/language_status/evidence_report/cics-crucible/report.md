@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `094a1b0618918e9bc2d521312e48ff38f6f19870` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `66beb4c2a950b4b46f55ae2989c1dcf0837d1e1e` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `e21b40fc19a4`).
+The translation survey matches the translator in the tree (translator fingerprint `6ea3a3be186f`).
 
 ## How to read this report
 
@@ -128,19 +128,19 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/condition-handling/hc-ignore-error/src/HCIGN.cbl | L4 | 33/33 | 0 | cruc-hc-ignore-error | equal | 9 | none | 5/5 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | 38% | raw 38% (56/148 caught; 153 of 448 mutants, seed 0); 92 of 92 survivors unaccounted | — |
 | cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl | L4 | 55/55 | 0 | cruc-hc-inquire-deleteq | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 37% | raw 37% (54/145 caught; 150 of 681 mutants, seed 0); 91 of 91 survivors unaccounted | — |
 | cases/condition-handling/hc-map-not-in-mapset/src/HCMAB.cbl | L4 | 17/17 | 0 | cruc-hc-map-not-in-mapset | equal | 5 | none | 2/2 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | 27% | raw 27% (40/147 caught; 152 of 396 mutants, seed 0); 107 of 107 survivors unaccounted | — |
-| cases/condition-handling/hc-named-counters/src/HCCNTR.cbl | L4 | 90/90 | 0 | cruc-hc-named-counters | equal | 3 | none | 6/6 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-perform-range/src/HCQREAD.cbl | L4 | 30/30 | 0 | cruc-hc-perform-range | equal | 4 | none | 8/8 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-readq-td/src/HCRQTD.cbl | L4 | 35/35 | 0 | cruc-hc-readq-td | equal | 7 | none | 9/9 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-resp-options/src/HCOPT.cbl | L4 | 53/53 | 0 | cruc-hc-resp-options | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl | L4 | 19/19 | 0 | cruc-hc-terminal-eoc | equal | 3 | none | 4/4 (100.0%) | 3/3 (100.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl | L4 | 37/37 | 0 | cruc-hc-terminal-receive | equal | 7 | none | 10/10 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-named-counters/src/HCCNTR.cbl | L4 | 90/90 | 0 | cruc-hc-named-counters | equal | 3 | none | 6/6 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | 38% | raw 38% (55/145 caught; 150 of 855 mutants, seed 0); 90 of 90 survivors unaccounted | — |
+| cases/condition-handling/hc-perform-range/src/HCQREAD.cbl | L4 | 30/30 | 0 | cruc-hc-perform-range | equal | 4 | none | 8/8 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 37% | raw 37% (54/146 caught; 150 of 439 mutants, seed 0); 92 of 92 survivors unaccounted | — |
+| cases/condition-handling/hc-readq-td/src/HCRQTD.cbl | L4 | 35/35 | 0 | cruc-hc-readq-td | equal | 7 | none | 9/9 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | 27% | raw 27% (39/143 caught; 150 of 507 mutants, seed 0); 104 of 104 survivors unaccounted | — |
+| cases/condition-handling/hc-resp-options/src/HCOPT.cbl | L4 | 53/53 | 0 | cruc-hc-resp-options | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 40% | raw 40% (58/146 caught; 150 of 635 mutants, seed 0); 88 of 88 survivors unaccounted | — |
+| cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl | L4 | 19/19 | 0 | cruc-hc-terminal-eoc | equal | 3 | none | 4/4 (100.0%) | 3/3 (100.0%) | 3/3 (100.0%) | 33% | raw 33% (47/143 caught; 150 of 351 mutants, seed 0); 96 of 96 survivors unaccounted | — |
+| cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl | L4 | 37/37 | 0 | cruc-hc-terminal-receive | equal | 7 | none | 10/10 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 37% | raw 37% (54/145 caught; 150 of 499 mutants, seed 0); 91 of 91 survivors unaccounted | — |
 | cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl | L4 | 4/4 | 0 | cruc-gt-asab | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 15% | raw 15% (42/273 caught; 279 of 279 mutants, seed 0); 231 of 231 survivors unaccounted | — |
 | cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl | L4 | 27/27 | 0 | cruc-gt-assign-startcode | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 18% | raw 18% (190/1053 caught; 1076 of 1076 mutants, seed 0); 863 of 863 survivors unaccounted | — |
 | cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl | L4 | 14/14 | 0 | cruc-gt-asnt | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 27% | raw 27% (83/310 caught; 316 of 316 mutants, seed 0); 227 of 227 survivors unaccounted | — |
 | cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl | L4 | 5/5 | 0 | cruc-gt-http-inbound | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 20% | raw 20% (55/277 caught; 283 of 283 mutants, seed 0); 222 of 222 survivors unaccounted | — |
 | cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl | L4 | 36/36 | 0 | cruc-gt-post-wait-event | equal | 5 | none | 5/5 (100.0%) | 7/9 (77.8%) | 7/7 (100.0%) | 39% | raw 39% (197/507 caught; 517 of 517 mutants, seed 0); 310 of 310 survivors unaccounted | — |
 | cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl | L4 | 6/6 | 0 | cruc-gt-stxs | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 20% | raw 20% (56/280 caught; 286 of 292 mutants, seed 0); 224 of 224 survivors unaccounted | — |
-| cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl | L4 | 8/8 | 0 | cruc-gt-send-text-terminal | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 13% (stale) | stale (port moved), last measured: raw 13% (82/609 caught; 621 of 621 mutants, seed 0); 527 of 527 survivors unaccounted | — |
+| cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl | L4 | 8/8 | 0 | cruc-gt-send-text-terminal | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 13% | raw 13% (80/609 caught; 621 of 633 mutants, seed 0); 529 of 529 survivors unaccounted | — |
 | cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl | L4 | 2/2 | 0 | cruc-gt-chld | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 12% | raw 12% (28/231 caught; 237 of 237 mutants, seed 0); 203 of 203 survivors unaccounted | — |
 | cases/ghost-tasks/gt-start-options/src/GTOPTS.cbl | L4 | 31/31 | 0 | cruc-gt-start-options | equal | 8 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | 15% (stale) | stale (port moved), last measured: raw 15% (196/1279 caught; 1304 of 1304 mutants, seed 0); 1083 of 1083 survivors unaccounted | — |
 | cases/ghost-tasks/gt-start-options/src/GTREAD.cbl | L4 | 10/10 | 0 | cruc-gt-read | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 26% | raw 26% (77/299 caught; 305 of 305 mutants, seed 0); 222 of 222 survivors unaccounted | — |
@@ -149,10 +149,10 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl | L4 | 13/13 | 0 | cruc-gt-work | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 22% (stale) | stale (port moved), last measured: raw 22% (59/269 caught; 275 of 275 mutants, seed 0); 210 of 210 survivors unaccounted | — |
 | cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl | L4 | 11/11 | 0 | cruc-gt-show | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 23% | raw 23% (64/281 caught; 287 of 293 mutants, seed 0); 217 of 217 survivors unaccounted | — |
 | cases/ghost-tasks/gt-terminal-coalesce/src/GTTERM.cbl | L4 | 18/18 | 0 | cruc-gt-terminal-coalesce | equal | 4 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 18% (stale) | stale (port moved), last measured: raw 18% (117/661 caught; 673 of 673 mutants, seed 0); 544 of 544 survivors unaccounted | — |
-| cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl | L4 | 35/35 | 0 | cruc-gt-urimap-browse | equal | 2 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | 25% (stale) | stale (port moved), last measured: raw 25% (172/700 caught; 713 of 713 mutants, seed 0); 528 of 528 survivors unaccounted | — |
-| cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl | L4 | 3/3 | 0 | cruc-gt-unext | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 13% (stale) | stale (port moved), last measured: raw 13% (32/243 caught; 249 of 249 mutants, seed 0); 211 of 211 survivors unaccounted | — |
+| cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl | L4 | 35/35 | 0 | cruc-gt-urimap-browse | equal | 2 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | 24% | raw 24% (169/700 caught; 713 of 725 mutants, seed 0); 531 of 531 survivors unaccounted | — |
+| cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl | L4 | 3/3 | 0 | cruc-gt-unext | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 13% | raw 13% (31/243 caught; 249 of 255 mutants, seed 0); 212 of 212 survivors unaccounted | — |
 | cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl | L4 | 15/15 | 0 | cruc-gt-web-client | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 29% (stale) | stale (port moved), last measured: raw 29% (101/351 caught; 357 of 357 mutants, seed 0); 250 of 250 survivors unaccounted | — |
-| cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl | L4 | 72/72 | 0 | cruc-gt-web-parse-url | equal | 4 | none | 5/5 (100.0%) | 8/10 (80.0%) | 8/8 (100.0%) | 42% (stale) | stale (port moved), last measured: raw 42% (216/510 caught; 520 of 520 mutants, seed 0); 294 of 294 survivors unaccounted | — |
+| cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl | L4 | 72/72 | 0 | cruc-gt-web-parse-url | equal | 7 | none | 5/5 (100.0%) | 8/10 (80.0%) | 8/8 (100.0%) | 44% | raw 44% (229/516 caught; 526 of 526 mutants, seed 0); 287 of 287 survivors unaccounted | — |
 | cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L4 | 21/21 | 0 | cruc-gt-web-server-receive | equal | 9 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 36% (stale) | stale (port moved), last measured: raw 36% (151/419 caught; 425 of 425 mutants, seed 0); 268 of 268 survivors unaccounted | — |
 | cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl | L4 | 22/22 | 0 | cruc-gt-web-server-send | equal | 7 | none | 1/1 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | 32% (stale) | stale (port moved), last measured: raw 32% (115/358 caught; 364 of 364 mutants, seed 0); 243 of 243 survivors unaccounted | — |
 | cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl | L4 | 35/35 | 0 | cruc-hx-attr-bytes | equal | 30 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 46% | raw 46% (317/691 caught; 704 of 704 mutants, seed 0); 130 of 374 survivors unaccounted | — |
@@ -991,7 +991,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 ### cases/condition-handling/hc-named-counters/src/HCCNTR.cbl -- L4
 
 - **Executed equivalent** on the 3 scenarios of cruc-hc-named-counters against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 38% (55/145 caught; 150 of 855 mutants, seed 0); 90 of 90 survivors unaccounted)
 - **Translation:** 90/90 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1001,13 +1001,13 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 38% (55/145 caught; 150 of 855 mutants, seed 0); 90 of 90 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/condition-handling/hc-perform-range/src/HCQREAD.cbl -- L4
 
 - **Executed equivalent** on the 4 scenarios of cruc-hc-perform-range against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (54/146 caught; 150 of 439 mutants, seed 0); 92 of 92 survivors unaccounted)
 - **Translation:** 30/30 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1017,13 +1017,13 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 37% (54/146 caught; 150 of 439 mutants, seed 0); 92 of 92 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/condition-handling/hc-readq-td/src/HCRQTD.cbl -- L4
 
 - **Executed equivalent** on the 7 scenarios of cruc-hc-readq-td against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 27% (39/143 caught; 150 of 507 mutants, seed 0); 104 of 104 survivors unaccounted)
 - **Translation:** 35/35 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1033,13 +1033,13 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 27% (39/143 caught; 150 of 507 mutants, seed 0); 104 of 104 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/condition-handling/hc-resp-options/src/HCOPT.cbl -- L4
 
 - **Executed equivalent** on the 5 scenarios of cruc-hc-resp-options against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (58/146 caught; 150 of 635 mutants, seed 0); 88 of 88 survivors unaccounted)
 - **Translation:** 53/53 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1049,13 +1049,13 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 40% (58/146 caught; 150 of 635 mutants, seed 0); 88 of 88 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl -- L4
 
 - **Executed equivalent** on the 3 scenarios of cruc-hc-terminal-eoc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (47/143 caught; 150 of 351 mutants, seed 0); 96 of 96 survivors unaccounted)
 - **Translation:** 19/19 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1065,13 +1065,13 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 33% (47/143 caught; 150 of 351 mutants, seed 0); 96 of 96 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl -- L4
 
 - **Executed equivalent** on the 7 scenarios of cruc-hc-terminal-receive against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (54/145 caught; 150 of 499 mutants, seed 0); 91 of 91 survivors unaccounted)
 - **Translation:** 37/37 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1081,7 +1081,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Det-port mutation:** raw 37% (54/145 caught; 150 of 499 mutants, seed 0); 91 of 91 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl -- L4
@@ -1191,7 +1191,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 ### cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl -- L4
 
 - **Executed equivalent** on the 1 scenarios of cruc-gt-send-text-terminal against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 13% (82/609 caught; 621 of 621 mutants, seed 0); 527 of 527 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 13% (80/609 caught; 621 of 633 mutants, seed 0); 529 of 529 survivors unaccounted)
 - **Translation:** 8/8 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1201,7 +1201,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (port moved), last measured: raw 13% (82/609 caught; 621 of 621 mutants, seed 0); 527 of 527 survivors unaccounted
+- **Det-port mutation:** raw 13% (80/609 caught; 621 of 633 mutants, seed 0); 529 of 529 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl -- L4
@@ -1345,7 +1345,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 ### cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl -- L4
 
 - **Executed equivalent** on the 2 scenarios of cruc-gt-urimap-browse against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 25% (172/700 caught; 713 of 713 mutants, seed 0); 528 of 528 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 24% (169/700 caught; 713 of 725 mutants, seed 0); 531 of 531 survivors unaccounted)
 - **Translation:** 35/35 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1355,13 +1355,13 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (port moved), last measured: raw 25% (172/700 caught; 713 of 713 mutants, seed 0); 528 of 528 survivors unaccounted
+- **Det-port mutation:** raw 24% (169/700 caught; 713 of 725 mutants, seed 0); 531 of 531 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl -- L4
 
 - **Executed equivalent** on the 1 scenarios of cruc-gt-unext against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 13% (32/243 caught; 249 of 249 mutants, seed 0); 211 of 211 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 13% (31/243 caught; 249 of 255 mutants, seed 0); 212 of 212 survivors unaccounted)
 - **Translation:** 3/3 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -1373,7 +1373,7 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (port moved), last measured: raw 13% (32/243 caught; 249 of 249 mutants, seed 0); 211 of 211 survivors unaccounted
+- **Det-port mutation:** raw 13% (31/243 caught; 249 of 255 mutants, seed 0); 212 of 212 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl -- L4
@@ -1394,20 +1394,20 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 
 ### cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl -- L4
 
-- **Executed equivalent** on the 4 scenarios of cruc-gt-web-parse-url against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 42% (216/510 caught; 520 of 520 mutants, seed 0); 294 of 294 survivors unaccounted)
+- **Executed equivalent** on the 7 scenarios of cruc-gt-web-parse-url against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (229/516 caught; 526 of 526 mutants, seed 0); 287 of 287 survivors unaccounted)
 - **Translation:** 72/72 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (cruc-gt-web-parse-url, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (4 scenarios in case.json)
+  - evidence record: none (7 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 5/5 (100.0%), branch outcomes 8/10 (80.0%) raw, 8/8 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family C): DO-PARSE:139:false (IF) -- Every URL the program parses is a constant in PARSE-PARA / LENGTH-PARA (each has a path) and the only scenario input is the mode letter; the parsed PATH keeps its leading '/' (register X36, ASSUMED: IBM does not say; a URL with no path is REFUSED by the model), so 'IF WS-PATH(1:1) = '/'' is false only for a URL the program never holds.
   - stated infeasible branch outcome (reviewed claim, family C): DO-PARSE:144:true (IF) -- QUERYSTRING is returned without its question mark (register X36, ASSUMED, as IBM's WEB CONVERSE takes it), and the URLs are the program's constants, so the first byte of WS-QRY is never '?' on a successful parse: the true arm ('MOVE WS-QRY(2:10)') runs for no input.
-- **Det-port mutation:** stale (port moved), last measured: raw 42% (216/510 caught; 520 of 520 mutants, seed 0); 294 of 294 survivors unaccounted
+- **Det-port mutation:** raw 44% (229/516 caught; 526 of 526 mutants, seed 0); 287 of 287 survivors unaccounted
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl -- L4
@@ -2437,7 +2437,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `094a1b0618918e9bc2d521312e48ff38f6f19870`
+- translator commit (the survey's): `66beb4c2a950b4b46f55ae2989c1dcf0837d1e1e`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.19.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -2447,8 +2447,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 094a1b0618918e9bc2d521312e48ff38f6f19870
-python tests/tools/evidence_report.py cics-crucible --baseline --sha 094a1b0618918e9bc2d521312e48ff38f6f19870
+python tests/tools/cics_census.py survey --baseline --sha 66beb4c2a950b4b46f55ae2989c1dcf0837d1e1e
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 66beb4c2a950b4b46f55ae2989c1dcf0837d1e1e
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

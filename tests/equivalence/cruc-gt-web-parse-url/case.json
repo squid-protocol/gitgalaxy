@@ -66,6 +66,12 @@
         }
       ],
       "why": "the final SEND TEXT fails with TSIOERR, a different condition than send-fault's INVREQ: kills the mutants of the reply's condition-code constants"
+    },
+    {
+      "name": "short-input",
+      "commarea": null,
+      "terminal": "GT71",
+      "why": "terminal input with no mode byte: WS-INPUT(6:1) is the initial blank, so no WHEN arm runs; kills the mutant that drops WS-INPUT's initial image (the byte read past the received text)"
     }
   ]
 }

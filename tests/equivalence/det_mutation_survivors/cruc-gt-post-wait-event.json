@@ -1,0 +1,747 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-gt-post-wait-event",
+ "survivors": [
+  {
+   "id": "a4a141f88a",
+   "op": "CON",
+   "line": 34,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "CON at line 34 (`private static final int GOTO = 1 << 20;`): GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20. Settled by survivor_attack.py facts (goto-flag-bit); no input of the program can show a difference.",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "ba346c2da2",
+   "op": "CON",
+   "line": 34,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "CON at line 34 (`private static final int GOTO = 1 << 20;`): GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20. Settled by survivor_attack.py facts (goto-flag-bit); no input of the program can show a difference.",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "1136d297c2",
+   "op": "CON",
+   "line": 100,
+   "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 100 (`private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0`): field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-6 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "46d6d629d9",
+   "op": "CON",
+   "line": 100,
+   "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 100 (`private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0`): field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-7 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "8c910103eb",
+   "op": "CON",
+   "line": 100,
+   "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 100 (`private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0`): field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-7 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "68fa62b9ec",
+   "op": "CON",
+   "line": 101,
+   "before": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 101 (`private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4`): field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-10 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c3d058368a",
+   "op": "CON",
+   "line": 101,
+   "before": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 101 (`private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4`): field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c49a1390d8",
+   "op": "CON",
+   "line": 101,
+   "before": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 101 (`private final Field f22_EIBDATE = Field.packed(s_DFHEIBLK, 4`): field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5b4f861a00",
+   "op": "CON",
+   "line": 102,
+   "before": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 102 (`private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHE`): field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e60ce76b1d",
+   "op": "CON",
+   "line": 102,
+   "before": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 102 (`private final Field f23_EIBTRNID = Field.alphanumeric(s_DFHE`): field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b92019a0a7",
+   "op": "CON",
+   "line": 103,
+   "before": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 103 (`private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, `): field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-18 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "cd52cf1f62",
+   "op": "CON",
+   "line": 103,
+   "before": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 103 (`private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, `): field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "fe0a7ca581",
+   "op": "CON",
+   "line": 103,
+   "before": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "CON at line 103 (`private final Field f24_EIBTASKN = Field.packed(s_DFHEIBLK, `): field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "164c660fda",
+   "op": "CON",
+   "line": 104,
+   "before": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 104 (`private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHE`): field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "aa4033329c",
+   "op": "CON",
+   "line": 104,
+   "before": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 104 (`private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHE`): field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "0b5ed29636",
+   "op": "CON",
+   "line": 106,
+   "before": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 106 (`private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 7`): field_observability: dead window: no reachable statement or runtime reader reads EIBRESP or bytes 76-84 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3145ff81c1",
+   "op": "CON",
+   "line": 106,
+   "before": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 106 (`private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 7`): field_observability: dead window: no reachable statement or runtime reader reads EIBRESP or bytes 76-84 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f9da279e06",
+   "op": "CON",
+   "line": 106,
+   "before": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 106 (`private final Field f49_EIBRESP = Field.binary(s_DFHEIBLK, 7`): field_observability: dead window: no reachable statement or runtime reader reads EIBRESP or bytes 76-83 of DFHEIBLK. Settled by survivor_attack.py facts (solver-unobservable); no input of the program can show a difference.",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f0b581480f",
+   "op": "LIT",
+   "line": 131,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "LIT at line 131 (`@SuppressWarnings(\"unchecked\")`): a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect. Settled by survivor_attack.py facts (annotation-text); no input of the program can show a difference.",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "e445fe141f",
+   "op": "COR",
+   "line": 133,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "COR at line 133 (`if (CicsTask.undefinableFile(name) || task.undefinedInRegion`): store() is reached from no entry point of the program. Settled by survivor_attack.py facts (no-entry-path); no input of the program can show a difference.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "f5355305ff",
+   "op": "NEG",
+   "line": 133,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "NEG at line 133 (`if (CicsTask.undefinableFile(name) || task.undefinedInRegion`): store() is reached from no entry point of the program. Settled by survivor_attack.py facts (no-entry-path); no input of the program can show a difference.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "c5c218dca1",
+   "op": "LIT",
+   "line": 136,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "LIT at line 136 (`throw new Hole(\"CICS file \" + name + \": the program names no`): store() is reached from no entry point of the program. Settled by survivor_attack.py facts (no-entry-path); no input of the program can show a difference.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "f81621221d",
+   "op": "LIT",
+   "line": 136,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "LIT at line 136 (`throw new Hole(\"CICS file \" + name + \": the program names no`): store() is reached from no entry point of the program. Settled by survivor_attack.py facts (no-entry-path); no input of the program can show a difference.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "2b768cc283",
+   "op": "CON",
+   "line": 140,
+   "before": "java.util.Map.entry(\"CONVERSE-REPLY\", 4),",
+   "after": "java.util.Map.entry(\"CONVERSE-REPLY\", 5),",
+   "verdict": "equivalent",
+   "reason": "CON at line 140 (`java.util.Map.entry(\"CONVERSE-REPLY\", 4),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d9b4561b65",
+   "op": "LIT",
+   "line": 140,
+   "before": "java.util.Map.entry(\"CONVERSE-REPLY\", 4),",
+   "after": "java.util.Map.entry(\"XONVERSE-REPLY\", 4),",
+   "verdict": "equivalent",
+   "reason": "LIT at line 140 (`java.util.Map.entry(\"CONVERSE-REPLY\", 4),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2c489c72ec",
+   "op": "LIT",
+   "line": 141,
+   "before": "java.util.Map.entry(\"POST-PAST\", 3),",
+   "after": "java.util.Map.entry(\"XOST-PAST\", 3),",
+   "verdict": "equivalent",
+   "reason": "LIT at line 141 (`java.util.Map.entry(\"POST-PAST\", 3),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3d669e711d",
+   "op": "CON",
+   "line": 141,
+   "before": "java.util.Map.entry(\"POST-PAST\", 3),",
+   "after": "java.util.Map.entry(\"POST-PAST\", 4),",
+   "verdict": "equivalent",
+   "reason": "CON at line 141 (`java.util.Map.entry(\"POST-PAST\", 3),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9239f913d5",
+   "op": "LIT",
+   "line": 142,
+   "before": "java.util.Map.entry(\"WAIT-NULL\", 2),",
+   "after": "java.util.Map.entry(\"XAIT-NULL\", 2),",
+   "verdict": "equivalent",
+   "reason": "LIT at line 142 (`java.util.Map.entry(\"WAIT-NULL\", 2),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e5c9844d8c",
+   "op": "CON",
+   "line": 142,
+   "before": "java.util.Map.entry(\"WAIT-NULL\", 2),",
+   "after": "java.util.Map.entry(\"WAIT-NULL\", 3),",
+   "verdict": "equivalent",
+   "reason": "CON at line 142 (`java.util.Map.entry(\"WAIT-NULL\", 2),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7d21f7cc3d",
+   "op": "CON",
+   "line": 143,
+   "before": "java.util.Map.entry(\"POST-WAIT-CANCEL\", 1),",
+   "after": "java.util.Map.entry(\"POST-WAIT-CANCEL\", 2),",
+   "verdict": "equivalent",
+   "reason": "CON at line 143 (`java.util.Map.entry(\"POST-WAIT-CANCEL\", 1),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d7b208899d",
+   "op": "LIT",
+   "line": 143,
+   "before": "java.util.Map.entry(\"POST-WAIT-CANCEL\", 1),",
+   "after": "java.util.Map.entry(\"XOST-WAIT-CANCEL\", 1),",
+   "verdict": "equivalent",
+   "reason": "LIT at line 143 (`java.util.Map.entry(\"POST-WAIT-CANCEL\", 1),`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bd2a93c739",
+   "op": "LIT",
+   "line": 144,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
+   "verdict": "equivalent",
+   "reason": "LIT at line 144 (`java.util.Map.entry(\"MAIN-PARA\", 0)`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "da09379458",
+   "op": "CON",
+   "line": 144,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
+   "verdict": "equivalent",
+   "reason": "CON at line 144 (`java.util.Map.entry(\"MAIN-PARA\", 0)`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "13ff5a9e95",
+   "op": "ROR",
+   "line": 149,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "equivalent",
+   "reason": "ROR at line 149 (`if (i == null) {`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a70dc8012f",
+   "op": "NEG",
+   "line": 149,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "equivalent",
+   "reason": "NEG at line 149 (`if (i == null) {`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c231512a68",
+   "op": "LIT",
+   "line": 150,
+   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+   "verdict": "equivalent",
+   "reason": "LIT at line 150 (`throw new IllegalStateException(\"no paragraph \" + name);`): paragraph() is called only for a HANDLE ABEND label, and the program has none. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ab574772d4",
+   "op": "CON",
+   "line": 166,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "equivalent",
+   "reason": "CON at line 166 (`return -1;`): condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2dc468b592",
+   "op": "LIT",
+   "line": 168,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "LIT at line 168 (`Integer error = handlers.get(\"ERROR\");`): handlers is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "346156831b",
+   "op": "DEL",
+   "line": 222,
+   "before": "f2_WS_INLEN = 0L;",
+   "after": "/* f2_WS_INLEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 222 (`f2_WS_INLEN = 0L;`): every read of f2_WS_INLEN follows a top-level store of it in its own method; the initial value is never read. Settled by survivor_attack.py facts (store-dominates-read); no input of the program can show a difference.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "aa6823740c",
+   "op": "DEL",
+   "line": 223,
+   "before": "f3_WS_RESP = -1L;",
+   "after": "/* f3_WS_RESP = -1L; */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 223 (`f3_WS_RESP = -1L;`): every read of f3_WS_RESP follows a top-level store of it in its own method; the initial value is never read. Settled by survivor_attack.py facts (store-dominates-read); no input of the program can show a difference.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "84762f41ef",
+   "op": "DEL",
+   "line": 224,
+   "before": "f4_WS_RESP2 = -1L;",
+   "after": "/* f4_WS_RESP2 = -1L; */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 224 (`f4_WS_RESP2 = -1L;`): every read of f4_WS_RESP2 follows a top-level store of it in its own method; the initial value is never read. Settled by survivor_attack.py facts (store-dominates-read); no input of the program can show a difference.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "95a213aae3",
+   "op": "DEL",
+   "line": 226,
+   "before": "f18_WS_LLEN = 0L;",
+   "after": "/* f18_WS_LLEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 226 (`f18_WS_LLEN = 0L;`): every read of f18_WS_LLEN follows a top-level store of it in its own method; the initial value is never read. Settled by survivor_attack.py facts (store-dominates-read); no input of the program can show a difference.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "1de4643e92",
+   "op": "DEL",
+   "line": 250,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 250 (`handlers.clear();`): handlers is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "7467c6b9f5",
+   "op": "DEL",
+   "line": 251,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 251 (`heldKey.clear();`): heldKey is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "3fb615aec7",
+   "op": "CON",
+   "line": 367,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "CON at line 367 (`private int[] performThru = new int[64];`): the PERFORM stack never holds more than 6 entries, so a capacity of 65 is never filled. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "42cd073036",
+   "op": "DEL",
+   "line": 387,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 387 (`performThru = java.util.Arrays.copyOf(performThru, mine * 2)`): the PERFORM stack grows only when it holds 64 entries; this program's holds at most 6. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6a18d74c93",
+   "op": "AOR",
+   "line": 387,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "AOR at line 387 (`performThru = java.util.Arrays.copyOf(performThru, mine * 2)`): the PERFORM stack grows only when it holds 64 entries; this program's holds at most 6. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e58e8d7a80",
+   "op": "CON",
+   "line": 387,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "CON at line 387 (`performThru = java.util.Arrays.copyOf(performThru, mine * 2)`): the PERFORM stack grows only when it holds 64 entries; this program's holds at most 6. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "26854d268e",
+   "op": "ROR",
+   "line": 406,
+   "before": "if (next >= 5) {",
+   "after": "if (next < 5) {",
+   "verdict": "equivalent",
+   "reason": "ROR at line 406 (`if (next >= 5) {`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2b7dd83be5",
+   "op": "ROR",
+   "line": 406,
+   "before": "if (next >= 5) {",
+   "after": "if (next > 5) {",
+   "verdict": "equivalent",
+   "reason": "ROR at line 406 (`if (next >= 5) {`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "827f71ef37",
+   "op": "CON",
+   "line": 406,
+   "before": "if (next >= 5) {",
+   "after": "if (next >= 6) {",
+   "verdict": "equivalent",
+   "reason": "CON at line 406 (`if (next >= 5) {`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f411f533d3",
+   "op": "NEG",
+   "line": 406,
+   "before": "if (next >= 5) {",
+   "after": "if (!(next >= 5)) {",
+   "verdict": "equivalent",
+   "reason": "NEG at line 406 (`if (next >= 5) {`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "27dfd0ba2e",
+   "op": "DEL",
+   "line": 409,
+   "before": "i = next;",
+   "after": "/* i = next; */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 409 (`i = next;`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "522e558847",
+   "op": "NEG",
+   "line": 412,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "equivalent",
+   "reason": "NEG at line 412 (`if (e.depth != mine) {`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f63b05adab",
+   "op": "ROR",
+   "line": 412,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "equivalent",
+   "reason": "ROR at line 412 (`if (e.depth != mine) {`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b343d869b1",
+   "op": "DEL",
+   "line": 416,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 416 (`performDepth = mine;`): perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "fe86997b56",
+   "op": "LIT",
+   "line": 427,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "LIT at line 427 (`default: throw new IllegalStateException(\"paragraph \" + i);`): run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "166431dd82",
+   "op": "CON",
+   "line": 441,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "CON at line 441 (`if (to >= 0) return GOTO | to;`): `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3ca9971747",
+   "op": "ROR",
+   "line": 441,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "ROR at line 441 (`if (to >= 0) return GOTO | to;`): `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5ccdfa974e",
+   "op": "ROR",
+   "line": 473,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "ROR at line 473 (`if (to >= 0) return GOTO | to;`): `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "deef1f5615",
+   "op": "CON",
+   "line": 473,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "CON at line 473 (`if (to >= 0) return GOTO | to;`): `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists. Settled by survivor_attack.py facts (flow-plumbing); no input of the program can show a difference.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  }
+ ]
+}

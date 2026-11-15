@@ -40,6 +40,62 @@
       "commarea": null,
       "terminal": "GT61 CABCDEFGH",
       "why": "CONVERSE with TOLENGTH 4 and an 8-byte reply: LENGERR, INTO the first 4 bytes, TOLENGTH the original 8"
+    },
+    {
+      "name": "wq-invreq-w",
+      "commarea": null,
+      "terminal": "GT61 W",
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 1,
+          "file": "GTLOG",
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "first breadcrumb write INVREQ on W"
+    },
+    {
+      "name": "wq-ioerr-c",
+      "commarea": null,
+      "terminal": "GT61 FREPLY",
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 1,
+          "file": "GTLOG",
+          "resp": "IOERR"
+        }
+      ],
+      "why": "breadcrumb write IOERR on F"
+    },
+    {
+      "name": "wq-notauth-p",
+      "commarea": null,
+      "terminal": "GT61 P",
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 1,
+          "file": "GTLOG",
+          "resp": "NOTAUTH"
+        }
+      ],
+      "why": "breadcrumb write NOTAUTH on P"
+    },
+    {
+      "name": "cancel-invreq-w",
+      "commarea": null,
+      "terminal": "GT61 W",
+      "faults": [
+        {
+          "cmd": "CANCEL",
+          "nth": 1,
+          "file": "GTPOSTW",
+          "resp": "NOTAUTH"
+        }
+      ],
+      "why": "CANCEL answers NOTAUTH"
     }
   ]
 }

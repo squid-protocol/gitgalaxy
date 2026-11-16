@@ -99,7 +99,7 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
 | *What if we want idiomatic Java instead of byte-array runtime calls?* | `--style structured --typed` promotes fields to native Java types where safe, and `port_runner refine --min-fidelity` lets your model rewrite one method at a time—keeping the rewrite only if both the equivalence proof and paragraph structural fidelity stay green. |
 | *Can we audit an existing COBOL→Java port to see what was faithfully translated?* | [`translation_fidelity.py`](../../../tests/tools/translation_fidelity.py) pairs COBOL paragraphs with Java methods (via `traceability.json`, `/** <PARAGRAPH>. */`, or normalized names) and scores branch, call, size, and data-ref preservation against shuffled and unrelated null controls. |
 | *Can we get a free consultation and GitGalaxy report to gauge effort before committing?* | Yes—run `gitgalaxy assess --redact` locally (zero source leakage) to produce a redacted blocker report and GitGalaxy architectural inventory, then reach out (`joe@gitgalaxy.io`) for a free walkthrough of what you have and what is needed to get migration-ready. |
-| *Does this hold up on an unseen estate, not just curated benchmarks?* | In our first registered blind estate trial ([`blind1_proof_run.md`](../../../docs/language_status/blind1_proof_run.md), 28 programs, deterministic `det` only, zero LLM spend), **23/28 (82%)** proved first try under the repaired harness (`Run B`; `28/28` after two engine fixes), while the frozen harness (`Run A`) proved `5/28` with `23` blocked on a harness Db2 DSN-card parse bug. |
+| *Does this hold up on an unseen estate, not just curated benchmarks?* | Yes—our first registered blind estate trial ([`blind1_proof_run.md`](../../../docs/language_status/blind1_proof_run.md)) ran deterministic `det` alone (zero LLM spend) on an unseen enterprise estate; see the trial record and [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) for the exact Run A/Run B proof rates. |
 
 ---
 
@@ -121,7 +121,7 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
    - **The deterministic translator** (`--backend det --source-root ESTATE [--style structured] [--typed]`):
      no model; translates the statements of the burned estates into calls against `cobolrt`, preserving
      `/** <PARAGRAPH>. */` Javadoc provenance and `translation.paragraph_methods` in the event log.
-   - **Model-assisted readability refinement** (`port_runner refine [--min-fidelity 0.55]`): rewrites
+   - **Model-assisted readability refinement** (`port_runner refine [--min-fidelity ...]`): rewrites
      a proven det port one method at a time, enforcing `structural_fidelity_guard` (preserving Javadoc
      provenance and branch structure) and running the equivalence proof after each method, reverting any
      rewrite that breaks behaviour or structural fidelity.

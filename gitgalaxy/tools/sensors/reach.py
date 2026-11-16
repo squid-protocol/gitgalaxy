@@ -95,7 +95,8 @@ def build(db: str | Path, src_root: Path | None = None) -> dict:
         has_candidates = (
             con.execute("SELECT 1 FROM sqlite_master WHERE name = 'fcall_candidates'").fetchone() is not None
         )
-        # a tie keeps every candidate definition here (#8161): a possible caller, not a counted one
+        # a tie keeps every candidate definition here (#8161), and an ambiguous edge names the file the resolver chose among
+        # several: both are possible callers, not counted ones
         candidate_pairs = (
             con.execute(
                 "SELECT DISTINCT src_file_id, dst_file_id FROM fcall_candidates WHERE dst_file_id IS NOT NULL"
@@ -103,6 +104,10 @@ def build(db: str | Path, src_root: Path | None = None) -> dict:
             if has_candidates
             else []
         )
+        candidate_pairs += con.execute(
+            "SELECT DISTINCT src_file_id, dst_file_id FROM fcall_data "
+            "WHERE kind = 'call' AND dst_file_id IS NOT NULL AND COALESCE(candidates, 1) > 1"
+        ).fetchall()
     finally:
         con.close()
     callers: dict[int, set[int]] = collections.defaultdict(set)
@@ -230,9 +235,13 @@ def report_scope(result: dict, top: int = 8) -> str:
     return "\n".join(lines)
 
 
-def report(result: dict, top: int = 8, all_roles: bool = False) -> str:
+def report(result: dict, top: int = 8, all_roles: bool = False, rank_with_possible: bool = False) -> str:
     rows = [r for r in result["rows"] if all_roles or r["role"] == "source"]
-    src = sorted((r for r in rows if r["kind"] == "source"), key=lambda r: (-r["reach_files"], r["path"]))
+
+    def reach_key(r: dict) -> int:
+        return r["reach_files"] + (r.get("possible_caller_files", 0) if rank_with_possible else 0)
+
+    src = sorted((r for r in rows if r["kind"] == "source"), key=lambda r: (-reach_key(r), r["path"]))
     hdr = sorted((r for r in rows if r["kind"] == "header"), key=lambda r: (-r["reach_files"], r["path"]))
     n_calls = sum(1 for r in result["rows"] if r["measured_by"] == CALL_GRAPH)
     n_incl = sum(1 for r in result["rows"] if r["measured_by"] == INCLUDE_COUNT)
@@ -243,13 +252,14 @@ def report(result: dict, top: int = 8, all_roles: bool = False) -> str:
         ),
         (
             "Counts are lower bounds: calls to standard-library names and macros are not recorded; "
-            f"{result['edges_counted']} call edges counted, {result['edges_left_out']} tie or ambiguous edges left out."
+            f"{result['edges_counted']} call edges counted, {result['edges_left_out']} tie or ambiguous edges not counted "
+            "(their files show as possible callers)."
         ),
         "Files the most other files call into:",
     ]
     lines += [
         f"  {r['path']:48s} {r['reach_files']:4d} caller files {r['caller_functions']:5d} caller functions {r['one_hop_out']:5d} one hop out"
-        + (f" (+{r['possible_caller_files']} possible, tied calls)" if r["possible_caller_files"] else "")
+        + (f" (+{r['possible_caller_files']} possible)" if r["possible_caller_files"] else "")
         for r in src[:top]
     ]
     lines.append("Most-used public functions:")
@@ -271,6 +281,11 @@ def add_arguments(p: argparse.ArgumentParser) -> None:
         "--callee", metavar="NAME", help="scope a rename or removal: who calls NAME (defined in the repository or not)"
     )
     p.add_argument("--all-roles", action="store_true", help="include tests/docs and CI/config files in the lists")
+    p.add_argument(
+        "--rank-with-possible",
+        action="store_true",
+        help="rank files by counted plus possible caller files (ambiguous and tied calls): ranks C repositories better, other languages mixed",
+    )
     p.add_argument("--json", type=Path, metavar="FILE", help="also write the full result as JSON")
 
 
@@ -293,7 +308,7 @@ def run(args: argparse.Namespace) -> int:
     except sqlite3.Error as exc:
         print(f"gitgalaxy reach: cannot read {args.db}: {exc}", file=sys.stderr)
         return 2
-    print(report(result, args.top, args.all_roles))
+    print(report(result, args.top, args.all_roles, args.rank_with_possible))
     if args.json:
         args.json.write_text(json.dumps(result, indent=1))
     return 0

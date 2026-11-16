@@ -5,7 +5,7 @@ description: "> **Command:** `gitgalaxy reach SCAN_DB [--src ROOT]`. Who depends
 
 > **File Reference:** [`gitgalaxy/tools/sensors/reach.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/sensors/reach.py)
 >
-> **Command:** `gitgalaxy reach SCAN_DB [--src ROOT] [--callee NAME] [--top N] [--all-roles] [--json FILE]`
+> **Command:** `gitgalaxy reach SCAN_DB [--src ROOT] [--callee NAME] [--top N] [--all-roles] [--rank-with-possible] [--json FILE]`
 >
 > **Metric:** The number of other files and functions that call into a file (and the callers of those callers, one hop out); for a header, the number of files that include it.
 >
@@ -22,7 +22,7 @@ Export keywords say little about use (a file can export many functions nobody ca
 
 ## Design
 1. **Caller counts (source files).** Per file: distinct other files that call a function it defines (`reach_files`), distinct caller functions (`caller_functions`), and callers of those callers (`one_hop_out`). A call from a file's top-level code counts as a caller file, not a caller function.
-2. **Which edges count.** Only `fcall_data` rows with `kind = 'call'` that resolve to exactly one definition (`candidates` of 1 or null, destination known). Ties (no destination) and ambiguous edges are left out, and the report states how many. Ties that the engine keeps as candidate definitions (`fcall_candidates`, #8161, one per platform variant in C) are shown beside the count as `possible_caller_files`: files that may call the file through a tied call and are not already counted. They are never added to the count.
+2. **Which edges count.** Only `fcall_data` rows with `kind = 'call'` that resolve to exactly one definition (`candidates` of 1 or null, destination known). Ties (no destination) and ambiguous edges (the resolver chose a file among several candidates) are not counted, and the report states how many. Their files are shown beside the count as `possible_caller_files`: files that may call the file through a tied call (`fcall_candidates`, #8161, one per platform variant in C) or an ambiguous one, and are not already counted. They are never added to the count by default; `--rank-with-possible` ranks the lists by counted plus possible callers. In a head-to-head against compiler-grade references (libclang, pyan3, the TypeScript checker, Go VTA, scip-java, rust-analyzer; 16 repositories in 7 languages) the possible callers raise recall in every language, but they cost precision outside C (TypeScript 91% to 41%, Java 82% to 67%) and the ranking moves both ways, which is why they are shown beside the count and not folded into it; in C they raise recall from 70% to 82% with no precision loss. Possible callers appear on source files; headers are counted by include.
 3. **Headers use include counts.** The number of files whose `#include` names the header, resolved by path (a `"a/x.h"` include matches the header ending in `a/x.h`; a bare `"x.h"` prefers the includer's own folder, then the longest shared path), so same-named headers in different folders stay separate. This needs `--src` (the scanned tree); without it headers are reported as not measured.
 4. **Not measured, with a reason.** A file with no functions, or a header without `--src`. These are never reported as zero.
 5. **Role tag.** Source, tests and docs, CI configuration. Lists default to source; `--all-roles` includes the rest.

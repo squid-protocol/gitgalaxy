@@ -1,5 +1,5 @@
 {
- "commit": "1b668c833",
+ "commit": "e2724a76b",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,15 +976,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-16T19:26:27Z",
+  "as_of": "2026-11-16T19:53:05Z",
   "core": {
-   "closed": 251,
-   "open": 13,
+   "closed": 252,
+   "open": 12,
    "total": 264
   },
   "core_last_window": {
-   "closed": 12,
-   "net_closed": 5,
+   "closed": 13,
+   "net_closed": 6,
    "opened": 7
   },
   "core_milestone": {
@@ -1000,7 +1000,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "18 days",
+  "eta": "14 days",
   "frontier": {
    "closed": 131,
    "found_last_window": 4,
@@ -1235,7 +1235,7 @@
     "total": 141
    },
    "cobol": {
-    "closed": 145,
+    "closed": 146,
     "total": 156
    }
   },

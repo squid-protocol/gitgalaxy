@@ -48,6 +48,17 @@ def role(path: str) -> str:
     return "source"
 
 
+def open_scan_db(db: str | Path) -> sqlite3.Connection:
+    """Open a finished scan database read-only without leaving files behind.
+
+    A plain read-only open of a database in WAL mode creates `-wal` and `-shm` files next to it, which a scan's documented output must not
+    have and a user's database should not gain. With no `-wal` file beside it nothing is mid-write (the writer's last close removes it), so
+    the database is opened `immutable`; with one, an ordinary read-only open sees the write-ahead log."""
+    path = Path(db)
+    immutable = "&immutable=1" if not Path(f"{path}-wal").exists() else ""
+    return sqlite3.connect(f"file:{path}?mode=ro{immutable}", uri=True)
+
+
 def _tokens(raw: str | None) -> list[str]:
     try:
         return [t for t in json.loads(raw or "[]") if isinstance(t, str)]
@@ -110,7 +121,7 @@ def include_counts_from_imports(imports: dict[str, list[str]]) -> dict[str, set[
 
 
 def build(db: str | Path, src_root: Path | None = None) -> dict:
-    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    con = open_scan_db(db)
     try:
         rows_fd = con.execute("SELECT id, file_path, function_count, raw_imports FROM file_data").fetchall()
         files = {r[0]: r[1:3] for r in rows_fd}
@@ -215,7 +226,7 @@ def build(db: str | Path, src_root: Path | None = None) -> dict:
 def scope(db: str | Path, name: str) -> dict:
     """Who calls `name`: the files and calling functions, whether the repository defines `name` (counted from `fcall_data`)
     or not (counted from `fcall_external`, when the scan wrote it). The scope of a rename or removal."""
-    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    con = open_scan_db(db)
     try:
         defined = con.execute(
             "SELECT f.file_path, COUNT(DISTINCT c.src_func_id), COUNT(*) FROM fcall_data c "

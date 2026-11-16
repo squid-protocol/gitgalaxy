@@ -31,8 +31,8 @@ Export keywords say little about use (a file can export many functions nobody ca
 
 ## Pipeline Integration
 - **Inputs:** `file_data`, `function_data` and `fcall_data` from the scan database (opened read-only).
-- **Outputs:** a text report, and with `--json` the full per-file result.
-- **Dependencies:** [the call-graph builder](../../gitgalaxy/core/README.md); nothing is added to the scan itself.
+- **Outputs:** a text report, and with `--json` the full per-file result. A scan also writes the top of it into its LLM brief (`<target>_galaxy_llm.md`) as section 16, "Reach (Who Depends On What)": the five most-called source files and the five most-included headers, read from the finished master database (absent when the scan wrote none or nothing has a caller).
+- **Dependencies:** [the call-graph builder](../../gitgalaxy/core/README.md). The scan database itself gains nothing; the command and the brief section only read it.
 
 ## Tradeoffs
 - Counts give up a cross-repository scale; read the lists within one repository. Reach grows with repository size.

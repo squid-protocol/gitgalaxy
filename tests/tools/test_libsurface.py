@@ -265,3 +265,13 @@ def test_command_views_and_errors(tmp_path):
     bad = tmp_path / "bad.toml"
     bad.write_text('[[library]]\nname = "x"\n')
     assert _run(str(db), "--libs", str(bad)).returncode == 2
+
+
+def test_reading_a_wal_database_leaves_no_files_behind(tmp_path):
+    db = _db(tmp_path, C_FILES, C_EXTERNAL)
+    con = sqlite3.connect(db)
+    con.execute("PRAGMA journal_mode=WAL")
+    con.commit()
+    con.close()  # the last close removes the -wal file, as a finished scan leaves it
+    LS.build(db, LS.load_libraries([]))
+    assert sorted(p.name for p in tmp_path.glob("s.db*")) == ["s.db"]  # no -wal, no -shm

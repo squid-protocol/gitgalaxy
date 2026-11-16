@@ -190,7 +190,7 @@
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
 /testing	tests/cobol_mainframe
-/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
+/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_no_raw_wall_clock_timing_8423.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 0.md	tests/tools/test_doc_drift_issues.py
@@ -273,7 +273,7 @@ cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,test
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
 cobolrt_api.json	tests/tools/cobolrt_api.py
-cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_exit_report.py,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 cobolrt_rules.md	tests/tools/cobolrt_rules.py
 construct_correspondence.md	tests/tools/test_progress_report.py
 core/README.md	gitgalaxy
@@ -349,7 +349,7 @@ docs/language_status/cobol_move_matrix.md	gitgalaxy
 docs/language_status/cobol_sort_matrix.md	gitgalaxy
 docs/language_status/cobol_string_matrix.md	gitgalaxy
 docs/language_status/cobolrt_api.json	tests/tools/cobolrt_api.py
-docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_exit_report.py,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
 docs/language_status/det_survey.md	tests/tools/test_progress_report.py

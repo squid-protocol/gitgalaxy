@@ -43,7 +43,7 @@ Patterns are globs, never regexes, so a pattern a user writes cannot hang the ma
 
 ## Pipeline Integration
 - **Inputs:** `file_data` (path, lines, `raw_imports`) and `fcall_external` (#8530) from the scan database; no source tree is needed.
-- **Outputs:** a text report, and with `--json` the full result.
+- **Outputs:** a text report, and with `--json` the full result. A scan also writes a short version into its LLM brief (`<target>_galaxy_llm.md`) as section 17, "Libraries (What The Repository Leans On)": the eight external libraries with the most files. The brief lists a C or C++ library only if it is in the shipped table, and a discovered library only when an import names it, because a C include directory or bare header is more often a platform header the system-header list does not know (`gnu/`, `vm/`, `TargetConditionals.h`) than a dependency; the command itself lists everything.
 - **Dependencies:** scans that wrote `fcall_external` for API names; on an older scan the command still reports imports and includes and says that names were not recorded.
 
 ## Tradeoffs

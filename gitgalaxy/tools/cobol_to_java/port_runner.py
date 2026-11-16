@@ -350,6 +350,8 @@ def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Pat
              "holes": len(r.stats["holes"]), "style": style, "typed": typed, "groups": groups}  # fmt: skip
     if r.stats.get("warnings"):
         stats["warnings"] = list(r.stats["warnings"])
+    if r.stats.get("paragraph_methods"):
+        stats["paragraph_methods"] = dict(r.stats["paragraph_methods"])
     return r.java, P.runtime_files(m.group(1), P.has_batch(project)), stats
 
 

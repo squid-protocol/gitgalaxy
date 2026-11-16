@@ -144,6 +144,8 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         map_length_scale,
         goto_flag_bit,
         eib_resp_unread,
+        refusal_text,
+        exception_ctor,
     ):
         fact = infra(text, spans, mutant)
         if fact:
@@ -681,6 +683,64 @@ def annotation_text(
     if before.strip().startswith('@SuppressWarnings("') and after.strip().startswith('@SuppressWarnings("'):
         return {"result": "annotation-text", "fact": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect"}  # fmt: skip
     return None
+
+
+# ---- refusal text and exception construction (#7955) ----
+_PAST_FROM = re.compile(r"^(\s*throw new DetCics\.PastFrom\()(.*)(\);\s*)$")
+# equivalence_cics.PERFORM_DEPTH: x6_judged's kind() tests it first, then "EIBCALEN"; pinned by a test
+_PERFORM_DEPTH_TEXT = "stack overflow, possible PERFORM depth exceeded"
+_EXC_CLASS = re.compile(r"^\s*private static final class (\w+) extends RuntimeException \{\s*$")
+
+
+def refusal_text(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """A changed character in a `DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled")`
+    literal. The message is only written to <scenario>.x6 and read by `equivalence_cics.x6_judged`, whose `kind()`
+    tells the refusals apart by the substrings PERFORM_DEPTH and "EIBCALEN" (the text is reported, never compared).
+    The edit leaves the code as it was and keeps "EIBCALEN" in the message and PERFORM_DEPTH out of it."""
+    b, a = _PAST_FROM.match(mutant.get("before") or ""), _PAST_FROM.match(mutant.get("after") or "")
+    if not b or not a or b.group(2) == a.group(2):
+        return None
+    if _LITERAL.sub('""', b.group(2)) != _LITERAL.sub('""', a.group(2)):
+        return None  # the edit left the literals: it changed code
+    said_b, said_a = "".join(_LITERAL.findall(b.group(2))), "".join(_LITERAL.findall(a.group(2)))
+    if "EIBCALEN" not in said_b or "EIBCALEN" not in said_a or _PERFORM_DEPTH_TEXT in said_b + said_a:
+        return None
+    return {"result": "refusal-text", "fact": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same"}  # fmt: skip
+
+
+def exception_ctor(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """The constructor of the port's control-flow exception (`Goback extends RuntimeException`, built
+    `super(null, null, false, false)`) deleted. The default constructor differs only in a writable stack trace and
+    suppression, which nothing reads: the class has no other member, no line asks any exception for its message, cause,
+    trace or suppressed list, and every handler of it is empty (comments only)."""
+    if (mutant.get("before") or "").strip() != "super(null, null, false, false);" or not (mutant.get("after") or "").strip().startswith("/*"):  # fmt: skip
+        return None
+    lines = text.splitlines()
+    line = int(mutant["line"])
+    if line < 5 or line + 2 > len(lines) or lines[line].strip() != "}" or lines[line + 1].strip() != "}":
+        return None
+    cls = _EXC_CLASS.match(lines[line - 5])
+    members = [ln.strip() for ln in lines[line - 4 : line - 2]]
+    if len(members) != 2 or not members[0].startswith("private static final long serialVersionUID") or members[1]:
+        return None
+    ctor = re.match(rf"^\s*{re.escape(cls.group(1))}\(\) \{{\s*$", lines[line - 2]) if cls else None
+    if not cls or not ctor:
+        return None
+    name = cls.group(1)
+    if re.search(r"\b(?:getMessage|getLocalizedMessage|getCause|initCause|getStackTrace|printStackTrace|setStackTrace|fillInStackTrace|addSuppressed|getSuppressed|toString)\(", text):  # fmt: skip
+        return None
+    for i, ln in enumerate(lines):
+        if re.search(rf"\bcatch \((?:final )?{name} \w+\)", ln):
+            body = []
+            for nxt in lines[i + 1 :]:
+                if nxt.strip().startswith("}"):
+                    break
+                body.append(nxt.strip())
+            if any(b and not b.startswith("//") for b in body):
+                return None
+        elif re.search(rf"\b{name}\b", ln) and i + 1 not in (line - 4, line - 1) and not re.search(rf"\bnew {name}\(\)|\b{name} abended\(|^\s*private static final class {name} ", ln):  # fmt: skip
+            return None
+    return {"result": "exception-ctor", "fact": f"{name} carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen"}  # fmt: skip
 
 
 _READ_ONLY = r"Cobol\.(?:num|text)\({n}, CS\)|Cobol\.move\({n}, "

@@ -2603,6 +2603,10 @@ ran, so the harness probably never gives `beyond` a non-null tail on that path; 
 Unaccounted: ABNDPROC 8, ACCTCTRL 9 (two are the 10M-account `case-gap` rows), UPDCUST 7. CBSA does not reach L5: UPDACC,
 ZECS003 `db732fe82d` and 23 unmeasured programs also remain.
 
+Slice 19 (#7954): ZECS003 re-measured with a `link-bytes-tail-sdr` scenario (a `link_bytes` area with a non-null tail). It
+kills the two `caBack` rows above and three rows stated `equivalent`, which were wrong claims and are removed. ZECS003
+stays at 28 unaccounted (fill_ DTO setters, two-argument `handleLink` facades, four `task.write` case-gaps).
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

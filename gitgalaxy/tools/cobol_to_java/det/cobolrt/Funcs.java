@@ -199,6 +199,9 @@ public final class Funcs {
     /** FUNCTION INTEGER-OF-DATE: YYYYMMDD -> days since 31 December 1600 (1 January 1601 is day 1). */
     // [rule RT-FUNC-DATE-INTEGER]
     public static BigDecimal integerOfDate(BigDecimal yyyymmdd) {
+        if (CobolProfile.current().intdateLilian()) {
+            return integerOfDateLilian(yyyymmdd);
+        }
         int v = yyyymmdd.intValue();
         java.time.LocalDate d = java.time.LocalDate.of(v / 10000, v / 100 % 100, v % 100);
         return BigDecimal.valueOf(java.time.temporal.ChronoUnit.DAYS.between(DAY_ZERO, d));
@@ -206,6 +209,9 @@ public final class Funcs {
 
     /** FUNCTION DATE-OF-INTEGER: days since 31 December 1600 -> YYYYMMDD. */
     public static BigDecimal dateOfInteger(BigDecimal days) {
+        if (CobolProfile.current().intdateLilian()) {
+            return dateOfIntegerLilian(days);
+        }
         java.time.LocalDate d = DAY_ZERO.plusDays(days.longValue());
         return BigDecimal.valueOf(d.getYear() * 10000L + d.getMonthValue() * 100L + d.getDayOfMonth());
     }

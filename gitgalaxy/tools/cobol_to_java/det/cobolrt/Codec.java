@@ -9,38 +9,32 @@ final class Codec {
     static final String POSITIVE = "{ABCDEFGHI";
     static final String NEGATIVE = "}JKLMNOPQR";
 
-    /** TRUNC(STD): a binary item holds at most its PICTURE's digits. GnuCOBOL under `-std=ibm` (the equivalence
-     *  harness) does not: a binary item holds whatever its 2 / 4 / 8 bytes hold (TRUNC(BIN)), so that is the default. */
-    static volatile boolean truncBinary = false;
+    static boolean truncBinary() {
+        return CobolProfile.current().truncBinary();
+    }
 
-    /** COMP-5 byte order (#7646, register C7): false (default) keeps the oracle's native little-endian image, true the
-     *  z/OS big-endian one. Only the byte order moves: capacity, truncation and value are the same either way. */
-    static volatile boolean zosComp5 = false;
+    static boolean zosComp5() {
+        return CobolProfile.current().zosComp5();
+    }
 
     /** Whether a COMP-5 item's bytes are held least significant first (the oracle's order, the default). */
     static boolean littleEndian(Field f) {
-        return f.nativeBin && !zosComp5;
+        return f.nativeBin && !zosComp5();
     }
 
-    /** TRUNC(OPT) (#4706), with truncBinary on: "the compiler assumes that data conforms to PICTURE specifications in
-     *  USAGE BINARY receiving fields in MOVE statements and arithmetic expressions", and truncates a value that does
-     *  not "either ... to the number of digits in the PICTURE clause, or to the size of the binary field in storage
-     *  (halfword, fullword, or doubleword)" -- "unpredictable results could occur ... dependent on the particular code
-     *  sequence generated" (Enterprise COBOL for z/OS 6.x Programming Guide, "TRUNC"). For a conforming value the
-     *  result is TRUNC(STD)'s, so the runtime computes as STD and stops by name where a value would be stored past a
-     *  binary receiver's PICTURE (COMP-5 excepted: no TRUNC truncates it). Default false. */
-    static volatile boolean truncOpt = false;
+    static boolean truncOpt() {
+        return CobolProfile.current().truncOpt();
+    }
 
-    /** ARITH(EXTEND) (register C5, #4706): IBM keeps an intermediate result to 30 digits under ARITH(COMPAT) and more
-     *  under EXTEND; GnuCOBOL caps neither, so the runtime computes the intermediate and stops by name where it is
-     *  past 30 digits (the COMPAT cap, the one range both IBM modes document). Default false. */
-    static volatile boolean arithExtend = false;
+    static boolean arithExtend() {
+        return CobolProfile.current().arithExtend();
+    }
 
     /** The stop of an intermediate past 30 digits under ARITH(EXTEND): `digits` is its digit count (a quotient's
      *  integer digits, its fraction being the 38 places cob_decimal_div keeps). */
     // [rule RT-NUM-ARITH-EXTEND-STOP]
     static BigDecimal arithExtendCheck(BigDecimal d, int digits) {
-        if (arithExtend && digits > 30) {
+        if (arithExtend() && digits > 30) {
             throw new UnsupportedOperationException("ARITH(EXTEND): an intermediate result of " + digits
                     + " digits (past 30) is not modelled");
         }
@@ -64,17 +58,13 @@ final class Codec {
     /** Whether storing `magnitude` (at the field's scale) in `f` meets the TRUNC(OPT) stop: a COMP / COMP-4 / BINARY
      *  item under TRUNC(OPT), the value past its PICTURE's digits. */
     static boolean pastPictureUnderOpt(Field f, BigInteger magnitude) {
-        return truncOpt && truncBinary && f.kind == Field.Kind.NUMERIC_BINARY && !f.nativeBin
-                && magnitude.compareTo(BigInteger.TEN.pow(f.digits)) >= 0;
+        return truncOpt() && truncBinary() && f.kind == Field.Kind.NUMERIC_BINARY && !f.nativeBin
+                && magnitude.compareTo(pow10(f.digits)) >= 0;
     }
 
-    /** NUMPROC(PFD) (#4271): the program assumes preferred signs -- X'C' signed positive or zero, X'D' signed negative,
-     *  X'F' unsigned -- and IBM leaves what it does with any other sign to the generated code ("the compiler uses
-     *  whatever sign it is given"; Enterprise COBOL 6.4 Programming Guide, SC27-8714-03, "Sign representation of
-     *  zoned and packed-decimal data"). With preferred signs its results are NUMPROC(NOPFD)'s, so the runtime computes
-     *  as before and refuses, by name, to read a zoned or packed value whose sign is not preferred. Default false:
-     *  IBM's default NUMPROC(NOPFD), which accepts any valid sign. */
-    static volatile boolean numprocPfd = false;
+    static boolean numprocPfd() {
+        return CobolProfile.current().numprocPfd();
+    }
 
     /** The refusal of a non-preferred sign under NUMPROC(PFD) (register C5). */
     // [rule RT-NUM-NUMPROC-PFD-SIGN]
@@ -125,11 +115,63 @@ final class Codec {
         }
     }
 
+    private static final long[] POW10_LONG = new long[19];
+    private static final BigInteger[] POW10_BI = new BigInteger[39];
+    static {
+        POW10_LONG[0] = 1L;
+        POW10_BI[0] = BigInteger.ONE;
+        for (int i = 1; i < POW10_BI.length; i++) {
+            POW10_BI[i] = POW10_BI[i - 1].multiply(BigInteger.TEN);
+            if (i < POW10_LONG.length) POW10_LONG[i] = POW10_LONG[i - 1] * 10L;
+        }
+    }
+
+    private static BigInteger pow10(int digits) {
+        return digits < POW10_BI.length ? POW10_BI[digits] : BigInteger.TEN.pow(digits);
+    }
+
+    private static final class CharsetTable {
+        final char[] decode = new char[256];
+        final byte[] encode = new byte[256];
+        final boolean[] hasEncode = new boolean[256];
+        final boolean singleByte;
+
+        CharsetTable(Charset cs) {
+            this.singleByte = cs.newEncoder().maxBytesPerChar() == 1.0f;
+            int limit = singleByte ? 256 : 128;
+            for (int b = 0; b < limit; b++) {
+                String s = new String(new byte[] {(byte) b}, cs);
+                decode[b] = s.charAt(0);
+            }
+            for (int c = 0; c < limit; c++) {
+                byte[] enc = String.valueOf((char) c).getBytes(cs);
+                if (enc.length > 0) {
+                    encode[c] = enc[0];
+                    hasEncode[c] = true;
+                }
+            }
+        }
+    }
+
+    private static final java.util.concurrent.ConcurrentHashMap<Charset, CharsetTable> CS_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static CharsetTable table(Charset cs) {
+        return CS_CACHE.computeIfAbsent(cs, CharsetTable::new);
+    }
+
     static char ch(byte b, Charset cs) {
+        if (cs instanceof Lossless l) return l.decodeByte(b);
+        CharsetTable t = table(cs);
+        int idx = b & 0xFF;
+        if (t.singleByte || idx < 128) return t.decode[idx];
         return new String(new byte[] {b}, cs).charAt(0);
     }
 
     static byte by(char c, Charset cs) {
+        if (cs instanceof Lossless l) return l.encodeChar(c);
+        CharsetTable t = table(cs);
+        if (c < (t.singleByte ? 256 : 128) && t.hasEncode[c]) return t.encode[c];
         return String.valueOf(c).getBytes(cs)[0];
     }
 
@@ -152,8 +194,108 @@ final class Codec {
     }
 
     static Num read(Field f, Charset cs) {
-        if (numprocPfd && !preferredSign(f, cs)) throw nonPreferredSign(f);
+        if (numprocPfd() && !preferredSign(f, cs)) throw nonPreferredSign(f);
         return readAny(f, cs);
+    }
+
+    static BigDecimal readDecimal(Field f, Charset cs) {
+        if (numprocPfd() && !preferredSign(f, cs)) throw nonPreferredSign(f);
+        byte[] d = f.st.bytes;
+        switch (f.kind) {
+            case NUMERIC_DISPLAY: {
+                if (f.digits <= 18) {
+                    boolean neg = false;
+                    int start = f.at();
+                    int n = f.digits;
+                    if (f.signSeparate) {
+                        int sp = f.signLeading ? f.at() : f.at() + f.digits;
+                        neg = ch(d[sp], cs) == '-';
+                        if (f.signLeading) start = f.at() + 1;
+                    }
+                    long v = 0L;
+                    for (int i = 0; i < n; i++) {
+                        boolean signPos = f.signed && !f.signSeparate && (f.signLeading ? i == 0 : i == n - 1);
+                        byte rawByte = d[start + i];
+                        char c = ch(rawByte, cs);
+                        int digit;
+                        if (c >= '0' && c <= '9') {
+                            digit = c - '0';
+                        } else if (signPos) {
+                            if (c == '{') {
+                                digit = 0;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else if (c >= 'A' && c <= 'I') {
+                                digit = c - 'A' + 1;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else if (c == '}') {
+                                digit = 0;
+                                neg = true;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else if (c >= 'J' && c <= 'R') {
+                                digit = c - 'J' + 1;
+                                neg = true;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else {
+                                digit = rawByte & 0x0F;
+                            }
+                        } else {
+                            digit = rawByte & 0x0F;
+                        }
+                        v = v * 10L + digit;
+                    }
+                    return BigDecimal.valueOf(neg && f.signed ? -v : v, f.scale);
+                }
+                break;
+            }
+            case NUMERIC_PACKED: {
+                if (f.len <= 9) {
+                    RuleTelemetry.hit("RT-NUM-PACKED-SIGN");
+                    int at = f.at();
+                    int len = f.len;
+                    int sign = d[at + len - 1] & 0x0F;
+                    boolean neg = f.signed && (sign == 0x0D || sign == 0x0B);
+                    long v = 0L;
+                    for (int i = 0; i < len; i++) {
+                        int b = d[at + i] & 0xFF;
+                        int hi = b >> 4;
+                        v = v * 10L + (hi <= 9 ? hi : 9);
+                        if (i < len - 1) {
+                            int lo = b & 0x0F;
+                            v = v * 10L + (lo <= 9 ? lo : 9);
+                        }
+                    }
+                    return BigDecimal.valueOf(neg ? -v : v, f.scale);
+                }
+                break;
+            }
+            case NUMERIC_BINARY: {
+                if (f.len <= 8) {
+                    RuleTelemetry.hit("RT-NUM-BINARY-BYTE-ORDER");
+                    int at = f.at();
+                    int len = f.len;
+                    boolean le = littleEndian(f);
+                    long raw = 0L;
+                    for (int i = 0; i < len; i++) {
+                        int b = (le ? d[at + len - 1 - i] : d[at + i]) & 0xFF;
+                        raw = (raw << 8) | b;
+                    }
+                    if (f.signed) {
+                        if (len < 8) {
+                            int shift = (8 - len) * 8;
+                            raw = (raw << shift) >> shift;
+                        }
+                        return BigDecimal.valueOf(raw, f.scale);
+                    }
+                    if (len < 8 || raw >= 0) {
+                        return BigDecimal.valueOf(raw, f.scale);
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        return readAny(f, cs).value();
     }
 
     // [rule RT-NUM-BINARY-BYTE-ORDER] [rule RT-NUM-PACKED-SIGN]
@@ -169,6 +311,40 @@ final class Codec {
                     neg = ch(d[sp], cs) == '-';
                     if (f.signLeading) start = f.at() + 1;
                 }
+                if (n <= 18) {
+                    long v = 0L;
+                    for (int i = 0; i < n; i++) {
+                        boolean signPos = f.signed && !f.signSeparate && (f.signLeading ? i == 0 : i == n - 1);
+                        byte rawByte = d[start + i];
+                        char c = ch(rawByte, cs);
+                        int digit;
+                        if (c >= '0' && c <= '9') {
+                            digit = c - '0';
+                        } else if (signPos) {
+                            if (c == '{') {
+                                digit = 0;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else if (c >= 'A' && c <= 'I') {
+                                digit = c - 'A' + 1;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else if (c == '}') {
+                                digit = 0;
+                                neg = true;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else if (c >= 'J' && c <= 'R') {
+                                digit = c - 'J' + 1;
+                                neg = true;
+                                RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                            } else {
+                                digit = rawByte & 0x0F;
+                            }
+                        } else {
+                            digit = rawByte & 0x0F;
+                        }
+                        v = v * 10L + digit;
+                    }
+                    return new Num(BigInteger.valueOf(v), f.scale, neg && f.signed);
+                }
                 BigInteger v = BigInteger.ZERO;
                 for (int i = 0; i < n; i++) {
                     boolean signPos = f.signed && !f.signSeparate && (f.signLeading ? i == 0 : i == n - 1);
@@ -179,21 +355,60 @@ final class Codec {
                 return new Num(v, f.scale, neg && f.signed);
             }
             case NUMERIC_PACKED: {
-                BigInteger v = BigInteger.ZERO;
-                for (int i = 0; i < f.len; i++) {
-                    int b = d[f.at() + i] & 0xFF;
-                    v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b >> 4, 9)));
-                    if (i < f.len - 1) v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b & 0x0F, 9)));
+                int at = f.at();
+                int len = f.len;
+                int sign = d[at + len - 1] & 0x0F;
+                boolean neg = f.signed && (sign == 0x0D || sign == 0x0B);
+                if (len <= 9) {
+                    long v = 0L;
+                    for (int i = 0; i < len; i++) {
+                        int b = d[at + i] & 0xFF;
+                        int hi = b >> 4;
+                        v = v * 10L + (hi <= 9 ? hi : 9);
+                        if (i < len - 1) {
+                            int lo = b & 0x0F;
+                            v = v * 10L + (lo <= 9 ? lo : 9);
+                        }
+                    }
+                    return new Num(BigInteger.valueOf(v), f.scale, neg);
                 }
-                int sign = d[f.at() + f.len - 1] & 0x0F;
-                return new Num(v, f.scale, f.signed && (sign == 0x0D || sign == 0x0B));
+                BigInteger v = BigInteger.ZERO;
+                for (int i = 0; i < len; i++) {
+                    int b = d[at + i] & 0xFF;
+                    v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b >> 4, 9)));
+                    if (i < len - 1) v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b & 0x0F, 9)));
+                }
+                return new Num(v, f.scale, neg);
             }
             case NUMERIC_FLOAT:
                 return Num.of(Hfp.read(f));
             case NUMERIC_BINARY: {
-                byte[] b = new byte[f.len];
-                for (int i = 0; i < f.len; i++) {
-                    b[i] = littleEndian(f) ? d[f.at() + f.len - 1 - i] : d[f.at() + i];
+                int at = f.at();
+                int len = f.len;
+                boolean le = littleEndian(f);
+                if (len <= 8) {
+                    long raw = 0L;
+                    for (int i = 0; i < len; i++) {
+                        int b = (le ? d[at + len - 1 - i] : d[at + i]) & 0xFF;
+                        raw = (raw << 8) | b;
+                    }
+                    if (f.signed) {
+                        if (len < 8) {
+                            int shift = (8 - len) * 8;
+                            raw = (raw << shift) >> shift;
+                        }
+                        if (raw == Long.MIN_VALUE) {
+                            return new Num(BigInteger.valueOf(raw).abs(), f.scale, true);
+                        }
+                        return new Num(BigInteger.valueOf(raw < 0 ? -raw : raw), f.scale, raw < 0);
+                    }
+                    if (len < 8 || raw >= 0) {
+                        return new Num(BigInteger.valueOf(raw), f.scale, false);
+                    }
+                }
+                byte[] b = new byte[len];
+                for (int i = 0; i < len; i++) {
+                    b[i] = le ? d[at + len - 1 - i] : d[at + i];
                 }
                 BigInteger v = f.signed ? new BigInteger(b) : new BigInteger(1, b);
                 return new Num(v.abs(), f.scale, v.signum() < 0);
@@ -207,7 +422,77 @@ final class Codec {
     // [rule RT-NUM-TRUNC-BINARY]
     static void write(Field f, BigInteger m, boolean neg, Charset cs) {
         byte[] d = f.st.bytes;
-        BigInteger limit = BigInteger.TEN.pow(f.digits);
+        if (m.bitLength() <= 62 && f.digits <= 18) {
+            long mv = m.longValue();
+            switch (f.kind) {
+                case NUMERIC_DISPLAY: {
+                    long limit = POW10_LONG[f.digits];
+                    if (mv >= limit) RuleTelemetry.hit("RT-NUM-TRUNC-BINARY");
+                    long val = mv % limit;
+                    boolean negative = neg && f.signed;
+                    if (negative && !f.signSeparate) RuleTelemetry.hit("RT-NUM-ZONED-OVERPUNCH");
+                    int start = f.at();
+                    if (f.signSeparate) {
+                        int sp = f.signLeading ? f.at() : f.at() + f.digits;
+                        d[sp] = by(negative ? '-' : '+', cs);
+                        if (f.signLeading) start = f.at() + 1;
+                    }
+                    for (int i = f.digits - 1; i >= 0; i--) {
+                        int digit = (int) (val % 10L);
+                        val /= 10L;
+                        boolean signPos = f.signed && !f.signSeparate && (f.signLeading ? i == 0 : i == f.digits - 1);
+                        char c = signPos ? (negative ? NEGATIVE : POSITIVE).charAt(digit) : (char) ('0' + digit);
+                        d[start + i] = by(c, cs);
+                    }
+                    return;
+                }
+                case NUMERIC_PACKED: {
+                    if (f.len <= 9) {
+                        RuleTelemetry.hit("RT-NUM-PACKED-SIGN");
+                        long limit = POW10_LONG[f.digits];
+                        if (mv >= limit) RuleTelemetry.hit("RT-NUM-TRUNC-BINARY");
+                        long val = mv % limit;
+                        int sign = !f.signed ? 0x0F : neg ? 0x0D : 0x0C;
+                        int at = f.at();
+                        int last = f.len - 1;
+                        int hi = (int) (val % 10L);
+                        val /= 10L;
+                        d[at + last] = (byte) ((hi << 4) | sign);
+                        for (int i = last - 1; i >= 0; i--) {
+                            int lo = (int) (val % 10L);
+                            val /= 10L;
+                            int h = (int) (val % 10L);
+                            val /= 10L;
+                            d[at + i] = (byte) ((h << 4) | lo);
+                        }
+                        return;
+                    }
+                    break;
+                }
+                case NUMERIC_BINARY: {
+                    if (f.len <= 8) {
+                        RuleTelemetry.hit("RT-NUM-BINARY-BYTE-ORDER");
+                        if (pastPictureUnderOpt(f, m)) throw truncOptUnpredictable(f, m, neg);
+                        boolean doTrunc = !f.nativeBin && truncBinary() && f.digits <= 18;
+                        if (doTrunc && mv >= POW10_LONG[f.digits]) RuleTelemetry.hit("RT-NUM-TRUNC-BINARY");
+                        long v = f.nativeBin || !truncBinary() ? mv : mv % POW10_LONG[f.digits];
+                        if (neg && f.signed) v = -v;
+                        int at = f.at();
+                        int len = f.len;
+                        boolean le = littleEndian(f);
+                        for (int i = len - 1; i >= 0; i--) {
+                            d[le ? at + len - 1 - i : at + i] = (byte) v;
+                            v >>= 8;
+                        }
+                        return;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        BigInteger limit = pow10(f.digits);
         switch (f.kind) {
             case NUMERIC_DISPLAY: {
                 String s = m.mod(limit).toString();
@@ -244,7 +529,7 @@ final class Codec {
                 return;
             case NUMERIC_BINARY: {
                 if (pastPictureUnderOpt(f, m)) throw truncOptUnpredictable(f, m, neg);
-                BigInteger v = f.nativeBin || !truncBinary ? m : m.mod(limit);
+                BigInteger v = f.nativeBin || !truncBinary() ? m : m.mod(limit);
                 if (neg && f.signed) v = v.negate();
                 byte[] b = v.toByteArray();
                 byte fill = (byte) (v.signum() < 0 ? 0xFF : 0x00);
@@ -263,7 +548,14 @@ final class Codec {
     /** Whether `magnitude` (at the field's scale) fits the field without losing high-order digits. */
     // [rule RT-NUM-FITS]
     static boolean fits(Field f, BigInteger magnitude, boolean neg) {
-        if (f.kind == Field.Kind.NUMERIC_BINARY && (f.nativeBin || !truncBinary)) {
+        if (f.kind == Field.Kind.NUMERIC_BINARY && (f.nativeBin || !truncBinary())) {
+            if (f.len <= 7 && magnitude.bitLength() <= 62) {
+                long v = neg && f.signed ? -magnitude.longValue() : magnitude.longValue();
+                int bits = f.len * 8;
+                long lo = f.signed ? -(1L << (bits - 1)) : 0L;
+                long hi = f.signed ? (1L << (bits - 1)) - 1L : (1L << bits) - 1L;
+                return v >= lo && v <= hi;
+            }
             int bits = f.len * 8;
             BigInteger v = neg && f.signed ? magnitude.negate() : magnitude;
             BigInteger lo = f.signed ? BigInteger.ONE.shiftLeft(bits - 1).negate() : BigInteger.ZERO;
@@ -271,6 +563,9 @@ final class Codec {
                     : BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
             return v.compareTo(lo) >= 0 && v.compareTo(hi) <= 0;
         }
-        return magnitude.compareTo(BigInteger.TEN.pow(f.digits)) < 0;
+        if (f.digits <= 18 && magnitude.bitLength() <= 62) {
+            return magnitude.longValue() < POW10_LONG[f.digits];
+        }
+        return magnitude.compareTo(pow10(f.digits)) < 0;
     }
 }

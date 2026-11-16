@@ -56,7 +56,9 @@ def test_the_ledgers_reach_the_refresh_job_and_the_bot_pr(jobs):
     assert "tests/equivalence/det_mutation" in steps_text(jobs["refresh"])
     shards = jobs["det-mutation"]["strategy"]["matrix"]["shard"]
     assert any(s.get("name") == "Keep the renewed ledgers" and s["with"]["name"] == "refresh-detmut-${{ matrix.shard }}" for s in jobs["det-mutation"]["steps"])  # fmt: skip
-    assert f'--shard "${{{{ matrix.shard }}}}/{len(shards)}"' in steps_text(jobs["det-mutation"])  # every shard of the matrix runs
+    assert f'--shard "${{{{ matrix.shard }}}}/{len(shards)}"' in steps_text(
+        jobs["det-mutation"]
+    )  # every shard of the matrix runs
     assert jobs["det-mutation"]["strategy"]["fail-fast"] is False  # one shard's failure keeps the others' ledgers
     cpr = next(s for s in jobs["refresh"]["steps"] if s.get("id") == "cpr")
     assert LEDGER_GLOB in cpr["with"]["add-paths"].split()
@@ -109,3 +111,13 @@ def test_a_full_dispatch_stands_down_while_the_bot_pr_checks_run(jobs):
         assert "defer != 'true'" in jobs[name]["if"], name
     on = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
     assert "force" in on[True]["workflow_dispatch"]["inputs"]  # PyYAML reads the key `on` as True
+
+
+def test_a_hung_refresh_ends_inside_the_job_so_the_renewed_ledgers_are_kept(jobs):
+    """#8509: the step's own timeout sits between its run budget and the job limit, so the always() steps still run."""
+    job = jobs["det-mutation"]
+    step = next(s for s in job["steps"] if s.get("id") == "detmut")
+    budget = int(step["run"].split("--budget-min")[1].split()[0])
+    assert budget < step["timeout-minutes"] < job["timeout-minutes"]
+    after = job["steps"][job["steps"].index(step) + 1 :]
+    assert [s.get("if") for s in after if s.get("name") in ("Stage the ledgers this job wrote", "Keep the renewed ledgers")] == ["always()", "always()"]  # fmt: skip

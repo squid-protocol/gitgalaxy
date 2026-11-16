@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -125,7 +126,26 @@ def test_the_committed_durations_balance_the_db2_split():
     durations = dsw.load_durations()
     assert durations
     names = [n for n, c in dsw.case_dirs().items() if dsw.is_db2(c)]
-    sp.check_measured([n for n in names if n not in durations], len(names), "Db2 case")
+    try:  # #8422: a PR adding cases leaves them unrecorded until the nightly, so this warns and never fails
+        sp.check_measured([n for n in names if n not in durations], len(names), "Db2 case")
+    except sp.PlanError as err:
+        warnings.warn(str(err), stacklevel=1)
     for n in range(2, dsw.DB2_MAX_SHARDS + 1):
         check = dsp.plan_check(names, durations, n)
         assert check["warning"] is None, f"{n} shards: {check['warning']}"
+
+
+@pytest.mark.parametrize("n", [1, 2, 3, 5])
+def test_a_case_with_no_duration_entry_is_planned_at_the_median_and_proven_once(n):
+    """#8422: a new case has no entry in det_sweep_durations.json; nothing fails, it weighs the median of the recorded
+    ones, lands in exactly one shard and is named as unmeasured by shard.json."""
+    dur = DURATIONS[1]
+    new = [*CASES, "case-new-a", "case-new-b"]
+    median = sorted(dur.values())[len(dur) // 2]
+    weights = ps.case_weights(new, dur)
+    assert weights["case-new-a"] == weights["case-new-b"] == median
+    slices = [ps.shard_cases(new, (i, n), dur) for i in range(1, n + 1)]
+    flat = [c for s in slices for c in s]
+    assert sorted(flat) == sorted(new) and len(flat) == len(set(flat))
+    plans = [ps.shard_plan(new, (i, n), dur) for i in range(1, n + 1)]
+    assert sorted(c for p in plans for c in p["unmeasured"]) == ["case-new-a", "case-new-b"]

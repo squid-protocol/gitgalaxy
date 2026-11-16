@@ -1614,24 +1614,6 @@
    "reason": "Field scale for f158_GG_RETURN_CODE; GG_RETURN_CODE is only accessed by standalone batch runProgram()."
   },
   {
-   "id": "52ae1bbfc2",
-   "op": "CON",
-   "line": 350,
-   "before": "k.setZfZeroes(Cobol.num(Field.binary(s, 12, 8, 0, false, false), CS).intValue());",
-   "after": "k.setZfZeroes(Cobol.num(Field.binary(s, 12, 8, 1, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "Field descriptor length/scale in id_ZfRecord key builder; ZF-RECORD lookup in store uses search() rather than findById()."
-  },
-  {
-   "id": "92ebc0ae90",
-   "op": "CON",
-   "line": 350,
-   "before": "k.setZfZeroes(Cobol.num(Field.binary(s, 12, 8, 0, false, false), CS).intValue());",
-   "after": "k.setZfZeroes(Cobol.num(Field.binary(s, 12, 9, 0, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "Field descriptor length/scale in id_ZfRecord key builder; ZF-RECORD lookup in store uses search() rather than findById()."
-  },
-  {
    "id": "0ce2853417",
    "op": "ROR",
    "line": 368,
@@ -1684,51 +1666,6 @@
    "after": "@SuppressWarnings(\"Xnchecked\")",
    "verdict": "equivalent",
    "reason": "Compiler annotation string mutation has no runtime effect."
-  },
-  {
-   "id": "93b106357f",
-   "op": "LIT",
-   "line": 380,
-   "before": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
-   "after": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"XC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01FILE delete is wrong, so 3100's DELETE GENERIC would count as recoverable and a backout would restore it. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
-  },
-  {
-   "id": "eae8383da3",
-   "op": "LIT",
-   "line": 380,
-   "before": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
-   "after": "case \"ZC@ID@FILE\" -> new DetCics.Store<ZfRecord>(zfRecordRepository::findAll, e -> e.toRecord(CS), b -> ZfRecord.fromRecord(b, CS), e -> task.write(\"XC@ID@FILE\", () -> zfRecordRepository.save(e)), e -> task.write(\"ZC@ID@FILE\", () -> zfRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> zfRecordRepository.findById(id_ZfRecord(rec))).withLengths(CicsTask.recordLengths(\"ZfRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01FILE save is wrong, so it would leave the non-recoverable path. ZECS003 never writes the file; only the store's save is mutated. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
-  },
-  {
-   "id": "07e99ad17e",
-   "op": "LIT",
-   "line": 381,
-   "before": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "after": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"XkRecord\"));",
-   "verdict": "equivalent",
-   "reason": "task.write journaling tag string or max keylength descriptor mutation has no effect on database record storage."
-  },
-  {
-   "id": "5e725c91e8",
-   "op": "LIT",
-   "line": 381,
-   "before": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "after": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"XC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01KEY save is wrong; ZECS003 never writes this file, only the store's save is mutated. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
-  },
-  {
-   "id": "a557eb71ed",
-   "op": "LIT",
-   "line": 381,
-   "before": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "after": "case \"ZC@ID@KEY\" -> new DetCics.Store<ZkRecord>(zkRecordRepository::findAll, e -> e.toRecord(CS), b -> ZkRecord.fromRecord(b, CS), e -> task.write(\"ZC@ID@KEY\", () -> zkRecordRepository.save(e)), e -> task.write(\"XC@ID@KEY\", () -> zkRecordRepository.delete(e)), 0, 255, CS).withFindById(rec -> zkRecordRepository.findById(id_ZkRecord(rec))).withLengths(CicsTask.recordLengths(\"ZkRecord\"));",
-   "verdict": "case-gap",
-   "reason": "the task.write tag of the ZC01KEY delete is wrong, so 3100's key DELETE would count as recoverable and a backout would restore it. The CSD defines ZC##FILE and ZC##KEY RECOVERY(NONE), which the case does not state. Stating it with an abend after DELETE GENERIC makes the port differ from the COBOL (ZC01KEY left different), so no case change settles it until that is decided"
   },
   {
    "id": "4db01dea51",
@@ -3027,15 +2964,6 @@
    "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
   },
   {
-   "id": "d4eaaec0c5",
-   "op": "CON",
-   "line": 618,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
    "id": "5c41a8a13b",
    "op": "ROR",
    "line": 619,
@@ -3081,15 +3009,6 @@
    "reason": "cx() COMMAREA length helper; eibcalen is unchanged across scenarios."
   },
   {
-   "id": "44fbde3f3a",
-   "op": "DEL",
-   "line": 628,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
    "id": "81a08b2eed",
    "op": "ROR",
    "line": 628,
@@ -3113,15 +3032,6 @@
    "line": 633,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "bf6a06336c",
-   "op": "NEG",
-   "line": 633,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
    "verdict": "equivalent",
    "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
   },
@@ -3583,51 +3493,6 @@
    "after": "Cobol.move(BigDecimal.valueOf(32701), f26_ZF_LENGTH, CS);",
    "verdict": "equivalent",
    "reason": "Read buffer length in 3000-READ-ZF; maximum record size accommodates the VSAM record regardless."
-  },
-  {
-   "id": "086931307a",
-   "op": "LIT",
-   "line": 874,
-   "before": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "after": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"XICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "verdict": "unreachable",
-   "reason": "Default branch throwing Hole in fileKey switch is unreachable for valid ZECS files."
-  },
-  {
-   "id": "0ca096dcb3",
-   "op": "LIT",
-   "line": 874,
-   "before": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "after": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"XEAD RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "verdict": "unreachable",
-   "reason": "Default branch throwing Hole in fileKey switch is unreachable for valid ZECS files."
-  },
-  {
-   "id": "22409e21fb",
-   "op": "CON",
-   "line": 874,
-   "before": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "after": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 256; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "verdict": "unreachable",
-   "reason": "Default branch throwing Hole in fileKey switch is unreachable for valid ZECS files."
-  },
-  {
-   "id": "260b5a0c82",
-   "op": "LIT",
-   "line": 874,
-   "before": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "after": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"XC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "verdict": "unreachable",
-   "reason": "Default branch throwing Hole in fileKey switch is unreachable for valid ZECS files."
-  },
-  {
-   "id": "ee2aeac24f",
-   "op": "LIT",
-   "line": 874,
-   "before": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \": no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "after": "CicsTask.FileRead<byte[]> read1 = task.readSearch(Cobol.text(f22_ZF_FCT, CS).stripTrailing(), false, () -> { int keylen5 = switch (fileKey(Cobol.text(f22_ZF_FCT, CS).stripTrailing())) { case \"ZC@ID@FILE\" -> 16; case \"ZC@ID@KEY\" -> 255; default -> throw new Hole(\"CICS file \" + Cobol.text(f22_ZF_FCT, CS).stripTrailing() + \"X no store in the generated project\"); }; if (rec2.length < keylen5) throw new DetCics.PastFrom(\"READ RIDFLD(ZF-KEY-16) shorter than the key searched: not modelled\"); return store(Cobol.text(f22_ZF_FCT, CS).stripTrailing()).search(rec2, keylen5, true); });",
-   "verdict": "unreachable",
-   "reason": "Default branch throwing Hole in fileKey switch is unreachable for valid ZECS files."
   },
   {
    "id": "0e980334c4",
@@ -4188,15 +4053,6 @@
    "reason": "WEB CONVERSE buffer handling and response processing; null count is 0 and converse body/response codes are normal."
   },
   {
-   "id": "216a8d339a",
-   "op": "CON",
-   "line": 1052,
-   "before": "CicsTask.WebResponse web22 = task.webConverse(Cobol.text(f93_SESSION_TOKEN, CS), BigDecimal.valueOf(f79_WEB_METHOD).intValue(), Cobol.text(f102_WEB_PATH, CS), BigDecimal.valueOf(f80_WEB_PATH_LENGTH).intValue(), Cobol.text(f13_CLEAR_ALL, CS), BigDecimal.valueOf(f4_SEVEN).intValue(), null, 0, Cobol.text(f120_ZF_MEDIA, CS), BigDecimal.valueOf(f103_CONVERSE_LENGTH).intValue(), BigDecimal.valueOf(f100_WEB_STATUS_LENGTH).intValue(), CS);",
-   "after": "CicsTask.WebResponse web22 = task.webConverse(Cobol.text(f93_SESSION_TOKEN, CS), BigDecimal.valueOf(f79_WEB_METHOD).intValue(), Cobol.text(f102_WEB_PATH, CS), BigDecimal.valueOf(f80_WEB_PATH_LENGTH).intValue(), Cobol.text(f13_CLEAR_ALL, CS), BigDecimal.valueOf(f4_SEVEN).intValue(), null, 1, Cobol.text(f120_ZF_MEDIA, CS), BigDecimal.valueOf(f103_CONVERSE_LENGTH).intValue(), BigDecimal.valueOf(f100_WEB_STATUS_LENGTH).intValue(), CS);",
-   "verdict": "equivalent",
-   "reason": "Response fields populated by WEB CONVERSE are never read or examined after converse."
-  },
-  {
    "id": "526748b1d6",
    "op": "ROR",
    "line": 1053,
@@ -4420,24 +4276,6 @@
    "after": "return 24;",
    "verdict": "unreachable",
    "reason": "9000-EXIT is never reached as 9000-RETURN terminates execution via Goback()."
-  },
-  {
-   "id": "cde2b7289e",
-   "op": "AOR",
-   "line": 630,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
-  },
-  {
-   "id": "0ed674b2d1",
-   "op": "CON",
-   "line": 630,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
   },
   {
    "id": "00789e24c0",

@@ -450,3 +450,4 @@ nav:
         - 'Memory Corruption Exposure': "08-22-memory-corruption-exposure.md"
         - 'Hardcoded Secrets Exposure': "08-23-hardcoded-secrets-exposure.md"
         - 'Reach Sensor': "08-24-reach-sensor.md"
+        - 'Library Surface': "08-25-library-surface.md"

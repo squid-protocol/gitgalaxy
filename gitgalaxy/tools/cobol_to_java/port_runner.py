@@ -555,9 +555,19 @@ def cmd_refine(opts: argparse.Namespace) -> int:
         print(f"{opts.ticket} {step['method']}: {step.get('verdict')} ({step['attempts']} attempt(s))", flush=True)
 
     started = _now()
+    cobol_source = None
+    if getattr(opts, "source_root", None) and ticket.get("source"):
+        cand = opts.source_root.resolve() / ticket["source"]
+        if cand.is_file():
+            cobol_source = cand
+    fcheck = (
+        R.structural_fidelity_guard(cobol_source, min_fidelity=opts.min_fidelity)
+        if getattr(opts, "min_fidelity", None) is not None
+        else None
+    )
     record = R.refine(service, ask_model, prove, work, only=opts.only.split(",") if opts.only else None,
                       skip=opts.skip.split(",") if opts.skip else None, largest=opts.largest, retries=opts.retries,
-                      on_step=on_step)  # fmt: skip
+                      on_step=on_step, fidelity_check=fcheck)  # fmt: skip
     extra = {str(p.relative_to(port)): p.read_text(encoding="utf-8") for p in sorted(port.rglob("*.java"))
              if p != service}  # fmt: skip
     dest = _store(project, ticket, service.read_text(encoding="utf-8"), attempt, extra)
@@ -666,6 +676,9 @@ def main(argv: list[str] | None = None) -> int:
         x.add_argument("--timeout", type=int, default=3600)
         x.add_argument("--max-tokens", type=int, default=32000)
     r.add_argument("--source-root", type=Path, help="det: the COBOL estate the project was generated from")
+    f.add_argument("--source-root", type=Path, help="refine: optional COBOL estate root for paragraph fidelity guard")
+    f.add_argument("--min-fidelity", type=float, default=None,
+                   help="refine: reject rewrites that drop Javadoc provenance, branches, or fall below this fidelity")  # fmt: skip
     r.add_argument("--style", choices=("dispatch", "structured"), default="structured",
                    help="det: paragraphs as named methods where the program allows (structured), or a dispatcher")  # fmt: skip
     r.add_argument(

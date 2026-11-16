@@ -115,7 +115,7 @@ _JAVA_METHOD_RE = re.compile(
     re.MULTILINE,
 )
 _JAVA_BRANCH_RE = re.compile(r"\b(?:if|else\s+if|switch|case|for|while|catch)\b|\?")
-_JAVA_CALL_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(")
+_JAVA_CALL_RE = re.compile(r"(?:([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*)?\b([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 _JAVA_CALL_SKIP = frozenset(
     {
         "if",
@@ -130,6 +130,50 @@ _JAVA_CALL_SKIP = frozenset(
         "super",
         "this",
         "synchronized",
+        "initialState",
+        "runAll",
+        "perform",
+        "equals",
+        "equalsIgnoreCase",
+        "compareTo",
+        "toString",
+        "valueOf",
+        "length",
+        "size",
+        "isEmpty",
+        "get",
+        "set",
+        "add",
+        "put",
+        "trim",
+        "substring",
+        "format",
+        "parseInt",
+        "parseLong",
+        "parseDouble",
+    }
+)
+_JAVA_RUNTIME_RECEIVERS = frozenset(
+    {
+        "Funcs",
+        "CobolBytes",
+        "Accept",
+        "Hfp",
+        "Math",
+        "Integer",
+        "Long",
+        "Double",
+        "String",
+        "BigDecimal",
+        "Optional",
+        "List",
+        "Map",
+        "Set",
+        "Collections",
+        "Arrays",
+        "Objects",
+        "System",
+        "LocalDateTime",
     }
 )
 _JAVA_IDENT_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]{2,})\b")
@@ -344,7 +388,13 @@ def parse_java_methods(java_path: Path) -> list[JavaMethodMetrics]:
         if loc == 0:
             continue
         branches = len(_JAVA_BRANCH_RE.findall(body_no_doc))
-        calls_out = sum(1 for c in _JAVA_CALL_RE.findall(body_no_doc) if c not in _JAVA_CALL_SKIP)
+        calls_out = sum(
+            1
+            for recv, callee in _JAVA_CALL_RE.findall(body_no_doc)
+            if callee not in _JAVA_CALL_SKIP
+            and not callee.startswith(("pack_", "unpack_"))
+            and recv not in _JAVA_RUNTIME_RECEIVERS
+        )
         refs = frozenset(
             _norm_name(tok)
             for tok in _JAVA_IDENT_RE.findall(body_no_doc)

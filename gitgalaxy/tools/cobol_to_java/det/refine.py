@@ -94,9 +94,85 @@ def extract(answer: str, name: str) -> str | None:
     return code
 
 
+_BRANCH_RE = re.compile(r"\b(?:if|else\s+if|switch|case|for|while|catch)\b|\?")
+_JAVADOC_PARA_RE = re.compile(r"/\*\*\s*([A-Z0-9][A-Z0-9-]*)\.?\s*\*/", re.IGNORECASE)
+
+
+def structural_fidelity_guard(
+    cobol_source: Path | None = None,
+    *,
+    min_fidelity: float = 0.55,
+) -> Callable[[str, str, str], tuple[bool, str]]:
+    """Return a ``fidelity_check(method, before_java, after_java)`` guard for ``refine()``.
+
+    Checks that paragraph Javadoc provenance (``/** PARA. */``) is preserved and
+    branch structure is not collapsed. When ``cobol_source`` is supplied, also
+    enforces ``fidelity >= min_fidelity`` against the traced COBOL paragraph.
+    """
+    cobol_paras: dict[str, Any] = {}
+    score_fn: Any = None
+    parse_java_fn: Any = None
+    if cobol_source is not None and cobol_source.is_file():
+        try:
+            from tests.tools.translation_fidelity import (
+                JavaMethodMetrics,
+                parse_cobol_paragraphs,
+                score_pair,
+            )
+
+            cobol_paras = {p.name: p for p in parse_cobol_paragraphs(cobol_source)}
+            score_fn = score_pair
+            parse_java_fn = JavaMethodMetrics
+        except ImportError:
+            pass
+
+    def _check(name: str, before_body: str, after_code: str) -> tuple[bool, str]:
+        before_jdoc = _JAVADOC_PARA_RE.search(before_body)
+        after_jdoc = _JAVADOC_PARA_RE.search(after_code)
+        if before_jdoc and not after_jdoc:
+            para = before_jdoc.group(1).upper()
+            return False, f"Structural fidelity check failed: dropped paragraph Javadoc `/** {para}. */`."
+
+        b_branches = len(_BRANCH_RE.findall(before_body))
+        a_branches = len(_BRANCH_RE.findall(after_code))
+        if b_branches >= 2 and a_branches < (b_branches + 1) // 2:
+            return (
+                False,
+                f"Structural fidelity check failed: branch count dropped from {b_branches} to {a_branches} in `{name}`.",
+            )
+
+        if cobol_paras and score_fn is not None and before_jdoc:
+            para_name = before_jdoc.group(1).upper()
+            c_para = cobol_paras.get(para_name)
+            if c_para is not None:
+                a_lines = [
+                    ln for ln in after_code.splitlines() if ln.strip() and not ln.strip().startswith(("//", "/*", "*"))
+                ]
+                j_meth = parse_java_fn(
+                    program=c_para.program,
+                    name=name,
+                    javadoc_para=para_name,
+                    loc=max(1, len(a_lines) - 2),
+                    branches=a_branches,
+                    calls_out=len(re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(", after_code)),
+                    data_refs=frozenset(re.findall(r"\b[a-z]{3,}\b", after_code.lower())),
+                )
+                pf = score_fn(c_para, j_meth, "javadoc", tolerance=min_fidelity)
+                if pf.fidelity < min_fidelity:
+                    return (
+                        False,
+                        f"Structural fidelity {pf.fidelity:.3f} < {min_fidelity:.2f} vs COBOL `{para_name}` "
+                        f"(branch={pf.branch_sim:.2f}, call={pf.call_sim:.2f}, loc={pf.loc_sim:.2f}).",
+                    )
+        return True, ""
+
+    return _check
+
+
 def refine(service: Path, ask: Callable[[str, str, Path], str], prove: Callable[[], tuple[bool, str]], work: Path,
            only: list[str] | None = None, skip: list[str] | None = None, largest: int | None = None,
-           retries: int = 1, on_step: Callable[[dict[str, Any]], None] | None = None) -> dict[str, Any]:  # fmt: skip
+           retries: int = 1, on_step: Callable[[dict[str, Any]], None] | None = None,
+           fidelity_check: Callable[[str, str, str], tuple[bool, str]] | None = None) -> dict[str, Any]:  # fmt: skip
     """Refine `service` (a proven port's service file) in place; returns {before, after, steps, seconds}. `prove`
     proves the port as it is on disk. Each step -- {method, verdict, attempts, before, after} -- goes to `on_step`
     as it ends. A model that fails to answer ends that method's step ("backend failed"), not the run."""
@@ -136,6 +212,11 @@ def refine(service: Path, ask: Callable[[str, str, Path], str], prove: Callable[
             if code is None:
                 feedback = "No ```java block with the method's own signature was found in the answer."
                 continue
+            if fidelity_check is not None:
+                f_ok, f_fb = fidelity_check(name, body, code)
+                if not f_ok:
+                    feedback = f_fb
+                    continue
             service.write_text(java[: span[0]] + code + java[span[1] :], encoding="utf-8")
             ok, fb = prove()
             if ok:

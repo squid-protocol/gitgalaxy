@@ -1,10 +1,10 @@
 {
  "sha": "7972c65ac7f4819a315a5e2be98c926a3b3fec3f",
- "surveyed_utc": "2026-11-15T22:23:31Z",
+ "surveyed_utc": "2026-11-16T01:53:03Z",
  "scope": "burned + local corpora (no census) + cics-crucible",
  "census": false,
  "crucible": true,
- "seconds": 276,
+ "seconds": 205,
  "runs": {
   "b": {
    "root": "/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora",

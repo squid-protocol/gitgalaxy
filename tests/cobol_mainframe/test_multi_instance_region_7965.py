@@ -310,3 +310,37 @@ def test_the_translator_and_runtime_key_a_stores_lengths_by_instance():
     assert "withLengths(CicsTask.recordLengths({G_jstr(entity)}))" in text  # a shared store, unchanged
     assert 'return entity + "@" + instance.stripTrailing();' in forge.CICS_TASK_JAVA
     assert "recordLengths(String entity, String instance)" in forge.CICS_TASK_JAVA
+
+
+def test_a_scenario_may_leave_an_extra_instance_out_of_its_region():
+    case = _case(["ZC02FILE", "ZC02KEY"])
+    sc = {"name": "s", "undefined_files": ["ZC02FILE"]}
+    assert EC.undefined_files(case, sc, FILES) == ["ZC02FILE"]
+    cfg = EC._instance_cfg(case, FILES, "/work/files", sc).splitlines()
+    assert [ln.split()[0] for ln in cfg] == ["ZC02KEY"]  # the other instance stays installed
+    assert len(EC._instance_cfg(case, FILES, "/work/files").splitlines()) == 2  # no scenario: both
+    with pytest.raises(EC.Unsupported):  # a name that is neither the case's file nor an instance it states
+        EC.undefined_files(case, {"name": "s", "undefined_files": ["ZC03FILE"]}, FILES)
+
+
+def test_an_instance_fits_a_store_by_its_template_once_the_install_symbols_resolved_its_name():
+    resolved = [
+        {**f, "file": f["file"].replace("@ID@", "01"), "template": f["file"]} if "@" in f["file"] else f for f in FILES
+    ]
+    got = EC.region_instances(_case(["ZC02FILE", "ZC02KEY"]), resolved)
+    assert [(n, f["base"]) for n, f in got] == [("ZC02FILE", "zcfile"), ("ZC02KEY", "zckey")]
+    with pytest.raises(EC.Unsupported):  # the case's own resolved name is no extra instance
+        EC.region_instances(_case(["ZC01FILE"]), resolved)
+
+
+def test_zecs003_holds_one_key_in_two_instances_and_the_task_leaves_the_other_alone():
+    import json
+
+    d = Path(__file__).resolve().parents[1] / "equivalence" / "zecs-zecs003"
+    case = json.loads((d / "case.json").read_text(encoding="utf-8"))
+    assert case["region_instances"]["values"] == ["ZC02FILE"] and case["region_instances"]["why"]
+    names = {s["name"]: s for s in case["scenarios"]}
+    assert "expired-record-deleted-other-instance-same-key" in names
+    assert names["transid-zc02"]["undefined_files"] == ["ZC02FILE"]  # #7487: still the region without instance 02
+    own, other = (d / "zcfile-expired.bin").read_bytes(), (d / "zcfile-zc02.bin").read_bytes()
+    assert own != other and own[:16] == other[:16]  # the same key, other contents

@@ -46,7 +46,8 @@ def _make(tmp: Path) -> Path:
             (5,12,'call',NULL,NULL,NULL),          -- a tie: no destination
             (4,11,'call',2,3,10),                  -- ambiguous: two candidates, a guess
             (4,11,'reference',1,3,10),             -- a reference, not a call
-            (3,NULL,'call',1,4,11);                -- top-level slice, no calling function
+            (3,NULL,'call',1,4,11),                -- top-level slice, no calling function
+            (2,NULL,'call',3,5,12);                -- ambiguous (three candidates) from a file that calls nothing else: a possible caller of three.c
         """
     )
     con.commit()
@@ -76,7 +77,7 @@ def test_edge_filters(tmp_path):
     assert (
         out["edges_counted"] == 4
     )  # three function calls plus the top-level one; the tie, the ambiguous edge and the reference are not counted
-    assert out["edges_left_out"] == 2  # the tie and the ambiguous call (a reference is not a call edge at all)
+    assert out["edges_left_out"] == 3  # the tie and the two ambiguous calls (a reference is not a call edge at all)
 
 
 def test_headers_resolve_by_path(tmp_path):
@@ -94,7 +95,7 @@ def test_headers_need_src_and_unmeasured_is_explicit(tmp_path):
 
 def test_report_states_its_limits(tmp_path):
     text = reach.report(reach.build(_make(tmp_path), tmp_path))
-    assert "lower bounds" in text and "left out" in text
+    assert "lower bounds" in text and "not counted" in text and "possible callers" in text
 
 
 def test_command_end_to_end(tmp_path):
@@ -135,7 +136,7 @@ def test_tied_calls_are_possible_callers_not_counted_ones(tmp_path):
         rows["b/two.c"]["possible_caller_files"] == 1 and rows["b/two.c"]["reach_files"] == 2
     )  # counted reach unchanged
     assert rows["a/one.c"]["possible_caller_files"] == 0  # three.c already counts
-    assert "(+1 possible, tied calls)" in reach.report(result, all_roles=True)
+    assert "(+1 possible)" in reach.report(result, all_roles=True)
 
 
 def test_database_without_candidates_table(tmp_path):
@@ -183,3 +184,57 @@ def test_scope_from_the_command_line(tmp_path):
         check=False,
     )
     assert res.returncode == 0 and "SCOPE  free: called from 3 files" in res.stdout
+
+
+def test_ambiguous_edges_are_possible_callers_too(tmp_path):
+    rows = {r["path"]: r for r in reach.build(_make(tmp_path), tmp_path)["rows"]}
+    assert (
+        rows["b/three.c"]["reach_files"] == 0 and rows["b/three.c"]["possible_caller_files"] == 1
+    )  # b/x.h calls it, ambiguously
+    assert (
+        rows["a/one.c"]["possible_caller_files"] == 0
+    )  # the ambiguous edge from two.c is to a file two.c already counts for
+
+
+def _ranked(rank_with_possible):
+    def row(path, counted, possible):
+        return {
+            "path": path,
+            "kind": "source",
+            "role": "source",
+            "reach_files": counted,
+            "caller_functions": counted,
+            "one_hop_out": 0,
+            "possible_caller_files": possible,
+            "measured_by": "call graph",
+        }
+
+    result = {
+        "files": 2,
+        "rows": [row("a.c", 2, 0), row("b.c", 1, 5)],
+        "not_measured": [],
+        "public_functions": [],
+        "edges_counted": 0,
+        "edges_left_out": 0,
+    }
+    text = reach.report(result, rank_with_possible=rank_with_possible)
+    return text.index("a.c"), text.index("b.c")
+
+
+def test_ranking_uses_counted_callers_unless_asked_to_add_possible_ones():
+    a, b = _ranked(False)
+    assert a < b  # a.c has 2 counted callers, b.c has 1
+    a, b = _ranked(True)
+    assert b < a  # with the possible ones, b.c has 6
+
+
+def test_the_rank_with_possible_flag_runs(tmp_path):
+    res = subprocess.run(
+        [sys.executable, "-m", "gitgalaxy.cli", "reach", str(_make(tmp_path)), "--rank-with-possible"],
+        capture_output=True,
+        text=True,
+        cwd=REPO,
+        env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin"},
+        check=False,
+    )
+    assert res.returncode == 0 and "REACH" in res.stdout

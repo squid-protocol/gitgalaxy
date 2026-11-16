@@ -1217,10 +1217,13 @@ def instance_data(
     return {b: v for b, v in out.items() if any(ds is not None for _, ds in v)}
 
 
-def instance_records(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]) -> dict[str, bytes]:
+def instance_records(
+    case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], scoped: Any = ()
+) -> dict[str, bytes]:
     """#7965 slice 2: the records each extra instance starts with, by instance name (an unstated one: no records).
-    One generated table has no instance in its key yet, so an instance sharing a key with another instance of the same
-    store would overwrite it on the port: refused by name."""
+    `scoped`: the dataset bases whose generated entity carries the instance (slice 3b: the port keeps one Store per
+    instance), where two instances may hold one key. Any other store is one shared table, where an instance sharing a
+    key with another would overwrite it on the port: refused by name."""
     enc = common.data_encoding(case)
     out: dict[str, bytes] = {}
     for base, insts in instance_data(case, files).items():
@@ -1243,10 +1246,10 @@ def instance_records(case: dict[str, Any], corpus: Path, files: list[dict[str, A
         for n, data in groups:
             for i in range(0, len(data) - reclen + 1, reclen):
                 k = data[i + ko : i + ko + kl]
-                if seen.setdefault(k, n) != n:
+                if seen.setdefault(k, n) != n and base not in scoped:
                     raise Unsupported(
-                        f"region_instances: {n} and {seen[k]} both hold key {k!r} of {base}; the generated table has "
-                        "no instance in its key yet (#7965 slice 3)", ["region_instances"])  # fmt: skip
+                        f"region_instances: {n} and {seen[k]} both hold key {k!r} of {base}; the entity names no "
+                        "instance, so the port keeps one shared table (#7965)", ["region_instances"])  # fmt: skip
             if n != own_name:
                 out[n] = data
     return out
@@ -2124,7 +2127,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for f in files
     ) + _instance_cfg(case, files, "/work/files"), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
-    stated = instance_records(case, corpus, files)  # #7965 slice 2: the records an instance starts with
+    scoped = {  # #7965 slice 4: the stores whose entity names its instance, where instances may share a key
+        b for b, spec in (case.get("datasets") or {}).items()
+        if spec.get("entity") and _instance_accessors(src, spec["entity"]) is not None
+    }  # fmt: skip
+    stated = instance_records(case, corpus, files, scoped)  # #7965 slice 2: the records an instance starts with
     for n, f in region_instances(case, files):  # #7965: an installed instance, with no records unless stated
         (work / "files" / f"{f['base']}.{n}").write_bytes(stated.get(n, b""))
     generated = equivalence_inputs.generate_inputs(case, corpus)  # #3804: `@generate` files, from their layouts
@@ -5254,9 +5261,7 @@ def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, 
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = cics_compare.compare_events(cev, jev)
-        moved = caller_bytes_diff(
-            sc, cobol_work / "scenarios" / name / "out", java_raw(java_out, name), case
-        )
+        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(java_out, name), case)
         outputs[name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                          "cobol": cev, "java": jev,
                          **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
@@ -5271,14 +5276,14 @@ def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, 
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
             # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not
-            s = compare_task_sysout(
-                res.get("sysout", b""), java_out / f"{name}.sysout", common.data_encoding(case)
-            )
+            s = compare_task_sysout(res.get("sysout", b""), java_out / f"{name}.sysout", common.data_encoding(case))
             outputs[name]["sysout"] = s
             if s["compared"] and s["differing"]:
                 ok = False
                 if not quiet:
-                    print(f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}")
+                    print(
+                        f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}"
+                    )
         if sc.get("derived"):
             outputs[name]["sql_faults"] = sc["sql_plan"]
         if res.get("x6_padded"):  # X6 (ASSUMED): the task ran on through a WRITEQ past FROM, padded on both sides
@@ -5290,9 +5295,7 @@ def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, 
                 if not quiet:
                     print(f"{case['program']} {name}: only one side refused ({x6['assumes']}): {x6}")
         if sc.get("prefix_link"):
-            outputs[name]["judged_to"] = (
-                f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"
-            )
+            outputs[name]["judged_to"] = f"LINK PROGRAM({sc['prefix_link']}) (not run: its end state is not compared)"
             area = _link_area(case, res, java.get(name, []), sc["prefix_link"])
             outputs[name]["link_area"] = area
             if area.get("equal") is False:
@@ -5404,7 +5407,9 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     linked = work / "java" / ej.LINKED_FILE
     if linked.is_file():  # #4188: where each LINKed program's Java came from
         report["linked_programs"] = json.loads(linked.read_text(encoding="utf-8"))
-    ok, report["outputs"] = evaluate_cics_outputs(case, corpus, work / "cobol", work / "java" / "out", files, cobol, java)
+    ok, report["outputs"] = evaluate_cics_outputs(
+        case, corpus, work / "cobol", work / "java" / "out", files, cobol, java
+    )
     report["proven"] = ok
     if (case.get("db2") or {}).get("seed") == "@generate":  # #4507: the rows each table started every task with
         rows, _ = equivalence_db2.generate_rows(case, corpus)

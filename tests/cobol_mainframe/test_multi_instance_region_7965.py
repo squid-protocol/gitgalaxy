@@ -101,10 +101,24 @@ def test_instance_records_are_the_stated_bytes_and_unstated_ones_are_empty(tmp_p
     assert EC.instance_records(plain, tmp_path, FILES1) == {}
 
 
-def test_two_instances_holding_one_key_are_refused_until_the_key_has_the_instance(tmp_path):
+def test_two_instances_holding_one_key_are_refused_where_the_entity_names_no_instance(tmp_path):
     case = _stated(tmp_path, _rec("AAAAAAAA"), _rec("AAAAAAAA"))
     with pytest.raises(EC.Unsupported, match="both hold key"):
         EC.instance_records(case, tmp_path, FILES1)
+    with pytest.raises(EC.Unsupported, match="both hold key"):
+        EC.instance_records(case, tmp_path, FILES1, scoped={"other"})
+
+
+def test_two_instances_may_hold_one_key_where_the_entity_names_its_instance(tmp_path):
+    case = _stated(tmp_path, _rec("AAAAAAAA"), _rec("AAAAAAAA"))
+    got = EC.instance_records(case, tmp_path, FILES1, scoped={"zcfile"})
+    assert got == {"ZC02FILE": _rec("AAAAAAAA")}
+
+
+def test_the_harness_scopes_a_store_by_its_entity_shape(tmp_path):
+    for shape, scoped in (('class ZcFile { private String vsamInstance = ""; }', True), ("class ZcFile { }", False)):
+        _entity(tmp_path, "ZcFile", shape)
+        assert (EC._instance_accessors(tmp_path, "ZcFile") is not None) is scoped
 
 
 @pytest.mark.parametrize(

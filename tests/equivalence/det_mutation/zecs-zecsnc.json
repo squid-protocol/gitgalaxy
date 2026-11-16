@@ -2501,7 +2501,7 @@
    "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
    "harness": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "aebd52b22ec2bd57b0737ecae0dd22bb5a9ecbbac24eb8af3cc95d5691742483"
+   "survivors": "6799d12fa11b237a46a4551fd3e6c772ae97409232cc1e5f5f3d0cfdcf9257e9"
   },
   "components": {
    "generator": {

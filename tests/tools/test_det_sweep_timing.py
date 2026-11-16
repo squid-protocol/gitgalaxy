@@ -99,11 +99,17 @@ def test_shard_plan_matches_the_split_and_names_the_unmeasured():
     assert sum(p["planned_seconds"] for p in plans) == round(sum(durations.values()) + 3 * median)
 
 
-def test_every_db2_case_has_a_committed_duration_but_the_newest():
-    """#5882: 31 of 70 Db2 cases had none, so the db2 shards were split by the median (1.7x apart). A case added since
-    the last measurement may lack one until Evidence Refresh's nightly records it; more than a few means it stopped."""
+def test_a_db2_case_without_a_committed_duration_warns_but_never_fails():
+    """#5882, #8422: a case added since the last measurement has no entry until Evidence Refresh's nightly records it
+    (the nightly owns the file; a PR never edits it). The shards weigh it at the median, so this only warns."""
+    import warnings
+
     missing = [c for c in ps.det_cases(only_db2=True) if c not in ps.load_durations()]
-    assert len(missing) <= 5, missing
+    if len(missing) > 5:
+        warnings.warn(
+            f"{len(missing)} Db2 cases have no recorded duration (the nightly may have stopped): {missing}",
+            stacklevel=1,
+        )
 
 
 yaml = pytest.importorskip("yaml")

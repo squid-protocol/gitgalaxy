@@ -1062,6 +1062,9 @@ jobs:
       - name: Renew the stale det mutation ledgers (#5862)
         id: detmut
         continue-on-error: true
+        # #8509: a hung refresh ends here, inside the job's 150 min, so the always() stage and upload steps below still keep
+        # the ledgers it renewed; past the job limit the whole job is cancelled and every renewed ledger is lost
+        timeout-minutes: 138
         shell: bash  # -eo pipefail: the refresh's exit status, not tee's
         run: |
           cd gitgalaxy

@@ -90,3 +90,33 @@ def test_structural_fidelity_guard_reverts_when_below_cobol_threshold(tmp_path: 
     )
     assert rec["steps"][0]["verdict"] == "reverted"
     assert "if (a > 0)" in svc.read_text(encoding="utf-8")
+
+
+def test_port_runner_fidelity_stamp_reports_score_and_outliers(tmp_path: Path) -> None:
+    from gitgalaxy.tools.cobol_to_java import port_runner as PR
+
+    src_root = tmp_path / "cobol"
+    src_root.mkdir()
+    (src_root / "DEMO.cbl").write_text(
+        "       PROCEDURE DIVISION.\n"
+        "       1000-CHECK.\n"
+        "           IF WS-A > 0\n"
+        "               IF WS-B > 0\n"
+        "                   MOVE 1 TO WS-X\n"
+        "               END-IF\n"
+        "           END-IF.\n",
+        encoding="utf-8",
+    )
+    overlay = tmp_path / "overlay"
+    (overlay / "service").mkdir(parents=True)
+    (overlay / "service" / "DemoService.java").write_text(
+        "public class DemoService {\n    /** 1000-CHECK. */\n    private void check() {\n        x = 1;\n    }\n}\n",
+        encoding="utf-8",
+    )
+    ticket = {"source": "DEMO.cbl", "target": {"service": "DemoService"}}
+    stamp = PR.fidelity_stamp(ticket, overlay, src_root)
+    assert stamp is not None
+    assert stamp["cobol_paragraphs"] == 1
+    assert stamp["paired"] == 1
+    assert len(stamp["outliers"]) == 1
+    assert stamp["outliers"][0]["para"] == "1000-CHECK"

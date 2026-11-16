@@ -486,14 +486,67 @@ def cmd_prove(opts: argparse.Namespace) -> int:
         summary = {dd: f"{o['equal']}/{o['records']}" for dd, o in r.get("outputs", {}).items()}
     proven = proc.returncode == 0
     unproven = unproven_methods(project, ticket, overlay)
-    log_event(project, {"event": "proven" if proven else "proof-failed", "ticket": opts.ticket, "attempt": attempt,
-                        "summary": summary, "exit": proc.returncode, "unproven": unproven,
-                        "oracle": oracle_status(report_dir)})  # fmt: skip
+    fid = fidelity_stamp(ticket, overlay, getattr(opts, "source_root", None))
+    ev: dict[str, Any] = {
+        "event": "proven" if proven else "proof-failed",
+        "ticket": opts.ticket,
+        "attempt": attempt,
+        "summary": summary,
+        "exit": proc.returncode,
+        "unproven": unproven,
+        "oracle": oracle_status(report_dir),
+    }
+    if fid is not None:
+        ev["fidelity"] = fid
+    log_event(project, ev)
     print(f"{opts.ticket} attempt {attempt}: {'PROVEN' if proven else 'NOT proven'} {summary or ''}")
     if unproven:
         print(f"{opts.ticket}: proven through {' / '.join(proof_reach.PROOF_ROOTS)} only -- {len(unproven)} ported "
               f"method(s) no proof runs (#4255): {', '.join(unproven)}")  # fmt: skip
+    if fid is not None:
+        print(
+            f"{opts.ticket}: structural fidelity {fid['mean_fidelity']:.3f} "
+            f"({fid['within_tolerance'] * 100:.0f}% within tolerance, {fid['paired']}/{fid['cobol_paragraphs']} paragraphs)"
+        )
+        if fid["outliers"]:
+            out_s = ", ".join(f"{o['para']}->{o['method']} ({o['fidelity']:.2f})" for o in fid["outliers"])
+            print(f"{opts.ticket}: fidelity outliers to review: {out_s}")
     return 0 if proven else 1
+
+
+def fidelity_stamp(ticket: dict[str, Any], overlay: Path, source_root: Path | None) -> dict[str, Any] | None:
+    """Compute per-paragraph structural fidelity stamp against the COBOL source when ``source_root`` is supplied."""
+    if source_root is None or not ticket.get("source"):
+        return None
+    cobol_src = source_root.resolve() / ticket["source"]
+    java_svc = overlay / "service" / f"{ticket['target']['service']}.java"
+    if not cobol_src.is_file() or not java_svc.is_file():
+        return None
+    try:
+        from tests.tools.translation_fidelity import pair_program, parse_cobol_paragraphs, parse_java_methods
+    except ImportError:
+        return None
+    paras = parse_cobol_paragraphs(cobol_src)
+    methods = parse_java_methods(java_svc)
+    if not paras or not methods:
+        return None
+    pairs = pair_program(paras, methods)
+    if not pairs:
+        return None
+    mean_fid = sum(x.fidelity for x in pairs) / len(pairs)
+    tol_share = sum(1 for x in pairs if x.within_tolerance) / len(pairs)
+    outliers = [
+        {"para": x.cobol_para, "method": x.java_method, "fidelity": round(x.fidelity, 4)}
+        for x in sorted(pairs, key=lambda x: x.fidelity)[:5]
+        if not x.within_tolerance
+    ]
+    return {
+        "cobol_paragraphs": len(paras),
+        "paired": len(pairs),
+        "mean_fidelity": round(mean_fid, 4),
+        "within_tolerance": round(tol_share, 4),
+        "outliers": outliers,
+    }
 
 
 def unproven_methods(project: Path, ticket: dict[str, Any], overlay: Path) -> list[str]:
@@ -578,7 +631,14 @@ def cmd_refine(opts: argparse.Namespace) -> int:
                         "before": record["before"], "after": record["after"], "seconds": record["seconds"]}})  # fmt: skip
     print(f"{opts.ticket}: {kept}/{len(record['steps'])} methods refactored and proven; Cobol.* calls "
           f"{record['before']['cobol_calls']} -> {record['after']['cobol_calls']}; proving attempt {attempt} again")  # fmt: skip
-    return cmd_prove(argparse.Namespace(project=opts.project, ticket=opts.ticket, command=opts.prove_command))
+    return cmd_prove(
+        argparse.Namespace(
+            project=opts.project,
+            ticket=opts.ticket,
+            command=opts.prove_command,
+            source_root=getattr(opts, "source_root", None),
+        )
+    )
 
 
 def cmd_review(opts: argparse.Namespace) -> int:
@@ -623,6 +683,8 @@ def status(project: Path) -> dict[str, Any]:
                 s["summary"] = e["summary"]
             if "unproven" in e:  # #4255: what the latest proof of this attempt cannot reach
                 s["unproven"] = e["unproven"]
+            if "fidelity" in e:
+                s["fidelity"] = e["fidelity"]
             m = model_of.get((t, e["attempt"]), "?")
             if e["event"] in ("proven", "approved", "rejected"):
                 models.setdefault(m, {"proposed": 0, "proven": 0, "approved": 0, "rejected": 0})[e["event"]] += 1
@@ -676,6 +738,9 @@ def main(argv: list[str] | None = None) -> int:
         x.add_argument("--timeout", type=int, default=3600)
         x.add_argument("--max-tokens", type=int, default=32000)
     r.add_argument("--source-root", type=Path, help="det: the COBOL estate the project was generated from")
+    p.add_argument(
+        "--source-root", type=Path, help="prove: optional COBOL estate root to record structural fidelity stamp"
+    )
     f.add_argument("--source-root", type=Path, help="refine: optional COBOL estate root for paragraph fidelity guard")
     f.add_argument("--min-fidelity", type=float, default=None,
                    help="refine: reject rewrites that drop Javadoc provenance, branches, or fall below this fidelity")  # fmt: skip

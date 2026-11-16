@@ -16,8 +16,9 @@ machine instruction, assembler directive or IBM system macro is named as a calle
 the names some unit defines. Driven through `StructuralExtractor.splice()` (the path a scan takes) and `resolve_calls`.
 """
 
+import time
+
 import pytest
-from _timing import cpu_best_of
 
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.detector import StructuralExtractor
@@ -37,7 +38,12 @@ AUDIT_MAC = "         MACRO\n         AUDITLOG &X\n         WTO   'X'\n         
 
 def _best_of_three(run) -> float:
     """Fastest of three runs: one stalled run on a loaded CI runner (#8210) is not a regression; a quadratic scan is slow in all three."""
-    return cpu_best_of(run)
+    best = float("inf")
+    for _ in range(3):
+        start = time.perf_counter()
+        run()
+        best = min(best, time.perf_counter() - start)
+    return best
 
 
 def _units(code: str) -> dict[str, dict]:
@@ -219,7 +225,9 @@ def test_the_assembly_profile_is_untouched():
     ],
 )
 def test_macro_use_scans_are_redos_immune(payload):
-    assert cpu_best_of(lambda: _units(payload), 5) < 5
+    start = time.perf_counter()
+    _units(payload)
+    assert time.perf_counter() - start < 5
 
 
 def test_a_continuation_line_word_is_an_operand_not_a_use():

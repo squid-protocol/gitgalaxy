@@ -159,11 +159,11 @@ def structural_fidelity_guard(
                 )
                 pf = score_fn(c_para, j_meth, "javadoc", tolerance=min_fidelity)
                 if pf.fidelity < min_fidelity:
-                    return (
-                        False,
+                    msg = (
                         f"Structural fidelity {pf.fidelity:.3f} < {min_fidelity:.2f} vs COBOL `{para_name}` "
-                        f"(branch={pf.branch_sim:.2f}, call={pf.call_sim:.2f}, loc={pf.loc_sim:.2f}).",
+                        f"(branch={pf.branch_sim:.2f}, call={pf.call_sim:.2f}, loc={pf.loc_sim:.2f})."
                     )
+                    return False, msg
         return True, ""
 
     return _check

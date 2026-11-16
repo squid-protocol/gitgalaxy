@@ -73,6 +73,8 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
 | If you want to... | Start here |
 |---|---|
 | **Check how ready an estate is** without exfiltrating source code | [Offline readiness assessment (`gitgalaxy assess`) ↓](#what-you-ask-what-you-get) and [Coverage across CICS eras ↓](#coverage-across-cics-eras) |
+| **Audit an existing COBOL→Java port** for paragraph-level structural fidelity | [`translation_fidelity.py`](../../../tests/tools/translation_fidelity.py) and [What you ask, what you get ↓](#what-you-ask-what-you-get) |
+| **Book a free consultation & blocker-report walkthrough** | [What you ask, what you get ↓](#what-you-ask-what-you-get) (`gitgalaxy assess --redact` + GitGalaxy estate report) |
 | **Translate COBOL and CICS deterministically** with no LLM in the loop | [The pipeline ↓](#the-pipeline) and [Deterministic translation (`det/`) ↓](#deterministic-translation-det-and-cobolrt) |
 | **Refactor a proven port for readability** with a model, gated on proof | [Step 3: Port and refine ↓](#the-pipeline) and [`det_port_design.md`](../../../docs/language_status/det_port_design.md) |
 | **See which CICS commands, BMS maps, Db2 SQL, and macro tables work** | [One CICS command spec, both runtimes ↓](#one-cics-command-spec-both-runtimes) |
@@ -94,7 +96,10 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
 | *What happens when a program hits an unsupported CICS option or verb?* | The CICS spec ([`gitgalaxy/standards/cics/`](../../standards/cics/README.md)) refuses it by name with an IBM manual citation, or emits an explicit `throw new Hole(...)` counted in the report. Nothing is silently stubbed. |
 | *How do you know the Java behaves like the COBOL?* | [`equivalence.py`](../../../tests/tools/equivalence.py) runs the COBOL under GnuCOBOL and the Java on the JVM across normal and fault-injected scenarios, comparing every output file, `DISPLAY`, BMS screen, `COMMAREA`, container, queue, and Db2 table row ([proofs](#the-pipeline)). |
 | *What about CICS system macro tables (`DFHSIT`, `DFHPCT`, `DFHFCT`, ...)?* | Macro table parsers extract CSD and assembler macro definitions (`DFHSIT`, `DFHPCT`, `DFHPPT`, `DFHFCT`, `DFHDCT`) into structured resource metadata and refuse obsolete telecommunication macros (`DFHTCT TYPE=LINE/SDSCI`, `DFHMCT TYPE=RECORD`) with IBM citations (`#5120`, `#5154`). |
-| *What if we want idiomatic Java instead of byte-array runtime calls?* | `--style structured --typed` promotes fields to native Java types where safe, and `port_runner refine` lets your model rewrite one method at a time—keeping the rewrite only if the full equivalence proof stays green. |
+| *What if we want idiomatic Java instead of byte-array runtime calls?* | `--style structured --typed` promotes fields to native Java types where safe, and `port_runner refine --min-fidelity` lets your model rewrite one method at a time—keeping the rewrite only if both the equivalence proof and paragraph structural fidelity stay green. |
+| *Can we audit an existing COBOL→Java port to see what was faithfully translated?* | [`translation_fidelity.py`](../../../tests/tools/translation_fidelity.py) pairs COBOL paragraphs with Java methods (via `traceability.json`, `/** <PARAGRAPH>. */`, or normalized names) and scores branch, call, size, and data-ref preservation against shuffled and unrelated null controls. |
+| *Can we get a free consultation and GitGalaxy report to gauge effort before committing?* | Yes—run `gitgalaxy assess --redact` locally (zero source leakage) to produce a redacted blocker report and GitGalaxy architectural inventory, then reach out (`joe@gitgalaxy.io`) for a free walkthrough of what you have and what is needed to get migration-ready. |
+| *Does this hold up on an unseen estate, not just curated benchmarks?* | In our first registered blind estate trial ([`blind1_proof_run.md`](../../../docs/language_status/blind1_proof_run.md), 28 programs, deterministic `det` only, zero LLM spend), **23/28 (82%)** proved first try under the repaired harness (`Run B`; `28/28` after two engine fixes), while the frozen harness (`Run A`) proved `5/28` with `23` blocked on a harness Db2 DSN-card parse bug. |
 
 ---
 
@@ -108,23 +113,26 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
    DB2 tables, BMS maps, and CICS macro tables. The extraction tools live in
    [`../cobol_to_cobol/`](../cobol_to_cobol/README.md).
 2. **Skeleton (`cobol-to-java`).** Builds the Spring Boot project from those facts, one forge per
-   kind of fact ([The forges ↓](#the-forges)). Where a fact is missing, or two facts disagree, it
-   writes an item in the migration worklist (`migration_worklist.md`). It never guesses. Each
-   program with business logic gets a porting ticket (`ai_agent_jobs/<PROGRAM>_port_ticket.md`).
+   kind of fact ([The forges ↓](#the-forges)), and writes a line-by-line provenance manifest
+   (`traceability.json`). Where a fact is missing, or two facts disagree, it writes an item in
+   the migration worklist (`migration_worklist.md`). It never guesses. Each program with business
+   logic gets a porting ticket (`ai_agent_jobs/<PROGRAM>_port_ticket.md`).
 3. **Port (`port_runner run` / `refine` / `submit`).** Sends a ticket to a backend:
    - **The deterministic translator** (`--backend det --source-root ESTATE [--style structured] [--typed]`):
-     no model; translates the statements of the burned estates into calls against
-     `cobolrt`.
-   - **Model-assisted readability refinement** (`port_runner refine`): rewrites a proven det port one
-     method at a time, running the equivalence proof after each method and reverting any rewrite that
-     changes behaviour (on CardDemo's `COACTUPC`, every method rewrite was kept only because the proof still passed).
+     no model; translates the statements of the burned estates into calls against `cobolrt`, preserving
+     `/** <PARAGRAPH>. */` Javadoc provenance and `translation.paragraph_methods` in the event log.
+   - **Model-assisted readability refinement** (`port_runner refine [--min-fidelity 0.55]`): rewrites
+     a proven det port one method at a time, enforcing `structural_fidelity_guard` (preserving Javadoc
+     provenance and branch structure) and running the equivalence proof after each method, reverting any
+     rewrite that breaks behaviour or structural fidelity.
    - **A person or a model the customer chooses** ([the porting loop](../../../docs/language_status/porting_loop.md)):
      checked by [`cobol_to_java_guardrail.py`](cobol_to_java_guardrail.py) against the generated
      project's inventory so it cannot invent endpoints, repositories, or unverified record fields,
      or compare a String field with `compareTo` / `equals` instead of `CobolCompare` (`collation`, #4035).
-4. **Prove (`port_runner prove`).** Runs the equivalence harness
+4. **Prove (`port_runner prove [--source-root ESTATE]`).** Runs the equivalence harness
    ([`tests/tools/equivalence.py`](../../../tests/tools/equivalence.py)): the COBOL under GnuCOBOL
-   and the port on the JVM, with identical inputs. What must match byte for byte, per case kind:
+   and the port on the JVM, with identical inputs. When `--source-root` is supplied, `prove` also
+   records a per-paragraph structural `fidelity` stamp and review `outliers` checklist in the event log. What must match byte for byte, per case kind:
    - **Batch:** every output record, field by field; `RETURN-CODE` or abend; every `DISPLAY` line
      (`SYSOUT`, formatted as IBM COBOL writes it).
    - **CICS:** every task event in order—each `SEND MAP` (text, attribute bytes, extended colour,

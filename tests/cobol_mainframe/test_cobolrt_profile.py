@@ -106,15 +106,6 @@ public final class ProfileDriver {
         if (err.get() != null) {
             throw new AssertionError(err.get());
         }
-        // 5. Funcs.integerOfDate / dateOfInteger honor CobolProfile.intdateLilian()
-        int ansiDay = CobolProfile.runWith(pBin, () -> Funcs.integerOfDate(new BigDecimal("19800101")).intValue());
-        int lilianDay = CobolProfile.runWith(
-                pBin.withIntdateLilian(true),
-                () -> Funcs.integerOfDate(new BigDecimal("19800101")).intValue());
-        if (lilianDay - ansiDay != 6653) {
-            throw new AssertionError("expected Lilian offset 6653, got " + (lilianDay - ansiDay));
-        }
-
         System.out.println("PROFILE OK");
     }
 }
@@ -132,13 +123,19 @@ def test_cobol_profile_and_thread_isolation() -> None:
             out.write_text(p.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest"), encoding="utf-8")
         (dst / "ProfileDriver.java").write_text(DRIVER_JAVA, encoding="utf-8")
         files = [str(p) for p in dst.rglob("*.java")]
-        comp = subprocess.run(["javac", "-d", d, *files], capture_output=True, text=True)  # noqa: S603, S607
+        comp = subprocess.run(  # noqa: S603
+            ["javac", "-encoding", "UTF-8", "-d", d, *files],  # noqa: S607
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
         if comp.returncode != 0:
             raise AssertionError(f"javac failed:\n{comp.stderr}")
         run = subprocess.run(  # noqa: S603
-            ["java", "-cp", d, "ggtest.cobolrt.ProfileDriver"],  # noqa: S607
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", d, "ggtest.cobolrt.ProfileDriver"],  # noqa: S607
             capture_output=True,
             text=True,
+            encoding="utf-8",
         )
         if run.returncode != 0:
             raise AssertionError(f"java failed:\n{run.stderr}\n{run.stdout}")

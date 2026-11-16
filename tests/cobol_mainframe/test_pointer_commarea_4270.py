@@ -132,7 +132,7 @@ def test_a_commarea_with_data_after_a_pointer_translates_onto_the_storages_offse
     codec = r.java[r.java.index("private void in_PtrlnkDfhcommarea") :]
     assert "DetCics.pointerIn(d.getCaPtr(), s, base + 3, 8);" in codec
     assert "Field.zoned(s, base + 11, 4," in codec and "Field.alphanumeric(s, base + 15, 5," in codec
-    assert "calen = cx(task, 20);" in r.java
+    assert "calen = DetCics.eibCalen(task, 20);" in r.java
     assert "Cobol.commarea(" in r.java and ", 20);" in r.java[r.java.index("Cobol.commarea(") :].split("\n")[0]
 
 

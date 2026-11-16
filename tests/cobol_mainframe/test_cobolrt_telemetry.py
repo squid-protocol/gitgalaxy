@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-import cobolrt_exit_report  # noqa: E402
+import cobolrt_exit_report
 
 REPO = Path(__file__).resolve().parents[2]
 RT = REPO / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
@@ -73,13 +73,19 @@ def _run_driver() -> tuple[dict[str, int], dict[str, int]]:
             out.write_text(p.read_text(encoding="utf-8").replace("__PACKAGE__", "ggtest"), encoding="utf-8")
         (dst / "TelemetryDriver.java").write_text(DRIVER_JAVA, encoding="utf-8")
         files = [str(p) for p in dst.rglob("*.java")]
-        comp = subprocess.run(["javac", "-d", d, *files], capture_output=True, text=True)  # noqa: S603, S607
+        comp = subprocess.run(  # noqa: S603
+            ["javac", "-encoding", "UTF-8", "-d", d, *files],  # noqa: S607
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
         if comp.returncode != 0:
             raise AssertionError(f"javac failed:\n{comp.stderr}")
         run = subprocess.run(  # noqa: S603
-            ["java", "-cp", d, "ggtest.cobolrt.TelemetryDriver"],  # noqa: S607
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", d, "ggtest.cobolrt.TelemetryDriver"],  # noqa: S607
             capture_output=True,
             text=True,
+            encoding="utf-8",
         )
         if run.returncode != 0:
             raise AssertionError(f"java failed:\n{run.stderr}\n{run.stdout}")

@@ -405,13 +405,19 @@ def run(mode: str = "both", iters: int = 200_000, fuzz: int = 5_000) -> subproce
             out.write_text(p.read_text().replace("__PACKAGE__", "ggtest"))
         (dst / "CobolrtBench.java").write_text(BENCH_JAVA)
         files = [str(p) for p in dst.rglob("*.java")]
-        comp = subprocess.run(["javac", "-d", d, *files], capture_output=True, text=True)  # noqa: S603, S607
+        comp = subprocess.run(  # noqa: S603
+            ["javac", "-encoding", "UTF-8", "-d", d, *files],  # noqa: S607
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
         if comp.returncode != 0:
             raise RuntimeError(f"javac failed:\n{comp.stderr}")
         return subprocess.run(  # noqa: S603
-            ["java", "-cp", d, "ggtest.cobolrt.CobolrtBench", mode, str(iters), str(fuzz)],  # noqa: S607
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", d, "ggtest.cobolrt.CobolrtBench", mode, str(iters), str(fuzz)],  # noqa: S607
             capture_output=True,
             text=True,
+            encoding="utf-8",
         )
 
 

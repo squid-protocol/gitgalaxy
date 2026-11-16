@@ -187,6 +187,8 @@ def run(args: argparse.Namespace) -> int:
 
 def render_markdown(report: dict[str, Any]) -> str:
     """Format a customer-readable Markdown summary from a validated ``gitgalaxy assess`` report (#5054)."""
+    from .dryrun import HOLES, REFUSED, WHOLE
+
     totals = report.get("totals", {})
     tr = totals.get("translation", {})
     eras = report.get("eras", {})
@@ -201,8 +203,8 @@ def render_markdown(report: dict[str, Any]) -> str:
     ]
     if tr:
         lines.append(
-            f"- **Dry-run translation:** `{tr.get('whole', 0)}` whole, "
-            f"`{tr.get('holes', 0)}` with holes, `{tr.get('refused', 0)}` refused"
+            f"- **Dry-run translation:** `{tr.get(WHOLE, 0)}` whole, "
+            f"`{tr.get(HOLES, 0)}` with holes, `{tr.get(REFUSED, 0)}` refused"
         )
     if by_era:
         lines += ["", "## CICS Eras", "", "| Era | Programs |", "|---|---:|"]

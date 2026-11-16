@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
-from gitgalaxy.tools.readiness.assess import main, render_markdown
+from gitgalaxy.tools.readiness.assess import render_markdown
 
 
 def test_render_markdown_includes_totals_eras_and_tells() -> None:
@@ -30,15 +32,30 @@ def test_render_markdown_includes_totals_eras_and_tells() -> None:
     assert "| `CICS_HANDLE` | 3 |" in md
 
 
+def _run_assess(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(  # noqa: S603
+        [
+            sys.executable,
+            "-c",
+            "import sys; from gitgalaxy.tools.readiness.assess import main; raise SystemExit(main(sys.argv[1:]))",
+            *args,
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
 def test_assess_summary_md_writes_file_and_rejects_inside_estate(tmp_path: Path) -> None:
     estate = tmp_path / "estate"
     estate.mkdir()
-    rc_bad = main([str(estate), "--no-translate", "--summary-md", str(estate / "sum.md")])
+    rc_bad = _run_assess(str(estate), "--no-translate", "--summary-md", str(estate / "sum.md")).returncode
     assert rc_bad == 2
 
     out_json = tmp_path / "readiness.json"
     out_md = tmp_path / "summary.md"
-    rc_ok = main([str(estate), "--no-translate", "--redact", "--out", str(out_json), "--summary-md", str(out_md)])
+    rc_ok = _run_assess(
+        str(estate), "--no-translate", "--redact", "--out", str(out_json), "--summary-md", str(out_md)
+    ).returncode
     assert rc_ok == 0
     assert json.loads(out_json.read_text(encoding="utf-8"))["redacted"] is True
     assert "Estate Readiness Summary (redacted)" in out_md.read_text(encoding="utf-8")

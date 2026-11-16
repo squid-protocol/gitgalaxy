@@ -1835,8 +1835,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats["callees"] = sorted(gen.callees)  # #4803: the estate programs this one CALLs through a service's handleCall
     stats["warnings"] = list(engine.warnings) if engine is not None else []  # #4486: SYSLIB collisions taken
     stats["paragraph_methods"] = {
-        p.name: (gen.method(i) if structured else f"p{i}")
-        for i, p in enumerate(proc.paragraphs)
+        p.name: (gen.method(i) if structured else f"p{i}") for i, p in enumerate(proc.paragraphs)
     }
     if laid is not None:
         stats["engine_layouts"] = laid

@@ -42,7 +42,7 @@ def test_translation_fidelity_beats_shuffled_and_unrelated_controls(tmp_path: Pa
         "public class Prog1Service {\n"
         "    /** 0000-MAIN. */\n"
         "    private void mainTask() {\n"
-        "        if (wsFlag.equals(\"Y\")) {\n"
+        '        if (wsFlag.equals("Y")) {\n'
         "            check();\n"
         "        } else {\n"
         "            closeOut();\n"
@@ -52,14 +52,14 @@ def test_translation_fidelity_beats_shuffled_and_unrelated_controls(tmp_path: Pa
         "    /** 1000-CHECK. */\n"
         "    private void check() {\n"
         "        if (wsAmt > 0) {\n"
-        "            if (wsStat.equals(\"A\")) {\n"
+        '            if (wsStat.equals("A")) {\n'
         "                wsCnt += 1;\n"
         "            }\n"
         "        }\n"
         "    }\n"
         "    /** 2000-CLOSE. */\n"
         "    private void closeOut() {\n"
-        "        wsFlag = \"N\";\n"
+        '        wsFlag = "N";\n'
         "    }\n"
         "}\n"
     )
@@ -113,16 +113,27 @@ def test_translation_fidelity_uses_traceability_json(tmp_path: Path) -> None:
         "}\n"
     )
     trace = tmp_path / "traceability.json"
-    trace.write_text(json.dumps({
-        "artifacts": [{
-            "symbol": "Bill01Service#processPayment",
-            "facts": [{"paragraph": "1000-PAY"}],
-        }]
-    }))
+    trace.write_text(
+        json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "symbol": "Bill01Service#processPayment",
+                        "facts": [{"paragraph": "1000-PAY"}],
+                    }
+                ]
+            }
+        )
+    )
 
-    rc = main([
-        "--cobol-dir", str(cbl_dir),
-        "--java-dir", str(java_dir),
-        "--traceability", str(trace),
-    ])
+    rc = main(
+        [
+            "--cobol-dir",
+            str(cbl_dir),
+            "--java-dir",
+            str(java_dir),
+            "--traceability",
+            str(trace),
+        ]
+    )
     assert rc == 0

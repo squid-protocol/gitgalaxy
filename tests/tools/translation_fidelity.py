@@ -30,49 +30,150 @@ _COBOL_BRANCH_RE = re.compile(
     r"|\bPERFORM\b[^.]*\bUNTIL\b",
     re.IGNORECASE,
 )
-_COBOL_INLINE_PERFORM_RE = re.compile(
-    r"\bPERFORM\s+(?:UNTIL|VARYING|WITH\s+TEST|\d+\s+TIMES)\b", re.IGNORECASE
-)
+_COBOL_INLINE_PERFORM_RE = re.compile(r"\bPERFORM\s+(?:UNTIL|VARYING|WITH\s+TEST|\d+\s+TIMES)\b", re.IGNORECASE)
 _COBOL_PERFORM_RE = re.compile(r"\bPERFORM\s+([A-Z0-9][A-Z0-9-]*)\b", re.IGNORECASE)
 _COBOL_CALL_RE = re.compile(r"\bCALL\s+['\"]?([A-Z0-9][A-Z0-9-]*)['\"]?", re.IGNORECASE)
-_COBOL_CICS_CALL_RE = re.compile(
-    r"\bEXEC\s+CICS\s+(?:LINK|XCTL)\b", re.IGNORECASE
-)
+_COBOL_CICS_CALL_RE = re.compile(r"\bEXEC\s+CICS\s+(?:LINK|XCTL)\b", re.IGNORECASE)
 _COBOL_PARA_RE = re.compile(r"^ {0,11}([A-Z0-9][A-Z0-9-]*)\.\s*$", re.IGNORECASE)
 _COBOL_PROC_DIV_RE = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.IGNORECASE)
-_COBOL_STOP_WORDS = frozenset({
-    "move", "to", "from", "if", "else", "end", "endif", "perform", "thru",
-    "through", "until", "varying", "by", "times", "evaluate", "when", "other",
-    "add", "subtract", "multiply", "divide", "compute", "giving", "into",
-    "set", "initialize", "display", "accept", "read", "write", "rewrite",
-    "delete", "open", "close", "input", "output", "exec", "cics", "sql",
-    "endexec", "call", "using", "returning", "goback", "stop", "run", "exit",
-    "continue", "not", "and", "or", "equal", "spaces", "zeros", "zero",
-    "lowvalues", "highvalues", "true", "false", "of", "in", "is", "are",
-    "section", "procedure", "division",
-})
+_COBOL_STOP_WORDS = frozenset(
+    {
+        "move",
+        "to",
+        "from",
+        "if",
+        "else",
+        "end",
+        "endif",
+        "perform",
+        "thru",
+        "through",
+        "until",
+        "varying",
+        "by",
+        "times",
+        "evaluate",
+        "when",
+        "other",
+        "add",
+        "subtract",
+        "multiply",
+        "divide",
+        "compute",
+        "giving",
+        "into",
+        "set",
+        "initialize",
+        "display",
+        "accept",
+        "read",
+        "write",
+        "rewrite",
+        "delete",
+        "open",
+        "close",
+        "input",
+        "output",
+        "exec",
+        "cics",
+        "sql",
+        "endexec",
+        "call",
+        "using",
+        "returning",
+        "goback",
+        "stop",
+        "run",
+        "exit",
+        "continue",
+        "not",
+        "and",
+        "or",
+        "equal",
+        "spaces",
+        "zeros",
+        "zero",
+        "lowvalues",
+        "highvalues",
+        "true",
+        "false",
+        "of",
+        "in",
+        "is",
+        "are",
+        "section",
+        "procedure",
+        "division",
+    }
+)
 
 _JAVA_METHOD_RE = re.compile(
     r"(?:^|\n)\s*(?:public|private|protected)\s+(?:static\s+|final\s+|synchronized\s+)*"
     r"[\w<>\[\], ?]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*\([^;{]*\)\s*(?:throws\s+[\w., ]+\s*)?\{",
     re.MULTILINE,
 )
-_JAVA_BRANCH_RE = re.compile(
-    r"\b(?:if|else\s+if|switch|case|for|while|catch)\b|\?"
-)
+_JAVA_BRANCH_RE = re.compile(r"\b(?:if|else\s+if|switch|case|for|while|catch)\b|\?")
 _JAVA_CALL_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(")
-_JAVA_CALL_SKIP = frozenset({
-    "if", "for", "while", "switch", "catch", "return", "throw", "new",
-    "sizeof", "super", "this", "synchronized",
-})
+_JAVA_CALL_SKIP = frozenset(
+    {
+        "if",
+        "for",
+        "while",
+        "switch",
+        "catch",
+        "return",
+        "throw",
+        "new",
+        "sizeof",
+        "super",
+        "this",
+        "synchronized",
+    }
+)
 _JAVA_IDENT_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]{2,})\b")
-_JAVA_STOP_WORDS = frozenset({
-    "public", "private", "protected", "static", "final", "void", "return",
-    "if", "else", "for", "while", "switch", "case", "default", "break",
-    "continue", "try", "catch", "finally", "throw", "throws", "new", "this",
-    "super", "true", "false", "null", "int", "long", "double", "float",
-    "boolean", "byte", "char", "short", "string", "object", "var", "class",
-})
+_JAVA_STOP_WORDS = frozenset(
+    {
+        "public",
+        "private",
+        "protected",
+        "static",
+        "final",
+        "void",
+        "return",
+        "if",
+        "else",
+        "for",
+        "while",
+        "switch",
+        "case",
+        "default",
+        "break",
+        "continue",
+        "try",
+        "catch",
+        "finally",
+        "throw",
+        "throws",
+        "new",
+        "this",
+        "super",
+        "true",
+        "false",
+        "null",
+        "int",
+        "long",
+        "double",
+        "float",
+        "boolean",
+        "byte",
+        "char",
+        "short",
+        "string",
+        "object",
+        "var",
+        "class",
+    }
+)
 _COBOL_IDENT_RE = re.compile(r"\b([A-Z][A-Z0-9-]{2,})\b", re.IGNORECASE)
 _JAVADOC_PARA_RE = re.compile(r"/\*\*\s*([A-Z0-9][A-Z0-9-]*)\.?\s*\*/", re.IGNORECASE)
 
@@ -174,25 +275,30 @@ def parse_cobol_paragraphs(cbl_path: Path) -> list[ParagraphMetrics]:
         text = " ".join(body_lines)
         branches = len(_COBOL_BRANCH_RE.findall(text))
         performs = [
-            p for p in _COBOL_PERFORM_RE.findall(text)
-            if p.upper() not in ("UNTIL", "VARYING", "WITH", "TIMES")
+            p for p in _COBOL_PERFORM_RE.findall(text) if p.upper() not in ("UNTIL", "VARYING", "WITH", "TIMES")
         ]
         # Exclude inline PERFORM UNTIL/VARYING
         inline_n = len(_COBOL_INLINE_PERFORM_RE.findall(text))
-        calls_out = max(0, len(performs) - inline_n) + len(_COBOL_CALL_RE.findall(text)) + len(_COBOL_CICS_CALL_RE.findall(text))
+        calls_out = (
+            max(0, len(performs) - inline_n)
+            + len(_COBOL_CALL_RE.findall(text))
+            + len(_COBOL_CICS_CALL_RE.findall(text))
+        )
         refs = frozenset(
             _norm_name(tok)
             for tok in _COBOL_IDENT_RE.findall(text)
             if _norm_name(tok) not in _COBOL_STOP_WORDS and len(_norm_name(tok)) >= 3
         )
-        metrics.append(ParagraphMetrics(
-            program=prog,
-            name=name,
-            loc=len(body_lines),
-            branches=branches,
-            calls_out=calls_out,
-            data_refs=refs,
-        ))
+        metrics.append(
+            ParagraphMetrics(
+                program=prog,
+                name=name,
+                loc=len(body_lines),
+                branches=branches,
+                calls_out=calls_out,
+                data_refs=refs,
+            )
+        )
     return metrics
 
 
@@ -236,24 +342,23 @@ def parse_java_methods(java_path: Path) -> list[JavaMethodMetrics]:
         if loc == 0:
             continue
         branches = len(_JAVA_BRANCH_RE.findall(body_no_doc))
-        calls_out = sum(
-            1 for c in _JAVA_CALL_RE.findall(body_no_doc)
-            if c not in _JAVA_CALL_SKIP
-        )
+        calls_out = sum(1 for c in _JAVA_CALL_RE.findall(body_no_doc) if c not in _JAVA_CALL_SKIP)
         refs = frozenset(
             _norm_name(tok)
             for tok in _JAVA_IDENT_RE.findall(body_no_doc)
             if tok.lower() not in _JAVA_STOP_WORDS and len(_norm_name(tok)) >= 3
         )
-        methods.append(JavaMethodMetrics(
-            program=prog,
-            name=name,
-            javadoc_para=javadoc_para,
-            loc=loc,
-            branches=branches,
-            calls_out=calls_out,
-            data_refs=refs,
-        ))
+        methods.append(
+            JavaMethodMetrics(
+                program=prog,
+                name=name,
+                javadoc_para=javadoc_para,
+                loc=loc,
+                branches=branches,
+                calls_out=calls_out,
+                data_refs=refs,
+            )
+        )
     return methods
 
 
@@ -381,14 +486,16 @@ def evaluate_fidelity(
         all_pairs.extend(pairs)
         mean_fid = sum(x.fidelity for x in pairs) / len(pairs)
         tol_share = sum(1 for x in pairs if x.within_tolerance) / len(pairs)
-        per_program.append({
-            "program": prog,
-            "cobol_paragraphs": len(paras),
-            "java_methods": len(methods),
-            "paired": len(pairs),
-            "mean_fidelity": round(mean_fid, 4),
-            "within_tolerance": round(tol_share, 4),
-        })
+        per_program.append(
+            {
+                "program": prog,
+                "cobol_paragraphs": len(paras),
+                "java_methods": len(methods),
+                "paired": len(pairs),
+                "mean_fidelity": round(mean_fid, 4),
+                "within_tolerance": round(tol_share, 4),
+            }
+        )
 
     if not all_pairs:
         return {"error": "no paired paragraphs found", "common_programs": len(common)}
@@ -472,7 +579,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     print(
         f"Estate fidelity: {res['observed_fidelity']:.3f} "
-        f"(within_tol={res['within_tolerance_share']*100:.1f}%, n={res['total_paired']} pairs across {res['evaluated_programs']} programs)"
+        f"(within_tol={res['within_tolerance_share'] * 100:.1f}%, n={res['total_paired']} pairs across {res['evaluated_programs']} programs)"
     )
     print(
         f"Controls: shuffled_null={res['shuffled_null']:.3f} (gap={res['gap_vs_shuffled']:+.3f}) | "

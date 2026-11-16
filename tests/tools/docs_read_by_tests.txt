@@ -575,7 +575,8 @@ src/harness_report.md	tests/tools/test_harness_report.py
 stray.md	tests/tools/test_evidence_report.py
 strengthen.md	tests/tools/strengthen.py
 subsystem_distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_subsystem_distribution.py
-summary.md	tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_codeql_new_alerts.py,tests/tools/test_time_ratchet.py
+sum.md	tests/tools/test_assess_summary_md.py
+summary.md	tests/tools/test_assess_summary_md.py,tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_codeql_new_alerts.py,tests/tools/test_time_ratchet.py
 survey.md	tests/tools/det_survey.py
 tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progress_report.py,tests/tools/test_readme_hand_counts.py
 tests/equivalence/det_mutation/notes.md	tests/tools/test_docs_only_required_checks.py
@@ -584,6 +585,7 @@ tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py
 tests/tools/referees/README.md	tests/tools/referees
 tilde.md	tests/core_engine
 transferability.md	tests/tools/test_status_page_snapshots.py
+translation_fidelity.md	tests/tools/publish_examples.py
 tree_sitter_accuracy_chart.svg	tests/tools/tree_sitter_accuracy_audit.py
 tree_sitter_accuracy_history.csv	tests/tools/tree_sitter_accuracy_audit.py
 tri_comparison_chart.svg	tests/tools/tri_comparison_chart.py

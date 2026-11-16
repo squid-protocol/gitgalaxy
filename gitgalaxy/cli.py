@@ -10,6 +10,7 @@
 """The `gitgalaxy` command: one entry point for the customer-facing subcommands (#4726).
 
     gitgalaxy assess ESTATE [...]      the offline readiness scan (gitgalaxy/tools/readiness/assess.py)
+    gitgalaxy reach SCAN_DB [...]      who depends on a file, from a finished scan (gitgalaxy/tools/sensors/reach.py)
 
 The scan engine itself stays `galaxyscope` / `blast`.
 """
@@ -22,13 +23,16 @@ import sys
 
 def main(argv: list[str] | None = None) -> int:
     from gitgalaxy.tools.readiness import assess
+    from gitgalaxy.tools.sensors import reach
 
     p = argparse.ArgumentParser(prog="gitgalaxy")
     sub = p.add_subparsers(dest="command", required=True)
     a = sub.add_parser("assess", help="the offline, read-only readiness scan of a COBOL / CICS estate")
     assess.add_arguments(a)
+    r = sub.add_parser("reach", help="who depends on a file: caller counts from a finished scan (read-only)")
+    reach.add_arguments(r)
     args = p.parse_args(argv)
-    return assess.run(args)
+    return reach.run(args) if args.command == "reach" else assess.run(args)
 
 
 if __name__ == "__main__":

@@ -177,6 +177,15 @@ so on for `javascript`, `java`, `rust`, `go`, `c`, `cpp`).
   it does not). Nothing reads them into PageRank, fan-in or the file graph: the confident graph is
   unchanged, and a consumer takes the union (every row) or one platform's view (`platform IN (..)` plus
   the NULL rows). Same cascade as `fcall_data` (hangs off the calling file).
+- `fcall_external`: the external calls, aggregated. A call the resolver could not tie to a definition in the
+  repository (standard library, macros, third-party packages, built-ins; resolution class `external`, step
+  `none`) is not a `fcall_data` row. One row per (calling file, callee name): `src_file_id`, `callee` and
+  `callers`, the number of calling functions (or top-level slices) in that file that make the call. Only
+  `call` kind, never a reference. Nothing reads them into PageRank, fan-in or the file graph, and the
+  confident graph and `fcall_rate_data` are unchanged (the rate table still counts every external
+  caller-callee pair; this table holds the same calls, one row per file and name). Same cascade as
+  `fcall_data` (hangs off the calling file). A consumer uses them to scope a rename or removal of a name the
+  repository does not define (`free` to a wrapper) and to list the libraries a file leans on.
 - `fcall_rate_data` (#3331): scoped / unique / ambiguous / external counts per
   language and for the repository (`language = '*'`). The brief's section 15
   shows the same figures.

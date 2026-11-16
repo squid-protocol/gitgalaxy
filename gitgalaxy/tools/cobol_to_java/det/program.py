@@ -277,17 +277,35 @@ def performs_cyclically(proc: S.Procedure) -> bool:
     return any(state[i] == 0 and cyclic(i) for i in range(len(edges)))
 
 
+def _terminal_goto_targets(proc: S.Procedure) -> set[str]:
+    """Paragraphs whose final top-level statement unconditionally ends the program (GOBACK / STOP RUN / EXIT PROGRAM)."""
+    out: set[str] = set()
+    for p in proc.paragraphs:
+        if p.section == p.name or not p.body:
+            continue
+        last = p.body[-1]
+        if last.kind in ("GOBACK", "STOP") or (
+            last.kind == "EXIT" and (last.data.get("what") or [])[:1] == ["PROGRAM"]
+        ):
+            out.add(p.name)
+    return out
+
+
 def structurable(proc: S.Procedure) -> bool:
-    """Whether paragraphs can be plain methods called in order: no GO TO (nor ALTER), no EXEC CICS HANDLE (its
-    exits transfer control like a GO TO), no SECTION. Then PERFORM a THRU b is a, ..., b in turn, and falling off a
-    paragraph is falling into the next -- exactly COBOL's flow, with no dispatcher."""
+    """Whether paragraphs can be plain methods called in order: no non-terminal GO TO (nor ALTER), no EXEC CICS
+    HANDLE (its exits transfer control like a GO TO), no SECTION. Terminal GO TOs to paragraphs ending in
+    GOBACK / STOP RUN / EXIT PROGRAM are emitted as direct tail calls in structured mode."""
+    terminal = _terminal_goto_targets(proc)
     for p in proc.paragraphs:
         if p.section == p.name:
             return False
         for s in S.walk(p.body):
-            if s.kind == "GOTO" or (
-                s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text)
-            ):
+            if s.kind == "GOTO":
+                t = s.data.get("targets") or []
+                if s.data.get("depending") is not None or len(t) != 1 or t[0] not in terminal:
+                    return False
+                continue
+            if s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text):
                 return False
             if s.kind == "ALTER" or (s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text)):
                 return False

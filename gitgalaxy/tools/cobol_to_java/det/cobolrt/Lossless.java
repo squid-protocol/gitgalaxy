@@ -21,7 +21,12 @@ import java.nio.charset.StandardCharsets;
 public final class Lossless extends Charset {
     private final Charset base;
     private final char[] decode = new char[256];
+    private final byte[] encodeAscii = new byte[256];
+    private final boolean[] hasEncodeAscii = new boolean[256];
+    private final byte fallbackByte;
     private final java.util.Map<Character, Byte> encode = new java.util.HashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<Charset, Lossless> CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     private Lossless(Charset base) {
         super(base.name(), null);
@@ -36,8 +41,26 @@ public final class Lossless extends Charset {
             decode[b] = c;
         }
         for (int b = 255; b >= 0; b--) {
-            encode.put(decode[b], (byte) b);
+            char c = decode[b];
+            encode.put(c, (byte) b);
+            if (c < 256) {
+                encodeAscii[c] = (byte) b;
+                hasEncodeAscii[c] = true;
+            }
         }
+        this.fallbackByte = encode.getOrDefault('?', (byte) '?');
+    }
+
+    char decodeByte(byte b) {
+        return decode[b & 0xFF];
+    }
+
+    byte encodeChar(char c) {
+        if (c < 256 && hasEncodeAscii[c]) {
+            return encodeAscii[c];
+        }
+        Byte b = encode.get(c);
+        return b != null ? b : fallbackByte;
     }
 
     /** The charset itself, or the one that keeps every byte when it is a single-byte charset. */
@@ -46,7 +69,7 @@ public final class Lossless extends Charset {
         if (cs instanceof Lossless || cs.newEncoder().maxBytesPerChar() != 1.0f) {
             return cs;
         }
-        return new Lossless(cs);
+        return CACHE.computeIfAbsent(cs, Lossless::new);
     }
 
     @Override

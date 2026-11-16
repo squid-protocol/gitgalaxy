@@ -56,7 +56,7 @@ public final class Cobol {
      *  Default false: as GnuCOBOL `-std=ibm` behaves, a binary item holds what its bytes hold. */
     // [rule RT-CBL-TRUNC-PER-PROGRAM]
     public static void setTruncBinary(boolean on) {
-        Codec.truncBinary = on;
+        swapTruncBinary(on);
     }
 
     /** COMP-5 byte order for a run (#7646, register C7): `on` holds COMP-5 big-endian as z/OS does, off (the default)
@@ -64,49 +64,56 @@ public final class Cobol {
      *  runtime read their COMP-5 fields little-endian, so a program using them stays on the default. */
     // [rule RT-CBL-COMP5-ORDER-PER-PROGRAM]
     public static boolean swapZosComp5(boolean on) {
-        boolean before = Codec.zosComp5;
-        Codec.zosComp5 = on;
+        CobolProfile cur = CobolProfile.current();
+        boolean before = cur.zosComp5();
+        CobolProfile.swap(cur.withZosComp5(on));
         return before;
     }
 
     /** TRUNC for a program's run (#4102): `on` in effect, the setting before returned (the caller restores it). */
     public static boolean swapTruncBinary(boolean on) {
-        boolean before = Codec.truncBinary;
-        Codec.truncBinary = on;
+        CobolProfile cur = CobolProfile.current();
+        boolean before = cur.truncBinary();
+        CobolProfile.swap(cur.withTrunc(on
+                ? (cur.truncOpt() ? CobolProfile.TruncMode.OPT : CobolProfile.TruncMode.STD)
+                : CobolProfile.TruncMode.BIN));
         return before;
     }
 
     /** TRUNC(OPT) for a program's run (#4706), with swapTruncBinary(true): results as TRUNC(STD), and a value that
-     *  would be stored past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name (Codec.truncOpt). The setting
-     *  before is returned (the caller restores it). A program compiled otherwise leaves it as it is: a TRUNC(STD)
-     *  program LINKed or CALLed from a TRUNC(OPT) one stops where IBM would truncate -- a refusal, never a guess. */
+     *  would be stored past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name. The setting
+     *  before is returned (the caller restores it). */
     public static boolean swapTruncOpt(boolean on) {
-        boolean before = Codec.truncOpt;
-        Codec.truncOpt = on;
+        CobolProfile cur = CobolProfile.current();
+        boolean before = cur.truncOpt();
+        CobolProfile.swap(cur.withTrunc(on
+                ? CobolProfile.TruncMode.OPT
+                : (cur.truncBinary() ? CobolProfile.TruncMode.STD : CobolProfile.TruncMode.BIN)));
         return before;
     }
 
     /** TRUNC(OPT) on or off for a whole run (tests: as setTruncBinary). */
     public static void setTruncOpt(boolean on) {
-        Codec.truncOpt = on;
+        swapTruncOpt(on);
     }
 
-    /** ARITH(EXTEND) for a program's run (#4706): an intermediate result past 30 digits stops by name (Codec.
-     *  arithExtend). The setting before is returned (the caller restores it). */
+    /** ARITH(EXTEND) for a program's run (#4706): an intermediate result past 30 digits stops by name.
+     *  The setting before is returned (the caller restores it). */
     // [rule RT-CBL-ARITH-PER-PROGRAM]
     public static boolean swapArithExtend(boolean on) {
-        boolean before = Codec.arithExtend;
-        Codec.arithExtend = on;
+        CobolProfile cur = CobolProfile.current();
+        boolean before = cur.arithExtend();
+        CobolProfile.swap(cur.withArith(on ? CobolProfile.ArithMode.EXTEND : CobolProfile.ArithMode.COMPAT));
         return before;
     }
 
-    /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD) -- a zoned or packed value read with a sign
-     *  that is not preferred is refused by name (Codec.numprocPfd) --, false for IBM's default NUMPROC(NOPFD) (and
-     *  NUMPROC(MIG), which Enterprise COBOL 5 and later compile as the default). The setting before is returned. */
+    /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD), false for IBM's default NUMPROC(NOPFD).
+     *  The setting before is returned. */
     // [rule RT-CBL-NUMPROC-PER-PROGRAM]
     public static boolean swapNumprocPfd(boolean pfd) {
-        boolean before = Codec.numprocPfd;
-        Codec.numprocPfd = pfd;
+        CobolProfile cur = CobolProfile.current();
+        boolean before = cur.numprocPfd();
+        CobolProfile.swap(cur.withNumproc(pfd ? CobolProfile.NumprocMode.PFD : CobolProfile.NumprocMode.NOPFD));
         return before;
     }
 
@@ -173,15 +180,19 @@ public final class Cobol {
     // [rule RT-CBL-DIVIDE-INTERMEDIATE]
     public static BigDecimal divide(BigDecimal a, BigDecimal b) {
         if (isNan(a)) {
+            RuleTelemetry.hit("RT-CBL-ZERO-DIVISOR-NAN");
             return a;
         }
         if (isNan(b)) {
+            RuleTelemetry.hit("RT-CBL-ZERO-DIVISOR-NAN");
             return nan(a);
         }
         if (b.signum() == 0) {
+            RuleTelemetry.hit("RT-CBL-ZERO-DIVISOR-NAN");
             raiseSize();
             return nan(a);
         }
+        RuleTelemetry.hit("RT-CBL-DIVIDE-INTERMEDIATE");
         if (a.signum() == 0) {
             return BigDecimal.ZERO;
         }
@@ -219,9 +230,11 @@ public final class Cobol {
     // [rule RT-CBL-OSVS-INTERMEDIATE-ALIGN]
     public static BigDecimal align(BigDecimal d, int scale) {
         if (d.scale() > scale) {
+            RuleTelemetry.hit("RT-CBL-OSVS-INTERMEDIATE-ALIGN");
             return d.setScale(scale, java.math.RoundingMode.DOWN);
         }
         if (d.scale() < scale) {
+            RuleTelemetry.hit("RT-CBL-OSVS-INTERMEDIATE-ALIGN");
             int k = scale - d.scale();
             return new BigDecimal(d.unscaledValue().divide(java.math.BigInteger.TEN.pow(k)), d.scale() - k);
         }
@@ -357,6 +370,7 @@ public final class Cobol {
         // (cb_build_move_copy): libcob's store_common_region, and the sign rewrite, never run, so a space or letter in
         // a digit position travels as it is (COCRDUPC's CVV, register C11).
         if (to.kind == Field.Kind.NUMERIC_DISPLAY && sameZonedShape(from, to)) {
+            RuleTelemetry.hit("RT-CBL-MOVE-SAME-ZONED-SHAPE");
             System.arraycopy(from.st.bytes, from.at(), to.st.bytes, to.at(), from.len);
             return;
         }
@@ -438,14 +452,14 @@ public final class Cobol {
             char s = Codec.ch(d[sepAt], cs);
             if (s != '+' && s != '-' && s != ' ') throw nonDigitSign();
         }
-        if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+        if (Codec.numprocPfd() && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
         BigInteger v = BigInteger.ZERO;
         for (int i = 0; i < n - from.scale + to.scale; i++) {
             v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(i < n ? raw.ch[i] - '0' : 0));
         }
         v = v.mod(TWO_64);
         if (Codec.pastPictureUnderOpt(to, v)) throw Codec.truncOptUnpredictable(to, v, neg);  // #4706
-        if (Codec.truncBinary && !to.nativeBin) v = v.mod(BigInteger.TEN.pow(to.digits));
+        if (Codec.truncBinary() && !to.nativeBin) v = v.mod(BigInteger.TEN.pow(to.digits));
         Codec.write(to, v, neg, cs);
         return true;
     }
@@ -455,6 +469,7 @@ public final class Cobol {
      *  nonDigitToBinary's, anything else the ordinary MOVE of the bytes). */
     // [rule RT-CBL-MOVE-NONDIGIT]
     private static boolean moveNonDigit(Field from, Zoned.Raw raw, Field to, Charset cs) {
+        RuleTelemetry.hit("RT-CBL-MOVE-NONDIGIT");
         if (from.scale < 0 || from.scale > from.digits || to.scale < 0) {  // #4692: a left-P sender too (cobc hangs on MOVE to binary)
             if (to.kind == Field.Kind.NUMERIC_DISPLAY || to.kind == Field.Kind.NUMERIC_PACKED
                     || to.kind == Field.Kind.NUMERIC_EDITED) {
@@ -464,15 +479,15 @@ public final class Cobol {
         }
         switch (to.kind) {
             case NUMERIC_DISPLAY:
-                if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+                if (Codec.numprocPfd() && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
                 Zoned.toZoned(from, raw, to, cs);
                 return true;
             case NUMERIC_PACKED:
-                if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+                if (Codec.numprocPfd() && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
                 Zoned.toPacked(from, raw, to);
                 return true;
             case NUMERIC_EDITED:
-                if (Codec.numprocPfd && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
+                if (Codec.numprocPfd() && !Codec.preferredSign(from, cs)) throw Codec.nonPreferredSign(from);
                 padCopy(Zoned.toEdited(from, raw, to).getBytes(cs), to, false, cs);
                 return true;
             default:
@@ -820,7 +835,7 @@ public final class Cobol {
     // [rule RT-CBL-OPERAND-VALUE]
     public static BigDecimal num(Field f, Charset cs) {
         switch (cat(f)) {
-            case NUMERIC: return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.operand(f, cs) : Codec.read(f, cs).value();
+            case NUMERIC: return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.operand(f, cs) : Codec.readDecimal(f, cs);
             case NUM_EDITED: return deedit(f, cs).value();
             default: return parseAlnum(f.raw(), cs, f.decimalComma).value();
         }
@@ -831,7 +846,7 @@ public final class Cobol {
      *  skipped --, y not a COMP / BINARY item under TRUNC(STD), no ROUNDED, no SIZE ERROR. Any other x as {@link #num}. */
     // [rule RT-CBL-ADD-INT-OPERAND]
     public static BigDecimal intOperand(Field f, Charset cs, boolean binaryTarget) {
-        if (binaryTarget && Codec.truncBinary) return num(f, cs);  // cobc: not optimized under TRUNC(STD), cob_add
+        if (binaryTarget && Codec.truncBinary()) return num(f, cs);  // cobc: not optimized under TRUNC(STD), cob_add
         return f.kind == Field.Kind.NUMERIC_DISPLAY ? Zoned.intOperand(f, cs) : num(f, cs);
     }
 
@@ -942,12 +957,11 @@ public final class Cobol {
         if (to.kind != Field.Kind.NUMERIC_BINARY) {
             return storeChecked(to, value, rounded, cs);
         }
-        boolean before = Codec.truncBinary;
-        Codec.truncBinary = false;  // the byte-width range for the check and the store; the caller's TRUNC restored
+        boolean before = swapTruncBinary(false);  // the byte-width range for the check and the store; the caller's TRUNC restored
         try {
             return storeChecked(to, value, rounded, cs);
         } finally {
-            Codec.truncBinary = before;
+            swapTruncBinary(before);
         }
     }
 
@@ -1224,7 +1238,7 @@ public final class Cobol {
     // [rule RT-CBL-CLASS-NUMERIC]
     public static boolean isNumeric(Field f, Charset cs) {
         byte[] d = f.st.bytes;
-        if (Codec.numprocPfd && f.signed && !f.signSeparate && isNumericSignF(f, cs)) {
+        if (Codec.numprocPfd() && f.signed && !f.signSeparate && isNumericSignF(f, cs)) {
             // NUMPROC(PFD)'s class test takes C, D and "+0" for a signed item, NOPFD's C, D and F (Programming Guide
             // SC27-8714-03, Table 7, NUMCLS(PRIM)): an F-signed value's answer is not settled -- refused (C5)
             throw Codec.nonPreferredSign(f);

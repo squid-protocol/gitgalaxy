@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -538,8 +539,11 @@
    "line": 163,
    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
-   "verdict": "case-gap",
-   "reason": "store() file guard, condition-or mutation (line 163): same attempts as the negation at this line; none reached store(). Open."
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
   },
   {
    "id": "c90c667455",
@@ -547,8 +551,11 @@
    "line": 163,
    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
-   "verdict": "case-gap",
-   "reason": "store() file guard (line 163): tried link_bytes and started-task inputs; the port finds no entry path to store(), no input here reaches it. Open until a file-naming input exists."
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
   },
   {
    "id": "17017de259",
@@ -1507,20 +1514,38 @@
   {
    "id": "202007c6f7",
    "op": "LIT",
-   "line": 349,
+   "line": 350,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "exception message text for unmodelled COMMAREA past EIBCALEN boundary condition"
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "entry-only-four",
+    "entry-only-seven",
+    "entry-only-seventeen",
+    "link-bytes-seven",
+    "link-bytes-seventeen",
+    "refusal-text",
+    "terminal-pf3"
+   ]
   },
   {
    "id": "82e6c3d494",
    "op": "LIT",
-   "line": 349,
+   "line": 350,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "exception message text for unmodelled COMMAREA past EIBCALEN boundary condition"
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "entry-only-four",
+    "entry-only-seven",
+    "entry-only-seventeen",
+    "link-bytes-seven",
+    "link-bytes-seventeen",
+    "refusal-text",
+    "terminal-pf3"
+   ]
   },
   {
    "id": "5f1e0fa981",
@@ -1570,11 +1595,14 @@
   {
    "id": "b2e05c823b",
    "op": "DEL",
-   "line": 378,
+   "line": 380,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "harness-gap",
-   "reason": "handleTransaction facade helper on line 378 is uncalled because equivalence harness does not invoke facade"
+   "verdict": "equivalent",
+   "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen (exception-ctor)",
+   "tried": [
+    "exception-ctor"
+   ]
   },
   {
    "id": "c48a92481d",

@@ -12734,8 +12734,8 @@
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
 <li><strong>Inputs:</strong> <code>file_data</code>, <code>function_data</code> and <code>fcall_data</code> from the scan database (opened read-only).</li>
-<li><strong>Outputs:</strong> a text report, and with <code>--json</code> the full per-file result.</li>
-<li><strong>Dependencies:</strong> <a href="../../gitgalaxy/core/README.md">the call-graph builder</a>; nothing is added to the scan itself.</li>
+<li><strong>Outputs:</strong> a text report, and with <code>--json</code> the full per-file result. A scan also writes the top of it into its LLM brief (<code>&lt;target&gt;_galaxy_llm.md</code>) as section 16, "Reach (Who Depends On What)": the five most-called source files and the five most-included headers, read from the finished master database (absent when the scan wrote none or nothing has a caller).</li>
+<li><strong>Dependencies:</strong> <a href="../../gitgalaxy/core/README.md">the call-graph builder</a>. The scan database itself gains nothing; the command and the brief section only read it.</li>
 </ul>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>

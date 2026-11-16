@@ -28,14 +28,14 @@ def _make(tmp: Path) -> Path:
     con = sqlite3.connect(db)
     con.executescript(
         """
-        CREATE TABLE file_data(id INTEGER PRIMARY KEY, file_path TEXT, language TEXT, function_count INTEGER);
+        CREATE TABLE file_data(id INTEGER PRIMARY KEY, file_path TEXT, language TEXT, function_count INTEGER, raw_imports TEXT);
         CREATE TABLE function_data(id INTEGER PRIMARY KEY, file_id INTEGER, func_name TEXT, is_public INTEGER DEFAULT 0, loc INTEGER);
         CREATE TABLE fcall_data(id INTEGER PRIMARY KEY, src_file_id INTEGER, src_func_id INTEGER, src_func_name TEXT, callee TEXT,
             step TEXT, kind TEXT DEFAULT 'call', candidates INTEGER, dst_file_id INTEGER, dst_func_id INTEGER, dst_class_id INTEGER);
         CREATE TABLE fcall_candidates(id INTEGER PRIMARY KEY, src_file_id INTEGER, src_func_id INTEGER, callee TEXT, dst_file_id INTEGER, dst_func_id INTEGER, platform TEXT);
         CREATE TABLE fcall_external(id INTEGER PRIMARY KEY, src_file_id INTEGER, callee TEXT, callers INTEGER);
         INSERT INTO fcall_external(src_file_id,callee,callers) VALUES (3,'free',2),(5,'free',1),(2,'free',4);
-        INSERT INTO file_data VALUES (1,'a/x.h','c',0),(2,'b/x.h','c',0),(3,'a/one.c','c',1),(4,'b/two.c','c',1),(5,'b/three.c','c',1),(6,'README','text',0);
+        INSERT INTO file_data VALUES (1,'a/x.h','c',0,'[]'),(2,'b/x.h','c',0,'[]'),(3,'a/one.c','c',1,'["x.h"]'),(4,'b/two.c','c',1,'["stdio.h","x.h"]'),(5,'b/three.c','c',1,'["a/x.h"]'),(6,'README','text',0,'[]');
         INSERT INTO function_data VALUES (10,3,'f',1,2),(11,4,'g',1,2),(12,5,'h',1,2);
         INSERT INTO fcall_candidates(src_file_id,src_func_id,callee,dst_file_id,dst_func_id) VALUES
             (5,12,'f',3,10),     -- three.c also possibly calls f in one.c, but already calls it: not a new possible caller
@@ -85,12 +85,25 @@ def test_headers_resolve_by_path(tmp_path):
     assert rows["a/x.h"]["reach_files"] == 2 and rows["b/x.h"]["reach_files"] == 1  # same-named headers stay separate
 
 
-def test_headers_need_src_and_unmeasured_is_explicit(tmp_path):
-    out = reach.build(_make(tmp_path))
-    reasons = {n["path"]: n["reason"] for n in out["not_measured"]}
-    assert reasons["README"] == "no functions found"
-    assert "needs --src" in reasons["a/x.h"]
-    assert not [r for r in out["rows"] if r["kind"] == "header"]
+def test_headers_are_counted_from_the_stored_imports_without_a_source_tree(tmp_path):
+    db = _make(tmp_path)
+    stored = {r["path"]: r for r in reach.build(db)["rows"]}  # no --src: the include strings the scan stored
+    read = {r["path"]: r for r in reach.build(db, tmp_path)["rows"]}  # --src: read from the source files
+    assert stored["a/x.h"]["reach_files"] == 2 and stored["b/x.h"]["reach_files"] == 1
+    assert all(stored[h]["reach_files"] == read[h]["reach_files"] for h in ("a/x.h", "b/x.h"))  # the two readers agree
+    assert {n["path"]: n["reason"] for n in reach.build(db)["not_measured"]} == {"README": "no functions found"}
+
+
+def test_a_relative_include_is_resolved_from_the_includers_folder():
+    # `#include "../redismodule.h"` from src/modules/a.c is src/redismodule.h even though src/modules/redismodule.h also exists
+    imports = {
+        "src/modules/a.c": ["../redismodule.h", "stdio.h"],
+        "src/redismodule.h": [],
+        "src/modules/redismodule.h": [],
+        "src/other.c": ["redismodule.h"],
+    }
+    out = reach.include_counts_from_imports(imports)
+    assert out["src/redismodule.h"] == {"src/modules/a.c", "src/other.c"} and "src/modules/redismodule.h" not in out
 
 
 def test_report_states_its_limits(tmp_path):

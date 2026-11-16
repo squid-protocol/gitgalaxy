@@ -13,7 +13,7 @@
 
 Reach is a count, not a score, and no risk claim: for a source file, the distinct other files and functions that call a
 function it defines (and the callers of those callers, one hop out); for a header, the number of files that `#include` it
-(call-based reach cannot see a header, so `--src` is needed for headers); a file the call graph cannot see is reported as
+(call-based reach cannot see a header, so it is counted from the include strings the scan stored; `--src` re-reads them from the source instead); a file the call graph cannot see is reported as
 not measured, with the reason. Counts are lower bounds: calls to names the scan cannot resolve (standard library,
 macros) are not recorded, and only `call` edges that resolve to exactly one definition are counted (tie and ambiguous
 edges are left out and their number is reported). The database is opened read-only; nothing is written except `--json`.
@@ -26,6 +26,7 @@ import argparse
 import collections
 import json
 import os
+import posixpath
 import re
 import sqlite3
 import sys
@@ -47,42 +48,73 @@ def role(path: str) -> str:
     return "source"
 
 
-def include_counts(src_root: Path, paths: list[str]) -> dict[str, set[str]]:
-    """Header path -> the files that include it. `#include "a/b.h"` matches the header whose path ends with `a/b.h`; a bare
-    `#include "b.h"` prefers a header in the includer's own folder, else the one sharing the longest path prefix."""
+def _tokens(raw: str | None) -> list[str]:
+    try:
+        return [t for t in json.loads(raw or "[]") if isinstance(t, str)]
+    except (ValueError, TypeError):
+        return []
+
+
+def _resolve_include(token: str, includer: str, headers: frozenset[str], by_name: dict[str, list[str]]) -> list[str]:
+    """The header(s) an include names. C looks for a quoted include relative to the includer's own folder first, so that comes first
+    (`../redismodule.h`, `sub/x.h`); then the include-path rules: `a/b.h` matches the header whose path ends with `a/b.h`, and a bare
+    `b.h` prefers a header in the includer's folder, else the one sharing the longest path prefix."""
+    near = posixpath.normpath(posixpath.join(posixpath.dirname(includer), token))
+    if near in headers:
+        return [near]
+    cands = by_name.get(PurePosixPath(token).name, [])
+    if not cands:
+        return []
+    pick = [c for c in cands if c.endswith("/" + token) or c == token] if "/" in token else []
+    if not pick:
+        here = str(PurePosixPath(includer).parent)
+        pick = [c for c in cands if str(PurePosixPath(c).parent) == here] or cands
+        if len(pick) > 1:
+            best = max(len(os.path.commonpath([includer, c])) for c in pick)
+            pick = [c for c in pick if len(os.path.commonpath([includer, c])) == best][:1]
+    return pick
+
+
+def _count_includes(paths: list[str], tokens_of) -> dict[str, set[str]]:
+    """Header path -> the files that include it, given a function that yields an includer's include strings."""
+    headers = frozenset(p for p in paths if p.endswith(HEADER_SUFFIXES))
     by_name: dict[str, list[str]] = collections.defaultdict(list)
-    for p in paths:
-        if p.endswith(HEADER_SUFFIXES):
-            by_name[PurePosixPath(p).name].append(p)
+    for h in sorted(headers):
+        by_name[PurePosixPath(h).name].append(h)
     out: dict[str, set[str]] = collections.defaultdict(set)
     for p in paths:
         if not p.endswith(_TEXT_SUFFIXES):
             continue
-        try:
-            text = (src_root / p).read_text("utf8", "replace")
-        except OSError:
-            continue
-        for inc in _INCLUDE.findall(text):
-            cands = by_name.get(PurePosixPath(inc).name, [])
-            if not cands:
-                continue
-            pick = [c for c in cands if c.endswith("/" + inc) or c == inc] if "/" in inc else []
-            if not pick:
-                here = str(PurePosixPath(p).parent)
-                pick = [c for c in cands if str(PurePosixPath(c).parent) == here] or cands
-                if len(pick) > 1:
-                    best = max(len(os.path.commonpath([p, c])) for c in pick)
-                    pick = [c for c in pick if len(os.path.commonpath([p, c])) == best][:1]
-            for c in pick:
-                if c != p:
-                    out[c].add(p)
+        for token in tokens_of(p):
+            for h in _resolve_include(token, p, headers, by_name):
+                if h != p:
+                    out[h].add(p)
     return out
+
+
+def include_counts(src_root: Path, paths: list[str]) -> dict[str, set[str]]:
+    """Header path -> the files that include it, reading the `#include` lines from the source tree."""
+
+    def tokens_of(p: str) -> list[str]:
+        try:
+            return _INCLUDE.findall((src_root / p).read_text("utf8", "replace"))
+        except OSError:
+            return []
+
+    return _count_includes(paths, tokens_of)
+
+
+def include_counts_from_imports(imports: dict[str, list[str]]) -> dict[str, set[str]]:
+    """Header path -> the files that include it, from the include strings the scan already stored (`file_data.raw_imports`): no source tree needed."""
+    return _count_includes(list(imports), lambda p: imports.get(p, ()))
 
 
 def build(db: str | Path, src_root: Path | None = None) -> dict:
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
-        files = {r[0]: r[1:] for r in con.execute("SELECT id, file_path, function_count FROM file_data")}
+        rows_fd = con.execute("SELECT id, file_path, function_count, raw_imports FROM file_data").fetchall()
+        files = {r[0]: r[1:3] for r in rows_fd}
+        stored = {r[1]: _tokens(r[3]) for r in rows_fd}
         funcs = {r[0]: r[1:] for r in con.execute("SELECT id, file_id, func_name, is_public FROM function_data")}
         # one-definition call edges only: a tie has no destination, an ambiguous edge (candidates > 1) is a guess
         edges = con.execute(
@@ -130,23 +162,21 @@ def build(db: str | Path, src_root: Path | None = None) -> dict:
     by_file: dict[int, list[int]] = collections.defaultdict(list)
     for fid, (file_id, _name, _pub) in funcs.items():
         by_file[file_id].append(fid)
-    incl = include_counts(src_root, [v[0] for v in files.values()]) if src_root else None
+    paths = [v[0] for v in files.values()]
+    incl = include_counts(src_root, paths) if src_root else include_counts_from_imports(stored)
     rows: list[dict] = []
     not_measured: list[dict] = []
     for file_id, (path, fcount) in files.items():
         if path.endswith(HEADER_SUFFIXES):
-            if incl is None:
-                not_measured.append({"path": path, "reason": "header: needs --src for include counts"})
-            else:
-                rows.append(
-                    {
-                        "path": path,
-                        "kind": "header",
-                        "role": role(path),
-                        "reach_files": len(incl.get(path, ())),
-                        "measured_by": INCLUDE_COUNT,
-                    }
-                )
+            rows.append(
+                {
+                    "path": path,
+                    "kind": "header",
+                    "role": role(path),
+                    "reach_files": len(incl.get(path, ())),
+                    "measured_by": INCLUDE_COUNT,
+                }
+            )
         elif fcount:
             two: set[int] = set()
             for fn in by_file.get(file_id, ()):
@@ -275,7 +305,11 @@ def report(result: dict, top: int = 8, all_roles: bool = False, rank_with_possib
 
 def add_arguments(p: argparse.ArgumentParser) -> None:
     p.add_argument("db", help="the scan's *_galaxy_master.db")
-    p.add_argument("--src", type=Path, help="the scanned source tree, for header include counts")
+    p.add_argument(
+        "--src",
+        type=Path,
+        help="optional: read header includes from this source tree instead of the include strings stored in the scan",
+    )
     p.add_argument("--top", type=int, default=8)
     p.add_argument(
         "--callee", metavar="NAME", help="scope a rename or removal: who calls NAME (defined in the repository or not)"

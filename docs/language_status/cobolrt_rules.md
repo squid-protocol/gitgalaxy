@@ -18,7 +18,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceedywk.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceeseci.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 19 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 16 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
-| DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
+| DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java`, `RuleTelemetry.java`, `CobolProfile.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java`, `SortSpec.java` | 7 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |

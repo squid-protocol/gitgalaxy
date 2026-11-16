@@ -1183,8 +1183,10 @@ def region_instances(case: dict[str, Any], files: list[dict[str, Any]]) -> list[
     for v in values:
         fits = [
             f for f in files
-            if re.search(r"[@#]", f["file"])
-            and re.fullmatch("".join(".+" if m else re.escape(c) for c, m in _template_parts(f["file"].upper())), v)
+            if re.search(r"[@#]", f.get("template", f["file"]))
+            and re.fullmatch(
+                "".join(".+" if m else re.escape(c) for c, m in _template_parts(f.get("template", f["file"]).upper())), v
+            )
         ]  # fmt: skip
         if v in own or len(fits) != 1:
             raise Unsupported(
@@ -1196,11 +1198,16 @@ def region_instances(case: dict[str, Any], files: list[dict[str, Any]]) -> list[
     return out
 
 
-def _instance_cfg(case: dict[str, Any], files: list[dict[str, Any]], root: str) -> str:
-    """The files.cfg lines of the extra instances: each an empty data set under `root` (`/work/files`)."""
+def _instance_cfg(
+    case: dict[str, Any], files: list[dict[str, Any]], root: str, sc: dict[str, Any] | None = None
+) -> str:
+    """The files.cfg lines of the extra instances: each a data set under `root` (`/work/files`), none for an instance
+    the scenario's region does not install (`undefined_files`, #7965)."""
+    lacking = undefined_files(case, sc, files) if sc else []
     return "".join(
         f"{n} {root}/{f['base']}.{n} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for n, f in region_instances(case, files)
+        if n not in lacking
     )
 
 
@@ -1271,7 +1278,7 @@ def undefined_files(case: dict[str, Any], sc: dict[str, Any], files: list[dict[s
     stated = sc.get("undefined_files")
     if stated is None:
         return []
-    known = {_cfg_file_name(case, f) for f in files}
+    known = {_cfg_file_name(case, f) for f in files} | {n for n, _ in region_instances(case, files)}  # #7965
     ok = isinstance(stated, list) and stated and all(isinstance(n, str) for n in stated)
     if not ok or sorted(set(stated) - known):
         raise Unsupported(
@@ -1395,7 +1402,12 @@ def stub_files(
     for f in out:
         # #5089: a CSD file name written with an install symbol (zECS: ZC@ID@FILE) is the resolved name at run time
         # (the program opens ZC01FILE), so the stub's files.cfg must carry that name or every READ is FILENOTFOUND
-        f["file"] = substitute_install_symbols(f["file"], symbols)
+        resolved = substitute_install_symbols(f["file"], symbols)
+        if (
+            resolved != f["file"].upper()
+        ):  # #7965: a template store keeps its template name (region_instances fits by it)
+            f["template"] = f["file"]
+        f["file"] = resolved
     out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 
@@ -2291,7 +2303,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
             if _cfg_file_name(case, f) not in undefined_files(case, sc, files)  # #7954: the region lacks it
-        ) + _instance_cfg(case, files, f"/work/scenarios/{sc['name']}/files"), encoding="ascii")  # fmt: skip
+        ) + _instance_cfg(case, files, f"/work/scenarios/{sc['name']}/files", sc), encoding="ascii")  # fmt: skip
         raw_area = untyped_commarea(case, sc, ca_fields)
         if raw_area is not None:  # #5859: the caller's bytes as stated; the stub gives the program exactly these
             (d / "commarea.exact").write_text(f"{len(raw_area)}\n", encoding="ascii")

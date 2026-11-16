@@ -155,8 +155,11 @@ _JAVA_CALL_SKIP = frozenset(
 )
 _JAVA_RUNTIME_RECEIVERS = frozenset(
     {
-        "Funcs",
+        "Cobol",
         "CobolBytes",
+        "DetCics",
+        "DetSql",
+        "Funcs",
         "Accept",
         "Hfp",
         "Math",
@@ -513,7 +516,9 @@ def evaluate_fidelity(
 ) -> dict:
     """Evaluate per-paragraph, per-program, and estate-level fidelity against null controls."""
     trace_map = load_traceability_map(trace_path)
-    cbl_by_prog = {p.stem.lower(): p for p in sorted(cobol_dir.rglob("*.cbl"))}
+    cbl_by_prog = {
+        p.stem.lower(): p for p in sorted(cobol_dir.rglob("*")) if p.is_file() and p.suffix.lower() in (".cbl", ".cob")
+    }
     java_by_prog: dict[str, Path] = {}
     for jp in sorted(java_dir.rglob("*.java")):
         stem = jp.stem.lower().removesuffix("service")

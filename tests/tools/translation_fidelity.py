@@ -25,6 +25,8 @@ from pathlib import Path
 import random
 import re
 
+from gitgalaxy.core.source_text import read_source
+
 _COBOL_BRANCH_RE = re.compile(
     r"\b(?:IF|ELSE|EVALUATE|WHEN|AT\s+END|INVALID\s+KEY|ON\s+EXCEPTION|ON\s+OVERFLOW)\b"
     r"|\bPERFORM\b[^.]*\bUNTIL\b",
@@ -240,7 +242,7 @@ def _strip_cobol_comments(lines: list[str]) -> list[str]:
 def parse_cobol_paragraphs(cbl_path: Path) -> list[ParagraphMetrics]:
     """Extract paragraph-level structural metrics from a COBOL source file."""
     prog = cbl_path.stem.lower()
-    raw_lines = cbl_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    raw_lines = read_source(cbl_path).text.splitlines()
     lines = _strip_cobol_comments(raw_lines)
 
     in_proc = False
@@ -314,7 +316,7 @@ def parse_java_methods(java_path: Path) -> list[JavaMethodMetrics]:
     prog = java_path.stem.lower()
     if prog.endswith("service"):
         prog = prog[: -len("service")]
-    raw = java_path.read_text(encoding="utf-8", errors="replace")
+    raw = read_source(java_path).text
     cleaned = _strip_java_comments_keep_javadoc(raw)
 
     methods: list[JavaMethodMetrics] = []

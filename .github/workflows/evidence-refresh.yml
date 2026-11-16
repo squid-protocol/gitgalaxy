@@ -1401,8 +1401,9 @@ jobs:
         run: |
           in="$RUNNER_TEMP/detmut-in/records/tests/equivalence/det_mutation"
           if [ -d "$in" ]; then
-            # only ledger JSON, as regular files: nothing else from an artifact reaches the tree
-            bad=$(find "$RUNNER_TEMP/detmut-in" -type f ! -name '*.json' -o -type l)
+            # only ledger JSON and the shard-N.done markers (#8509), as regular files: nothing else from an artifact
+            # reaches the tree. The markers sit beside records/ in the same artifact dir, so they must pass here.
+            bad=$(find "$RUNNER_TEMP/detmut-in" -type f ! -name '*.json' ! -name 'shard-*.done' -o -type l)
             if [ -n "$bad" ]; then echo "::error title=det mutation::unexpected files in the artifact: $bad"; exit 1; fi
             cp -r "$in"/. gitgalaxy/tests/equivalence/det_mutation/
           fi

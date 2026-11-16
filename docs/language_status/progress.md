@@ -63,8 +63,8 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 | `cics-genapp` | 31 | 11 | 0 | 0 | 25.7% (2768 of 10761) | 100.0% (10993 of 10993) | 1014 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `zecs` | 7 | 4 | 1 | 0 | 47.9% (1215 of 2537) | 100.0% (2592 of 2593) | 840 | 362 |
-| **Total** | 158 | 60 | 8 | 0 | 49.8% (18157 of 36475) | 67.8% (37605 of 55429) | 5529 | 1044 |
+| `zecs` | 7 | 4 | 1 | 0 | 47.9% (1191 of 2488) | 100.0% (2592 of 2593) | 840 | 362 |
+| **Total** | 158 | 60 | 8 | 0 | 49.8% (18133 of 36426) | 67.8% (37605 of 55429) | 5529 | 1044 |
 
 ## Capability ledger
 
@@ -133,18 +133,18 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-16T12:28:30Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-16T13:36:55Z.
 
 - `scope:core`: 16 open, 248 closed.
 - Milestone 28: 0 open, 112 closed.
-- Last 7 days: 7 opened, 11 closed, net +4 closed.
-- ETA (open / net closure rate): **28 days**.
+- Last 7 days: 7 opened, 10 closed, net +3 closed.
+- ETA (open / net closure rate): **37 days**.
 
 ## 5. Gap Atlas
 
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
-- `scope:frontier`: 5 found in the last 7 days, 210 in total (82 open, 128 closed).
+- `scope:frontier`: 4 found in the last 7 days, 210 in total (82 open, 128 closed).
 - Milestone 30 (Gap Atlas): 57 issues.
 - `scope:sweep`: 1 open, 105 closed.
 - `scope:infra`: 34 open, 255 closed.

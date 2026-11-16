@@ -634,7 +634,7 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 1215,
+     "caught": 1191,
      "equivalent": 840,
      "l5": 1,
      "measured": 4,
@@ -644,12 +644,12 @@
      "ready": 0,
      "sampled": 2592,
      "sampled_pct": 100.0,
-     "survived": 1322,
+     "survived": 1297,
      "unreachable": 362
     }
    },
    "total": {
-    "caught": 18157,
+    "caught": 18133,
     "equivalent": 5529,
     "l5": 8,
     "measured": 60,
@@ -659,7 +659,7 @@
     "ready": 0,
     "sampled": 37605,
     "sampled_pct": 67.8,
-    "survived": 18318,
+    "survived": 18293,
     "unreachable": 1044
    }
   },
@@ -976,15 +976,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-16T12:28:30Z",
+  "as_of": "2026-11-16T13:36:55Z",
   "core": {
    "closed": 248,
    "open": 16,
    "total": 264
   },
   "core_last_window": {
-   "closed": 11,
-   "net_closed": 4,
+   "closed": 10,
+   "net_closed": 3,
    "opened": 7
   },
   "core_milestone": {
@@ -1000,10 +1000,10 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "28 days",
+  "eta": "37 days",
   "frontier": {
    "closed": 128,
-   "found_last_window": 5,
+   "found_last_window": 4,
    "open": 82,
    "total": 210
   },

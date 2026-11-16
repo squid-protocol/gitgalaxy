@@ -449,3 +449,4 @@ nav:
         - 'Injection Surface Exposure': "08-21-injection-surface-exposure.md"
         - 'Memory Corruption Exposure': "08-22-memory-corruption-exposure.md"
         - 'Hardcoded Secrets Exposure': "08-23-hardcoded-secrets-exposure.md"
+        - 'Reach Sensor': "08-24-reach-sensor.md"

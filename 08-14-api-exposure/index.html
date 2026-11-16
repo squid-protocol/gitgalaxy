@@ -11569,6 +11569,8 @@
       
         
       
+        
+      
     
     
     
@@ -12147,6 +12149,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#measured-behavior-exploratory-2026-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured Behavior (exploratory, 2026-11)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12362,6 +12375,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-24-reach-sensor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reach Sensor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -12447,11 +12488,24 @@ $<span class="arithmatex">\(\text{FinalScore} = \min(\text{RawScore} \times Mp, 
 <ul>
 <li>Relies purely on keyword and syntax conventions; it cannot deduce if a weakly-typed language module technically allows external consumption of unexported properties via runtime reflection.</li>
 <li>Cannot evaluate the semantic complexity of the exported API (e.g., exposing one massive god-object is scored lower in volume than exposing 10 tiny pure functions).</li>
+<li>Measures how much a file <strong>offers</strong> (export keywords against private ones), not how much other code <strong>uses</strong> it. The only use-based term is the popularity multiplier (0.2 for no inbound dependents, up to 2.0), which is capped and enters the product, so a heavily used file with few export keywords scores low.</li>
+<li>C-family public/private conventions are weak signals: header files declare the API but define few functions, so the ratio is computed on the wrong file.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>Utilizes an immediate short-circuit for files with zero <code>api_hits</code>, returning <span class="arithmatex">\(0.0\)</span>. Arithmetic calculations operate in <span class="arithmatex">\(O(1)\)</span> time based on pre-scanned token counts.</p>
 <h2 id="future-work">Future Work</h2>
-<p>Current metrics evaluate intra-file API volume. Planned improvements involve analyzing inter-file dependency graphs to measure true consumer blast radius (how many other files actually import the exposed API).</p>
+<p>Current metrics evaluate intra-file API volume. The inter-file question (how many other files actually use the API) is answered by <code>gitgalaxy reach</code> (<a href="../08-24-reach-sensor/">Reach sensor</a>); folding a use-based term into this gauge is not planned.</p>
+<h2 id="measured-behavior-exploratory-2026-11">Measured Behavior (exploratory, 2026-11)</h2>
+<blockquote>
+<p><strong>Research notes:</strong> temporal-crucible, branch <code>sensor-overhaul</code>, <code>docs/sensor-overhaul/sensors/reach.md</code> and <code>reach_validity_output.txt</code>. Exploratory: seven repositories (curl, libgit2, redis, libxml2, prometheus, sphinx, ripgrep), one snapshot each; the history-aware outcome tests cover three.</p>
+</blockquote>
+<ul>
+<li><strong>The call graph is a sound measure of use.</strong> Per function, the engine's cross-file callers agree with a plain text search for outside users at Spearman +0.74 to +0.92 (curl +0.88, libgit2 +0.90, redis +0.90, libxml2 +0.80, prometheus +0.92, sphinx +0.76, ripgrep +0.74). Precision is 1.00 (median: every caller the engine lists is real); recall is about half (median 0.33 to 1.00), because calls to functions the engine cannot resolve (standard library, macros) are not recorded, and the engine finds no outside caller for 10-42% of functions the text says are used elsewhere.</li>
+<li><strong>Per file, "caller files" counted from those edges</strong> tracks the text-search reach at +0.63 to +0.91 (curl +0.87, libgit2 +0.90, redis +0.91, libxml2 +0.90), better than <code>pagerank_score</code> (+0.38 to +0.87) and much better than <code>import_count</code> (+0.20 to +0.61).</li>
+<li><strong>Header files are the exception.</strong> A header declares an interface and defines few functions, so call-based reach is blind to it (Spearman with the number of files that <code>#include</code> it: -0.18 to +0.23). The engine's own measures reach +0.38 to +0.71 (<code>pagerank_score</code>) and are inconsistent across repositories. An include count, which the engine does not persist, is the right measure for headers.</li>
+<li><strong>Relation to later fixes (descriptive).</strong> Reach is one of two simple signals that add to code size for ranking later fixes (+0.018, +0.016 and +0.012 AUC on curl, libxml2, libgit2). Files with recent activity and high reach had later-fix rates 2.1, 2.0 and 2.6 times the active-file average; high-reach files with no recent activity were at 0.6 to 1.0 times: quiet foundations are not where fixes land.</li>
+</ul>
+<p><strong>What reports reach.</strong> The <a href="../08-24-reach-sensor/">Reach sensor</a> (<code>gitgalaxy reach</code>) reports it as caller counts from the call graph, include counts for headers, and a "not measured" state for files the graph cannot see. This gauge is unchanged.</p>
 <h2 id="related-components">Related Components</h2>
 <ul>
 <li>Static Analysis Engine</li>

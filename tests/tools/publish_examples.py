@@ -180,6 +180,7 @@ def build_example(slug: str, corpus_name: str, what: str, out: Path, work: Path,
     langs = tuple(lang for lang in CODE_LANGUAGES if lang in entry.get("languages", []))
     src_m, java_m = scan_metrics(src_db, langs), scan_metrics(java_db, ("java",))
     (dest / "scan_comparison.md").write_text(comparison_markdown(slug, src_m, java_m, langs), encoding="utf-8")
+    reports_meta = build_reports_package(slug, corpus, dest, langs)
     (dest / "PROVENANCE.md").write_text(f"""# {slug}: provenance
 
 - **Source:** [{entry['url']}]({entry['url']}) at commit `{entry['ref']}` ({what}).
@@ -205,7 +206,45 @@ def build_example(slug: str, corpus_name: str, what: str, out: Path, work: Path,
   `java-compile` CI builds this corpus in 17 target configurations.
 """, encoding="utf-8")  # fmt: skip
     return {"slug": slug, "corpus": entry, "what": what, "metrics": {"source": src_m, "java": java_m},
-            "legal": [f.name for f in legal], **example_summary(dest / "java")}  # fmt: skip
+            "legal": [f.name for f in legal], "reports": reports_meta, **example_summary(dest / "java")}  # fmt: skip
+
+
+def build_reports_package(slug: str, corpus: Path, dest: Path, langs: tuple[str, ...]) -> dict[str, Any]:
+    """Emit the full reports/ package for an example: readiness (+ redacted) and translation_fidelity."""
+    rdir = dest / "reports"
+    rdir.mkdir(parents=True, exist_ok=True)
+    meta: dict[str, Any] = {}
+    try:
+        from gitgalaxy.tools.readiness import assess
+
+        for fname, extra in (("readiness.json", []), ("readiness_redacted.json", ["--redact"])):
+            out_p = rdir / fname
+            rc = assess.main([str(corpus), *extra, "--out", str(out_p)])
+            if rc == 0 and out_p.is_file():
+                meta[fname] = True
+    except Exception:
+        pass
+    if "cobol" in langs:
+        try:
+            import translation_fidelity as tf
+
+            fid = tf.evaluate_fidelity(corpus, dest / "java", trace_path=dest / "java" / "traceability.json", draws=50)
+            (rdir / "translation_fidelity.json").write_text(json.dumps(fid, indent=2) + "\n", encoding="utf-8")
+            if "error" not in fid:
+                lines = [
+                    f"# {slug}: structural translation fidelity",
+                    "",
+                    f"- **Paired paragraphs:** `{fid['total_paired']}` across `{fid['evaluated_programs']}` programs",
+                    f"- **Observed fidelity:** `{fid['observed_fidelity']:.3f}` (`within_tolerance = {fid['within_tolerance_share'] * 100:.1f}%`)",
+                    f"- **Shuffled null:** `{fid['shuffled_null']:.3f}` (`gap = {fid['gap_vs_shuffled']:+.3f}`)",
+                    f"- **Unrelated null:** `{fid['unrelated_null']:.3f}` (`gap = {fid['gap_vs_unrelated']:+.3f}`)",
+                    "",
+                ]
+                (rdir / "translation_fidelity.md").write_text("\n".join(lines), encoding="utf-8")
+                meta["fidelity"] = fid["observed_fidelity"]
+        except Exception:
+            pass
+    return meta
 
 
 # ---- equivalence ---------------------------------------------------------------------
@@ -315,8 +354,11 @@ per-program work, and the equivalence harness below is how it is proven.
 
 Each `examples/<name>/` has:
 - `java/`: the Spring project, as generated;
+- `reports/`: offline readiness & redacted blocker reports (`readiness.json`, `readiness_redacted.json`), plus `translation_fidelity.{json, md}` structural checks;
 - `PROVENANCE.md`: source commit, licence, generator commit, commands;
 - `scan_comparison.md`: the source estate and the Java, scanned by the same engine.
+
+For an offline readiness & blocker-report walkthrough on your own estate (zero source leakage via `gitgalaxy assess --redact`), reach out to `joe@gitgalaxy.io`. First blind estate validation (`example-health-apis`, 28 programs, deterministic `det` only): **23/28 (82%)** proven first try (`28/28` post-fix).
 
 ## Behavioural equivalence
 

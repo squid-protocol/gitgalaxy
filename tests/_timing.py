@@ -27,13 +27,43 @@ from typing import Any
 MIN_RELIABLE_S = 0.05
 
 
-def best_cpu_seconds(work: Callable[[], Any], repeats: int = 5) -> float:
-    """The minimum CPU time of `repeats` runs of `work` (see the module docstring for why)."""
+# The ReDoS limit, stated once: a single regex run on a fixed payload must take less CPU than this (#8423).
+# The honest cost of every rule is far below it and a catastrophic pattern runs for minutes.
+REDOS_LIMIT_S = 1.0
+# Fastest-of-N for "this must be fast" checks: noise only adds time (#8210).
+CPU_REPEATS = 3
+
+
+def best_cpu_seconds(work: Callable[[], Any], repeats: int = 5, clock: Callable[[], float] | None = None) -> float:
+    """The minimum CPU time of `repeats` runs of `work` (see the module docstring for why).
+    `clock` is injectable so the helper (and `linear_assert`) can be tested on a deterministic clock."""
+    clock = clock or time.thread_time
     best = float("inf")
     for _ in range(repeats):
-        start = time.thread_time()
+        start = clock()
         work()
-        best = min(best, time.thread_time() - start)
+        best = min(best, clock() - start)
+    return best
+
+
+def cpu_best_of(
+    work: Callable[[], Any],
+    limit_s: float | None = None,
+    repeats: int = CPU_REPEATS,
+    clock: Callable[[], float] | None = None,
+) -> float:
+    """The fastest CPU time of up to `repeats` runs of `work`.
+
+    With `limit_s`, a run under the limit returns at once (the minimum cannot get worse than a passing run), so
+    a passing check costs one run and only a slow first run pays for the retries."""
+    clock = clock or time.thread_time
+    best = float("inf")
+    for _ in range(repeats):
+        start = clock()
+        work()
+        best = min(best, clock() - start)
+        if limit_s is not None and best < limit_s:
+            break
     return best
 
 

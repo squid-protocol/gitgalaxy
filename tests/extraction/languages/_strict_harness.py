@@ -10,7 +10,8 @@ concern's helpers independently auditable).
 
 import multiprocessing
 import re
-import time
+
+from _timing import REDOS_LIMIT_S, best_cpu_seconds, cpu_best_of
 
 
 # ==============================================================================
@@ -24,6 +25,11 @@ def _plain(pattern: re.Pattern) -> re.Pattern:
     if isinstance(pattern, re.Pattern) or not hasattr(pattern, "pattern"):
         return pattern  # a real pattern, or a disabled rule (None) the sweeps pass through as they always did
     return re.compile(pattern.pattern, pattern.flags)
+
+
+def _cpu_of(pattern: re.Pattern, payload: str) -> float:
+    """CPU seconds of one regex scan of `payload`, fastest of three, as the ReDoS limit judges it (#8423)."""
+    return cpu_best_of(lambda: list(pattern.finditer(payload)), REDOS_LIMIT_S)
 
 
 def _hang_cap(timeout_sec: float) -> float:
@@ -43,9 +49,7 @@ def _detonate(pattern: re.Pattern, payload: str, result_queue: multiprocessing.Q
     """
     if started is not None:
         started.set()  # the parent's clock starts here, not at spawn (slow on Windows, #4494)
-    start = time.thread_time()  # CPU time of the child, not wall time (#4477)
-    list(pattern.finditer(payload))
-    result_queue.put(time.thread_time() - start)
+    result_queue.put(_cpu_of(pattern, payload))  # child CPU time, fastest of 3 (#4477, #8423)
 
 
 # One spawned child per test process, reused: a call sends (pattern, payload) down a pipe and the child answers with the
@@ -62,9 +66,7 @@ def _chamber_loop(conn, started):
             pattern, payload = conn.recv()
         except EOFError:
             return
-        start = time.thread_time()  # CPU time of the child, not wall time (#4477)
-        list(pattern.finditer(payload))
-        conn.send(time.thread_time() - start)
+        conn.send(_cpu_of(pattern, payload))  # child CPU time, fastest of 3 (#4477, #8423)
 
 
 def _chamber():
@@ -93,7 +95,7 @@ def _discard():
         conn.close()
 
 
-def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 1.0):
+def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = REDOS_LIMIT_S):
     """
     Runs a regex in an isolated process. If it exceeds timeout_sec, it is
     flagged as a Catastrophic Backtracking (ReDoS) vulnerability, and the
@@ -122,12 +124,10 @@ def _detonate_all(jobs: list, conn, started=None):
     if started is not None:
         started.set()
     for pattern, payload in jobs:
-        start = time.thread_time()
-        list(pattern.finditer(payload))
-        conn.send(time.thread_time() - start)
+        conn.send(_cpu_of(pattern, payload))
 
 
-def assert_redos_immune_all(pairs, timeout_sec: float = 1.0):
+def assert_redos_immune_all(pairs, timeout_sec: float = REDOS_LIMIT_S):
     """`assert_redos_immune` for many (pattern, payload) pairs in ONE isolated process (#5166).
 
     A sweep of N pairs paid N interpreter spawns, which was most of its time. Every pair is still
@@ -181,9 +181,4 @@ def _best_of_timing(pattern: re.Pattern, payload: str, trials: int = 5) -> float
     distribution further without changing what's being proven.
     """
     pattern = _plain(pattern)  # compiled before the clock starts
-    best = float("inf")
-    for _ in range(trials):
-        start = time.thread_time()
-        pattern.search(payload)
-        best = min(best, time.thread_time() - start)
-    return best
+    return best_cpu_seconds(lambda: pattern.search(payload), trials)

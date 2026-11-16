@@ -624,15 +624,6 @@
    "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
   },
   {
-   "id": "4753ba9a37",
-   "op": "CON",
-   "line": 160,
-   "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
-   "verdict": "equivalent",
-   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
-  },
-  {
    "id": "9bda22bed7",
    "op": "CON",
    "line": 160,
@@ -1744,15 +1735,6 @@
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
    "verdict": "equivalent",
    "reason": "ACCTCTRL never reads the EIB or RETURN-CODE and neither storage is compared"
-  },
-  {
-   "id": "9f1780c403",
-   "op": "DEL",
-   "line": 341,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "caBack is reset per task; without the reset a task with no COMMAREA after one with refills that earlier task's DTO from the area, which nothing reads"
   },
   {
    "id": "202a212cf6",

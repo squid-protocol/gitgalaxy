@@ -251,3 +251,34 @@ def test_the_rank_with_possible_flag_runs(tmp_path):
         check=False,
     )
     assert res.returncode == 0 and "REACH" in res.stdout
+
+
+def _wal_db(tmp_path):
+    db = _make(tmp_path)
+    con = sqlite3.connect(db)
+    con.execute("PRAGMA journal_mode=WAL")
+    con.commit()
+    con.close()  # the last close checkpoints and removes the -wal file, as a finished scan leaves it
+    return db
+
+
+def test_reading_a_wal_database_leaves_no_files_behind(tmp_path):
+    db = _wal_db(tmp_path)
+    assert sorted(p.name for p in tmp_path.glob("s_galaxy_master.db*")) == ["s_galaxy_master.db"]
+    reach.build(db)
+    reach.scope(db, "free")
+    assert sorted(p.name for p in tmp_path.glob("s_galaxy_master.db*")) == ["s_galaxy_master.db"]  # no -wal, no -shm
+
+
+def test_a_database_with_a_live_write_ahead_log_is_still_read_in_full(tmp_path):
+    db = _wal_db(tmp_path)
+    writer = sqlite3.connect(db)  # still open: its committed rows sit in the -wal file, not yet in the main file
+    writer.execute("PRAGMA journal_mode=WAL")
+    writer.execute("INSERT INTO file_data VALUES (7,'c/extra.c','c',0,'[]')")
+    writer.commit()
+    assert (tmp_path / "s_galaxy_master.db-wal").exists()
+    try:
+        paths = {r["path"] for r in reach.build(db)["not_measured"]}
+        assert "c/extra.c" in paths  # an immutable open would have missed the row
+    finally:
+        writer.close()

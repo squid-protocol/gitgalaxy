@@ -49,6 +49,7 @@ from pathlib import Path, PurePosixPath
 from gitgalaxy.standards.stdlib_modules import is_stdlib_module
 from gitgalaxy.standards.system_headers import is_system_header
 from gitgalaxy.tools.sensors.library_table import DEFAULT_LIBRARIES
+from gitgalaxy.tools.sensors.reach import open_scan_db
 
 LANGUAGE_EXTENSIONS: dict[str, tuple[str, ...]] = {
     "c": (".c", ".h"),
@@ -60,7 +61,7 @@ LANGUAGE_EXTENSIONS: dict[str, tuple[str, ...]] = {
     "js": (".js", ".mjs", ".cjs", ".jsx", ".ts", ".mts", ".cts", ".tsx"),
 }
 C_FAMILY = LANGUAGE_EXTENSIONS["c"] + LANGUAGE_EXTENSIONS["cpp"]
-_HEADER_SUFFIXES = (".h", ".hh", ".hpp", ".hxx", ".h++")
+HEADER_SUFFIXES = (".h", ".hh", ".hpp", ".hxx", ".h++")
 _RUST_SKIP = frozenset({"std", "core", "alloc", "crate", "self", "super"})
 _JAVA_SKIP = ("java.", "javax.", "jdk.", "org.xml.", "org.w3c.", "org.ietf.", "org.omg.")
 _GO_THREE_PART_HOSTS = frozenset({"github.com", "gitlab.com", "bitbucket.org", "golang.org"})
@@ -219,7 +220,7 @@ def discover_root(
         if is_system_header(tok, ext) or PurePosixPath(tok).name in basenames:
             return None
         root = tok.split("/", 1)[0]
-        return PurePosixPath(root).stem if root.endswith(_HEADER_SUFFIXES) else root
+        return PurePosixPath(root).stem if root.endswith(HEADER_SUFFIXES) else root
     if ext in LANGUAGE_EXTENSIONS["python"]:
         root = tok.split(".", 1)[0]
         return None if is_stdlib_module(tok, ".py") or root.lower().replace("-", "_") in segments else root
@@ -281,7 +282,7 @@ def _applies(lib: Lib, ext: str) -> bool:
 
 
 def build(db: str | Path, libs: dict[str, Lib]) -> Surface:
-    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    con = open_scan_db(db)
     try:
         rows = con.execute("SELECT id, file_path, total_loc, raw_imports, repo_name FROM file_data").fetchall()
         has_external = con.execute("SELECT 1 FROM sqlite_master WHERE name = 'fcall_external'").fetchone() is not None

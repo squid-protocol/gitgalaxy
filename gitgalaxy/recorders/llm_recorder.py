@@ -727,13 +727,16 @@ class LLMRecorder:
         forensic_report: dict[str, Any] | None = None,
         call_resolution: dict[str, Any] | None = None,
         mainframe_completeness: dict[str, Any] | None = None,
+        scan_db: str | None = None,
     ):
         """Generates the dual-output AI artifacts: Markdown and SQLite.
 
         `call_resolution` (#3331) is the call resolver's stats, rendered as the
         brief's function-call resolution section (absent when None/empty).
         `mainframe_completeness` (#3506) is GalaxyIR.completeness(), one line at
-        the end of the mainframe facts section (absent when None)."""
+        the end of the mainframe facts section (absent when None). `scan_db` is the
+        finished `*_master.db`: the reach and library sections (16, 17) read it and
+        are absent when None."""
         if forensic_report is None:
             forensic_report = {}
 
@@ -792,6 +795,7 @@ class LLMRecorder:
             forensic_report,
             call_resolution,
             mainframe_completeness,
+            scan_db,
         )
 
         try:
@@ -1031,6 +1035,111 @@ class LLMRecorder:
         lines.append("")
         return lines
 
+    # How many rows each of the two scan-database sections lists.
+    _REACH_TOP = 5
+    _LIBRARIES_TOP = 8
+
+    def _reach_lines(self, scan_db: str | None) -> list[str]:
+        """Who depends on what: the top of `gitgalaxy reach` (wiki 08-24), read from the finished scan database.
+
+        A count, not a score: for a source file the other files and functions that call into it, for a header the files that include it.
+        Absent when the scan wrote no database, the database lacks the tables, or nothing has a caller; a failure here never stops the brief."""
+        if not scan_db:
+            return []
+        try:
+            from gitgalaxy.tools.sensors import reach
+
+            result = reach.build(scan_db)
+        except Exception as exc:  # the brief is written without this section, not skipped
+            logging.getLogger("llm_recorder").warning(f"REACH section skipped: {exc}")
+            return []
+        rows = [r for r in result["rows"] if r["role"] == "source"]
+        files = sorted(
+            (r for r in rows if r["kind"] == "source" and r["reach_files"]),
+            key=lambda r: (-r["reach_files"], r["path"]),
+        )
+        heads = sorted(
+            (r for r in rows if r["kind"] == "header" and r["reach_files"]),
+            key=lambda r: (-r["reach_files"], r["path"]),
+        )
+        if not files and not heads:
+            return []
+        n_calls = sum(1 for r in result["rows"] if r["kind"] == "source")
+        n_heads = sum(1 for r in result["rows"] if r["kind"] == "header")
+        lines = ["## 16. REACH (Who Depends On What)"]
+        lines.append(
+            "> **AI CONTEXT:** For a source file, how many other files and functions call a function it defines; for a header, how many files "
+            "include it. It says how much code is on the receiving end of a change, not whether the file is defective. Counts are lower bounds: "
+            "calls to names the scan cannot resolve (standard library, macros) are not recorded, and ambiguous or tied calls show as *possible* "
+            "callers beside the count. `gitgalaxy reach <scan>_galaxy_master.db` lists more; `--callee NAME` scopes a rename or removal.\n"
+        )
+        lines.append(
+            f"- **Measured:** {n_calls} source files by call graph, {n_heads} headers by include count, "
+            f"{len(result['not_measured'])} files not measured (no functions found)."
+        )
+        lines.append("")
+        if files:
+            lines.append("| File | Caller files | Caller functions | One hop out |")
+            lines.append("|---|---|---|---|")
+            lines.extend(
+                f"| `{r['path']}` | {r['reach_files']}"
+                + (f" (+{r['possible_caller_files']} possible)" if r["possible_caller_files"] else "")
+                + f" | {r['caller_functions']} | {r['one_hop_out']} |"
+                for r in files[: self._REACH_TOP]
+            )
+            lines.append("")
+        if heads:
+            lines.append("| Header | Files that include it |")
+            lines.append("|---|---|")
+            lines.extend(f"| `{r['path']}` | {r['reach_files']} |" for r in heads[: self._REACH_TOP])
+            lines.append("")
+        return lines
+
+    def _library_lines(self, scan_db: str | None) -> list[str]:
+        """What the repository leans on: the external libraries `gitgalaxy libsurface` (wiki 08-25) finds in the finished scan database.
+
+        Discovery from the stored imports and includes plus the shipped table's API names; the user's own library files are not read, so the
+        brief does not depend on the machine it was written on. Absent when there is no database or no external library."""
+        if not scan_db:
+            return []
+        try:
+            from gitgalaxy.tools.sensors import libsurface
+
+            surface = libsurface.build(scan_db, libsurface.load_libraries([]))
+        except Exception as exc:  # the brief is written without this section, not skipped
+            logging.getLogger("llm_recorder").warning(f"LIBRARIES section skipped: {exc}")
+            return []
+
+        def listed(name: str, files: dict) -> bool:
+            # a library in the shipped table is validated. One only discovered is listed when an import names it (Python, Go, Java, Rust, JS);
+            # a C include never is: its directory or bare header is far more often a platform header the system-header list does not know
+            # (`gnu/`, `vm/`, `TargetConditionals.h`) than a dependency
+            if name in surface.table_libraries:
+                return True
+            return any(not t.endswith(libsurface.HEADER_SUFFIXES) for c in files.values() for t in c.includes)
+
+        ranked = sorted(
+            ((n, f) for n, f in surface.libraries.items() if listed(n, f)), key=lambda kv: (-len(kv[1]), kv[0])
+        )[: self._LIBRARIES_TOP]
+        if not ranked:
+            return []
+        lines = ["## 17. LIBRARIES (What The Repository Leans On)"]
+        lines.append(
+            "> **AI CONTEXT:** External libraries found from the imports and includes the scan stored (the standard library, system headers and the "
+            "repository's own code are set aside; a C or C++ library is listed only if it is in the shipped table). "
+            "A *site* is a matching import or include plus a call to one of the library's API names; API names "
+            "are counted only for the libraries in the shipped table (C and C++), so other languages show imports only. Where work on a library "
+            "tends to land, not a risk rating. `gitgalaxy libsurface <scan>_galaxy_master.db --lib NAME` lists the coupled files.\n"
+        )
+        lines.append("| Library | Files | Sites | API names |")
+        lines.append("|---|---|---|---|")
+        lines.extend(
+            f"| {name} | {len(files)} | {sum(c.sites for c in files.values())} | {len({n for c in files.values() for n in c.names})} |"
+            for name, files in ranked
+        )
+        lines.append("")
+        return lines
+
     # #3813: decode paths that were a guess rather than a certainty
     _GUESSED_DECODES = frozenset({"cp1252-fallback", "latin-1-fallback"})
 
@@ -1191,6 +1300,7 @@ class LLMRecorder:
         forensic_report: dict[str, Any],
         call_resolution: dict[str, Any] | None = None,
         mainframe_completeness: dict[str, Any] | None = None,
+        scan_db: str | None = None,
     ) -> str:
         """Constructs a high-density, context-rich Markdown brief for LLM agents."""
         target = session_meta.get("target", "Project")
@@ -2229,6 +2339,11 @@ class LLMRecorder:
         # --- 15. FUNCTION CALL RESOLUTION (#3331) ---
         # Optional: renders only when the call resolver saw at least one call.
         lines.extend(self._call_resolution_lines(call_resolution))
+
+        # --- 16. REACH and 17. LIBRARIES (#8529) ---
+        # Optional: read from the finished scan database; absent without one.
+        lines.extend(self._reach_lines(scan_db))
+        lines.extend(self._library_lines(scan_db))
 
         # ==============================================================================
 

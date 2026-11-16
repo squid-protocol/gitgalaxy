@@ -189,6 +189,7 @@ so on for `javascript`, `java`, `rust`, `go`, `c`, `cpp`).
 - `fcall_rate_data` (#3331): scoped / unique / ambiguous / external counts per
   language and for the repository (`language = '*'`). The brief's section 15
   shows the same figures.
+- The brief's sections 16 (reach) and 17 (libraries) (#8529) read the finished `*_master.db` (`gitgalaxy reach`, `gitgalaxy libsurface`; wiki 08-24 and 08-25): they add no table and no column, are absent when the scan wrote no database, and never stop the brief from being written.
 - `function_data` (#3330):
   - `func_pagerank`: PageRank over the confident links.
   - `func_fan_in` / `func_fan_out`: distinct confident callers and callees.

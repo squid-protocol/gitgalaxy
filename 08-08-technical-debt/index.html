@@ -12223,6 +12223,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#measured-behavior-exploratory-2026-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured Behavior (exploratory, 2026-11)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12717,9 +12728,12 @@
 <p>The analysis engine categorizes comment tokens into two debt classes:
 - <strong>Planned Work (1.0x Weight):</strong> <code>TODO</code>, <code>WIP</code>, <code>STUB</code>, <code>REFACTOR</code>. Represents tracked future tasks.
 - <strong>Fragile Fixes (3.0x Weight):</strong> <code>HACK</code>, <code>FIXME</code>, <code>XXX</code>, <code>UGLY</code>. Explicit admissions of buggy or brittle logic.</p>
+<p><strong>What the code does beyond the annotation markers.</strong> The score also counts two implicit terms that are not comments: functions flagged as unreferenced by name (<code>unreferenced_by_name</code>, weight 2.0) and duplicate logic (<code>duplicate_logic</code>, weight 5.0); when any implicit term and any acknowledged marker are both present, the stress is multiplied by 1.5. A file with no markers and no implicit terms returns 0.0 immediately.</p>
 <p><strong>Mathematical Formulation</strong>
 1. <strong>Stress Sum Calculation:</strong>
-$<span class="arithmatex">\(\text{StressSum} = (\text{PlannedDebt} \times 1.0) + (\text{FragileDebt} \times 3.0) + (Irc \times 0.5)\)</span>$
+$<span class="arithmatex">\(\text{Slop} = (\text{Unreferenced} \times 2.0) + (\text{DuplicateLogic} \times 5.0)\)</span>$
+$<span class="arithmatex">\(\text{StressSum} = (\text{PlannedDebt} \times 1.0) + (\text{FragileDebt} \times 3.0) + (Irc \times 0.5) + \text{Slop}\)</span>$
+$<span class="arithmatex">\(\text{if } \text{Slop} &gt; 0 \text{ and } (\text{PlannedDebt} &gt; 0 \text{ or } \text{FragileDebt} &gt; 0): \; \text{StressSum} \mathrel{\times}= 1.5\)</span>$
 2. <strong>Density Normalization (per 100 LOC):</strong>
 $<span class="arithmatex">\(\text{Density} = \left( \frac{\text{StressSum}}{\max(\text{LOC}, 50)} \right) \times 100.0\)</span>$
 The denominator is the UEF evidence-mass floor (<a href="../08-03-transforming-regex-counts/">08-03</a>): a <code>TODO</code> and a <code>FIXME</code> in a 6-line config file and the same pair in a 49-line one carry the same debt score (#2655).
@@ -12746,12 +12760,25 @@ $<span class="arithmatex">\(\text{FinalScore} = \min(\text{RawScore} \times Mp, 
 <ul>
 <li>Highly reliant on developer discipline. If a team does not use <code>TODO</code> or <code>FIXME</code> conventions, this metric will report a false 0.0 risk.</li>
 <li>Does not interface with external issue trackers (e.g., Jira, GitHub Issues) to verify if a <code>TODO</code> is actually scheduled or abandoned.</li>
-<li>Custom debt tags (e.g., <code>OPTIMIZE</code>, <code>TECHDEBT</code>) are not recognized unless explicitly added to the static scanner regex.</li>
+<li>Custom debt tags (e.g., <code>OPTIMIZE</code>, <code>TECHDEBT</code>) are not recognized unless explicitly added to the static scanner regex.- Custom debt tags (e.g., <code>OPTIMIZE</code>, <code>TECHDEBT</code>) are not recognized unless explicitly added to the static scanner regex.</li>
+<li>The score is a density squashed by a sigmoid and mixes three different things (annotation markers, unreferenced names, duplicate logic); see Measured Behavior. It moves with net line count even when no debt marker is added or removed (the density-denominator artifact tracked in <code>docs/vectors.md</code>, <code>debt_markers</code>).</li>
+<li>No age, owner or history: a three-year-old <code>FIXME</code> and a three-day-old <code>TODO</code> look alike, and nothing says whether the marker's author is still around.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>Operates with <span class="arithmatex">\(O(1)\)</span> complexity using pre-computed token arrays. Incorporates an early exit shortcut: if no debt markers are present, the function immediately returns <code>0.0</code>, bypassing floating-point arithmetic.</p>
 <h2 id="future-work">Future Work</h2>
 <p>Currently, the system is strictly lexical and static. Future iterations plan to integrate with Git history to calculate "Debt Age" (penalizing a 3-year-old <code>FIXME</code> more than a 3-day-old <code>TODO</code>) and to support custom dictionary definitions for team-specific debt tags.</p>
+<h2 id="measured-behavior-exploratory-2026-11">Measured Behavior (exploratory, 2026-11)</h2>
+<blockquote>
+<p><strong>Research notes:</strong> temporal-crucible, branch <code>sensor-overhaul</code>, <code>docs/sensor-overhaul/</code> (guide, <code>sensors/activity.md</code>, <code>sensors/tech_debt.md</code>) and <code>docs/turn_surface_area.md</code>. Measurements are exploratory (13 repositories; a 580-repository population sample confirms the descriptive results).</p>
+</blockquote>
+<ul>
+<li><strong>Counting the markers is sound.</strong> The engine's planned-plus-fragile counts match a plain text search of the same commit: per-file Spearman +0.84 to +0.97 across eight repositories (libgit2 +0.92, libxml2 +0.95, redis +0.84, curl +0.94, sqlmap +0.90, scapy +0.95, sphinx +0.97, prometheus +0.94); the engine counts slightly more (more marker words, several human languages).</li>
+<li><strong>The composite loses it.</strong> The persisted tech-debt value correlates only +0.32 (median over repositories) with the marker counts, because the sigmoid mixes in unreferenced names and duplicate logic; 59% of files score 0 and the value is sparse.</li>
+<li><strong>Debt density does not predict fixes.</strong> A file's comment profile, including debt density, adds +0.003 AUC beyond size, churn and history (temporal-crucible comment-profile study).</li>
+<li><strong>How debt behaves over time</strong> (nine C projects, every marker followed through its life): about three quarters of debt comments are eventually removed, but projects range from 38% to 98% and from months to decades; <code>XXX</code> lives longest (median 3.0 years against 1.1 for <code>TODO</code> and <code>FIXME</code>); about half is repaid by its own author; debt is repaid in large commits, not bug fixes.</li>
+<li><strong>Old debt is stuck, not riskier.</strong> Debt older than the 90th percentile of what that repository has repaid ("fossils") is repaid within two years 6.9% of the time against 22.0% for other debt; fossils in files with 10 or more commits that year are repaid 12.6% of the time against 2.6% in quiet files; markers whose author is still active are repaid more often. Marker class (<code>TODO</code> vs <code>FIXME</code> vs <code>XXX</code>) and bare markers do not change the odds.</li>
+</ul>
 <h2 id="related-components">Related Components</h2>
 <ul>
 <li>Static Analysis Engine</li>

@@ -9588,6 +9588,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#scans-of-historical-commits-as-of-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scans of Historical Commits (As-Of Mode)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measured-behavior-exploratory-2026-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured Behavior (exploratory, 2026-11)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -12662,7 +12684,7 @@
 <li><strong>Boundary Discovery:</strong> The component queries <code>git rev-list</code> and <code>git log</code> to find the timestamps of the first commit and the latest commit across the entire project.</li>
 <li><strong>Cosmetic Commit Filtering:</strong> The Chronometer automatically loads <code>.git-blame-ignore-revs</code> (if available), filtering out cosmetic commits (e.g., mass code-formatting by Prettier or Black) from the churn calculations.</li>
 <li><strong>1-Year Sweep:</strong> Rather than parsing the entire history of older repositories, the component limits its churn scan to the past 12 months. This guarantees that metrics reflect recent development activity without wasting resources on older, stable code.</li>
-<li><strong>Dynamic Halting:</strong> To conserve RAM and CPU, the scanner dynamically halts once it has mapped 50% of the active repository, or hits a hard cap of 5,000 files.</li>
+<li><strong>Dynamic Halting:</strong> To conserve RAM and CPU, the scanner dynamically halts once it has mapped 50% of the active repository, or hits a hard cap of 5,000 files. In the code the 50% rule applies only to repositories of more than 200 files (a smaller one is read to the end), and the stream also stops after a 15-second timeout (<code>STREAM_TIMEOUT_SECONDS</code>), so on a large repository some files have no history in the sweep even when they changed.</li>
 </ul>
 <h2 id="process-management-fallbacks">Process Management &amp; Fallbacks</h2>
 <p>Streaming large Git logs via <code>subprocess.Popen</code> can be resource-intensive. If the stream hangs, it can create zombie processes that leak file descriptors. The Chronometer enforces strict resource management:</p>
@@ -12674,8 +12696,8 @@
 <h2 id="output-metrics">Output Metrics</h2>
 <p>The Chronometer acts as a raw data collection layer. It extracts the following data for the <code>SignalProcessor</code> to use in final metric calculations:</p>
 <ul>
-<li><strong>Stability (Age):</strong> The exact modification time (<code>mtime</code>) of each file, along with the repository's minimum and maximum timestamps.</li>
-<li><strong>Raw Churn Frequency:</strong> The total commit count for each file within the historical sweep window.</li>
+<li><strong>Stability (Age):</strong> The exact modification time (<code>mtime</code>) of each file, along with the repository's minimum and maximum timestamps. This is the time of the file's <strong>last</strong> modification, not its creation (see <a href="../08-10-file-stability/">File Stability</a>).</li>
+<li><strong>Raw Churn Frequency:</strong> The total commit count for each file within the historical sweep window (12 months).</li>
 <li><strong>Ownership Mapping:</strong> A dictionary mapping every author who modified a file to their respective commit counts. This powers downstream ownership entropy and silo risk calculations.</li>
 </ul>
 <p><br><br></p>
@@ -12688,6 +12710,17 @@
 </ul>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
+<h2 id="scans-of-historical-commits-as-of-mode">Scans of Historical Commits (As-Of Mode)</h2>
+<p>Two things decide whether a scan of an old commit carries history values at all:</p>
+<ul>
+<li><strong>The directory must be a git work tree.</strong> An exported tree (for example a tarball of a commit) has no <code>.git</code>, so the Chronometer falls back to neutral values (stability <code>50.0</code>, churn <code>0.0</code>). Scan a detached <code>git worktree</code> of the commit instead.</li>
+<li><strong>The window must be anchored to the commit, not to today.</strong> The default sweep is "one year before now", which is empty for any commit older than a year. <code>GITGALAXY_HISTORY_ASOF=1</code> anchors the window to the checked-out commit's date, streams the whole window and dates out-of-window files by their last ancestor commit, so every history field becomes a deterministic function of the checked-out commit.</li>
+</ul>
+<h2 id="measured-behavior-exploratory-2026-11">Measured Behavior (exploratory, 2026-11)</h2>
+<blockquote>
+<p><strong>Research notes:</strong> temporal-crucible, branch <code>sensor-overhaul</code>, <code>docs/sensor-overhaul/</code> (guide, <code>sensors/activity.md</code>, <code>sensors/tech_debt.md</code>) and <code>docs/turn_surface_area.md</code>. Measurements are exploratory (13 repositories; a 580-repository population sample confirms the descriptive results).</p>
+</blockquote>
+<p>On the history-aware scans of 7 repositories (143 scans, each from a detached worktree with <code>GITGALAXY_HISTORY_ASOF=1</code>) the two persisted values reduce to two plain quantities: churn is rank-equivalent to the file's commits in the last 365 days (Spearman 0.96) and stability to the days since the file's last commit (0.97), and the two correlate -0.86 with each other. Details and limits (renames, mechanical sweeps, the 12-month window and the early-halt rules above): <a href="../08-06-deep-churn/">Deep Churn</a> and <a href="../08-10-file-stability/">File Stability</a>.</p>
 
 
 

@@ -464,6 +464,16 @@
       "why": "the COMMAREA as the DTO alone, no LINK bytes: the task's end state is the typed fill of DFHCOMMAREA"
     },
     {
+      "name": "link-bytes-tail-sdr",
+      "commarea": {
+        "CA-TYPE": "SDR",
+        "CA-URI-FIELD-01": "/resources"
+      },
+      "link_bytes": true,
+      "commarea_tail_hex": "5441494C",
+      "why": "#7954 slice 19: the caller passes its COMMAREA as raw bytes (handleLink(request, byte[])) and the area runs 4 bytes past the 13-byte record: the program must leave the tail as it was, and the whole area each side left is compared (the caBack arraycopy length bounds)"
+    },
+    {
       "name": "body-41",
       "commarea": {
         "CA-TYPE": "SDR",

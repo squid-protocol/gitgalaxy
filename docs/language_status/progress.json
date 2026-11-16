@@ -1,5 +1,5 @@
 {
- "commit": "d5a5dc7ca",
+ "commit": "1b668c833",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,15 +976,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-16T18:54:51Z",
+  "as_of": "2026-11-16T19:26:27Z",
   "core": {
-   "closed": 248,
-   "open": 16,
+   "closed": 251,
+   "open": 13,
    "total": 264
   },
   "core_last_window": {
-   "closed": 9,
-   "net_closed": 2,
+   "closed": 12,
+   "net_closed": 5,
    "opened": 7
   },
   "core_milestone": {
@@ -1000,22 +1000,22 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "56 days",
+  "eta": "18 days",
   "frontier": {
-   "closed": 128,
+   "closed": 131,
    "found_last_window": 4,
-   "open": 82,
+   "open": 79,
    "total": 210
   },
   "frontier_milestone": {
-   "closed": 17,
+   "closed": 19,
    "number": 30,
-   "open": 40,
+   "open": 38,
    "total": 57
   },
   "infra": {
-   "closed": 255,
-   "open": 34,
+   "closed": 257,
+   "open": 32,
    "total": 289
   },
   "measured": true,
@@ -1126,16 +1126,16 @@
     "total": 3
    },
    {
-    "closed": 46,
+    "closed": 47,
     "number": 18,
-    "open": 1,
+    "open": 0,
     "title": "Run Verified \u2705 \u2014 Pics or It Didn't Port",
     "total": 47
    },
    {
-    "closed": 17,
+    "closed": 21,
     "number": 19,
-    "open": 4,
+    "open": 0,
     "title": "New Challenger Approaches \ud83e\udd4a \u2014 Fresh Estates",
     "total": 21
    },
@@ -1154,9 +1154,9 @@
     "total": 8
    },
    {
-    "closed": 64,
+    "closed": 65,
     "number": 22,
-    "open": 3,
+    "open": 2,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
     "total": 67
    },
@@ -1210,9 +1210,9 @@
     "total": 8
    },
    {
-    "closed": 17,
+    "closed": 19,
     "number": 30,
-    "open": 40,
+    "open": 38,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
     "total": 57
    },

@@ -1,5 +1,5 @@
 {
- "commit": "2051730d1",
+ "commit": "fc8dd7125",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-16T22:21:07Z",
+  "as_of": "2026-11-16T22:24:55Z",
   "core": {
    "closed": 252,
    "open": 12,
@@ -1049,9 +1049,9 @@
     "total": 12
    },
    {
-    "closed": 64,
+    "closed": 65,
     "number": 6,
-    "open": 1,
+    "open": 0,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 65
    },
@@ -1225,13 +1225,13 @@
    }
   ],
   "sweep": {
-   "closed": 105,
-   "open": 1,
+   "closed": 106,
+   "open": 0,
    "total": 106
   },
   "title_counts": {
    "cics": {
-    "closed": 129,
+    "closed": 130,
     "total": 141
    },
    "cobol": {

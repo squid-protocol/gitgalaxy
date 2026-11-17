@@ -227,7 +227,7 @@ def proc_scenarios_live() -> tuple[int, int]:
         ] == list(sc["expect"])
     rows = job_flow.jcl_job_flow(text)
     for sc in doc["flow"]:
-        ok += JclFlow(expand_flow_rows(rows, sc["job"])).run(sc["job"], sc["given"]).actions == sc["expect"]
+        ok += JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions == sc["expect"]
     return ok, len(doc["resolve"]) + len(doc["flow"])
 
 

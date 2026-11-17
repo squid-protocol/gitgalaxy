@@ -12,6 +12,10 @@
         "//PRC3     PROC",
         "//L3       EXEC PGM=LIBA3"
       ],
+      "PRC4": [
+        "//PRC4     PROC",
+        "//M1       EXEC PGM=ONLYA"
+      ],
       "STDDDS": [
         "//INCA     DD DSN=INC.FROM.A,DISP=SHR"
       ]
@@ -24,6 +28,11 @@
       "PRC2": [
         "//PRC2     PROC",
         "//L2       EXEC PGM=ONLYB"
+      ],
+      "PRC4": [
+        "//PRC4     PROC",
+        "//M1       EXEC PGM=PGMM",
+        "//M2       EXEC PGM=PGMN,COND=(4,LT,M1)"
       ],
       "STDDDS": [
         "//INCB     DD DSN=INC.FROM.B,DISP=SHR"
@@ -106,7 +115,20 @@
     "// IF (R1.Q1.ABENDCC = S0C7) THEN",
     "//R5       EXEC PGM=PGMF",
     "// ENDIF",
-    "//R6       EXEC PGM=PGMG,COND=(4,LT,R1.Q2)"
+    "//R6       EXEC PGM=PGMG,COND=(4,LT,R1.Q2)",
+    "//*",
+    "//LIFJOB   JOB (ACCT),'IF LIB PROC',CLASS=A,MSGCLASS=X",
+    "//PROCLIB  JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//T1       EXEC PRC4",
+    "// IF (T1.M2.RC = 0) THEN",
+    "//T2       EXEC PGM=PGMC",
+    "// ELSE",
+    "//T3       EXEC PGM=PGMD",
+    "// ENDIF",
+    "// IF (T1.M2.RUN = FALSE) THEN",
+    "//T4       EXEC PGM=PGME",
+    "// ENDIF",
+    "//T5       EXEC PGM=PGMG,COND=(4,LT,T1.M1)"
   ],
   "resolve_input": "resolve: the call step of a job, e.g. S1 of SYMJOB; libraries are the libraries object of this file.",
   "resolve_answer": "expect: per proc step (key CALLSTEP.PROCSTEP, or CALLSTEP for a plain step), pgm; parm and cond only where the scenario is about them; dd = every DD naming a DSN, in the order the step ends up with them, as {ddname: dsn}.",
@@ -497,6 +519,46 @@
       },
       "assumed": "A3",
       "basis": "As ifp-q1-abends-s0c7, but R1.Q1.ABENDCC = S0C7 is false for S806, so R5 is bypassed too."
+    }
+,
+    {
+      "id": "ifp-lib-all-zero",
+      "job": "LIFJOB",
+      "given": {
+        "T1.M1": { "rc": 0 },
+        "T1.M2": { "rc": 0 },
+        "T2": { "rc": 0 },
+        "T5": { "rc": 0 }
+      },
+      "expect": {
+        "T1.M1": "run",
+        "T1.M2": "run",
+        "T2": "run",
+        "T3": "bypass",
+        "T4": "bypass",
+        "T5": "run"
+      },
+      "assumed": "A2",
+      "basis": "PRC4 is a library member (JCLLIB ORDER=(LIB.B,LIB.A); ASSUMED A2: first library holding it wins, so LIB.B's two-step PRC4, not LIB.A's one-step one). Its steps are addressed T1.M1 / T1.M2 exactly as an in-stream procedure's. M1 rc 0: M2 COND (4,LT,M1) is 4 < 0, false, so M2 runs. T1.M2.RC = 0 is true, T2 runs, ELSE T3 does not. T1.M2.RUN = FALSE is false (M2 ran), T4 is bypassed. T5 COND (4,LT,T1.M1): 4 < 0 false, runs."
+    },
+    {
+      "id": "ifp-lib-m1-rc8",
+      "job": "LIFJOB",
+      "given": {
+        "T1.M1": { "rc": 8 },
+        "T3": { "rc": 0 },
+        "T4": { "rc": 0 }
+      },
+      "expect": {
+        "T1.M1": "run",
+        "T1.M2": "bypass",
+        "T2": "bypass",
+        "T3": "run",
+        "T4": "run",
+        "T5": "bypass"
+      },
+      "assumed": "A2",
+      "basis": "M1 ends rc 8: M2 COND (4,LT,M1) is 4 < 8, true, so M2 is bypassed. A bypassed step has no return code, so T1.M2.RC = 0 is false and ELSE T3 runs; T1.M2.RUN = FALSE is true (M2 did not run), T4 runs. T5 COND (4,LT,T1.M1) is 4 < 8, true, bypassed."
     }
   ],
   "assumed": [

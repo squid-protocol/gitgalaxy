@@ -264,6 +264,7 @@ def _settings_libs(spec: Any) -> list[Any]:
 
 
 _ZAPP_DIR_CAP = 20000  # directories walked to expand one zapp.yaml glob; a bigger tree declares nothing past it
+_ZAPP_GROUPS = "propertyGroups"  # a key of a file we read, not a dict we write
 _ZAPP_PRUNE = {".git", "node_modules"}
 
 
@@ -290,7 +291,7 @@ def _zapp_dirs(folder: str, spec: Any) -> list[str]:
     `local` library of a `language: cobol` property group (the SYSLIB concatenation, then named libraries), each
     `locations` glob expanded over the folder's directories (matches sorted). `mvs` entries, `${...}` variables and
     absolute or parent-escaping paths declare nothing."""
-    groups = spec.get("propertyGroups") if isinstance(spec, dict) else None
+    groups = spec.get(_ZAPP_GROUPS) if isinstance(spec, dict) else None
     globs: list[str] = []
     for group in groups or []:
         if not isinstance(group, dict) or str(group.get("language", "")).lower() != "cobol":

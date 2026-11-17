@@ -145,10 +145,17 @@ def test_the_declared_order_decides_which_same_name_member_a_copy_reads(tmp_path
     assert edges_of(repo, tmp_path) == {winner}
 
 
-def test_a_nearer_zapp_yaml_is_searched_before_the_root_one(tmp_path):
+def test_a_nearer_zapp_yaml_governs_its_folder_alone(tmp_path):
     repo = estate(tmp_path, ["p/LIBP"], FILES)
-    write(repo, "apps/zapp.yaml", cobol("../q/LIBQ"))  # escapes its folder: declares nothing
-    assert edges_of(repo, tmp_path) == {"p/LIBP/REC1.cpy"}
     write(repo, "apps/zapp.yaml", cobol("local"))
     write(repo, "apps/local/REC1.cpy", ITEM_B)
-    assert edges_of(repo, tmp_path / "again") == {"apps/local/REC1.cpy"}
+    assert edges_of(repo, tmp_path) == {"apps/local/REC1.cpy"}
+
+
+def test_a_nearer_zapp_yaml_that_names_no_directory_does_not_hand_over_to_the_root_one(tmp_path):
+    """A multi-root sample names workspace folders (`cust`), not directories: the root's libraries must not apply."""
+    nearer = estate(tmp_path / "n", ["p/LIBP"], FILES)
+    write(nearer, "apps/zapp.yaml", cobol("cust", "trans"))
+    plain = estate(tmp_path / "d", ["p/LIBP"], FILES)
+    (plain / "zapp.yaml").unlink()  # the default resolver's answer, with no declaration at all
+    assert edges_of(nearer, tmp_path / "n") == edges_of(plain, tmp_path / "d")

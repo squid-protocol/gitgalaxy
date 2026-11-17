@@ -372,6 +372,8 @@ class Gh:
         self.perm = "write"
         self.me = BOT  # the account `gh api user` reads
         self.matrix_runs = []
+        self.pr_files = []  # the PR's files API records (#8425)
+        self.issue_labels = []  # the labels of any issue a closing keyword names
         self.dep_state = "closed"
         # the timeline: who added each label
         self.events = [
@@ -423,6 +425,10 @@ class Gh:
             return self.events
         if bare.endswith("/comments"):
             return self.comments
+        if bare.endswith("/files"):
+            return self.pr_files if "page=1" in path else []
+        if re.search(r"/issues/\d+$", bare):
+            return {"labels": [{"name": x} for x in self.issue_labels]}
         if bare.endswith("/permission"):
             return {"permission": self.perm}
         if "/workflows/" in path:
@@ -769,6 +775,39 @@ def test_gather_reads_the_matrix_on_the_head_and_dispatches_only_when_none_ran()
     assert any(c[:3] == ["gh", "pr", "merge"] and "--auto" in c for c in gh.cmds)
 
 
+def test_decide_treats_an_implied_matrix_like_the_label():
+    acts = sg.decide(snap(labels=[sg.MERGE], matrix="none", matrix_implied=["why"]))
+    assert by_op(acts, "dispatch") == [{"op": "dispatch", "ref": "fix/x"}]
+    assert not by_op(acts, "automerge")
+    assert not by_op(acts, "unlabel")
+    acts = sg.decide(snap(labels=[sg.MERGE], matrix="green", matrix_implied=["why"]))
+    assert by_op(acts, "automerge")
+
+
+def test_gather_runs_the_matrix_for_a_red_main_fix_without_the_label():
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.pr["body"] = "Fixes #8165"
+    gh.issue_labels = ["ci-red-main"]
+    sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"})
+    assert ["gh", "workflow", "run", sg.MATRIX_WORKFLOW, "-R", sg.REPO_SLUG, "--ref", "fix/x"] in gh.cmds
+    assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.cmds)
+
+
+def test_gather_runs_the_matrix_for_a_platform_tool_test_and_not_for_an_ordinary_pr():
+    gh = Gh()
+    gh.dep_state = "closed"
+    patch = '+    subprocess.run(["rsync", "-a", "a", "b"], check=True)'
+    gh.pr_files = [{"filename": "tests/tools/test_x.py", "status": "added", "patch": patch}]
+    sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"})
+    assert any(c[:3] == ["gh", "workflow", "run"] for c in gh.cmds)
+    gh = Gh()
+    gh.dep_state = "closed"
+    gh.pr_files = [{"filename": "tests/tools/test_x.py", "status": "added", "patch": "+assert 1 == 1"}]
+    sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"})
+    assert not any(c[:3] == ["gh", "workflow", "run"] for c in gh.cmds)
+
+
 def test_apply_has_no_update_branch_op_any_more():
     cmds = []
 
@@ -997,7 +1036,7 @@ def test_the_graphql_path_makes_none_of_the_per_pr_rest_reads():
     gh = Gh()
     sg.gather(7, gh.api, None, now=NOW, on_main=set(), flaky=set(), graphql=gh.graphql)
     assert len(gh.gql) == 1
-    assert not [p for p in gh.calls if any(r in p.split("?")[0] for r in PER_PR_READS)]
+    assert not [p for p in gh.calls if any(p.split("?")[0].endswith(r) for r in PER_PR_READS)]
     rest = Gh()
     sg.gather(7, rest.api, None, now=NOW, on_main=set(), flaky=set())
     assert {r for r in PER_PR_READS for p in rest.calls if r in p} == set(PER_PR_READS)
@@ -1076,7 +1115,7 @@ def test_a_reconcile_pass_reads_each_pr_with_one_query(monkeypatch):
 
     before, after = reads(None), reads(True)
     assert len(after.gql) == 1 and len(after.calls) < len(before.calls) - 3 * 5
-    assert not [p for p in after.calls if any(r in p.split("?")[0] for r in PER_PR_READS)]
+    assert not [p for p in after.calls if any(p.split("?")[0].endswith(r) for r in PER_PR_READS)]
 
 
 def test_a_batch_reads_several_prs_per_query_and_gather_gives_the_rest_dict():
@@ -1088,7 +1127,7 @@ def test_a_batch_reads_several_prs_per_query_and_gather_gives_the_rest_dict():
     rest = sg.gather(7, Gh().api, None, now=NOW, on_main=set(), flaky=set())
     s = sg.gather(7, gh.api, None, now=NOW, on_main=set(), flaky=set(), prefetched=got)
     assert s == rest and sg.decide(s) == sg.decide(rest)
-    assert not [p for p in gh.calls if any(r in p.split("?")[0] for r in PER_PR_READS)]
+    assert not [p for p in gh.calls if any(p.split("?")[0].endswith(r) for r in PER_PR_READS)]
 
 
 @pytest.mark.parametrize(

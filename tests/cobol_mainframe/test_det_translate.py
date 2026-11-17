@@ -974,6 +974,35 @@ def test_an_i_o_control_apply_hint_is_read_past(tmp_path):
     assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["W"].size == 2
 
 
+@pytest.mark.parametrize(
+    "clauses",
+    [
+        ["    RERUN ON SYSCKPT EVERY 1000 RECORDS OF F."],
+        ["    RERUN", "        EVERY 500 RECORDS OF F."],
+        ["    SAME AREA FOR F G."],
+        ["    SAME RECORD AREA FOR F G."],
+        ["    SAME SORT AREA FOR F G."],
+        ["    MULTIPLE FILE TAPE CONTAINS F POSITION 1", "        G POSITION 2."],
+        ["    RERUN ON SYSCKPT EVERY 10 RECORDS OF F.", "    SAME AREA FOR F G."],
+    ],
+)
+def test_an_i_o_control_rerun_same_area_or_multiple_file_clause_is_read_past(tmp_path, clauses):
+    """#8412 (Batch Badlands BDLDCKP: `RERUN ON SYSCKPT EVERY 1000 RECORDS OF TRAN-FILE` refused the DATA DIVISION): IBM
+    accepts RERUN, SAME [RECORD | SORT] AREA and MULTIPLE FILE TAPE with no effect on a record's layout; the layout skips
+    each clause, one or several lines long, and still reads the records after it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    prog = tmp_path / "P.cbl"
+    prog.write_text(_fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. P.", "ENVIRONMENT DIVISION.",
+                           "INPUT-OUTPUT SECTION.", "FILE-CONTROL.", "    SELECT F ASSIGN TO FIN.",
+                           "    SELECT G ASSIGN TO GOUT.", "I-O-CONTROL.", *clauses, "DATA DIVISION.", "FILE SECTION.",
+                           "FD  F.", "01  R PIC X(80).", "FD  G.", "01  R2 PIC X(40).", "WORKING-STORAGE SECTION.",
+                           "01  W PIC X(2).", "PROCEDURE DIVISION.", "    GOBACK."), encoding="utf-8")  # fmt: skip
+    recs = {r.name: r for r in L.parse(SRC.program_lines(prog, []))}
+    assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["R2"].size == 40 and recs["W"].size == 2
+
+
 @pytest.mark.parametrize("strict", [False, True])
 def test_the_port_tickets_collisions_carry_their_libraries_and_the_strict_mode(tmp_path, strict):
     """#4486: the skeleton's copy_collisions rows name the library chosen and the others; strict comes from the

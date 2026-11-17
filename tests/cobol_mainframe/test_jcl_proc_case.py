@@ -34,7 +34,7 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_libraries_hold_the_members_the_scenarios_search_for():
     assert {k: sorted(v) for k, v in LIBS.items()} == {
-        "LIB.A": ["PRC1", "PRC3", "PRC4", "STDDDS"],
+        "LIB.A": ["OUTER", "PRC1", "PRC3", "PRC4", "STDDDS"],
         "LIB.B": ["PRC1", "PRC2", "PRC4", "STDDDS"],
     }
 
@@ -62,13 +62,24 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "jcllib",
         "include",
         "ifp-",
+        "nested-",
+        "dd-kind",
+        "include-in-proc",
     ):
         assert word in ids, word
 
 
 def test_what_is_not_answered_is_refused_by_name():
     refused = " ".join(r["construct"] for r in DOC["refused"])
-    for name in ("together with", "duplicate symbols", "assigned nowhere", "nested procedure"):
+    for name in (
+        "together with",
+        "duplicate symbols",
+        "assigned nowhere",
+        "SYSOUT",
+        "backward reference",
+        "IF flow",
+        "15 levels",
+    ):
         assert name in refused, name
 
 
@@ -116,3 +127,36 @@ def test_the_first_library_of_jcllib_order_supplies_the_flow_steps():
     text = "//J JOB\n//L JCLLIB ORDER=(LIB.A,LIB.B)\n//C EXEC PRC4\n"
     rows = expand_flow_rows(job_flow.jcl_job_flow(text), "J", text, LIBS)
     assert [r["step_name"] for r in rows if r["kind"] == "STEP"] == ["C.M1"]
+
+
+def _refused(text, match, libs=None):
+    with pytest.raises(JclProcRefused, match=match):
+        resolve_job(text, libs or {}, "J")
+
+
+def test_a_backward_reference_and_a_modifier_for_a_call_or_an_absent_step_are_refused():
+    outer = "//J JOB\n//PO PROC\n//S1 EXEC PI\n// PEND\n"
+    inner = "//PI PROC\n//S2 EXEC PGM=X\n//D DD DSN=A\n// PEND\n"
+    _refused(outer + inner + "//C EXEC PO\n//S1.S2.D DD DSN=B\n", "backward reference")
+    _refused(outer + inner + "//C EXEC PO\n//S1.D DD DSN=B\n", "absent from the procedure or itself calls")
+    _refused(outer + inner + "//C EXEC PO\n//NOPE.D DD DSN=B\n", "absent from the procedure or itself calls")
+
+
+def test_a_sysout_over_a_dsn_dd_and_a_call_parm_through_nesting_are_refused():
+    proc = "//J JOB\n//PR PROC\n//A EXEC PGM=X\n//D DD DSN=A\n// PEND\n"
+    _refused(proc + "//C EXEC PR\n//A.D DD SYSOUT=A\n", "SYSOUT")
+    nest = "//J JOB\n//PI PROC\n//B EXEC PGM=X\n// PEND\n//PO PROC\n//S1 EXEC PI\n// PEND\n"
+    _refused(nest + "//C EXEC PO,PARM=Q\n", "calls procedures")
+
+
+def test_an_include_group_holding_a_non_dd_statement_and_nesting_past_15_levels_are_refused():
+    text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//PR PROC\n//A EXEC PGM=X\n// INCLUDE MEMBER=BAD\n// PEND\n//C EXEC PR\n"
+    _refused(text, "anything but DD", {"LIB.A": {"BAD": "//B EXEC PGM=Y\n"}})
+    procs = "".join(f"//P{i} PROC\n//S EXEC P{i + 1}\n// PEND\n" for i in range(1, 17))
+    _refused("//J JOB\n" + procs + "//P17 PROC\n//Z EXEC PGM=X\n// PEND\n//C EXEC P1\n", "15 levels")
+
+
+def test_nested_calls_are_refused_in_if_flow():
+    text = "//J JOB\n//PI PROC\n//B EXEC PGM=X\n// PEND\n//PO PROC\n//S1 EXEC PI\n// PEND\n//C EXEC PO\n"
+    with pytest.raises(JclProcRefused, match="IF flow"):
+        expand_flow_rows(job_flow.jcl_job_flow(text), "J", text, {})

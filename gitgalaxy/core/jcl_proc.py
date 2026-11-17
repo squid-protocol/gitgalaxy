@@ -10,9 +10,14 @@
 # ASSUMED (scenarios.json): A1 an in-stream procedure is used before a library member of the same name; A2 INCLUDE
 # searches the JCLLIB ORDER libraries first-wins, as EXEC does.
 # Unqualified EXEC PARM= goes to the first procedure step only (the others' PARM are nullified); unqualified COND= to every step.
+# A4: a nested procedure's steps are keyed CALLSTEP.PROCSTEP naming the PGM step itself (levels flattened, as the manual's
+# "equivalent statements" do). Nested calls (15 levels), INCLUDE groups inside a procedure (and inside an INCLUDE group),
+# and DD kind overrides (DUMMY / DSN=NULLFILE nullify a DSN, a DSN other than NULLFILE nullifies a DUMMY) are resolved.
 # Refused by name (JclProcRefused): an unqualified PARM= / COND= together with the .procstep form on one call, a symbolic
-# assigned nowhere (undefined, JCL Reference "might cause errors"), nested procedure calls, INCLUDE inside a procedure, a DD override that
-# turns a DD into SYSOUT / DUMMY, a member found in no library.
+# assigned nowhere (undefined, JCL Reference "might cause errors"), a SYSOUT / * / DATA override of a DD that names a DSN,
+# a backward reference procstep.procstep.ddname or a modifying statement for a step that is absent or itself a call,
+# EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels, an INCLUDE group holding
+# anything but DD and INCLUDE statements, a member found in no library.
 from __future__ import annotations
 
 import re
@@ -54,6 +59,45 @@ def _find(member: str, order: list[str], libraries: Mapping[str, Mapping[str, st
         if member in libraries.get(lib, {}):
             return libraries[lib][member]
     raise JclProcRefused(f"member {member} is in no library of ORDER={order}")
+
+
+def _dd_keys(field: str) -> dict[str, str]:
+    """A DD statement's keyword operands, plus `DUMMY` (bare DUMMY, or DSN=NULLFILE: same effect) and `*` (DD * / DATA)."""
+    ops = _split(field)
+    keyed = {k: v for k, v in ops if k}
+    for k, v in ops:
+        if not k and v.upper() == "DUMMY":
+            keyed["DUMMY"] = ""
+        elif not k and (v == "*" or v.upper() == "DATA"):
+            keyed["*"] = ""
+    if (keyed.get("DSN") or keyed.get("DSNAME") or "").upper() == "NULLFILE":
+        keyed["DUMMY"] = ""
+    return keyed
+
+
+def _dd_dsn(dk: Mapping[str, str], values: Mapping[str, str]) -> str | None:
+    """The DSN a DD names after symbol substitution; None for a DUMMY / NULLFILE DD or one with no DSN."""
+    dsn = _substitute(dk.get("DSN") or dk.get("DSNAME"), values)
+    return None if "DUMMY" in dk else dsn
+
+
+_MAX_LEVELS = 15
+
+
+def _include_dds(member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1):
+    """The DD statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
+    if depth > _MAX_LEVELS:
+        raise JclProcRefused(f"INCLUDE nested past {_MAX_LEVELS} levels is not answered")
+    out: list[tuple[str, dict[str, str]]] = []
+    _defaults, group = _proc_body(_statements(_find(member, order, libraries)))
+    for _l, ddn, iop, ifield in group:
+        if iop == "INCLUDE":
+            out += _include_dds(_keyword(ifield, "MEMBER").upper(), order, libraries, depth + 1)
+        elif iop == "DD":
+            out.append((ddn.upper(), _dd_keys(ifield)))
+        else:
+            raise JclProcRefused("INCLUDE of anything but DD and INCLUDE statements is not answered")
+    return out
 
 
 def _proc_body(stmts: list[tuple[int, str, str, str]]) -> tuple[dict[str, str], list[tuple[int, str, str, str]]]:
@@ -103,22 +147,25 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
                 }
             )
         elif op == "DD" and steps:
-            keyed = {k: v for k, v in _split(field) if k}
+            keyed = _dd_keys(field)
             ddname = name
             target = steps[-1]
             if "." in ddname:
                 pstep, _, ddname = ddname.partition(".")
+                if "." in ddname:
+                    raise JclProcRefused(f"{name}: a backward reference procstep.procstep.ddname is invalid (rule 5)")
                 target["dd_over"].append((pstep.upper(), ddname.upper(), keyed))
             else:
                 target["dd"].append((ddname.upper(), keyed))
         elif op == "INCLUDE" and steps:
-            member = _keyword(field, "MEMBER").upper()
-            _defaults, inc_body = _proc_body(_statements(_find(member, order, libraries)))
-            for _l, ddn, iop, ifield in inc_body:
-                if iop != "DD":
-                    raise JclProcRefused("INCLUDE of anything but DD statements is not answered")
-                steps[-1]["dd"].append((ddn.upper(), {k: v for k, v in _split(ifield) if k}))
+            steps[-1]["dd"] += _include_dds(_keyword(field, "MEMBER").upper(), order, libraries)
     return steps
+
+
+def _load_proc(name: str, instream: Mapping[str, Any], order: list[str], libraries: Mapping[str, Mapping[str, str]]):
+    if name in instream:
+        return instream[name]  # A1
+    return _proc_body(_statements(_find(name, order, libraries)))
 
 
 def _expand_call(
@@ -126,19 +173,49 @@ def _expand_call(
     defaults: dict[str, str],
     body: list[tuple[int, str, str, str]],
     set_values: dict[str, str],
+    order: list[str] | None = None,
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
+    instream: Mapping[str, Any] | None = None,
+    depth: int = 1,
 ) -> dict[str, dict[str, Any]]:
+    """The steps of one procedure call, each procedure step keyed `CALLSTEP.PROCSTEP`. `set_values` is the symbol layer
+    the call inherits (SET values at level 0, the calling procedure's values when nested: Table 13 rule 5)."""
+    order, libraries, instream = order or [], libraries or {}, instream or {}
     keyed = call["keyed"]
     reserved = {"PROC", "PGM", "PARM", "COND", "RD", "ACCT", "TIME", "REGION", "ADDRSPC", "DYNAMNBR", "CCSID"}
-    exec_values = {k: _parm(v, sublist=False) or "" for k, v in keyed.items() if k not in reserved and "." not in k}
+    exec_values = {
+        k: _substitute(_parm(v, sublist=False) or "", set_values) or ""
+        for k, v in keyed.items()
+        if k not in reserved and "." not in k
+    }
     for kw in ("PARM", "COND"):
         if call["proc"] and kw in keyed and any(k.startswith(f"{kw}.") for k in keyed):
             raise JclProcRefused(f"{kw}= together with {kw}.procstep= on one call: precedence is not answered")
     values = {**set_values, **defaults, **exec_values}
-    proc_steps = _step_dds(body, [], {})
+    proc_steps = _step_dds(body, order, libraries)
+    by_name = {ps["name"].upper(): ps for ps in proc_steps}
+    for pstep, ddn, _dk in call["dd_over"]:
+        if pstep not in by_name or by_name[pstep]["proc"]:
+            raise JclProcRefused(
+                f"{pstep}.{ddn} modifies a step that is absent from the procedure or itself calls one (rule 3)"
+            )
+    calls_inside = any(ps["proc"] for ps in proc_steps)
+    if calls_inside and ("PARM" in keyed or "COND" in keyed):
+        raise JclProcRefused("EXEC PARM= / COND= on a call of a procedure that calls procedures is not answered")
     out: dict[str, dict[str, Any]] = {}
     for index, ps in enumerate(proc_steps):
         if ps["proc"]:
-            raise JclProcRefused("nested procedure calls are not answered")
+            if depth >= _MAX_LEVELS:
+                raise JclProcRefused(f"procedure nesting past {_MAX_LEVELS} levels is not answered")
+            if any(k in keyed for k in (f"PARM.{ps['name']}", f"COND.{ps['name']}")):
+                raise JclProcRefused(
+                    "PARM.procstep= / COND.procstep= naming a step that calls a procedure is not answered"
+                )
+            inner_defaults, inner_body = _load_proc(ps["proc"], instream, order, libraries)
+            inner = _expand_call(ps, inner_defaults, inner_body, values, order, libraries, instream, depth + 1)
+            for ikey, ival in inner.items():  # A4: levels flattened under the outermost call step
+                out[f"{call['name']}.{ikey.partition('.')[2]}"] = ival
+            continue
         key = f"{call['name']}.{ps['name']}"
         parm = keyed.get(f"PARM.{ps['name']}", ps["parm"])
         cond = keyed.get(f"COND.{ps['name']}", ps["cond"])
@@ -150,15 +227,20 @@ def _expand_call(
             cond = keyed["COND"] or None
         dds: dict[str, str | None] = {}
         for ddn, dk in ps["dd"]:
-            dds[ddn] = _substitute(dk.get("DSN") or dk.get("DSNAME"), values)
+            dds[ddn] = _dd_dsn(dk, values)
         for pstep, ddn, dk in call["dd_over"]:
             if pstep != ps["name"].upper():
                 continue
-            if "SYSOUT" in dk or "DUMMY" in dk:
-                raise JclProcRefused("a DD override that makes the DD SYSOUT / DUMMY is not answered")
+            if "DUMMY" in dk:  # DUMMY / DSN=NULLFILE on an override nullifies everything but DCB, the DSN included
+                dds[ddn] = None
+                continue
+            if ("SYSOUT" in dk or "*" in dk) and (dds.get(ddn) or dk.get("DSN") or dk.get("DSNAME")):
+                raise JclProcRefused("a SYSOUT / * / DATA override of a DD that names a DSN is not answered")
             dsn = dk.get("DSN") or dk.get("DSNAME")
             if dsn is not None or ddn not in dds:
-                dds[ddn] = _substitute(dsn, values)  # an added DD lands after the procedure's own
+                dds[ddn] = _substitute(
+                    dsn, values
+                )  # an added DD lands after the procedure's own; a DSN replaces in place
         out[key] = {
             "pgm": ps["pgm"],
             "parm": _parm(_substitute(parm, values)),
@@ -203,18 +285,15 @@ def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str)
     steps = _step_dds([s for s in walk if s[2] != "SET"], order, libraries)
     for call, in_force in zip(steps, pending_sets, strict=True):
         if call["proc"]:
-            if call["proc"] in instream:
-                defaults, body = instream[call["proc"]]  # A1
-            else:
-                defaults, body = _proc_body(_statements(_find(call["proc"], order, libraries)))
-            out.update(_expand_call(call, defaults, body, in_force))
+            defaults, body = _load_proc(call["proc"], instream, order, libraries)
+            out.update(_expand_call(call, defaults, body, in_force, order, libraries, instream))
         else:
             values = in_force
             out[call["name"]] = {
                 "pgm": call["pgm"],
                 "parm": _parm(_substitute(call["parm"], values)),
                 "cond": _substitute(call["cond"], values),
-                "dd": {k: v for k, v in ((n, _substitute(d.get("DSN"), values)) for n, d in call["dd"]) if v},
+                "dd": {k: v for k, v in ((n, _dd_dsn(d, values)) for n, d in call["dd"]) if v},
             }
     return out
 
@@ -262,6 +341,8 @@ def expand_flow_rows(
                 raise JclProcRefused(f"procedure {r['proc']} is not in-stream and no libraries were given")
             member = _find(r["proc"], _library_order(text, job), libraries)
             procs[r["proc"]] = [m for m in jcl_job_flow(member) if m["kind"] == "STEP" and m["in_proc"]]
+        if any(ps["proc"] for ps in procs[r["proc"]]):
+            raise JclProcRefused("nested procedure calls in IF flow are not answered")
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}
         call = r["step_name"]
         for ps in procs[r["proc"]]:

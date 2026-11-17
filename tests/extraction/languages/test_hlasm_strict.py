@@ -28,7 +28,6 @@ issue text (#2856: a dummy section is a record layout, no executable logic).
 
 import re
 import sys
-import time
 from pathlib import Path
 
 import pytest
@@ -45,6 +44,7 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+from _timing import assert_cpu_below  # noqa: E402
 
 HLASM = LANGUAGE_DEFINITIONS["hlasm"]
 HLASM_RULES = HLASM["rules"]
@@ -931,9 +931,7 @@ def test_a_language_without_the_pass_is_unchanged():
     ],
 )
 def test_eploc_scan_is_redos_immune(payload):
-    start = time.perf_counter()
-    _eploc_units(payload)
-    assert time.perf_counter() - start < 5
+    assert_cpu_below(lambda: _eploc_units(payload), 5.0, what="EPLOC scan")
 
 
 _NASM_DIRECTIVE_LINES = [

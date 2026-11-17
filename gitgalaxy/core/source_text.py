@@ -184,6 +184,45 @@ def looks_like_ebcdic(data: bytes) -> bool:
     return text_like * 100 >= n * 60 and blanks * 100 >= n * 4 and ascii_printable * 100 <= n * 40
 
 
+_RDW_SAMPLE = 65536
+
+
+def _rdw_chain(data: bytes, pos: int, end: int, cut_ok: bool) -> int:
+    """#8412: how many RDWs (2-byte big-endian length that counts its own 4 bytes, then two zero bytes) chain
+    from `pos` to exactly `end`; 0 when the chain breaks. `cut_ok`: the last record may run past `end` (the
+    sample is a prefix), but only as a record whose header was valid."""
+    n = 0
+    while pos < end:
+        if pos + 4 > end:
+            return n if cut_ok and n else 0
+        length = int.from_bytes(data[pos : pos + 2], "big")
+        if length < 4 or data[pos + 2 : pos + 4] != b"\x00\x00":
+            return 0
+        n += 1
+        pos += length
+    return n if pos == end or (cut_ok and pos > end) else 0
+
+
+def rdw_framing(data: bytes) -> str | None:
+    """#8412: "bdw+rdw" or "rdw" when `data` is a RECFM=V / VB export -- every record behind a 4-byte record
+    descriptor word, every block behind a block descriptor word -- else None. A sniff by structure, never a
+    decode: the 4 prefix bytes are binary in any code page, so the lengths must chain to the end of the file
+    (3+ records) and a plain text has no NUL to hold the two zero bytes. BDW is tried first: a block's
+    descriptor looks like one long record's. Which code page the records are in is the estate's to say."""
+    sample = data[:_RDW_SAMPLE]
+    cut = len(data) > len(sample)
+    if len(sample) < 8 or sample[2:4] != b"\x00\x00":
+        return None
+    block = int.from_bytes(sample[:2], "big")
+    # one block alone is a file too; else the next block must start with a descriptor
+    block_ok = 8 <= block <= len(sample) and _rdw_chain(sample, 4, block, False) >= 1
+    if block_ok and (block == len(sample) or _rdw_chain(sample, block, len(sample), cut) >= 1):
+        return "bdw+rdw"
+    if _rdw_chain(sample, 0, len(sample), cut) >= 3:
+        return "rdw"
+    return None
+
+
 _FB_LRECL = 80  # a card image: the record length of source PDSes (JCL, COBOL, PL/I, HLASM)
 
 

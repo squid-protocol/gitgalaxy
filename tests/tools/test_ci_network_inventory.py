@@ -23,7 +23,7 @@ def _run(script, **extra):
         ("python -m pip install --upgrade pip", "pip"),
         (".venv/bin/pip3 download foo", "pip"),
         ("sudo apt-get install -y universal-ctags", "apt"),
-        ("npm install typescript@6.0.2", "npm"),
+        ("npm install typescript@6.0.2", "node-packages"),
         ("rustup toolchain install 1.90.0", "toolchain"),
         ("docker pull ghcr.io/x/y:1", "docker"),
         ("docker build -q -t x .", "docker"),

@@ -37,7 +37,7 @@ _PY = r"(?:(?:python3?|py)\s+-m\s+|\S*/)?"
 LINE_KINDS: list[tuple[str, re.Pattern[str]]] = [
     ("pip", re.compile(_START + r"(?:uv\s+)?" + _PY + r"pip3?\s+(?:install|download|wheel)\b")),
     ("apt", re.compile(_START + r"apt(?:-get)?\s+(?:install|update)\b")),
-    ("npm", re.compile(_START + r"(?:npm|pnpm|yarn)\s+(?:ci|install|add)\b")),
+    ("node-packages", re.compile(_START + r"(?:npm|pnpm|yarn)\s+(?:ci|install|add)\b")),
     (
         "toolchain",
         re.compile(_START + r"(?:rustup\s+(?:toolchain|component|target|update)|cargo\s+install|go\s+install)\b"),

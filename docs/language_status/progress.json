@@ -1,5 +1,5 @@
 {
- "commit": "ce16dfb2f",
+ "commit": "8b7ddd978",
  "components": {
   "capabilities": {
    "groups": [
@@ -247,13 +247,13 @@
      "unit": ""
     },
     {
-     "done": 54,
+     "done": 58,
      "found": "",
      "group": "Batch",
      "have": "run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers",
      "name": "JCL step flow",
      "note": "answers written from IBM's JCL Reference before the evaluator ran",
-     "of": 54,
+     "of": 58,
      "state": "works",
      "unit": "IBM-written scenarios"
     },
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-17T06:37:53Z",
+  "as_of": "2026-11-17T08:09:36Z",
   "core": {
    "closed": 252,
    "open": 12,

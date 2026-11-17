@@ -12635,6 +12635,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#stored-in-the-scan-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stored in the scan database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-it-can-and-cannot-say" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12708,6 +12719,11 @@
 <li><strong>Ownership context.</strong> Active files where one author made 60% or more of the last year's commits and has not committed anywhere in two years, or made 90% or more. This describes who looks after a file; in the study its direction changed between repositories, so it is context, not a risk list.</li>
 <li><strong>Dormant.</strong> Source files untouched for two or more years. With <code>--scan-db</code> (a scan of the same tree) the ones in the top tenth by number of files that call into them are listed as <strong>quiet foundations</strong>.</li>
 </ol>
+<h2 id="stored-in-the-scan-database">Stored in the scan database</h2>
+<p>Every scan of a git checkout now records the plain readings per file in <code>file_data</code>, from the Chronometer's own pass (no command to run): <code>commits_365d</code>, <code>commits_90d</code>, <code>days_since_last_change</code>, <code>authors_365d</code>, <code>top_author_share_365d</code>. NULL means not measured: no usable history (not a git checkout, a shallow clone, <code>GITGALAXY_DISABLE_GIT_HISTORY</code>), a pass cut by its commit cap, or a file the dating pass did not reach.
+- The year is the year before <strong>HEAD's commit time</strong> in every mode, never the wall clock, so the same history gives the same numbers on every machine and on every day. The pass is complete (the churn pass's coverage and time guards do not apply) and is cut only by a commit count, <code>ACTIVITY_MAX_COMMITS</code> (150,000; past it every reading is NULL) and <code>ACTIVITY_DATING_MAX_COMMITS</code> (250,000; past it a file untouched for the whole year has no date).
+- Differences from the command: the columns follow paths without following renames (the command follows them with <code>git log -M</code>), count only the year, and leave out revisions in <code>.git-blame-ignore-revs</code>; age since the first commit, lifetime commits and whether the top author is still active are not stored yet (they need the whole history).
+- <code>risk_churn</code> and <code>risk_stability</code> (<code>hist_churn</code>, <code>hist_stability</code>) are kept for now as deprecated aliases of the same history in a different form; the columns above are what to read.</p>
 <h2 id="what-it-can-and-cannot-say">What it can and cannot say</h2>
 <ul>
 <li>Measured against the research mock-up (same definitions, computed independently with numpy), the command gave identical values for all 8 readings on every file of curl, libgit2 and libxml2 (24,149 files; the days reading is rounded to a tenth). This checks the implementation, not the rename logic (the same rule is used by both).</li>

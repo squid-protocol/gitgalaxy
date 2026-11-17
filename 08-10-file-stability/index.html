@@ -12770,6 +12770,7 @@
 
 <h1 id="file-stability-commit-age-timestamp-heat">File Stability (Commit Age &amp; Timestamp Heat)</h1>
 <blockquote>
+<p><strong>Superseded.</strong> This gauge and its sibling (<code>hist_churn</code>, <code>hist_stability</code>) are one measurement in two forms (rank correlation about -0.86 within a repository). The plain readings in <a href="../08-27-activity-sensor/">Activity Sensor</a> (<code>commits_365d</code>, <code>commits_90d</code>, <code>days_since_last_change</code>, <code>authors_365d</code>, <code>top_author_share_365d</code>) are stored in every scan; this gauge stays for now as a deprecated alias.</p>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Relative Temporal Distance &amp; File Modifications</p>
 <p><strong>Summary:</strong> Evaluates file age and timestamp stability across the repository. Instead of treating older code as inherently problematic, stability measures the relative time elapsed since a file was last modified compared to the newest and oldest timestamps in the repository.</p>

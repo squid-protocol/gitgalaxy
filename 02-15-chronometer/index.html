@@ -9610,6 +9610,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-activity-readings-plain-units" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The activity readings (plain units)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -12781,6 +12792,8 @@
 <p><strong>Research notes:</strong> temporal-crucible, branch <code>sensor-overhaul</code>, <code>docs/sensor-overhaul/</code> (guide, <code>sensors/activity.md</code>, <code>sensors/tech_debt.md</code>) and <code>docs/turn_surface_area.md</code>. Measurements are exploratory (13 repositories; a 580-repository population sample confirms the descriptive results).</p>
 </blockquote>
 <p>On the history-aware scans of 7 repositories (143 scans, each from a detached worktree with <code>GITGALAXY_HISTORY_ASOF=1</code>) the two persisted values reduce to two plain quantities: churn is rank-equivalent to the file's commits in the last 365 days (Spearman 0.96) and stability to the days since the file's last commit (0.97), and the two correlate -0.86 with each other. Details and limits (renames, mechanical sweeps, the 12-month window and the early-halt rules above): <a href="../08-06-deep-churn/">Deep Churn</a> and <a href="../08-10-file-stability/">File Stability</a>.</p>
+<h2 id="the-activity-readings-plain-units">The activity readings (plain units)</h2>
+<p>Beside the churn and stability inputs, the Chronometer makes a second, complete pass over the year before HEAD's commit time and stores per file the commits in 365 and 90 days, the days since the last change, the number of authors and the top author's share (<code>file_data.commits_365d</code>, <code>commits_90d</code>, <code>days_since_last_change</code>, <code>authors_365d</code>, <code>top_author_share_365d</code>; NULL = not measured). Unlike the churn pass it has no coverage or time halting, only a commit count (<code>ACTIVITY_MAX_COMMITS</code>, <code>ACTIVITY_DATING_MAX_COMMITS</code> in <code>CHRONOMETER_CONFIG</code>), so it never depends on machine speed. See <a href="../08-27-activity-sensor/">Activity Sensor</a>.</p>
 
 
 

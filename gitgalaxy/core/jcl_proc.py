@@ -4,7 +4,7 @@
 # keyed `CALLSTEP.PROCSTEP`), the program, PARM, COND and the DSN-naming DDs after: symbolic parameters (EXEC value >
 # PROC default; SET for the job's own statements), EXEC `PARM.procstep=` / `COND.procstep=` overrides, `procstep.ddname`
 # DD overrides and added DDs, INCLUDE, and the JCLLIB ORDER search (first library holding the member wins).
-# `expand_flow_rows(rows)` splices a call's procedure steps into `jcl_job_flow` rows as `CALLSTEP.PROCSTEP` so
+# `expand_flow_rows(rows, job, text, libraries)` splices a call's procedure steps (in-stream or library member) into `jcl_job_flow` rows as `CALLSTEP.PROCSTEP` so
 # `jcl_flow.JclFlow` can answer `IF (CALLSTEP.PROCSTEP.RC = 0)`.
 #
 # ASSUMED (scenarios.json): A1 an in-stream procedure is used before a library member of the same name; A2 INCLUDE
@@ -18,7 +18,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-from gitgalaxy.core.job_flow import _parm, _split, _statements
+from gitgalaxy.core.job_flow import _parm, _split, _statements, jcl_job_flow
 
 
 class JclProcRefused(ValueError):
@@ -215,9 +215,23 @@ def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str)
     return out
 
 
-def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any]]:
-    """The rows of `job` (JOB row first) with each in-stream procedure call replaced by its steps `CALLSTEP.PROCSTEP` (the call's
-    IF condition kept, COND tests inside the procedure re-pointed at the qualified names, `COND.procstep=` applied)."""
+def _library_order(text: str, job: str) -> list[str]:
+    for _line, _name, op, field in _job_statements(text, job):
+        if op == "JCLLIB":
+            return [x.strip().upper() for x in _keyword(field, "ORDER").strip("()").split(",") if x.strip()]
+    return []
+
+
+def expand_flow_rows(
+    rows: list[dict[str, Any]],
+    job: str,
+    text: str | None = None,
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
+) -> list[dict[str, Any]]:
+    """The rows of `job` (JOB row first) with each procedure call replaced by its steps `CALLSTEP.PROCSTEP` (the call's
+    IF condition kept, COND tests inside the procedure re-pointed at the qualified names, `COND.procstep=` applied).
+    An in-stream procedure is used first (A1); otherwise, given the job's `text` and the `libraries`, the member is
+    searched along the job's JCLLIB ORDER (first library wins, A2) and its steps are read as the in-stream ones are."""
     mine: list[dict[str, Any]] = []
     inside = False
     for r in rows:
@@ -240,7 +254,10 @@ def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any
             out.append(r)
             continue
         if r["proc"] not in procs:
-            raise JclProcRefused(f"procedure {r['proc']} is not in-stream: expand_flow_rows reads in-stream procedures")
+            if text is None or libraries is None:
+                raise JclProcRefused(f"procedure {r['proc']} is not in-stream and no libraries were given")
+            member = _find(r["proc"], _library_order(text, job), libraries)
+            procs[r["proc"]] = [m for m in jcl_job_flow(member) if m["kind"] == "STEP" and m["in_proc"]]
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}
         call = r["step_name"]
         for ps in procs[r["proc"]]:

@@ -58,6 +58,7 @@ from urllib.parse import quote
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ci_digest  # noqa: E402
 import flake_history  # noqa: E402
+import matrix_plan  # noqa: E402
 import pr_check  # noqa: E402
 
 REPO_SLUG = pr_check.REPO_SLUG
@@ -292,7 +293,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         blocked.append("failing: " + _names(blocking))
     for d in s.get("depends_open", []):
         blocked.append(f"Depends on #{d}, which is still open")
-    if MATRIX in labels and s["matrix"] != "green":
+    matrix_on = MATRIX in labels or bool(s.get("matrix_implied"))  # #8425: the plan can ask for it too
+    if matrix_on and s["matrix"] != "green":
         blocked.append(f"full-suite matrix {MATRIX_TEXT.get(s['matrix'], s['matrix'])}")
     if pending and MERGE in labels:
         blocked.append("a bot update of the branch is in progress")
@@ -317,7 +319,7 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append({"op": "automerge", "on": True, "sha": sha})
     elif not want and s["auto_merge"] and (dropped or s.get("removed") == MERGE or req):
         acts.append({"op": "automerge", "on": False})
-    if MATRIX in labels and s["matrix"] == "none" and not s["head_fork"]:
+    if matrix_on and s["matrix"] == "none" and not s["head_fork"]:
         acts.append({"op": "dispatch", "ref": s["head_ref"]})
 
     # no update_branch for a PR that is merely behind main (#5134): each push restarts its CI. The one case the bot does
@@ -715,7 +717,12 @@ def gather(
     head_fork = head_repo != REPO_SLUG
     matrix = "none"
     matrix_url = ""
-    if MATRIX in labels:
+    # #8425: a merge-labelled PR that fixes a red main or adds a platform-sensitive test runs the matrix without the
+    # label (matrix_plan.py); decide() reads matrix_implied like the label. A failed read selects nothing.
+    implied: list[str] = []
+    if MERGE in labels and MATRIX not in labels and not head_fork:
+        implied = matrix_plan.plan_pr(api, n, pr.get("body"), REPO_SLUG)
+    if MATRIX in labels or implied:
         if head_fork:
             matrix = "fork"
         else:
@@ -732,6 +739,8 @@ def gather(
     digest_text = ci_digest.render(digest) if digest["failed"] else ""
     if matrix == "red":
         digest_text += f"\nfull-suite matrix failed on this head: {matrix_url}"
+        if implied:
+            digest_text += "\nIt ran without a label because: " + "; ".join(implied)
     if pr.get("mergeable_state") == "dirty":
         digest_text += (
             "\nThis PR conflicts with main, so no checks ran. Merge origin/main into it and regenerate "
@@ -771,6 +780,7 @@ def gather(
         "labels": labels,
         "depends_open": depends_open,
         "matrix": matrix,
+        **({"matrix_implied": implied} if implied else {}),
         "label_actors": actors,
         "approved": approved,
         "record_approval": record,

@@ -5,13 +5,15 @@
 .claude/agents/gitgalaxy-pr-worker.md	tests/tools/box,tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py,tests/tools/test_shepherd_markers_not_hand_written.py
 .claude/rules/a.md	tests/tools/test_context_pack.py
 .claude/rules/ci-workflows.md	tests/tools/test_pr_runner_cost.py
-.claude/rules/python-test-traps.md	tests/tools/test_ci_replay_6278.py
+.claude/rules/python-test-traps.md	tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py
 .claude/rules/shepherd-markers.md	tests/tools/test_shepherd_markers_not_hand_written.py
 .claude/rules/test-writing.md	tests/tools/test_ci_replay_6278.py
 .claude/rules/x.md	tests/tools/test_engine_reach_workflows.py
+.claude/skills/blocker-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/cics-command-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/det-port/SKILL.md	tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py
 .claude/skills/ladder-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
+.claude/skills/porting-loop/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
 /*.cbl	tests/cobol_mainframe
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py

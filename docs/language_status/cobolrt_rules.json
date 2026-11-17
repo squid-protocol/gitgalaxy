@@ -401,7 +401,8 @@
     "Figurative.java",
     "Hole.java",
     "RuleTelemetry.java",
-    "CobolProfile.java"
+    "CobolProfile.java",
+    "CobolRuntime.java"
    ],
    "done": true,
    "about": "The item and storage model the other families work on.",
@@ -463,7 +464,10 @@
     "fingerprint",
     "equals",
     "hashCode",
-    "toString"
+    "toString",
+    "isCompatible",
+    "requireCompatible",
+    "parseSemver"
    ]
   },
   {

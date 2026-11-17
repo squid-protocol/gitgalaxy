@@ -1878,6 +1878,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     lilian = intdate_lilian(program, options, page)
     dcomma = bool(getattr(prog, "decimal_comma", False))
     cpage = page or "IBM037"
+    stats["cobolrt_version"] = "0.1.0"
     stats["profile_fingerprint"] = (
         f"TRUNC={tmode};NUMPROC={'PFD' if pfd else 'NOPFD'};ARITH={'EXTEND' if extend else 'COMPAT'};"
         f"ZOS_COMP5={'true' if gen.zos_comp5 else 'false'};INTDATE={'LILIAN' if lilian else 'ANSI'};"
@@ -1900,7 +1901,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     )
     java = java.replace(
         "    private static final int GOTO = 1 << 20;\n",
-        f"    private static final int GOTO = 1 << 20;\n{profile_const}",
+        f'    public static final String COBOLRT_VERSION = "0.1.0";\n    private static final int GOTO = 1 << 20;\n{profile_const}',
         1,
     )
     java = with_trunc(java, tmode, pfd, extend, gen.zos_comp5)

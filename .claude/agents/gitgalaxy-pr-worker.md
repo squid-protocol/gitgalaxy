@@ -90,7 +90,7 @@ Workflow changes: `.claude/rules/ci-workflows.md` (owner 2026-10-24).
 Before pushing more, check `gh api repos/squid-protocol/gitgalaxy/pulls/<n> -q .merged_at`; if set, land the rest as "Follow-up to #<n>".
 
 ## Final report (under 200 words plus the sibling gaps and the handoff)
-PR URL; the design decision in one line; class and members covered; **Sibling gaps** or "none: every member handled"; **Remaining slices** if the 5-file limit split the work; gate results and real scan output; CI status as last observed; anything unresolved (conflicts, blocks, skipped tests or ratchets). End with a 3-5 line **Handoff** (state, next step, traps).
+PR URL; the design decision in one line; class and members covered; **Sibling gaps** or "none: every member handled"; **Remaining slices** if the 5-file limit split the work; **Needs a file-cap grant** if the item cannot be cut into a standalone slice of 5 or fewer (the file count and which grant category applies: atomic rename, pin bump, new language profile, mechanical one-line change across many files; #8422); gate results and real scan output; CI status as last observed; anything unresolved (conflicts, blocks, skipped tests or ratchets). End with a 3-5 line **Handoff** (state, next step, traps).
 
 ## Lessons (your worktree is deleted)
 A trap that cost real time and that no `.claude/` file or `CLAUDE.md` warns about: `## Lessons for agents` in the PR body, one imperative bullet each naming the file/tool/flag and symptom, repeated in your final report. None -> omit. Issue-specific state goes in the Handoff (`.claude/rules/agent-memory.md`).

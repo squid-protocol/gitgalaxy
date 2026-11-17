@@ -1,5 +1,5 @@
 {
- "commit": "21c0f8c4d",
+ "commit": "caca43225",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-17T13:50:24Z",
+  "as_of": "2026-11-17T14:20:46Z",
   "core": {
    "closed": 253,
    "open": 11,

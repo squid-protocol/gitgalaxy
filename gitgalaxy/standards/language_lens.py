@@ -263,10 +263,84 @@ def _settings_libs(spec: Any) -> list[Any]:
     return [lib for k in _SETTINGS_LIB_KEYS if isinstance(spec.get(k), list) for lib in spec[k]]
 
 
+_ZAPP_DIR_CAP = 20000  # directories walked to expand one zapp.yaml glob; a bigger tree declares nothing past it
+_ZAPP_GROUPS = "propertyGroups"  # a key of a file we read, not a dict we write
+_ZAPP_PRUNE = {".git", "node_modules"}
+
+
+def _zapp_glob_regex(pattern: str) -> re.Pattern[str]:
+    """A zapp `locations` glob as a regex over a folder-relative directory path: `**/` crosses directories,
+    `*` and `?` stay inside one name, case-insensitive (the aperture folds case for libraries too)."""
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        elif pattern[i] == "?":
+            out, i = out + "[^/]", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + "$", re.I)
+
+
+def _zapp_dirs(folder: str, spec: Any) -> list[str]:
+    """#8412: the local COBOL copy directories a Z Open Editor `zapp.yaml` declares, in declaration order: every
+    `local` library of a `language: cobol` property group (the SYSLIB concatenation, then named libraries), each
+    `locations` glob expanded over the folder's directories (matches sorted). `mvs` entries, `${...}` variables and
+    absolute or parent-escaping paths declare nothing."""
+    groups = spec.get(_ZAPP_GROUPS) if isinstance(spec, dict) else None
+    globs: list[str] = []
+    for group in groups or []:
+        if not isinstance(group, dict) or str(group.get("language", "")).lower() != "cobol":
+            continue
+        for lib in group.get("libraries") or []:
+            if not isinstance(lib, dict) or str(lib.get("type", "")).lower() != "local":
+                continue
+            for loc in lib.get("locations") or []:
+                text = str(loc).strip().replace("\\", "/").removeprefix("./").strip("/")
+                if text and "${" not in text and ".." not in text.split("/") and not os.path.isabs(str(loc).strip()):
+                    globs.append(text)
+    out: list[str] = []
+    walked: list[str] | None = None
+    for text in globs:
+        if not any(c in text for c in "*?"):
+            found = [os.path.join(folder, text)] if os.path.isdir(os.path.join(folder, text)) else []
+        else:
+            if walked is None:
+                walked = []
+                for root, dirs, _files in os.walk(folder):
+                    dirs[:] = sorted(d for d in dirs if d not in _ZAPP_PRUNE)
+                    walked += [os.path.relpath(os.path.join(root, d), folder).replace(os.sep, "/") for d in dirs]
+                    if len(walked) > _ZAPP_DIR_CAP:
+                        break
+            rx = _zapp_glob_regex(text)
+            found = [os.path.join(folder, rel) for rel in sorted(walked) if rx.match(rel)]
+        out += [os.path.normpath(d) for d in found if os.path.normpath(d) not in out]
+    return out
+
+
+def _zapp_libs(path: str) -> list[Any]:
+    import yaml  # optional dependency (the `yaml` extra); without it a zapp.yaml declares nothing
+
+    folder = os.path.dirname(path)
+    return [os.path.relpath(d, folder) for d in _zapp_dirs(folder, yaml.safe_load(read_source(path).text))]
+
+
 def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
     """#8111: the absolute library directories `folder` declares (proc_grps.json `libs`, settings.json
-    `cpy-manager.paths-local`), in declaration order, relative entries only; [] when none or unreadable."""
+    `cpy-manager.paths-local`, zapp.yaml `propertyGroups`), in declaration order, relative entries only; [] when
+    none or unreadable."""
     entries: list[Any] = []
+    zapp = os.path.join(folder, "zapp.yaml")
+    if os.path.isfile(zapp):
+        try:
+            entries += _zapp_libs(zapp)
+        except Exception as e:  # a malformed file or a missing PyYAML declares nothing
+            if logger is not None:
+                logger.debug(f"copy-library declaration '{zapp}' unreadable: {e}")
     for rel, reader in (
         (os.path.join(".cobolplugin", "proc_grps.json"), _proc_grps_libs),
         (os.path.join(".vscode", "settings.json"), _settings_libs),

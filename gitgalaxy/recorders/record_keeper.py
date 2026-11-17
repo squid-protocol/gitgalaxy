@@ -1330,6 +1330,20 @@ class RecordKeeper:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fext_src_file ON fcall_external(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fext_callee ON fcall_external(callee);")
+        # #8534: one row per TODO / FIXME / HACK / XXX marker the scan found in a comment: its line, its class
+        # (planned = TODO-type, fragile = HACK, FIXME, XXX, BUG and the like, the engine's own split) and the comment line's
+        # text (200 characters), so the same marker can be followed between scans and given an age from git history.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS debt_marker (
+                id INTEGER PRIMARY KEY,
+                file_id INTEGER,
+                line INTEGER,
+                class TEXT,
+                text TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_debt_marker_file ON debt_marker(file_id);")
         # #3331: how the call resolver fared, per language and for the whole
         # repository (language '*'): (caller, callee) pairs in each resolution
         # class. External pairs are counted here although they are not
@@ -1559,6 +1573,11 @@ class RecordKeeper:
             (repo_name, commit_hash),
         )
         cursor.execute(
+            "DELETE FROM debt_marker WHERE file_id IN "
+            "(SELECT id FROM file_data WHERE repo_name = ? AND commit_hash = ?)",
+            (repo_name, commit_hash),
+        )
+        cursor.execute(
             "DELETE FROM file_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
         )
@@ -1590,6 +1609,7 @@ class RecordKeeper:
         # auto-assigns ids in list order (base+1, base+2, ...), byte-identical to
         # the old per-row path.
         all_file_rows: list = []
+        all_marker_rows: list = []
         all_class_rows: list = []
         all_func_rows: list[list[Any]] = []
 
@@ -2100,6 +2120,9 @@ class RecordKeeper:
             file_id = file_id_base + len(all_file_rows) + 1
             all_file_rows.append(row_data)
             path_to_file_id[file_data.get("path", "")] = file_id
+            all_marker_rows.extend(
+                (file_id, m["line"], m["class"], m["text"]) for m in file_data.get("debt_markers", ())
+            )
 
             # 1. Extract and Insert Classes
             classes = file_data.get("classes", [])
@@ -2225,6 +2248,11 @@ class RecordKeeper:
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,
+            )
+
+        if all_marker_rows:
+            cursor.executemany(
+                "INSERT INTO debt_marker (file_id, line, class, text) VALUES (?, ?, ?, ?)", all_marker_rows
             )
 
         if all_class_rows:

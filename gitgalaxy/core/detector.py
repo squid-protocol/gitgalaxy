@@ -4128,6 +4128,16 @@ class StructuralExtractor:
                     except Exception as e:
                         self.logger.error(f"[DIAGNOSTIC] Positional comment regex failure in '{_c_rule}': {e}")
 
+            # Marker positions (the debt ledger, #8534): where each planned (TODO) and fragile (HACK, FIXME, XXX) marker
+            # sits and what its comment line says. The counts above already reach function_data; the lines and text did
+            # not, so a marker could not be followed from one scan to the next. DB-only: see record_keeper debt_marker.
+            debt_markers: list[dict] = []
+            for _d_key, _d_class in (("planned_debt", "planned"), ("fragile_debt", "fragile")):
+                for _d_line in sorted(set(comment_positional_lines.get(_d_key, ()))):
+                    _d_text = _header_pos_lines[_d_line - 1].strip() if 0 < _d_line <= len(_header_pos_lines) else ""
+                    debt_markers.append({"line": _d_line, "class": _d_class, "text": _d_text[:200]})
+            debt_markers.sort(key=lambda m: (m["line"], m["class"]))
+
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be
             # built from a single file's text -- so where the language has no
@@ -4876,6 +4886,8 @@ class StructuralExtractor:
                     == EXPORT_VISIBILITY_EXTERNAL_ENTRY_POINTS
                 ),
             }
+            if debt_markers:
+                result_payload["debt_markers"] = debt_markers
             if profile_regex:
                 result_payload["regex_telemetry"] = regex_telemetry
             return result_payload

@@ -175,3 +175,15 @@ def test_archive_files_are_counted_and_a_finding(census, tmp_path, capsys):
     rc, out = run(census, tmp_path, capsys)
     assert rc == 1 and "FAIL archive files 2" in out
     assert SECRET not in out and "members.zip" not in out
+
+
+def test_recfm_v_exports_are_counted_and_a_finding(census, tmp_path, capsys):
+    rc, out = run(census, tmp_path, capsys)
+    assert rc == 0 and "RECFM=V exports 0" in out
+    recs = [f"       MOVE {i} TO ZZ-ID.".ljust(72).encode("cp037") for i in range(6)]  # authored, invented
+    (census / SECRET / "vexport.bin").write_bytes(
+        b"".join((len(r) + 4).to_bytes(2, "big") + b"\x00\x00" + r for r in recs)
+    )
+    rc, out = run(census, tmp_path, capsys)
+    assert rc == 1 and "FAIL RECFM=V exports 1" in out
+    assert SECRET not in out and "vexport" not in out

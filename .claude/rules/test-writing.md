@@ -28,3 +28,8 @@
 * **A test gated on `GITGALAXY_NIGHTLY` is invisible to push/PR CI,** so the time ratchet first sees it on the scheduled run:
   mark it slow up front (#5994). On a time_ratchet failure read the `--durations` per-phase lines before assuming the test
   is slow (#6204).
+
+# Timing assertions (#8423)
+
+* **A test that asserts "this is fast" uses `tests/_timing.py`** (`cpu_best_of`, `assert_cpu_below`, `assert_scales_linearly`: CPU time, fastest of three, limit stated once), never a raw `time.time()` / `perf_counter()` / `monotonic()` difference: a loaded runner stretches wall time.
+  `tests/tools/test_no_raw_wall_clock_timing_8423.py` fails a new offender (any import spelling) and a fixed one still listed in `WALL_CLOCK_OFFENDERS`; the list only shrinks. Convert an offender by deleting its entry.

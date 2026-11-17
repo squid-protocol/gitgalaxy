@@ -65,18 +65,20 @@ final class Zoned {
         return f.signSeparate ? (f.signLeading ? f.at() : f.at() + f.digits) : -1;
     }
 
-    /** libcob's GET_SIGN on one sign byte: {digit char, 1 if negative}. `compare`: the comparison's reading, which
-     *  takes a space and any byte that is no overpunch as 0. */
-    private static int[] unpunch(int c, boolean compare) {
-        if (c >= '0' && c <= '9') return new int[] {c, 0};
-        if (c == '{') return new int[] {'0', 0};
-        if (c >= 'A' && c <= 'I') return new int[] {'1' + (c - 'A'), 0};
-        if (c == '}') return new int[] {'0', 1};
-        if (c >= 'J' && c <= 'R') return new int[] {'1' + (c - 'J'), 1};
-        if (compare) return new int[] {'0', 0};
-        if (c == ' ') return new int[] {' ', 0};
+    /** libcob's GET_SIGN on one sign byte: digit char (or space). */
+    private static int unpunchChar(int c, boolean compare) {
+        if (c >= '0' && c <= '9') return c;
+        if (c == '{' || c == '}') return '0';
+        if (c >= 'A' && c <= 'I') return '1' + (c - 'A');
+        if (c >= 'J' && c <= 'R') return '1' + (c - 'J');
+        if (compare) return '0';
+        if (c == ' ') return ' ';
         int n = c & 0x0F;
-        return new int[] {n >= 1 && n <= 9 ? '0' + n : '0', 0};
+        return n >= 1 && n <= 9 ? '0' + n : '0';
+    }
+
+    private static boolean unpunchNeg(int c) {
+        return c == '}' || (c >= 'J' && c <= 'R');
     }
 
     /** The item's digit positions and sign as libcob reads them; nothing in the storage changes. */
@@ -97,14 +99,14 @@ final class Zoned {
             int c = Codec.ch(d[s + i], cs);
             if (i == signAt) {
                 if (!(c >= '0' && c <= '9' || c == '{' || c == '}' || c >= 'A' && c <= 'R')) dirty = true;
-                int[] u = unpunch(c, compare);
-                c = u[0];
-                neg = u[1] == 1;
+                neg = unpunchNeg(c);
+                c = unpunchChar(c, compare);
             }
             ch[i] = c;
             if (c < '0' || c > '9') dirty = true;
         }
         if (f.signSeparate) neg = Codec.ch(d[sepAt(f)], cs) == '-';
+        if (dirty) RuleTelemetry.hit("RT-NUM-NONDIGIT-GET-SIGN");
         return new Raw(ch, neg, dirty);
     }
 
@@ -165,12 +167,13 @@ final class Zoned {
     static BigDecimal operand(Field f, Charset cs) {
         Raw r = get(f, cs);
         if (!r.dirty) {
-            BigDecimal v = Codec.read(f, cs).value();
+            BigDecimal v = Codec.readDecimal(f, cs);
             putSign(f, r, cs);
             return v;
         }
+        RuleTelemetry.hit("RT-NUM-NONDIGIT-ARITHMETIC");
         refuseP(f);
-        if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
+        if (Codec.numprocPfd() && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         int n = f.digits;
         int first = f.st.bytes[f.at()] & 0xFF;
         if (first == 0xFF || first == 0) {  // HIGH-VALUES / LOW-VALUES: 10^size, positive or negative
@@ -192,12 +195,13 @@ final class Zoned {
     static BigDecimal intOperand(Field f, Charset cs) {
         Raw r = get(f, cs);
         if (!r.dirty) {
-            BigDecimal v = Codec.read(f, cs).value();
+            BigDecimal v = Codec.readDecimal(f, cs);
             putSign(f, r, cs);
             return v;
         }
+        RuleTelemetry.hit("RT-NUM-NONDIGIT-ARITHMETIC");
         refuseP(f);
-        if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
+        if (Codec.numprocPfd() && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         int v = 0;
         for (int c : r.ch) v = v * 10 + (c - '0');
         putSign(f, r, cs);
@@ -214,12 +218,13 @@ final class Zoned {
         boolean numdisp = !f.signSeparate && !(f.signed && f.signLeading) && f.scale == 0;
         Raw r = get(f, cs, numdisp);
         if (!r.dirty) {
-            BigDecimal v = Codec.read(f, cs).value();
+            BigDecimal v = Codec.readDecimal(f, cs);
             if (!numdisp) putSign(f, r, cs);
             return v;
         }
         if (!numdisp) return operand(f, cs);
-        if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
+        RuleTelemetry.hit("RT-NUM-NONDIGIT-COMPARE");
+        if (Codec.numprocPfd() && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         if (f.digits >= 19) throw refuse("comparing 19 or more digits of");
         long v = 0;
         for (int c : r.ch) v = v * 10 + (c - '0');

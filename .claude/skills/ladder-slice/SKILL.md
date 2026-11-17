@@ -118,10 +118,12 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
   program in it. Case data -- `case.json`, scenario input files, infeasible entries -- and generated files (ledgers,
   evidence records, `-generated` twins) don't count toward the 5-file cap. Data-only ladder PRs merged in 9-53 min at
   any size; the slow ones (78-158 min, 4-13 commits) all changed code.
+- **Not the new-case rule:** a NEW equivalence case is one program per PR (#8422); a ladder slice adds scenarios to existing cases, one estate per PR.
 - **No code in a ladder PR.** A harness / tool / translator change it needs is its own small PR first (this slice
   queues after it), or the outcome stays open citing #6271.
 - **Never let one program hold the estate:** a program that won't close in the run is dropped to **Remaining
   slices** with what's left; ship the rest.
+- **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it and a case with no entry weighs the median in `proof_sweep.py --shard`; no test or gate fails on it, and an added line conflicts with sibling PRs.
 - No per-slice JSON-only test file: the det-sweep ratchet already checks the cases.
 - Body: before/after table per program (paragraphs live/run, net branches, infeasible added with reasons), the
   outcomes left open and why (#6271 cite, owner hold), "Part of #6072".

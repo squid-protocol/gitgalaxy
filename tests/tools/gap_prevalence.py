@@ -589,6 +589,21 @@ def archive_files(clone: Path) -> int:
     )
 
 
+def rdw_files(clone: Path) -> int:
+    """#8412: how many files in `clone` are RECFM=V exports (RDW / BDW+RDW length prefixes, `source_text.rdw_framing`).
+    A count: no name is kept. Only a file's first 64 KB is read."""
+    from gitgalaxy.core.source_text import rdw_framing
+
+    n = 0
+    for f in clone.rglob("*"):
+        if ".git" in f.relative_to(clone).parts or not f.is_file():
+            continue
+        with f.open("rb") as fh:
+            head = fh.read(65536)
+        n += rdw_framing(head) is not None
+    return n
+
+
 def clone_member_index(clone: Path) -> set[str]:
     """#8113: the independent file search. Every name a file of `clone` could be a COPY member under, upper case: the
     whole name, the stem and the part before the first dot, any case, any extension or none, any depth (`.git` skipped).

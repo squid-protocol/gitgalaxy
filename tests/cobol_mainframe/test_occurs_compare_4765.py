@@ -285,4 +285,4 @@ def test_a_det_link_and_xctl_of_an_occurs_dto_pass_the_whole_table(tmp_path):
     assert link.rstrip().endswith(", 17);"), link  # the LINK's span: the record, every occurrence (not 9 bytes)
     xctl = next(ln for ln in r.java.splitlines() if "task.xctl(" in ln)
     assert "DetCics.commareaOut(out_OcclnkDfhcommarea(" in xctl and ", 17, 9, CS)" in xctl, xctl
-    assert "calen = cx(task, 17);" in r.java  # EIBCALEN: the record's length
+    assert "calen = DetCics.eibCalen(task, 17);" in r.java  # EIBCALEN: the record's length

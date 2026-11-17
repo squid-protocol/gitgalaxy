@@ -5,10 +5,10 @@ Internal use only until counsel answers Q16. Stdlib only; runs on the host and s
 (`docker run -i`), feeding it commands on stdin and reading its log (which carries the integrated 1052-C console) on
 stdout. Stages are small functions over `Hercules`; each one checks the messages and PSW the guide documents and raises
 `SysgenError` rather than carry on. Implemented: `starter` (the two stand-alone programs per volume) and `smp1` / `smp2` (starter-system
-IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`). Not yet: stage 2, user mods: see docs/jcl_oracle_mvs38j.md "Remaining slices".
+IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). Not yet: sysgen02..06, user mods: see docs/jcl_oracle_mvs38j.md "Remaining slices".
 
     sysgen.py starter [--work DIR] [--image IMG] [--name NAME]
-    sysgen.py smp1|smp2|stage1 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
+    sysgen.py smp1|smp2|stage1|stage2 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
     sysgen.py condcode PRINTER_FILE JOB|ALL [--expect STEP=CC ...]
 """
 
@@ -291,23 +291,29 @@ def ipl_starter(herc, con):
     return line
 
 
-def run_deck(herc, con, work, conf, job, tapes, timeout, ended=1):
-    """Feed `job` through the reader and answer the console until `ended` `$HASP395 ... ENDED` lines (the job, plus any it
-    submits to the internal reader) have appeared and none of the console lines is an error; return the console mark taken
-    before the deck, so the caller can read what the deck printed."""
-    since, seen = con.mark(), set()
-    herc.send(f"devinit {SMP_READER} {Path(job).relative_to(work)}")
-    end = time.monotonic() + timeout
+def await_ended(herc, con, work, conf, label, since, tapes, timeout, ended=1):
+    """Answer the console until `ended` `$HASP395 ... ENDED` lines have appeared after console mark `since` (JCL error and
+    timeout raise SysgenError naming `label`)."""
+    seen, end = set(), time.monotonic() + timeout
     while True:
         if sum(1 for ln in con.lines[since:] if JOB_ENDED_RE.search(ln)) >= ended:
-            break
+            return
         jcl_err = [ln for ln in con.lines[since:] if "IEF452I" in ln]
         if jcl_err or time.monotonic() > end:
             tail = " | ".join(ln.strip() for ln in con.lines[-8:])
             why = jcl_err[0].strip() if jcl_err else f"{ended} x $HASP395 ENDED not seen within {timeout}s"
-            raise SysgenError(f"{Path(job).name}: {why}; console tail: {tail}")
+            raise SysgenError(f"{label}: {why}; console tail: {tail}")
         answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf))
         time.sleep(2)
+
+
+def run_deck(herc, con, work, conf, job, tapes, timeout, ended=1):
+    """Feed `job` through the reader and answer the console until `ended` `$HASP395 ... ENDED` lines (the job, plus any it
+    submits to the internal reader) have appeared; return the console mark taken before the deck, so the caller can read
+    what the deck printed."""
+    since = con.mark()
+    herc.send(f"devinit {SMP_READER} {Path(job).relative_to(work)}")
+    await_ended(herc, con, work, conf, Path(job).name, since, tapes, timeout, ended)
     return since
 
 
@@ -375,6 +381,13 @@ STAGE1_EXPECTED = {
 STAGE1_DECKS = (("sysgen00.jcl", 3), ("sysgen01.jcl", 2))
 
 
+def attach_targets(herc, work):
+    """Send the `attach` lines of `conf/sysgen.script` (149 MVSRES, 14A MVS000, 14B SPOOL1, 14C PAGE00: the target volumes)."""
+    for ln in (Path(work) / "conf/sysgen.script").read_text(errors="backslashreplace").splitlines():
+        if ln.strip().lower().startswith("attach "):
+            herc.send(ln.strip())
+
+
 def stage1(work, image, name, tapes, port=3270, job_timeout=1800):
     """IPL the starter system with `conf/sysgen.cnf`, attach the target volumes (`conf/sysgen.script`), run sysgen00 then
     sysgen01, and extract `stage1.output` from `tape/stage1.het` with the image's `hetget` for stage 2."""
@@ -387,11 +400,7 @@ def stage1(work, image, name, tapes, port=3270, job_timeout=1800):
     con = telnet_console.Console(port=port).connect()
     try:
         ipl_starter(herc, con)
-        for ln in (Path(work) / "conf/sysgen.script").read_text(errors="backslashreplace").splitlines():
-            if ln.strip().lower().startswith("attach "):
-                herc.send(
-                    ln.strip()
-                )  # the volumes sysgen00 initialises (149 MVSRES, 14A MVS000, 14B SPOOL1, 14C PAGE00)
+        attach_targets(herc, work)
         printed = printer_file(work, conf)
         printed_from = printed.stat().st_size if printed.exists() else 0
         for deck, ended in STAGE1_DECKS:
@@ -410,6 +419,71 @@ def stage1(work, image, name, tapes, port=3270, job_timeout=1800):
         con.close()
         herc.quit()
     hetget(work, image, name, "tape/stage1.het", "stage1.output", 1)
+
+
+def convert_stage1(text):
+    """Port of Moseley's `stage2.awk`: turn `stage1.output` (the deck sysgen01 punched) into the stage 2 deck. SYSGEN1..5 are
+    held (`TYPRUN=HOLD,TIME=1439`) with the target master catalog as JOBCAT, SYSGEN6 arrives held already, EXPDT=99350
+    becomes 00000, SYSGEN6's STEPY runs IEFBR14, and the blank and `||||||||||` separator cards are dropped."""
+    out, jobcat = [], "//JOBCAT   DD  DSN=SYS1.VSAM.MASTER.CATALOG,DISP=SHR"
+    for raw in text.splitlines():
+        card = raw.rstrip(" \t\r\n")
+        if " JOB " in raw:
+            name = raw.split()[0]
+            if name == "//SYSGEN6":
+                out += ["//", raw]
+                continue
+            if name != "//SYSGEN1":
+                out.append("//")
+            out += [card + ",", "//             TYPRUN=HOLD,TIME=1439", "/*JOBPARM LINES=100", jobcat]
+        elif " TYPRUN=HOLD" in raw:
+            out += [raw, "/*JOBPARM LINES=100"]
+        elif "EXPDT=99350" in raw:
+            out.append(raw.replace("99350", "00000", 1))
+        elif "STEPY" in raw:
+            out.append("//STEPY EXEC PGM=IEFBR14")
+        elif raw and not raw.startswith("||||||||||"):
+            out.append(raw)
+    return "\n".join([*out, "//"]) + "\n"
+
+
+STAGE2_JOBS = tuple(f"SYSGEN{n}" for n in range(1, 7))
+
+
+def stage2(work, image, name, tapes, port=3270, job_timeout=3600):
+    """Convert `stage1.output` to `jcl/stage2.jcl`, IPL the starter system, attach the target volumes, submit the deck
+    (every job but SYSGEN6 arrives held) and release SYSGEN1..6 one at a time with `$A'SYSGENn'`, waiting for each to end."""
+    conf = "conf/sysgen.cnf"
+    src = Path(work) / "stage1.output"
+    if not src.is_file() or "SYSGEN1" not in src.read_text(errors="backslashreplace"):
+        raise SysgenError(f"{src} missing or empty: run `sysgen stage1` first")
+    deck = Path(work) / "jcl/stage2.jcl"
+    deck.write_text(convert_stage1(src.read_text(errors="backslashreplace")))
+    herc = Hercules(work, conf, image, name, console_port=port).start()
+    herc.wait(r"HHC01024I", 60)
+    con = telnet_console.Console(port=port).connect()
+    try:
+        ipl_starter(herc, con)
+        attach_targets(herc, work)
+        printed = printer_file(work, conf)
+        printed_from = printed.stat().st_size if printed.exists() else 0
+        herc.send(f"devinit {SMP_READER} {deck.relative_to(work)}")
+        for job in STAGE2_JOBS:
+            since = con.mark()
+            con.wait(rf"\$HASP\d+\s+{job}\s+.*(ON READER|HELD)|{job}.*HELD|\$HASP100\s+{job}", 600)
+            con.send(f"$A'{job}'")
+            await_ended(herc, con, work, conf, job, since, tapes, job_timeout)
+            bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
+            if bad:
+                raise SysgenError(f"{job}: {bad[0].strip()}")
+            print(f"stage2: {job} ended")
+        results = step_results(printed.read_bytes()[printed_from:].decode("latin-1"))
+        print(
+            f"stage2: {len(results)} steps ran; condcodes over 4: {[r for r in results if (r['cond_code'] or 0) > 4]}"
+        )
+    finally:
+        con.close()
+        herc.quit()
 
 
 def hetget(work, image, name, het, out, fileno):
@@ -478,7 +552,7 @@ def main(argv=None):
     st.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
     st.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
     st.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
-    for stage in ("smp1", "smp2", "stage1"):
+    for stage in ("smp1", "smp2", "stage1", "stage2"):
         sp = sub.add_parser(stage)
         sp.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
         sp.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
@@ -494,10 +568,10 @@ def main(argv=None):
         if args.cmd == "starter":
             starter(args.work, args.image, args.name)
             return 0
-        if args.cmd in ("smp1", "smp2", "stage1"):
+        if args.cmd in ("smp1", "smp2", "stage1", "stage2"):
             tapes = dict(t.split("=", 1) for t in args.tape)
-            if args.cmd == "stage1":
-                stage1(args.work, args.image, args.name, tapes, args.port)
+            if args.cmd in ("stage1", "stage2"):
+                (stage1 if args.cmd == "stage1" else stage2)(args.work, args.image, args.name, tapes, args.port)
                 return 0
             smp_stage(args.work, args.image, args.name, args.cmd, tapes, args.port)
             return 0

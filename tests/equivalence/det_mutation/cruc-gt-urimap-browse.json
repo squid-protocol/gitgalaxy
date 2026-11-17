@@ -5,18 +5,18 @@
  "case": "cruc-gt-urimap-browse",
  "entry": {
   "program": "GTUBROW",
-  "commit": "03036d48e0225957e93a0e07da149600dea41fea",
-  "date": "2026-11-14",
-  "mode": "fast",
+  "commit": "ab12fd2249215e5a605eb1a8f4e893ffe9212b16+uncommitted",
+  "date": "2026-11-16",
+  "mode": "fast+one-jvm",
   "seed": 0,
-  "mutants": 713,
-  "out_of_scope": 0,
+  "mutants": 725,
+  "out_of_scope": 12,
   "chosen": 713,
   "coverage": "proven on 2 scenarios, covering 2/2 paragraphs and 8/8 branches",
   "counts": {
-   "killed": 170,
+   "killed": 165,
    "timeout": 2,
-   "survived": 528,
+   "survived": 533,
    "stillborn": 13,
    "error": 0,
    "pending": 0
@@ -42,7 +42,6 @@
    "0e97ce2291",
    "0f91e96344",
    "1089a0355f",
-   "11839d97ce",
    "1396a20e42",
    "13a87d206e",
    "14f2bdf534",
@@ -97,7 +96,6 @@
    "749bf89c7b",
    "74bdd228b8",
    "757dc4c0c1",
-   "7893b2a81f",
    "7897f6115a",
    "789c3d56c1",
    "79ade15515",
@@ -126,7 +124,6 @@
    "9a3ec89875",
    "a1ac8f4783",
    "a281ecd93a",
-   "a30ab6ed31",
    "a3335f09d8",
    "a3c6b10487",
    "a44a829659",
@@ -153,7 +150,6 @@
    "c66dad254b",
    "c87a1cbd07",
    "c96f01561f",
-   "c97f9b5efc",
    "c9e5025e52",
    "cbda07981a",
    "cc5991293f",
@@ -181,7 +177,6 @@
    "dfca1200e2",
    "e09dcb5747",
    "e24986caa3",
-   "e3da88f496",
    "e99c94467a",
    "e9b7ec29ee",
    "e9fa8d8eb6",
@@ -266,14 +261,6 @@
     "line": 54,
     "before": "\"AAA=\"));",
     "after": "\"XAA=\"));"
-   },
-   {
-    "id": "09fec9bff3",
-    "op": "CON",
-    "file": "service/GtubrowService.java",
-    "line": 65,
-    "before": "private final Field f4_WS_URIMAP = Field.group(s_WS_URIMAP, 0, 8);",
-    "after": "private final Field f4_WS_URIMAP = Field.group(s_WS_URIMAP, 0, 9);"
    },
    {
     "id": "8c89ecb78d",
@@ -1020,14 +1007,6 @@
     "after": "/* calen = cx(task, 20); */"
    },
    {
-    "id": "7473c605ea",
-    "op": "CON",
-    "file": "service/GtubrowService.java",
-    "line": 237,
-    "before": "calen = cx(task, 20);",
-    "after": "calen = cx(task, 21);"
-   },
-   {
     "id": "e60017b0a5",
     "op": "NEG",
     "file": "service/GtubrowService.java",
@@ -1388,10 +1367,58 @@
     "after": "calen = cx(task, 5);"
    },
    {
-    "id": "c026c48e51",
+    "id": "1268640643",
     "op": "NEG",
     "file": "service/GtubrowService.java",
     "line": 268,
+    "before": "} else if (ca instanceof HcrparWsV1) {",
+    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+   },
+   {
+    "id": "0b1c90ae5c",
+    "op": "DEL",
+    "file": "service/GtubrowService.java",
+    "line": 269,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "87d8970cd8",
+    "op": "CON",
+    "file": "service/GtubrowService.java",
+    "line": 269,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "abd16d3238",
+    "op": "NEG",
+    "file": "service/GtubrowService.java",
+    "line": 270,
+    "before": "} else if (ca instanceof HcrparWsV2) {",
+    "after": "} else if (!(ca instanceof HcrparWsV2)) {"
+   },
+   {
+    "id": "717b7d64ff",
+    "op": "DEL",
+    "file": "service/GtubrowService.java",
+    "line": 271,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "5d13f890dd",
+    "op": "CON",
+    "file": "service/GtubrowService.java",
+    "line": 271,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "c026c48e51",
+    "op": "NEG",
+    "file": "service/GtubrowService.java",
+    "line": 272,
     "before": "} else if (ca instanceof PcconfWsState) {",
     "after": "} else if (!(ca instanceof PcconfWsState)) {"
    },
@@ -1399,7 +1426,7 @@
     "id": "1d0a1fb445",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 269,
+    "line": 273,
     "before": "calen = cx(task, 30);",
     "after": "/* calen = cx(task, 30); */"
    },
@@ -1407,7 +1434,7 @@
     "id": "053089dd3f",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 269,
+    "line": 273,
     "before": "calen = cx(task, 30);",
     "after": "calen = cx(task, 31);"
    },
@@ -1415,7 +1442,7 @@
     "id": "0667b485f4",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 270,
+    "line": 274,
     "before": "} else if (ca instanceof PcrcaWsCarry) {",
     "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
    },
@@ -1423,7 +1450,7 @@
     "id": "549843b335",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 271,
+    "line": 275,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1431,7 +1458,7 @@
     "id": "df3ad00306",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 271,
+    "line": 275,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1439,7 +1466,7 @@
     "id": "bff13538d8",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 272,
+    "line": 276,
     "before": "} else if (ca instanceof PcrcaWsModify) {",
     "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
    },
@@ -1447,7 +1474,7 @@
     "id": "d1e83dd911",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 273,
+    "line": 277,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1455,7 +1482,7 @@
     "id": "22c7268164",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 273,
+    "line": 277,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1463,7 +1490,7 @@
     "id": "0d831fe3f6",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 274,
+    "line": 278,
     "before": "} else if (ca instanceof PcrcbWsExtra) {",
     "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
    },
@@ -1471,7 +1498,7 @@
     "id": "5b2b196f70",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 275,
+    "line": 279,
     "before": "calen = cx(task, 5);",
     "after": "/* calen = cx(task, 5); */"
    },
@@ -1479,7 +1506,7 @@
     "id": "0fdbfdd7d2",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 275,
+    "line": 279,
     "before": "calen = cx(task, 5);",
     "after": "calen = cx(task, 6);"
    },
@@ -1487,7 +1514,7 @@
     "id": "79c66c15e7",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 276,
+    "line": 280,
     "before": "} else if (ca instanceof PcrcbWsNew1) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
    },
@@ -1495,7 +1522,7 @@
     "id": "21fc471b0f",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 277,
+    "line": 281,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1503,7 +1530,7 @@
     "id": "75997dd701",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 277,
+    "line": 281,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1511,7 +1538,7 @@
     "id": "589bfb753d",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 278,
+    "line": 282,
     "before": "} else if (ca instanceof PcrcbWsNew2) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
    },
@@ -1519,7 +1546,7 @@
     "id": "d04f03e126",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 279,
+    "line": 283,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1527,7 +1554,7 @@
     "id": "99e92f3819",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 279,
+    "line": 283,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1535,7 +1562,7 @@
     "id": "51ed1623d4",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 280,
+    "line": 284,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
    },
@@ -1543,7 +1570,7 @@
     "id": "bb647886bc",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 281,
+    "line": 285,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -1551,7 +1578,7 @@
     "id": "29d8debe0a",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 281,
+    "line": 285,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -1559,7 +1586,7 @@
     "id": "41adf1889b",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 283,
+    "line": 287,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen != 0 && task.linkArea() != null) {"
    },
@@ -1567,7 +1594,7 @@
     "id": "2353c0c428",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 283,
+    "line": 287,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 1 && task.linkArea() != null) {"
    },
@@ -1575,7 +1602,7 @@
     "id": "143251f28e",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 284,
+    "line": 288,
     "before": "calen = cx(task, task.linkArea().length);",
     "after": "/* calen = cx(task, task.linkArea().length); */"
    },
@@ -1583,7 +1610,7 @@
     "id": "5f32d5fc21",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 286,
+    "line": 290,
     "before": "Cobol.store(f54_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f54_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -1591,7 +1618,7 @@
     "id": "84357dd110",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 288,
+    "line": 292,
     "before": "perform(0, 1);",
     "after": "perform(0, 2);"
    },
@@ -1599,7 +1626,7 @@
     "id": "00e2d25195",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 293,
+    "line": 297,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -1607,7 +1634,7 @@
     "id": "5c648fd62e",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 297,
+    "line": 301,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -1615,7 +1642,7 @@
     "id": "df18b95d5a",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 298,
+    "line": 302,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -1623,7 +1650,15 @@
     "id": "0f05705e22",
     "op": "LIT",
     "file": "service/GtubrowService.java",
-    "line": 305,
+    "line": 309,
+    "before": "region.run(task, \"GTUBROW\", this::runTask);",
+    "after": "region.run(task, \"XTUBROW\", this::runTask);"
+   },
+   {
+    "id": "a30ab6ed31",
+    "op": "LIT",
+    "file": "service/GtubrowService.java",
+    "line": 315,
     "before": "region.run(task, \"GTUBROW\", this::runTask);",
     "after": "region.run(task, \"XTUBROW\", this::runTask);"
    },
@@ -1631,15 +1666,23 @@
     "id": "e4ac2cdbc2",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 312,
+    "line": 316,
     "before": "lastAnswerBytes = task.returnedBytes();",
     "after": "/* lastAnswerBytes = task.returnedBytes(); */"
+   },
+   {
+    "id": "11839d97ce",
+    "op": "ROR",
+    "file": "service/GtubrowService.java",
+    "line": 325,
+    "before": "return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
+    "after": "return lastAnswerBytes != null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);"
    },
    {
     "id": "c912c41202",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 330,
+    "line": 334,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1647,7 +1690,7 @@
     "id": "35b7a3d28a",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 335,
+    "line": 339,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -1655,7 +1698,7 @@
     "id": "362f724396",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 336,
+    "line": 340,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -1663,7 +1706,7 @@
     "id": "4c4747f691",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 344,
+    "line": 348,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1671,7 +1714,7 @@
     "id": "af159f9f34",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 355,
+    "line": 359,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -1679,7 +1722,7 @@
     "id": "99d38f9009",
     "op": "AOR",
     "file": "service/GtubrowService.java",
-    "line": 355,
+    "line": 359,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -1687,7 +1730,7 @@
     "id": "9033e7553b",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 355,
+    "line": 359,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -1695,7 +1738,7 @@
     "id": "491d6a1712",
     "op": "AOR",
     "file": "service/GtubrowService.java",
-    "line": 368,
+    "line": 372,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -1703,7 +1746,7 @@
     "id": "0f448e57e7",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 368,
+    "line": 372,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -1711,7 +1754,7 @@
     "id": "956586dfaa",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 368,
+    "line": 372,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -1719,7 +1762,7 @@
     "id": "4eb93250bc",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 368,
+    "line": 372,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -1727,7 +1770,7 @@
     "id": "5133a85636",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 368,
+    "line": 372,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -1735,7 +1778,7 @@
     "id": "a77beb90cb",
     "op": "AOR",
     "file": "service/GtubrowService.java",
-    "line": 368,
+    "line": 372,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -1743,7 +1786,7 @@
     "id": "888aae5463",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 369,
+    "line": 373,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -1751,7 +1794,7 @@
     "id": "85d4e2230a",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 369,
+    "line": 373,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -1759,31 +1802,31 @@
     "id": "1780a37fb0",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 374,
+    "line": 378,
     "before": "if (next >= 2) {",
     "after": "if (!(next >= 2)) {"
-   },
-   {
-    "id": "619de49f2b",
-    "op": "ROR",
-    "file": "service/GtubrowService.java",
-    "line": 374,
-    "before": "if (next >= 2) {",
-    "after": "if (next < 2) {"
    },
    {
     "id": "f13de5ba9b",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 374,
+    "line": 378,
     "before": "if (next >= 2) {",
     "after": "if (next > 2) {"
+   },
+   {
+    "id": "619de49f2b",
+    "op": "ROR",
+    "file": "service/GtubrowService.java",
+    "line": 378,
+    "before": "if (next >= 2) {",
+    "after": "if (next < 2) {"
    },
    {
     "id": "dff2fb4ba8",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 374,
+    "line": 378,
     "before": "if (next >= 2) {",
     "after": "if (next >= 3) {"
    },
@@ -1791,7 +1834,7 @@
     "id": "e5b72fadb8",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 377,
+    "line": 381,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -1799,7 +1842,7 @@
     "id": "903696b487",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 380,
+    "line": 384,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -1807,7 +1850,7 @@
     "id": "52ce88f6ed",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 380,
+    "line": 384,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -1815,7 +1858,7 @@
     "id": "d08373ce7f",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 384,
+    "line": 388,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -1823,7 +1866,7 @@
     "id": "d8eae38ec1",
     "op": "LIT",
     "file": "service/GtubrowService.java",
-    "line": 392,
+    "line": 396,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -1831,7 +1874,7 @@
     "id": "c9a018857b",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 400,
+    "line": 404,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap1[0]), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap1[0]), false, CS); */"
    },
@@ -1839,7 +1882,7 @@
     "id": "19bc11cf81",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 400,
+    "line": 404,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap1[0]), false, CS);",
     "after": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap1[1]), false, CS);"
    },
@@ -1847,7 +1890,7 @@
     "id": "b6d59e0b42",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 401,
+    "line": 405,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap1[1]), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap1[1]), false, CS); */"
    },
@@ -1855,7 +1898,7 @@
     "id": "e0edd8a4bb",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 402,
+    "line": 406,
     "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap1[0]), 8, true, false, CS);",
     "after": "/* f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap1[0]), 8, true, false, CS); */"
    },
@@ -1863,23 +1906,15 @@
     "id": "56e56ffca6",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 402,
+    "line": 406,
     "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap1[0]), 8, true, false, CS);",
     "after": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap1[1]), 8, true, false, CS);"
-   },
-   {
-    "id": "0354694edd",
-    "op": "CON",
-    "file": "service/GtubrowService.java",
-    "line": 402,
-    "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap1[0]), 8, true, false, CS);",
-    "after": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap1[0]), 9, true, false, CS);"
    },
    {
     "id": "957c0ba8cd",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 403,
+    "line": 407,
     "before": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap1[1]), 8, true, false, CS);",
     "after": "/* f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap1[1]), 8, true, false, CS); */"
    },
@@ -1887,7 +1922,7 @@
     "id": "033c1e5167",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 403,
+    "line": 407,
     "before": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap1[1]), 8, true, false, CS);",
     "after": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap1[1]), 9, true, false, CS);"
    },
@@ -1895,7 +1930,7 @@
     "id": "c8f3820fcf",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 405,
+    "line": 409,
     "before": "Cobol.move(BigDecimal.valueOf(f1_WS_RESP), f21_L1_R1, CS);",
     "after": "/* Cobol.move(BigDecimal.valueOf(f1_WS_RESP), f21_L1_R1, CS); */"
    },
@@ -1903,7 +1938,7 @@
     "id": "c0e4189bb3",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 408,
+    "line": 412,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap2[0]), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap2[0]), false, CS); */"
    },
@@ -1911,7 +1946,7 @@
     "id": "72896fbe8e",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 408,
+    "line": 412,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap2[0]), false, CS);",
     "after": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap2[1]), false, CS);"
    },
@@ -1919,7 +1954,7 @@
     "id": "8cedd287ef",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 409,
+    "line": 413,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap2[1]), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap2[1]), false, CS); */"
    },
@@ -1927,7 +1962,7 @@
     "id": "1554892d3b",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 410,
+    "line": 414,
     "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap2[0]), 8, true, false, CS);",
     "after": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap2[0]), 9, true, false, CS);"
    },
@@ -1935,7 +1970,7 @@
     "id": "571c0e8839",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 411,
+    "line": 415,
     "before": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap2[1]), 8, true, false, CS);",
     "after": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap2[1]), 9, true, false, CS);"
    },
@@ -1943,7 +1978,7 @@
     "id": "4b67b2a6b0",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 417,
+    "line": 421,
     "before": "CicsTask.TsResult ts3 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f19_WS_LOG1, 20, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts3 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f19_WS_LOG1, 21, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -1951,7 +1986,7 @@
     "id": "c230cbd647",
     "op": "LIT",
     "file": "service/GtubrowService.java",
-    "line": 417,
+    "line": 421,
     "before": "CicsTask.TsResult ts3 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f19_WS_LOG1, 20, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts3 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f19_WS_LOG1, 20, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -1959,7 +1994,7 @@
     "id": "4ffa60aa1f",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 418,
+    "line": 422,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts3.resp())), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts3.resp())), false, CS); */"
    },
@@ -1967,7 +2002,7 @@
     "id": "3b7c2ab458",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 419,
+    "line": 423,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -1975,7 +2010,7 @@
     "id": "ddb65915b3",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 419,
+    "line": 423,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -1983,31 +2018,31 @@
     "id": "615016544d",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 422,
+    "line": 426,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
-   },
-   {
-    "id": "684196a3af",
-    "op": "ROR",
-    "file": "service/GtubrowService.java",
-    "line": 422,
-    "before": "if (to >= 0) return GOTO | to;",
-    "after": "if (to < 0) return GOTO | to;"
    },
    {
     "id": "089eb49c95",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 422,
+    "line": 426,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "684196a3af",
+    "op": "ROR",
+    "file": "service/GtubrowService.java",
+    "line": 426,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
    },
    {
     "id": "b3d0c31e50",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 422,
+    "line": 426,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -2015,7 +2050,7 @@
     "id": "57ce52ce9e",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 428,
+    "line": 432,
     "before": "if (urimap4[0] == 0) {",
     "after": "if (urimap4[1] == 0) {"
    },
@@ -2023,7 +2058,7 @@
     "id": "97cb4ec645",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 433,
+    "line": 437,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap4[0]), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap4[0]), false, CS); */"
    },
@@ -2031,7 +2066,7 @@
     "id": "918e5abed9",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 433,
+    "line": 437,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap4[0]), false, CS);",
     "after": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap4[1]), false, CS);"
    },
@@ -2039,7 +2074,7 @@
     "id": "1d606b8735",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 434,
+    "line": 438,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap4[1]), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap4[1]), false, CS); */"
    },
@@ -2047,7 +2082,7 @@
     "id": "d90e260884",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 435,
+    "line": 439,
     "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap4[0]), 8, true, false, CS);",
     "after": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(urimap4[0]), 9, true, false, CS);"
    },
@@ -2055,7 +2090,7 @@
     "id": "4979bf6c9e",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 436,
+    "line": 440,
     "before": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap4[1]), 8, true, false, CS);",
     "after": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(urimap4[1]), 9, true, false, CS);"
    },
@@ -2063,7 +2098,7 @@
     "id": "a9746d3820",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 443,
+    "line": 447,
     "before": "f15_WS_END_RESP = Cobol.binary(BigDecimal.valueOf(f1_WS_RESP), 8, true, false, CS);",
     "after": "f15_WS_END_RESP = Cobol.binary(BigDecimal.valueOf(f1_WS_RESP), 9, true, false, CS);"
    },
@@ -2071,7 +2106,7 @@
     "id": "d46466946f",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 445,
+    "line": 449,
     "before": "f16_WS_END_RESP2 = Cobol.binary(BigDecimal.valueOf(f2_WS_RESP2), 8, true, false, CS);",
     "after": "f16_WS_END_RESP2 = Cobol.binary(BigDecimal.valueOf(f2_WS_RESP2), 9, true, false, CS);"
    },
@@ -2079,7 +2114,7 @@
     "id": "7291e3b3bb",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 452,
+    "line": 456,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap5[0]), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap5[0]), false, CS); */"
    },
@@ -2087,7 +2122,7 @@
     "id": "bfe7802f64",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 452,
+    "line": 456,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap5[0]), false, CS);",
     "after": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(urimap5[1]), false, CS);"
    },
@@ -2095,7 +2130,7 @@
     "id": "2f53072021",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 453,
+    "line": 457,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap5[1]), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(urimap5[1]), false, CS); */"
    },
@@ -2103,7 +2138,7 @@
     "id": "95b116c1a4",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 454,
+    "line": 458,
     "before": "f17_WS_CLOSE = Cobol.binary(BigDecimal.valueOf(urimap5[0]), 8, true, false, CS);",
     "after": "f17_WS_CLOSE = Cobol.binary(BigDecimal.valueOf(urimap5[1]), 8, true, false, CS);"
    },
@@ -2111,7 +2146,7 @@
     "id": "68a19d072f",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 454,
+    "line": 458,
     "before": "f17_WS_CLOSE = Cobol.binary(BigDecimal.valueOf(urimap5[0]), 8, true, false, CS);",
     "after": "f17_WS_CLOSE = Cobol.binary(BigDecimal.valueOf(urimap5[0]), 9, true, false, CS);"
    },
@@ -2119,7 +2154,7 @@
     "id": "4b1af65995",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 457,
+    "line": 461,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(wto6), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(wto6), false, CS); */"
    },
@@ -2127,7 +2162,7 @@
     "id": "3407bfe72a",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 458,
+    "line": 462,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -2135,7 +2170,7 @@
     "id": "90f34a12a0",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 458,
+    "line": 462,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -2143,7 +2178,7 @@
     "id": "6bace7876a",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 459,
+    "line": 463,
     "before": "f14_WS_WTO = Cobol.binary(BigDecimal.valueOf(wto6), 8, true, false, CS);",
     "after": "f14_WS_WTO = Cobol.binary(BigDecimal.valueOf(wto6), 9, true, false, CS);"
    },
@@ -2151,7 +2186,7 @@
     "id": "d9686afec9",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 469,
+    "line": 473,
     "before": "Cobol.move(BigDecimal.valueOf(f13_WS_ST), f36_L2_ST, CS);",
     "after": "/* Cobol.move(BigDecimal.valueOf(f13_WS_ST), f36_L2_ST, CS); */"
    },
@@ -2159,7 +2194,7 @@
     "id": "7076c0fc19",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 471,
+    "line": 475,
     "before": "CicsTask.TsResult ts7 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f26_WS_LOG2, 35, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts7 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f26_WS_LOG2, 36, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -2167,7 +2202,7 @@
     "id": "0ac7173d08",
     "op": "LIT",
     "file": "service/GtubrowService.java",
-    "line": 471,
+    "line": 475,
     "before": "CicsTask.TsResult ts7 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f26_WS_LOG2, 35, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts7 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f26_WS_LOG2, 35, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -2175,7 +2210,7 @@
     "id": "fc86f9a224",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 472,
+    "line": 476,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts7.resp())), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts7.resp())), false, CS); */"
    },
@@ -2183,23 +2218,15 @@
     "id": "6fca4e37a2",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 473,
+    "line": 477,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
-   },
-   {
-    "id": "b9a8b5b296",
-    "op": "CON",
-    "file": "service/GtubrowService.java",
-    "line": 473,
-    "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
-    "after": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
    {
     "id": "dfdeedd7a5",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 476,
+    "line": 480,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -2207,7 +2234,7 @@
     "id": "53053cc3b5",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 476,
+    "line": 480,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -2215,7 +2242,7 @@
     "id": "30bcc52980",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 476,
+    "line": 480,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -2223,7 +2250,7 @@
     "id": "627ddf3528",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 476,
+    "line": 480,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -2231,7 +2258,7 @@
     "id": "e518ec5a69",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 483,
+    "line": 487,
     "before": "Cobol.move(BigDecimal.valueOf(f17_WS_CLOSE), f43_L3_CLOSE, CS);",
     "after": "/* Cobol.move(BigDecimal.valueOf(f17_WS_CLOSE), f43_L3_CLOSE, CS); */"
    },
@@ -2239,7 +2266,7 @@
     "id": "da0bc1181d",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 485,
+    "line": 489,
     "before": "Cobol.move(BigDecimal.valueOf(f14_WS_WTO), f45_L3_WTO, CS);",
     "after": "/* Cobol.move(BigDecimal.valueOf(f14_WS_WTO), f45_L3_WTO, CS); */"
    },
@@ -2247,7 +2274,7 @@
     "id": "97b102cf4f",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 487,
+    "line": 491,
     "before": "CicsTask.TsResult ts8 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f37_WS_LOG3, 27, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts8 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f37_WS_LOG3, 28, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -2255,7 +2282,7 @@
     "id": "4e372c0b4a",
     "op": "LIT",
     "file": "service/GtubrowService.java",
-    "line": 487,
+    "line": 491,
     "before": "CicsTask.TsResult ts8 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f37_WS_LOG3, 27, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts8 = task.writeqTs(\"GTUBLOG\".strip(), DetCics.toRegion(DetCics.padded(f37_WS_LOG3, 27, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -2263,7 +2290,7 @@
     "id": "0dd7330d73",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 488,
+    "line": 492,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts8.resp())), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts8.resp())), false, CS); */"
    },
@@ -2271,7 +2298,7 @@
     "id": "219e3fa406",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 489,
+    "line": 493,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -2279,7 +2306,7 @@
     "id": "4d89757354",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 489,
+    "line": 493,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -2287,31 +2314,31 @@
     "id": "4899e307fd",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 492,
+    "line": 496,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
-   },
-   {
-    "id": "45c53bd8a4",
-    "op": "ROR",
-    "file": "service/GtubrowService.java",
-    "line": 492,
-    "before": "if (to >= 0) return GOTO | to;",
-    "after": "if (to < 0) return GOTO | to;"
    },
    {
     "id": "390cfc0db0",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 492,
+    "line": 496,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "45c53bd8a4",
+    "op": "ROR",
+    "file": "service/GtubrowService.java",
+    "line": 496,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
    },
    {
     "id": "77756b0af3",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 492,
+    "line": 496,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -2319,7 +2346,7 @@
     "id": "4c561b5cc8",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 495,
+    "line": 499,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -2327,7 +2354,7 @@
     "id": "18e8b94bdd",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 496,
+    "line": 500,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -2335,7 +2362,7 @@
     "id": "0c7c1dd100",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 497,
+    "line": 501,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -2343,7 +2370,7 @@
     "id": "2fa86e2d0b",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 498,
+    "line": 502,
     "before": "return 1;",
     "after": "return 2;"
    },
@@ -2351,7 +2378,7 @@
     "id": "47bf4ad2ef",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 505,
+    "line": 509,
     "before": "f9_WS_SEEN = Cobol.zoned(f9_WS_SEEN.add(t9), 2, 0, false, false, CS);",
     "after": "f9_WS_SEEN = Cobol.zoned(f9_WS_SEEN.add(t9), 3, 0, false, false, CS);"
    },
@@ -2359,7 +2386,7 @@
     "id": "4c93d4f35f",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 505,
+    "line": 509,
     "before": "f9_WS_SEEN = Cobol.zoned(f9_WS_SEEN.add(t9), 2, 0, false, false, CS);",
     "after": "f9_WS_SEEN = Cobol.zoned(f9_WS_SEEN.add(t9), 2, 1, false, false, CS);"
    },
@@ -2367,7 +2394,7 @@
     "id": "c2e4e75fc7",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 507,
+    "line": 511,
     "before": "if (Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) == 0) {",
     "after": "if (!(Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) == 0)) {"
    },
@@ -2375,7 +2402,7 @@
     "id": "8d4de6dfac",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 507,
+    "line": 511,
     "before": "if (Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) == 0) {",
     "after": "if (Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) != 0) {"
    },
@@ -2383,7 +2410,7 @@
     "id": "474c471aa8",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 510,
+    "line": 514,
     "before": "f10_WS_NAMED = Cobol.zoned(f10_WS_NAMED.add(t11), 2, 0, false, false, CS);",
     "after": "f10_WS_NAMED = Cobol.zoned(f10_WS_NAMED.add(t11), 3, 0, false, false, CS);"
    },
@@ -2391,7 +2418,7 @@
     "id": "97ee8d94c9",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 510,
+    "line": 514,
     "before": "f10_WS_NAMED = Cobol.zoned(f10_WS_NAMED.add(t11), 2, 0, false, false, CS);",
     "after": "f10_WS_NAMED = Cobol.zoned(f10_WS_NAMED.add(t11), 2, 1, false, false, CS);"
    },
@@ -2399,7 +2426,7 @@
     "id": "60d16e8800",
     "op": "NEG",
     "file": "service/GtubrowService.java",
-    "line": 513,
+    "line": 517,
     "before": "if (Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) == 0) {",
     "after": "if (!(Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) == 0)) {"
    },
@@ -2407,7 +2434,7 @@
     "id": "856ddd2db5",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 513,
+    "line": 517,
     "before": "if (Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) == 0) {",
     "after": "if (Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) != 0) {"
    },
@@ -2415,7 +2442,7 @@
     "id": "796c487ecd",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 516,
+    "line": 520,
     "before": "f11_WS_PATHED = Cobol.zoned(f11_WS_PATHED.add(t13), 2, 0, false, false, CS);",
     "after": "f11_WS_PATHED = Cobol.zoned(f11_WS_PATHED.add(t13), 3, 0, false, false, CS);"
    },
@@ -2423,7 +2450,7 @@
     "id": "c514b1ff66",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 516,
+    "line": 520,
     "before": "f11_WS_PATHED = Cobol.zoned(f11_WS_PATHED.add(t13), 2, 0, false, false, CS);",
     "after": "f11_WS_PATHED = Cobol.zoned(f11_WS_PATHED.add(t13), 2, 1, false, false, CS);"
    },
@@ -2431,7 +2458,7 @@
     "id": "8e4a57bf15",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 519,
+    "line": 523,
     "before": "if ((Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) == 0 && Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) == 0)) {",
     "after": "if ((Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) != 0 && Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) == 0)) {"
    },
@@ -2439,7 +2466,7 @@
     "id": "c1970dd617",
     "op": "ROR",
     "file": "service/GtubrowService.java",
-    "line": 519,
+    "line": 523,
     "before": "if ((Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) == 0 && Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) == 0)) {",
     "after": "if ((Cobol.compare(f5_WS_PREFIX, \"ZC\", CS) == 0 && Cobol.compare(f7_WS_PATH.ref(1, Integer.valueOf(6)), \"/zecs/\", CS) != 0)) {"
    },
@@ -2447,7 +2474,7 @@
     "id": "0e00f87ea8",
     "op": "BDM",
     "file": "service/GtubrowService.java",
-    "line": 522,
+    "line": 526,
     "before": "f12_WS_BOTH = Cobol.zoned(f12_WS_BOTH.add(t15), 2, 0, false, false, CS);",
     "after": "f12_WS_BOTH = Cobol.zoned(f12_WS_BOTH.subtract(t15), 2, 0, false, false, CS);"
    },
@@ -2455,7 +2482,7 @@
     "id": "9eb090901d",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 522,
+    "line": 526,
     "before": "f12_WS_BOTH = Cobol.zoned(f12_WS_BOTH.add(t15), 2, 0, false, false, CS);",
     "after": "f12_WS_BOTH = Cobol.zoned(f12_WS_BOTH.add(t15), 3, 0, false, false, CS);"
    },
@@ -2463,7 +2490,7 @@
     "id": "1f6cffa7d4",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 522,
+    "line": 526,
     "before": "f12_WS_BOTH = Cobol.zoned(f12_WS_BOTH.add(t15), 2, 0, false, false, CS);",
     "after": "f12_WS_BOTH = Cobol.zoned(f12_WS_BOTH.add(t15), 2, 1, false, false, CS);"
    },
@@ -2471,7 +2498,7 @@
     "id": "c1bcf909d0",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 525,
+    "line": 529,
     "before": "Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(start17.resp())), false, CS);",
     "after": "/* Cobol.store(f75_EIBRESP, BigDecimal.valueOf(DetCics.resp(start17.resp())), false, CS); */"
    },
@@ -2479,7 +2506,7 @@
     "id": "1ab3b60905",
     "op": "DEL",
     "file": "service/GtubrowService.java",
-    "line": 526,
+    "line": 530,
     "before": "Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(start17.resp2()), false, CS);",
     "after": "/* Cobol.store(f76_EIBRESP2, BigDecimal.valueOf(start17.resp2()), false, CS); */"
    },
@@ -2487,7 +2514,7 @@
     "id": "a1b4eab4a6",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 527,
+    "line": 531,
     "before": "f13_WS_ST = Cobol.binary(BigDecimal.valueOf(DetCics.resp(start17.resp())), 8, true, false, CS);",
     "after": "f13_WS_ST = Cobol.binary(BigDecimal.valueOf(DetCics.resp(start17.resp())), 9, true, false, CS);"
    },
@@ -2495,7 +2522,7 @@
     "id": "aa71c3e102",
     "op": "CON",
     "file": "service/GtubrowService.java",
-    "line": 529,
+    "line": 533,
     "before": "return 2;",
     "after": "return 3;"
    },
@@ -3580,10 +3607,58 @@
     "after": "calen = cx(task, 5);"
    },
    {
-    "id": "9aad39a13c",
+    "id": "b92af008a2",
     "op": "NEG",
     "file": "service/GtunextService.java",
     "line": 201,
+    "before": "} else if (ca instanceof HcrparWsV1) {",
+    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+   },
+   {
+    "id": "e2c64a1bbf",
+    "op": "DEL",
+    "file": "service/GtunextService.java",
+    "line": 202,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "572571e019",
+    "op": "CON",
+    "file": "service/GtunextService.java",
+    "line": 202,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "dc585bbaa6",
+    "op": "NEG",
+    "file": "service/GtunextService.java",
+    "line": 203,
+    "before": "} else if (ca instanceof HcrparWsV2) {",
+    "after": "} else if (!(ca instanceof HcrparWsV2)) {"
+   },
+   {
+    "id": "6636619d8d",
+    "op": "DEL",
+    "file": "service/GtunextService.java",
+    "line": 204,
+    "before": "calen = cx(task, 10);",
+    "after": "/* calen = cx(task, 10); */"
+   },
+   {
+    "id": "ea2f68cca3",
+    "op": "CON",
+    "file": "service/GtunextService.java",
+    "line": 204,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "9aad39a13c",
+    "op": "NEG",
+    "file": "service/GtunextService.java",
+    "line": 205,
     "before": "} else if (ca instanceof PcconfWsState) {",
     "after": "} else if (!(ca instanceof PcconfWsState)) {"
    },
@@ -3591,7 +3666,7 @@
     "id": "24289351aa",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 202,
+    "line": 206,
     "before": "calen = cx(task, 30);",
     "after": "/* calen = cx(task, 30); */"
    },
@@ -3599,7 +3674,7 @@
     "id": "365f2582f7",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 202,
+    "line": 206,
     "before": "calen = cx(task, 30);",
     "after": "calen = cx(task, 31);"
    },
@@ -3607,7 +3682,7 @@
     "id": "47f0e56749",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 203,
+    "line": 207,
     "before": "} else if (ca instanceof PcrcaWsCarry) {",
     "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
    },
@@ -3615,7 +3690,7 @@
     "id": "274d5975fc",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 204,
+    "line": 208,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -3623,7 +3698,7 @@
     "id": "bcf42ff206",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 204,
+    "line": 208,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -3631,7 +3706,7 @@
     "id": "09a7f90813",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 205,
+    "line": 209,
     "before": "} else if (ca instanceof PcrcaWsModify) {",
     "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
    },
@@ -3639,7 +3714,7 @@
     "id": "ede477e4b8",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 206,
+    "line": 210,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -3647,7 +3722,7 @@
     "id": "1b35029644",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 206,
+    "line": 210,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -3655,7 +3730,7 @@
     "id": "87400e291a",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 207,
+    "line": 211,
     "before": "} else if (ca instanceof PcrcbWsExtra) {",
     "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
    },
@@ -3663,7 +3738,7 @@
     "id": "86344a79f8",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 208,
+    "line": 212,
     "before": "calen = cx(task, 5);",
     "after": "/* calen = cx(task, 5); */"
    },
@@ -3671,7 +3746,7 @@
     "id": "33d1c10d47",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 208,
+    "line": 212,
     "before": "calen = cx(task, 5);",
     "after": "calen = cx(task, 6);"
    },
@@ -3679,7 +3754,7 @@
     "id": "31b703ac82",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 209,
+    "line": 213,
     "before": "} else if (ca instanceof PcrcbWsNew1) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
    },
@@ -3687,7 +3762,7 @@
     "id": "e4b58bc1b3",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 210,
+    "line": 214,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -3695,7 +3770,7 @@
     "id": "d8d3af187b",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 210,
+    "line": 214,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -3703,7 +3778,7 @@
     "id": "4e6124f9ce",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 211,
+    "line": 215,
     "before": "} else if (ca instanceof PcrcbWsNew2) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
    },
@@ -3711,7 +3786,7 @@
     "id": "dd097e5c76",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 212,
+    "line": 216,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -3719,7 +3794,7 @@
     "id": "b141fe2e35",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 212,
+    "line": 216,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -3727,7 +3802,7 @@
     "id": "f292d1c713",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 213,
+    "line": 217,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
    },
@@ -3735,7 +3810,7 @@
     "id": "f3c2b5cfba",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 214,
+    "line": 218,
     "before": "calen = cx(task, 8);",
     "after": "/* calen = cx(task, 8); */"
    },
@@ -3743,7 +3818,7 @@
     "id": "4ce847cd7c",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 214,
+    "line": 218,
     "before": "calen = cx(task, 8);",
     "after": "calen = cx(task, 9);"
    },
@@ -3751,7 +3826,7 @@
     "id": "7646314489",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 216,
+    "line": 220,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (!(calen == 0 && task.linkArea() != null)) {"
    },
@@ -3759,7 +3834,7 @@
     "id": "33d701e9a2",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 216,
+    "line": 220,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen != 0 && task.linkArea() != null) {"
    },
@@ -3767,7 +3842,7 @@
     "id": "92c636e2e1",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 216,
+    "line": 220,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 1 && task.linkArea() != null) {"
    },
@@ -3775,7 +3850,7 @@
     "id": "1e6edabfe9",
     "op": "COR",
     "file": "service/GtunextService.java",
-    "line": 216,
+    "line": 220,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 0 || task.linkArea() != null) {"
    },
@@ -3783,7 +3858,7 @@
     "id": "6aa59601f3",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 216,
+    "line": 220,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 0 && task.linkArea() == null) {"
    },
@@ -3791,7 +3866,7 @@
     "id": "f6b5767b83",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 217,
+    "line": 221,
     "before": "calen = cx(task, task.linkArea().length);",
     "after": "/* calen = cx(task, task.linkArea().length); */"
    },
@@ -3799,7 +3874,7 @@
     "id": "863bc48f5b",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 219,
+    "line": 223,
     "before": "Cobol.store(f11_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f11_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -3807,7 +3882,7 @@
     "id": "03b4aa3a43",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 221,
+    "line": 225,
     "before": "perform(0, 0);",
     "after": "/* perform(0, 0); */"
    },
@@ -3815,7 +3890,7 @@
     "id": "ced71b6171",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 221,
+    "line": 225,
     "before": "perform(0, 0);",
     "after": "perform(1, 0);"
    },
@@ -3823,7 +3898,7 @@
     "id": "9d8d10dd86",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 221,
+    "line": 225,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -3831,7 +3906,7 @@
     "id": "427688b1a2",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 225,
+    "line": 229,
     "before": "if (!task.ended()) {",
     "after": "if (!(!task.ended())) {"
    },
@@ -3839,7 +3914,7 @@
     "id": "6f4fcf1042",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 226,
+    "line": 230,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -3847,7 +3922,7 @@
     "id": "d6726ecf02",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 230,
+    "line": 234,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -3855,7 +3930,7 @@
     "id": "c289cb6d8c",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 231,
+    "line": 235,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -3863,7 +3938,7 @@
     "id": "69e4cecc76",
     "op": "LIT",
     "file": "service/GtunextService.java",
-    "line": 238,
+    "line": 242,
     "before": "region.run(task, \"GTUNEXT\", this::runTask);",
     "after": "region.run(task, \"XTUNEXT\", this::runTask);"
    },
@@ -3871,7 +3946,7 @@
     "id": "716e0fbc08",
     "op": "LIT",
     "file": "service/GtunextService.java",
-    "line": 244,
+    "line": 248,
     "before": "region.run(task, \"GTUNEXT\", this::runTask);",
     "after": "region.run(task, \"XTUNEXT\", this::runTask);"
    },
@@ -3879,7 +3954,7 @@
     "id": "d2e34cb73b",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 245,
+    "line": 249,
     "before": "lastAnswerBytes = task.returnedBytes();",
     "after": "/* lastAnswerBytes = task.returnedBytes(); */"
    },
@@ -3887,7 +3962,7 @@
     "id": "46eacb6973",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 254,
+    "line": 258,
     "before": "return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
     "after": "return lastAnswerBytes != null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);"
    },
@@ -3895,31 +3970,15 @@
     "id": "96dc9fe5ad",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 263,
+    "line": 267,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
-   },
-   {
-    "id": "67bea1d6b2",
-    "op": "CON",
-    "file": "service/GtunextService.java",
-    "line": 268,
-    "before": "private int[] performThru = new int[64];",
-    "after": "private int[] performThru = new int[65];"
-   },
-   {
-    "id": "d0967cc496",
-    "op": "CON",
-    "file": "service/GtunextService.java",
-    "line": 269,
-    "before": "private int performDepth = 0;",
-    "after": "private int performDepth = 1;"
    },
    {
     "id": "084127d07f",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 277,
+    "line": 281,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -3927,7 +3986,7 @@
     "id": "4d0e99635a",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 287,
+    "line": 291,
     "before": "if (mine == performThru.length) {",
     "after": "if (!(mine == performThru.length)) {"
    },
@@ -3935,7 +3994,7 @@
     "id": "66e84df593",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 287,
+    "line": 291,
     "before": "if (mine == performThru.length) {",
     "after": "if (mine != performThru.length) {"
    },
@@ -3943,7 +4002,7 @@
     "id": "3487aafc97",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 288,
+    "line": 292,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -3951,7 +4010,7 @@
     "id": "9553c0128f",
     "op": "AOR",
     "file": "service/GtunextService.java",
-    "line": 288,
+    "line": 292,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -3959,7 +4018,7 @@
     "id": "2aedee019d",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 288,
+    "line": 292,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -3967,7 +4026,7 @@
     "id": "5b2f62ac22",
     "op": "AOR",
     "file": "service/GtunextService.java",
-    "line": 290,
+    "line": 294,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -3975,7 +4034,7 @@
     "id": "e2b6377b98",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 295,
+    "line": 299,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -3983,7 +4042,7 @@
     "id": "29a27c3734",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 295,
+    "line": 299,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -3991,7 +4050,7 @@
     "id": "5369f6d739",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 297,
+    "line": 301,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -3999,7 +4058,7 @@
     "id": "a314168705",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 298,
+    "line": 302,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -4007,7 +4066,7 @@
     "id": "41efca769d",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 298,
+    "line": 302,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -4015,7 +4074,7 @@
     "id": "85f3513a6c",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 299,
+    "line": 303,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -4023,7 +4082,7 @@
     "id": "096e3a93e2",
     "op": "AOR",
     "file": "service/GtunextService.java",
-    "line": 301,
+    "line": 305,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -4031,7 +4090,7 @@
     "id": "8aaec865e8",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 301,
+    "line": 305,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -4039,7 +4098,7 @@
     "id": "3bc76de0f1",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 301,
+    "line": 305,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -4047,7 +4106,7 @@
     "id": "f4010e45c1",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 301,
+    "line": 305,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -4055,7 +4114,7 @@
     "id": "005e1c066c",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 301,
+    "line": 305,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -4063,7 +4122,7 @@
     "id": "137632843a",
     "op": "AOR",
     "file": "service/GtunextService.java",
-    "line": 301,
+    "line": 305,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -4071,7 +4130,7 @@
     "id": "4e532e7539",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 302,
+    "line": 306,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -4079,7 +4138,7 @@
     "id": "82da971702",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 302,
+    "line": 306,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -4087,31 +4146,31 @@
     "id": "e572435149",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 307,
+    "line": 311,
     "before": "if (next >= 1) {",
     "after": "if (!(next >= 1)) {"
-   },
-   {
-    "id": "3ac7fb2ba4",
-    "op": "ROR",
-    "file": "service/GtunextService.java",
-    "line": 307,
-    "before": "if (next >= 1) {",
-    "after": "if (next < 1) {"
    },
    {
     "id": "ce9c8fedd3",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 307,
+    "line": 311,
     "before": "if (next >= 1) {",
     "after": "if (next > 1) {"
+   },
+   {
+    "id": "3ac7fb2ba4",
+    "op": "ROR",
+    "file": "service/GtunextService.java",
+    "line": 311,
+    "before": "if (next >= 1) {",
+    "after": "if (next < 1) {"
    },
    {
     "id": "4c0324d66c",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 307,
+    "line": 311,
     "before": "if (next >= 1) {",
     "after": "if (next >= 2) {"
    },
@@ -4119,7 +4178,7 @@
     "id": "9c4946fb21",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 310,
+    "line": 314,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -4127,7 +4186,7 @@
     "id": "03e9ff3c2e",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 313,
+    "line": 317,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -4135,7 +4194,7 @@
     "id": "2c5728c6f7",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 313,
+    "line": 317,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -4143,23 +4202,15 @@
     "id": "fe6ab4f481",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 317,
+    "line": 321,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
-   },
-   {
-    "id": "3525313a57",
-    "op": "CON",
-    "file": "service/GtunextService.java",
-    "line": 323,
-    "before": "case 0: return p0();",
-    "after": "case 1: return p0();"
    },
    {
     "id": "87bc025296",
     "op": "LIT",
     "file": "service/GtunextService.java",
-    "line": 324,
+    "line": 328,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -4167,7 +4218,7 @@
     "id": "5db5c2a71f",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 332,
+    "line": 336,
     "before": "if (retrieved1.data() != null) DetCics.put(f1_WS_DATA, DetCics.fromRegion(retrieved1.data(), REGION, CS));",
     "after": "if (!(retrieved1.data() != null)) DetCics.put(f1_WS_DATA, DetCics.fromRegion(retrieved1.data(), REGION, CS));"
    },
@@ -4175,7 +4226,7 @@
     "id": "f505821640",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 332,
+    "line": 336,
     "before": "if (retrieved1.data() != null) DetCics.put(f1_WS_DATA, DetCics.fromRegion(retrieved1.data(), REGION, CS));",
     "after": "if (retrieved1.data() == null) DetCics.put(f1_WS_DATA, DetCics.fromRegion(retrieved1.data(), REGION, CS));"
    },
@@ -4183,31 +4234,31 @@
     "id": "2b56f71f42",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 333,
+    "line": 337,
     "before": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);",
     "after": "if (!(retrieved1.length() >= 0)) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);"
-   },
-   {
-    "id": "87c8ee9114",
-    "op": "ROR",
-    "file": "service/GtunextService.java",
-    "line": 333,
-    "before": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);",
-    "after": "if (retrieved1.length() < 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);"
    },
    {
     "id": "77453ad3c6",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 333,
+    "line": 337,
     "before": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);",
     "after": "if (retrieved1.length() > 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);"
+   },
+   {
+    "id": "87c8ee9114",
+    "op": "ROR",
+    "file": "service/GtunextService.java",
+    "line": 337,
+    "before": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);",
+    "after": "if (retrieved1.length() < 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);"
    },
    {
     "id": "9b12382ebe",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 333,
+    "line": 337,
     "before": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);",
     "after": "if (retrieved1.length() >= 1) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);"
    },
@@ -4215,7 +4266,7 @@
     "id": "8fcef3fb76",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 333,
+    "line": 337,
     "before": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 4, true, false, CS);",
     "after": "if (retrieved1.length() >= 0) f2_WS_LEN = Cobol.binary(BigDecimal.valueOf(retrieved1.length()), 5, true, false, CS);"
    },
@@ -4223,7 +4274,7 @@
     "id": "2f4e3dd702",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 334,
+    "line": 338,
     "before": "Cobol.store(f32_EIBRESP, BigDecimal.valueOf(DetCics.resp(retrieved1.resp())), false, CS);",
     "after": "/* Cobol.store(f32_EIBRESP, BigDecimal.valueOf(DetCics.resp(retrieved1.resp())), false, CS); */"
    },
@@ -4231,23 +4282,15 @@
     "id": "d5a5bc0d6b",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 335,
+    "line": 339,
     "before": "Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
-   },
-   {
-    "id": "01695e92ef",
-    "op": "CON",
-    "file": "service/GtunextService.java",
-    "line": 335,
-    "before": "Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
-    "after": "Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
    {
     "id": "a8a52a0365",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 336,
+    "line": 340,
     "before": "if (DetCics.resp(retrieved1.resp()) != 0) {",
     "after": "if (!(DetCics.resp(retrieved1.resp()) != 0)) {"
    },
@@ -4255,23 +4298,15 @@
     "id": "a789072840",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 336,
+    "line": 340,
     "before": "if (DetCics.resp(retrieved1.resp()) != 0) {",
     "after": "if (DetCics.resp(retrieved1.resp()) == 0) {"
-   },
-   {
-    "id": "c857d7ea06",
-    "op": "CON",
-    "file": "service/GtunextService.java",
-    "line": 336,
-    "before": "if (DetCics.resp(retrieved1.resp()) != 0) {",
-    "after": "if (DetCics.resp(retrieved1.resp()) != 1) {"
    },
    {
     "id": "98d4f381d7",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 338,
+    "line": 342,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -4279,7 +4314,7 @@
     "id": "fc24144de3",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 338,
+    "line": 342,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -4287,7 +4322,7 @@
     "id": "d4c86c5740",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 338,
+    "line": 342,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -4295,7 +4330,7 @@
     "id": "f7bac7a218",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 338,
+    "line": 342,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -4303,7 +4338,7 @@
     "id": "a7d87591a8",
     "op": "LIT",
     "file": "service/GtunextService.java",
-    "line": 341,
+    "line": 345,
     "before": "CicsTask.TsResult ts2 = task.writeqTs(\"GTUGO\".strip(), DetCics.toRegion(DetCics.padded(f1_WS_DATA, 4, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts2 = task.writeqTs(\"XTUGO\".strip(), DetCics.toRegion(DetCics.padded(f1_WS_DATA, 4, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -4311,7 +4346,7 @@
     "id": "1277c0b5db",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 341,
+    "line": 345,
     "before": "CicsTask.TsResult ts2 = task.writeqTs(\"GTUGO\".strip(), DetCics.toRegion(DetCics.padded(f1_WS_DATA, 4, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts2 = task.writeqTs(\"GTUGO\".strip(), DetCics.toRegion(DetCics.padded(f1_WS_DATA, 5, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -4319,7 +4354,7 @@
     "id": "c5d9426a43",
     "op": "LIT",
     "file": "service/GtunextService.java",
-    "line": 341,
+    "line": 345,
     "before": "CicsTask.TsResult ts2 = task.writeqTs(\"GTUGO\".strip(), DetCics.toRegion(DetCics.padded(f1_WS_DATA, 4, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts2 = task.writeqTs(\"GTUGO\".strip(), DetCics.toRegion(DetCics.padded(f1_WS_DATA, 4, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -4327,7 +4362,7 @@
     "id": "02c604400d",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 342,
+    "line": 346,
     "before": "Cobol.store(f32_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS);",
     "after": "/* Cobol.store(f32_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS); */"
    },
@@ -4335,7 +4370,7 @@
     "id": "eec7d3bc20",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 343,
+    "line": 347,
     "before": "Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -4343,7 +4378,7 @@
     "id": "08c8755322",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 343,
+    "line": 347,
     "before": "Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f33_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -4351,7 +4386,7 @@
     "id": "5cd112e57f",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 344,
+    "line": 348,
     "before": "if (DetCics.resp(ts2.resp()) != 0) {",
     "after": "if (!(DetCics.resp(ts2.resp()) != 0)) {"
    },
@@ -4359,7 +4394,7 @@
     "id": "34b543b753",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 344,
+    "line": 348,
     "before": "if (DetCics.resp(ts2.resp()) != 0) {",
     "after": "if (DetCics.resp(ts2.resp()) == 0) {"
    },
@@ -4367,7 +4402,7 @@
     "id": "31bcc29897",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 344,
+    "line": 348,
     "before": "if (DetCics.resp(ts2.resp()) != 0) {",
     "after": "if (DetCics.resp(ts2.resp()) != 1) {"
    },
@@ -4375,7 +4410,7 @@
     "id": "de8ca02cba",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 346,
+    "line": 350,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -4383,7 +4418,7 @@
     "id": "4028abf718",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 346,
+    "line": 350,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -4391,7 +4426,7 @@
     "id": "afb62b21ec",
     "op": "ROR",
     "file": "service/GtunextService.java",
-    "line": 346,
+    "line": 350,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -4399,7 +4434,7 @@
     "id": "e7af628b50",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 346,
+    "line": 350,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -4407,7 +4442,7 @@
     "id": "9db21a6fe4",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 349,
+    "line": 353,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -4415,7 +4450,7 @@
     "id": "028353dc20",
     "op": "DEL",
     "file": "service/GtunextService.java",
-    "line": 350,
+    "line": 354,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -4423,7 +4458,7 @@
     "id": "a64c5f1235",
     "op": "NEG",
     "file": "service/GtunextService.java",
-    "line": 351,
+    "line": 355,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -4431,18 +4466,18 @@
     "id": "c4f362a57d",
     "op": "CON",
     "file": "service/GtunextService.java",
-    "line": 352,
+    "line": 356,
     "before": "return 1;",
     "after": "return 2;"
    }
   ],
   "inputs": {
-   "port": "d6ff6158eb5cb8ccec204e8b17d33db939758a33674b7ec1da54defd4db5b043",
-   "runtime": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-   "generator": "d39d1fc47b391ed2a5908d9ce00d27609cca2c7fdbe26d8c7424e88c9b4112a5",
+   "port": "ab67ca9f6219c307fbc5a7cb8a29270c4a31738ef4a35cdb5bde301de217fc27",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
    "case": "59d0fb4ef9fc98217d532bfe41b1cfb3b8971e37750e54fcbd93c4fc344dfd19",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "060a658102cc9ae5c9fe1483378fc637d1df117792e7c983fa4f37d4d26eaa9e",
+   "harness": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
@@ -4498,16 +4533,16 @@
     "generator:cobolrt/sql/DetSql.java": "0f1ad0d33d9ce5301ba16bfa1e0b3562d71dce1518af8932c3ea93d77bc89bf9",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
-    "generator:core": "6700b235258c233e546d162b29bdd3b0829e7af19d54d017870403607f422146",
+    "generator:core": "14036b3dac86cb4bc53a23171455347ab95c84129749c8485ef13a3c90769d1a",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "d26fab1455283a28cfb0ae3799b2ad5df99a495dcbfa2108ba2075270cc5c548",
-    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
+    "generator:det/cics_filecontrol": "d948deda64cbd44a065c8d4c67605dacc556943adb3300564a6e82703b32ec7b",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
@@ -4520,7 +4555,7 @@
     "generator:det/dli": "3543f9f3c05be02b2f8e0702a09f53874303bb17de9972a36a1e05521d90bc57",
     "generator:det/dyncall": "b90198923bba2f1bb209e74fe5303e44a67b827850979be883a702dab7389958",
     "generator:det/engine_layout": "b5d75efcd701e65818f3cf16d60637c238159f391449efd7af10396903dda25e",
-    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/entity": "05e52de75f61a97a7e0ccc16080f543f046dffb3b3cb57768f3e53bb5c253b90",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/gen": "7b98632438cce8f987c664c90d548b4980091cd9ce61ba0024cb238a2f6790a5",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
@@ -4530,16 +4565,16 @@
     "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
     "generator:det/mq": "f657dc097af0127930c9dfc41b0687701f4300cdcb82b7e0a2f8884ab1c53083",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/program": "828b18117794115cb5695be2245d41b90b0f3facd716e3a0fcca0c6c9fa06516",
+    "generator:det/program": "ea6c0c2de3732f44c89bc8d095180f4b4e8e26c3f0a74b869fafcc1da62e8b53",
     "generator:det/refine": "4daa99d7534a589b4b46b8517f4109b95f64c956cd101a890e57b6a59eac4e44",
-    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124",
+    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881",
     "generator:det/sql": "74791ed542d623b7ddf082de9cdf01fc7b2a254a9e1c7b41423b58793309c561",
     "generator:det/stmt": "5590bdc345efe60c24a8de8e021b73e3b1d131bff5d4966ccf58bb2f8bd01bb8",
     "generator:det/tso": "7e4c6c4847b0154df35b1e64082aef52cd46e867900b2ce987ed523cdac86502"
    },
    "harness": {
-    "harness:cics": "2604c86b17e3bf1d401faebb6c3f2ae4efc6233eae604b508585133b7a6e7942",
-    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+    "harness:cics": "7e00f67547797a34f2b15d5ae76f363d97c8896fdf5bef20550bebdda8e7de0d",
+    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
    },
    "oracle": {
     "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
@@ -4547,7 +4582,6 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "",
-  "port_moved": true
+  "every": "001991f26c 005e1c066c 008ac090af 00e2d25195 0118a036c3 016565fd11 01695e92ef 01f48aaf81 020e18a961 026f5f56ad 0278f3f62c 028353dc20 02c604400d 02ccfb0fdc 033c1e5167 034840e911 0354694edd 037e60cdb8 03b4aa3a43 03e489a864 03e9b1b3e0 03e9ff3c2e 045b446e8f 04d61c7d9b 053089dd3f 06469b287c 064d580f09 0667b485f4 067bbcd34e 0724ed1907 07b2c13063 081fb3bf55 084127d07f 08802fca9a 0895ad3192 089eb49c95 08ae96026a 08c8755322 08dc34b88f 0932625f33 0932b12afe 094cb03542 095fd1a42c 096681f0f1 096e3a93e2 09a7f90813 09fec9bff3 0ac7173d08 0b1c90ae5c 0b202570ec 0b46ac9350 0c7c1dd100 0cc72be6de 0cd03be5e3 0d831fe3f6 0d9481c299 0da4a5a0ed 0dd7330d73 0e00f87ea8 0e40e0cfa1 0e97ce2291 0f05705e22 0f448e57e7 0f91e96344 0fdbfdd7d2 104f709d02 1089a0355f 108eaaf351 10b3f299fa 10b444aee5 114b301f4c 11839d97ce 1268640643 1277c0b5db 1311862bd2 137632843a 137e89b2dc 1396a20e42 13a87d206e 143251f28e 1494e383f5 14f2bdf534 1554892d3b 15970aac27 15c07dd8a1 1644a8905b 16471b5be8 165ea82d48 16b3d8ccde 17282684b0 1780a37fb0 17be461eba 1888b43bf9 1899bc5479 18e8b94bdd 1945e1258a 19bc11cf81 19de8f7289 1ab3b60905 1b35029644 1b532d1b32 1b57eeaf1b 1b5c226f6d 1c8fdc21f3 1cecc1bfb9 1d0a1fb445 1d1cc55cd3 1d4b88ba73 1d606b8735 1df37503c8 1e354cd66b 1e6edabfe9 1edd53a250 1f4cfb62c7 1f6cffa7d4 20fbac3a58 212982e967 214c449660 219e3fa406 21fc471b0f 22039fb5db 22c7268164 23166ca25e 2323e0945f 234de2680b 2353c0c428 235d5847ad 238d6191f4 24289351aa 24d57c9ffe 256ddfbccc 258e6615de 26d2de1250 26e2b585c1 270ac5c48b 274d5975fc 27925b71ed 27ce85e1b3 28ad8f730a 28fa740100 29a27c3734 29d8debe0a 29dd949a09 2a67fa8806 2a74a5b3a1 2aedee019d 2b56f71f42 2c5728c6f7 2cdd5ddb19 2cf4e15276 2d667e7bd8 2dba26f679 2e175ff6c7 2ee2bf6add 2f4e3dd702 2f53072021 2fa86e2d0b 30bcc52980 31b703ac82 31bcc29897 32d86192ac 32df5cb5b8 33757b830a 339666631f 33b3bd2971 33d1c10d47 33d701e9a2 3407bfe72a 342dc278f3 3487aafc97 34b543b753 34f810a789 3500959c64 3525313a57 35b7a3d28a 361aabefbd 362f724396 365f2582f7 366a8f2a5c 3715734b1f 3760d2871a 3774ff7302 378a25b364 37eea80c5b 3882e9e2be 38c0fac4d9 390cfc0db0 3915b5d540 3932e6c6c4 3979c59992 39ddff2d94 39e230ee98 3a2fa6e397 3ac7fb2ba4 3b7c2ab458 3b8958a22c 3bbb32a9bc 3bc76de0f1 3bea38fb9c 3da24feb19 3dc93e6715 3f2b82c9da 3f9603f148 4017b06907 4028abf718 4074390996 40b46a2fa1 40c4625eac 413158be0e 41a19280ed 41adf1889b 41efca769d 427688b1a2 431068ad5d 444184c573 44e95ab2ef 45c53bd8a4 46eacb6973 473921f2f4 474c471aa8 47b28d8013 47bf4ad2ef 47f0e56749 4882c37ea3 4899e307fd 48ab45a954 491d6a1712 4979bf6c9e 49fa40d326 4ac279ba43 4ad37cbb83 4adf3b550d 4b1af65995 4b54f6fa53 4b67b2a6b0 4c0324d66c 4c4747f691 4c561b5cc8 4c816efb2e 4c93d4f35f 4cab08ea98 4ce847cd7c 4cf4a7d93e 4d09a2a153 4d0e99635a 4d2e49a515 4d89757354 4e372c0b4a 4e532e7539 4e6124f9ce 4eb93250bc 4f98ac3d05 4ffa60aa1f 500f4aa3a7 501894096d 5133a85636 51ba48180d 51ed1623d4 52ce88f6ed 53053cc3b5 531f1fef30 5369f6d739 53e12c9cfc 5493b6ee24 549843b335 557726a789 56e56ffca6 570bf9a774 571c0e8839 572571e019 57bacd939d 57ce52ce9e 57fd9dbef8 589bfb753d 58d9ea6356 5a5d867bfd 5a6c85daf4 5af0826b55 5b209186f5 5b2b196f70 5b2f62ac22 5be56a7f9e 5c3a29cb86 5c648fd62e 5cd112e57f 5d13f890dd 5d4c4eaf64 5db5c2a71f 5e89c5e038 5e8d5d727e 5f16407b02 5f32d5fc21 60d16e8800 615016544d 619de49f2b 627ddf3528 62bcd988d8 62c7e05705 62f449a9f9 630cb8dc19 64bcc0492f 65e7f759d8 6636619d8d 66b0b29f18 66e84df593 679491ab95 679bad4dde 67a1246455 67bea1d6b2 684196a3af 68a19d072f 68cd43f1c3 690010287a 69c8ec296c 69e028e15d 69e4cecc76 6a4a665274 6aa59601f3 6ab794460b 6bace7876a 6bc9ce3929 6ca761d37b 6da66c0dff 6e309c3d62 6e591c9bb8 6ee0d253a2 6efde63ba4 6f4fcf1042 6fca4e37a2 70177e0607 7076c0fc19 70b7fd84a5 716e0fbc08 717b7d64ff 724db5c728 72896fbe8e 728ec624b2 7291e3b3bb 729dfa74c5 72ae5431e1 740aa99842 741e372f32 7473c605ea 7486df8a5d 749bf89c7b 74bdd228b8 757dc4c0c1 75997dd701 7615c1a8bb 7646314489 771dbbf483 77453ad3c6 77756b0af3 77f622df52 780fbafbc0 7893b2a81f 7897f6115a 789c3d56c1 796c487ecd 798fa46144 79ade15515 79c66c15e7 7a390b2754 7b11a02890 7bbfa6a2e0 7bfab5b6e2 7d8c63c01b 7dc2fe05c8 7dd183061b 7e8a83e0fe 7e8c79622d 800a72775d 80a41bbd25 80cb9c7380 80f516ab9d 8136cdd563 8255a9e7f2 82da971702 83a52886ac 83ff720a69 841bd70d16 84357dd110 85236ad8ff 85682f7282 856ddd2db5 85d4e2230a 85f3513a6c 86344a79f8 863bc48f5b 863fb4e07b 866034926b 87400e291a 87bc025296 87c8ee9114 87d8970cd8 87ff008489 8873afb9c3 888aae5463 889ef27d93 89d63cc10e 8a803bb329 8aaec865e8 8af9cb68ba 8b169264cf 8b67ad6e65 8c86af87ab 8c89ecb78d 8cbd37e2dc 8cbfdde7fa 8cedd287ef 8d4de6dfac 8d7cec8d12 8e4a57bf15 8f569ce264 8fb2ad4a97 8fcef3fb76 8fd1fecc9b 9033e7553b 903696b487 905fa58452 90d24c11e4 90d2a510a7 90e5832437 90f34a12a0 910eadf330 91282a6d26 918559c547 918e5abed9 92257a4612 9233d6209b 92509a9898 92c636e2e1 93150af2a1 9355ae568a 9399ee0e55 94045d3d55 9553c0128f 956586dfaa 957c0ba8cd 9585312512 95b116c1a4 95cdc6da3e 96b05a6b22 96d8d1f54c 96dc9fe5ad 9727460898 975c29354f 97b102cf4f 97cb4ec645 97ee8d94c9 98d4f381d7 997c82fb35 99d38f9009 99e659f713 99e92f3819 9a3ec89875 9aad39a13c 9b12382ebe 9b9b8e48e1 9c4946fb21 9d8d10dd86 9db21a6fe4 9eb090901d 9eb4c1b205 9f8e1ce1b2 9fc4d8ed1a a0d0a7982f a17a60989d a184a051ae a19c196e00 a1ac8f4783 a1b4eab4a6 a25dc6639a a281ecd93a a30ab6ed31 a314168705 a3335f09d8 a3c6b10487 a44a829659 a546f56415 a5cd7d0d99 a64c5f1235 a668290a67 a72852b89b a77beb90cb a789072840 a7d87591a8 a8a52a0365 a9746d3820 a9a249b4a5 aa71c3e102 aa7bb96bc6 ab9b31fd68 aba2e453da abbe19b4e9 abd16d3238 ac7ef47d06 ac91673e6c acfb9b2572 ad21d96993 aeb47785da af159f9f34 af6ee37b32 afb62b21ec b051929e9e b09fdfc4ba b141e4ac8c b141fe2e35 b148f7664e b180acf7de b1b9c89df4 b1d5497401 b1e519f646 b22cd10e8b b26904669d b2db67c8d5 b300782ff2 b36605b7ea b3d0c31e50 b3d8c27c5a b3e5526694 b4c1955497 b4c3e78d3b b62a77a2fc b6d59e0b42 b702cd495c b725cc74c8 b773e82b69 b8c0ec88f5 b8f2720437 b92af008a2 b9a8b5b296 ba23a7d40f ba64f5f2c5 bad4ca4c9b bb392802f1 bb647886bc bb8aa5f950 bc232f1d11 bc392bfce7 bcf42ff206 bd33204ee4 bda862da4f bdf31c5106 be6c810cba bfe7802f64 bff13538d8 c026c48e51 c0e4189bb3 c0ff2ccbb7 c14008eabe c17499d118 c1970dd617 c1a6048b18 c1af19ddbd c1bcf909d0 c1ebddf8d6 c1fd13b69f c2070e809c c230cbd647 c289cb6d8c c2a052514f c2bec0e146 c2e4e75fc7 c2ee074b07 c3133f9ff1 c44c0d7f4f c49c96fc41 c4f362a57d c514b1ff66 c5d9426a43 c66dad254b c7efe48827 c857d7ea06 c868d3b18a c87a1cbd07 c8f3820fcf c912c41202 c96f01561f c97f9b5efc c9a018857b c9e5025e52 ca09b7c707 ca3e705e60 cad4883a04 cb86276e31 cbda07981a cc5991293f cc621a14b0 cc7790e31f ccebe1ba3e cd058a3de2 cd2d0b031d cd2e540db6 cd4c09e0a3 ce48db455f ce978732ce ce98353d7b ce9c8fedd3 cea8ff19cd ced71b6171 cf563650df cfbe999b63 d04f03e126 d08373ce7f d0967cc496 d1b43438b5 d1d2682d94 d1e51a3510 d1e83dd911 d29a5e43f9 d2a738711b d2b2a252cb d2e34cb73b d3251f4c7b d442fea630 d46466946f d4c86c5740 d52d532c31 d5a5bc0d6b d5b81bdc04 d613d4d407 d6726ecf02 d785f877f1 d7af4dd59d d7e4e787f0 d8d3af187b d8d869195f d8eae38ec1 d90e260884 d9686afec9 d989846b14 da0bc1181d da6b9f6b8d dadabdd8fb db3e5cb2c1 db6783e702 dc4e7c4039 dc585bbaa6 dd097e5c76 dd14bbfeb0 dd35ec1381 ddb65915b3 de40f2530a de67f3d10b de8ca02cba dee655fa55 df07f04396 df18b95d5a df3ad00306 dfa090377a dfc694115d dfca1200e2 dfdeedd7a5 dff1493351 dff2fb4ba8 e06360d085 e09dcb5747 e0edd8a4bb e200f011d6 e211229d1e e24986caa3 e294fcb485 e2affedfcb e2b6377b98 e2c64a1bbf e38f3c78a3 e3da88f496 e4ac2cdbc2 e4b58bc1b3 e518ec5a69 e572435149 e5b72fadb8 e60017b0a5 e65869a91b e7646a0ad8 e7af628b50 e96dcd2711 e99c94467a e9b7ec29ee e9dd0bba93 e9fa8d8eb6 ea2f68cca3 ea6663bb5c eb42883bd5 ec92d2c9f2 ed20e9fb2f ede477e4b8 ee5d157c94 eec7d3bc20 ef2ff53700 ef7039d3e8 efa620c1d7 f0a004757d f13de5ba9b f1d885bc22 f244d97f6c f24cf053d6 f292d1c713 f2d9216659 f2e6863274 f3b98856cd f3c2b5cfba f4010e45c1 f441c8c89f f4f55ac2ea f505821640 f586102470 f5e1aff0d0 f62e4c7ce6 f674a37030 f6b5767b83 f7784502d0 f7bac7a218 f9bbecb9e4 f9dd62c485 fb413bb5af fb43d5cc33 fb782ec42c fc24144de3 fc86f9a224 fe2058c21e fe6ab4f481 feacedc8b7 fef5216517"
  }
 }

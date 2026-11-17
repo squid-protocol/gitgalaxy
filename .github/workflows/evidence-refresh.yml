@@ -1062,6 +1062,9 @@ jobs:
       - name: Renew the stale det mutation ledgers (#5862)
         id: detmut
         continue-on-error: true
+        # #8509: a hung refresh ends here, inside the job's 150 min, so the always() stage and upload steps below still keep
+        # the ledgers it renewed; past the job limit the whole job is cancelled and every renewed ledger is lost
+        timeout-minutes: 138
         shell: bash  # -eo pipefail: the refresh's exit status, not tee's
         run: |
           cd gitgalaxy
@@ -1083,6 +1086,9 @@ jobs:
         run: |
           out="$RUNNER_TEMP/detmut-out"
           mkdir -p "$out/records"
+          # #8509: the marker reaches the artifact only when the job's own steps ran to here. A runner lost mid-refresh has
+          # none (no always() step runs), which the refresh job reads as "lost to infra", not "a claim failed"
+          echo "${{ steps.detmut.outcome }}" > "$out/shard-${{ matrix.shard }}.done"
           cd gitgalaxy
           git ls-files -z --modified --others --exclude-standard -- 'tests/equivalence/det_mutation/*.json' \
             | while IFS= read -r -d '' f; do mkdir -p "$out/records/$(dirname "$f")"; cp "$f" "$out/records/$f"; done
@@ -1360,14 +1366,44 @@ jobs:
           path: ${{ runner.temp }}/detmut-in
         continue-on-error: true
 
+      # #8509: a det-mutation runner killed by the platform (shutdown signal, exit 143) skips every always() step, so its
+      # shard has no marker and no ledgers; its stale cases wait for the next night, as a case past the budget does.
+      # Only a failed job with at least one marker present, and every present marker "success", counts as lost: a failed
+      # claim still uploads its marker ("failure") and keeps failing the run.
+      - name: Tell a det mutation shard lost to the runner from a failed claim (#8509)
+        id: shardloss
+        if: always() && needs.det-mutation.result == 'failure'
+        shell: bash
+        env:
+          SHARDS: "1 2 3"
+          MARKER_DIR: ${{ runner.temp }}/detmut-in
+        run: |
+          present=0; missing=""; bad=0
+          for n in $SHARDS; do
+            f="$MARKER_DIR/shard-$n.done"
+            if [ -f "$f" ]; then
+              present=$((present + 1))
+              [ "$(cat "$f")" = "success" ] || bad=1
+            else
+              missing="$missing $n"
+            fi
+          done
+          if [ "$present" -gt 0 ] && [ -n "$missing" ] && [ "$bad" -eq 0 ]; then
+            echo "lost=true" >> "$GITHUB_OUTPUT"
+            echo "::warning title=det mutation::shard(s)$missing lost to the runner (no ledgers kept); their stale cases are run again on the next night"
+          else
+            echo "lost=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Put the renewed det mutation ledgers in place (#5862)
         if: steps.detmut_in.outcome == 'success'
         shell: bash
         run: |
           in="$RUNNER_TEMP/detmut-in/records/tests/equivalence/det_mutation"
           if [ -d "$in" ]; then
-            # only ledger JSON, as regular files: nothing else from an artifact reaches the tree
-            bad=$(find "$RUNNER_TEMP/detmut-in" -type f ! -name '*.json' -o -type l)
+            # only ledger JSON and the shard-N.done markers (#8509), as regular files: nothing else from an artifact
+            # reaches the tree. The markers sit beside records/ in the same artifact dir, so they must pass here.
+            bad=$(find "$RUNNER_TEMP/detmut-in" -type f ! -name '*.json' ! -name 'shard-*.done' -o -type l)
             if [ -n "$bad" ]; then echo "::error title=det mutation::unexpected files in the artifact: $bad"; exit 1; fi
             cp -r "$in"/. gitgalaxy/tests/equivalence/det_mutation/
           fi
@@ -1572,7 +1608,7 @@ jobs:
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
-        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && (needs.det-mutation.result == 'success' || steps.shardloss.outputs.lost == 'true') && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
@@ -1588,7 +1624,7 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || (needs.det-mutation.result != 'success' && steps.shardloss.outputs.lost != 'true') || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
           echo "::error title=Evidence refresh::a record's proof, the det sweep, the Db2 job or the blocker-feed leak scan failed or could not run -- see the summary"
           exit 1

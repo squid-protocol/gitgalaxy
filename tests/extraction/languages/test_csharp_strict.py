@@ -21,6 +21,7 @@ if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
+from _timing import assert_cpu_below  # noqa: E402
 
 
 # ==============================================================================
@@ -792,8 +793,6 @@ def test_csharp_func_start_compound_assignment_file_shape_under_fuse_3320():
     """A synthetic UserDefinedCompoundAssignmentOperatorsTests.cs: real methods around a 20k-line
     verbatim expected-output blob of adjacent-bracket lines. It must extract every method well inside
     the 60s worker fuse (it used to exceed it, so the file shipped with 0 functions)."""
-    import time
-
     func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
     blob = "".join(
         f"[GetA][Get0][G1][operator]{i}True\n[GetA][Get0][G1][operator checked]{i + 1}True\n" for i in range(0, 4000, 2)
@@ -805,11 +804,8 @@ def test_csharp_func_start_compound_assignment_file_shape_under_fuse_3320():
         "    [Theory]\n    [InlineData(1, 2)]\n    [InlineData(3, 4)]\n    public static int Test2(int a, int b) => a + b;\n"
         "}\n"
     )
-    started = time.perf_counter()
-    names = _csharp_func_names(source)
-    elapsed = time.perf_counter() - started
-    assert names == ["Test1", "Test2"]
-    assert elapsed < 5.0, f"func_start sweep took {elapsed:.1f}s"
+    assert _csharp_func_names(source) == ["Test1", "Test2"]
+    assert_cpu_below(lambda: _csharp_func_names(source), 5.0, what="func_start sweep")
 
 
 @pytest.mark.parametrize(
@@ -881,7 +877,6 @@ def test_csharp_mode_b_slicer_compound_assignment_file_shape_3320():
     both methods come back with bounded bodies in seconds. Profiling 135 of roslyn's / runtime's largest
     C# files (80 MB) showed the slicer linear in file size (0.07 s/file self time), so the residual
     `Cartography_Mode_B_Braces` cost of #3320 is match volume, not a super-linear scan."""
-    import time
 
     from gitgalaxy.core.detector import StructuralExtractor
 
@@ -896,8 +891,7 @@ def test_csharp_mode_b_slicer_compound_assignment_file_shape_3320():
         "}\n"
     )
     splicer = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
-    started = time.perf_counter()
-    blocks, _ = splicer._slice_by_braces(source, "csharp", LANGUAGE_DEFINITIONS["csharp"]["rules"], 0, {})
-    elapsed = time.perf_counter() - started
+    rules = LANGUAGE_DEFINITIONS["csharp"]["rules"]
+    blocks, _ = splicer._slice_by_braces(source, "csharp", rules, 0, {})
     assert len(blocks) == 2
-    assert elapsed < 5.0, f"Mode B slicer took {elapsed:.1f}s"
+    assert_cpu_below(lambda: splicer._slice_by_braces(source, "csharp", rules, 0, {}), 5.0, what="Mode B slicer")

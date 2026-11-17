@@ -1142,3 +1142,67 @@ def test_eib_time_and_date_unread_are_settled():
     t = t.replace("    }\n", before + "\n    }\n", 1)
     after = before.replace("* 10000L", "/ 10000L")
     assert _eib_settled(t, before, after)
+
+
+# ---- refusal text and exception construction (#7955) ----
+_PF = '        throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");'
+_EXC = """\
+public class P {
+    private static final class Goback extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        Goback() {
+            super(null, null, false, false);
+        }
+    }
+    void run() {
+        try {
+            go();
+        } catch (Goback g) {
+            // normal end
+        }
+    }
+}
+"""
+_EXC_BEFORE = "super(null, null, false, false);"
+
+
+def _exc(text=_EXC, after="/* default */"):
+    return _plumb(text, "            " + _EXC_BEFORE, "            " + after)
+
+
+def test_refusal_text_edit_inside_the_message_is_settled():
+    t = "class P {\n    void f() {\n" + _PF + "\n    }\n}\n"
+    got = _plumb(t, _PF, _PF.replace("not modelled", "not modeled"))
+    assert got and got["result"] == "refusal-text"
+    assert got["result"] in dm.ATTACK_SETTLED
+
+
+def test_refusal_text_negatives():
+    t = "class P {\n    void f() {\n" + _PF + "\n    }\n}\n"
+    assert _plumb(t, _PF, _PF.replace("calen", "calen + 1")) is None  # code changed
+    assert _plumb(t, _PF, _PF.replace("EIBCALEN", "EIBCALEM")) is None  # the kind() key lost
+    assert _plumb(t, _PF, _PF.replace("not modelled", "stack overflow, possible PERFORM depth exceeded")) is None
+
+
+def test_refusal_text_keys_are_the_ones_x6_judged_reads():
+    import equivalence_cics as ec
+
+    assert sa._PERFORM_DEPTH_TEXT == ec.PERFORM_DEPTH
+    assert "EIBCALEN" in Path(ec.__file__).read_text(encoding="utf-8")
+
+
+def test_exception_ctor_deleted_is_settled():
+    got = _exc()
+    assert got and got["result"] == "exception-ctor"
+    assert got["result"] in dm.ATTACK_SETTLED
+
+
+def test_exception_ctor_negatives():
+    assert _exc(after="super(null, null, true, true);") is None  # not a deletion
+    assert _exc(_EXC.replace("// normal end", "log(g.getMessage());")) is None  # a handler reads it
+    assert _exc(_EXC.replace("// normal end", "throw g;")) is None  # a non-empty handler
+    assert _exc(_EXC.replace("go();", "go(); Goback x = null;")) is None  # another use of the class
+    assert (
+        _exc(_EXC.replace("        }\n    }\n    void", "        }\n        int z;\n    }\n    void")) is None
+    )  # shape

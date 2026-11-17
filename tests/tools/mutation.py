@@ -735,6 +735,19 @@ class _DirectContext:
             refused = set(json.loads((cobol_work / "refused.json").read_text(encoding="utf-8")))
             refused.update((report.get("refused") or {}).keys())
             kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
+            for sc in kept:  # the baseline's run_cobol_cics set prefix_x6 on its own copy of the case: set it here too
+                if sc.get("prefix_x6"):
+                    continue
+                rc_f = cobol_work / "scenarios" / sc["name"] / "rc"
+                said_f = cobol_work / "scenarios" / sc["name"] / "stdout.txt"
+                if not (rc_f.is_file() and said_f.is_file()):
+                    continue
+                said = said_f.read_text(encoding="latin-1")
+                rc_text = rc_f.read_text().strip()
+                if rc_text == "1" and ec.PERFORM_DEPTH in said:
+                    sc["prefix_x6"] = ec.PERFORM_DEPTH
+                elif rc_text == "98" and (x6 := ec.judged_refusal(said)):
+                    sc["prefix_x6"] = x6
             case = {**case, "scenarios": kept}
             src = project / "src/main/java"
             svc = ej._service_class(case["program"])

@@ -1,4 +1,4 @@
-# ruff: noqa: S101, E402, I001
+# ruff: noqa: S101
 """#8423: the wall-clock gate's detector, on synthetic text (a regex regression must not pass silently)."""
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from test_no_raw_wall_clock_timing_8423 import wall_clock_calls  # noqa: E402
+from test_no_raw_wall_clock_timing_8423 import wall_clock_calls
 
 
 @pytest.mark.parametrize(

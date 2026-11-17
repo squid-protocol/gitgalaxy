@@ -231,6 +231,38 @@ def proc_scenarios_live() -> tuple[int, int]:
     return ok, len(doc["resolve"]) + len(doc["flow"])
 
 
+def step_cases_live() -> dict[str, tuple[int, int]]:
+    """(answers reproduced, answers) of the GDG, restart and data-flow cases (#8413), each run live. Every case holds
+    `flow_jcl` and `scenarios`; the answers were written from IBM's manuals before the resolver ran on them."""
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_dataflow import resolve_dataflow
+    from gitgalaxy.core.jcl_flow import JclFlow
+    from gitgalaxy.core.jcl_gdg import resolve_gdg
+    from gitgalaxy.core.jcl_restart import restart_flow
+
+    out: dict[str, tuple[int, int]] = {}
+    for case in ("gdg", "restart", "dataflow"):
+        doc = json.loads((JCL_CASES / case / "scenarios.json").read_text(encoding="utf-8"))
+        rows = job_flow.jcl_job_flow("\n".join(doc["flow_jcl"]) + "\n")
+        by_id = {s["id"]: s for s in doc["scenarios"]}
+        ok = 0
+        for sc in doc["scenarios"]:
+            job = sc["job"]
+            if case == "restart":
+                ok += restart_flow(rows, job, sc["given"]) == sc["expect"]
+                continue
+            flow = JclFlow(rows).run(job, sc["given"])
+            if case == "gdg":
+                catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
+                names, after = resolve_gdg(rows, job, catalog, flow)
+                ok += names == sc["expect"] and after == sc["catalog_after"]
+            else:
+                answers, temps = resolve_dataflow(rows, job, flow, sc.get("msgclass"))
+                ok += answers == sc["expect"] and temps == sc["temporaries"]
+        out[case] = (ok, len(doc["scenarios"]))
+    return out
+
+
 def jcl_step_flow() -> dict[str, Any]:
     """The JCL step-flow evaluator (gitgalaxy.core.jcl_flow) run live on its answer sets: the IBM-written FLOW fixture
     (in the repo, always run) and the CardDemo case (8 jobs with EXEC COND; run only when the pinned CardDemo corpus is
@@ -250,6 +282,9 @@ def jcl_step_flow() -> dict[str, Any]:
     px_ok, px_n = proc_scenarios_live()  # PROC resolution and procstep flow (#8413 slice 2)
     fx_ok += px_ok
     fx_n += px_n
+    for case_ok, case_n in step_cases_live().values():  # GDG generations, restart, data flow (#8413)
+        fx_ok += case_ok
+        fx_n += case_n
     cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
     n_cd = sum(len(j["scenarios"]) for j in cd["jobs"])
     corpus = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / cd["corpus"]

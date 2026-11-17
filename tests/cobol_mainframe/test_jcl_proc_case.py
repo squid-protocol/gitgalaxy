@@ -33,8 +33,8 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_libraries_hold_the_members_the_scenarios_search_for():
     assert {k: sorted(v) for k, v in LIBS.items()} == {
-        "LIB.A": ["PRC1", "PRC3", "STDDDS"],
-        "LIB.B": ["PRC1", "PRC2", "STDDDS"],
+        "LIB.A": ["PRC1", "PRC3", "PRC4", "STDDDS"],
+        "LIB.B": ["PRC1", "PRC2", "PRC4", "STDDDS"],
     }
 
 
@@ -86,7 +86,7 @@ def test_the_resolver_reproduces_every_resolved_step_list(sc):
 def test_the_flow_evaluator_reproduces_every_procstep_scenario():
     rows = job_flow.jcl_job_flow(TEXT)
     for sc in DOC["flow"]:
-        flow = JclFlow(expand_flow_rows(rows, sc["job"]))
+        flow = JclFlow(expand_flow_rows(rows, sc["job"], TEXT, LIBS))
         assert flow.run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]
 
 
@@ -98,3 +98,18 @@ def test_a_symbolic_assigned_nowhere_and_unqualified_parm_are_refused():
         resolve_job(base.replace("PARM='&NOPE'", "PARM=Z").replace("EXEC PR", "EXEC PR,PARM=Q"), {}, "J")
     with pytest.raises(JclProcRefused, match="SET of &V"):
         resolve_job("//J JOB\n//PR PROC V=1\n//A EXEC PGM=X\n// PEND\n// SET V=2\n//C EXEC PR\n", {}, "J")
+
+
+def test_a_library_procedure_in_if_flow_needs_the_libraries_and_the_member_to_exist():
+    text = "//J JOB\n//C EXEC NOPE\n"
+    rows = job_flow.jcl_job_flow(text)
+    with pytest.raises(JclProcRefused, match="no libraries were given"):
+        expand_flow_rows(rows, "J")
+    with pytest.raises(JclProcRefused, match="in no library"):
+        expand_flow_rows(rows, "J", text, {"LIB.A": {}})
+
+
+def test_the_first_library_of_jcllib_order_supplies_the_flow_steps():
+    text = "//J JOB\n//L JCLLIB ORDER=(LIB.A,LIB.B)\n//C EXEC PRC4\n"
+    rows = expand_flow_rows(job_flow.jcl_job_flow(text), "J", text, LIBS)
+    assert [r["step_name"] for r in rows if r["kind"] == "STEP"] == ["C.M1"]

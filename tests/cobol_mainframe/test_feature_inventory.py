@@ -393,6 +393,7 @@ def test_schema_over_fixtures():
                 "eras",
                 "unparsed_programs",
                 "refusal_families",
+                "excluded_listings",
             )  # (#5121: assembler members carry no COBOL era tag)
             for x in v.values()
             for p in x["programs"]
@@ -400,9 +401,16 @@ def test_schema_over_fixtures():
         assert counted <= set(d["eras"]["programs"]), f.name  # noqa: S101
         s = d["eras"]["summary"]
         assert s["programs"] == len(d["eras"]["programs"]) == sum(s["by_era"].values()), f.name  # noqa: S101
-    for f in fixtures:  # #8411: the six older estates have no listing, so no key (example-health-apis: see the PR)
+    for f in fixtures:  # #8411: the six older estates have no listing, so no key
         if f.stem != "example-health-apis":
             assert "excluded_listings" not in json.loads(f.read_text()), f.name  # noqa: S101
+    d = json.loads((f.parent / "example-health-apis.json").read_text())  # #8411: the authored estate only
+    progs = d["eras"]["programs"]
+    assert len(progs) == 29, len(progs)  # noqa: S101 -- the 29 authored programs, not the 58 with .expanded copies
+    assert not [p for p in progs if "/.expanded/" in p], "compile-listing copies counted as programs"  # noqa: S101
+    ex = d["excluded_listings"]
+    assert ex["count"] == len(ex["members"]) == 29, ex["count"]  # noqa: S101
+    assert all("/.expanded/" in m["path"] for m in ex["members"])  # noqa: S101
     with pytest.raises(AssertionError):
         check_schema({"statements": "not an object"}, schema, schema)
 

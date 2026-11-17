@@ -34,7 +34,7 @@ When you trigger the `galaxyscope` command, the data flows through these physica
 
 *(Note: `cli.py` is the `gitgalaxy` command, whose one subcommand today is `gitgalaxy assess ESTATE`, the offline readiness scan in [`tools/readiness/`](tools/readiness/README.md); `licensing.py` holds the license-key check described below.)*
 
-*(Note: The `cobol_*_controller.py` scripts at the root level act as dedicated entry points for the Mainframe Legacy Modernization suite, bypassing standard Git orchestration to process flat mainframe directories).*
+*(Note: The root-level controllers `cobol_refractor_controller.py` and `cobol_to_java_controller.py` act as dedicated entry points for the Mainframe Legacy Modernization suite, bypassing standard Git orchestration to process flat mainframe directories).*
 
 ---
 

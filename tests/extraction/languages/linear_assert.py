@@ -2,17 +2,14 @@
 
 import time
 
-
-def best_of(fn, arg, runs: int = 5, timer=time.perf_counter) -> float:
-    best = float("inf")
-    for _ in range(runs):
-        start = timer()
-        fn(arg)
-        best = min(best, timer() - start)
-    return best
+from _timing import best_cpu_seconds
 
 
-def assert_linear(fn, small_arg, large_arg, attempts: int = 3, floor: float = 0.5, timer=time.perf_counter) -> None:
+def best_of(fn, arg, runs: int = 5, timer=time.thread_time) -> float:
+    return best_cpu_seconds(lambda: fn(arg), runs, clock=timer)
+
+
+def assert_linear(fn, small_arg, large_arg, attempts: int = 3, floor: float = 0.5, timer=time.thread_time) -> None:
     """`large_arg` is ~2x `small_arg`. Passes if any of `attempts` measurements keeps large < max(3.2 * small, floor).
 
     One noisy sample (a stalled runner during the large run) must not fail the suite (#7792, #8097); a genuinely

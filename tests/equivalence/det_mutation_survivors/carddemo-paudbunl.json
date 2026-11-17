@@ -75,6 +75,18 @@
    "reason": "Initial storage image declaration at line 52: variation in initial buffer byte contents is unexercised by current test input scenarios."
   },
   {
+   "id": "2b1764c84f",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"R1UgIEdIVSBHTiAgR0hOIEdOUCBHSE5QUkVQTElTUlRETEVUAAAABA==\"));",
+   "after": "\"X1UgIEdIVSBHTiAgR0hOIEdOUCBHSE5QUkVQTElTUlRETEVUAAAABA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_FUNC_CODES lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
    "id": "d6b3c69110",
    "op": "LIT",
    "line": 54,

@@ -72,6 +72,106 @@ burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **on
   ledger is `tests/cobol_mainframe/trials.json` (#8154). The frozen-system line and the eligible list are posted on
   #8073 (comment 6730880491).
 
+## Amendment 4 (owner, 2026-11-11): the measuring instrument moves, the system under test does not
+
+Recorded before the first porting attempt of the proof phase on `trial-001` (#8322, #8073), and a deviation from section 3,
+which froze the harness with the system. No attempt has run. No attempt starts until this amendment is on main.
+
+**Two runs, both reported (owner ruling, 2026-11-11: "keep the frozen harness number too, report both ... I'm happy
+reporting that lower number first, that seems more honest").**
+- **Run A, reported FIRST: the frozen instrument.** Harness `c58cb3a69` and everything else as frozen at T0.
+- **Run B: the frozen system, the instrument at current `main`.** The split below.
+- Run A's result is published before Run B's, in the same report, and neither replaces the other.
+
+**The split (Run B).**
+- **System under test: frozen, unchanged.** Engine `5e4575d77` (v2.12.0), porting rules hash `23338a4462cb` (ticket v1),
+  model `claude-sonnet-5-5` via the `anthropic` backend. This is what the metric measures.
+- **Measuring instrument: current `main`.** The equivalence harness and the oracle. Running strictly at the harness
+  freeze (`c58cb3a69`) would measure some programs against a reference known to be defective, which is worse than moving it.
+
+**Why the instrument moved.** Six commits touched `HARNESS_PATHS` after `c58cb3a69`. Four were driven by this estate
+(`Part of #8121` / `#8230`) and are named and classified here:
+
+| commit | change | class |
+|---|---|---|
+| `7effbf68c` (#8231) | a `layout_only` COMMAREA's RETURN is read as the bytes it passed (`raw_commarea`) | instrument capability: makes a comparison possible |
+| `4bed49868` (#8317) | the facade routes a no-`DFHCOMMAREA` program's raw-bytes re-entry through `runTask` instead of throwing `FacadeRefused` | instrument capability: makes a comparison possible |
+| `405a2e658` (#8170) | `ddl_text` ends an in-stream block at any `//` card and filters a JCL-shaped `.txt` | instrument capability: reads the DDL correctly |
+| `2c3c7b488` (#8217) | `inline_exec_copies`: a PROCEDURE DIVISION `COPY` member holding `EXEC CICS` / `EXEC SQL` (`HCERRSPD`) is inlined before the SQL precompile and CICS translation | oracle correctness fix |
+
+- None of the four changes what counts as equal. The three capability changes decide whether a comparison can run,
+  never who wins it.
+- The fourth is the one that decides the configuration. On z/OS, `COPY` expansion happens before the precompiler, so
+  inlining is the faithful behaviour (IBM is the reference). Without it the frozen harness compiles some programs
+  missing their `EXEC CICS` / `EXEC SQL` statements: the oracle itself is wrong.
+- The other two post-freeze `HARNESS_PATHS` commits, `dfa83bf2d` (#8187) and `0386439ea` (#8198), were not driven by
+  this estate. They are part of the current-`main` instrument and are listed so the set is complete.
+- Section 7 stands. Anything the instrument still cannot judge gets the registered cause `harness`. A fix made during
+  the run carries `Trial-Cause: <ticket|generator|engine|harness> <PROGRAM>` and disqualifies that program from first-try.
+- No case holds an expected value: the oracle computes every expected result at run time, so a case cannot have been
+  tuned to the target. Case revisions after they were added only widened coverage or comparison.
+
+**Run A is not a lower bound on the engine.** `HCERRSPD.cpy` is the estate's only copy member holding `EXEC CICS` /
+`EXEC SQL`. Running the harness's own `inline_exec_copies` over each eligible source, the compiled COBOL differs for
+**18 of the 28** (64% of the denominator):
+`HCAPDB01 HCAPDB02 HCATDB01 HCAVDB01 HCIMDB01 HCIPDB01 HCITDB01 HCIVDB01 HCM1BI01 HCMABA01 HCMADB01 HCMADB02 HCP1BA01
+HCP1BI01 HCT1BA01 HCT1BI01 HCV1BA01 HCV1BI01`. Under the frozen harness the reference for these is most likely absent
+(untranslated `EXEC` reaches `cobc`, which GnuCOBOL cannot compile), so the expected outcome there is cause `harness`,
+not a port verdict.
+
+**Run A is published decomposed, never as a bare rate:**
+- proven first try;
+- not proven, by genuine cause;
+- not judged: cause `harness` (the 18 named above, where the oracle did not compile);
+- **flagged: any of the 18 whose oracle compiled anyway.** A wrong reference can make a wrong port pass as readily as
+  fail, so these are unsound in both directions and are counted in neither the proven nor the not-proven group.
+
+**Oracle compile status is recorded mechanically, per program, in both runs.** The run writes whether the oracle
+(`cobc`) compiled the reference for each program, beside the attempt record, so an oracle failure can never be booked as
+a port failure. This is Run A's one real hazard and it must not depend on reading logs afterwards. Precondition: no
+attempt of Run A starts until the run records this field (`trial.py` and `port_runner` carry none today; tracked as a
+sibling issue of #8322).
+
+**The denominator, restated before any result.** 28 programs eligible.
+- `HCP1BU01` is out of scope by the missing-source rule (Amendment 3).
+- The three REST wrappers `HCPRESTW`, `HCTRESTW` and `HCMRESTW` have error-path cases only. Their success paths were
+  never cased, so they are judged on error paths only. A "proven" for one of them says nothing about its success path.
+- The headline stays the det translator alone, with det then the model reported beside it (section 4), published
+  whatever the result (section 8). Each is given for Run A first, then Run B.
+- n=1: one estate's first-try rate is a data point, not a rate. It is aggregated per engine version across trials.
+
+**Pre-run verification (2026-11-11, before any attempt).** Facts checked on main, recorded so a later drift is visible:
+- `porting_rules_hash()` computes `23338a4462cb267476a15711126fc61b5a4f1bd6b5f3bde381ee43b5270af4ed` (ticket v1), the
+  frozen value; `cobol_to_java_port_tickets.py` has no diff against the frozen engine `5e4575d77`.
+- `declaration_hash` recomputed from the `trial-001` eligible and out-of-scope lists equals the ledger's `declared`
+  value (`ffa129cd16a8fe6ba876d61298efc52dd3ca26f11b63a911453c32706ef69560`).
+- The frozen engine `5e4575d77` and the frozen harness `c58cb3a69` both exist as commits; the `gitgalaxy-gnucobol:3`
+  oracle image is present locally.
+- `python tests/tools/trial.py verify trial-001` re-computes these checks (commits, ticket source unchanged, rules hash,
+  declaration hash, oracle image against its pin) and writes nothing; run it before the first attempt.
+  `verify --rebuild-oracle` also builds `gnucobol.Dockerfile` fresh to a scratch tag (docker and network), requires it to
+  match the pin and the local `gitgalaxy-gnucobol:3` on cobc and package version, and removes the tag.
+- The ledger holds no ticket work directory, so the tickets are regenerated at the frozen engine (never at current
+  `main`) before the first `port_runner run`. The oracle compile-status recorder (#8325) lands first.
+- `python tests/tools/trial.py tickets trial-001 --estate-path <example-health-apis> --work W` regenerates them: it
+  checks out the frozen engine commit as a detached worktree under `W`, runs that tree's own `preview` with
+  `PYTHONPATH` set to it alone, and fails unless the estate is at the pinned ref, the declaration hash reproduces, the
+  frozen tree computes the frozen rules hash, and every eligible program has a ticket (an out-of-scope one may, as `HCP1BU01` does). It
+  writes `tickets_manifest.json` (ticket sha256 values) under `W`, never the ledger.
+
+**Pre-run verification, closing record (2026-11-12, main `9062b5268`, before any attempt).** Run again from a clean
+checkout, nothing written to the ledger:
+- `trial.py verify trial-001 --rebuild-oracle`: all 8 checks pass. Both commits exist, the frozen engine is an ancestor
+  of `main`, the ticket source has no diff against `5e4575d77`, the rules hash computes `23338a4462cb`, the declaration
+  hash reproduces (28 eligible, 1 out of scope), the local oracle matches its pin (cobc 3.1.2.0), and a fresh build of
+  `gnucobol.Dockerfile` reproduces it (cobc 3.1.2.0, `gnucobol3` 3.1.2-5+b1).
+- `trial.py tickets trial-001 --estate-path <example-health-apis> --work W`: all 4 checks pass. The estate is at the pinned
+  ref `9cfe321e`, the declaration reproduces, the frozen tree computes `23338a4462cb`, and all 28 eligible programs have a
+  ticket (29 files with `HCP1BU01`, which is out of scope). `tickets_manifest.json` sha256:
+  `ee195c8838448ec2f2798c9d493c2aa0843991fec167d0654e25dd27888ac39d`; regenerating it must give the same digest.
+- Verification is therefore complete. The proof attempts (Run A, then Run B) start from this state; any later change to
+  a check above is a system change and the run is not first-try.
+
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.
 

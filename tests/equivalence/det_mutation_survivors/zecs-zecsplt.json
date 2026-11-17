@@ -408,6 +408,18 @@
    "reason": "Compiler annotation string mutation has no runtime effect."
   },
   {
+   "id": "396a0c9d33",
+   "op": "COR",
+   "line": 109,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store(name) at line 109 is called from no entry point of the port: ZECSPLT issues no EXEC CICS file command, so the && form of the undefined-file guard is never evaluated (the port's own call graph settles it, recorded as no-entry-path).",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "472da1c28b",
    "op": "NEG",
    "line": 109,
@@ -415,6 +427,18 @@
    "after": "if (!(CicsTask.undefinableFile(name))) {",
    "verdict": "unreachable",
    "reason": "store() is only invoked for CICS file control operations; ZECSPLT has no file operations."
+  },
+  {
+   "id": "a061588a28",
+   "op": "NEG",
+   "line": 109,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store(name) at line 109 is called from no entry point of the port: ZECSPLT issues no EXEC CICS file command (its only commands are INQUIRE URIMAP, START, WRITEQ TD, WRITE OPERATOR and RETURN), so the undefined-file guard is never evaluated (the port's own call graph settles it, recorded as no-entry-path).",
+   "tried": [
+    "no-entry-path"
+   ]
   },
   {
    "id": "0c640d355d",
@@ -1407,8 +1431,12 @@
    "line": 317,
    "before": "lastAnswerBytes = task.returnedBytes();",
    "after": "/* lastAnswerBytes = task.returnedBytes(); */",
-   "verdict": "harness-gap",
-   "reason": "Remote region facade helper lastAnswerBytes is uncalled because equivalence harness does not invoke facade"
+   "verdict": "equivalent",
+   "reason": "lastAnswerBytes is read only by the facade's accessor after a byte-carrying handleTransaction; ZECSPLT's one RETURN (9000-RETURN, line 165) names no COMMAREA, so task.returnedBytes() answers null on every input, the deleted store leaves lastAnswerBytes null, and returnedBytes()'s one other effect (bytesTaken) is read only in returned() when a RETURN passed a COMMAREA, which this program never does. Two LINK-with-bytes inputs (5 bytes, 1 byte) survived.",
+   "tried": [
+    "att-facade-bytes",
+    "att-facade-exact"
+   ]
   },
   {
    "id": "c2f827af07",

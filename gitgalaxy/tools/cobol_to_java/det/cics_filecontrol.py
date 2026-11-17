@@ -7,6 +7,7 @@ det/cics_common.py (#7153): importing them back from det/cics.py closed an impor
 from __future__ import annotations
 
 import contextlib
+import re
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
@@ -38,6 +39,35 @@ def file_key_call(names: Any, expr: str) -> str:
     return f"fileKey({expr})" if has_template(names) else expr
 
 
+def instance_accessors(java_root: Any, entity: str) -> tuple[str, str] | None:
+    """#7965 slice 3b (X22): how a generated template entity carries its instance, as `(get, set)` Java templates over a
+    row variable `{r}` (set takes `{i}` too): the entity's own `vsamInstance` column (@IdClass, ESDS / RRDS), or the
+    instance in its `@EmbeddedId` key. None when the shape is not one of those (or no project is known): the caller keeps
+    the one shared store and its `claimInstance` Hole."""
+    if java_root is None:
+        return None
+    path = next(java_root.rglob(f"entity/vsam/{entity}.java"), None)
+    if path is None:
+        return None
+    text = path.read_text(encoding="utf-8")
+    if "private String vsamInstance" in text:
+        return "{r}.getVsamInstance()", "{r}.setVsamInstance({i})"
+    m = re.search(r"@EmbeddedId\s*\n(?:\s*@[^\n]*\n)*\s*private\s+([\w.]+)\s+id;", text)
+    if m is None:
+        return None
+    key = next(java_root.rglob(f"entity/vsam/{m.group(1)}.java"), None)
+    if key is None or "private String vsamInstance" not in key.read_text(encoding="utf-8"):
+        return None
+    return "{r}.getId().getVsamInstance()", "{r}.getId().setVsamInstance({i})"
+
+
+class StoreMap(dict):
+    """`Cics.stores` (CICS file -> Java Store expression). `unscoped`: a template store whose entity names no instance
+    accessor (#7965 slice 3b), so the template keeps one shared store and its `claimInstance` Hole."""
+
+    unscoped = False
+
+
 def file_key_method(names: Any) -> list[str]:
     """#4771: `fileKey(n)`, which maps a run-time file name (ZC01FILE) onto the template store that names it
     (ZC@ID@FILE): a name that is a store's own key stays, else the one template its characters fit. One shared store
@@ -57,6 +87,10 @@ def file_key_method(names: Any) -> list[str]:
         rx = "".join(".+" if m else re.escape(c) for c, m in _split(n))
         out.append(f"        if (t.matches({jstr(rx)})) return {jstr(n)};")
     out += ["        return n;", "    }", ""]
+    if isinstance(names, StoreMap) and not names.unscoped:
+        # #7965 slice 3b: every template store keeps one Store per instance (its rows told apart by instance), so there
+        # is nothing to claim: the call in store() stays and does nothing
+        return [*out, "    private void claimInstance(String name) { }", ""]
     # #7487: one generated table stands behind every instance of a template, so a task that reaches two defined
     # instances (ZC01FILE then ZC02FILE), or a task that reaches one while the region defines several, cannot keep their records apart: a Hole by name, never one instance's
     # command reaching the other's records. (An undefined name never gets here: FILENOTFOUND, #7960.)
@@ -247,8 +281,8 @@ class FileControlCommands:
         (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's).
 
         #7487: recorded as the SPEC 6.2 READ event (CicsTask.readSearchEvent) for the SET form and, where the program
-        records file events (`_records_file_events`), the INTO forms; `length` is INTO's LENGTH operand. A TOKEN read
-        keeps the event-free call (sibling gap)."""
+        records file events (`_records_file_events`), the INTO forms; `length` is INTO's LENGTH operand. #7965: a TOKEN
+        read is recorded the same way (`token`: held by its token, `upd=1` only for a written UPDATE, as the stub logs)."""
 
         gteq, generic = "GTEQ" in opts, "GENERIC" in opts
         if not (gteq or generic):
@@ -261,14 +295,17 @@ class FileControlCommands:
         rid = _arg(opts.get("RIDFLD"))
         gt = "true" if gteq else "false"
         update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"  # a TOKEN read is held by its token
-        recorded = "TOKEN" not in opts and (form == "set" or self._records_file_events())
+        recorded = form == "set" or self._records_file_events()
+        flag = "true" if "UPDATE" in opts else "false"
+        token = "true" if "TOKEN" in opts else "false"
 
         def call(lookup: str) -> str:
             if not recorded:
                 return f"task.readSearch({file}, {update}, () -> {lookup})"
             into = "null" if form == "set" or length is None else self.int_(length)
             return (
-                f"task.readSearchEvent({file}, {rec}, {update}, {into}, {'true' if form == 'set' else 'false'}, "
+                f"task.readSearchEvent({file}, {rec}, {flag}, {token + ', ' if 'TOKEN' in opts else ''}{into}, "
+                f"{'true' if form == 'set' else 'false'}, "
                 f"() -> {lookup})"
             )
 
@@ -346,8 +383,15 @@ class FileControlCommands:
                 r = self.g.tmpname("read")
                 file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
                 update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
+                call = f"task.readInvalid({file}, {update}, {bad.resp2})"
+                if (
+                    "RIDFLD" in opts and self._records_file_events()
+                ):  # #7965: the stub logs a READ for the refused command
+                    call = (f"task.readInvalidEvent({file}, DetCics.bytes({self.field(opts['RIDFLD'])}), "
+                            f"{'true' if 'UPDATE' in opts else 'false'}, {update}, "
+                            f"{'true' if 'SET' in opts else 'false'}, {bad.resp2})")  # fmt: skip
                 return [
-                    f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
+                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind),
                 ]
         elif not searched:
@@ -369,9 +413,9 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec)
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts and self._records_file_updates():  # #7956: the READ event, no LENGTH to cut at
-                call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, Integer.MAX_VALUE, "
-                        f"() -> {st}.find({rec}))")  # fmt: skip
+            elif self._records_file_updates():  # #7956: the READ event, no LENGTH to cut at; #7965: TOKEN too
+                call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, {'true, ' if 'TOKEN' in opts else ''}"
+                        f"Integer.MAX_VALUE, () -> {st}.find({rec}))")  # fmt: skip
             out = [
                 f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                 f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -433,8 +477,9 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec, "set")
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts:  # #7434: SPEC 6.2 READ event (`set`); GTEQ / GENERIC: `_search`; TOKEN: not yet
-                call = f"task.readSetEvent({file}, {rec}, {'true' if fn == 'readForUpdate' else 'false'}, () -> {st}.find({rec}))"
+            else:  # #7434: SPEC 6.2 READ event (`set`); GTEQ / GENERIC: `_search`; #7965: TOKEN too
+                call = (f"task.readSetEvent({file}, {rec}, {'true' if 'UPDATE' in opts else 'false'}, "
+                        f"{'true, ' if 'TOKEN' in opts else ''}() -> {st}.find({rec}))")  # fmt: skip
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                    f"{ind}if ({r}.record() != null) {{",
@@ -490,8 +535,9 @@ class FileControlCommands:
         search = self._search(opts, file, st, rec, "into", length)  # #4270: GTEQ / GENERIC
         if search is not None:
             call, held = search[0], search[1].format(r)
-        elif "TOKEN" not in opts and self._records_file_events():  # #6876: the SPEC 6.2 READ event (`length`)
-            call = f"task.readInto({file}, {rec}, {str(update).lower()}, {self.int_(length)}, () -> {st}.find({rec}))"
+        elif self._records_file_events():  # #6876: the SPEC 6.2 READ event (`length`); #7965: TOKEN too
+            call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, {'true, ' if 'TOKEN' in opts else ''}"
+                    f"{self.int_(length)}, () -> {st}.find({rec}))")  # fmt: skip
         settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -642,7 +688,7 @@ class FileControlCommands:
         return found
 
     def _records_file_events(self) -> bool:
-        """#6876: whether the program issues a tokenless UNLOCK (or, #7487, a tokenless READ GTEQ / GENERIC), which is
+        """#6876: whether the program issues a tokenless UNLOCK (or, #7487, a READ GTEQ / GENERIC; #7965, a READ TOKEN), which is
         recorded as the SPEC 6.2 UNLOCK / READ event; such a
         program records its INTO-LENGTH READ and its REWRITE FROM as events too, so the log keeps their order. Other
         programs keep the event-free calls (the INTO / REWRITE forms elsewhere are the sibling gap). #7487: a REWRITE
@@ -653,7 +699,9 @@ class FileControlCommands:
         if found is None:
             execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
             unlock = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
-            search = re.compile(r"(?is)\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
+            search = re.compile(
+                r"(?is)\bREAD\b(?=.*\b(?:GTEQ|GENERIC)\b)|\bREAD\b(?=.*\b(?:FILE|DATASET)\s*\()(?=.*\bTOKEN\s*\()"
+            )  # #7965: a READ TOKEN is recorded too
             update = re.compile(
                 r"(?is)\b(?:WRITE|DELETE)\b(?=.*\b(?:FILE|DATASET)\s*\()(?!.*\b(?:TOKEN|GENERIC|CONTAINER)\b)"
             )  # #7956

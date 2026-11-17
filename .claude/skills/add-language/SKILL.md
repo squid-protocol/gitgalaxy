@@ -135,7 +135,7 @@ timed detonations, which on #2503 still caught two real defects pre-merge):
   by the audit tool, the smoke pass, and the strict harness's ReDoS detonation);
 - Step 4's strict-suite skeleton (the doc *requires* a separate adversarial pass — a
   different model family than the rules' author is better separation than a fresh session);
-- the rosetta shell draft (SPEC.md hands itself to a model verbatim; `verify_language.py`
+- the rosetta shell draft (SPEC.md hands itself to a model verbatim; keyword-rosetta's `tools/verify_language.py`
   is the reviewer, "correct by construction").
 
 Never delegate: signal-ownership adjudication (Decision tables first, contracts second),

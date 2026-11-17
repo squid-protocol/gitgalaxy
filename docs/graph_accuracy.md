@@ -273,7 +273,7 @@ call graph. Directories named `win` are not parsed (they need `<windows.h>`).
 **What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
 another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). And
 the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
-(612 reference defs the engine does not extract) and `docs/code/` (113 defs, files the engine does not ingest).
+(612 reference defs the engine does not extract) and libuv's docs code directory (113 defs, files the engine does not ingest).
 Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
 call to a declared function still resolves.
 
@@ -424,7 +424,7 @@ build links: read the union as "every build", not as one build's call graph.
 | Macros that look like calls | Judged as the compiler sees them: `SQ(x)` expanding to arithmetic is not a call, `VIA(x)` expanding to `helper(x)` is. A def written as a one-argument macro (`TEST_IMPL(kill) {`) is named by the argument, as is a gtest body | the C test above (`SQ` / `VIA`), `..._names_a_one_argument_macro_def_as_the_engine_does`, `..._names_a_gtest_body_by_its_test_name` |
 
 All three are covered and gated by `graph-accuracy-audit.yml` against `tests/call_graph_resolution_c_baseline.json` and
-`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted `docs/code/`,
+`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted libuv docs code directory,
 the `::name` template-member convention, 236 unmapped C ends) are miss-sweep leads for the engine, not reference work.
 
 ## Span anchoring
@@ -521,7 +521,7 @@ repo and 207 end at a function the index has none for. Read from the real index:
   is `external` or `unconfirmed`, not wrong. A bare `Type::new(` the engine ties to the wrong
   `new` (`from_slice` -> `IoRead::new`, not `SliceRead::new`) and a same-name fn in a sibling
   module (`normalize`, `iadd_impl` in `lexical/math.rs`) are real engine errors.
-- A call inside a `macro_rules!` body (`tests/test.rs`) is a macro limit.
+- A call inside a `macro_rules!` body (libuv's test.rs) is a macro limit.
 
 The baseline is committed, the CI gate runs it (`graph-accuracy-audit.yml`, toolchain 1.90.0), and the session hook installs the toolchain.
 

@@ -51,7 +51,7 @@ sweep). Two-tier split:
 - **Case-drafting agent (Sonnet, e.g. `general-purpose` or the main session)**: the actual
   "is this snippet realistic" and "does this failing verification mean a real bug" judgment calls.
 
-If running truly in parallel (multiple case-drafting agents editing different `_strict.py` files
+If running truly in parallel (multiple case-drafting agents editing different `test_<lang>_strict.py` files
 at once), consider `isolation: "worktree"` per batch so concurrent edits don't collide on commit —
 or have each agent report its diff back for serial application instead.
 

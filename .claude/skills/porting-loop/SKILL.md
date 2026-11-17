@@ -69,6 +69,7 @@ errors), not to smuggle in a specific answer.
 - **Commit** `case.json` (the `.gitignore` admits `tests/equivalence/*/case.json`), the corpus's LICENSE / NOTICE,
   derived data with a note saying how it was derived, and the proven port **unedited** with
   `port/provenance.json` (model, attempt, ticket hash). Add an `EQUIVALENCE_E2E` test that proves it.
+- **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it and a case with no entry weighs the median in `proof_sweep.py --shard`; no test or gate fails on it, and an added line conflicts with sibling PRs.
 
 ## Environment traps
 

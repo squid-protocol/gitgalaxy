@@ -25,6 +25,11 @@ muddied the baseline). T0 measures main as is: `cics_census.py survey`, then `ga
 --write`; post the rate. The series of per-SHA rows is generated (`history show --generated --series census`), no PR
 appends a row (blocker-slice section 4).
 
+Then record the draw on the journey, in the same PR as the T0 post's record (the README slide reads it, no code change):
+`estate_journey.py add-draw --draw N --repo O/R --issue I --estate E --basis B --date "T0 ET" --whole W [--accounted A]
+--source <T0 comment URL> [--trial-issues sub,issues]`, then `estate_journey.py` to regenerate. It refuses a repeated
+draw, a draw outside the pre-registered count, or an unsourced number, and recounts the "N draws remain" prose.
+
 ## 3. Tools-only loop
 * Nobody reads estate source, and nobody makes an edited, patched or excerpted copy of it, even unprinted (rule 3).
   Tools run over the clone as is, with aggregate or scrubbed output (`--unmask` must not print names, #7755).
@@ -33,6 +38,13 @@ appends a row (blocker-slice section 4).
 * Measure after each merge with the tool (`census_nightly.py --after-merge SHA`); every refusal needs an owner row, not
   an unowned `other` (#7906).
 * L1 only: translates whole. No claim about L2+.
+* After a re-measure that moves the count, append it: `estate_journey.py point --key blind-trial-N --measure L1 --prs P
+  --value V --total B [--accounted A] --date D --source <PR or comment>`. `--prs` is the trial PRs merged since first
+  contact (titles citing the trial's issues, naming the estate, or a booked cause fix); it never goes back.
+* L2 only if the owner amends the pre-registration to allow cases (blind 1: Amendment 3). The first L2 point carries the
+  amendment (`point --measure L2 --l2-note "..."`); after the case PRs merge, `estate_journey.py l2-from-prs --key ...
+  --since <T0 UTC> [--causes fixes] --write` rebuilds the series from them, and the evidence report's L2+ must match its
+  last value.
 
 ## 4. Source defects (rule 10)
 A gap becomes a named source defect only with an IBM citation in its owner text and an Opus review. Product copybooks are
@@ -45,7 +57,10 @@ product copybooks unaccounted, tightened rule 2 were the mock trial's).
 ## 6. Close-out and write-up
 Time box 14 days from T0. Report accounted = whole + named source defects, over the program basis (programs only, copy
 members listed separately). Publish the ledger as it stands: predicted vs actual, new gaps exposed, cost in PRs and hours,
-named-not-fixed. Evidence levels, never "proven" (rule 1).
+named-not-fixed. Evidence levels, never "proven" (rule 1). On the journey: the milestones and "What we learned" bullets
+of the draw's entry, a dated journal line for each assumption that turned out wrong, then `estate_journey.py --check`
+and `pytest tests/tools/test_estate_journey.py tests/tools/test_progress_slide.py`. The first-try run books in
+`trials.json` (`trial.py record` / `close`); the slide's first-try card sums every closed trial.
 
 ## 7. Calibration (the 39-program mock trial, #7709)
 * First contact: about 20% whole (8 of 40 at the 2026-10-24 baseline).

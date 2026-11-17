@@ -376,7 +376,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(sqrt|exp|ln|log2|log10|sin|cos|tan|asin|acos|atan|atan2|abs|round|trunc|random|any|average|max|min)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Dynamic execution and path hijacking.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Dynamic execution and path hijacking.
         # BUG FIX (#593, Rule 10): `value(` and `evaluate(` end on the
         # self-delimiting `(`, but the shared trailing `\b` required a
         # word character immediately after it -- so the dominant real
@@ -467,7 +467,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r'^[ \t]*put\s+(?:"[^"]*"|[a-zA-Z0-9_]+)[ \t]*$', re.I | re.M),
         # 40. explicit_casts (Explicit Type Casting): English-style type checking.
         "explicit_casts": re.compile(r"\bis\s+(?:not\s+)?a\b|\bis\s+strictly\b", re.I),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts): Hard detonations.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort): Hard detonations.
         "panics_and_aborts": re.compile(r"\b(exit\s+to\s+top|quit|throw|abort)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses): Temporal Duct Tape (Blocking wait).
         "thread_sleeps": re.compile(r"\bwait\s+(?:for[ \t]+)?\d+\s+[^ \t\n]+?(?!\s+with\s+messages)\b", re.I),

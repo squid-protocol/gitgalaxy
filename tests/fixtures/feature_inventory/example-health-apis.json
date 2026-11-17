@@ -1,0 +1,2254 @@
+{
+  "cics_commands": {
+    "ABEND": {
+      "count": 40,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "ASKTIME": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "ASSIGN": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "FORMATTIME": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "GET": {
+      "count": 15,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "HANDLE AID": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "HANDLE CONDITION": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "LINK": {
+      "count": 90,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "PUT": {
+      "count": 9,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "RECEIVE": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RETURN": {
+      "count": 95,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND": {
+      "count": 25,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND TEXT": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SYNCPOINT ROLLBACK": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "WRITEQ TD": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "WRITEQ TS": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "cics_options": {
+    "ABEND: ABCODE": {
+      "count": 40,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "ABEND: NODUMP": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "ASKTIME: ABSTIME": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "ASSIGN: CHANNEL": {
+      "count": 3,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "ASSIGN: INVOKINGPROG": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "ASSIGN: PRINSYSID": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "ASSIGN: RESP": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "ASSIGN: RESP2": {
+      "count": 3,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "ASSIGN: STARTCODE": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "ASSIGN: SYSID": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "FORMATTIME: ABSTIME": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "FORMATTIME: MMDDYYYY": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "FORMATTIME: TIME": {
+      "count": 19,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "GET: CONTAINER": {
+      "count": 15,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "GET: INTO": {
+      "count": 15,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "GET: RESP": {
+      "count": 15,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "GET: RESP2": {
+      "count": 15,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "HANDLE AID: CLEAR": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "HANDLE AID: PF12": {
+      "count": 5,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "HANDLE AID: PF3": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "HANDLE AID: PF7": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl"
+      ]
+    },
+    "HANDLE AID: PF8": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl"
+      ]
+    },
+    "HANDLE CONDITION: MAPFAIL": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "LINK: COMMAREA": {
+      "count": 90,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "LINK: LENGTH": {
+      "count": 90,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "LINK: PROGRAM": {
+      "count": 90,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "PUT: CHAR": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "PUT: CONTAINER": {
+      "count": 9,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "PUT: FROM": {
+      "count": 9,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "PUT: RESP": {
+      "count": 9,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "PUT: RESP2": {
+      "count": 9,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "RECEIVE: ASIS": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RECEIVE: INTO": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RECEIVE: LENGTH": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "RECEIVE: MAP": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RECEIVE: MAPSET": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RECEIVE: RESP": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "RECEIVE: TERMINAL": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RETURN: COMMAREA": {
+      "count": 12,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RETURN: IMMEDIATE": {
+      "count": 13,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "RETURN: RESP": {
+      "count": 3,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "RETURN: RESP2": {
+      "count": 3,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "RETURN: TRANSID": {
+      "count": 25,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND TEXT: ERASE": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND TEXT: FREEKB": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND TEXT: FROM": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND TEXT: LENGTH": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND TEXT: WAIT": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "SEND: CURSOR": {
+      "count": 13,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND: ERASE": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND: FROM": {
+      "count": 17,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND: MAP": {
+      "count": 25,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND: MAPONLY": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND: MAPSET": {
+      "count": 25,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SEND: RESP": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "WRITEQ TD: FROM": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "WRITEQ TD: LENGTH": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "WRITEQ TD: QUEUE": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "WRITEQ TD: RESP": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+      ]
+    },
+    "WRITEQ TS: FROM": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "WRITEQ TS: LENGTH": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "WRITEQ TS: NOSUSPEND": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "WRITEQ TS: QUEUE": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "WRITEQ TS: RESP": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "compile_options": {
+    "ARITH: COMPAT": {
+      "count": 29,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "INTDATE: ANSI": {
+      "count": 29,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "NUMPROC: NOPFD": {
+      "count": 29,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "TRUNC: STD": {
+      "count": 29,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "copybook_resolution_gaps": {
+    "COPY LGCMAREA": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "data_types": {
+    "BINARY": {
+      "count": 535,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "COMP-5": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "EDITED": {
+      "count": 18,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "PACKED": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "eras": {
+    "programs": {
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 129,
+            "tell": "address-of"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": 79,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 129,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 79,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 123,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 73,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 128,
+            "tell": "address-of"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": 78,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 7,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 121,
+            "tell": "address-of"
+          },
+          {
+            "count": 7,
+            "era": 2,
+            "first_line": 74,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 118,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 71,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 117,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 70,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 121,
+            "tell": "address-of"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": 74,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 91,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl": {
+        "earliest": 1,
+        "era": 1,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 99,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 129,
+            "tell": "address-of"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": 79,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 151,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 100,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": {
+        "earliest": 1,
+        "era": 1,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 21,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 9,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 95,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 88,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl": {
+        "copybook_skipped": "CopyNotFound",
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 140,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 21,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 9,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 99,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 87,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 21,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 9,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 98,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 92,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      }
+    },
+    "summary": {
+      "by_era": {
+        "0": 0,
+        "1": 2,
+        "2": 24,
+        "3": 0,
+        "4": 3,
+        "none": 0
+      },
+      "copybook_skipped": 1,
+      "mixed": 4,
+      "programs": 29,
+      "tells": {
+        "address-of": 19,
+        "channel-container": 3,
+        "exec-sql": 10,
+        "handle-condition": 6,
+        "resp": 8
+      }
+    }
+  },
+  "excluded_listings": {
+    "by_reason": {
+      "hidden directory (compile-listing copies, COPY already inlined)": 29
+    },
+    "count": 29,
+    "members": [
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAPDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAPDB02.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCATDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAVDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAZERRS.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAZMENU.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIMDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIPDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCITDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIVDB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1BI01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1PL01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMABA01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB02.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMAPL01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMRESTW.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BA01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BI01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BU01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1PL01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCPRESTW.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1BA01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1BI01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1PL01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCTRESTW.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1BA01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1BI01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      },
+      {
+        "path": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1PL01.cbl",
+        "reason": "hidden directory (compile-listing copies, COPY already inlined)"
+      }
+    ]
+  },
+  "intrinsic_functions": {
+    "DATE-OF-INTEGER": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+      ]
+    },
+    "INTEGER-OF-DATE": {
+      "count": 2,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+      ]
+    },
+    "UPPER-CASE": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "sql_forms": {
+    "CLOSE": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+      ]
+    },
+    "DECLARE": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+      ]
+    },
+    "DECLARE CURSOR": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+      ]
+    },
+    "FETCH": {
+      "count": 2,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+      ]
+    },
+    "INSERT": {
+      "count": 7,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+      ]
+    },
+    "OPEN": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+      ]
+    },
+    "SELECT": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl"
+      ]
+    },
+    "SET": {
+      "count": 2,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl"
+      ]
+    },
+    "STATIC": {
+      "count": 18,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "statements": {
+    "ARITH": {
+      "count": 24,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "COMPUTE": {
+      "count": 3,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+      ]
+    },
+    "DISPLAY": {
+      "count": 40,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "EVALUATE": {
+      "count": 13,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "EXIT": {
+      "count": 67,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "GOBACK": {
+      "count": 4,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "GOTO": {
+      "count": 52,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "IF": {
+      "count": 166,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "INITIALIZE": {
+      "count": 65,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "INSPECT": {
+      "count": 1,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl"
+      ]
+    },
+    "MOVE": {
+      "count": 627,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "PERFORM": {
+      "count": 140,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ]
+    },
+    "SET-POINTER": {
+      "count": 18,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ]
+    },
+    "STRING": {
+      "count": 6,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "UNSTRING": {
+      "count": 9,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ]
+    },
+    "WRITE": {
+      "count": 2,
+      "programs": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl"
+      ]
+    },
+    "unknown": {
+      "count": 0,
+      "programs": []
+    }
+  },
+  "unparsed_programs": [
+    {
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+      "reason": "CopyNotFound: COPY LGCMAREA"
+    }
+  ]
+}

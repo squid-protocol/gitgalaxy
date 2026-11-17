@@ -414,7 +414,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(?:math\.h|tgmath\.h|complex\.h|dgemm|sin|cos|tan|exp|log|sqrt|complex|I|_Float\d+|__m\d+)\b|\bcblas_"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Macros with args and unstructured jumps.
         "reflection_metaprogramming": re.compile(
             r"^#\s*define\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*\([^)]*\)|\bgoto\b", re.M
@@ -493,7 +493,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(abort|exit|_Exit|quick_exit|return\s+-1)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep|thrd_sleep)\b"),

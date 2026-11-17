@@ -54,6 +54,9 @@ PROGRAMS = {
     "hx-ext-precedence": ("HXPRC", ("HXPRC",)),  # #7956: colour / highlight fallback, SEND MAP DATAONLY
     "hx-cursor-offset": ("HXCUR", ("HXCUR",)),  # #7956: SEND MAP CURSOR(n)
     "hc-formattime-forms": ("HCFM", ("HCFMTF",)),  # #7956: FORMATTIME date forms, DATESEP / TIMESEP, binary forms
+    # #7956: INQUIRE TDQUEUE / SET TDQUEUE ENABLESTATUS; the undefined queue HCNQ is QIDERR, which the java side
+    # only answers once plan.json carries the CSD's TDQUEUEs (java_plan, cics_crucible.py)
+    "hc-tdqueue-enable": ("HCTD", ("HCTDEN",)),
 }
 
 

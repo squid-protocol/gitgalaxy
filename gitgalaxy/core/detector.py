@@ -604,7 +604,9 @@ class ScopeParsingRegistry:
         },
         "erlang": {
             "mode": "mode_e",
-            "terminator": r"\.",
+            # #6572: a clause-ending `.` is followed by whitespace or a comment, never a word character: a float
+            # (`3.14`), a record field (`#r.f`) and `..` / `...` are not terminators.
+            "terminator": r"\.(?![\w.])",
             "igniter": r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)",
         },
         "prolog": {
@@ -1690,7 +1692,12 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             for c in _C_MACRO_BODY_CALL.findall(body)
             if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
         )
-        out[name] = calls if out.get(name, calls) == calls else None
+        # #7828: variants one file defines under `#if` / `#else` that all call something (openssl's `ERR_raise_data`)
+        # call the union: the engine does not evaluate `#if`, and whichever is built calls one of them. A variant that
+        # calls nothing (linuxdoom's `#define SHORT(x) (x)` beside the big-endian `SwapSHORT` one) means the call exists
+        # only under a configuration the compiler may not build: the macro stays ambiguous (None), as before.
+        prior = out.get(name, calls)
+        out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
         entries = _c_macro_init_entries(body) - params
         if entries:
             key = INIT_LIST_QUALIFIER + name
@@ -1735,6 +1742,24 @@ def _c_declared_function_names(text: str) -> set[str]:
     return out
 
 
+_C_DEFINE_ALIAS = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]+\(?[ \t]*([" + ID_START + "][" + ID_CONTINUE
+    + r"]*)[ \t]*\)?[ \t]*(?:/\*.*?\*/|//.*)?[ \t]*$",
+    re.M,
+)  # fmt: skip
+
+
+def c_macro_alias_targets(code: str) -> dict[str, set[str]]:
+    """#7828: each object-like `#define NAME TARGET` in `code` (the whole body one identifier, parentheses and a
+    trailing comment allowed) -> every TARGET its variants name (curl's `#define failf Curl_failf`). Whether TARGET
+    is a function is the repo's to say (`c_repo_macro_body_calls`)."""
+    out: dict[str, set[str]] = {}
+    for m in _C_DEFINE_ALIAS.finditer(code):
+        if m.group(1) != m.group(2) and m.group(2) not in _C_STATEMENT_WORDS:
+            out.setdefault(m.group(1), set()).add(m.group(2))
+    return out
+
+
 def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """#6770: `c_macro_body_calls` over many C/C++ texts. Every function-like macro is listed, so an expansion can tell
     a macro its body invokes from a function: one that calls nothing, or that two files define differently, maps to
@@ -1747,12 +1772,23 @@ def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """
     table: dict[str, frozenset[str] | None] = {}
     declared: set[str] = set()
+    aliases: dict[str, set[str]] = {}
     for text in texts:
         declared |= _c_declared_function_names(text)
         if "#" not in text or "define" not in text:
             continue
+        for name, targets in c_macro_alias_targets(text).items():
+            aliases.setdefault(name, set()).update(targets)
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
+    # #7828: an object-like alias of a function the scan declares (or of a macro the table knows) calls it. A name a
+    # function-like macro also defines (curl's `infof(...)  Curl_nop_stmt` beside `infof Curl_infof`) adds its targets
+    # to that entry's calls; a target that is no function (`Curl_nop_stmt`) is dropped and the variants that name a
+    # function still link, as the engine does not evaluate `#if`.
+    for name, targets in aliases.items():
+        linked = frozenset(t for t in targets if t in declared or t in table)
+        if linked:
+            table[name] = (table.get(name) or frozenset()) | linked
     out = {
         name: (calls or frozenset()) | ({name} if name in declared and not name.startswith(INIT_LIST_QUALIFIER) else set())
         for name, calls in table.items()
@@ -4092,6 +4128,16 @@ class StructuralExtractor:
                     except Exception as e:
                         self.logger.error(f"[DIAGNOSTIC] Positional comment regex failure in '{_c_rule}': {e}")
 
+            # Marker positions (the debt ledger, #8534): where each planned (TODO) and fragile (HACK, FIXME, XXX) marker
+            # sits and what its comment line says. The counts above already reach function_data; the lines and text did
+            # not, so a marker could not be followed from one scan to the next. DB-only: see record_keeper debt_marker.
+            debt_markers: list[dict] = []
+            for _d_key, _d_class in (("planned_debt", "planned"), ("fragile_debt", "fragile")):
+                for _d_line in sorted(set(comment_positional_lines.get(_d_key, ()))):
+                    _d_text = _header_pos_lines[_d_line - 1].strip() if 0 < _d_line <= len(_header_pos_lines) else ""
+                    debt_markers.append({"line": _d_line, "class": _d_class, "text": _d_text[:200]})
+            debt_markers.sort(key=lambda m: (m["line"], m["class"]))
+
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be
             # built from a single file's text -- so where the language has no
@@ -4840,6 +4886,8 @@ class StructuralExtractor:
                     == EXPORT_VISIBILITY_EXTERNAL_ENTRY_POINTS
                 ),
             }
+            if debt_markers:
+                result_payload["debt_markers"] = debt_markers
             if profile_regex:
                 result_payload["regex_telemetry"] = regex_telemetry
             return result_payload
@@ -6490,6 +6538,10 @@ class StructuralExtractor:
                         # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
                         # slicing the wrong span.
                         "fsharp",
+                        # #6572: OCaml is column-0 `let` / `and` definitions with an indented body (F#'s shape).
+                        "ocaml",
+                        # #6572: Nim is offside-rule: a routine body is the indented block under `proc f() =`.
+                        "nim",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
@@ -9038,6 +9090,9 @@ class StructuralExtractor:
 
         single_quote = r"'(?:\\.|[^'\\])*'"
         comment_marker = r"#[^\n]*"  # Python and YAML both use "#" for comments
+        if lang_id == "nim":
+            # #6572: Nim's `5'i32` literal suffix is an unpaired `'` just as Haskell's `x'` is.
+            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
         if lang_id == "haskell":
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
             comment_marker = r"--[^\n]*"

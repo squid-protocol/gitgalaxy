@@ -17,7 +17,7 @@ from gitgalaxy.core import job_flow
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "equivalence" / "jcl" / "fixture"
 DOC = json.loads((FIXTURE / "scenarios.json").read_text(encoding="utf-8"))
-FLOW = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="latin-1"))
+FLOW = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8"))
 
 
 def _steps_by_job() -> dict[str, list[dict]]:
@@ -33,7 +33,7 @@ def _steps_by_job() -> dict[str, list[dict]]:
 
 
 def test_every_line_of_the_jcl_fits_columns_1_to_72():
-    for n, ln in enumerate((FIXTURE / "FLOW.jcl").read_text(encoding="latin-1").splitlines(), 1):
+    for n, ln in enumerate((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8").splitlines(), 1):
         assert len(ln) <= 72, (n, ln)
 
 
@@ -119,3 +119,80 @@ def test_the_flow_evaluator_reproduces_every_scenario():
     flow = JclFlow(FLOW)
     for sc in DOC["scenarios"]:
         assert flow.run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]
+
+
+# --- #8413 tier 1: IF / THEN / ELSE / ENDIF beyond the first fixture (IFFLOW.jcl, ifflow_scenarios.json) ---
+
+IF_DOC = json.loads((FIXTURE / "ifflow_scenarios.json").read_text(encoding="utf-8"))
+IF_FLOW = job_flow.jcl_job_flow((FIXTURE / "IFFLOW.jcl").read_text(encoding="utf-8"))
+
+
+def _if_steps_by_job() -> dict[str, list[str]]:
+    jobs: dict[str, list[str]] = {}
+    current = None
+    for row in IF_FLOW:
+        if row["kind"] == "JOB":
+            current = row["name"]
+            jobs[current] = []
+        elif row["kind"] == "STEP":
+            jobs[current].append(row["step_name"])
+    return jobs
+
+
+def test_ifflow_every_line_of_the_jcl_fits_columns_1_to_72():
+    for n, ln in enumerate((FIXTURE / "IFFLOW.jcl").read_text(encoding="utf-8").splitlines(), 1):
+        assert len(ln) <= 72, (n, ln)
+
+
+def test_ifflow_scenarios_cite_a_basis_and_use_valid_outcomes():
+    jobs = _if_steps_by_job()
+    assert IF_DOC["issue"] == 8413
+    ids = [s["id"] for s in IF_DOC["scenarios"]]
+    assert len(ids) == len(set(ids)) == 28
+    assert {s["job"] for s in IF_DOC["scenarios"]} == {"NESTJOB", "ABNJOB", "NOTJOB", "PRC5JOB", "PRC6JOB", "MIXJOB"}
+    for sc in IF_DOC["scenarios"]:
+        assert sc["basis"], sc["id"]
+        assert set(sc["expect"].values()) <= {"run", "bypass"}, sc["id"]
+        assert set(sc["given"]) == {n for n, a in sc["expect"].items() if a == "run"}, sc["id"]
+        for given in sc["given"].values():
+            assert (list(given) == ["rc"] and 0 <= given["rc"] <= 4095) or (
+                list(given) == ["abend"] and re.fullmatch(r"S[0-9A-F]{3}|U\d{4}", given["abend"])
+            ), (sc["id"], given)
+        if not sc["job"].startswith("PRC"):
+            assert list(sc["expect"]) == jobs[sc["job"]], sc["id"]
+    assert [a["id"] for a in IF_DOC["assumed"]] == ["B1", "B2"]
+    assert len(IF_DOC["refused"]) == 6
+
+
+def test_ifflow_reader_nests_if_and_else_into_each_steps_condition():
+    ifs = {r["step_name"]: r["if_cond"] for r in IF_FLOW if r["kind"] == "STEP"}
+    assert ifs["N1"] is None
+    assert all(ifs[s] for s in ("A2", "A4", "A5", "A6", "A7", "T2", "M3", "M4", "M5"))
+    assert ifs["A4"].startswith("NOT ")  # ELSE of the first IF
+    assert " AND " in ifs["A6"]  # ELSE of the second IF, then the nested IF
+
+
+def test_ifflow_the_flat_reader_rows_do_not_expand_a_proc_call():
+    # The reader alone lists a PROC definition's steps at top level; `jcl_proc.expand_flow_rows` makes them CALL.PROCSTEP.
+    seen = {r["step_name"] for r in IF_FLOW if r["kind"] == "STEP"}
+    for sc in IF_DOC["scenarios"]:
+        if sc["job"].startswith("PRC"):
+            assert not set(sc["given"]) <= seen, sc["id"]
+
+
+def test_ifflow_the_evaluator_matches_every_ibm_answer():
+    from gitgalaxy.core.jcl_flow import JclFlow
+    from gitgalaxy.core.jcl_proc import expand_flow_rows
+
+    for sc in IF_DOC["scenarios"]:
+        rows = expand_flow_rows(IF_FLOW, sc["job"]) if sc["job"].startswith("PRC") else IF_FLOW
+        assert JclFlow(rows).run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]
+
+
+def test_ifflow_an_if_construct_is_evaluated_once():
+    # IBM Example 9: ABNJOB's first IF is true at A2; A2 then abends, A3 still runs and the ELSE step A4 stays bypassed.
+    chain = {r["step_name"]: r.get("if_chain") for r in IF_FLOW if r["kind"] == "STEP"}
+    assert chain["N1"] is None
+    assert chain["A2"][0][0] == chain["A3"][0][0] == chain["A4"][0][0]
+    assert [c[2] for c in (chain["A2"][0], chain["A4"][0])] == [False, True]
+    assert chain["A6"][1][2] is False and chain["A6"][0][2] is True  # nested IF inside an ELSE

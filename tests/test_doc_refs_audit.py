@@ -75,6 +75,13 @@ def test_removed_flag_is_found_but_a_longer_flag_does_not_cover_a_prefix(repo):
     assert found == [("flag", "tests/tools/real_tool.py --gone"), ("flag", "tests/tools/real_tool.py --update")]
 
 
+def test_an_underscore_flag_is_read_whole(repo):
+    assert _run(repo, "`python tests/tools/real_tool.py --input_state`\n") == [
+        ("flag", "tests/tools/real_tool.py --input_state")
+    ]
+    assert _run(repo, "`python tests/tools/real_tool.py --write`\n") == []
+
+
 def test_a_flag_after_a_pipe_belongs_to_the_next_command(repo):
     assert _run(repo, "```\npython tests/tools/real_tool.py --write | grep --count x\n```\n") == []
 

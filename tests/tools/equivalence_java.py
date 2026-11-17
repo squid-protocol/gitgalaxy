@@ -525,6 +525,8 @@ TEST_CLASSPATH = "target/equivalence-test-classpath"  # --reuse: the classpath t
 TEST_SOURCE = "target/equivalence-test-source"  # the EquivalenceRunTest source target/test-classes was built from
 TEST_FILE = f"src/test/java/{PKG_DIR}/EquivalenceRunTest.java"
 RUN_DONE = "@@EQUIVALENCE-RUN-DONE@@"  # --one-jvm: the line the session JVM ends each run's output with, then 0 / 1
+PRECOMPILED_OVERLAY_ENV = "GITGALAXY_PRECOMPILED_OVERLAY"  # precompiled mutant classes dir adopted by _compile_overlay
+PRECOMPILED_MANIFEST = ".gitgalaxy-overlay.json"  # sha256 + javac options manifest inside PRECOMPILED_OVERLAY_ENV
 RUNNER = f"""import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
@@ -533,49 +535,113 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 
 /** --reuse: EquivalenceRunTest without Maven -- the JUnit Platform launcher surefire itself drives, in a fresh JVM.
  *  --session (--one-jvm): the same, once per line on stdin (tab-separated -Dname=value items, replacing the last
- *  run's), each run ended by a {RUN_DONE} line; "quit" or end of input ends the JVM. */
+ *  run's), each run ended by a {RUN_DONE} line; "quit" or end of input ends the JVM.
+ *  --mutant-session: persistent worker across mutants; accepts -Gepoch=<id> and -Gcp=<dir1;dir2> tokens alongside
+ *  -Dname=value, reloading classes via an isolated child URLClassLoader whenever -Gepoch changes. */
 public class EquivalenceMain {{
     public static void main(String[] args) throws Exception {{
         if (args.length > 0 && args[0].equals("--session")) {{
-            session();
+            session(false);
             return;
         }}
-        System.exit(runOnce() ? 0 : 1);
+        if (args.length > 0 && args[0].equals("--mutant-session")) {{
+            session(true);
+            return;
+        }}
+        System.exit(runOnce(null) ? 0 : 1);
     }}
 
-    static boolean runOnce() {{
+    static boolean runOnce(ClassLoader loader) throws ClassNotFoundException {{
         SummaryGeneratingListener listener = new SummaryGeneratingListener();
+        org.junit.platform.engine.DiscoverySelector sel = loader == null
+                ? selectClass("{PKG}.EquivalenceRunTest")
+                : selectClass(Class.forName("{PKG}.EquivalenceRunTest", true, loader));
         LauncherFactory.create().execute(LauncherDiscoveryRequestBuilder.request()
-                .selectors(selectClass("{PKG}.EquivalenceRunTest")).build(), listener);
+                .selectors(sel).build(), listener);
         TestExecutionSummary s = listener.getSummary();
         s.printFailuresTo(new java.io.PrintWriter(System.out, true), 40);
         System.out.println("Tests run: " + s.getTestsFoundCount() + ", Failures: " + s.getTotalFailureCount());
         return s.getTestsSucceededCount() == 1 && s.getTotalFailureCount() == 0;
     }}
 
-    static void session() throws Exception {{
+    static void clearSpringCaches(ClassLoader dead) {{
+        ClassLoader parent = EquivalenceMain.class.getClassLoader();
+        try {{
+            Class<?> cir = Class.forName("org.springframework.beans.CachedIntrospectionResults", false, parent);
+            cir.getMethod("clearClassLoader", ClassLoader.class).invoke(null, dead);
+        }} catch (Throwable ignored) {{}}
+        try {{
+            Class<?> ru = Class.forName("org.springframework.util.ReflectionUtils", false, parent);
+            ru.getMethod("clearCache").invoke(null);
+        }} catch (Throwable ignored) {{}}
+        try {{
+            java.beans.Introspector.flushCaches();
+        }} catch (Throwable ignored) {{}}
+    }}
+
+    static void session(boolean mutantMode) throws Exception {{
         java.io.BufferedReader in = new java.io.BufferedReader(
                 new java.io.InputStreamReader(System.in, java.nio.charset.StandardCharsets.UTF_8));
         System.setIn(new java.io.ByteArrayInputStream(new byte[0]));  // the step's stdin is its SYSIN or nothing
         java.util.List<String> set = new java.util.ArrayList<>();
+        String curEpoch = null;
+        java.net.URLClassLoader curLoader = null;
         String line;
         while ((line = in.readLine()) != null && !line.equals("quit")) {{
+            System.setIn(new java.io.ByteArrayInputStream(new byte[0]));  // previous run may have replaced System.in
             for (String k : set) {{
                 System.clearProperty(k);
             }}
             set.clear();
-            for (String kv : line.split("\t")) {{
-                if (!kv.isEmpty()) {{
-                    int eq = kv.indexOf('=');
-                    String k = eq < 0 ? kv : kv.substring(0, eq);
-                    System.setProperty(k, eq < 0 ? "" : kv.substring(eq + 1));
-                    set.add(k);
+            String epoch = null;
+            String cp = null;
+            for (String kv : line.split("\\t")) {{
+                if (kv.isEmpty()) continue;
+                if (kv.startsWith("-Gepoch=")) {{
+                    epoch = kv.substring(8);
+                    continue;
                 }}
+                if (kv.startsWith("-Gcp=")) {{
+                    cp = kv.substring(5);
+                    continue;
+                }}
+                int eq = kv.indexOf('=');
+                String k = eq < 0 ? kv : kv.substring(0, eq);
+                System.setProperty(k, eq < 0 ? "" : kv.substring(eq + 1));
+                set.add(k);
             }}
-            boolean ok = runOnce();
+            boolean ok;
+            if (mutantMode) {{
+                if (cp != null && (curLoader == null || epoch == null || !epoch.equals(curEpoch))) {{
+                    if (curLoader != null) {{
+                        clearSpringCaches(curLoader);
+                        curLoader.close();
+                    }}
+                    String[] parts = cp.split(java.util.regex.Pattern.quote(java.io.File.pathSeparator));
+                    java.net.URL[] urls = new java.net.URL[parts.length];
+                    for (int i = 0; i < parts.length; i++) {{
+                        urls[i] = java.nio.file.Path.of(parts[i]).toUri().toURL();
+                    }}
+                    curLoader = new java.net.URLClassLoader(urls, EquivalenceMain.class.getClassLoader());
+                    curEpoch = epoch;
+                }}
+                ClassLoader prev = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(curLoader);
+                try {{
+                    ok = runOnce(curLoader);
+                }} finally {{
+                    Thread.currentThread().setContextClassLoader(prev);
+                }}
+            }} else {{
+                ok = runOnce(null);
+            }}
             System.out.println();
             System.out.println("{RUN_DONE} " + (ok ? 0 : 1));
             System.out.flush();
+        }}
+        if (curLoader != null) {{
+            clearSpringCaches(curLoader);
+            curLoader.close();
         }}
         System.exit(0);
     }}
@@ -665,11 +731,18 @@ class JvmSession:
             self._lines.put(line)
         self._lines.put(None)
 
-    def run(self, argline: str, timeout: float) -> subprocess.CompletedProcess[str]:
+    def run(self, argline: str, timeout: float, epoch: str | None = None,
+            cp: str | None = None) -> subprocess.CompletedProcess[str]:  # fmt: skip
         """One run with the properties of `argline`: the JVM's output for it, and 0 / 1 (124 on a timeout, the JVM
         killed; the JVM's own status if it ended without finishing the run)."""
         assert self.proc.stdin is not None
-        props = "\t".join(a[2:] for a in split_argline(argline) if a.startswith("-D"))
+        tokens: list[str] = []
+        if epoch is not None:
+            tokens.append(f"-Gepoch={epoch}")
+        if cp is not None:
+            tokens.append(f"-Gcp={cp}")
+        tokens.extend(a[2:] for a in split_argline(argline) if a.startswith("-D"))
+        props = "\t".join(tokens)
         out: list[str] = []
         deadline = time.monotonic() + timeout
         try:
@@ -714,6 +787,27 @@ def start_session(project: Path, env: dict[str, str]) -> JvmSession | None:
     cmd = [str(java_bin / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *JVM_SHORT_RUN_FLAGS.split(),
            *split_argline(jvm_args(env)), "-cp", full, "EquivalenceMain", "--session"]  # fmt: skip
     return JvmSession(cmd, project, shell)
+
+
+def start_mutant_session(project: Path, env: dict[str, str], cwd: Path | None = None) -> tuple[JvmSession, Path, Path] | None:
+    """A cross-mutant session JVM in `env`: framework/test JARs on AppClassLoader; project/mutant classes are loaded per
+    mutant through an isolated URLClassLoader (`-Gepoch`, `-Gcp`). Returns `(session, base_classes, test_classes)`."""
+    shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
+    shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
+    parts = _direct_parts(project, shell)
+    if parts is None:
+        return None
+    java_bin, full = parts
+    base_classes = (project / "target" / "classes").resolve()
+    test_classes = (project / "target" / "test-classes").resolve()
+    if not base_classes.is_dir() or not test_classes.is_dir():
+        return None
+    framework_cp = os.pathsep.join(
+        e for e in full.split(os.pathsep) if e and Path(e).resolve() not in (base_classes, test_classes)
+    )
+    cmd = [str(java_bin / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *JVM_SHORT_RUN_FLAGS.split(),
+           *split_argline(jvm_args(env)), "-cp", framework_cp, "EquivalenceMain", "--mutant-session"]  # fmt: skip
+    return JvmSession(cmd, cwd or project, shell), base_classes, test_classes
 
 
 def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subprocess.CompletedProcess[str] | None:
@@ -854,6 +948,57 @@ def _record_direct(project: Path) -> None:
         pass
 
 
+def _adopt_precompiled_overlay(project: Path, earlier: Path, overlay: list[str], classes: Path) -> bool:
+    """When `PRECOMPILED_OVERLAY_ENV` holds `.class` files already compiled with `JAVAC_OPTIONS` for the mutated
+    sources and all other overlay files match `earlier`'s bytes, copy them over `classes` instead of spawning javac."""
+    pre_env = os.environ.get(PRECOMPILED_OVERLAY_ENV)
+    if not pre_env:
+        return False
+    pre_dir = Path(pre_env)
+    manifest_file = pre_dir / PRECOMPILED_MANIFEST
+    if not manifest_file.is_file():
+        return False
+    try:
+        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    if manifest.get("javac_options") != JAVAC_OPTIONS:
+        return False
+    compiled_srcs: dict[str, str] = manifest.get("sources") or {}
+    if not compiled_srcs:
+        return False
+    earlier_src_root = earlier / project.name / "src/main/java" / PKG_DIR
+    cur_src_root = project / "src/main/java" / PKG_DIR
+    for rel in overlay:
+        cur_src = cur_src_root / rel
+        if not cur_src.is_file():
+            return False
+        if rel in compiled_srcs:
+            if hashlib.sha256(cur_src.read_bytes()).hexdigest() != compiled_srcs[rel]:
+                return False
+        else:
+            prev_src = earlier_src_root / rel
+            if not prev_src.is_file() or prev_src.read_bytes() != cur_src.read_bytes():
+                return False
+    compiled_classes = list(pre_dir.rglob("*.class"))
+    if not compiled_classes:
+        return False
+    pkg_classes = classes / PKG_DIR
+    for rel in compiled_srcs:
+        rel_path = Path(rel)
+        cls_dir = pkg_classes / rel_path.parent
+        stem = rel_path.stem
+        if cls_dir.is_dir():
+            (cls_dir / f"{stem}.class").unlink(missing_ok=True)
+            for inner in cls_dir.glob(f"{stem}$*.class"):
+                inner.unlink(missing_ok=True)
+    for cf in compiled_classes:
+        dest = classes / cf.relative_to(pre_dir)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(cf, dest)
+    return True
+
+
 def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Path) -> None:
     """--reuse: compile only the port's files into the copied build (the rest of it is the earlier run's, from the
     same sources), against the classpath the earlier run's tests ran on. A compile error is the Java side failing,
@@ -875,6 +1020,9 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     classpath = os.pathsep.join(e for e in entries if not e.endswith("test-classes"))
     (project / TEST_CLASSPATH).write_text(os.pathsep.join(entries), encoding="utf-8")
     classes = project / "target" / "classes"
+    if _adopt_precompiled_overlay(project, earlier, overlay, classes):
+        (project / PRECOMPILED).write_text("", encoding="utf-8")
+        return
     sources = [str(project / "src/main/java" / PKG_DIR / rel) for rel in overlay]
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")

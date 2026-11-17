@@ -630,6 +630,7 @@ class Store:
     browse_forward: bool = False
     browse_back: bool = False
     window: str = ""  # how a FROM ... LENGTH record is cut from its 01 (GalaxyIR.vsam_stores), else ""
+    template: list[str] = field(default_factory=list)  # #7965: the CSD template names (ZC@ID@FILE) behind the store
 
     @property
     def repository(self) -> str:
@@ -764,6 +765,7 @@ class RepositoryForge:
             st.window = (f"the {best['length']} bytes a WRITE / REWRITE FROM {best['record']} LENGTH writes, from "
                          f"offset {best['window_offset']} of {best['window_of']}"
                          + (f", laid out by REDEFINES {best['overlay']}" if best.get("overlay") else ""))  # fmt: skip
+        st.template = sorted({c["file"] for c in raw.get("cics_files", []) if re.search(r"[@#]", c.get("file") or "")})
         for aix in raw.get("alternate_indexes", []):
             alt = next((f for f in fields if f.offset == aix.get("key_offset") and f.bytes == aix.get("key_length")
                         and not f.occurs), None)  # fmt: skip
@@ -874,6 +876,8 @@ class RepositoryForge:
         java.append(" */")
         java.append(f'@Entity(name = "Vsam{st.entity}")')
         java.append(f'@Table(name = "{sql_name(st.table)}")')
+        if self._id_class(st):
+            java.append("@IdClass(" + st.entity + ".InstanceKey.class)")
         if t.lombok:
             java += ["@Data", "@NoArgsConstructor"]
         java.append(f"public class {st.entity} {{\n")
@@ -892,6 +896,14 @@ class RepositoryForge:
                     f"    @Column({', '.join(attrs)})",
                     "    private String vsamKey;\n",
                 ]
+        if st.template and st.composite:
+            body.append("    // #7965 (X22): the CICS file instance is part of the key (id.vsamInstance); one table stands "
+                        f"behind {', '.join(st.template)}\n")  # fmt: skip
+        elif st.template:
+            body += [f"    // #7965 (X22): the CICS file instance a row belongs to; one table stands behind {', '.join(st.template)}",
+                     *(["    @Id"] if self._id_class(st) else []),
+                     '    @Column(name = "VSAM_INSTANCE", length = 8, nullable = false)',
+                     '    private String vsamInstance = "";\n']  # fmt: skip
         for f in st.fields:
             if f in st.composite:
                 continue  # in the key class
@@ -927,6 +939,8 @@ class RepositoryForge:
             java += _accessors(st.entity, _declared_fields(body))
         java += sort_hook
         java += self._codec(st)
+        if self._id_class(st):
+            java += self._instance_key_class(st)
         java.append("}")
         return "\n".join(java)
 
@@ -1075,10 +1089,14 @@ class RepositoryForge:
                 attrs = self._key_attrs(attrs, f.bytes)
             body += [f"    // {f.cobol}: {f.described}, offset {f.offset}, {f.bytes} bytes",
                      f"    @Column({', '.join(attrs)})", f"    private {f.jtype} {f.java};\n"]  # fmt: skip
+        if st.template:
+            body += [f"    // #7965 (X22): the CICS file instance, part of the key of {', '.join(st.template)}",
+                     '    @Column(name = "VSAM_INSTANCE", length = 8, nullable = false)',
+                     '    private String vsamInstance = "";\n']  # fmt: skip
         java += body
         if not t.lombok:  # a composite id needs value equality
             java += _accessors(st.key_type, _declared_fields(body))
-            names = [f.java for f in st.composite]
+            names = [f.java for f in st.composite] + (["vsamInstance"] if st.template else [])
             java += ["    @Override", "    public boolean equals(Object o) {",
                      "        if (this == o) return true;",
                      f"        if (!(o instanceof {st.key_type} other)) return false;",
@@ -1090,6 +1108,65 @@ class RepositoryForge:
 
     def _id_field(self, st: Store) -> str | None:
         return st.key.java if st.key is not None else None
+
+    @staticmethod
+    def _id_class(st: Store) -> bool:
+        """#7965 (X22): a template store whose key is one field (or the String vsamKey) carries the instance beside it as
+        an @IdClass `InstanceKey`; a group key carries it inside its @EmbeddedId class; an ESDS / RRDS keeps its
+        generated Long id (already unique across instances) and the instance stays a plain column."""
+        if not st.template or st.composite:
+            return False
+        return st.key is not None or (st.raw.get("organization") or "").upper() not in ("NONINDEXED", "NUMBERED")
+
+    @staticmethod
+    def _instanced(st: Store) -> bool:
+        """The store's rows are told apart by instance in the key (an @IdClass or an @EmbeddedId carrying it)."""
+        return bool(st.template) and (bool(st.composite) or RepositoryForge._id_class(st))
+
+    def _repo_id(self, st: Store) -> str:
+        """The JpaRepository id type."""
+        return f"{st.entity}.InstanceKey" if self._id_class(st) else st.key_type
+
+    def _id_part(self, st: Store) -> tuple[str, str]:
+        """(name, Java type) of the key field an @IdClass pairs with the instance."""
+        return (st.key.java, st.key.jtype) if st.key is not None else ("vsamKey", "String")
+
+    def _instance_key_class(self, st: Store) -> list[str]:
+        """The nested @IdClass of an `_id_class` entity: the key part and the instance, with value equality."""
+        name, jt = self._id_part(st)
+        cap = name[0].upper() + name[1:]
+        out = ["", f"    /** #7965 (X22): the id of a row of {', '.join(st.template)}: its key and the CICS file instance. */",
+               "    public static class InstanceKey implements java.io.Serializable {",
+               f"        private {jt} {name};", '        private String vsamInstance = "";', "",
+               "        public InstanceKey() {", "        }", "",
+               f"        public InstanceKey({jt} {name}, String vsamInstance) {{",
+               f"            this.{name} = {name};", "            this.vsamInstance = vsamInstance;", "        }", "",
+               f"        public {jt} get{cap}() {{", f"            return {name};", "        }", "",
+               "        public String getVsamInstance() {", "            return vsamInstance;", "        }", "",
+               "        @Override", "        public boolean equals(Object o) {",
+               "            if (this == o) return true;",
+               "            if (!(o instanceof InstanceKey other)) return false;",
+               (f"            return java.util.Objects.equals({name}, other.{name}) "
+                "&& java.util.Objects.equals(vsamInstance, other.vsamInstance);"),
+               "        }", "", "        @Override", "        public int hashCode() {",
+               f"            return java.util.Objects.hash({name}, vsamInstance);", "        }", "    }"]  # fmt: skip
+        return out
+
+    @staticmethod
+    def _inst_get(st: Store, var: str) -> str:
+        """The Java expression for a row's instance: in the id of a group key, else its own column."""
+        return f"{var}.getId().getVsamInstance()" if st.composite else f"{var}.getVsamInstance()"
+
+    def _id_of(self, st: Store, key: str) -> tuple[list[str], str]:
+        """(statements, expression) of the repository id for `key` in the instance `vsamInstance` (a template store's
+        parameter): the InstanceKey, or the group key with its instance set, or the key itself."""
+        if not st.template:
+            return [], key
+        if self._id_class(st):
+            return [], f"new {st.entity}.InstanceKey({key}, vsamInstance)"
+        if st.composite:
+            return [f"        {key}.setVsamInstance(vsamInstance);"], key
+        return [], key  # an ESDS / RRDS: the generated id is unique across instances; the caller filters
 
     def repository_source(self, st: Store) -> str:
         if self.trace:
@@ -1119,31 +1196,35 @@ class RepositoryForge:
                  f" * {st.raw.get('dataset') or st.raw.get('name')}: READ / WRITE / REWRITE / DELETE are JpaRepository's",
                  " * findById / save / deleteById. Used by " + "; ".join(users) + ".",
                  " */", "@Repository",
-                 f"public interface {st.repository} extends JpaRepository<{st.entity}, {st.key_type}> {{\n"]  # fmt: skip
+                 f"public interface {st.repository} extends JpaRepository<{st.entity}, {self._repo_id(st)}> {{\n"]  # fmt: skip
         key = self._id_field(st)
+        inst = bool(st.template)  # #7965 (X22): every finder of a template store is one instance's
+        ia, ip = ("VsamInstanceAnd", "String vsamInstance, ") if inst else ("", "")
         if key and self._sorted_by_code_page(st):
             by = key[0].upper() + key[1:] + "Sort"
             if st.browse_forward:
                 java += ["    /** EXEC CICS STARTBR + READNEXT: records from a key onward, in the key's code-page order",
                          "     *  (#3822: pass CobolRecords.sortKey(key, codePage)). */",
-                         f"    List<{st.entity}> findBy{by}GreaterThanEqualOrderBy{by}Asc(String {key}Sort, Pageable page);\n"]  # fmt: skip
+                         f"    List<{st.entity}> findBy{ia}{by}GreaterThanEqualOrderBy{by}Asc({ip}String {key}Sort, Pageable page);\n"]  # fmt: skip
             if st.browse_back:
                 java += ["    /** EXEC CICS READPREV: records from a key backward, in reverse code-page order",
                          "     *  (#3822: pass CobolRecords.sortKey(key, codePage)). */",
-                         f"    List<{st.entity}> findBy{by}LessThanEqualOrderBy{by}Desc(String {key}Sort, Pageable page);\n"]  # fmt: skip
+                         f"    List<{st.entity}> findBy{ia}{by}LessThanEqualOrderBy{by}Desc({ip}String {key}Sort, Pageable page);\n"]  # fmt: skip
         elif key:
             cap = key[0].upper() + key[1:]
             if st.browse_forward:
                 java += ["    /** EXEC CICS STARTBR + READNEXT: records from a key onward, in key order. */",
-                         f"    List<{st.entity}> findBy{cap}GreaterThanEqualOrderBy{cap}Asc({st.key_type} {key}, Pageable page);\n"]  # fmt: skip
+                         f"    List<{st.entity}> findBy{ia}{cap}GreaterThanEqualOrderBy{cap}Asc({ip}{st.key_type} {key}, Pageable page);\n"]  # fmt: skip
             if st.browse_back:
                 java += ["    /** EXEC CICS READPREV: records from a key backward, in reverse key order. */",
-                         f"    List<{st.entity}> findBy{cap}LessThanEqualOrderBy{cap}Desc({st.key_type} {key}, Pageable page);\n"]  # fmt: skip
+                         f"    List<{st.entity}> findBy{ia}{cap}LessThanEqualOrderBy{cap}Desc({ip}{st.key_type} {key}, Pageable page);\n"]  # fmt: skip
         elif st.composite and (st.browse_forward or st.browse_back):
             order = "".join(f"Id{f.java[0].upper() + f.java[1:]}Asc" for f in st.composite)
+            args = "String vsamInstance, Pageable page" if inst else "Pageable page"
+            name = "findByIdVsamInstanceOrderBy" if inst else "findAllByOrderBy"
             java += ["    /** EXEC CICS STARTBR / READNEXT over a group key: every record in key order. TODO: start",
                      "     *  from a key -- a range over an @EmbeddedId is not a derived query. */",
-                     f"    List<{st.entity}> findAllByOrderBy{order}(Pageable page);\n"]  # fmt: skip
+                     f"    List<{st.entity}> {name}{order}({args});\n"]  # fmt: skip
         elif st.browse_forward or st.browse_back:
             java.append(
                 f"    // TODO: STARTBR / READNEXT / READPREV browse the key, which is not one field ({st.key_note}).\n"
@@ -1164,9 +1245,16 @@ class RepositoryForge:
                 )
                 continue
             declared.add(f"findBy{cap}")
-            java += [f"    /** Alternate index {alt['aix']} (path {paths}) on {f.cobol}, "
-                     f"{'unique' if alt.get('unique') else 'non-unique'}. */",
-                     f"    {ret} findBy{cap}({f.jtype} {f.java});\n"]  # fmt: skip
+            param = "@org.springframework.data.repository.query.Param"
+            jpql = "".join(
+                ["select e from Vsam", st.entity, " e where e.", f.java, " = :value and e.vsamInstance = :vsamInstance"]
+            )
+            java += [(f"    /** Alternate index {alt['aix']} (path {paths}) on {f.cobol}, "
+                      f"{'unique' if alt.get('unique') else 'non-unique'}. */"),
+                     *([f'    @org.springframework.data.jpa.repository.Query("{jpql}")',
+                        (f'    {ret} findBy{cap}({param}("value") {f.jtype} value, '
+                         f'{param}("vsamInstance") String vsamInstance);\n')]
+                       if inst else [f"    {ret} findBy{cap}({f.jtype} {f.java});\n"])]  # fmt: skip
             if self.trace:
                 facts = [
                     {
@@ -1220,22 +1308,25 @@ class RepositoryForge:
                 if alt is not None and f is not None and verbs & {"READ", "STARTBR", "READNEXT", "READPREV"}:
                     cap = f.java[0].upper() + f.java[1:]
                     ret = f"Optional<{st.entity}>" if alt.get("unique") else f"List<{st.entity}>"
-                    ops.append((f"read{name}", [f"    public {ret} read{name}({f.jtype} {f.java}) {{",
-                                                f"        return {repo_var}.findBy{cap}({f.java});", "    }\n"]))  # fmt: skip
+                    ia = "String vsamInstance, " if st.template else ""
+                    ib = ", vsamInstance" if st.template else ""
+                    ops.append((f"read{name}", [f"    public {ret} read{name}({ia}{f.jtype} {f.java}) {{",
+                                                f"        return {repo_var}.findBy{cap}({f.java}{ib});", "    }\n"]))  # fmt: skip
                 else:
                     notes.append(f"TODO: {user['name']} reads through path {user['via']}, whose key is not one field")
             else:
                 if "READ" in verbs:
-                    ops.append((f"read{name}", [f"    public Optional<{st.entity}> read{name}({kt} key) {{",
-                                                f"        return {repo_var}.findById(key);", "    }\n"]))  # fmt: skip
+                    ops.append((f"read{name}", self._read(f"read{name}", st, repo_var)))
                 if "WRITE" in verbs:
                     ops.append((f"write{name}", self._add(f"write{name}", st, repo_var, user["name"])))
                 if "REWRITE" in verbs:
                     ops.append((f"rewrite{name}", self._save(f"rewrite{name}", st, repo_var)))
                 if "DELETE" in verbs:
-                    ops.append((f"delete{name}", [f"    public void delete{name}({kt} key) {{",
-                                                  f"        {repo_var}.deleteById(key);", "    }\n"]))  # fmt: skip
+                    ops.append((f"delete{name}", self._delete(f"delete{name}", st, repo_var)))
                 sort = ""
+                bi = "String vsamInstance, " if st.template else ""  # #7965 (X22): a browse stays in one instance
+                bf = "VsamInstanceAnd" if st.template else ""
+                bc = "vsamInstance, " if st.template else ""
                 if k and self._sorted_by_code_page(st) and verbs & (_BROWSE_FORWARD | {"READPREV"}):
                     ex["imports"].add(f"import {self.package}.{ENTITY_SUBPACKAGE}.CobolRecords;")
                     sort = "Sort"
@@ -1243,15 +1334,15 @@ class RepositoryForge:
                 if k and verbs & _BROWSE_FORWARD:
                     cap = k[0].upper() + k[1:] + sort
                     ops.append((f"browse{name}", [
-                        f"    public List<{st.entity}> browse{name}({kt} from, int count) {{",
-                        f"        return {repo_var}.findBy{cap}GreaterThanEqualOrderBy{cap}Asc({arg}, "
-                        "org.springframework.data.domain.PageRequest.of(0, count));", "    }\n"]))  # fmt: skip
+                        f"    public List<{st.entity}> browse{name}({bi}{kt} from, int count) {{",
+                        (f"        return {repo_var}.findBy{bf}{cap}GreaterThanEqualOrderBy{cap}Asc({bc}{arg}, "
+                         "org.springframework.data.domain.PageRequest.of(0, count));"), "    }\n"]))  # fmt: skip
                 if k and "READPREV" in verbs:
                     cap = k[0].upper() + k[1:] + sort
                     ops.append((f"browseBack{name}", [
-                        f"    public List<{st.entity}> browseBack{name}({kt} from, int count) {{",
-                        f"        return {repo_var}.findBy{cap}LessThanEqualOrderBy{cap}Desc({arg}, "
-                        "org.springframework.data.domain.PageRequest.of(0, count));", "    }\n"]))  # fmt: skip
+                        f"    public List<{st.entity}> browseBack{name}({bi}{kt} from, int count) {{",
+                        (f"        return {repo_var}.findBy{bf}{cap}LessThanEqualOrderBy{cap}Desc({bc}{arg}, "
+                         "org.springframework.data.domain.PageRequest.of(0, count));"), "    }\n"]))  # fmt: skip
         else:
             modes = set(user.get("modes", []))
             sequential = (user.get("access_mode") or "SEQUENTIAL").upper() == "SEQUENTIAL"
@@ -1259,14 +1350,16 @@ class RepositoryForge:
                 if sequential:
                     order, why = self._file_order(st)
                     by = ", ".join(f'"{p}"' for p in order)
+                    all_rows = f"{repo_var}.findAll(org.springframework.data.domain.Sort.by({by}))"
+                    if st.template:  # #7965 (X22): one instance's rows, in the file's order
+                        all_rows += f".stream().filter(r -> vsamInstance.equals({self._inst_get(st, 'r')})).toList()"
                     ops.append((f"readAll{name}", [
                         f"    // {why}",
-                        f"    public List<{st.entity}> readAll{name}() {{",
-                        f"        return {repo_var}.findAll(org.springframework.data.domain.Sort.by({by}));",
+                        f"    public List<{st.entity}> readAll{name}({'String vsamInstance' if st.template else ''}) {{",
+                        f"        return {all_rows};",
                         "    }\n"]))  # fmt: skip
                 else:
-                    ops.append((f"read{name}", [f"    public Optional<{st.entity}> read{name}({kt} key) {{",
-                                                f"        return {repo_var}.findById(key);", "    }\n"]))  # fmt: skip
+                    ops.append((f"read{name}", self._read(f"read{name}", st, repo_var)))
             if modes & {"OUTPUT", "EXTEND"}:
                 ops.append((f"write{name}", self._save(f"write{name}", st, repo_var)))
             if "I-O" in modes:
@@ -1340,10 +1433,44 @@ class RepositoryForge:
                 if self.target.culture.key_collation == "ebcdic" else "")  # fmt: skip
         return ["vsamKey"], f"Sequential READ: in key order (the vsamKey, #3945).{todo}"
 
+    def _read(self, method: str, st: Store, repo_var: str) -> list[str]:
+        """READ by key: findById; a template store reads the key in its instance."""
+        if not st.template:
+            return [f"    public Optional<{st.entity}> {method}({st.key_type} key) {{",
+                    f"        return {repo_var}.findById(key);", "    }\n"]  # fmt: skip
+        pre, expr = self._id_of(st, "key")
+        tail = "" if self._instanced(st) else f".filter(r -> vsamInstance.equals({self._inst_get(st, 'r')}))"
+        return [f"    public Optional<{st.entity}> {method}(String vsamInstance, {st.key_type} key) {{", *pre,
+                f"        return {repo_var}.findById({expr}){tail};", "    }\n"]  # fmt: skip
+
+    def _delete(self, method: str, st: Store, repo_var: str) -> list[str]:
+        if not st.template:
+            return [
+                f"    public void {method}({st.key_type} key) {{",
+                f"        {repo_var}.deleteById(key);",
+                "    }\n",
+            ]
+        pre, expr = self._id_of(st, "key")
+        if self._instanced(st):
+            return [f"    public void {method}(String vsamInstance, {st.key_type} key) {{", *pre,
+                    f"        {repo_var}.deleteById({expr});", "    }\n"]  # fmt: skip
+        return [f"    public void {method}(String vsamInstance, {st.key_type} key) {{",
+                (f"        {repo_var}.findById(key).filter(r -> vsamInstance.equals({self._inst_get(st, 'r')}))"
+                 f".ifPresent({repo_var}::delete);"), "    }\n"]  # fmt: skip
+
+    @staticmethod
+    def _stamp(st: Store) -> list[str]:
+        """A template store's record is stamped with the instance the command names, before it is saved."""
+        if not st.template:
+            return []
+        return ["        record.getId().setVsamInstance(vsamInstance);" if st.composite
+                else "        record.setVsamInstance(vsamInstance);"]  # fmt: skip
+
     @staticmethod
     def _add(method: str, st: Store, repo_var: str, file: str) -> list[str]:
         """A CICS WRITE: it adds a record, and a key already on file is DUPREC -- JPA's save alone would replace
         that record. An ESDS / RRDS entity's generated id has no key to check: a plain save."""
+        ia = "String vsamInstance, " if st.template else ""
         if st.composite:
             key = "record.getId()"
         elif st.key is not None:
@@ -1352,7 +1479,9 @@ class RepositoryForge:
             return RepositoryForge._save(method, st, repo_var)
         else:
             key = "record.getVsamKey()"
-        return [f"    public {st.entity} {method}({st.entity} record) {{",
+        if st.template and RepositoryForge._id_class(st):
+            key = f"new {st.entity}.InstanceKey({key}, vsamInstance)"
+        return [f"    public {st.entity} {method}({ia}{st.entity} record) {{", *RepositoryForge._stamp(st),
                 "        // CICS WRITE adds a record: DUPREC when its key is already on file",
                 f"        Optional<{st.entity}> onFile = {repo_var}.findById({key});",
                 "        if (onFile.isPresent()) {",
@@ -1362,8 +1491,9 @@ class RepositoryForge:
 
     @staticmethod
     def _save(method: str, st: Store, repo_var: str) -> list[str]:
-        return [f"    public {st.entity} {method}({st.entity} record) {{", f"        return {repo_var}.save(record);",
-                "    }\n"]  # fmt: skip
+        ia = "String vsamInstance, " if st.template else ""
+        return [f"    public {st.entity} {method}({ia}{st.entity} record) {{", *RepositoryForge._stamp(st),
+                f"        return {repo_var}.save(record);", "    }\n"]  # fmt: skip
 
     def service_extras(self, key: str) -> dict | None:
         ex = self.extras.get(key)

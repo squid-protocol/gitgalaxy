@@ -50,6 +50,19 @@ def test_a_failed_java_run_is_feedback_errors_once_with_the_ports_frames(tmp_pat
     assert "Help 1" not in fb and "Re-run Maven" not in fb
 
 
+def test_a_failed_pom_resolution_shows_its_cause_line_without_the_help_pointer(tmp_path):
+    """#8373: "<cause> -> [Help 2]" was dropped whole, so 29 red tests named no cause."""
+    (tmp_path / "java").mkdir()
+    cause = "[ERROR]     Non-resolvable parent POM for x:y:1: Could not transfer artifact p:q:pom:3 from/to central"
+    log = (
+        f"[ERROR] Some problems were encountered:\n{cause} -> [Help 2]\n[ERROR] [Help 1] http://x\n[ERROR] Re-run Maven"
+    )
+    (tmp_path / "java" / "maven.log").write_text(log, encoding="utf-8")
+    fb = eq.java_failure_report({"name": "c", "program": "P"}, tmp_path, "")["feedback"]
+    assert "Non-resolvable parent POM for x:y:1: Could not transfer artifact" in fb
+    assert "-> [Help" not in fb and "Re-run Maven" not in fb and "[Help 1]" not in fb
+
+
 def test_batch_feedback_names_the_differing_records_and_the_failing_fault_runs():
     diff = {
         "equal": 1,

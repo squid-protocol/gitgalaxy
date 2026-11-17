@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "health-hcimdb01",
+  "entries": [
+    {
+      "unit": "GET-MEDICATION-INFO",
+      "line": 226,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "IF ws-counter > 0 in GET-MEDICATION-INFO (HCIMDB01.cbl:226): the loop PERFORM runs only while SQLCODE is 0 after OPEN-CURSOR, and the only arm of OPEN-CURSOR's EVALUATE that leaves SQLCODE 0 is WHEN 0, which PERFORMs LOAD-COMMAREA (ADD 1 to ws-counter, VALUE +0), so ws-counter is at least 1 whenever the loop FETCH returns 100. branch_solver reports a witness (EIBCALEN=18) because it does not follow the PERFORM UNTIL's ws-counter across iterations (ladder-slice: a plain PERFORM UNTIL counter's bounds are not modelled); the claim rests on the program text above, not on the solver."
+    }
+  ]
+}

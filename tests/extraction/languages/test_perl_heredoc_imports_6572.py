@@ -1,11 +1,15 @@
 """#6572: a `use A::B;` inside a Perl heredoc body is text, not an import."""
 
-import time
+import sys
+from pathlib import Path
 
 import pytest
 
 from gitgalaxy.galaxyscope import extract_raw_imports
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from linear_assert import assert_linear
 
 _LANG = LANGUAGE_DEFINITIONS["perl"]
 _REGEX = _LANG["rules"]["_dependency_capture"]
@@ -57,20 +61,10 @@ def test_terminator_must_be_alone_on_its_line():
     assert _imports(src) == {"A::After"}
 
 
-def _best_of(src: str, runs: int = 3) -> float:
-    best = float("inf")
-    for _ in range(runs):
-        start = time.perf_counter()
-        _imports(src)
-        best = min(best, time.perf_counter() - start)
-    return best
-
-
 def test_many_unterminated_openers_is_not_quadratic():
     # #7792: a wall-clock bound flaked on CI; doubling the input must not quadruple the time.
     unit = "print <<EOT;\nsome text line\n"
-    small, large = _best_of(unit * 2000), _best_of(unit * 4000)
-    assert large < max(small * 3.2, 0.5)
+    assert_linear(_imports, unit * 2000, unit * 4000)
 
 
 def test_unterminated_openers_then_a_terminated_one():

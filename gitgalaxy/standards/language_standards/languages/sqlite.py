@@ -258,7 +258,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(abs|acos|asin|atan|ceil|cos|degrees|exp|floor|ln|log|pi|pow|radians|sin|sqrt|tan|random|match|bm25|snippet|highlight|rtree|geopoly_[a-z_]+)\b",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Recursive logic and JSON paths.
         "reflection_metaprogramming": re.compile(
             r"\bWITH\s+RECURSIVE\b|\bGENERATED\s+ALWAYS\s+AS\b[^,;()]{0,20}\([^()]{0,300}\)[ \t]*(?:STORED|VIRTUAL)\b|->>|->|\b(?:json_extract|jsonb_extract)\b",
@@ -359,7 +359,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\bCAST[ \t]*\((?:[^()]{0,500}|\([^()]{0,500}\)){0,500}[ \t]+AS[ \t]+[a-zA-Z_]+\s*\)", re.I
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: ABORT/RAISE/EXIT/QUIT, .exit/.quit)
         "panics_and_aborts": re.compile(r"\b(ABORT|RAISE|EXIT|QUIT)\b|^[ \t]*\.(?:exit|quit)\b", re.I | re.M),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\bPRAGMA\s+busy_timeout\b|^[ \t]*\.pause\b", re.I | re.M),

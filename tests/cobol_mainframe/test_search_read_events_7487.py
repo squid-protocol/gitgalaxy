@@ -59,9 +59,50 @@ def test_set_form_records_the_event_without_a_gate():
     assert any(", null, true, () -> store(F).search(" in ln for ln in out)
 
 
-def test_a_token_read_keeps_the_event_free_search():
-    out = _Events().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GTEQ UPDATE TOKEN(TK) RESP(R)", "")
-    assert not any("readSearchEvent" in ln for ln in out)
+@pytest.mark.parametrize("update", ["", " UPDATE"])
+def test_a_token_search_read_records_the_event_held_by_its_token(update):
+    """#7965: the event carries the written UPDATE only (the stub's `upd=1`); nothing is held as the file's one hold."""
+    out = _Events().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(10) GTEQ{update} TOKEN(TK) RESP(R)", "")
+    call = next(ln for ln in out if "task.readSearchEvent(" in ln)
+    assert f"rec2, {'true' if update else 'false'}, true, null, false, " in call
+    assert "heldKey.put" not in " ".join(out) and any("task.holdToken(" in ln for ln in out)
+
+
+@pytest.mark.parametrize("update", ["", " UPDATE"])
+def test_a_token_into_read_records_the_event(update):
+    out = _Events().command(f"READ FILE('KSDS') INTO(REC) LENGTH(VARLEN) RIDFLD(KEY){update} TOKEN(TK) RESP(R)", "")
+    assert any(
+        f"task.readInto('KSDS'.stripTrailing(), rec2, {'true' if update else 'false'}, true, INT(VARLEN)" in ln
+        for ln in out
+    )
+    assert any("task.holdToken(" in ln for ln in out)
+
+
+def test_a_token_set_read_records_the_event():
+    c = tdt._LenCics()
+    c.g.pointer_item = lambda name, sub=None: f"f_{name}"
+    out = c.command("READ FILE('KSDS') SET(PTR) RIDFLD(KEY) UPDATE TOKEN(TK) RESP(R)", "")
+    assert any("task.readSetEvent(" in ln and ", true, true, " in ln for ln in out)
+
+
+def test_a_tokenless_read_keeps_the_old_call_shape():
+    out = _Events().command("READ FILE('KSDS') INTO(REC) LENGTH(VARLEN) RIDFLD(KEY) UPDATE RESP(R)", "")
+    assert any("task.readInto('KSDS'.stripTrailing(), rec2, true, INT(VARLEN)" in ln for ln in out)
+
+
+@pytest.mark.parametrize("update", ["", " UPDATE"])
+@pytest.mark.parametrize("key", ["KEYLENGTH(6)", "KEYLENGTH(10) GENERIC", "KEYLENGTH(-1) GENERIC"])
+def test_an_invalid_keylength_read_records_the_event(key, update):
+    """#7965: the stub logs a READ for a command CICS refuses (INVREQ RESP2 25 / 26 / 42); the port records it too."""
+    out = _Events().command(f"READ FILE('KSDS') INTO(REC) RIDFLD(KEY) {key}{update} RESP(R)", "")
+    call = next(ln for ln in out if "task.readInvalid" in ln)
+    assert "task.readInvalidEvent('KSDS'.stripTrailing(), " in call
+    assert f", {'true' if update else 'false'}, {'true' if update else 'false'}, false, " in call
+
+
+def test_an_invalid_keylength_read_without_events_keeps_the_event_free_call():
+    out = tdt._LenCics().command("READ FILE('KSDS') INTO(REC) RIDFLD(KEY) KEYLENGTH(6) RESP(R)", "")
+    assert any("task.readInvalid(" in ln for ln in out) and not any("readInvalidEvent" in ln for ln in out)
 
 
 def test_the_gate_reads_a_tokenless_search_read_and_nothing_else():
@@ -73,7 +114,9 @@ def test_the_gate_reads_a_tokenless_search_read_and_nothing_else():
     assert gate("READ FILE('F') INTO(R) RIDFLD(K) GTEQ")
     assert gate("READ FILE('F') INTO(R) RIDFLD(K) KEYLENGTH(2) GENERIC")
     assert not gate("READ FILE('F') INTO(R) RIDFLD(K)")
-    assert not gate("READ FILE('F') INTO(R) RIDFLD(K) GTEQ UPDATE TOKEN(T)")
+    assert gate("READ FILE('F') INTO(R) RIDFLD(K) GTEQ UPDATE TOKEN(T)")  # #7965: a token read is recorded
+    assert gate("READ FILE('F') INTO(R) RIDFLD(K) UPDATE TOKEN(T)")
+    assert not gate("UNLOCK FILE('F') TOKEN(T)")
     assert not gate("READNEXT FILE('F') INTO(R) RIDFLD(K)")
 
 
@@ -88,7 +131,7 @@ def test_a_rewrite_no_longer_turns_a_search_reads_events_off():
     both = ("READ FILE('F') UPDATE INTO(R) LENGTH(L) RIDFLD(K) GTEQ", "REWRITE FILE('F') FROM(R) LENGTH(L)")
     assert gate(*both)
     assert not gate(both[1])  # a REWRITE alone records nothing
-    assert not gate("READ FILE('F') UPDATE INTO(R) RIDFLD(K) GTEQ TOKEN(T)", both[1])  # a TOKEN read still does not
+    assert gate("READ FILE('F') UPDATE INTO(R) RIDFLD(K) GTEQ TOKEN(T)", both[1])  # #7965: a TOKEN read does too
 
 
 @pytest.mark.parametrize(
@@ -209,3 +252,38 @@ def test_the_runtime_records_normal_notfnd_lengerr_and_set(tmp_path):
         "NOTFND 80 null null true false",
     ]
     assert json.dumps(got)
+
+
+@needs_javac
+@pytest.mark.slow(
+    reason="a javac build of the shared CicsTask plus one JVM run (cold on a CI runner, as the test above)"
+)
+def test_the_runtime_records_token_reads_and_invalid_keylength_reads(tmp_path):
+    """#7965: a TOKEN read records the event and holds nothing as the file's one hold (a second token read is not INVREQ 28);
+    a refused READ records INVREQ with its RESP2, and a READ UPDATE on a held file is INVREQ 28 first."""
+    body = r"""
+        java.util.Map<String, byte[]> f = new java.util.HashMap<>();
+        f.put("K001", "K001ALPHA   0010".getBytes());
+        CicsTask t = new CicsTask("T", "ENTER", null, null);
+        byte[] rid = "K001".getBytes();
+        java.util.function.Supplier<java.util.Optional<byte[]>> look = () -> java.util.Optional.ofNullable(f.get("K001"));
+        t.readInto("F", rid, true, true, 16, look);
+        t.readInto("F", rid, false, true, 16, look);
+        t.readSetEvent("F", rid, true, true, look);
+        t.readSearchEvent("F", rid, false, true, 16, false, look);
+        t.readInvalidEvent("F", rid, false, false, false, 26);
+        t.readForUpdate("F", look);
+        t.readInvalidEvent("F", rid, true, true, false, 25);
+        for (java.util.Map<String, Object> e : t.events()) {
+            System.out.println("E " + e.get("resp") + " " + e.get("resp2") + " " + e.get("length") + " " + e.get("set")
+                + " " + e.get("update") + " " + (e.get("data") != null));
+        }"""
+    got = [ln[2:] for ln in _cics_task(tmp_path, body).splitlines() if ln.startswith("E ")]
+    assert got == [
+        "NORMAL null 16 null true true",
+        "NORMAL null 16 null null true",
+        "NORMAL null null true true true",
+        "NORMAL null 16 null null true",
+        "INVREQ 26 null null null false",
+        "INVREQ 28 null null true false",
+    ]

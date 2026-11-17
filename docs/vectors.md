@@ -38,10 +38,15 @@ keyword counts, danger vocabulary, complexity, per-file totals, pooled, density-
 length-matched, or banded — reduced to file size; the nulls are equivalence-confirmed, not
 just non-significant, on two independent repositories
 (temporal-crucible `docs/HYPOTHESES.md`, "the plain-language summary" and point 2). What
-*did* validate is that the vectors reliably characterize **what a change did**: the fix-shaped
-composite tracks a security-fix → ordinary-fix → control → revert gradient cleanly, and
-per-vector deltas correspond to real code events (guard code added, threading introduced,
-debt markers diluted). That is a real, useful, differentiated capability. It measures activity
+*did* validate is that the vectors characterize **what a change did**: per-vector deltas
+correspond to real code events (guard code added, threading introduced, debt markers diluted),
+and the fix-shaped composite separates fixes from non-fixes. It does not separate security fixes
+from ordinary bug fixes: the security-fix → ordinary-fix → control → revert gradient seen at file
+grain collapsed when only the patch's own lines were scored (curl, exploratory: fix classes about
+49–57% fix-shaped, controls 39%, reverts 10%; the file-grain security spread reads as a
+bystander-file artifact; temporal-crucible `docs/HYPOTHESES.md`, "Hunk-grain grammar", tc#34).
+The registered replication on openssl (X-H2) has not been scored yet. That is a real, useful,
+differentiated capability, narrower than a security-fix detector. It measures activity
 and surface, not defect probability — hence the rename below.
 
 ## The name table
@@ -123,7 +128,7 @@ chance (`class_signals.md`, "Collapsed binary: fix-like vs control").
 **(3) Explicit non-claims.** This value is not a defect-probability estimate. Per-file
 standing levels of the structural family this vector belongs to were shown to track file
 size, with the corresponding nulls equivalence-confirmed on a second, independent repository
-(nDPI Stage-2 TOST: effect 0.000, CI ⊂ ±0.10 — `docs/HYPOTHESES.md`, "Stage-2 … equivalence
+(nDPI Stage-2 TOST: effect 0.000, CI ⊂ ±0.10 — temporal-crucible `docs/HYPOTHESES.md`, "Stage-2 … equivalence
 CIs"). A rise in `complexity_load` after a change does not indicate the change made the file
 more dangerous.
 
@@ -145,10 +150,10 @@ its pre-registered direction after a security fix on curl (H3: p=0.0072) — a g
 event-grounded positive, and the strongest single piece of evidence that the engine's
 vocabulary carries real security semantics at the delta level. It did **not** replicate on
 the second repository: in the nDPI cross-repo battery, every structural signature including
-`guard_balance` failed to replicate (`docs/HYPOTHESES.md`, "Scope of validation to date"). The
+`guard_balance` failed to replicate (temporal-crucible `docs/HYPOTHESES.md`, "Scope of validation to date"). The
 mechanism is documented as being about formula *shape*: `guard_balance` is a net over
 unlike-signed inputs, which is why it moved at all, while every density-shaped vector stayed
-flat or produced an artifact (`docs/HYPOTHESES.md`, "What one repo taught us", point 2).
+flat or produced an artifact (temporal-crucible `docs/HYPOTHESES.md`, "What one repo taught us", point 2).
 
 **(3) Explicit non-claims.** This value is not a defect-probability estimate. It is a
 single-repository positive that did not survive cross-repo replication; it should not be read
@@ -260,8 +265,8 @@ still-open predictive candidate. With proper statistical power (28/42 positives,
 expansion), small-file centrality is dead — PageRank in ≤22-line files is actually *inverted*
 (AUC 0.259) — but the shape is a genuine inverted U: centrality carries real lift specifically
 in **mid-size files** (49–108 LOC: PageRank lift +0.145, lower bound +0.020; popularity lift
-+0.132, lower bound +0.025 — `docs/bh_eval.md`, B-H1/B-H2 results, cited in
-`docs/HYPOTHESES.md` point 4). This candidate is **registered for repo #3 (openssl), not yet
++0.132, lower bound +0.025 — temporal-crucible `docs/bh_eval.md`, B-H1/B-H2 results, cited in
+temporal-crucible `docs/HYPOTHESES.md` point 4). This candidate is **registered for repo #3 (openssl), not yet
 validated or claimed** as a general result.
 
 **(3) Explicit non-claims.** This value is not currently a validated defect-probability
@@ -288,7 +293,7 @@ the dataset (+47.1 per-event mean). The audit traced it: the CVE fix itself
 (`lib/ws.c`) moved only +0.78; the rest of the swing was a companion test file
 (`tests/http/test_20_websockets.py`) where `concurrency_surface` went from 0 to 87.26 because
 the test added a new `threading` harness (`exposure_history_report.md`, footnote on the largest
-rise; `docs/instrument_controls_forensics.md`). The meter worked exactly as built — threading
+rise; temporal-crucible `docs/instrument_controls_forensics.md`). The meter worked exactly as built — threading
 appeared in the file, the meter moved. The only miscalibration was the name: "risk" implied a
 vulnerability signal; what actually happened was ordinary test infrastructure being added.
 
@@ -372,7 +377,7 @@ commit-size-shaped signal.
 co-movement cluster identified in the keyword-pool exploration: its summed delta correlates
 with net-LOC at ρ=+0.66, above the program's own |ρ|≥0.5 threshold for flagging a signal as a
 size proxy rather than something moving independently of size
-(`docs/keyword_pools_explore.md`, "cluster 1 {state_flux, struct_snake_case, struct_var_decl}
+(temporal-crucible `docs/keyword_pools_explore.md`, "cluster 1 {state_flux, struct_snake_case, struct_var_decl}
 … SIZE PROXY"). The disposition table's verdict is KEEP with an explicit size caveat, or
 demote.
 
@@ -401,15 +406,18 @@ tooling — on curl, 6 of 392 CVE/control-implicated files (`exposure_history_re
 nDPI, 0 of 197 (`ndpi_exposure_report.md`). "CVEs live in protocol code, credentials in test
 fixtures," as the record puts it. Disposition: **REWORK** to a plain count-based "credential
 material present" flag — which is also why this vector's new name is `credential_material`
-rather than a surface/density-implying name.
+rather than a surface/density-implying name. The rework is planned, not implemented: the shipped
+vector is still the density formula (`SignalProcessor._calc_secrets_risk`), and the name
+describes the intended flag, not the current computation.
 
 **(3) Explicit non-claims.** This value is not a defect-probability estimate, and — beyond the
 general caveat — it is not currently a useful security-risk indicator at all: it is strongly
 size-correlated as formulated, and it has been shown twice, on two repositories, to fire on
 files that are not where vulnerabilities actually live.
 
-**(4) Appropriate vs inappropriate uses.** Appropriate: as a raw presence flag for "does this
-file contain credential-shaped strings" (secrets-scanning triage, pending the rework).
+**(4) Appropriate vs inappropriate uses.** Appropriate: as a rough signal for "does this
+file contain credential-shaped strings" (secrets-scanning triage); until the rework lands it is a
+density score, not a presence flag, so read the underlying Hard-Coded Secrets count instead.
 Inappropriate: using the current score as a vulnerability or risk indicator of any kind.
 
 ---
@@ -427,14 +435,14 @@ history-enabled mode, not already a shipped predictive layer.
 
 - **Churn** (change frequency) is the strongest single structural-adjacent feature measured
   anywhere in the program pooled (AUC 0.859), on par with a raw line count
-  (`docs/incremental_value.md`, `docs/centrality_bands.md`).
+  (temporal-crucible `docs/incremental_value.md`, temporal-crucible `docs/centrality_bands.md`).
 - **Recidivism** (prior-fix count — closely related to this family, though not itself one of
   the 13 scored vectors today) is the single most replicated result of the whole program:
-  decisive on both repositories, p<1e-4 (`docs/HYPOTHESES.md`, RW-H2).
+  decisive on both repositories, p<1e-4 (temporal-crucible `docs/HYPOTHESES.md`, RW-H2).
 - **Change entropy / Hassan HCM** (`HCM1_LD_30`) is the only *feature* in the entire program
   to beat a line count out-of-selection: selected on CVE labels, then validated frozen on
   fresh bug labels at AUC 0.868 vs LOC's 0.830 (lift +0.038, lower bound +0.021 —
-  `docs/bh_eval.md`, B-H3).
+  temporal-crucible `docs/bh_eval.md`, B-H3).
 
 **What this means for the current columns.** As shipped today, `hist_stability` and
 `hist_churn` (persisted as `risk_stability`/`risk_churn`) are computed with

@@ -111,7 +111,7 @@ SPAN = re.compile(r"`([^`\n]+)`")
 FENCE = re.compile(r"^\s*(```|~~~)")
 PLACEHOLDER = re.compile(r"[<>*{}$\[\]|]|\.\.\.|…|\bN\b|XXXX")
 SKILL_REF = re.compile(r"`/?([a-z][a-z0-9-]+)`\s+skill\b|\bskill\s+`/?([a-z][a-z0-9-]+)`")
-FLAG = re.compile(r"(?<![\w-])(--[a-z][a-z0-9-]*)")
+FLAG = re.compile(r"(?<![\w-])(--[a-z][a-z0-9_-]*)")
 SCRIPT = re.compile(r"(?:^|\s)(?:python3?\s+)?((?:\./)?[\w./-]+\.py)\b|python3?\s+-m\s+(gitgalaxy(?:\.\w+)+)")
 COMMAND_END = re.compile(r"\s(?:\||&&|;|#|>)\s")
 

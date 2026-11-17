@@ -230,7 +230,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(ABS|SQRT|LOG|EXP|SIN|COS|TAN|ROUND|CEIL|FLOOR|DECFLOAT16|DECFLOAT34)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. RTTS and Dynamic assignment logic.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). RTTS and Dynamic assignment logic.
         "reflection_metaprogramming": re.compile(
             r"\b(CL_ABAP_TYPEDESCR|CL_ABAP_CLASSDESCR|ASSIGN\s+\([a-zA-Z0-9_-]+\)\s+TO|GENERATE\s+SUBROUTINE\s+POOL)\b",
             re.I,
@@ -288,7 +288,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:CAST|CONV)\s*[a-zA-Z0-9_~-]*\s*#?\s*\(|ASSIGNING\s+<[^>]+>\s+CASTING",
             re.I,
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution or error messages.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution or error messages.
         "panics_and_aborts": re.compile(
             r'\b(RAISE\s+EXCEPTION|MESSAGE\s+[^\n;]+\s+TYPE\s+[\'"][EX][\'"]|LEAVE\s+PROGRAM)\b',
             re.I,

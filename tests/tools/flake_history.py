@@ -48,6 +48,11 @@ REFRESH_DAYS = 2  # today and yesterday can still change
 WINDOW_H = 2
 MIN_RESCUES = 2
 MIN_RATE = 0.8
+# A cause is this job's own (not a flake) once its reruns failed again MIN_REAL times and passed under REAL_RATE of the
+# time. 2026-11-13: `ground-truth` was learned flaky from timeouts and pull failures, so the evidence-refresh PR's
+# repeatable test failure earned a rerun on every push for four days (PR #8169, seven reruns, each failed again).
+MIN_REAL = 2
+REAL_RATE = 0.5
 ISSUE_TITLE = "Flaky CI job: {name}"
 
 
@@ -80,8 +85,9 @@ def rerun_verdicts(jobs: list[dict[str, Any]], log: Any = None) -> dict[str, tup
 
 
 def day_reruns(api: pr_check.Api, day: str, log: Any = None) -> dict[str, list[Any]]:
-    """{job name: [passed on a rerun, failed again, {first-attempt cause: count}]} for the runs created on `day` (UTC)
-    that were rerun. `log(job)` defaults to ci_rerun_stats.job_log."""
+    """{job name: [passed on a rerun, failed again, {first-attempt cause: count}, {cause: [passed, failed again]}]} for
+    the runs created on `day` (UTC) that were rerun. `log(job)` defaults to ci_rerun_stats.job_log. The fourth entry
+    says which causes a rerun cures; days cached before it was recorded have three."""
     log = log or (ci_rerun_stats.job_log if ci_rerun_stats else None)
     out: dict[str, list[Any]] = {}
     for h in range(0, 24, WINDOW_H):
@@ -93,10 +99,11 @@ def day_reruns(api: pr_check.Api, day: str, log: Any = None) -> dict[str, list[A
             for name, (passed, why) in rerun_verdicts(jobs, log).items():
                 if why == "superseded":
                     continue  # cancelled by a newer push, then rerun: the job was not nondeterministic (#5605)
-                row = out.setdefault(name, [0, 0, {}])
+                row = out.setdefault(name, [0, 0, {}, {}])
                 row[0 if passed else 1] += 1
                 if why:
                     row[2][why] = row[2].get(why, 0) + 1
+                    row[3].setdefault(why, [0, 0])[0 if passed else 1] += 1
     return out
 
 
@@ -153,22 +160,38 @@ def tally(cache: dict[str, Any]) -> list[dict[str, Any]]:
     sums: dict[str, list[Any]] = {}
     for per_job in (cache.get("days") or {}).values():
         for name, row in per_job.items():
-            s = sums.setdefault(name, [0, 0, {}])
+            s = sums.setdefault(name, [0, 0, {}, {}])
             s[0] += row[0]
             s[1] += row[1]
             for why, k in (row[2] if len(row) > 2 else {}).items():
                 s[2][why] = s[2].get(why, 0) + k
+            for why, (ok, again) in (row[3] if len(row) > 3 else {}).items():
+                both = s[3].setdefault(why, [0, 0])
+                both[0] += ok
+                both[1] += again
     rows = []
-    for name, (passed, failed, causes) in sums.items():
+    for name, (passed, failed, causes, by_cause) in sums.items():
         rate = passed / (passed + failed)
+        real = sorted(why for why, (ok, again) in by_cause.items() if again >= MIN_REAL and ok / (ok + again) < REAL_RATE)
         rows.append({"job": name, "passed_on_rerun": passed, "failed_again": failed, "rerun_pass_rate": round(rate, 2),
                      "learned_flaky": passed >= MIN_RESCUES and rate >= MIN_RATE,
-                     "causes": dict(sorted(causes.items(), key=lambda kv: -kv[1]))})  # fmt: skip
+                     "causes": dict(sorted(causes.items(), key=lambda kv: -kv[1])),
+                     "real_causes": real})  # fmt: skip
     return sorted(rows, key=lambda r: (-r["passed_on_rerun"], -r["failed_again"], r["job"]))
 
 
-def learned(cache: dict[str, Any]) -> set[str]:
-    return {r["job"] for r in tally(cache) if r["learned_flaky"]}
+class Learned(set):  # type: ignore[type-arg]
+    """The learned-flaky job names, as before, plus `real_causes`: per job, the first-attempt causes a rerun does NOT
+    cure. A caller that only tests membership needs no change; ci_digest reads the causes."""
+
+    real_causes: dict[str, set[str]]
+
+
+def learned(cache: dict[str, Any]) -> Learned:
+    rows = [r for r in tally(cache) if r["learned_flaky"]]
+    out = Learned(r["job"] for r in rows)
+    out.real_causes = {r["job"]: set(r["real_causes"]) for r in rows if r["real_causes"]}
+    return out
 
 
 def file_issues(rows: list[dict[str, Any]], run: Any = subprocess.run) -> list[str]:

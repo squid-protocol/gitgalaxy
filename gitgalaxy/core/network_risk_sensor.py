@@ -128,7 +128,7 @@ _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
 # #8161: languages whose system-header includes (`<errno.h>`, `<sys/time.h>`) resolve only on the repo's include
 # path: an include root is the repo root, an `include/` or `inc/` directory, or a directory a multi-segment include
 # of the repo resolves through (`"uv/errno.h"` makes `include/` one). Never by bare name elsewhere.
-C_INCLUDE_ROOT_LANGS = frozenset({"c", "cpp"})
+C_INCLUDE_ROOT_LANGS = frozenset({"c", "cpp", "objective-c"})
 _C_INCLUDE_DIR_NAMES = frozenset({"include", "inc"})
 
 # #3552: an ESM import spells a TypeScript source by its EMITTED name

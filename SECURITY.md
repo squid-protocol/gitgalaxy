@@ -13,4 +13,4 @@ We actively monitor and patch security vulnerabilities in the current major rele
 
 If you discover a security flaw within GitGalaxy, please utilize GitHub's native **Private Vulnerability Reporting** feature via the "Security" tab of this repository. Alternatively, you can contact the maintainer directly. 
 
-Valid reports will receive a response within 48 hours, and a coordinated disclosure timeline will be established to ensure a patch is deployed before public release.
+We aim to respond to valid reports within 48 hours, and a coordinated disclosure timeline will be established to ensure a patch is deployed before public release.

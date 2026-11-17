@@ -14,9 +14,10 @@ gitgalaxy#2991 — this is a naming/documentation change, not a formula change.
 
 2026-09-13
 
-Line numbers below are as of that date. By 2026-11-03 every calculator had moved down by the same
-138 lines (`_calc_cog_load` now starts at line 1528, `_calc_secrets_risk` at 1956), so add 138 to a
-line reference here, or search `signal_processor.py` for the function name.
+Line numbers below are as of that date, except section 11 (`_calc_secrets_risk`), which was
+re-checked on 2026-11-13. By 2026-11-13 every other calculator had moved down by the same 146
+lines (`_calc_cog_load` now starts at line 1536, `_calc_secrets_risk` at 1964), so add 146 to a
+line reference in sections 1-10 and 12-13, or search `signal_processor.py` for the function name.
 
 ## Structural finding
 
@@ -37,8 +38,9 @@ multiplier stacks (9 tuned constants in `complexity_load` alone, breach floors, 
 multipliers) assert calibration that was never validated against outcomes — appropriate for
 a *display* normalization if documented as such, inappropriate as measurement claims. This
 document renames; it does not rework the formulas. The two REWORK-flagged vectors
-(`debt_markers`, `credential_material`) still compute the same density formula as before —
-see their sections in `vectors.md`.
+(`debt_markers`, `credential_material`) still compute the same density formula as before; the
+rework (for `credential_material`, a count-based "credential material present" flag) is planned,
+not implemented — see their sections in `vectors.md`.
 
 Also noteworthy: `hist_stability`/`hist_churn` (formerly `risk_stability`/`risk_churn`) — the
 family the evidence PROMOTES — are the two calculators with the simplest, most honest
@@ -166,17 +168,17 @@ arithmetic in the file (age ratio; commits/√weeks, unbounded).
 | **Hardcoded Constants** | NONE |
 | **DENSITY** | NO – per-entity ratio, not LOC-based (line 1808 comment: file with no functions/classes scores 0) |
 
-### 11. `_calc_secrets_risk` -> `credential_material` (lines 1818–1863) — REWORK flagged
+### 11. `_calc_secrets_risk` -> `credential_material` (lines 1964–2009, checked 2026-11-13) — REWORK flagged, not implemented
 
 | Field | Value |
 |-------|-------|
 | **Function Name** | `_calc_secrets_risk` |
 | **raw_signals Keys Read** | `sec_hardcoded_secrets`, `debug_prints`, `dead_code`, `globals`, `llm_api`, `sec_reflection_metaprogramming` |
 | **Other Inputs** | `loc` (int), `mp` (float) |
-| **Output Range** | 0–100; floored at 0.0 if < 5.0 (line 1861); final cap `min(score*mp, 100.0)` line 1863 |
+| **Output Range** | 0–100; floored at 0.0 if < 5.0 (line 2007); final cap `min(score*mp, 100.0)` line 2009 |
 | **Arithmetic (Literal)** | base_leak = sec_hardcoded_secrets * 10.0; careless_amplifiers = 1.0 + debug_prints + dead_code + globals; if llm_api > 0 and globals == 0, careless_amplifiers *= 3.0; if not paranoid and sec_reflection==0, cap careless at 2.0; leak_mass = base_leak * careless; density = (leak_mass / max(loc + 50, 1)) * 100; sigmoid on (density - 3.0): 100/(1+exp(-1.0*x)) or (paranoid) on (density - 0.5): 100/(1+exp(-2.0*x)); if score < 5 then 0; cap at 100*mp |
-| **Hardcoded Constants** | `base_leak_weight=10.0` (line 1823), `llm_api_amplifier=3.0` (line 1834), `careless_amplifier_cap=2.0` (line 1837), `loc_padding=50` (line 1845), `std_threshold=3.0` (line 1852), `std_slope=1.0` (line 1853), `paranoid_threshold=0.5` (line 1849), `paranoid_slope=2.0` (line 1850), `score_floor=5.0` (line 1860) |
-| **DENSITY** | YES – divides by `(loc + 50)` line 1845 — convicted, ρ=−0.91 vs LOC, #2979 |
+| **Hardcoded Constants** | `base_leak_weight=10.0` (line 1969), `llm_api_amplifier=3.0` (line 1980), `careless_amplifier_cap=2.0` (line 1983), `loc_padding=50` (line 1991), `std_threshold=3.0` (line 1998), `std_slope=1.0` (line 1999), `paranoid_threshold=0.5` (line 1995), `paranoid_slope=2.0` (line 1996), `score_floor=5.0` (line 2006); `loc_padding` and the four threshold/slope values are defaults that `risk_tuning["secrets_risk"]` can override |
+| **DENSITY** | YES – divides by `(loc + 50)` line 1991 — convicted, ρ=−0.91 vs LOC, #2979 |
 
 ### 12 & 13. `_calc_raw_temporal_signals` -> `hist_stability`, `hist_churn` (lines 1273–1295) — Returns Pair: (stability_score, raw_churn_freq)
 

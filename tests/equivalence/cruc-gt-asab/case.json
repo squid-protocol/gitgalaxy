@@ -23,6 +23,78 @@
         80
       ],
       "why": "a terminal task: ASSIGN FACILITY succeeds, so both TS writes run (the no-terminal abend is not stated by the harness)"
+    },
+    {
+      "name": "wq-invreq-1",
+      "commarea": null,
+      "terminal": "GT34",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 1,
+          "file": "GTLOG",
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "the first breadcrumb write answers INVREQ (no RESP: the task abends)"
+    },
+    {
+      "name": "wq-ioerr-2",
+      "commarea": null,
+      "terminal": "GT34",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 2,
+          "file": "GTLOG",
+          "resp": "IOERR"
+        }
+      ],
+      "why": "the closing breadcrumb write answers IOERR"
+    },
+    {
+      "name": "wq-notauth-2",
+      "commarea": null,
+      "terminal": "GT34",
+      "startcode": "TD",
+      "termid": "T001",
+      "userid": "CICSUSER",
+      "screen": [
+        24,
+        80
+      ],
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "nth": 2,
+          "file": "GTLOG",
+          "resp": "NOTAUTH"
+        }
+      ],
+      "why": "the closing breadcrumb write answers NOTAUTH"
+    },
+    {
+      "name": "no-terminal",
+      "commarea": null,
+      "terminal": "GT34",
+      "startcode": "S",
+      "termid": "",
+      "userid": "CICSUSER",
+      "why": "GT34 as a START with no terminal: ASSIGN FACILITY answers INVREQ, no RESP, the default action ends the task"
     }
   ]
 }

@@ -31,11 +31,15 @@ def test_parse_cond_reads_every_form_the_fixture_uses():
 
 @pytest.mark.parametrize(
     "cond",
-    ["(4,LT,P.S1)", "(" + ",".join(["(1,EQ,A)"] * 9) + ")", "(" + ",".join(["(1,EQ,A)"] * 8) + ",EVEN)", "(x,LT)"],
+    ["(" + ",".join(["(1,EQ,A)"] * 9) + ")", "(" + ",".join(["(1,EQ,A)"] * 8) + ",EVEN)", "(x,LT)"],
 )
 def test_cond_that_is_invalid_or_unsettled_is_refused_by_name(cond):
     with pytest.raises(JclFlowRefused):
         parse_cond(cond)
+
+
+def test_a_cond_test_may_name_a_procedure_step_as_callstep_procstep():
+    assert parse_cond("(4,LT,P.S1)")[0] == [(4, "<", "P.S1")]  # #8413: a procedure's step is named CALL.PROCSTEP
 
 
 def test_a_cond_with_eight_tests_is_valid_without_even_or_only():
@@ -80,7 +84,7 @@ def test_abend_and_abendcc_tests():
 
 @pytest.mark.parametrize(
     "expr",
-    ["A.RC = 0 & B.RC = 0 | RC = 4", "ABEND", "RC = 0", "A.RC", "A.RC ?? 0", "A.ABENDCC > S000", "RUN = TRUE"],
+    ["A.RC = 0 & B.RC = 0 | RC = 4", "RC = 0", "A.RC", "A.RC ?? 0", "A.ABENDCC > S000", "RUN = TRUE"],
 )
 def test_what_ibm_does_not_settle_is_refused_by_name(expr):
     with pytest.raises(JclFlowRefused):

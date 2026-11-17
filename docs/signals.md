@@ -6,7 +6,7 @@ keywords (`return`, `def`, `void`, `export`), not "linear code". This page is th
 ([gitgalaxy#8009](https://github.com/squid-protocol/gitgalaxy/issues/8009)). Names come from `SIGNAL_DISPLAY_NAMES`
 in `gitgalaxy/standards/analysis_lens.py`; `signal_display_name()` accepts a rule key or a column.
 
-Stored column names, JSON keys and `FRIENDLY_MAP` labels are unchanged (display layer only, as with
+Stored column names and JSON keys are unchanged; the audit report's `FRIENDLY_MAP` labels for these signals use the display names (#8009 slice 2b) (display layer only, as with
 [`vectors.md`](vectors.md)). Renaming columns waits for an archetype retrain, because archetype features are
 densities of these columns.
 
@@ -110,9 +110,9 @@ densities of these columns.
 | `threat_stego_imports` | `sec_shadow_imports` | Security: Unusual Imports | 0 | <0.1% |  |
 | `threat_homoglyphs` | `sec_homoglyphs` | Security: Homoglyph Identifiers | 0 | <0.1% |  |
 | `threat_private_info` | `sec_hardcoded_secrets` | Security: Hard-Coded Secrets | 0 | 0.2% |  |
-| `threat_extension_mismatch` | `sec_extension_mismatch` | Security: File Extension Mismatch | 0 | 0 |  |
+| `threat_extension_mismatch` | `sec_extension_mismatch` | Security: File Extension Mismatch | 0 | 0 | not a regex: set by the disguised-executable check (#4126) when an inert extension (`.png`, `.txt`, ...) starts with executable magic bytes; no population file trips it |
 | `threat_entropy` | `sec_entropy` | Security: High-Entropy Strings | 0 | 0.4% |  |
-| `threat_tainted_injection` | `sec_tainted_injection` | Security: Tainted Input Reaching a Sink | 0 | 0 |  |
+| `threat_tainted_injection` | `sec_tainted_injection` | Security: Tainted Input Reaching a Sink | 0 | 0 | none: taint tracking removed (#3101) after measuring about 0% precision and recall |
 | `prompt_injection` | `prompt_injection` | Security: Prompt Injection (detector removed) | 0 | 0 |  |
 | `agentic_rce` | `agentic_rce` | Security: Agentic RCE (detector removed) | 0 | 0 |  |
 | `sec_unicode_steganography` | `sec_unicode_steganography` | Security: Invisible Unicode | 0 | <0.1% |  |
@@ -124,7 +124,8 @@ densities of these columns.
 
 These `function_data` columns are zero for every function: the signal is never in the per-function hit vector. A `0` there
 means "not measured at this level". Use the `file_data` column. `FUNCTION_LEVEL_ABSENT_SIGNALS` in `analysis_lens.py` is
-the machine-readable list. Removing the columns from `function_data` waits for the next archetype retrain.
+the machine-readable list. Removing the columns from `function_data` waits for the next archetype retrain. Its reason
+string for `sec_extension_mismatch` still says "never set"; the table below gives the correct reason; the code text is tracked in #8435.
 
 | column | display name | why |
 |---|---|---|
@@ -160,7 +161,7 @@ the machine-readable list. Removing the columns from `function_data` waits for t
 | `sec_self_propagation` | Security: Self-Copying (Worm Pattern) | file-level only: the security lens runs file-wide, never in the per-function hit vector |
 | `threat_db_sinks` | Security: Raw Database Calls | file-level only: the security lens runs file-wide, never in the per-function hit vector |
 | `threat_api_near_db_sink` | Security: Public API Near Raw DB Call | file-level only: the security lens runs file-wide, never in the per-function hit vector |
-| `threat_extension_mismatch` | Security: File Extension Mismatch | never set: zero in every file and function row of the v2.12.0 population |
-| `threat_tainted_injection` | Security: Tainted Input Reaching a Sink | never set: zero in every file and function row of the v2.12.0 population |
+| `threat_extension_mismatch` | Security: File Extension Mismatch | file-level only: set by the disguised-executable check (#4126, `security_lens.detect_disguised_executable`, tested in `test_disguised_executable_4126.py`) on whole-file magic bytes; zero in every row of the v2.12.0 population because no file there trips it, not because it is unset |
+| `threat_tainted_injection` | Security: Tainted Input Reaching a Sink | never set: taint tracking removed (#3101) after it measured about 0% precision and about 0% recall on the corpus; positional placeholder only |
 | `prompt_injection` | Security: Prompt Injection (detector removed) | never set: detector removed (#1020), positional placeholder only |
 | `agentic_rce` | Security: Agentic RCE (detector removed) | never set: detector removed (#1020), positional placeholder only |

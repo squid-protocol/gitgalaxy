@@ -228,9 +228,9 @@ _COBOL_PROC_MIN_STATEMENTS = 2
 # two strong lines: one stray `05 X PIC` in a text file is not a copybook
 _ORDINARY_DIR_MIN_HITS = 2
 # #8111: `.inc` is the extension a COBOL shop gives `EXEC SQL INCLUDE` members; PHP / NASM / C / PL/I share it, so the
-# registry cannot claim it and the body decides, as it does for an extensionless member. (`.lib`, `.cobcpy` and
-# `.cobcopy` never reach the lens: aperture does not admit them.)
-_COBOL_MEMBER_EXTENSIONS = frozenset({".inc"})
+# registry cannot claim it and the body decides, as it does for an extensionless member. #8412: `.lib`, `.cobcpy`,
+# `.cobcopy` and `.cpb` are claimed by no language; aperture admits them and the body decides the same way.
+_COBOL_MEMBER_EXTENSIONS = frozenset({".inc", ".lib", ".cobcpy", ".cobcopy", ".cpb"})
 # #8111: a member in a directory that holds COBOL files is judged on weaker evidence: ONE strong line, or a body that
 # is only comments and `COPY name.` statements (a chain member: it holds no data of its own).
 _COBOL_COPY_LINE = re.compile(
@@ -263,10 +263,158 @@ def _settings_libs(spec: Any) -> list[Any]:
     return [lib for k in _SETTINGS_LIB_KEYS if isinstance(spec.get(k), list) for lib in spec[k]]
 
 
+_ZAPP_DIR_CAP = 20000  # directories walked to expand one zapp.yaml glob; a bigger tree declares nothing past it
+_ZAPP_GROUPS = "propertyGroups"  # a key of a file we read, not a dict we write
+_ZAPP_PRUNE = {".git", "node_modules"}
+
+
+def _zapp_glob_regex(pattern: str) -> re.Pattern[str]:
+    """A zapp `locations` glob as a regex over a folder-relative directory path: `**/` crosses directories,
+    `*` and `?` stay inside one name, case-insensitive (the aperture folds case for libraries too)."""
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        elif pattern[i] == "?":
+            out, i = out + "[^/]", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + "$", re.I)
+
+
+def _zapp_dirs(folder: str, spec: Any) -> list[str]:
+    """#8412: the local COBOL copy directories a Z Open Editor `zapp.yaml` declares, in declaration order: every
+    `local` library of a `language: cobol` property group (the SYSLIB concatenation, then named libraries), each
+    `locations` glob expanded over the folder's directories (matches sorted). `mvs` entries, `${...}` variables and
+    absolute or parent-escaping paths declare nothing."""
+    groups = spec.get(_ZAPP_GROUPS) if isinstance(spec, dict) else None
+    globs: list[str] = []
+    for group in groups or []:
+        if not isinstance(group, dict) or str(group.get("language", "")).lower() != "cobol":
+            continue
+        for lib in group.get("libraries") or []:
+            if not isinstance(lib, dict) or str(lib.get("type", "")).lower() != "local":
+                continue
+            for loc in lib.get("locations") or []:
+                text = str(loc).strip().replace("\\", "/").removeprefix("./").strip("/")
+                if text and "${" not in text and ".." not in text.split("/") and not os.path.isabs(str(loc).strip()):
+                    globs.append(text)
+    return _expand_dir_globs(folder, globs)
+
+
+def _expand_dir_globs(folder: str, globs: list[str]) -> list[str]:
+    """The directories under `folder` each folder-relative glob names, in glob order (matches sorted, deduped)."""
+    out: list[str] = []
+    walked: list[str] | None = None
+    for text in globs:
+        if not any(c in text for c in "*?"):
+            found = [os.path.join(folder, text)] if os.path.isdir(os.path.join(folder, text)) else []
+        else:
+            if walked is None:
+                walked = []
+                for root, dirs, _files in os.walk(folder):
+                    dirs[:] = sorted(d for d in dirs if d not in _ZAPP_PRUNE)
+                    walked += [os.path.relpath(os.path.join(root, d), folder).replace(os.sep, "/") for d in dirs]
+                    if len(walked) > _ZAPP_DIR_CAP:
+                        break
+            rx = _zapp_glob_regex(text)
+            found = [os.path.join(folder, rel) for rel in sorted(walked) if rx.match(rel)]
+        out += [os.path.normpath(d) for d in found if os.path.normpath(d) not in out]
+    return out
+
+
+def _zapp_libs(path: str) -> list[Any]:
+    import yaml  # optional dependency (the `yaml` extra); without it a zapp.yaml declares nothing
+
+    folder = os.path.dirname(path)
+    return [os.path.relpath(d, folder) for d in _zapp_dirs(folder, yaml.safe_load(read_source(path).text))]
+
+
+_DBB_CONF = "application-conf"
+_DBB_PROPERTY_FILES = ("application.properties", "cobol.properties", "file.properties")  # a later file overrides
+_DBB_SEARCH_KEY = "cobol_dependencySearch"  # the COBOL copybook search path: ordered `search:` rules
+_DBB_VAR = re.compile(r"\$\{([^}]*)\}")
+
+
+def _dbb_properties(path: str) -> dict[str, str]:
+    """A Java `.properties` file as a dict: `#` / `!` comments, `\\` line continuations, `=` or `:` separators.
+    A value scoped to files with `::pattern` is left out (it applies to some programs only)."""
+    props: dict[str, str] = {}
+    pending = ""
+    for raw in read_source(path).text.splitlines():
+        line = pending + raw.strip()
+        pending = ""
+        if line.endswith("\\"):
+            pending = line[:-1]
+            continue
+        if not line or line[0] in "#!":
+            continue
+        match = re.match(r"([^=:\s]+)\s*[=:]?\s*(.*)$", line)
+        if match and "::" not in match.group(2):
+            props[match.group(1)] = match.group(2).strip()
+    return props
+
+
+def _dbb_copy_globs(folder: str, props: dict[str, str]) -> list[str]:
+    """#8412: the folder-relative directory globs of the `search:` rules in `cobol_dependencySearch`, in order.
+    Each rule is `search:[:copy]<root>/?path=<dir>/*.cpy;<dir2>/*.cpy` with `<dir>` relative to the workspace (the
+    parent of this application folder); `${application}` is this folder's name, `${workspace}` a root that is
+    dropped. `[:LINK]`-style rules, a variable nothing defines and absolute or parent-escaping paths declare nothing."""
+    app = os.path.basename(os.path.normpath(folder))
+    known = {**props, "application": app, "workspace": ""}
+    value = props.get(_DBB_SEARCH_KEY, "")
+    for _ in range(3):  # a variable may name another property
+        value = _DBB_VAR.sub(lambda m: known.get(m.group(1), m.group(0)), value)
+    globs: list[str] = []
+    for rule in re.split(r"(?=search:)", value):
+        head = re.match(r"search:(?:\[:([^\]]*)\])?", rule)
+        if not head or (head.group(1) or "copy").lower() != "copy" or "?path=" not in rule:
+            continue
+        for item in re.split(r"[;,]", rule.split("?path=", 1)[1]):
+            parts = item.strip().replace("\\", "/").strip("/").split("/")
+            if parts and any(c in parts[-1] for c in "*?"):
+                parts = parts[:-1]  # the file mask (`*.cpy`) is not a directory
+            if parts and parts[0].lower() == app.lower():
+                parts = parts[1:]  # workspace-relative `App/copybook` is `copybook` inside this folder
+            text = "/".join(p for p in parts if p not in ("", "."))
+            if text and "${" not in text and ".." not in parts and not os.path.isabs(item.strip()):
+                globs.append(text)
+    return globs
+
+
+def _dbb_libs(folder: str) -> list[Any]:
+    conf = os.path.join(folder, _DBB_CONF)
+    if not os.path.isdir(conf):
+        return []
+    by_fold = {n.lower(): n for n in os.listdir(conf)}
+    props: dict[str, str] = {}
+    for name in _DBB_PROPERTY_FILES:
+        if name in by_fold:
+            props.update(_dbb_properties(os.path.join(conf, by_fold[name])))
+    return [os.path.relpath(d, folder) for d in _expand_dir_globs(folder, _dbb_copy_globs(folder, props))]
+
+
 def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
     """#8111: the absolute library directories `folder` declares (proc_grps.json `libs`, settings.json
-    `cpy-manager.paths-local`), in declaration order, relative entries only; [] when none or unreadable."""
+    `cpy-manager.paths-local`, zapp.yaml `propertyGroups`, DBB `application-conf` `cobol_dependencySearch`), in
+    declaration order, relative entries only; [] when none or unreadable."""
     entries: list[Any] = []
+    zapp = os.path.join(folder, "zapp.yaml")
+    if os.path.isfile(zapp):
+        try:
+            entries += _zapp_libs(zapp)
+        except Exception as e:  # a malformed file or a missing PyYAML declares nothing
+            if logger is not None:
+                logger.debug(f"copy-library declaration '{zapp}' unreadable: {e}")
+    try:
+        entries += _dbb_libs(folder)
+    except (OSError, ValueError) as e:  # an unreadable properties file declares nothing
+        if logger is not None:
+            logger.debug(f"copy-library declaration '{folder}/{_DBB_CONF}' unreadable: {e}")
     for rel, reader in (
         (os.path.join(".cobolplugin", "proc_grps.json"), _proc_grps_libs),
         (os.path.join(".vscode", "settings.json"), _settings_libs),

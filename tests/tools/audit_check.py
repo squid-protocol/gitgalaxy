@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-One-command wrapper for the four baseline-gated audits (ruff, mypy,
+One-command wrapper for the baseline-gated audits (ruff, mypy, signal-coverage,
 dead-key, ast-accuracy) plus the zero-tolerance ruff format check.
 
 Why this exists: after any regex/detector.py change, the established workflow
@@ -191,6 +191,22 @@ def check_ast_accuracy() -> bool:
     return ok
 
 
+def check_signal_coverage() -> bool:
+    """Golden-fixture signal-coverage floor (tests/tools/signal_coverage.py, #4108), baseline-gated like dead-key."""
+    result = subprocess.run(
+        [sys.executable, str(TESTS_DIR / "tools" / "signal_coverage.py"), "check"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    ok = result.returncode == 0
+    print(f"[signal-coverage] {result.stdout.strip()}" if ok else "[signal-coverage] FAIL -- see details below:")
+    if not ok:
+        print(result.stdout)
+        print(result.stderr)
+    return ok
+
+
 def main() -> int:
     regenerate = "--regenerate" in sys.argv[1:]
 
@@ -200,6 +216,7 @@ def main() -> int:
         "dead-key": check_dead_key(),
         "doc-refs": check_doc_refs(),
         "ast-accuracy": check_ast_accuracy(),
+        "signal-coverage": check_signal_coverage(),
     }
 
     print()

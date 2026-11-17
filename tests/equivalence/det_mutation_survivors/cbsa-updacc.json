@@ -732,6 +732,30 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
+   "id": "25bb972c31",
+   "op": "NEG",
+   "line": 200,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "UPDACC's store(name), the `CicsTask.undefinableFile(name) || task.undefinedInRegion(name)` test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program uses Db2 and EXEC CICS RETURN only, so no file command looks a store up.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "502fa73e30",
+   "op": "COR",
+   "line": 200,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "UPDACC's store(name), the `||` of `CicsTask.undefinableFile(name) || task.undefinedInRegion(name)` turned `&&`: nothing in this port calls store() (every `store(` call is Cobol.store), and the program uses Db2 and EXEC CICS RETURN only, so no file command looks a store up.",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "af7595aa64",
    "op": "LIT",
    "line": 200,
@@ -739,18 +763,6 @@
    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "The Hole / IllegalStateException is thrown by a file-store lookup reached only by a file command; UPDACC issues none."
-  },
-  {
-   "id": "b2d629ed56",
-   "op": "NEG",
-   "line": 200,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
-   "verdict": "unreachable",
-   "reason": "UPDACC's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program uses Db2 and EXEC CICS RETURN only, so no file command looks a store up.",
-   "tried": [
-    "plain-update"
-   ]
   },
   {
    "id": "ddd5ac8ac3",
@@ -1743,20 +1755,11 @@
    "reason": "UPDACC's bytes past the 99-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
-   "id": "1f546ba48f",
-   "op": "AOR",
-   "line": 406,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's bytes past the 99-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
-  },
-  {
-   "id": "4ffcd210d7",
+   "id": "1df5872081",
    "op": "CON",
    "line": 406,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
    "reason": "UPDACC's bytes past the 99-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
@@ -1768,6 +1771,15 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
+  },
+  {
+   "id": "bf394392da",
+   "op": "AOR",
+   "line": 406,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "harness-gap",
+   "reason": "UPDACC's bytes past the 99-byte record, `raw, keep, raw.length - keep); } typed.run(); };` -> `th + keep); } typed.run(); };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
   },
   {
    "id": "2cc463f675",
@@ -1921,33 +1933,6 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
   },
   {
-   "id": "6472895711",
-   "op": "LIT",
-   "line": 452,
-   "before": "CicsTask task = region.linked(\"UPDACC\", request, area);",
-   "after": "CicsTask task = region.linked(\"XPDACC\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"UPDACC\", request, area);` -> `d(\"XPDACC\", request, area);`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "0dcde5589d",
-   "op": "LIT",
-   "line": 453,
-   "before": "region.run(task, \"UPDACC\", this::runTask);",
-   "after": "region.run(task, \"XPDACC\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"UPDACC\", this::runTask);` -> `, \"XPDACC\", this::runTask);`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "702227ad2f",
-   "op": "COR",
-   "line": 455,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
    "id": "7cd48aeaa6",
    "op": "DEL",
    "line": 455,
@@ -1955,24 +1940,6 @@
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
    "verdict": "harness-gap",
    "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "a0dee969b0",
-   "op": "ROR",
-   "line": 455,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "9493f40b8b",
-   "op": "ROR",
-   "line": 465,
-   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "2b0d6aa9ad",

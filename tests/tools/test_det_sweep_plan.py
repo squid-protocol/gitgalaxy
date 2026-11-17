@@ -188,3 +188,53 @@ def test_new_cases_are_the_case_files_absent_at_the_base():
         "tests/equivalence/det_sweep_baseline.json": ("{}", "{}"),
     }
     assert dsp.new_cases(list(texts), lambda f: texts[f]) == ["fresh"]
+
+
+def _real_cases_and_durations() -> tuple[list[str], dict[str, float]]:
+    durations = dsp.load_durations()
+    # only the measured cases: the committed file lags the tree (the nightly records), so the question is the 5 added
+    return sorted(n for n, c in dsp.case_dirs().items() if not dsp.is_db2(c) and n in durations), durations
+
+
+def test_unlisted_cases_after_a_merge_fail_no_plan_on_the_committed_durations():
+    """#8422: a PR never edits det_sweep_durations.json, so after the merge (no `new_cases` exemption on main) a few
+    cases have no entry until the nightly records them. Neither the sweep plan nor the Db2 plan fails on that."""
+    names, durations = _real_cases_and_durations()
+    assert durations and names
+    added = [f"unlisted-{i}" for i in range(5)]
+    assert not set(added) & set(durations)
+    assert dsp.shards_for(_narrow([*names, *added]), durations)
+    db2_names = [n for n, c in dsp.case_dirs().items() if dsp.is_db2(c) and n in durations]
+    db2 = {"mode": "narrow", "cases": [], "db2_cases": [*db2_names, *added]}
+    assert dsp.db2_shards_for(db2, durations=durations)
+
+
+def _evidence_tree(tmp_path, n: int) -> dict[str, float]:
+    for i in range(n):
+        d = tmp_path / f"case{i:03d}"
+        d.mkdir()
+        (d / "case.json").write_text("{}", encoding="utf-8")
+    return {n_: 100.0 for n_, c in dsp.case_dirs().items() if dsp.is_db2(c)}
+
+
+def test_the_evidence_plan_tolerates_a_few_unlisted_cases_but_not_a_stopped_feed(tmp_path):
+    """#8422: 5 of 45 unlisted plans; half the cases unlisted (the nightly stopped recording) still fails loudly."""
+    real_db2 = _evidence_tree(tmp_path, 45)
+    measured = {f"case{i:03d}": 100.0 for i in range(40)}
+    assert dsp.evidence_plan(measured | real_db2, cases_dir=tmp_path)["sweep_matrix"]
+    stopped = {f"case{i:03d}": 100.0 for i in range(20)}
+    with pytest.raises(dsp._shard_plan().PlanError):
+        dsp.evidence_plan(stopped | real_db2, cases_dir=tmp_path)
+
+
+def test_the_only_demand_for_a_durations_entry_is_the_stopped_feed_bound():
+    """#8422: no test or gate asks a new case for its own det_sweep_durations.json line. The plan fails only when more
+    than GRACE_CASES and more than MAX_UNMEASURED of the cases are unlisted (the nightly stopped recording)."""
+    names, durations = _real_cases_and_durations()
+    sp = dsp._shard_plan()
+    grace = [f"unlisted-{i}" for i in range(sp.GRACE_CASES)]
+    assert dsp.shards_for(_narrow([*names, *grace]), durations)  # the grace allowance alone never fails
+    over = [f"unlisted-{i}" for i in range(len(names) // 2 + sp.GRACE_CASES)]
+    with pytest.raises(sp.PlanError):
+        dsp.shards_for(_narrow([*names, *over]), durations)
+    assert dsp.shards_for({**_narrow([*names, *over]), "new_cases": over}, durations)  # a PR's own cases are exempt

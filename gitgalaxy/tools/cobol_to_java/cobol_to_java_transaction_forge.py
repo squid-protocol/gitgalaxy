@@ -987,6 +987,18 @@ CICS_TASK_JAVA += """\
         return RECORD_LENGTHS.get(entity);
     }
 
+    /** #7965 (X22): the registry key of one instance of a template file -- the entity, then the instance name. Two
+     *  instances holding one key keep a length each. */
+    public static String instanceKey(String entity, String instance) {
+        return entity + "@" + instance.stripTrailing();
+    }
+
+    /** #7965: the record lengths of one instance of the template over `entity`, or null for a fixed-length file
+     *  (the harness fills the registry under instanceKey before a task's Store is built). */
+    public static java.util.Map<String, Integer> recordLengths(String entity, String instance) {
+        return RECORD_LENGTHS.get(instanceKey(entity, instance));
+    }
+
 """
 # #5274: the faults family's methods (withFaults, injected, logFault, logAbend, planned, the deferred DUPKEY) live in
 # their own module (cics_task_faults.py).

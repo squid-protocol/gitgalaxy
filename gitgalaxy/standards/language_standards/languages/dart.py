@@ -570,7 +570,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(math\.sin|math\.cos|math\.sqrt|math\.pi|dart:math|Float64List|Float32List|Int32List|Uint8List|Vector2|Vector3|Matrix4)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Reflection, Native Bridges, and code generation markers.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Reflection, Native Bridges, and code generation markers.
         "reflection_metaprogramming": re.compile(
             r'\b(MethodChannel|EventChannel|dart:mirrors|reflect|reflectClass|noSuchMethod|dart:js_interop)\b|part\s+[\'"][^\'"]+\.(?:g|freezed)\.dart[\'"]',
             re.I,
@@ -678,7 +678,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|rethrow|exit|exitCode|Process\.killPid)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/delays).
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval)\s*\(", re.I),

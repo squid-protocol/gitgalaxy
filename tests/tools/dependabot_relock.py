@@ -61,9 +61,13 @@ def parse_dependabot_metadata(text: str) -> dict[str, set[str]]:
     A grouped update can drop such a package and leave its `dependency-version:` blank (#7119). There is no target to
     pin then, and a plain upgrade would take whatever is newest past the cooldown in dependabot.yml, so the package
     is skipped and stays on main's pin.
+
+    Dependabot writes YAML, so a version that reads as a number is quoted (`dependency-version: '26.3'`). The quotes
+    are not part of the version: left in, they reach pin_requirements.py as `-P pip=='26.3'`, which uv refuses.
     """
     bumps: dict[str, set[str]] = {}
-    for name, ver in DEPENDABOT_BUMP.findall(text or ""):
+    for name, raw in DEPENDABOT_BUMP.findall(text or ""):
+        ver = raw.strip("'\"")
         if ver:
             bumps.setdefault(_norm(name), set()).add(ver)
     return bumps

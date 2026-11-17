@@ -356,7 +356,7 @@ DEFINITION: dict[str, Any] = {
             r"\[Math\]::(?:Abs|Acos|Asin|Atan|Ceiling|Cos|Exp|Floor|Log|Max|Min|Pow|Round|Sin|Sqrt|Tan|PI)\b",
             re.I,
         ),
-        # heat_triggers: Metaprogramming & Reflection. Reflection and on-the-fly C# compilation via Add-Type.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Reflection and on-the-fly C# compilation via Add-Type.
         "reflection_metaprogramming": re.compile(
             r"\b(Add-Type|System\.Reflection|System\.Management\.Automation\.Language|Invoke-Expression|iex)\b|&\s*\$["
             + ID_START
@@ -438,7 +438,7 @@ DEFINITION: dict[str, Any] = {
             r"\[(?:int|long|string|char|byte|bool|double|float|decimal|array|hashtable)\]\s*[\$\(]",
             re.I,
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: throw/Exit/-ErrorAction Stop)
         "panics_and_aborts": re.compile(r"\b(throw|Exit)\b|-ErrorAction\s+Stop", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(Start-Sleep|sleep)\b", re.I),

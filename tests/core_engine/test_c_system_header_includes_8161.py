@@ -49,3 +49,53 @@ def _edges(files):
 
 def test_system_headers_resolve_only_on_the_include_path():
     assert _edges(REPO) == EXPECTED
+
+
+# #7827: the whole class -- every C-family importer, every system-directory prefix -- never reaches a repo file
+# that only shares the basename (curl's `ares/` -> `include/curl/types.h`).
+_PREFIXED = ["sys/types.h", "sys/time.h", "machine/types.h", "os/types.h", "netinet6/types.h", "net80211/types.h"]
+_IMPORTERS = [("c", "c"), ("cpp", "cpp"), ("objective-c", "m")]
+
+
+def _edges_from(lang, ext, files):
+    d = LANGUAGE_DEFINITIONS[lang]
+    rule = d["rules"]["_dependency_capture"]
+    parsed = [
+        {
+            "path": rel,
+            "lang_id": lang if rel.endswith("." + ext) else "c",
+            "raw_imports": sorted(extract_raw_imports(rule, text, d)) if rel.endswith("." + ext) else [],
+            "functions": [],
+            "classes": [],
+        }
+        for rel, text in files.items()
+    ]
+    return set(NetworkRiskSensor().resolve_import_edges(parsed))
+
+
+def test_a_prefixed_system_include_never_names_a_same_basename_repo_file():
+    for lang, ext in _IMPORTERS:
+        for token in _PREFIXED:
+            base = token.rsplit("/", 1)[1]
+            files = {
+                f"include/curl/{base}": "int a;\n",
+                f"include/internal/{base}": "int b;\n",
+                f"ares/a.{ext}": f"#include <{token}>\n",
+            }
+            assert _edges_from(lang, ext, files) == set(), (lang, token)
+
+
+def test_a_repo_that_owns_the_prefixed_path_keeps_its_edge():
+    for lang, ext in _IMPORTERS:
+        files = {
+            "include/sys/types.h": "int a;\n",
+            "include/curl/types.h": "int b;\n",
+            f"ares/a.{ext}": "#include <sys/types.h>\n",
+        }
+        assert _edges_from(lang, ext, files) == {(f"ares/a.{ext}", "include/sys/types.h")}, lang
+
+
+def test_a_bare_quoted_name_keeps_its_basename_fallback():
+    for lang, ext in _IMPORTERS:
+        files = {"include/curl/types.h": "int a;\n", f"ares/a.{ext}": '#include "types.h"\n'}
+        assert _edges_from(lang, ext, files) == {(f"ares/a.{ext}", "include/curl/types.h")}, lang

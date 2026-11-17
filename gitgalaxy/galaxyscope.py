@@ -1397,6 +1397,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "source_decode": source.how,
             # #3878: a guessed file that decodes strictly as a CJK code page (the report says so).
             **({"cjk_candidates": list(source.cjk_candidates)} if source.cjk_candidates else {}),
+            # #8412: a guessed file whose bytes read as raw EBCDIC and no code page was declared.
+            **({"ebcdic_undeclared": True} if source.ebcdic_undeclared else {}),
             # #3200/#3201/#3246/#3211-followup: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,
@@ -2214,6 +2216,7 @@ class Orchestrator:
             # archetype record_keeper classifies from the fully-assembled metrics is
             # written back into each file's telemetry dict; the reports then report
             # the same value the DB stores.
+            scan_db_path: str | None = None  # the finished master database, for the brief's reach and library sections
             if not exclusive_mode or self.config.get("DB_ONLY"):
                 try:
                     db_output = str(Path(output_file).with_name(f"{Path(output_file).stem}_master.db"))
@@ -2233,6 +2236,7 @@ class Orchestrator:
                         fcall_sites=self.fcall_sites,  # #3328
                         call_resolution=self.fcall_stats,  # #3331
                     )
+                    scan_db_path = db_output
                 except Exception as e:
                     logger.error(
                         f"SQLITE_FAILURE: Could not generate native database. {e}",
@@ -2288,6 +2292,7 @@ class Orchestrator:
                         forensic_report=report,
                         call_resolution=self.fcall_stats,  # #3331
                         mainframe_completeness=mainframe_completeness,  # #3506
+                        scan_db=scan_db_path,  # #8529: the reach and library sections read it
                     )
                 except Exception as e:
                     logger.error(

@@ -264,3 +264,41 @@ def test_prove_logs_the_ported_methods_no_proof_runs(project, tmp_path, capsys):
     assert pr.status(proj)["tickets"]["POSTIT"]["unproven"] == ["PostitService.executePostit"]
     assert pr.main(["status", str(proj)]) == 0
     assert "not run by the proof (#4255): PostitService.executePostit" in capsys.readouterr().out
+
+
+def test_prove_logs_whether_the_oracle_compiled_the_reference(project, tmp_path):
+    """#8325 (Amendment 4): the proof event carries compiled / compile-failed / unknown, so an oracle failure is
+    never booked as a port failure."""
+    proj = tmp_path / "proj"
+    shutil.copytree(project, proj)
+    mine = tmp_path / "PostitService.java"
+    mine.write_text("package com.gitgalaxy.modernized.service;\npublic class PostitService {\n"
+                    "    public int runBatch(List<Dd> dds, String parm) { return 0; }\n}\n")  # fmt: skip
+    assert pr.main(["submit", str(proj), "--ticket", "POSTIT", "--file", str(mine), "--by", "dev"]) == 0
+
+    script = tmp_path / "prover.py"  # the report is JSON: braces would be eaten by the command's .format()
+    script.write_text(
+        "import json, pathlib, sys\nd = pathlib.Path(sys.argv[1])\nd.mkdir(parents=True, exist_ok=True)\n"
+        "body = {'compiled': {'outputs': {}}, 'failed': {'cobol_compile_failed': True, 'outputs': {}}}\n"
+        "if sys.argv[2] in body:\n    (d / 'report.json').write_text(json.dumps(body[sys.argv[2]]))\n"
+        "sys.exit(int(sys.argv[3]))\n"
+    )
+
+    def prove(report: str, exit_code: int) -> dict:
+        args = [shlex.quote(x) for x in (sys.executable, str(script))]
+        pr.main(
+            [
+                "prove",
+                str(proj),
+                "--ticket",
+                "POSTIT",
+                "--command",
+                " ".join([*args, "{report_dir}", report, str(exit_code)]),
+            ]
+        )
+        log = proj / "ai_agent_jobs/ports/port_log.jsonl"
+        return json.loads(log.read_text().splitlines()[-1])
+
+    assert prove("compiled", 0)["oracle"] == "compiled"
+    assert prove("failed", 1)["oracle"] == "compile-failed"
+    assert prove("none", 1)["oracle"] == "unknown"

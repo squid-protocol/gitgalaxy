@@ -77,6 +77,25 @@ def test_parse_dependabot_metadata_catches_unsafe_package_bumps_dropped_from_txt
     assert parse_dependabot_metadata(commit_msg) == {"setuptools": {"84.1.0"}}
 
 
+def test_parse_dependabot_metadata_drops_the_yaml_quotes_around_a_version():
+    # PR #8401: YAML quotes a version that reads as a number (pip 26.3), and the quotes reached uv as `-P pip=='26.3'`,
+    # so the relock failed and every job after it installed a bootstrap.txt with setuptools unpinned.
+    commit_msg = (
+        "updated-dependencies:\n"
+        "- dependency-name: pip\n"
+        "  dependency-version: '26.3'\n"
+        "  dependency-type: direct:production\n"
+        "- dependency-name: uv\n"
+        '  dependency-version: "0.14"\n'
+        "- dependency-name: setuptools\n"
+        "  dependency-version:\n"
+        "  dependency-type: direct:production\n"
+    )
+    bumps = parse_dependabot_metadata(commit_msg)
+    assert bumps == {"pip": {"26.3"}, "uv": {"0.14"}}
+    assert upgrade_args(bumps) == ["-P", "pip==26.3", "-P", "uv==0.14"]
+
+
 def test_parse_dependabot_metadata_skips_a_blank_version_without_reading_the_next_line():
     # #7119: a grouped update dropped setuptools and left dependency-version blank; the old pattern's \s* crossed the
     # newline and read `dependency-type:` as the version, which uv refused, so the relock never ran.

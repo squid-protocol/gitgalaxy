@@ -236,7 +236,7 @@ jobs:
           key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
 
       - name: Setup JDK 17
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: "17"
@@ -323,6 +323,8 @@ jobs:
       - name: Upload this shard's test seconds (to refresh tests/equivalence_e2e_durations.json)
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        continue-on-error: true  # #8328: timing telemetry; an artifact-service outage must not fail or hang the job
+        timeout-minutes: 3
         with:
           name: test-times-equivalence-e2e-shard-${{ matrix.group }}
           path: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
@@ -461,7 +463,7 @@ jobs:
           key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
 
       - name: Setup JDK 17
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: "17"

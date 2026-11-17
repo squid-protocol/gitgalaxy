@@ -20,6 +20,7 @@ import functools
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -49,6 +50,8 @@ DOCKER_STEP_TIMEOUT = (
     1200  # seconds: hang guard, well above the slowest honest run (normal GnuCOBOL compile + run step time (~15-30s))
 )
 DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
+CONTAINER_START_TIMEOUT = 60  # seconds: ~5-10x normal docker run -d startup
+CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 # 2026-10-23: a fault probe looped forever under -ftraceall and its trace.txt grew ~75 MB/s in /tmp until the disk was
 # full (~100 GB); the harness's own timeout never fired because the worker's shell, and so the docker client, was killed
 # first, and the step ran on as root in its container. A step now bounds itself inside the container.
@@ -1121,9 +1124,11 @@ def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[st
     text = decode_bytes(log.read_bytes()) if log else error  # #3813: the lossless ladder, never errors=
     errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
     boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
-              "Failed to execute goal", "-> [Help")  # fmt: skip
+              "Failed to execute goal")  # fmt: skip
     lines = text.splitlines()
     for i, ln in enumerate(lines):
+        # #8373: "<cause> -> [Help 2]" is the cause line (a POM that did not resolve); only the pointer is boilerplate
+        ln = re.sub(r"\s*-> \[Help \d+\]\s*$", "", ln)
         keep = ("[ERROR]" in ln and ln.strip() != "[ERROR]" and not any(b in ln for b in boiler)) or (
             ln.startswith(("java.", "Caused by:")) and "Exception" in ln and i > 0 and "Tests run" in "".join(lines[max(0, i - 3) : i])
         )  # fmt: skip
@@ -1230,13 +1235,108 @@ def _docker_run(work: Path, image: str, docker_args: tuple[str, ...]) -> subproc
         )
 
 
+class CobolSession:
+    """One long-lived GnuCOBOL container per case: `docker exec` per step instead of a fresh `docker run`."""
+
+    def __init__(self, root: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()) -> None:
+        self.root = root.resolve()
+        self.image = image
+        self.docker_args = docker_args
+        self.id: str | None = None
+
+    def __enter__(self) -> CobolSession:
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self.close()
+
+    def _start(self) -> str:
+        if self.id is not None:
+            return self.id
+        self.root.mkdir(parents=True, exist_ok=True)
+        cid = f"gg-eq-{os.getpid()}-{int(time.time() * 1000) % 10000000}"
+        cmd = [
+            "docker",
+            "run",
+            "-d",
+            "--rm",
+            "-w",
+            "/",
+            *self.docker_args,
+            "-v",
+            f"{self.root}:/case",
+            f"--name={cid}",
+            self.image,
+            "bash",
+            "-c",  # noqa: S603, S607
+            "rm -rf /work && exec sleep infinity",
+        ]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=CONTAINER_START_TIMEOUT)  # noqa: S603
+        except subprocess.TimeoutExpired as exc:
+            self._rm(cid)
+            raise RuntimeError(
+                f"docker run timed out after {CONTAINER_START_TIMEOUT}s: cannot start the GnuCOBOL container"
+            ) from exc
+        if proc.returncode != 0:
+            raise RuntimeError(f"cannot start the GnuCOBOL container: {proc.stderr.strip()}")
+        self.id = proc.stdout.strip() or cid
+        return self.id
+
+    def exec_step(self, work: Path) -> subprocess.CompletedProcess[str]:
+        rel = work.resolve().relative_to(self.root).as_posix()
+        step_dir = f"/case/{rel}"
+        cid = self._start()
+        owner = f"{os.getuid()}:{os.getgid()}" if hasattr(os, "getuid") else "0:0"
+        q_step = shlex.quote(step_dir)
+        keep_status = (
+            f"rm -f /work && ln -s {q_step} /work && "
+            + guarded("bash /work/run.sh", DOCKER_STEP_TIMEOUT - 30)
+            + f'; rc=$?; chown -R "$0" {q_step} 2>/dev/null; exit $rc'
+        )
+        cmd = ["docker", "exec", "-w", "/", cid, "bash", "-c", keep_status, owner]
+        try:
+            return subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=DOCKER_STEP_TIMEOUT)  # noqa: S603
+        except subprocess.TimeoutExpired as exc:
+            self.close()
+            return subprocess.CompletedProcess(
+                args=["docker", *cmd[1:]],
+                returncode=124,
+                stdout=exc.stdout or "",
+                stderr=(
+                    (exc.stderr or "") + f"\ndocker exec timed out after {DOCKER_STEP_TIMEOUT}s: GnuCOBOL pass"
+                ).lstrip(),
+            )
+
+    def _rm(self, cid: str) -> None:
+        try:
+            subprocess.run(
+                ["docker", "rm", "-f", cid],
+                capture_output=True,
+                check=False,  # noqa: S603, S607
+                timeout=CONTAINER_STOP_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            pass
+
+    def close(self) -> None:
+        if self.id is not None:
+            cid, self.id = self.id, None
+            self._rm(cid)
+
+
 def run_cobol_step(
-    work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()
+    work: Path,
+    image: str = IMAGE,
+    docker_args: tuple[str, ...] = (),
+    session: CobolSession | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run work/run.sh in the GnuCOBOL image (`image`: a Db2 case's, on `docker_args`' network) -- or, with --reuse,
     copy in what the earlier run's identical step wrote; a step the earlier run did not run (#4476: a CICS case's
     second pass, with the derived SQL-fault tasks, overwrote the first pass's run.sh) runs afresh."""
     if not step_reused(work):
+        if session is not None:
+            return session.exec_step(work)
         return _docker_run(work, image, docker_args)
     earlier = reused(work)
     assert earlier is not None

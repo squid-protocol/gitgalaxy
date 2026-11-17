@@ -24,7 +24,7 @@ inputs:
     required: false
     default: 'latest'
   full_precision:
-    description: 'Opt-in to install the optional engines (tiktoken, xgboost/pandas/numpy) for token mass and ML Threat Inference. Graph metrics such as Blast Radius need none.'
+    description: 'Opt-in to install the optional engines (tiktoken, xgboost/pandas/numpy) for exact token mass. No malware model ships, so this does not enable ML threat inference (#8430). Graph metrics such as Blast Radius need none.'
     required: false
     default: 'false'
 

@@ -887,3 +887,322 @@ def test_goto_flag_bit_is_settled_only_while_it_is_one_symbolic_flag():
     other = _GOTOFLAG.replace("return 1;", "return 1 << 21;")  # another constant in the high bits
     assert _plumb(other, _GOTO_DECL, twice) is None
     assert _plumb(_GOTOFLAG.replace("next >= 3", "next >= 3000000"), _GOTO_DECL, twice) is None
+
+
+# ---- EIBRESP / EIBRESP2: stored after SEND / RECEIVE MAP, read by nothing
+
+_EIBTXT = (
+    '    private static final byte[] IMAGE_s_DFHEIBLK = Base64.getDecoder().decode(String.join("",\n'
+    '            "' + "A" * 112 + '"));\n'
+    "    private final Storage s_DFHEIBLK = new Storage(IMAGE_s_DFHEIBLK.length);\n"
+    "    private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);\n"
+    "    private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);\n"
+    "    private final Field f142_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);\n"
+    "    private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);\n"
+    "    private long f111_WS_RESP;  // WS-RESP PIC S9(8) BINARY\n"
+    "    void init() {\n"
+    "        System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);\n"
+    "        f111_WS_RESP = 0L;\n"
+    "    }\n"
+    "    void run() {\n"
+    "        if (f122_EIBAID.get() == 1) { f121_EIBCALEN.get(); }\n"
+    "        int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;\n"
+    "        Cobol.store(f142_EIBRESP, BigDecimal.valueOf(resp7), false, CS);\n"
+    "        Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS);\n"
+    "        f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);\n"
+    "        Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);\n"
+    "    }\n"
+)
+_ER = "        Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);"
+_ER_DECL = "    private final Field f142_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);"
+_ER_LOCAL = "        int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;"
+_ER_KEEP = "        f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);"
+
+
+def _eib_settled(text, before, after):
+    got = _plumb(text, before, after)
+    return bool(got) and got["result"] == "eib-resp-unread"
+
+
+def test_eib_resp_store_decl_local_and_keep_are_settled_while_nothing_reads_the_item():
+    assert _eib_settled(_EIBTXT, _ER, _ER.replace("planned4[0]", "planned4[1]"))
+    assert _eib_settled(_EIBTXT, _ER, "/* " + _ER.strip() + " */")
+    assert _eib_settled(_EIBTXT, _ER, _ER.replace("false, CS", "true, CS"))
+    assert _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace(" 76, 8,", " 72, 8,"))  # onto free bytes inside the image
+    assert _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace(" 76, 8,", " 76, 4,"))
+    assert _eib_settled(_EIBTXT, _ER_LOCAL, _ER_LOCAL.replace("? 0 : 36", "? 1 : 36"))
+    assert _eib_settled(_EIBTXT, _ER_KEEP, "/* " + _ER_KEEP.strip() + " */")
+    assert _eib_settled(_EIBTXT, _ER_KEEP, _ER_KEEP.replace(", 8, true", ", 7, true"))
+
+
+def test_eib_resp_is_not_settled_when_anything_reads_it_or_the_edit_leaves_the_class():
+    read = _EIBTXT.replace("f121_EIBCALEN.get(); }", "f121_EIBCALEN.get(); f142_EIBRESP.get(); }")
+    assert not _eib_settled(read, _ER, "/* " + _ER.strip() + " */")
+    raw = _EIBTXT.replace("void run() {", "void run() { s_DFHEIBLK.bytes[0] = 1;")
+    assert not _eib_settled(raw, _ER, "/* " + _ER.strip() + " */")
+    assert not _eib_settled(_EIBTXT, _ER, _ER.replace("f142_EIBRESP", "f143_EIBRESP2"))  # another target
+    overlap = _ER_DECL.replace(" 76, 8,", " 24, 8,")  # onto the read EIBCALEN / EIBAID bytes
+    assert not _eib_settled(_EIBTXT, _ER_DECL, overlap)
+    assert not _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace(" 76, 8,", " 200, 8,"))  # past the image end
+    assert not _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace("Field.binary", "Field.packed"))
+    wsread = _EIBTXT.replace("void run() {", "void run() { if (f111_WS_RESP == 0L) {}")
+    assert not _eib_settled(wsread, _ER_KEEP, "/* " + _ER_KEEP.strip() + " */")  # the HXATTR shape: WS-RESP is read
+    unsafe = _EIBTXT.replace("received5.isPresent() ? 0 : 36", "sideEffect() ? 0 : 36")
+    bad = _ER_LOCAL.replace("received5.isPresent()", "sideEffect()")
+    assert not _eib_settled(unsafe, bad, bad.replace("? 0 : 36", "? 1 : 36"))
+    readlocal = _EIBTXT.replace("void run() {", "void run() { use(resp7);")
+    assert not _eib_settled(readlocal, _ER_LOCAL, _ER_LOCAL.replace("? 0 : 36", "? 1 : 36"))
+
+
+_DOM_TXT = """\
+class P {
+    private static final byte[] IMAGE_s_STAT = Base64.getDecoder().decode(String.join("",
+        "ICA="));
+    private final Storage s_STAT = new Storage(IMAGE_s_STAT.length);
+    private final Field f1_STAT = Field.group(s_STAT, 0, 2);
+    private final Field f2_STAT1 = Field.alphanumeric(s_STAT, 0, 1, false);
+    private final Field f3_STAT2 = Field.alphanumeric(s_STAT, 1, 1, false);
+    private void reset() {
+        System.arraycopy(IMAGE_s_STAT, 0, s_STAT.bytes, 0, IMAGE_s_STAT.length);
+    }
+    public void run() {
+        reset();
+        show();
+        deadStores();
+        liveStore();
+    }
+    private void show() {
+        Cobol.move("00", f1_STAT, CS);
+        if (Cobol.compare(f2_STAT1, "9", CS) == 0) {
+            Cobol.store(f3_STAT2, "1", false, CS);
+        }
+    }
+    private void deadStores() {
+        Cobol.store(f2_STAT1, "A", false, CS);
+        Cobol.move("00", f1_STAT, CS);
+        Cobol.compare(f3_STAT2, "0", CS);
+    }
+    private void liveStore() {
+        Cobol.store(f2_STAT1, "A", false, CS);
+        perform(1, 1);
+        Cobol.move("00", f1_STAT, CS);
+    }
+}
+"""
+
+
+def test_inert_image_dominated_by_cobol_store_or_move():
+    got_lit = _plumb(_DOM_TXT, '        "ICA="));', '        "XCA="));')
+    assert got_lit and got_lit["result"] == "inert-image"
+    got_copy = _plumb(
+        _DOM_TXT,
+        "        System.arraycopy(IMAGE_s_STAT, 0, s_STAT.bytes, 0, IMAGE_s_STAT.length);",
+        "        /* System.arraycopy(IMAGE_s_STAT, 0, s_STAT.bytes, 0, IMAGE_s_STAT.length); */",
+    )
+    assert got_copy and got_copy["result"] == "inert-image"
+
+    # Negative: if f2_STAT1 is read before any top-level store in another method, must not settle.
+    unread_dom = _DOM_TXT.replace("private void liveStore() {", 'private void liveStore() { Cobol.compare(f2_STAT1, "0", CS);')
+    assert _plumb(unread_dom, '        "ICA="));', '        "XCA="));') is None
+
+
+def test_cobol_store_dominated():
+    got_dead = _plumb(
+        _DOM_TXT,
+        '        Cobol.store(f2_STAT1, "A", false, CS);',
+        '        /* Cobol.store(f2_STAT1, "A", false, CS); */',
+    )
+    assert got_dead and got_dead["result"] == "store-dominates-read"
+
+    # Negative: perform() between store and overwrite blocks dominance.
+    lines = _DOM_TXT.splitlines()
+    live_line = next(i for i, ln in enumerate(lines, 1) if "private void liveStore()" in ln) + 1
+    assert sa.port_fact(
+        _DOM_TXT,
+        {
+            "line": live_line,
+            "before": '        Cobol.store(f2_STAT1, "A", false, CS);',
+            "after": '        /* Cobol.store(f2_STAT1, "A", false, CS); */',
+        },
+    ) is None
+
+
+def test_screen_command_detects_divergence_without_cobol(tmp_path, monkeypatch):
+    import types
+
+    import equivalence as eq
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+    import mutation as mu
+
+    port = tmp_path / "port"
+    (port / "service").mkdir(parents=True)
+    src = "class P { int f() { return 1; } }\n"
+    (port / "service" / "P.java").write_text(src, encoding="utf-8")
+    off = src.index("1")
+    inputs_file = tmp_path / "inputs.json"
+    inputs_file.write_text('[{"name": "case1", "inputs": []}]', encoding="utf-8")
+
+    monkeypatch.setattr(eq, "load_case", lambda name: {"corpus": "c", "kind": "call", "datasets": {}})
+    monkeypatch.setattr(mc, "select", lambda names: [types.SimpleNamespace(name="c")])
+    monkeypatch.setattr(mc, "require_clone", lambda entry: tmp_path)
+    monkeypatch.setattr(sa, "attack_case", lambda case, props, ca: {**case, "calls": props})
+    monkeypatch.setattr(sa, "det_port", lambda case, work: port)
+    monkeypatch.setattr(
+        sa,
+        "find_mutants",
+        lambda case, p, ids: {
+            "m_div": mu.Mutant("m_div", "service/P.java", 1, "LIT", "1", "2", off, 1, "2"),
+            "m_same": mu.Mutant("m_same", "service/P.java", 1, "LIT", "1", "1", off, 1, "1"),
+        },
+    )
+    monkeypatch.setattr(mu, "baseline_classpath", lambda b, w: "")
+    monkeypatch.setattr(mu, "compiles", lambda p, cp, out, only_file=None: (True, ""))
+    monkeypatch.setattr(ej, "entry_names", lambda trial: [])
+
+    def fake_run_java(trial, corpus, work, inputs, envs, port=True, port_dir=None, faults=(), stop=None, entries=(), one_jvm=False):
+        txt = (port_dir / "service" / "P.java").read_text(encoding="utf-8")
+        out = {"SYSOUT": b"2" if "return 2" in txt else b"1"}
+        if stop:
+            stop("default", out)
+        return {"default": out}
+
+    monkeypatch.setattr(ej, "run_java_environments", fake_run_java)
+    res = sa.screen("dummy", ["m_div", "m_same"], inputs_file, tmp_path / "work")
+    assert res["m_div"]["result"] == "diverged"
+    assert res["m_div"]["diverged_on"] == ["default"]
+    assert res["m_same"]["result"] == "survived-java"
+
+
+_CX_TXT = """\
+class C {
+    public void run() {
+        int calen = 0;
+        calen = cx(task, 8);
+        calen = cx(task, 4);
+        use(calen);
+        calen = cx(task, 10);
+    }
+}
+"""
+
+
+def test_local_assign_unread_for_calen():
+    # Line 4 is overwritten at line 5 before any read
+    overwritten = _plumb(_CX_TXT, "        calen = cx(task, 8);", "        /* calen = cx(task, 8); */")
+    assert overwritten and overwritten["result"] == "local-unread"
+    overwritten_con = _plumb(_CX_TXT, "        calen = cx(task, 8);", "        calen = cx(task, 9);")
+    assert overwritten_con and overwritten_con["result"] == "local-unread"
+    # Line 7 is never read before method return
+    tail = _plumb(_CX_TXT, "        calen = cx(task, 10);", "        /* calen = cx(task, 10); */")
+    assert tail and tail["result"] == "local-unread"
+    # Line 5 IS read by use(calen) on line 6 -> must not settle
+    assert _plumb(_CX_TXT, "        calen = cx(task, 4);", "        /* calen = cx(task, 4); */") is None
+
+
+def test_auto_state_and_apply_inputs(tmp_path, monkeypatch):
+    cases_dir = tmp_path / "cases"
+    (cases_dir / "c1").mkdir(parents=True)
+    (cases_dir / "c1" / "case.json").write_text('{"kind": "call", "calls": [{"name": "old"}]}\n', encoding="utf-8")
+    monkeypatch.setattr(sa.dm, "CASES", cases_dir)
+
+    inputs = tmp_path / "in.json"
+    inputs.write_text('[{"name": "old"}, {"name": "new1"}]', encoding="utf-8")
+    assert sa.apply_inputs("c1", inputs) == 1
+    updated = json.loads((cases_dir / "c1" / "case.json").read_text(encoding="utf-8"))
+    assert [c["name"] for c in updated["calls"]] == ["old", "new1"]
+
+    work = tmp_path / "work"
+    work.mkdir()
+    (work / "attempts.json").write_text(
+        json.dumps({
+            "m1": [{"result": "inert-image", "fact": "image byte(s) [0] never read"}],
+            "m2": [{"result": "no-entry-path", "fact": "p99() is reached from no entry point"}],
+        }),
+        encoding="utf-8",
+    )
+    recorded: dict[str, dict[str, object]] = {}
+    monkeypatch.setattr(sa, "cmd_facts", lambda c, w: 0)
+    monkeypatch.setattr(sa.dm, "stated", lambda c: {})
+    monkeypatch.setattr(sa.dm, "load", lambda: {"c1": {"survived": [{"id": "m1"}, {"id": "m2"}]}})
+    monkeypatch.setattr(sa.dm, "state", lambda c, t, a: recorded.update(t) or 0)
+    assert sa.cmd_auto_state("c1", work) == 0
+    assert recorded["m1"]["verdict"] == "equivalent"
+    assert recorded["m2"]["verdict"] == "unreachable"
+    assert recorded["m1"]["tried"] == ["inert-image"]
+
+
+def test_eib_time_and_date_unread_are_settled():
+    t = _EIBTXT.replace(
+        "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+        "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);\n"
+        "    private final Field f144_EIBTIME = Field.packed(s_DFHEIBLK, 8, 7, 0, true);",
+    )
+    before = "        Cobol.store(f144_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+    t = t.replace("    }\n", before + "\n    }\n", 1)
+    after = before.replace("* 10000L", "/ 10000L")
+    assert _eib_settled(t, before, after)
+
+
+# ---- refusal text and exception construction (#7955) ----
+_PF = '        throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");'
+_EXC = """\
+public class P {
+    private static final class Goback extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        Goback() {
+            super(null, null, false, false);
+        }
+    }
+    void run() {
+        try {
+            go();
+        } catch (Goback g) {
+            // normal end
+        }
+    }
+}
+"""
+_EXC_BEFORE = "super(null, null, false, false);"
+
+
+def _exc(text=_EXC, after="/* default */"):
+    return _plumb(text, "            " + _EXC_BEFORE, "            " + after)
+
+
+def test_refusal_text_edit_inside_the_message_is_settled():
+    t = "class P {\n    void f() {\n" + _PF + "\n    }\n}\n"
+    got = _plumb(t, _PF, _PF.replace("not modelled", "not modeled"))
+    assert got and got["result"] == "refusal-text"
+    assert got["result"] in dm.ATTACK_SETTLED
+
+
+def test_refusal_text_negatives():
+    t = "class P {\n    void f() {\n" + _PF + "\n    }\n}\n"
+    assert _plumb(t, _PF, _PF.replace("calen", "calen + 1")) is None  # code changed
+    assert _plumb(t, _PF, _PF.replace("EIBCALEN", "EIBCALEM")) is None  # the kind() key lost
+    assert _plumb(t, _PF, _PF.replace("not modelled", "stack overflow, possible PERFORM depth exceeded")) is None
+
+
+def test_refusal_text_keys_are_the_ones_x6_judged_reads():
+    import equivalence_cics as ec
+
+    assert sa._PERFORM_DEPTH_TEXT == ec.PERFORM_DEPTH
+    assert "EIBCALEN" in Path(ec.__file__).read_text(encoding="utf-8")
+
+
+def test_exception_ctor_deleted_is_settled():
+    got = _exc()
+    assert got and got["result"] == "exception-ctor"
+    assert got["result"] in dm.ATTACK_SETTLED
+
+
+def test_exception_ctor_negatives():
+    assert _exc(after="super(null, null, true, true);") is None  # not a deletion
+    assert _exc(_EXC.replace("// normal end", "log(g.getMessage());")) is None  # a handler reads it
+    assert _exc(_EXC.replace("// normal end", "throw g;")) is None  # a non-empty handler
+    assert _exc(_EXC.replace("go();", "go(); Goback x = null;")) is None  # another use of the class
+    assert (
+        _exc(_EXC.replace("        }\n    }\n    void", "        }\n        int z;\n    }\n    void")) is None
+    )  # shape

@@ -1,2 +1,10 @@
 INSERT INTO HCZMSA1.patient (patientId, userName, firstName, lastName, dateOfBirth) VALUES (3, 'SEEDUSER3', 'Seed', 'Three', '1982-03-03');
 INSERT INTO HCZMSA1.medication (patientId, drugName, strength, amount, route, frequency, identifier, type) VALUES (3, 'Lisinopril', '10mg', 30, 'Oral', 'Once daily', 'LIS-0003', 'RX');
+INSERT INTO HCZMSA1.patient (patientId, userName, firstName, lastName, dateOfBirth) VALUES (4, 'SEEDUSER4', 'Seed', 'P4', '1982-03-04');
+INSERT INTO HCZMSA1.medication (patientId, drugName, strength, amount, route, frequency, identifier, type) VALUES (4, 'Drug4', '10mg', 30, 'Oral', '1', 'DRG-0004', 'RX');
+INSERT INTO HCZMSA1.patient (patientId, userName, firstName, lastName, dateOfBirth) VALUES (5, 'SEEDUSER5', 'Seed', 'P5', '1982-03-05');
+INSERT INTO HCZMSA1.medication (patientId, drugName, strength, amount, route, frequency, identifier, type) VALUES (5, 'Drug5', '10mg', 30, 'Oral', '2', 'DRG-0005', 'RX');
+INSERT INTO HCZMSA1.patient (patientId, userName, firstName, lastName, dateOfBirth) VALUES (6, 'SEEDUSER6', 'Seed', 'P6', '1982-03-06');
+INSERT INTO HCZMSA1.medication (patientId, drugName, strength, amount, route, frequency, identifier, type) VALUES (6, 'Drug6', '10mg', 30, 'Oral', '3', 'DRG-0006', 'RX');
+INSERT INTO HCZMSA1.patient (patientId, userName, firstName, lastName, dateOfBirth) VALUES (7, 'SEEDUSER7', 'Seed', 'P7', '1982-03-07');
+INSERT INTO HCZMSA1.medication (patientId, drugName, strength, amount, route, frequency, identifier, type) VALUES (7, 'Drug7', '10mg', 30, 'Oral', '4', 'DRG-0007', 'RX');

@@ -25,8 +25,8 @@ Code that relies heavily on dynamic state mutation, unsafe memory access, or typ
 
 ## Design
 Heuristic signals are categorized and weighted:
-- **Execution Stressors:** `eval`, `exec`, unsafe pointer math (4.0x), type evasions like `@ts-ignore` (1.5x), mutable state operations (0.5x).
-- **Defensive Controls:** `try/catch`, bounds checks (1.0x), test assertions (0.5x), inline documentation (0.1x).
+- **Execution Stressors** (in part the `safety_bypasses` signal, **Unsafe Constructs (sprintf/strcpy/void*/any)**): `eval`, `exec`, unsafe pointer math (4.0x), type evasions like `@ts-ignore` (1.5x), mutable state operations (0.5x).
+- **Defensive Controls** (the `safety` signal, **Defensive Checks (assert/try/guards)**): `try/catch`, bounds checks (1.0x), test assertions (0.5x), inline documentation (0.1x).
 
 **Mathematical Formulation**
 1. **Calculate Laplace-Smoothed Densities:**

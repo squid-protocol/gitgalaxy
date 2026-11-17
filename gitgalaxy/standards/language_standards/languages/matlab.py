@@ -226,7 +226,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(?:fft|ifft|svd|eig|inv|det|polyfit|ode45|ode15s|integral|cross|dot)\b|\.\*|\./|\.\^"
         ),
-        # heat_triggers: Metaprogramming (feval), implicit expansion (bsxfun), and reflection.
+        # reflection_metaprogramming (Metaprogramming: feval), implicit expansion (bsxfun), and reflection.
         "reflection_metaprogramming": re.compile(
             r"\b(?:feval|bsxfun|cell2mat|mat2cell|num2cell|struct2cell|str2func|func2str|meta\.class|metaclass)\b|\?[a-zA-Z_]\w*"
         ),
@@ -277,7 +277,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\b(?:cast|typecast|int8|uint8|int16|uint16|int32|uint32|int64|uint64|single|double|logical)\s*\("
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # BUG FIX (Rule 3, Annotation & Execution Isolation): the bare `error`
         # alternative fired on `logger.error(...)`/`log.error(...)` -- a
         # custom logging framework's benign structured-logging call (already

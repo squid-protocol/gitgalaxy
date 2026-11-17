@@ -1,0 +1,460 @@
+{
+  "fixture": "flow_jcl (in this file)",
+  "issue": 8413,
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them.",
+  "scenario_input": "catalog (or catalog_from: another scenario's catalog_after): per GDG base, limit and the cataloged absolute generations, oldest first. given: per step that starts, {rc: n} or {abend: code}.",
+  "scenario_answer": "expect: per STEP.DDNAME of each step that runs, the absolute generation number the DD names. catalog_after: per base the cataloged generations, oldest first, after the job ends.",
+  "flow_jcl": [
+    "//*********************************************************************",
+    "//* #8413 slice 3: GDG relative generations. Which absolute generation",
+    "//* each DD names, and the catalog after the job. The answers are in",
+    "//* scenarios.json, written from IBM's z/OS MVS JCL Reference",
+    "//* (SA23-1385) and z/OS DFSMS Using Data Sets before any",
+    "//* evaluator ran on them.",
+    "//*********************************************************************",
+    "//RDJOB    JOB (ACCT),'GDG READ',CLASS=A,MSGCLASS=X",
+    "//R1       EXEC PGM=RPT",
+    "//I0       DD DSN=PAY.GDG(0),DISP=SHR",
+    "//I1       DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//I2       DD DSN=PAY.GDG(-2),DISP=SHR",
+    "//*",
+    "//MAKEJOB  JOB (ACCT),'GDG MAKE',CLASS=A,MSGCLASS=X",
+    "//C1       EXEC PGM=MAKE",
+    "//OUT      DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG,DELETE),",
+    "//            UNIT=SYSDA,SPACE=(TRK,1)",
+    "//C2       EXEC PGM=USE",
+    "//NEW      DD DSN=PAY.GDG(+1),DISP=OLD",
+    "//CUR      DD DSN=PAY.GDG(0),DISP=SHR",
+    "//C3       EXEC PGM=USE2",
+    "//PRV      DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//TWOJOB   JOB (ACCT),'GDG TWO',CLASS=A,MSGCLASS=X",
+    "//D1       EXEC PGM=MAKE",
+    "//O1       DD DSN=AUD.GDG(+1),DISP=(NEW,CATLG)",
+    "//D2       EXEC PGM=MAKE",
+    "//O2       DD DSN=AUD.GDG(+2),DISP=(NEW,CATLG)",
+    "//D3       EXEC PGM=USE",
+    "//X1       DD DSN=AUD.GDG(+1),DISP=SHR",
+    "//X2       DD DSN=AUD.GDG(+2),DISP=SHR",
+    "//X0       DD DSN=AUD.GDG(0),DISP=SHR",
+    "//*",
+    "//ABNJOB   JOB (ACCT),'GDG ABEND',CLASS=A,MSGCLASS=X",
+    "//E1       EXEC PGM=MAKE",
+    "//EOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG,DELETE)",
+    "//E2       EXEC PGM=MAKE,COND=EVEN",
+    "//FOUT     DD DSN=AUD.GDG(+1),DISP=(NEW,CATLG)",
+    "//*",
+    "//BYPJOB   JOB (ACCT),'GDG BYPASS',CLASS=A,MSGCLASS=X",
+    "//B1       EXEC PGM=CHK",
+    "//B2       EXEC PGM=MAKE,COND=(4,LT,B1)",
+    "//BOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//B3       EXEC PGM=MAKE",
+    "//COUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//*",
+    "//PASSJOB  JOB (ACCT),'GDG PASS',CLASS=A,MSGCLASS=X",
+    "//P1       EXEC PGM=MAKE",
+    "//POUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//P2       EXEC PGM=ADD",
+    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)"
+  ],
+  "scenarios": [
+    {
+      "id": "rel-read",
+      "job": "RDJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R1.I0": 7,
+        "R1.I1": 6,
+        "R1.I2": 5
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "DSNAME, generation data group: (0) is the most recent generation cataloged, (-1) the one before it, (-2) the one before that. With generations 5, 6, 7 cataloged, (0) = 7, (-1) = 6, (-2) = 5. Reading creates nothing, so the catalog is unchanged."
+    },
+    {
+      "id": "create-then-read-same-job",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "DSNAME: (+1) names the next generation, 8. Every relative number in a job is resolved against the catalog as it stood when the job started, so (+1) in the later step C2 is the same generation C1 created, while (0) is still 7 and (-1) is still 6 (the new generation is not rolled into the catalog until the job ends). At job end 8 is cataloged as the most recent."
+    },
+    {
+      "id": "rel-read-after-create",
+      "job": "RDJOB",
+      "catalog_from": "create-then-read-same-job",
+      "given": {
+        "R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R1.I0": 8,
+        "R1.I1": 7,
+        "R1.I2": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "A later job sees the catalog the earlier job left: 8 is now (0), 7 is (-1), 6 is (-2)."
+    },
+    {
+      "id": "plus-one-plus-two",
+      "job": "TWOJOB",
+      "catalog": {
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "given": {
+        "D1": {
+          "rc": 0
+        },
+        "D2": {
+          "rc": 0
+        },
+        "D3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "D1.O1": 3,
+        "D2.O2": 4,
+        "D3.X1": 3,
+        "D3.X2": 4,
+        "D3.X0": 2
+      },
+      "catalog_after": {
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "basis": "DSNAME: (+1) is the next generation after the one current at job start (2), so 3; (+2) is the one after that, 4. A later step naming (+1) or (+2) names those same generations; (0) is still 2. Both are cataloged at job end, oldest first."
+    },
+    {
+      "id": "abend-delete",
+      "job": "ABNJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "given": {
+        "E1": {
+          "abend": "S0C7"
+        },
+        "E2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E1.EOUT": 8,
+        "E2.FOUT": 3
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "basis": "DISP, abnormal-termination disposition: EOUT is DISP=(NEW,CATLG,DELETE) and E1 abends, so generation 8 is deleted and never cataloged; the PAY.GDG catalog is unchanged. E2 (COND=EVEN) runs after the abend and ends normally, so its (+1) of AUD.GDG, 3, is cataloged."
+    },
+    {
+      "id": "abend-catlg-default",
+      "job": "ABNJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "given": {
+        "E1": {
+          "rc": 0
+        },
+        "E2": {
+          "abend": "S0C7"
+        }
+      },
+      "expect": {
+        "E1.EOUT": 8,
+        "E2.FOUT": 3
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "basis": "DISP: when the abnormal-termination disposition is omitted the system applies the normal-termination one. FOUT is DISP=(NEW,CATLG) and E2 abends, so generation 3 is cataloged anyway. E1 ends normally, 8 is cataloged."
+    },
+    {
+      "id": "bypassed-step-creates-nothing",
+      "job": "BYPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "B1": {
+          "rc": 8
+        },
+        "B3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "B3.COUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "EXEC COND: B1 ends RC 8, so (4,LT,B1) is true and B2 is bypassed; a bypassed step allocates none of its DDs, so BOUT creates nothing. B3's (+1) is 8 and is cataloged at job end."
+    },
+    {
+      "id": "pass-then-catlg",
+      "job": "PASSJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "P1": {
+          "rc": 0
+        },
+        "P2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "P1.POUT": 8,
+        "P2.PIN": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "DISP PASS: the generation created by P1 is passed to P2 under the same (+1) name; P2's DISP=(OLD,CATLG) catalogs it, so 8 is cataloged."
+    },
+    {
+      "id": "limit-rolls-off-oldest",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "Generation data group LIMIT: the group holds at most LIMIT generations (3). Rolling 8 in makes the oldest, 5, drop out of the catalog; whether 5 is also scratched (deleted) depends on the group's SCRATCH / NOSCRATCH attribute and is not answered here. Relative numbers in the job are unchanged by the limit."
+    }
+  ],
+  "assumed": [
+    {
+      "id": "A1",
+      "text": "A new generation is rolled into the catalog at the end of the job, not at the end of its creating step (deferred roll-in); the answers for (0) / (-1) after a (+1) in the same job depend on it."
+    },
+    {
+      "id": "A2",
+      "text": "A generation whose creating step abends under (NEW,CATLG,DELETE) is not cataloged, and under (NEW,CATLG) is, per the DISP text; the absolute number is still consumed by that job only (the next job reuses it)."
+    }
+  ],
+  "refused": [
+    {
+      "construct": "two steps of one job creating the same (+n) with DISP=NEW",
+      "why": "the second allocation names a dataset that already exists; IBM's text for the failure is not answered here"
+    },
+    {
+      "construct": "a (+n) read before any step creates it, or (0) / (-n) with no such cataloged generation",
+      "why": "a JCL or catalog error, not a step-flow answer"
+    },
+    {
+      "construct": "a PASSed generation never received by a later step",
+      "why": "the manual's disposition of an unreceived passed dataset is not answered here"
+    },
+    {
+      "construct": "DISP=(NEW,KEEP) or UNCATLG generations, absolute names (G0007V00), roll-in of EMPTY / SCRATCH groups, DISP=MOD (+1)",
+      "why": "not covered by this slice"
+    }
+  ]
+}

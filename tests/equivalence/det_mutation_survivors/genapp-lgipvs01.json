@@ -1,0 +1,1047 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "genapp-lgipvs01",
+ "survivors": [
+  {
+   "id": "1dfc79c329",
+   "op": "CON",
+   "line": 35,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "b75ae14b22",
+   "op": "CON",
+   "line": 35,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "89993ce015",
+   "op": "CON",
+   "line": 206,
+   "before": "private final Field f40_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f40_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-7 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "caffdca513",
+   "op": "CON",
+   "line": 206,
+   "before": "private final Field f40_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f40_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-6 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "dfdd81650e",
+   "op": "CON",
+   "line": 206,
+   "before": "private final Field f40_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f40_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-7 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "63d5218479",
+   "op": "CON",
+   "line": 207,
+   "before": "private final Field f41_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f41_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d6cd9383d1",
+   "op": "CON",
+   "line": 207,
+   "before": "private final Field f41_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f41_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f9f736dc05",
+   "op": "CON",
+   "line": 207,
+   "before": "private final Field f41_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f41_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-10 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9353af6225",
+   "op": "CON",
+   "line": 208,
+   "before": "private final Field f42_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f42_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a38736c70a",
+   "op": "CON",
+   "line": 208,
+   "before": "private final Field f42_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f42_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "198e7a586e",
+   "op": "CON",
+   "line": 209,
+   "before": "private final Field f43_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f43_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-18 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "52ff9b98f9",
+   "op": "CON",
+   "line": 209,
+   "before": "private final Field f43_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f43_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b83a84faf2",
+   "op": "CON",
+   "line": 209,
+   "before": "private final Field f43_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f43_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "67ab26bed5",
+   "op": "CON",
+   "line": 210,
+   "before": "private final Field f44_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f44_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ff8def7564",
+   "op": "CON",
+   "line": 210,
+   "before": "private final Field f44_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f44_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "21009d8209",
+   "op": "CON",
+   "line": 212,
+   "before": "private final Field f68_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f68_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c471cd78e6",
+   "op": "CON",
+   "line": 212,
+   "before": "private final Field f68_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f68_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d25317d279",
+   "op": "CON",
+   "line": 212,
+   "before": "private final Field f68_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f68_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into: bytes 77..80 of s_DFHEIBLK are in no read EIB item",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a74cbbef57",
+   "op": "CON",
+   "line": 213,
+   "before": "private final Field f69_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f69_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b8cbd47586",
+   "op": "CON",
+   "line": 213,
+   "before": "private final Field f69_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f69_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into: bytes 81..84 of s_DFHEIBLK are in no read EIB item",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "bd0af0df58",
+   "op": "CON",
+   "line": 213,
+   "before": "private final Field f69_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f69_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "6b74289faf",
+   "op": "CON",
+   "line": 214,
+   "before": "private final Field f71_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f71_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f71_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "f9e8434d9f",
+   "op": "LIT",
+   "line": 250,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "262cc85ee8",
+   "op": "LIT",
+   "line": 262,
+   "before": "java.util.Map.entry(\"A-EXIT\", 1),",
+   "after": "java.util.Map.entry(\"X-EXIT\", 1),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6aca04773a",
+   "op": "CON",
+   "line": 262,
+   "before": "java.util.Map.entry(\"A-EXIT\", 1),",
+   "after": "java.util.Map.entry(\"A-EXIT\", 2),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5f2cb78804",
+   "op": "CON",
+   "line": 263,
+   "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+   "after": "java.util.Map.entry(\"MAINLINE\", 1)",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "84b69268fc",
+   "op": "LIT",
+   "line": 263,
+   "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+   "after": "java.util.Map.entry(\"XAINLINE\", 0)",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d4aede6ea6",
+   "op": "ROR",
+   "line": 268,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ee0ec9bf2d",
+   "op": "NEG",
+   "line": 268,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a62f8da159",
+   "op": "LIT",
+   "line": 269,
+   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a631cdcddb",
+   "op": "CON",
+   "line": 285,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "equivalent",
+   "reason": "condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "448c27217c",
+   "op": "LIT",
+   "line": 287,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "52ccf9005f",
+   "op": "DEL",
+   "line": 317,
+   "before": "fill_Lgipvs01Dfhcommarea(d, s, base);",
+   "after": "/* fill_Lgipvs01Dfhcommarea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "out_Lgipvs01Dfhcommarea() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "a7d048e52a",
+   "op": "DEL",
+   "line": 349,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "8ca31a48fe",
+   "op": "DEL",
+   "line": 354,
+   "before": "f5_WS_RANDOM_SEED = 0L;",
+   "after": "/* f5_WS_RANDOM_SEED = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f5_WS_RANDOM_SEED follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "fb341fd683",
+   "op": "DEL",
+   "line": 355,
+   "before": "f6_WS_RANDOM_NUMBER = 0L;",
+   "after": "/* f6_WS_RANDOM_NUMBER = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f6_WS_RANDOM_NUMBER follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "019ec0c811",
+   "op": "DEL",
+   "line": 356,
+   "before": "f7_WS_RESP = 0L;",
+   "after": "/* f7_WS_RESP = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f7_WS_RESP follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "bccefd96a9",
+   "op": "DEL",
+   "line": 359,
+   "before": "f33_F11 = 11L;",
+   "after": "/* f33_F11 = 11L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f33_F11 follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "b327a4c89f",
+   "op": "DEL",
+   "line": 382,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "dbf34103fe",
+   "op": "DEL",
+   "line": 383,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "a1c2533af5",
+   "op": "CON",
+   "line": 488,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 3 entries, so a capacity of 65 is never filled",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6f25e90783",
+   "op": "DEL",
+   "line": 497,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "0857e3fa88",
+   "op": "DEL",
+   "line": 508,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 3",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "712f3ed1fd",
+   "op": "CON",
+   "line": 508,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 3",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d7c15e19ab",
+   "op": "AOR",
+   "line": 508,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 3",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "183145361d",
+   "op": "AOR",
+   "line": 521,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7cc92bc8c8",
+   "op": "ROR",
+   "line": 521,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "81487be142",
+   "op": "CON",
+   "line": 521,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9858340620",
+   "op": "AOR",
+   "line": 521,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b4749075e4",
+   "op": "CON",
+   "line": 521,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b98a4a908c",
+   "op": "ROR",
+   "line": 521,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bb23b103d8",
+   "op": "ROR",
+   "line": 522,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ec281f200c",
+   "op": "NEG",
+   "line": 522,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "4a9ae2ef0f",
+   "op": "ROR",
+   "line": 527,
+   "before": "if (next >= 2) {",
+   "after": "if (next < 2) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8d608d0e2f",
+   "op": "ROR",
+   "line": 527,
+   "before": "if (next >= 2) {",
+   "after": "if (next > 2) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "99fc373632",
+   "op": "CON",
+   "line": 527,
+   "before": "if (next >= 2) {",
+   "after": "if (next >= 3) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "de97fa5def",
+   "op": "NEG",
+   "line": 527,
+   "before": "if (next >= 2) {",
+   "after": "if (!(next >= 2)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2d134abb84",
+   "op": "DEL",
+   "line": 530,
+   "before": "i = next;",
+   "after": "/* i = next; */",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e7c3666961",
+   "op": "NEG",
+   "line": 533,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "eb4c7aea2a",
+   "op": "ROR",
+   "line": 533,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "df6bebc47a",
+   "op": "LIT",
+   "line": 545,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "14ae526f23",
+   "op": "CON",
+   "line": 555,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "22f5b0d049",
+   "op": "DEL",
+   "line": 555,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "61a9ebed48",
+   "op": "DEL",
+   "line": 556,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "96e4593d17",
+   "op": "CON",
+   "line": 556,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "062eb99c6e",
+   "op": "CON",
+   "line": 560,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "418a050d70",
+   "op": "DEL",
+   "line": 560,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4f7ce178a8",
+   "op": "DEL",
+   "line": 561,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b2c3c735c6",
+   "op": "CON",
+   "line": 561,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "963e7d785c",
+   "op": "DEL",
+   "line": 565,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9d1b04d528",
+   "op": "CON",
+   "line": 565,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "109ec444d8",
+   "op": "CON",
+   "line": 566,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5c2e6dc926",
+   "op": "DEL",
+   "line": 566,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7ffd9bd0a2",
+   "op": "CON",
+   "line": 587,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f659e0656e",
+   "op": "DEL",
+   "line": 587,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b3f34db43f",
+   "op": "DEL",
+   "line": 613,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(resp8), false, CS);",
+   "after": "/* Cobol.store(f68_EIBRESP, BigDecimal.valueOf(resp8), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d16f1eeab4",
+   "op": "DEL",
+   "line": 614,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(resp29), false, CS);",
+   "after": "/* Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(resp29), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "44a67802e1",
+   "op": "DEL",
+   "line": 634,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(planned11[0]), false, CS);",
+   "after": "/* Cobol.store(f68_EIBRESP, BigDecimal.valueOf(planned11[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "e7650efdf8",
+   "op": "CON",
+   "line": 634,
+   "before": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(planned11[0]), false, CS);",
+   "after": "Cobol.store(f68_EIBRESP, BigDecimal.valueOf(planned11[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "cc174fe268",
+   "op": "DEL",
+   "line": 635,
+   "before": "Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(planned11[1]), false, CS);",
+   "after": "/* Cobol.store(f69_EIBRESP2, BigDecimal.valueOf(planned11[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f69_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "0ce932c1b0",
+   "op": "NEG",
+   "line": 638,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2fd292b64c",
+   "op": "CON",
+   "line": 638,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "56dcff0634",
+   "op": "ROR",
+   "line": 638,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7bab8ca685",
+   "op": "ROR",
+   "line": 638,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "1f55c338fa",
+   "op": "CON",
+   "line": 652,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "line 652 follows an unconditional `if (true) throw new Goback();`: it is never reached",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "eecaeaa799",
+   "op": "CON",
+   "line": 660,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "line 660 follows an unconditional `if (true) throw new Goback();`: it is never reached",
+   "tried": [
+    "dead-after-throw"
+   ]
+  }
+ ]
+}

@@ -26,6 +26,24 @@ from YAML. Since Python 3.10 was dropped (#3322) the trimmed and untrimmed grids
 only matters on a main dispatch, where it keeps the ubuntu / 3.12 leg (otherwise dropped because `smoke-test.yml`
 already runs it, #5953). Don't add a `pull_request` / `synchronize` trigger: that hands back the queue cost (#3209, #4518).
 
+## Implied matrix (#8425)
+
+A PR carrying `shepherd:merge` runs the matrix without the `shepherd:matrix` label when `tests/tools/matrix_plan.py`
+selects it (the shepherd reads it in `gather()`: dispatch on the head, auto-merge waits for green, the digest names the
+reason). Two rules, both narrow because the legs are expensive:
+
+* the PR fixes a `ci-red-main` issue (`Closes` / `Fixes` / `Resolves` / `Part of #N`, N carrying the label): #8165 ->
+  #8167 -> #8181 and #8185 -> #8195 each turned main red again on another platform;
+* the PR adds or changes a `tests/**/*.py` file that shells out to a platform tool (rsync, sed, find, ...), links or
+  chmods, with no platform guard in the added lines, or creates files under names differing only by case or reads path case.
+
+Nothing unreadable selects (no file list, 300 or more files). Replay over merged PRs: `python tests/tools/matrix_plan.py
+--replay 50`. A fork head still waits for a maintainer's by-hand run.
+
+**Worker rule:** a test that shells out to a platform tool (rsync, sed, find, cp, chmod, ...) carries a platform guard
+(`pytest.mark.skipif(sys.platform ...)` or `shutil.which`), and a fixture that creates files never relies on two names
+differing only by case. The guard also keeps the PR off the implied matrix.
+
 ## Cap headroom (#5156)
 
 Each `full-suite-gate.yml` leg's `timeout` is ~1.5x its expected part time (now planned from the measured durations, #5919). Re-measure when a leg passes ~80% of its cap

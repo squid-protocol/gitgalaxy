@@ -669,7 +669,7 @@ DEFINITION: dict[str, Any] = {
             r"|MIN|MAX|ORD-MIN|ORD-MAX|ANNUITY|PRESENT-VALUE)(?![-\w])",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Metaprogramming and memory aliasing.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Metaprogramming and memory aliasing.
         "reflection_metaprogramming": re.compile(
             # #2990: the EXEC blanket also covers EXEC DLI (IMS); docs/cobol_semantic_coverage.md
             # records which verbs this blanket is the semantic owner of (ASSIGN, INQUIRE ...).
@@ -814,7 +814,7 @@ DEFINITION: dict[str, Any] = {
             r"|\bEXEC\s+CICS\s+BIF\s+DEEDIT\b",
             re.I,
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution.
         # #2485: `EXEC CICS ABEND` terminates the task abnormally and is the
         # CICS sibling of `STOP RUN` -- 91 occurrences across 47 crucible
         # files, none of which recorded an abort before this. Deliberately NOT

@@ -18,13 +18,13 @@
     "tp": 12594
   },
   "cpp": {
-    "fn": 183,
+    "fn": 182,
     "fp": 166,
     "matched_functions": 1291,
     "parse_failures": 0,
     "precision_pct": 97.9,
-    "recall_pct": 97.6,
-    "tp": 7574
+    "recall_pct": 97.7,
+    "tp": 7575
   },
   "csharp": {
     "fn": 2,
@@ -54,13 +54,13 @@
     "tp": 6648
   },
   "haskell": {
-    "fn": 16,
-    "fp": 135,
+    "fn": 3,
+    "fp": 137,
     "matched_functions": 142,
     "parse_failures": 0,
-    "precision_pct": 70.2,
-    "recall_pct": 95.2,
-    "tp": 318
+    "precision_pct": 70.7,
+    "recall_pct": 99.1,
+    "tp": 331
   },
   "java": {
     "fn": 0,
@@ -73,10 +73,10 @@
   },
   "javascript": {
     "fn": 56,
-    "fp": 48,
+    "fp": 45,
     "matched_functions": 626,
     "parse_failures": 0,
-    "precision_pct": 98.0,
+    "precision_pct": 98.1,
     "recall_pct": 97.7,
     "tp": 2343
   },
@@ -99,22 +99,22 @@
     "tp": 1331
   },
   "perl": {
-    "fn": 167,
-    "fp": 260,
+    "fn": 166,
+    "fp": 286,
     "matched_functions": 943,
     "parse_failures": 0,
-    "precision_pct": 94.4,
+    "precision_pct": 93.9,
     "recall_pct": 96.3,
-    "tp": 4377
+    "tp": 4378
   },
   "php": {
-    "fn": 73,
-    "fp": 17,
+    "fn": 80,
+    "fp": 24,
     "matched_functions": 1721,
     "parse_failures": 0,
-    "precision_pct": 99.7,
-    "recall_pct": 98.8,
-    "tp": 6241
+    "precision_pct": 99.6,
+    "recall_pct": 98.7,
+    "tp": 6234
   },
   "powershell": {
     "fn": 1702,
@@ -126,13 +126,13 @@
     "tp": 1038
   },
   "python": {
-    "fn": 92,
+    "fn": 40,
     "fp": 42,
     "matched_functions": 4210,
     "parse_failures": 0,
     "precision_pct": 99.6,
-    "recall_pct": 99.2,
-    "tp": 11507
+    "recall_pct": 99.7,
+    "tp": 11559
   },
   "ruby": {
     "fn": 67,
@@ -145,10 +145,10 @@
   },
   "rust": {
     "fn": 5,
-    "fp": 299,
+    "fp": 279,
     "matched_functions": 1956,
     "parse_failures": 0,
-    "precision_pct": 96.2,
+    "precision_pct": 96.4,
     "recall_pct": 99.9,
     "tp": 7565
   },
@@ -189,13 +189,13 @@
     "tp": 1546
   },
   "typescript": {
-    "fn": 260,
-    "fp": 68,
+    "fn": 173,
+    "fp": 51,
     "matched_functions": 8473,
     "parse_failures": 0,
     "precision_pct": 99.8,
-    "recall_pct": 99.1,
-    "tp": 27296
+    "recall_pct": 99.4,
+    "tp": 27383
   },
   "zig": {
     "fn": 91,

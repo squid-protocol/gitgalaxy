@@ -59,6 +59,11 @@ def add_arguments(p: argparse.ArgumentParser) -> None:
     )
     p.add_argument("--out", type=Path, help="write the report here (default: standard output); not inside the estate")
     p.add_argument(
+        "--summary-md",
+        type=Path,
+        help="also write a human-readable Markdown summary here; not inside the estate",
+    )
+    p.add_argument(
         "--no-translate",
         action="store_true",
         help="skip the translate-only dry run (whole / holes / refused per program); the inventory alone",
@@ -128,6 +133,8 @@ def run(args: argparse.Namespace) -> int:
         return _fail(f"{args.jcl} does not exist")
     if args.out is not None and _inside(args.out, estate):
         return _fail("--out is inside the estate; the estate is read only")
+    if getattr(args, "summary_md", None) is not None and _inside(args.summary_md, estate):
+        return _fail("--summary-md is inside the estate; the estate is read only")
     if args.redact_key_file is not None and not args.redact:
         return _fail("--redact-key-file needs --redact")
     options = None
@@ -172,7 +179,58 @@ def run(args: argparse.Namespace) -> int:
     else:
         args.out.write_text(text, encoding="utf-8")
         print(f"gitgalaxy assess: wrote {args.out}", file=sys.stderr)
+    if getattr(args, "summary_md", None) is not None:
+        args.summary_md.write_text(render_markdown(report), encoding="utf-8")
+        print(f"gitgalaxy assess: wrote {args.summary_md}", file=sys.stderr)
     return 0
+
+
+def render_markdown(report: dict[str, Any]) -> str:
+    """Format a customer-readable Markdown summary from a validated ``gitgalaxy assess`` report (#5054)."""
+    from .dryrun import HOLES, REFUSED, WHOLE
+
+    totals = report.get("totals", {})
+    tr = totals.get("translation", {})
+    eras = report.get("eras", {})
+    by_era = eras.get("by_era", {})
+    tells = eras.get("tells", {})
+    redacted = bool(report.get("redacted"))
+    lines = [
+        f"# Estate Readiness Summary ({'redacted' if redacted else 'full'})",
+        "",
+        f"- **Tool version:** `{report.get('tool_version', 'unknown')}` | **Schema:** `{report.get('schema', '')}`",
+        f"- **Programs:** `{totals.get('programs', 0)}` total (`{totals.get('parsed', 0)}` parsed, `{totals.get('unparsed', 0)}` unparsed)",
+    ]
+    if tr:
+        lines.append(
+            f"- **Dry-run translation:** `{tr.get(WHOLE, 0)}` whole, "
+            f"`{tr.get(HOLES, 0)}` with holes, `{tr.get(REFUSED, 0)}` refused"
+        )
+    if by_era:
+        lines += ["", "## CICS Eras", "", "| Era | Programs |", "|---|---:|"]
+        for era_k, cnt in sorted(by_era.items(), key=lambda kv: str(kv[0])):
+            lines.append(f"| Era {era_k} | {cnt} |")
+    if tells:
+        lines += ["", "## Detected Construct Tells", "", "| Tell | Programs |", "|---|---:|"]
+        for tell, cnt in sorted(tells.items(), key=lambda kv: (-int(kv[1]), kv[0])):
+            lines.append(f"| `{tell}` | {cnt} |")
+    rules = report.get("rules", {})
+    if isinstance(rules, dict) and rules:
+        lines += ["", "## Top Blocker Rules", "", "| Rule | Count |", "|---|---:|"]
+        top_rules = sorted(
+            rules.items(),
+            key=lambda kv: (-(kv[1].get("programs", 0) if isinstance(kv[1], dict) else int(kv[1] or 0)), str(kv[0])),
+        )[:15]
+        for rule_id, info in top_rules:
+            cnt = info.get("programs", 0) if isinstance(info, dict) else int(info or 0)
+            lines.append(f"| `{rule_id}` | {cnt} |")
+    lines += [
+        "",
+        "---",
+        "To walk through a `--redact` report together before sharing any source code, contact `joe@gitgalaxy.io`.",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:

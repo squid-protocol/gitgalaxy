@@ -42,7 +42,7 @@ AUDITED = {
     ("cics_filecontrol.py", "delete_generic", "area"): 1,
     ("cics_filecontrol.py", "file_update", "area"): 3,
     ("cics_filecontrol.py", "rba_browse", "area"): 2,
-    ("cics_filecontrol.py", "read", "area"): 2,
+    ("cics_filecontrol.py", "read", "area"): 3,
     ("cics_filecontrol.py", "read_length", "area"): 1,
     ("cics_filecontrol.py", "read_set", "area"): 2,
     ("cics_filecontrol.py", "record_from", "area"): 1,

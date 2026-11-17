@@ -94,6 +94,36 @@
    "why": "seed.sql holds the same key (patient 1, prescription 1, 2026-11-10 00:00:00): the INSERT is -803, '90'"
   },
   {
+   "name": "twice-a-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                2                   AMOX01              PI2026-11-102026-11-100000000013"
+   },
+   "why": "frequency 2, a one-day span: 2 PRESCRIPTION rows at the WHEN 2 times"
+  },
+  {
+   "name": "three-times-a-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                3                   AMOX01              PI2026-11-102026-11-100000000014"
+   },
+   "why": "frequency 3, a one-day span: 3 PRESCRIPTION rows at the WHEN 3 times"
+  },
+  {
+   "name": "four-times-a-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                4                   AMOX01              PI2026-11-102026-11-100000000015"
+   },
+   "why": "frequency 4, a one-day span: 4 PRESCRIPTION rows at the WHEN 4 times"
+  },
+  {
    "name": "no-commarea",
    "commarea": null,
    "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"

@@ -527,7 +527,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(math\.h|sin|cos|tan|sqrt|exp|log|abs|NSDecimalNumber|CGVector|CGAffineTransform|CGPoint|CGRect|CGSize|NXRect|NXSize)\b"
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Objective-C Runtime Swizzling and dynamic messaging.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Objective-C Runtime Swizzling and dynamic messaging.
         "reflection_metaprogramming": re.compile(
             r"\b(objc_msgSend|performSelector|method_exchangeImplementations|class_addMethod|objc_allocateClassPair|isa|object_setClass)\b|<objc/runtime\.h>"
         ),
@@ -601,7 +601,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\(\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\*?\s*\)\s*[" + ID_START + r"$]|typeof\b"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution context.
         # BUG FIX: @throw never matched -- same \b-before-@ shape as
         # branch's fix above.
         "panics_and_aborts": re.compile(r"@(throw)\b|\b(abort|exit)\b"),

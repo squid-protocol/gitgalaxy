@@ -67,12 +67,12 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
   aborts collection: give lazily-built payloads explicit `ids=` (#6257).
 * **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
-* **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
+* **A bare `cat > file` (no heredoc) hangs Bash on stdin (write scratch scripts with the Write tool) or truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
   lands empty (#6323).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).
-* **Two concurrent `doom_rosetta_check` runs need separate `--work` dirs** (#5960).
+* **Two concurrent `doom_rosetta_check` runs need separate `--work` dirs** (#5960). After an engine macro change it shows many engine-only edges until `callgraph_oracle.macro_body_callees` applies the same rule: fix the oracle, don't bless (#8377).
 * On a path-filtered workflow, key caches by `hashFiles` of the inputs, not the sha: the sha only has an entry for
   commits that triggered the workflow (#5184).
 * A step that runs `git diff origin/main...HEAD` needs `fetch-depth: 0`; the shallow default has no merge base, so a
@@ -93,3 +93,4 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **`ci_digest.PARTS` matches only the expanded job name** (`full-suite part N/M`): a matrix job cancelled before expansion keeps the raw `${{ matrix.group }}` name and triages `real`, so `ci-gate` fails with no test run. After a drop-to-draft cancels a head's runs, read the part jobs' conclusions before hunting a code failure (#7164, #7326).
 * **Test stubs that replace a translator method** (`_OverCics`, `no_dto` in `test_det_translate.py`) break on a new keyword arg: grep `dto_for =` / `def no_dto` when its signature changes (#7009).
 * **A translator change that makes the det port record new events must run `proof_sweep.py --det-only --cases ...` on every case using that verb, and the harness must compare them in the same PR:** a case PR proven on a base without the change goes NOT PROVEN in the nightly sweep and turns Evidence Refresh red (#7569 / #7585 / #7590, #7592).
+* **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it and a case with no entry weighs the median in `proof_sweep.py --shard`; no test or gate fails on it, and an added line conflicts with sibling PRs.

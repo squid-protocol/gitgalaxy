@@ -378,7 +378,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(Math::Trig|Math::BigInt|Math::BigFloat|Math::Complex|PDL|sin|cos|exp|log|sqrt|atan2|abs|int|rand|srand)\b"
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Metaprogramming and Symbol table hacks.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Metaprogramming and Symbol table hacks.
         "reflection_metaprogramming": re.compile(
             r"\b(AUTOLOAD|DESTROY|BEGIN|UNITCHECK|CHECK|INIT|END|tie|untie|bless|overload)\b|\*["
             + ID_START
@@ -486,7 +486,7 @@ DEFINITION: dict[str, Any] = {
         # 40. explicit_casts (Explicit Type Casting): The "Trust Me" Tax. Explicitly bypassing the type-checker or manual blessing.
         # UPDATED: Removed the pointer/reference overlap.
         "explicit_casts": re.compile(r"\b(int|oct|hex|vec|ref|bless)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts): The Detonators. Forcefully destroying the current execution context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort): The Detonators. Forcefully destroying the current execution context.
         "panics_and_aborts": re.compile(r"\b(die|confess|croak|exit|BAIL_OUT)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing a thread to sleep or blocking waits.
         "thread_sleeps": re.compile(r"\bsleep\b"),

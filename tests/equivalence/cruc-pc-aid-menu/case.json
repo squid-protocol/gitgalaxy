@@ -137,6 +137,76 @@
           "OPTI": "9"
         }
       }
+    },
+    {
+      "name": "xctl-data",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 1234,
+        "MN-LAST": "AB12",
+        "MN-FLAG": "XY"
+      },
+      "why": "option 1 with non-blank visits, last and flag: PCDETL shows them (L5 attack, #7955)",
+      "receive": {
+        "PCMN": {
+          "OPTI": "1"
+        }
+      }
+    },
+    {
+      "name": "other-data",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 7,
+        "MN-LAST": "LAST",
+        "MN-FLAG": "ZZ"
+      },
+      "why": "option 9 with a non-blank COMMAREA: the menu keeps it (L5 attack, #7955)",
+      "receive": {
+        "PCMN": {
+          "OPTI": "9"
+        }
+      }
+    },
+    {
+      "name": "opt-12",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 5,
+        "MN-LAST": "AAAA",
+        "MN-FLAG": "BB"
+      },
+      "why": "a two-character option '12': neither WHEN '1' nor WHEN '2' matches (L5 attack, #7955)",
+      "receive": {
+        "PCMN": {
+          "OPTI": "12"
+        }
+      }
+    },
+    {
+      "name": "clear-data",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "MN-VISITS": 321,
+        "MN-LAST": "CLR1",
+        "MN-FLAG": "C2"
+      },
+      "why": "CLEAR with a non-blank COMMAREA (L5 attack, #7955)"
+    },
+    {
+      "name": "key-pf1",
+      "aid": "DFHPF1",
+      "commarea": {
+        "MN-VISITS": 42,
+        "MN-LAST": "KEY1",
+        "MN-FLAG": "K2"
+      },
+      "why": "PF1 with option 1: only PF3 and PF5 are handled, the rest are KEY NOT ACTIVE (L5 attack, #7955)",
+      "receive": {
+        "PCMN": {
+          "OPTI": "1"
+        }
+      }
     }
   ]
 }

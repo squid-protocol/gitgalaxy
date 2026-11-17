@@ -593,6 +593,71 @@
     }
    },
    "why": "#5401: EDTMMI '6', one digit: NUMVAL-C rebuilds it as '06' (line 317) before the IS NOT NUMERIC test and the JCL date"
+  },
+  {
+   "name": "solver-177-true",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#4049 (proposed for MAIN-PARA:177:true): branch_solver witness for 177:true: the values its condition depends on"
+  },
+  {
+   "name": "solver-212-when-239",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "\u0001",
+     "YEARLYI": "\u0000"
+    }
+   },
+   "why": "#4049 (proposed for PROCESS-ENTER-KEY:212:WHEN@239): branch_solver witness for 212:WHEN@239: the values its condition depends on"
+  },
+  {
+   "name": "solver-338-true",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "",
+     "YEARLYI": "\u0001",
+     "CUSTOMI": "\u0001",
+     "EDTYYYYI": "\u0000\u0000\u0000\u0000",
+     "EDTDDI": "\u0000\u0000",
+     "SDTDDI": "\u0000\u0000",
+     "SDTYYYYI": "\u0000\u0000\u0000\u0001",
+     "SDTMMI": "\u0000\u0000",
+     "EDTMMI": "\u0000\u0000"
+    }
+   },
+   "why": "#4049 (proposed for PROCESS-ENTER-KEY:338:true): branch_solver witness for 338:true: the values its condition depends on"
+  },
+  {
+   "name": "solver-445-false",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "YEARLYI": "K",
+     "CUSTOMI": "X",
+     "MONTHLYI": "\u0001",
+     "EDTYYYYI": "1500",
+     "EDTDDI": "32",
+     "SDTDDI": "01",
+     "SDTYYYYI": "1500",
+     "EDTMMI": "02",
+     "SDTMMI": "01",
+     "CONFIRMI": "I"
+    }
+   },
+   "why": "#4049 (proposed for PROCESS-ENTER-KEY:445:false): branch_solver witness for 445:false: the values its condition depends on"
   }
  ]
 }

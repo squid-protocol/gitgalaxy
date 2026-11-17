@@ -544,7 +544,7 @@ Never write a Gemini verdict straight into the ledger on trust -- read it the wa
        work, touches many languages, or has an unclear blast radius still belongs in its own
        follow-up PR, filed and left for later. When you do ship it, the full chain is required
        before calling it done -- this is the SAME rigor CLAUDE.md's Differential Scan protocol
-       demands of any `language_standards.py`/`detector.py`/`prism.py` change, not a lighter bar
+       demands of any `language_standards/`/`detector.py`/`prism.py` change, not a lighter bar
        just because it started as a ledger investigation:
          1. Standalone regex re-test: false positives/negatives gone, real matches unaffected.
          2. The language's extraction gauntlet + strict tests
@@ -706,7 +706,7 @@ Two things to produce, both while the context is cheap:
 2. **A tri-comparison write-up in `docs/language_status/<lang>.md`.** This repo already has a
    `language-status` skill for a *different* kind of per-language doc (sections 1-8: what
    GitGalaxy detects, test depth, closed issues, real-world evidence -- built from
-   `language_standards.py`/test counts/`gh issue list`, none of which this sweep's session context
+   `language_standards/languages/<lang>.py`/test counts/`gh issue list`, none of which this sweep's session context
    is specially positioned to write). The tri-comparison findings are a genuinely different,
    complementary section: a 3-way comparison with no privileged ground truth, which doesn't fit
    that skill's own "§9 measured accuracy vs. one ground-truth parser" template -- write it as its

@@ -68,7 +68,7 @@
    "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
   }
  ],
- "notes": "The example-health-apis patient screen program HCP1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCP1 transaction inquires through HCP1BI01 / HCIPDB01, HCPA adds through HCP1BA01 / HCAPDB01 / HCAPDB02. Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; the AID then selects the arm. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The chain has no DISPLAY, so sysout is compared (the default). Not driven: the EIBCALEN > 0 arm (a re-entry with the COMMAREA the previous RETURN passed): the harness starts a layout_only COMMAREA empty and refuses a stated one (#7434), so that branch stays open.",
+ "notes": "The example-health-apis patient screen program HCP1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCP1 transaction inquires through HCP1BI01 / HCIPDB01, HCPA adds through HCP1BA01 / HCAPDB01 / HCAPDB02. Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; the AID then selects the arm. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The chain has no DISPLAY, so sysout is compared (the default). The re-entry arm (EIBCALEN > 0, a COMMAREA the previous RETURN passed) is driven by commarea_hex scenarios: the program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121).",
  "scenarios": [
   {
    "name": "inquire-patient",
@@ -236,6 +236,32 @@
    "aid": "DFHENTER",
    "commarea": null,
    "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
+  },
+  {
+   "name": "reentry-short-area",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "commarea_hex": "40",
+   "why": "re-entry with a one-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 50), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   }
+  },
+  {
+   "name": "reentry-long-area",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "commarea_hex": "C1C2C3C4C5C6C7C8",
+   "why": "re-entry with an eight-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 50), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   }
   }
  ],
  "startcode": "TD"

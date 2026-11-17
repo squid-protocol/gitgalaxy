@@ -189,7 +189,8 @@ DEFINITION: dict[str, Any] = {
             r"(?:[ \t]*\{|\s*do|\()"
         ),
         "scientific": re.compile(r"\b(?:Math|Complex|BigDecimal|BigInt|BigFloat|BigRational|Random)\b"),
-        # reflection_metaprogramming: macro expansion (`{% %}` / `{{ }}`), the hook macros and `@type` introspection.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto): macro expansion
+        # (`{% %}` / `{{ }}`), the hook macros and `@type` introspection.
         "reflection_metaprogramming": re.compile(
             r"\{%|\{\{|\b(?:method_missing|macro_missing|inherited|included|extended|finished|forward_missing_to|typeof)\b"
             r"|@type\b|\.(?:instance_vars|annotation|methods)\b|responds_to\?"

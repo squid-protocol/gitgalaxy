@@ -105,6 +105,30 @@
    "link_bytes": true,
    "startcode": "S",
    "why": "a LINK caller passes 4 raw bytes, short of the 8-byte DSECT: the ABEND path"
+  },
+  {
+   "name": "entry-only-eight",
+   "commarea": null,
+   "commarea_hex": "000000005A433031",
+   "entry_only": true,
+   "startcode": "S",
+   "why": "the 8-byte DSECT area reaches the byte[] entry alone (X10 #7954: the bytes reach the byte[] entry alone, no link area)"
+  },
+  {
+   "name": "entry-only-nine",
+   "commarea": null,
+   "commarea_hex": "000000005A43303141",
+   "entry_only": true,
+   "startcode": "S",
+   "why": "9 bytes at the byte[] entry: one past the DSECT, kept in beyond (X10 #7954: the bytes reach the byte[] entry alone, no link area)"
+  },
+  {
+   "name": "entry-only-sixteen",
+   "commarea": null,
+   "commarea_hex": "000000005A4330314142434445464748",
+   "entry_only": true,
+   "startcode": "S",
+   "why": "16 bytes at the byte[] entry (X10 #7954: the bytes reach the byte[] entry alone, no link area)"
   }
  ]
 }

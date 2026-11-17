@@ -382,7 +382,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"(?<=[(\[])(sin|cos|tan|asin|acos|atan|exp|log|sqrt|expt|abs|gcd|lcm|numerator|denominator|floor|ceiling|truncate|round|exact->inexact)(?![^ \t)\]\n\r])"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and syntactic abstractions.
         "reflection_metaprogramming": re.compile(
             r"(?<![^ \t\n\r(\[])(define-macro|define-syntax|syntax-rules|syntax-case|let-syntax|letrec-syntax)(?![^ \t)\]\n\r])"
@@ -452,7 +452,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"(?<![^ \t\n\r(\[])(number->string|string->number|symbol->string|string->symbol|list->vector|vector->list|char->integer|integer->char)(?![^ \t)\]\n\r])"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: error/abort/exit/emergency-exit)
         "panics_and_aborts": re.compile(r"(?<![^ \t\n\r(\[])(error|abort|exit|emergency-exit)(?![^ \t)\]\n\r])"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"(?<![^ \t\n\r(\[])(sleep|usleep|thread-sleep!)(?![^ \t)\]\n\r])"),

@@ -67,8 +67,8 @@ Gates are off by default. A gate that trips makes the scan exit `1` after every 
 
 | Flag | Promise |
 | :--- | :--- |
-| `--fail-on-secrets` | Fails if any file has a hardcoded secret that is not marked as mitigated. |
-| `--fail-on-malware` | Fails if ML threat inference flags a file. Inference needs `numpy`, `pandas` and `xgboost` (the `full` extra) and a model file, `gitgalaxy_malware_xgb_multiclass.json`, in `gitgalaxy/security/` or `gitgalaxy/utilities/`. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits `0`. |
+| `--fail-on-secrets` | Fails on a detected hardcoded secret that is not marked as mitigated. Detection is regex-based and does not see lines of 250 or more characters (`SecurityLens._armor` blanks them), so a secret on such a line does not trip the gate. |
+| `--fail-on-malware` | Fails if ML threat inference flags a file. Inference needs `numpy`, `pandas` and `xgboost` (the `full` extra) and a model file, `gitgalaxy_malware_xgb_multiclass.json`, in `gitgalaxy/security/` or `gitgalaxy/utilities/`. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits `0`. Because no model ships, the `--fail-on-malware` gate in the shipped pipeline templates (`templates/`, the "SARIF + ML Malware Gate" job) is a no-op: that job still writes SARIF, but its malware gate never trips. |
 | `--max-risk-exposure N` | Fails if any file's highest risk vector is at or above `N` percent. `0.0` disables it. |
 | `--max-systemic-threat N` | Fails if any file's structural magnitude times normalized blast radius is at or above `N`. `0.0` disables it. Limits set before #3112 must be re-tuned. |
 
@@ -80,7 +80,7 @@ Gates are off by default. A gate that trips makes the scan exit `1` after every 
 | :--- | :--- |
 | `--paranoid` | Makes the `secrets_risk` vector more sensitive: its threshold drops from 3.0 to 0.5, its slope rises from 1.0 to 2.0, and the 2.0 cap on its carelessness amplifiers is lifted. No other vector or threshold changes. |
 | `--ai-guardrails` | Enables Phase 5 (Zero-Trust AI Guardrails: `dev_agent_firewall.py` and `ai_appsec_sensor.py`). Off by default: without it the columns `agentic_isolation_risk`, `requires_hitl`, `hallucination_zone`, `silent_mutation_risk` and `appsec_god_mode` record `NULL` ("not evaluated"; `0` means "evaluated, no risk found") and no `GG-AGENT-GUARDRAIL` SARIF results are emitted. The engine never turns this on by itself. |
-| `--shadow-patch-detected` | Declares that the payload hash changed without a version bump. When ML threat inference runs, every file with `file_impact` above 0.5 is forced to the Stealer / Trojan class at score 100, so `--fail-on-malware` then trips on it. |
+| `--shadow-patch-detected` | A manual flag: you assert that a shadow patch happened. GitGalaxy compares no hashes or versions. It acts only inside ML threat inference, where it forces every file with `file_impact` above 0.5 to the Stealer / Trojan class at score 100. No model ships, so inference never runs and in a shipped build this flag does nothing (`gitgalaxy/security/security_auditor.py`). |
 | `--spec-alignment` | Measures and reports the Spec Alignment vector. Off by default; only useful if your code carries spec tags. |
 
 ### Mainframe and estate inputs

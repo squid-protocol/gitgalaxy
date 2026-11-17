@@ -664,7 +664,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(std::cmath|std::complex|std::linalg|std::mdspan|Eigen::|blaze::|std::simd|__m128|__m256|__m512|std::numbers::)\b"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # SFINAE, compile-time reflection, and macros.
         # BUG FIX (Rule 9): `sizeof...` ends in `.` (non-word) but shared
         # a trailing `\b` with word-ending siblings -- the realistic
@@ -790,7 +790,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # Admission of race conditions or lazy polling.

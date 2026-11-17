@@ -535,7 +535,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math\.|MathF\.|Vector[234]|Matrix4x4|Random|Complex|Tensor|TensorPrimitives)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Reflection and dynamic Emit.
         "reflection_metaprogramming": re.compile(
             r"\b(System\.Reflection|DllImport|LibraryImport|MethodInfo|Activator|Marshal\.|Emit|ILGenerator)\b"
@@ -643,7 +643,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: throw/abort/FailFast/Environment.Exit)
         "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # BUG FIX: `Wait\(\)` ends on `)` (non-word), so the shared

@@ -49,5 +49,15 @@ def test_each_member_extension_is_scanned_and_resolved(estate, m, f):
 
 def test_every_translator_copy_extension_is_a_cobol_extension():
     cobol = {e.lower() for e in LANGUAGE_DEFINITIONS["cobol"]["extensions"]}
-    tried = {e.lower() for e in SRC.COPY_EXTS if e}
+    tried = {e.lower() for e in SRC.COPY_EXTS if e} - {e.lower() for e in SRC.BODY_JUDGED_EXTS}
     assert tried <= cobol, sorted(tried - cobol)
+
+
+def test_a_body_judged_extension_is_one_the_lens_judges_by_body():
+    """#8412: the extensions the registry does not claim are exactly the lens's body-judged ones, in either case."""
+    from gitgalaxy.standards.language_lens import _COBOL_MEMBER_EXTENSIONS
+
+    cobol = {e.lower() for e in LANGUAGE_DEFINITIONS["cobol"]["extensions"]}
+    judged = {e.lower() for e in SRC.BODY_JUDGED_EXTS}
+    assert judged <= _COBOL_MEMBER_EXTENSIONS
+    assert not judged & cobol

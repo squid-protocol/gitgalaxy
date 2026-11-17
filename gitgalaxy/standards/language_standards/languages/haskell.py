@@ -178,7 +178,7 @@ def _hs_calls_out_pre_shield(text: str) -> str:
 
 _JUXTAPOSITION = (
     r"|(?:(?m:^)[ \t]*(?!(?:[^\n={}]|\{[^{}\n]*\}){0,200}" + _HS_DEF_EQ + ")|"
-    r"(?:\$!|<\$!>|[$%&*+./<=>?^|-]{1,4}|(?<![:!#$%&*+./<=>?^|@\\~-]):(?![:!#$%&*+./<=>?^|@\\~-])|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?!["
+    r"(?:\$!|<\$!>|[$%&*+./<=>?^|-]{1,4}|(?<![:!#$%&*+./<=>?^|@\\~-]):(?![:!#$%&*+./<=>?^|@\\~-])|(?<!\\)\(|[\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?!["
     + ID_CONTINUE
     + "]))[ \t]*)"
     r"(?=(?:[" + CAPITAL + "]" + _HS_ID + r"\.){0,4}"
@@ -652,7 +652,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(Complex|RealFloat|Floating|Numeric\.LinearAlgebra|Matrix|Vector|ad|grad|jacobian|sin|cos|tan|exp|log|pi)\b"
         ),
-        # heat_triggers: Metaprogramming & Reflection. QuasiQuotes and Template Haskell.
+        # reflection_metaprogramming (Metaprogramming: macros, reflection, goto). QuasiQuotes and Template Haskell.
         "reflection_metaprogramming": re.compile(
             r"\b(TemplateHaskell|QuasiQuotes|TypeFamilies|GHC\.Generics|Generic)\b|\[[a-z_]+\||\$\(["
             + ID_CONTINUE
@@ -696,7 +696,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(putStr|putStrLn|print|putChar)\b"),
         # # # 40. explicit_casts (Explicit Type Casting) "Trust Me" Tax.
         "explicit_casts": re.compile(r"\b(unsafeCoerce|coerce|fromIntegral|realToFrac|floor|ceiling|truncate|round)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|throwIO|panic|error)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(threadDelay)\b"),

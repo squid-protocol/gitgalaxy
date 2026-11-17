@@ -29,7 +29,7 @@ If a due diligence team relies solely on compilation-focused parsers or English-
 
 The GitGalaxy ecosystem resolves this through the blAST (Bypassing LLMs and ASTs) engine. Instead of relying on probabilistic Large Language Models (LLMs) to translate millions of lines of code—which leads to massive token expense and hallucinations—the engine applies deterministic syntactic physics using localized structural dictionaries.
 
-In the `language_standards.py` matrix, the GitGalaxy engine does not just look for English markers like `TODO` or `FIXME`. It inherently scans the global optical matrix for localized admissions of structural fracture across the world's most dominant engineering languages:
+In the `gitgalaxy/standards/language_standards/` package, the GitGalaxy engine does not just look for English markers like `TODO` or `FIXME`. It inherently scans the global optical matrix for localized admissions of structural fracture across the world's most dominant engineering languages:
 
 * **Mandarin (Dense Fragility):** `临时代码` (Temporary code), `写死` / `硬编码` (Hardcoded), `坑` (Pitfall/Trap).
 * **Japanese:** `一時的` (Temporary), `汚い` (Dirty/Messy), `やばい` (Dangerous/Awful).

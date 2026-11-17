@@ -1,0 +1,1779 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "genapp-lgwebst5",
+ "survivors": [
+  {
+   "id": "0c0fae231d",
+   "op": "CON",
+   "line": 34,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "7a0b630b2b",
+   "op": "CON",
+   "line": 34,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "e7dd4e691e",
+   "op": "CON",
+   "line": 274,
+   "before": "private final Field f14_HHVAL = Field.zoned(s_HHVAL, 0, 6, 0, false, false, false);",
+   "after": "private final Field f14_HHVAL = Field.zoned(s_HHVAL, 0, 6, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: relocated: every access to HHVAL goes through its own Field, nothing else touches bytes 0-5 of HHVAL, and the initial image holds the same bytes at both addresses",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d88be433b5",
+   "op": "CON",
+   "line": 275,
+   "before": "private final Field f15_MMVAL = Field.zoned(s_MMVAL, 0, 6, 0, false, false, false);",
+   "after": "private final Field f15_MMVAL = Field.zoned(s_MMVAL, 0, 6, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: relocated: every access to MMVAL goes through its own Field, nothing else touches bytes 0-5 of MMVAL, and the initial image holds the same bytes at both addresses",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "6e578391ac",
+   "op": "CON",
+   "line": 276,
+   "before": "private final Field f16_SSVAL = Field.zoned(s_SSVAL, 0, 6, 0, false, false, false);",
+   "after": "private final Field f16_SSVAL = Field.zoned(s_SSVAL, 0, 6, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: relocated: every access to SSVAL goes through its own Field, nothing else touches bytes 0-5 of SSVAL, and the initial image holds the same bytes at both addresses",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "874262fd88",
+   "op": "CON",
+   "line": 294,
+   "before": "private final Field f53_WS_TRANSID = Field.alphanumeric(s_WS_HEADER, 16, 4, false);",
+   "after": "private final Field f53_WS_TRANSID = Field.alphanumeric(s_WS_HEADER, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TRANSID or bytes 16-20 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "bd9718aea5",
+   "op": "CON",
+   "line": 294,
+   "before": "private final Field f53_WS_TRANSID = Field.alphanumeric(s_WS_HEADER, 16, 4, false);",
+   "after": "private final Field f53_WS_TRANSID = Field.alphanumeric(s_WS_HEADER, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TRANSID or bytes 16-20 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "92e50842b7",
+   "op": "CON",
+   "line": 295,
+   "before": "private final Field f54_WS_TERMID = Field.alphanumeric(s_WS_HEADER, 20, 4, false);",
+   "after": "private final Field f54_WS_TERMID = Field.alphanumeric(s_WS_HEADER, 20, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TERMID or bytes 20-24 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f977eb3c45",
+   "op": "CON",
+   "line": 295,
+   "before": "private final Field f54_WS_TERMID = Field.alphanumeric(s_WS_HEADER, 20, 4, false);",
+   "after": "private final Field f54_WS_TERMID = Field.alphanumeric(s_WS_HEADER, 21, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TERMID or bytes 20-24 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5b6c986fe0",
+   "op": "CON",
+   "line": 296,
+   "before": "private final Field f55_WS_TASKNUM = Field.zoned(s_WS_HEADER, 24, 7, 0, false, false, false);",
+   "after": "private final Field f55_WS_TASKNUM = Field.zoned(s_WS_HEADER, 24, 8, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TASKNUM or bytes 24-31 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "bcf6e03a33",
+   "op": "CON",
+   "line": 296,
+   "before": "private final Field f55_WS_TASKNUM = Field.zoned(s_WS_HEADER, 24, 7, 0, false, false, false);",
+   "after": "private final Field f55_WS_TASKNUM = Field.zoned(s_WS_HEADER, 25, 7, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TASKNUM or bytes 24-31 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d73661c07f",
+   "op": "CON",
+   "line": 296,
+   "before": "private final Field f55_WS_TASKNUM = Field.zoned(s_WS_HEADER, 24, 7, 0, false, false, false);",
+   "after": "private final Field f55_WS_TASKNUM = Field.zoned(s_WS_HEADER, 24, 7, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-TASKNUM or bytes 24-30 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3a2cd0e29a",
+   "op": "CON",
+   "line": 297,
+   "before": "private final Field f56_WS_CALEN = Field.zoned(s_WS_HEADER, 31, 7, 0, false, false, false);",
+   "after": "private final Field f56_WS_CALEN = Field.zoned(s_WS_HEADER, 31, 7, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads WS-CALEN or bytes 31-37 of WS-HEADER",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "39fdc4bc4f",
+   "op": "LIT",
+   "line": 298,
+   "before": "private final Field f61_S2 = Field.numericEdited(s_SYMBLIST, 28, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f61_S2 = Field.numericEdited(s_SYMBLIST, 28, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S2 or bytes 28-36 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "99a4930460",
+   "op": "CON",
+   "line": 298,
+   "before": "private final Field f61_S2 = Field.numericEdited(s_SYMBLIST, 28, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f61_S2 = Field.numericEdited(s_SYMBLIST, 29, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S2 or bytes 28-37 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a8e65c498d",
+   "op": "CON",
+   "line": 298,
+   "before": "private final Field f61_S2 = Field.numericEdited(s_SYMBLIST, 28, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f61_S2 = Field.numericEdited(s_SYMBLIST, 28, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S2 or bytes 28-37 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a42b1dcbf2",
+   "op": "CON",
+   "line": 299,
+   "before": "private final Field f65_S4 = Field.numericEdited(s_SYMBLIST, 74, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f65_S4 = Field.numericEdited(s_SYMBLIST, 75, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S4 or bytes 74-83 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f69b07f7f5",
+   "op": "CON",
+   "line": 299,
+   "before": "private final Field f65_S4 = Field.numericEdited(s_SYMBLIST, 74, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f65_S4 = Field.numericEdited(s_SYMBLIST, 74, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S4 or bytes 74-83 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "fbb398a605",
+   "op": "LIT",
+   "line": 299,
+   "before": "private final Field f65_S4 = Field.numericEdited(s_SYMBLIST, 74, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f65_S4 = Field.numericEdited(s_SYMBLIST, 74, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S4 or bytes 74-82 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "2672b71464",
+   "op": "LIT",
+   "line": 300,
+   "before": "private final Field f69_S6 = Field.numericEdited(s_SYMBLIST, 120, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f69_S6 = Field.numericEdited(s_SYMBLIST, 120, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S6 or bytes 120-128 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "75bdbb0a82",
+   "op": "CON",
+   "line": 300,
+   "before": "private final Field f69_S6 = Field.numericEdited(s_SYMBLIST, 120, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f69_S6 = Field.numericEdited(s_SYMBLIST, 120, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S6 or bytes 120-129 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f46965bdd4",
+   "op": "CON",
+   "line": 300,
+   "before": "private final Field f69_S6 = Field.numericEdited(s_SYMBLIST, 120, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f69_S6 = Field.numericEdited(s_SYMBLIST, 121, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S6 or bytes 120-129 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5d4e415b8d",
+   "op": "CON",
+   "line": 301,
+   "before": "private final Field f73_S8 = Field.numericEdited(s_SYMBLIST, 166, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f73_S8 = Field.numericEdited(s_SYMBLIST, 167, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S8 or bytes 166-175 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "8f3174dc92",
+   "op": "LIT",
+   "line": 301,
+   "before": "private final Field f73_S8 = Field.numericEdited(s_SYMBLIST, 166, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f73_S8 = Field.numericEdited(s_SYMBLIST, 166, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S8 or bytes 166-174 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "8fb3407842",
+   "op": "CON",
+   "line": 301,
+   "before": "private final Field f73_S8 = Field.numericEdited(s_SYMBLIST, 166, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f73_S8 = Field.numericEdited(s_SYMBLIST, 166, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S8 or bytes 166-175 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "593aa20c05",
+   "op": "LIT",
+   "line": 302,
+   "before": "private final Field f77_S10 = Field.numericEdited(s_SYMBLIST, 212, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f77_S10 = Field.numericEdited(s_SYMBLIST, 212, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S10 or bytes 212-220 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c79e9992f2",
+   "op": "CON",
+   "line": 302,
+   "before": "private final Field f77_S10 = Field.numericEdited(s_SYMBLIST, 212, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f77_S10 = Field.numericEdited(s_SYMBLIST, 213, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S10 or bytes 212-221 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d74dffedb4",
+   "op": "CON",
+   "line": 302,
+   "before": "private final Field f77_S10 = Field.numericEdited(s_SYMBLIST, 212, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f77_S10 = Field.numericEdited(s_SYMBLIST, 212, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S10 or bytes 212-221 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "7cf4aadb8f",
+   "op": "LIT",
+   "line": 303,
+   "before": "private final Field f81_S12 = Field.numericEdited(s_SYMBLIST, 258, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f81_S12 = Field.numericEdited(s_SYMBLIST, 258, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S12 or bytes 258-266 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ac15a5058d",
+   "op": "CON",
+   "line": 303,
+   "before": "private final Field f81_S12 = Field.numericEdited(s_SYMBLIST, 258, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f81_S12 = Field.numericEdited(s_SYMBLIST, 259, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S12 or bytes 258-267 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ec9e4a454d",
+   "op": "CON",
+   "line": 303,
+   "before": "private final Field f81_S12 = Field.numericEdited(s_SYMBLIST, 258, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f81_S12 = Field.numericEdited(s_SYMBLIST, 258, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S12 or bytes 258-267 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b3b59aba32",
+   "op": "CON",
+   "line": 304,
+   "before": "private final Field f85_S14 = Field.numericEdited(s_SYMBLIST, 304, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f85_S14 = Field.numericEdited(s_SYMBLIST, 304, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S14 or bytes 304-313 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b3da2dee76",
+   "op": "LIT",
+   "line": 304,
+   "before": "private final Field f85_S14 = Field.numericEdited(s_SYMBLIST, 304, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f85_S14 = Field.numericEdited(s_SYMBLIST, 304, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S14 or bytes 304-312 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f3db3d9e55",
+   "op": "CON",
+   "line": 304,
+   "before": "private final Field f85_S14 = Field.numericEdited(s_SYMBLIST, 304, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f85_S14 = Field.numericEdited(s_SYMBLIST, 305, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S14 or bytes 304-313 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "25db8d49ac",
+   "op": "LIT",
+   "line": 305,
+   "before": "private final Field f89_S16 = Field.numericEdited(s_SYMBLIST, 350, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f89_S16 = Field.numericEdited(s_SYMBLIST, 350, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S16 or bytes 350-358 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5dd7e47617",
+   "op": "CON",
+   "line": 305,
+   "before": "private final Field f89_S16 = Field.numericEdited(s_SYMBLIST, 350, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f89_S16 = Field.numericEdited(s_SYMBLIST, 351, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S16 or bytes 350-359 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e44ea32891",
+   "op": "CON",
+   "line": 305,
+   "before": "private final Field f89_S16 = Field.numericEdited(s_SYMBLIST, 350, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f89_S16 = Field.numericEdited(s_SYMBLIST, 350, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S16 or bytes 350-359 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "885e3c6ef5",
+   "op": "CON",
+   "line": 306,
+   "before": "private final Field f93_S18 = Field.numericEdited(s_SYMBLIST, 396, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f93_S18 = Field.numericEdited(s_SYMBLIST, 396, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S18 or bytes 396-405 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9ca0a4592e",
+   "op": "CON",
+   "line": 306,
+   "before": "private final Field f93_S18 = Field.numericEdited(s_SYMBLIST, 396, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f93_S18 = Field.numericEdited(s_SYMBLIST, 397, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S18 or bytes 396-405 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b4d576ec2a",
+   "op": "LIT",
+   "line": 306,
+   "before": "private final Field f93_S18 = Field.numericEdited(s_SYMBLIST, 396, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f93_S18 = Field.numericEdited(s_SYMBLIST, 396, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S18 or bytes 396-404 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "60eaf1ad13",
+   "op": "CON",
+   "line": 307,
+   "before": "private final Field f97_S20 = Field.numericEdited(s_SYMBLIST, 442, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f97_S20 = Field.numericEdited(s_SYMBLIST, 442, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S20 or bytes 442-451 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "625a52a92d",
+   "op": "LIT",
+   "line": 307,
+   "before": "private final Field f97_S20 = Field.numericEdited(s_SYMBLIST, 442, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f97_S20 = Field.numericEdited(s_SYMBLIST, 442, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S20 or bytes 442-450 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "6b7038c021",
+   "op": "CON",
+   "line": 307,
+   "before": "private final Field f97_S20 = Field.numericEdited(s_SYMBLIST, 442, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f97_S20 = Field.numericEdited(s_SYMBLIST, 443, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S20 or bytes 442-451 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a5163f46e3",
+   "op": "CON",
+   "line": 308,
+   "before": "private final Field f101_S22 = Field.numericEdited(s_SYMBLIST, 488, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f101_S22 = Field.numericEdited(s_SYMBLIST, 488, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S22 or bytes 488-497 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "da2ae8c2dc",
+   "op": "CON",
+   "line": 308,
+   "before": "private final Field f101_S22 = Field.numericEdited(s_SYMBLIST, 488, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f101_S22 = Field.numericEdited(s_SYMBLIST, 489, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S22 or bytes 488-497 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "df2c292330",
+   "op": "LIT",
+   "line": 308,
+   "before": "private final Field f101_S22 = Field.numericEdited(s_SYMBLIST, 488, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f101_S22 = Field.numericEdited(s_SYMBLIST, 488, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S22 or bytes 488-496 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1537ca49c3",
+   "op": "CON",
+   "line": 309,
+   "before": "private final Field f105_S24 = Field.numericEdited(s_SYMBLIST, 534, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f105_S24 = Field.numericEdited(s_SYMBLIST, 534, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S24 or bytes 534-543 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "179e668af7",
+   "op": "CON",
+   "line": 309,
+   "before": "private final Field f105_S24 = Field.numericEdited(s_SYMBLIST, 534, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f105_S24 = Field.numericEdited(s_SYMBLIST, 535, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S24 or bytes 534-543 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "717ec5df0a",
+   "op": "LIT",
+   "line": 309,
+   "before": "private final Field f105_S24 = Field.numericEdited(s_SYMBLIST, 534, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f105_S24 = Field.numericEdited(s_SYMBLIST, 534, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S24 or bytes 534-542 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "38d2d1fe42",
+   "op": "LIT",
+   "line": 310,
+   "before": "private final Field f109_S26 = Field.numericEdited(s_SYMBLIST, 580, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f109_S26 = Field.numericEdited(s_SYMBLIST, 580, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S26 or bytes 580-588 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3e2abe22b0",
+   "op": "CON",
+   "line": 310,
+   "before": "private final Field f109_S26 = Field.numericEdited(s_SYMBLIST, 580, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f109_S26 = Field.numericEdited(s_SYMBLIST, 580, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S26 or bytes 580-589 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9ed1693699",
+   "op": "CON",
+   "line": 310,
+   "before": "private final Field f109_S26 = Field.numericEdited(s_SYMBLIST, 580, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f109_S26 = Field.numericEdited(s_SYMBLIST, 581, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S26 or bytes 580-589 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "188d6a77e8",
+   "op": "LIT",
+   "line": 311,
+   "before": "private final Field f113_S28 = Field.numericEdited(s_SYMBLIST, 626, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f113_S28 = Field.numericEdited(s_SYMBLIST, 626, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S28 or bytes 626-634 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "95ef4f30b9",
+   "op": "CON",
+   "line": 311,
+   "before": "private final Field f113_S28 = Field.numericEdited(s_SYMBLIST, 626, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f113_S28 = Field.numericEdited(s_SYMBLIST, 626, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S28 or bytes 626-635 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "aa0a4f5fa4",
+   "op": "CON",
+   "line": 311,
+   "before": "private final Field f113_S28 = Field.numericEdited(s_SYMBLIST, 626, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f113_S28 = Field.numericEdited(s_SYMBLIST, 627, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S28 or bytes 626-635 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "873e51af1f",
+   "op": "CON",
+   "line": 312,
+   "before": "private final Field f117_S30 = Field.numericEdited(s_SYMBLIST, 672, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f117_S30 = Field.numericEdited(s_SYMBLIST, 672, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S30 or bytes 672-681 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "990db40e97",
+   "op": "LIT",
+   "line": 312,
+   "before": "private final Field f117_S30 = Field.numericEdited(s_SYMBLIST, 672, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f117_S30 = Field.numericEdited(s_SYMBLIST, 672, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S30 or bytes 672-680 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ca7b06b016",
+   "op": "CON",
+   "line": 312,
+   "before": "private final Field f117_S30 = Field.numericEdited(s_SYMBLIST, 672, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f117_S30 = Field.numericEdited(s_SYMBLIST, 673, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S30 or bytes 672-681 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "000cb1e139",
+   "op": "CON",
+   "line": 313,
+   "before": "private final Field f121_S32 = Field.numericEdited(s_SYMBLIST, 718, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f121_S32 = Field.numericEdited(s_SYMBLIST, 718, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S32 or bytes 718-727 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3626b8b831",
+   "op": "LIT",
+   "line": 313,
+   "before": "private final Field f121_S32 = Field.numericEdited(s_SYMBLIST, 718, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f121_S32 = Field.numericEdited(s_SYMBLIST, 718, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S32 or bytes 718-726 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "7070bf171a",
+   "op": "CON",
+   "line": 313,
+   "before": "private final Field f121_S32 = Field.numericEdited(s_SYMBLIST, 718, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f121_S32 = Field.numericEdited(s_SYMBLIST, 719, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S32 or bytes 718-727 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "504d9eed95",
+   "op": "CON",
+   "line": 314,
+   "before": "private final Field f125_S34 = Field.numericEdited(s_SYMBLIST, 764, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f125_S34 = Field.numericEdited(s_SYMBLIST, 764, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S34 or bytes 764-773 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5c8755fab2",
+   "op": "CON",
+   "line": 314,
+   "before": "private final Field f125_S34 = Field.numericEdited(s_SYMBLIST, 764, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f125_S34 = Field.numericEdited(s_SYMBLIST, 765, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S34 or bytes 764-773 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e7c8bb0b9a",
+   "op": "LIT",
+   "line": 314,
+   "before": "private final Field f125_S34 = Field.numericEdited(s_SYMBLIST, 764, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f125_S34 = Field.numericEdited(s_SYMBLIST, 764, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S34 or bytes 764-772 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "519e87423a",
+   "op": "CON",
+   "line": 315,
+   "before": "private final Field f129_S36 = Field.numericEdited(s_SYMBLIST, 810, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f129_S36 = Field.numericEdited(s_SYMBLIST, 811, 9, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S36 or bytes 810-819 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "7ab71f7472",
+   "op": "LIT",
+   "line": 315,
+   "before": "private final Field f129_S36 = Field.numericEdited(s_SYMBLIST, 810, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f129_S36 = Field.numericEdited(s_SYMBLIST, 810, 9, \"XZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S36 or bytes 810-818 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "8465cfbd82",
+   "op": "CON",
+   "line": 315,
+   "before": "private final Field f129_S36 = Field.numericEdited(s_SYMBLIST, 810, 9, \"ZZZZZZZZ9\", false);",
+   "after": "private final Field f129_S36 = Field.numericEdited(s_SYMBLIST, 810, 10, \"ZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S36 or bytes 810-819 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1f9f76b01a",
+   "op": "CON",
+   "line": 316,
+   "before": "private final Field f131_S37 = Field.numericEdited(s_SYMBLIST, 833, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f131_S37 = Field.numericEdited(s_SYMBLIST, 833, 11, \"ZZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S37 or bytes 833-843 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5052734634",
+   "op": "LIT",
+   "line": 316,
+   "before": "private final Field f131_S37 = Field.numericEdited(s_SYMBLIST, 833, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f131_S37 = Field.numericEdited(s_SYMBLIST, 833, 10, \"XZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S37 or bytes 833-842 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e6d20bf811",
+   "op": "CON",
+   "line": 316,
+   "before": "private final Field f131_S37 = Field.numericEdited(s_SYMBLIST, 833, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f131_S37 = Field.numericEdited(s_SYMBLIST, 834, 10, \"ZZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S37 or bytes 833-843 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c7e610bf7f",
+   "op": "LIT",
+   "line": 317,
+   "before": "private final Field f133_S38 = Field.numericEdited(s_SYMBLIST, 857, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f133_S38 = Field.numericEdited(s_SYMBLIST, 857, 10, \"XZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: relocated: every access to S38 goes through its own Field, nothing else touches bytes 857-866 of SYMBLIST, and the initial image holds the same bytes at both addresses",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5de46b0c43",
+   "op": "LIT",
+   "line": 318,
+   "before": "private final Field f135_S39 = Field.numericEdited(s_SYMBLIST, 881, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f135_S39 = Field.numericEdited(s_SYMBLIST, 881, 10, \"XZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S39 or bytes 881-890 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b4a18fd0d6",
+   "op": "CON",
+   "line": 318,
+   "before": "private final Field f135_S39 = Field.numericEdited(s_SYMBLIST, 881, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f135_S39 = Field.numericEdited(s_SYMBLIST, 881, 11, \"ZZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S39 or bytes 881-891 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "cfdcd29847",
+   "op": "CON",
+   "line": 318,
+   "before": "private final Field f135_S39 = Field.numericEdited(s_SYMBLIST, 881, 10, \"ZZZZZZZZZ9\", false);",
+   "after": "private final Field f135_S39 = Field.numericEdited(s_SYMBLIST, 882, 10, \"ZZZZZZZZZ9\", false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads S39 or bytes 881-891 of SYMBLIST",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "49a8806a6f",
+   "op": "CON",
+   "line": 337,
+   "before": "private final Field f220_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f220_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-7 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "70c3a980b7",
+   "op": "CON",
+   "line": 337,
+   "before": "private final Field f220_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f220_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-6 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "dc9235f08d",
+   "op": "CON",
+   "line": 337,
+   "before": "private final Field f220_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f220_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTIME or bytes 0-7 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "031a57759f",
+   "op": "CON",
+   "line": 343,
+   "before": "private final Field f248_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f248_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBRESP or bytes 76-83 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "88f3b08802",
+   "op": "CON",
+   "line": 343,
+   "before": "private final Field f248_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f248_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBRESP or bytes 76-84 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9e150e7915",
+   "op": "CON",
+   "line": 343,
+   "before": "private final Field f248_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f248_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBRESP or bytes 76-84 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f7331e2fe4",
+   "op": "CON",
+   "line": 345,
+   "before": "private final Field f251_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f251_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f251_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "0615ac3423",
+   "op": "NEG",
+   "line": 461,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "equivalent",
+   "reason": "abended() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "6eef6a4697",
+   "op": "CON",
+   "line": 461,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "equivalent",
+   "reason": "abended() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "8bba64d43d",
+   "op": "ROR",
+   "line": 461,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "equivalent",
+   "reason": "abended() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "b33bfa8292",
+   "op": "ROR",
+   "line": 461,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "equivalent",
+   "reason": "abended() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "f31a350fee",
+   "op": "DEL",
+   "line": 462,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "abended() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4fc7026569",
+   "op": "LIT",
+   "line": 467,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "7375326c34",
+   "op": "COR",
+   "line": 469,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "equivalent",
+   "reason": "store() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "bf32501ea6",
+   "op": "NEG",
+   "line": 469,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "equivalent",
+   "reason": "store() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4aa043b34f",
+   "op": "LIT",
+   "line": 472,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "equivalent",
+   "reason": "store() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "7e79810e5a",
+   "op": "LIT",
+   "line": 472,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "equivalent",
+   "reason": "store() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "8e8f152186",
+   "op": "CON",
+   "line": 476,
+   "before": "java.util.Map.entry(\"TRAN-RATE-COUNTS\", 3),",
+   "after": "java.util.Map.entry(\"TRAN-RATE-COUNTS\", 4),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d73c0918f1",
+   "op": "LIT",
+   "line": 476,
+   "before": "java.util.Map.entry(\"TRAN-RATE-COUNTS\", 3),",
+   "after": "java.util.Map.entry(\"XRAN-RATE-COUNTS\", 3),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3c619c446b",
+   "op": "CON",
+   "line": 477,
+   "before": "java.util.Map.entry(\"TRAN-RATE-INTERVAL\", 2),",
+   "after": "java.util.Map.entry(\"TRAN-RATE-INTERVAL\", 3),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3e51d45f8b",
+   "op": "LIT",
+   "line": 477,
+   "before": "java.util.Map.entry(\"TRAN-RATE-INTERVAL\", 2),",
+   "after": "java.util.Map.entry(\"XRAN-RATE-INTERVAL\", 2),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5bcf80b9c1",
+   "op": "CON",
+   "line": 478,
+   "before": "java.util.Map.entry(\"A-EXIT\", 1),",
+   "after": "java.util.Map.entry(\"A-EXIT\", 2),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cb12e8811f",
+   "op": "LIT",
+   "line": 478,
+   "before": "java.util.Map.entry(\"A-EXIT\", 1),",
+   "after": "java.util.Map.entry(\"X-EXIT\", 1),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9d20b9b146",
+   "op": "LIT",
+   "line": 479,
+   "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+   "after": "java.util.Map.entry(\"XAINLINE\", 0)",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ab2ab833a8",
+   "op": "CON",
+   "line": 479,
+   "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+   "after": "java.util.Map.entry(\"MAINLINE\", 1)",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6a2b936bfa",
+   "op": "ROR",
+   "line": 484,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "equivalent",
+   "reason": "paragraph() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "de7d10b99b",
+   "op": "NEG",
+   "line": 484,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "equivalent",
+   "reason": "paragraph() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "5e8e26fa62",
+   "op": "LIT",
+   "line": 485,
+   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+   "verdict": "equivalent",
+   "reason": "paragraph() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "020b43e097",
+   "op": "ROR",
+   "line": 497,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "b9e2ed8b99",
+   "op": "NEG",
+   "line": 497,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "228b64a56c",
+   "op": "NEG",
+   "line": 500,
+   "before": "if (DetCics.ignoredByDefault(cond)) {",
+   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "9fa8c51320",
+   "op": "CON",
+   "line": 501,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "8e1c95b954",
+   "op": "LIT",
+   "line": 503,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "d21e908987",
+   "op": "ROR",
+   "line": 504,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "f927b54f47",
+   "op": "NEG",
+   "line": 504,
+   "before": "if (error != null) {",
+   "after": "if (!(error != null)) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "a04f5bf152",
+   "op": "ROR",
+   "line": 508,
+   "before": "if (label == null) {",
+   "after": "if (label != null) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "e86145173d",
+   "op": "NEG",
+   "line": 508,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
+   "verdict": "equivalent",
+   "reason": "condition() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4e3f3b04c9",
+   "op": "DEL",
+   "line": 533,
+   "before": "fill_Lgwebst5Dfhcommarea(d, s, base);",
+   "after": "/* fill_Lgwebst5Dfhcommarea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "out_Lgwebst5Dfhcommarea() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "a32f8f6f8c",
+   "op": "DEL",
+   "line": 591,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "587120ed2f",
+   "op": "DEL",
+   "line": 593,
+   "before": "f2_COUNTSUCCESS = 0L;",
+   "after": "/* f2_COUNTSUCCESS = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f2_COUNTSUCCESS follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "cc035e0ef1",
+   "op": "DEL",
+   "line": 594,
+   "before": "f3_COUNTERRORS = 0L;",
+   "after": "/* f3_COUNTERRORS = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f3_COUNTERRORS follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "c3edfbe2b5",
+   "op": "DEL",
+   "line": 595,
+   "before": "f4_COUNTINQ = 0L;",
+   "after": "/* f4_COUNTINQ = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f4_COUNTINQ follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "218dc350aa",
+   "op": "DEL",
+   "line": 596,
+   "before": "f5_COUNTADD = 0L;",
+   "after": "/* f5_COUNTADD = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f5_COUNTADD follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "1ac52e9387",
+   "op": "DEL",
+   "line": 597,
+   "before": "f6_COUNTUPD = 0L;",
+   "after": "/* f6_COUNTUPD = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f6_COUNTUPD follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "d477c9d974",
+   "op": "DEL",
+   "line": 598,
+   "before": "f7_COUNTDEL = 0L;",
+   "after": "/* f7_COUNTDEL = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f7_COUNTDEL follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "e12e79362e",
+   "op": "DEL",
+   "line": 601,
+   "before": "f17_WS_RESP = 0L;",
+   "after": "/* f17_WS_RESP = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f17_WS_RESP follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "257815417d",
+   "op": "DEL",
+   "line": 602,
+   "before": "f19_WS_CODE = 0L;",
+   "after": "/* f19_WS_CODE = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f19_WS_CODE follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "1857d5c80f",
+   "op": "DEL",
+   "line": 606,
+   "before": "f24_TCPADDRLEN = 0L;",
+   "after": "/* f24_TCPADDRLEN = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f24_TCPADDRLEN follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "9683b051ac",
+   "op": "DEL",
+   "line": 741,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "8ea1fe35cc",
+   "op": "DEL",
+   "line": 742,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "d5fb762888",
+   "op": "CON",
+   "line": 847,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 5 entries, so a capacity of 65 is never filled",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b29df62915",
+   "op": "DEL",
+   "line": 856,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "27870dc740",
+   "op": "CON",
+   "line": 867,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 5",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a7bddc3224",
+   "op": "DEL",
+   "line": 867,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 5",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "af61146abd",
+   "op": "AOR",
+   "line": 867,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 5",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "061b340d60",
+   "op": "ROR",
+   "line": 880,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "218a0b96d5",
+   "op": "CON",
+   "line": 880,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a60ccf1bf6",
+   "op": "AOR",
+   "line": 880,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e583c5642e",
+   "op": "AOR",
+   "line": 880,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f2e922f3bb",
+   "op": "CON",
+   "line": 880,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "fa4c4aea65",
+   "op": "ROR",
+   "line": 880,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "08b36f63ed",
+   "op": "NEG",
+   "line": 881,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "be0385e0d8",
+   "op": "ROR",
+   "line": 881,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2e155350c0",
+   "op": "ROR",
+   "line": 886,
+   "before": "if (next >= 4) {",
+   "after": "if (next > 4) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6f8bd829ba",
+   "op": "NEG",
+   "line": 886,
+   "before": "if (next >= 4) {",
+   "after": "if (!(next >= 4)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7d247b7823",
+   "op": "CON",
+   "line": 886,
+   "before": "if (next >= 4) {",
+   "after": "if (next >= 5) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a71aa39fdf",
+   "op": "ROR",
+   "line": 886,
+   "before": "if (next >= 4) {",
+   "after": "if (next < 4) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "89b1addaf5",
+   "op": "DEL",
+   "line": 889,
+   "before": "i = next;",
+   "after": "/* i = next; */",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2d572b4e8f",
+   "op": "ROR",
+   "line": 892,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8721dde6d8",
+   "op": "NEG",
+   "line": 892,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c4b10a03ab",
+   "op": "LIT",
+   "line": 906,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d20910c1c9",
+   "op": "CON",
+   "line": 1668,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "line 1668 follows an unconditional `if (true) throw new Goback();`: it is never reached",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "ec2b099c83",
+   "op": "CON",
+   "line": 1676,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "line 1676 follows an unconditional `if (true) throw new Goback();`: it is never reached",
+   "tried": [
+    "dead-after-throw"
+   ]
+  }
+ ]
+}

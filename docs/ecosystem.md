@@ -41,8 +41,8 @@ Every crucible pin lives in one manifest, `tests/crucible_pins.toml` (`python te
   documents the layout. `gitgalaxy/data/gitgalaxy/` is a clone of the engine kept in the pool so
   the engine can scan itself — **never edit engine code there**, and never put repos or worktrees inside
   the pool (a pool-wide scan would sample them).
-- `gitgalaxy/v1` … `v5`, `museum*`, `temp/`, `threat_hunter/` — historical/scratch copies.
-  **Only `$PRIMARY` and its worktrees are live engine checkouts.** A grep above `$PRIMARY` will hit stale copies of files like `language_standards.py` in
+- the sibling `v1` … `v5` directories, `museum*`, `temp/`, `threat_hunter/` — historical/scratch copies.
+  **Only `$PRIMARY` and its worktrees are live engine checkouts.** A grep above `$PRIMARY` will hit stale copies of files like the old single-file language-standards module in
   `temp/`, `threat_hunter/`, and the pool's self-scan clone — check the path before trusting or
   editing a hit.
 

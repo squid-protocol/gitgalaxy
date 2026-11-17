@@ -7,7 +7,8 @@ description: "`pip install gitgalaxy` installs **nothing else**. For teams where
 
 **Short version:**
 - **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity**, **betweenness** and **modularity**. Every graph metric is computed natively and needs no optional package: networkx is not used at all (#3041).
-- **What you lose:** token counts, ML threat classification, and YAML config parsing.
+- **What you lose:** token counts and YAML config parsing.
+- **ML threat classification never runs, in any mode.** No trained model ships: `gitgalaxy_malware_xgb_multiclass.json` is not in this repository, so inference is skipped even on a `[full]` install, both golden masters record `"Inference Ran": false`, and `--fail-on-malware` cannot fire. Tests run the inference code only against mocks or a tiny synthetic model, which proves the plumbing, not detection. Ship a measured model or remove the classifier: [#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430).
 - **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`.
 
 ## Getting full precision
@@ -15,6 +16,8 @@ description: "`pip install gitgalaxy` installs **nothing else**. For teams where
 ```bash
 pip install "gitgalaxy[full]"      # tiktoken, xgboost, scikit-learn, pandas, numpy, pyyaml
 ```
+
+`[full]` installs the ML classifier's packages, but not a model, so it does not turn on ML threat classification (#8430).
 
 Or add only the engines whose outputs you need (table below). Each is independent: a missing package only costs the rows under its heading (#3028).
 
@@ -62,24 +65,24 @@ Because every centrality is computed on every install, these all work in every m
 | `token_mass`, `financial_read_cost` (file level), `function_data.token_mass` | NULL (never estimated) |
 | Agent-guardrail `is_agentic_black_hole` / `agentic_isolation_risk` (token mass > 8000) | can never fire (reads 0) |
 
-### `xgboost` + `scikit-learn` + `pandas` + `numpy`: ML threat classification
+### `xgboost` + `scikit-learn` + `pandas` + `numpy`: ML threat classification (no model ships)
 
-Inference needs all four, so a missing one disables it. Each is still detected and reported under its own name, so "Missing Dependencies" says which one to install (#3028).
+These four packages are what inference would need, but inference also needs a trained model file, and none ships (#8430). So the rows below are what **every** install reports today, with or without the packages. A missing package is still reported under its own name, so "Missing Dependencies" says which one to install (#3028).
 
-| Output | Without |
+| Output | Every install today (no model) |
 |---|---|
 | ML threat inference | **skipped** |
 | DB `ai_threat_class` / `ai_threat_confidence` / `ai_threat_score` / `is_malware` | NULL |
 | Audit JSON "Infected Files Detected", GPU JSON `ai_threats`, SARIF ML results | 0 / none (the audit JSON ML section also carries `"Inference Ran": false`, #2986) |
 | `--fail-on-malware` | can never fire |
 
-The DB columns follow whether inference actually **ran**, not the mode flag (#3028). So they are also NULL on a full-precision install when the model file is absent or inference fails, and they keep real values when a scan is zero-dependency only because another package (say `pyyaml`) is missing.
+The DB columns follow whether inference actually **ran**, not the mode flag (#3028). Because no model file ships, they are NULL on a full-precision install too. If a model were supplied, they would keep real values even when a scan is zero-dependency only because another package (say `pyyaml`) is missing.
 
 #### ML layer boundary for validation scans (#2986)
 
 - **No model ships, so there is no full-deps leg.** The XGBoost model file (`gitgalaxy_malware_xgb_multiclass.json`) is not in this repository. A scan with numpy, pandas and xgboost installed but no model still skips inference, so `ml_inference_ran` is false in every public scan, including both golden-master legs. The ML layer is **unexercised, not exonerated**, in all of them.
 - **The inference code path is exercised, the model is not.** `tests/security_auditing/test_ml_real_model_2986.py` trains a tiny synthetic XGBoost model and runs the real load, schema alignment, scoring, threshold, static-asset shield, shadow-patch and recorder chain against it. That proves the plumbing, not detection quality. It needs `scikit-learn` too (`XGBClassifier` raises `ImportError` without it); the `full` extra installs it, so the test runs on `pip install "gitgalaxy[full]"` and skips only where one of the four packages is absent.
-- **Not a CVE detector.** The model classifies malware and supply-chain shapes (Botnet / DDoS, Stealer / Trojan, Dropper / Webshell, Native Infector). It is not expected to fire on CVE-class vulnerabilities, so a CVE ground truth such as temporal-crucible's curl snapshots is the wrong yardstick for it even when a model is present.
+- **Not a CVE detector.** The code's output classes are malware and supply-chain shapes (Botnet / DDoS, Stealer / Trojan, Dropper / Webshell, Native Infector); no model trained on them ships, and none has a measured detection rate. Even with a model, it would not be expected to fire on CVE-class vulnerabilities, so a CVE ground truth such as temporal-crucible's curl snapshots would be the wrong yardstick.
 - **How to read a snapshot.** `ai_threat_score IS NULL` means the layer did not run. Only a non-NULL score means it ran. Filter on `repo_data.is_zero_dependency_mode` and `ai_threat_score IS NOT NULL` before counting threats.
 - **Older snapshots.** Scans recorded before #3028 (the temporal-crucible snapshots among them) store `'Safe'` / `0.0` / `0` for the AI columns. Those are placeholders for "did not run", not a clean verdict. `binary_anomaly` / `obfuscation_flag` are not ML: they come from regex signals (`sec_extension_mismatch`, `sec_unicode_steganography`, `sec_self_propagation`), and those snapshots predate their producers (#368, #1150), so their zeros mean "not yet measured", not "measured clean".
 

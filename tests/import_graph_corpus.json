@@ -42,6 +42,13 @@
     {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"},
     {"repo": "fortran-lang/fpm", "commit": "68971cf22f2fba2bf59f87389d47aedfda28b5eb", "language": "fortran"},
     {"repo": "petercorke/robotics-toolbox-matlab", "commit": "06fddf5228cbfa1132fa63b8e336b43c5ed04899", "language": "matlab"},
+    {"repo": "elixir-plug/plug", "commit": "0d5b5eacb93b6de8f89454452cb232aa57672733", "language": "elixir"},
+    {"repo": "dbuenzli/cmdliner", "commit": "6b21decea3a0ade87fd9855f60b8fd54baa53c07", "language": "ocaml"},
+    {"repo": "ninenines/cowboy", "commit": "29c1f222f5a22749fd0f47a0efba40e115c02577", "language": "erlang"},
+    {"repo": "JuliaGraphs/Graphs.jl", "commit": "dffc7a640133850569647851b4533a56fc7d40c8", "language": "julia"},
+    {"repo": "status-im/nim-chronos", "commit": "ae78c35474bc98b1a40825b7860368d38a580dab", "language": "nim"},
+    {"repo": "terraform-aws-modules/terraform-aws-eks", "commit": "91b8a8d944e3cf169483108acd12d5b1e47856f7", "language": "hcl"},
+    {"repo": "r-lib/testthat", "commit": "54c0edc932018079a8925845f7e278097d19c786", "language": "r"},
     {"repo": "TextureGroup/Texture", "commit": "d8aa8c796dd7770ea177989253ef1cf8878cd50a", "language": "objective-c"}
   ]
 }

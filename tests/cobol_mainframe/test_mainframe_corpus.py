@@ -59,11 +59,30 @@ def test_committed_excerpt_matches_the_manifest(corpus):
 @pytest.mark.parametrize("corpus", CORPORA, ids=lambda c: c["name"])
 def test_committed_excerpt_is_byte_identical_to_the_clone(corpus):
     """Local only: skipped unless the corpus is fetched at its pin."""
+    _assert_excerpt_matches_clone(corpus)
+
+
+def _assert_excerpt_matches_clone(corpus):
     clone = mc.clone_path(corpus)
-    if not (clone / ".git").exists() or _git("rev-parse", "HEAD", cwd=clone) != corpus["ref"]:
+    # Check the clone exists BEFORE running git in it: cwd= a missing dir raises (#8572)
+    if not (clone / ".git").exists():
+        pytest.skip(f"{corpus['name']} not fetched (mainframe_corpus.py fetch)")
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=clone, capture_output=True, text=True).stdout.strip()
+    if head != corpus["ref"]:  # a clone with no commit (broken fetch) is not fetched
         pytest.skip(f"{corpus['name']} not fetched (mainframe_corpus.py fetch)")
     for rel in corpus["excerpt"]["files"]:
         assert (mc.EXCERPTS / corpus["name"] / rel).read_bytes() == (clone / rel).read_bytes(), rel
+
+
+@pytest.mark.parametrize("make_git_dir", [False, True], ids=["no-clone-dir", "dir-without-git"])
+def test_excerpt_check_skips_when_the_clone_is_absent(tmp_path, monkeypatch, make_git_dir):
+    """#8572: a missing clone dir (CI) skips instead of raising from git's cwd."""
+    monkeypatch.setenv(mc.CACHE_ENV, str(tmp_path / "cache"))
+    corpus = CORPORA[0]
+    if make_git_dir:
+        mc.clone_path(corpus).mkdir(parents=True)
+    with pytest.raises(pytest.skip.Exception):
+        _assert_excerpt_matches_clone(corpus)
 
 
 @pytest.fixture

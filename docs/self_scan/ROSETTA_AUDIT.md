@@ -16,7 +16,7 @@ One identical 12-probe program written in all 46 signature-bearing languages, wi
 planted count of every signal keyword recorded in `data/<lang>/expected_signals.json`. Identical
 intent everywhere means any divergence in what the engine extracts is measured language bias.
 Those manifests are the corpus's human-blessed baselines: every number in them has a
-`status: "validated"` entry in its `deviation_ledger.json` (its `docs/GATING.md`), the same bar
+`status: "validated"` entry in its `deviation_ledger.json` (the GATING doc in the corpus repo), the same bar
 `tests/tri_comparison_baseline_*.json` and the tri-comparison ledger hold here.
 
 ## The three outcomes

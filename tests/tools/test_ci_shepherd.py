@@ -329,18 +329,37 @@ def test_a_learned_flake_gets_one_rerun_on_its_first_attempt_only():
                         "status": "completed",
                         "conclusion": "failure",
                         "details_url": "https://github.com/o/r/actions/runs/7/job/8",
+                        **({"app": {"slug": "github-actions"}} if with_log[0] else {}),
                     }
                 ]
             }
         if "/actions/jobs/8" in path:
             return {"run_attempt": attempt[0]}
+        if path.endswith("/files") or "/compare/" in path:
+            return []
         return {"head": {"sha": "h"}, "mergeable_state": "clean"}
+
+    with_log = [False]  # an Actions check run: its log is read, so the failing test is known
 
     def triage(flaky):
         return ci_digest.digest(1, api, logs=lambda i: "FAILED tests/t.py::test_x", flaky=flaky)["failed"][0]["triage"]
 
     assert triage(set()) == "real"
     assert triage({"smoke"}) == "flake"
+    # 2026-11-13: the list also says which causes a rerun does not cure. A named failing test in a check whose test
+    # failures fail again on rerun is the PR's own: no rerun (PR #8169 was rerun on every push for four days)
+    class Learned(set):  # flake_history.learned()'s shape: the names, plus the causes a rerun does not cure
+        real_causes: dict = {}
+
+    with_log[0] = True
+    cures = Learned({"smoke"})
+    assert triage(cures) == "flake"  # only curable causes on record: as before
+    own = Learned({"smoke"})
+    own.real_causes = {"smoke": {"test_failure"}, "other": {"timeout"}}
+    assert triage(own) == "real"
+    own.real_causes = {"smoke": {"db2_start"}}  # some other cause is this check's own: a named test is still a flake
+    assert triage(own) == "flake"
+    with_log[0] = False
     attempt[0] = 2  # the rerun failed too: real
     assert triage({"smoke"}) == "real"
 

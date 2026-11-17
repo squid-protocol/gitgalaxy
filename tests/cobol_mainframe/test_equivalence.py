@@ -199,7 +199,7 @@ def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
     assert {dd: (o["equal"], o["records"]) for dd, o in report["outputs"].items()} == {
         "ACCTFILE": (52, 52), "TRANSACT": (53, 53)}  # fmt: skip
     # #4023 follow-up: every injected file fault is proven too -- the port takes the COBOL's error path
-    assert len(report["faults"]) == 19 and all(f["ok"] for f in report["faults"]), report["faults"]
+    assert len(report["faults"]) == 20 and all(f["ok"] for f in report["faults"]), report["faults"]
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")

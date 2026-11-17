@@ -79,7 +79,22 @@ def _declared_model(lang: str) -> str:
 # TRANSID in a COBOL program -- a different file -- routes to it. No syntax inside
 # the deck reaches a resource by the name the extractor gives it; DEFINE records
 # install in written order. Corollary 4 answered no.
-POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms", "db2_sql", "csd", "postgresql"}
+# #6572 added erlang: its units come from Mode E terminator cleaving, so every `-module` / `-export` / `-spec`
+# attribute line is its own `Declarative_Block` bucket, a label that never recurs as a call. Those buckets are
+# not callable units, so a by_name census would count them all uncalled (corollary 4's pinned-on-purpose
+# rule, the sqlite/db2_sql precedent). Real clause units are named but share the one invocation model.
+POSITIONAL_LANGUAGES = {
+    "jcl",
+    "dockerfile",
+    "html",
+    "sqlite",
+    "yaml",
+    "bms",
+    "db2_sql",
+    "csd",
+    "postgresql",
+    "erlang",
+}
 
 
 def test_invocation_model_values_are_a_closed_set():

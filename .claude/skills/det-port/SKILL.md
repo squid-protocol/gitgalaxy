@@ -108,6 +108,7 @@ A translator fix is never a hand edit of a port.
       `equivalence_cics.py` templates).
 
 **A new case:**
+- [ ] One program per PR; the cap exception is the orchestrator's to grant, never yours (worker rules, #8422).
 - [ ] `tests/equivalence/<case>/case.json`, plus a NOTICE naming the corpus licence and what was derived.
 - [ ] Scenarios that reach the error paths: file statuses, RESP conditions, SQLCODEs (+100, -803, -811,
       constraints), and faults. A Db2 case gets one SQL-fault task per statement it executes by default
@@ -242,7 +243,10 @@ A translator fix is never a hand edit of a port.
   and `equivalence.py run CASE --record` (`evidence.json`) (#6217). A PR adding a proven det case adds its ledger entry; the
   det-sweep summary lists expected NOT PROVEN cases, the real failure is the `coverage ledger: unexpected` line (#6161). After
   merging main run `pr_gates --ratchets --only-ratchets det-mutation`; stale ledgers need `det_mutation.py run --sample 0`
-  (refresh refuses) and dropping killed ids from the survivors file (#6024, #6165).
+  (refresh refuses) and dropping killed ids from the survivors file (#6024, #6165). `det_mutation.py run` defaults to
+  `--sample 150` and overwrites a full-sample ledger: pass `--sample 0`. A `refresh` after a survivors-text edit re-runs every
+  survivor (~30 min/case): start it with `bg-job.sh`, since a foreground `heavy-run.sh` hits the 10-min cap (#8092).
+- **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it and a case with no entry weighs the median in `proof_sweep.py --shard`; no test or gate fails on it, and an added line conflicts with sibling PRs.
 - **Case-draw traps (2).** A new LINKed-program scenario with no COMMAREA or a stated `commarea_length` fails the java-facade
   side: run `evidence.py prove <case>` before the long mutation run (#6024). A case with run-time-built file names needs
   `install_symbols` incl. `ID`; a KeyError on a dataset name is a file-lineage fix in galaxy_ir, not the case (#5972). A port's

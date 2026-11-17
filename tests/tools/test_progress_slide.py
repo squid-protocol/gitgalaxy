@@ -101,8 +101,8 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
         f"{lad['total']['l2_plus']} / {lad['total']['programs']}",
         f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",  # the CICS ledger row
         f"{comp['det_mutation']['total']['caught']:,}",  # the L5 tile: planted bugs caught by tests
-        f"How faithful the Java runtime is: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
-        f"{comp['cobolrt_rules']['rules']} rules match IBM's manuals",
+        f"Runtime fidelity: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
+        f"{comp['cobolrt_rules']['rules']} rules match IBM",
         f"{iss['core']['closed']} / {iss['core']['total']}",
         str(iss["frontier"]["total"]),
         "78 / 97",
@@ -126,6 +126,103 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
         if era != "none" and row["programs"]:
             assert f"{row['programs']} programs" in texts
             assert f"same output (L2+): {row['l2_plus']} ({100 * row['l2_plus'] / row['programs']:.0f}%)" in texts
+
+
+def _fresh(blind_draws=(1,), planned=17, with_l2=True):
+    """A journey with the census rehearsal and blind draws, plus a trials ledger for draw 1."""
+    est = [{
+        "key": "census", "name": "Census", "kind": "census", "measure": "L1", "program_basis": 39,
+        "first_contact": {"date": "d0", "value": 8, "total": 40, "source": "s"},
+        "milestones": [{"value": 13, "total": 39, "prs": 108, "days": 3.3}],
+        "series": [{"date": "2026-11-04 1:46 PM ET", "prs": 0, "value": 8, "accounted": None, "total": 40, "source": "s"},
+                   {"date": "2026-11-07 8:42 PM ET", "prs": 108, "value": 13, "accounted": 37, "total": 39,
+                    "source": "s"}],
+    }]  # fmt: skip
+    t0, l2_at, read = "2026-11-07 10:32 PM ET", "2026-11-11 06:50:22 UTC", "2026-11-13 1:17 PM UTC"
+    for d in blind_draws:
+        est.append({
+            "key": f"blind-{d}", "name": f"Blind {d}", "kind": "blind", "draw": d, "estate": f"estate-{d}",
+            "trial": f"trial-00{d}", "measure": "L1", "program_basis": 29,
+            "first_contact": {"date": "d0", "value": 0, "total": 29, "source": "s"},
+            "milestones": [{"value": 25, "total": 29, "prs": 5, "days": 0.4}],
+            "series": [{"date": t0, "prs": 0, "value": 0, "accounted": 7, "total": 29, "source": "s"},
+                       {"date": read, "prs": 68, "value": 28, "accounted": None, "total": 29, "source": "s"}],
+            **({"l2_series": [{"date": t0, "prs": 0, "value": 0, "total": 29, "source": "s"},
+                              {"date": "2026-11-10 12:10:24 UTC", "prs": 27, "value": 2, "total": 29, "source": "s"},
+                              {"date": l2_at, "prs": 46, "value": 28, "total": 29, "source": "s"},
+                              {"date": read, "prs": 68, "value": 28, "total": 29, "source": "s"}]} if with_l2 else {}),
+        })  # fmt: skip
+    progs = {f"P{i}": {"final": "proven@1", "attempts": [{"n": 1}]} for i in range(23)}
+    progs |= {f"Q{i}": {"final": "proven@2(engine)", "attempts": [{"n": 1}, {"n": 2}]} for i in range(5)}
+    trials = {"trials": [{"id": "trial-001", "estate": "estate-1", "closed": "2026-11-12", "eligible": list(progs),
+                          "system": {"engine_version": "v2.12.0"}, "programs": progs}]}  # fmt: skip
+    return pr.fresh_component({"estates": est}, trials, planned)
+
+
+def test_fresh_code_is_counted_from_the_journey_and_the_trial_ledger():
+    fr = _fresh()
+    (c,), (b,) = fr["census"], fr["blind"]
+    assert (c["l1"]["first"], c["l1"]["first_total"], c["l1"]["now"], c["accounted"]["now"]) == (8, 40, 13, 37)
+    assert (b["l1"]["first"], b["l1"]["now"], b["l2"]["now"], b["l2"]["prs_to_now"]) == (0, 28, 28, 46)
+    assert (b["l2"]["days_to_now"], b["l1"]["days_to_now"], c["l1"]["days_to_now"]) == (3.1, 5.4, 3.3)  # ET and UTC
+    assert b["accounted"] is None  # measured at T0 only: an old reading is never shown as the current one
+    ft = b["first_try"]
+    assert (ft["proven_first"], ft["judged"], ft["proven_final"]) == (23, 28, 28)  # fixes never turn into first try
+
+
+def test_a_date_that_does_not_parse_leaves_the_days_out():
+    assert pr.journey_time("d0") is None and pr.journey_time(None) is None
+    assert pr._climb([{"date": "d0", "prs": 0, "value": 0, "total": 2}, {"prs": 3, "value": 2, "total": 2}])[
+        "days_to_now"] is None  # fmt: skip
+
+
+def _panel_widths(svg):
+    return {m[2]: float(m[1]) for m in re.finditer(r'<rect [^>]*width="([\d.]+)"[^>]*><title>Blind (\d+): ', svg)}
+
+
+def test_every_planned_draw_has_a_slot_and_a_drawn_one_shows_its_climb_and_days(report):
+    svg = ps.render({**report, "fresh": _fresh()})
+    texts = _texts(svg)
+    assert "Blind trials: 1 of 17 drawn" in texts
+    assert texts.count("not yet drawn") == 16
+    assert "0/29 → 28/29" in texts and "23 / 28" in texts and "82%" in texts
+    assert "Same output (L2): 0 → 28 of 29" in texts and "46 PRs · 3.1 days" in texts
+    assert "Blind 1: L2 from 0 to 28 of 29" in _titles(svg)
+    assert not any("no blind codebase has been measured yet" in t for t in texts)
+    # owner, 2026-11-13: right under the tiles, before the ladder; a drawn panel two cells wide while few are drawn
+    assert texts.index("Blind trials: 1 of 17 drawn") < next(
+        i for i, t in enumerate(texts) if t.startswith("Results:"))  # fmt: skip
+    assert _panel_widths(svg)["1"] > 2 * 180
+
+
+def test_from_wide_until_draws_a_drawn_panel_is_one_cell(report):
+    many = ps.render({**report, "fresh": _fresh(blind_draws=tuple(range(1, ps.WIDE_UNTIL + 1)))})
+    assert len(set(_panel_widths(many).values())) == 1 and max(_panel_widths(many).values()) < 200
+    assert _texts(many).count("not yet drawn") == 17 - ps.WIDE_UNTIL
+
+
+def test_the_census_is_not_on_the_slide_its_gains_are_on_the_capability_rows(report):
+    # owner, 2026-11-13: no census card or row; what the trials made us build shows on the capability ledger instead
+    svg = ps.render({**report, "fresh": _fresh()})
+    texts = _texts(svg)
+    assert not any("Census" in t or "8/40" in t for t in texts)
+    found = {r["name"]: r["found"] for r in report["components"]["capabilities"]["rows"] if r.get("found")}
+    assert {"Copybook search", "JSON GENERATE / PARSE", "Db2 embedded SQL"} <= set(found)
+    for f in found.values():
+        assert f in texts and f.startswith(("Gap found by ", "Tested by "))
+
+
+def test_a_draw_without_cases_is_drawn_at_l1_never_l2(report):
+    svg = ps.render({**report, "fresh": _fresh(blind_draws=(1, 2), with_l2=False)})
+    texts = _texts(svg)
+    assert "Translates whole (L1): 0 → 28 of 29" in texts and "68 PRs · 5.4 days" in texts
+    assert not any(t.startswith("Same output (L2)") for t in texts)
+    assert texts.count("not yet drawn") == 15
+
+
+def test_with_no_fresh_code_the_section_is_absent(report):
+    texts = _texts(ps.render({**report, "fresh": pr.fresh_component(None, None, 17)}))
+    assert not any(t.startswith("Blind trials") for t in texts)
 
 
 def test_the_family_rows_come_from_the_rules_families(report):
@@ -183,7 +280,7 @@ def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(repor
 def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build(report):
     texts = _texts(ps.render(report))
     joined = " ".join(texts)
-    bands = ["1. Real codebases", "All real codebases", "2. Our internal test suites"]
+    bands = ["1. Training codebases", "All real codebases", "2. Our own test suites"]
     at = [joined.index(b) for b in bands]
     assert at == sorted(at)
     for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:

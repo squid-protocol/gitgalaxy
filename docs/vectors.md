@@ -88,10 +88,14 @@ epistemic status:
 - **The predictive layer** (2 of the 13 vectors, `hist_stability` and `hist_churn` — plus
   recidivism and change-entropy features not yet exposed as scored vectors at all): the
   **history** family. This is the layer the record actually validated as carrying defect-lift
-  beyond size. It is presently inert: every scan runs with `GITGALAXY_DISABLE_GIT_HISTORY`
-  set, so `hist_stability` and `hist_churn` are ablated to zero in every recorded scan today
-  ([temporal-crucible#29](https://github.com/squid-protocol/temporal-crucible/issues/29),
-  "Engine gap: process features are ablated to zero in every scan"). The `hist_` prefix
+  beyond size. It is inert only where history is off: the pinned-corpus scans (golden masters, crucible
+  runs) set `GITGALAXY_DISABLE_GIT_HISTORY` by design, so there `hist_stability` and `hist_churn` read the neutral
+  values. Ordinary scans of a git checkout measure them; in the v2.12.0 population database they are non-neutral for a
+  large share of sampled files (churn above zero in about a fifth, stability varying in about a third; 243 and 488 of 580
+  repositories). The two gauges are one axis (rank correlation about -0.86 within a repository) and are superseded by the
+  plain readings of wiki 08-27, now persisted as `commits_365d`, `commits_90d`, `days_since_last_change`, `authors_365d`
+  and `top_author_share_365d`
+  ([temporal-crucible#29](https://github.com/squid-protocol/temporal-crucible/issues/29)). The `hist_` prefix
   marks this family as **promoted pending** temporal-crucible#29's history-enabled mode
   shipping, and then passing the defect-lift gate defined in
   [gitgalaxy#2987](https://github.com/squid-protocol/gitgalaxy/issues/2987) ("a signal earns
@@ -445,9 +449,10 @@ history-enabled mode, not already a shipped predictive layer.
   temporal-crucible `docs/bh_eval.md`, B-H3).
 
 **What this means for the current columns.** As shipped today, `hist_stability` and
-`hist_churn` (persisted as `risk_stability`/`risk_churn`) are computed with
-`GITGALAXY_DISABLE_GIT_HISTORY` set in every scan, so both are **ablated to zero on every
-recorded row** — they currently carry no signal at all, predictive or descriptive
+`hist_churn` (persisted as `risk_stability`/`risk_churn`) are neutral wherever
+`GITGALAXY_DISABLE_GIT_HISTORY` is set (the pinned-corpus scans); in ordinary scans of a git checkout they carry
+the history signal, as one redundant axis (they are the 365-day commit count and the days since the last change in two
+forms). The plain-unit columns that replace them are described in wiki 08-27
 ([temporal-crucible#29](https://github.com/squid-protocol/temporal-crucible/issues/29)). Do
 not read a currently-recorded `hist_stability` or `hist_churn` value as meaningful, in either
 direction, until history-enabled mode ships and the resulting metric clears
@@ -491,8 +496,8 @@ It was not repairable in place, for two reasons:
 
 - **~31% of the sum was constant or dead.** `spec_alignment` and `doc_surface` are
   ceiling-defaulted where the convention is absent (#3111, #3114); `hist_stability` and
-  `hist_churn` are ablated to zero in every scan today (`GITGALAXY_DISABLE_GIT_HISTORY`;
-  temporal-crucible#29, promotion pending #2987).
+  `hist_churn` were neutral wherever `GITGALAXY_DISABLE_GIT_HISTORY` is set (the pinned-corpus scans;
+  temporal-crucible#29, promotion pending #2987) and measured otherwise.
 - **It contradicted this document.** The vectors were renamed to activity/content *surface
   meters* precisely because the per-file standing-risk claim did not survive the
   temporal-crucible validation (#2982, #2991). Summing them re-created exactly the composite

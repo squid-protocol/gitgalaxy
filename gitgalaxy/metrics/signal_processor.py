@@ -396,6 +396,7 @@ class SignalProcessor:
                         "ownership_entropy": 0.0,
                         # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
                         "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
+                        **self._history_columns(meta),
                         "author_distribution": 0.0,
                         "ownership": dominant_author,
                         "domain_context": {
@@ -437,6 +438,7 @@ class SignalProcessor:
                         "ownership_entropy": 0.0,
                         # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
                         "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
+                        **self._history_columns(meta),
                         "author_distribution": 0.0,
                         "ownership": ghost_meta.get("ownership", "Unknown Architect"),
                         "domain_context": {
@@ -504,6 +506,7 @@ class SignalProcessor:
                         "ownership_entropy": 0.0,  # <-- FIX: Documentation has no logic entropy
                         # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
                         "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
+                        **self._history_columns(meta),
                         "author_distribution": 0.0,  # <-- FIX: Plaintext changelogs don't have Authorship Centralization risk
                         "ownership": dominant_author,
                         "indentation_style": self._calc_indentation_style(raw_signals),
@@ -851,6 +854,7 @@ class SignalProcessor:
                 "ownership_entropy": ownership_score,
                 # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
                 "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
+                **self._history_columns(meta),
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
                 "indentation_style": self._calc_indentation_style(signals),
@@ -1415,6 +1419,13 @@ class SignalProcessor:
     # ==========================================================================
     # FORENSIC EQUATIONS (The Structural Models)
     # ==========================================================================
+
+    @staticmethod
+    def _history_columns(meta: dict[str, Any]) -> dict[str, Any]:
+        """The chronometer's activity readings in plain units, for the file_data columns; absent keys stay absent (NULL = not measured)."""
+        tel = meta.get("temporal_telemetry", {})
+        keys = ("commits_365d", "commits_90d", "days_since_last_change", "authors_365d", "top_author_share_365d")
+        return {k: tel[k] for k in keys if k in tel}
 
     def _calc_raw_temporal_signals(self, temp: dict[str, Any]) -> tuple[float, float]:
         """Calculates Stability (Age) and Raw Churn (Seismic Frequency)."""

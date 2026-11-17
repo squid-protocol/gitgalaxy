@@ -156,6 +156,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [08-23: Hardcoded Secrets Exposure](08-23-hardcoded-secrets-exposure.md)
 * [08-24: Reach Sensor](08-24-reach-sensor.md)
 * [08-25: Library Surface](08-25-library-surface.md)
+* [08-26: Change Report](08-26-change-report.md)
 
 ### 🗄️ The Cookbook (Applied Use Cases)
 * [Audit Local AI Models](cookbook/audit-local-ai-models.md)

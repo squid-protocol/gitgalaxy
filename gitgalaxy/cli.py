@@ -12,6 +12,7 @@
     gitgalaxy assess ESTATE [...]      the offline readiness scan (gitgalaxy/tools/readiness/assess.py)
     gitgalaxy reach SCAN_DB [...]      who depends on a file, from a finished scan (gitgalaxy/tools/sensors/reach.py)
     gitgalaxy libsurface SCAN_DB [...] which libraries a repository leans on, and how that moves (gitgalaxy/tools/sensors/libsurface.py)
+    gitgalaxy change REPO [...]        what a change did: repeated renames, debt markers, functions touched and who calls them (gitgalaxy/tools/sensors/change.py)
 
 The scan engine itself stays `galaxyscope` / `blast`.
 """
@@ -24,7 +25,7 @@ import sys
 
 def main(argv: list[str] | None = None) -> int:
     from gitgalaxy.tools.readiness import assess
-    from gitgalaxy.tools.sensors import libsurface, reach
+    from gitgalaxy.tools.sensors import change, libsurface, reach
 
     p = argparse.ArgumentParser(prog="gitgalaxy")
     sub = p.add_subparsers(dest="command", required=True)
@@ -36,9 +37,15 @@ def main(argv: list[str] | None = None) -> int:
         "libsurface", help="which libraries a repository leans on and how that surface changes (read-only)"
     )
     libsurface.add_arguments(ls)
+    c = sub.add_parser(
+        "change", help="what a git change did: repeated renames, debt markers, functions touched (read-only)"
+    )
+    change.add_arguments(c)
     args = p.parse_args(argv)
     if args.command == "reach":
         return reach.run(args)
+    if args.command == "change":
+        return change.run(args)
     return libsurface.run(args) if args.command == "libsurface" else assess.run(args)
 
 

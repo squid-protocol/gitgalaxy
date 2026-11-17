@@ -18,6 +18,10 @@
       ],
       "STDDDS": [
         "//INCA     DD DSN=INC.FROM.A,DISP=SHR"
+      ],
+      "OUTER": [
+        "// INCLUDE MEMBER=STDDDS",
+        "//OUTA     DD DSN=OUT.FROM.A,DISP=SHR"
       ]
     },
     "LIB.B": {
@@ -149,7 +153,86 @@
     "//         PEND",
     "// SET A=SETA,B=SETB,Q=SETQ",
     "//E1       EXEC SP",
-    "//E2       EXEC SP,A=EXECA,C="
+    "//E2       EXEC SP,A=EXECA,C=",
+    "//*",
+    "//NSTJOB   JOB (ACCT),'NESTED DD',CLASS=A,MSGCLASS=X",
+    "//C        PROC",
+    "//CS1      EXEC PGM=CCC",
+    "//CS1DD1   DD DSNAME=A.B.C,DISP=SHR",
+    "//CS1DD2   DD SYSOUT=A",
+    "//         PEND",
+    "//B        PROC",
+    "//BS1      EXEC PROC=C",
+    "//CS1.CS1DD1 DD DSNAME=X.Y.Z",
+    "//CS1.CS1DD3 DD SYSOUT=A",
+    "//BS2      EXEC PGM=BBB",
+    "//BS2DD1   DD DSNAME=E,DISP=SHR",
+    "//         PEND",
+    "//A        PROC",
+    "//AS1      EXEC PROC=B",
+    "//BS2.BS2DD2 DD DSNAME=G,DISP=SHR",
+    "//AS2      EXEC PGM=AAA",
+    "//AS2DD1   DD DSNAME=E,DISP=SHR",
+    "//         PEND",
+    "//STEP1    EXEC PROC=A",
+    "//AS2.AS2DD2 DD DSNAME=G,DISP=SHR",
+    "//STEP2    EXEC PGM=IEFBR14",
+    "//*",
+    "//NSYJOB   JOB (ACCT),'NESTED SYMBOLS',CLASS=A,MSGCLASS=X",
+    "// SET A=123,B=456",
+    "//PROC1    PROC A=234,C=GHI",
+    "//PSTEP1   EXEC PROC=PROC2,A=ABC,B=DEF",
+    "//PSTEP2   EXEC PGM=IEFBR14",
+    "//P2DD     DD DSN=X&A..&B..&C,DISP=SHR",
+    "//         PEND",
+    "//PROC2    PROC",
+    "//P2STEP1  EXEC PGM=IEBGENER",
+    "//SYSPRINT DD SYSOUT=A",
+    "//SYSUT1   DD DSN=&A..&B,DISP=SHR",
+    "//SYSUT2   DD SYSOUT=A,DCB=LRECL=&C",
+    "//         PEND",
+    "//STEP1    EXEC PROC=PROC1,A=,C=789",
+    "//BARNEY   EXEC PGM=IEFBR14",
+    "//BD       DD DSN=Z&A..&B,DISP=SHR",
+    "//*",
+    "//KNDJOB   JOB (ACCT),'DD KIND',CLASS=A,MSGCLASS=X",
+    "//KP       PROC",
+    "//K1       EXEC PGM=PGMK",
+    "//D1       DD DSN=PROC.D1",
+    "//D2       DD DSN=PROC.D2",
+    "//D3       DD DUMMY",
+    "//D4       DD SYSOUT=A",
+    "//D5       DD DSN=PROC.D5",
+    "//D7       DD DSN=NULLFILE",
+    "//         PEND",
+    "//W1       EXEC KP",
+    "//K1.D1    DD DUMMY",
+    "//K1.D2    DD DSN=NULLFILE",
+    "//K1.D3    DD DSN=NEW.D3",
+    "//K1.D7    DD DSN=NEW.D7",
+    "//W2       EXEC KP",
+    "//W3       EXEC KP",
+    "//K1.D3    DD SYSOUT=A",
+    "//*",
+    "//INPJOB   JOB (ACCT),'INCLUDE IN PROC',CLASS=A,MSGCLASS=X",
+    "//PROCLIB  JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//IP       PROC",
+    "//N1       EXEC PGM=PGMN",
+    "//N1DD     DD DSN=N1.OWN,DISP=SHR",
+    "// INCLUDE MEMBER=OUTER",
+    "//N2       EXEC PGM=PGMO",
+    "//         PEND",
+    "//V1       EXEC IP",
+    "//*",
+    "//INPJOB2  JOB (ACCT),'INCLUDE IN PROC 2',CLASS=A,MSGCLASS=X",
+    "//PROCLIB  JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//IP       PROC",
+    "//N1       EXEC PGM=PGMN",
+    "//N1DD     DD DSN=N1.OWN,DISP=SHR",
+    "// INCLUDE MEMBER=OUTER",
+    "//N2       EXEC PGM=PGMO",
+    "//         PEND",
+    "//V2       EXEC IP"
   ],
   "resolve_input": "resolve: the call step of a job, e.g. S1 of SYMJOB; libraries are the libraries object of this file.",
   "resolve_answer": "expect: per proc step (key CALLSTEP.PROCSTEP, or CALLSTEP for a plain step), pgm; parm and cond only where the scenario is about them; dd = every DD naming a DSN, in the order the step ends up with them, as {ddname: dsn}.",
@@ -497,6 +580,160 @@
         }
       },
       "basis": "JCL Reference, 'Defining and nullifying JCL symbols' (pp. 39-40, 42): an EXEC value overrides the PROC default (A=EXECA, over PROCA and over SETA); C= on the EXEC nullifies the symbol, and 'if you use an EXEC statement to nullify a JCL symbol, and a PROC statement specifies a default, the JCL symbol is nullified' (p. 42), so &C.. gives the empty text and the DSN is HLQ.F3."
+    },
+    {
+      "id": "nested-dd-override-and-add-three-levels",
+      "job": "NSTJOB",
+      "call": "STEP1",
+      "expect": {
+        "STEP1.CS1": {
+          "pgm": "CCC",
+          "dd": {
+            "CS1DD1": "X.Y.Z"
+          }
+        },
+        "STEP1.BS2": {
+          "pgm": "BBB",
+          "dd": {
+            "BS2DD1": "E",
+            "BS2DD2": "G"
+          }
+        },
+        "STEP1.AS2": {
+          "pgm": "AAA",
+          "dd": {
+            "AS2DD1": "E",
+            "AS2DD2": "G"
+          }
+        }
+      },
+      "assumed": "A4",
+      "basis": "JCL Reference, 'Nested procedures' and 'Examples of modifying nested procedures', Example 1 (pp. 32-34): procedure A calls B calls C and the manual lists the statements the job stream is equivalent to: CS1 (level 3), BS2 (level 2), AS2 (level 1). B's CS1.CS1DD1 overrides C's DD (A.B.C becomes X.Y.Z), A's BS2.BS2DD2 adds a DD to B's step BS2 and the job's AS2.AS2DD2 adds one to A's step AS2, each after the DDs the step already had. CS1DD2 and CS1DD3 are SYSOUT DDs and name no DSN."
+    },
+    {
+      "id": "nested-symbols-exec-then-set-then-outer",
+      "job": "NSYJOB",
+      "call": "STEP1",
+      "expect": {
+        "STEP1.P2STEP1": {
+          "pgm": "IEBGENER",
+          "dd": {
+            "SYSUT1": "ABC.DEF"
+          }
+        },
+        "STEP1.PSTEP2": {
+          "pgm": "IEFBR14",
+          "dd": {
+            "P2DD": "X.456.789"
+          }
+        }
+      },
+      "assumed": "A4",
+      "basis": "JCL Reference, 'Using symbols in nested procedures' rules 2-5, Table 13 and its Example 1 (pp. 47-49): STEP1 nullifies A and sets C=789, B stays 456 from the SET (level 1: A=,B=456,C=789); PSTEP1 sets A=ABC,B=DEF for PROC2 (level 2: A=ABC,B=DEF,C=789), so SYSUT1 is ABC.DEF; the manual's own listing shows the level-1 values coming back after PROC2, so PSTEP2's P2DD (X&A..&B..&C, the first period of each pair ends the name) is X.456.789. P2STEP1's SYSOUT DDs name no DSN. The level-0 step BARNEY sees A=123,B=456 (checked in nested-symbols-level-zero)."
+    },
+    {
+      "id": "nested-symbols-level-zero",
+      "job": "NSYJOB",
+      "call": "BARNEY",
+      "expect": {
+        "BARNEY": {
+          "pgm": "IEFBR14",
+          "dd": {
+            "BD": "Z123.456"
+          }
+        }
+      },
+      "basis": "Same example (p. 49): after the nested expansion 'the substitution texts for symbols are restored to their original values: A=123,B=456', so BD DSN=Z&A..&B is Z123.456."
+    },
+    {
+      "id": "dd-kind-override-dummy-and-nullfile",
+      "job": "KNDJOB",
+      "call": "W1",
+      "expect": {
+        "W1.K1": {
+          "pgm": "PGMK",
+          "dd": {
+            "D3": "NEW.D3",
+            "D5": "PROC.D5",
+            "D7": "NEW.D7"
+          }
+        }
+      },
+      "basis": "JCL Reference, 'Additional rules for modifying DD parameters' (p. 29) and DD DSNAME / DUMMY (NULLFILE 'has the same effect as coding the DD DUMMY parameter'): K1.D1 DUMMY nullifies the DSN of D1; K1.D2 DSN=NULLFILE is a dummy too; K1.D3 DSN=NEW.D3, 'a name other than NULLFILE', nullifies D3's DUMMY, so D3 names NEW.D3 in D3's own place; D7 is DSN=NULLFILE in the procedure (a dummy) and K1.D7 DSN=NEW.D7 replaces it. D4 is SYSOUT and names no DSN; D5 is untouched. Order: the procedure's DD order."
+    },
+    {
+      "id": "dd-kind-untouched-dummies-stay-dummy",
+      "job": "KNDJOB",
+      "call": "W2",
+      "expect": {
+        "W2.K1": {
+          "pgm": "PGMK",
+          "dd": {
+            "D1": "PROC.D1",
+            "D2": "PROC.D2",
+            "D5": "PROC.D5"
+          }
+        }
+      },
+      "basis": "Same pages: with no override D3 (DUMMY), D4 (SYSOUT) and D7 (DSN=NULLFILE) name no data set."
+    },
+    {
+      "id": "dd-kind-sysout-over-dummy",
+      "job": "KNDJOB",
+      "call": "W3",
+      "expect": {
+        "W3.K1": {
+          "pgm": "PGMK",
+          "dd": {
+            "D1": "PROC.D1",
+            "D2": "PROC.D2",
+            "D5": "PROC.D5"
+          }
+        }
+      },
+      "basis": "DD DUMMY (p. 12920 of the V3R1 text, 'Overriding a procedure DD statement'): an overriding SYSOUT parameter with a subparameter value nullifies the DUMMY; the DD is then a sysout DD and names no DSN."
+    },
+    {
+      "id": "include-in-proc-nested-groups-order-lib-a-first",
+      "job": "INPJOB",
+      "call": "V1",
+      "expect": {
+        "V1.N1": {
+          "pgm": "PGMN",
+          "dd": {
+            "N1DD": "N1.OWN",
+            "INCA": "INC.FROM.A",
+            "OUTA": "OUT.FROM.A"
+          }
+        },
+        "V1.N2": {
+          "pgm": "PGMO",
+          "dd": {}
+        }
+      },
+      "assumed": "A2",
+      "basis": "JCL Reference, INCLUDE statement, 'Location in the JCL' and 'Considerations for using INCLUDE groups' (Chapter 19): an INCLUDE may appear anywhere after the JOB statement and after JCLLIB, must follow a complete statement, and 'can appear within an INCLUDE group' (up to 15 levels); the group replaces the statement. Here OUTER (an INCLUDE of STDDDS, then OUTA) sits in step N1 of the procedure after N1DD, so N1 ends with N1DD, INCA (from STDDDS), OUTA; N2 gets none. Groups are searched like procedures, along ORDER (assumed A2): LIB.A first."
+    },
+    {
+      "id": "include-in-proc-nested-groups-order-lib-b-first",
+      "job": "INPJOB2",
+      "call": "V2",
+      "expect": {
+        "V2.N1": {
+          "pgm": "PGMN",
+          "dd": {
+            "N1DD": "N1.OWN",
+            "INCB": "INC.FROM.B",
+            "OUTA": "OUT.FROM.A"
+          }
+        },
+        "V2.N2": {
+          "pgm": "PGMO",
+          "dd": {}
+        }
+      },
+      "assumed": "A2",
+      "basis": "Same, ORDER=(LIB.B,LIB.A): OUTER exists only in LIB.A, but its inner INCLUDE of STDDDS is searched along ORDER again and LIB.B holds a STDDDS, so the DD is INCB."
     }
   ],
   "flow": [
@@ -626,16 +863,23 @@
       },
       "assumed": "A3",
       "basis": "As ifp-q1-abends-s0c7, but R1.Q1.ABENDCC = S0C7 is false for S806, so R5 is bypassed too."
-    }
-,
+    },
     {
       "id": "ifp-lib-all-zero",
       "job": "LIFJOB",
       "given": {
-        "T1.M1": { "rc": 0 },
-        "T1.M2": { "rc": 0 },
-        "T2": { "rc": 0 },
-        "T5": { "rc": 0 }
+        "T1.M1": {
+          "rc": 0
+        },
+        "T1.M2": {
+          "rc": 0
+        },
+        "T2": {
+          "rc": 0
+        },
+        "T5": {
+          "rc": 0
+        }
       },
       "expect": {
         "T1.M1": "run",
@@ -652,9 +896,15 @@
       "id": "ifp-lib-m1-rc8",
       "job": "LIFJOB",
       "given": {
-        "T1.M1": { "rc": 8 },
-        "T3": { "rc": 0 },
-        "T4": { "rc": 0 }
+        "T1.M1": {
+          "rc": 8
+        },
+        "T3": {
+          "rc": 0
+        },
+        "T4": {
+          "rc": 0
+        }
       },
       "expect": {
         "T1.M1": "run",
@@ -680,6 +930,10 @@
     {
       "id": "A3",
       "text": "After an ordinary abend an IF construct that does not name ABEND or ABENDCC starts nothing (same as tests/equivalence/jcl/ifelse A3)."
+    },
+    {
+      "id": "A4",
+      "text": "A step of a nested procedure is answered under the key CALLSTEP.PROCSTEP naming the PGM step itself (the manual's 'equivalent statements' flatten the levels and give only PGM steps; stepname.procstepname in IF and COND is documented for a step with PGM, not a path through levels)."
     }
   ],
   "refused": [
@@ -696,8 +950,24 @@
       "why": "the manual calls it an undefined JCL symbol that 'might cause errors' (rule 6, p. 51): no answer exists, so it is refused"
     },
     {
-      "construct": "nested procedure calls, INCLUDE inside a procedure, a DD override that changes a DD's kind (DSN to SYSOUT or DUMMY)",
-      "why": "not covered by this slice"
+      "construct": "a SYSOUT, * or DATA override of a DD that names a DSN",
+      "why": "the manual lets DSNAME be coded with SYSOUT (to name the sysout data set) and does not say the overridden DSN is nullified, so the DD may or may not still name it"
+    },
+    {
+      "construct": "a backward reference (procstepname.procstepname.ddname) or a modifying statement addressed to a step the procedure does not hold or to a step that itself calls a procedure",
+      "why": "'Modifying nested procedures' rules 3 and 5 (p. 33) call them invalid and the example (p. 34) marks them JCL errors"
+    },
+    {
+      "construct": "EXEC PARM= or COND= on a call of a procedure that itself calls procedures, PARM.procstep= / COND.procstep= naming a calling step",
+      "why": "the manual does not say which nested step the unqualified form reaches"
+    },
+    {
+      "construct": "more than 15 levels of nesting, an INCLUDE group holding anything but DD and INCLUDE statements",
+      "why": "the manual's limit is 15 levels (pp. 32, 376) and the group's other contents are not answered here"
+    },
+    {
+      "construct": "nested procedure calls evaluated in IF flow (expand_flow_rows)",
+      "why": "the manual defines stepname.procstepname for a step with PGM, not a path through nested levels"
     }
   ]
 }

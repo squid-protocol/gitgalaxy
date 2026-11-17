@@ -203,6 +203,10 @@ def declared_library_dirs(root: str, importer: str, cache: dict[str, list[str]])
             rel = os.path.relpath(d, root_abs).replace(os.sep, "/")
             if not rel.startswith("..") and rel not in out:
                 out.append(rel)
+        # #8412: a zapp.yaml is its workspace's whole declaration: an ancestor's never applies beneath it (a
+        # multi-root sample names workspace folders, not directories, and would otherwise read the root's libraries)
+        if os.path.isfile(os.path.join(folder, "zapp.yaml")):
+            break
         parent = os.path.dirname(folder)
         if parent == folder or folder == root_abs:
             break

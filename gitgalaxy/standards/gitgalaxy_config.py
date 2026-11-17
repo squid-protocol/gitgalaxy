@@ -750,6 +750,11 @@ CHRONOMETER_CONFIG = {
     "FALLBACK_SCAN_LIMIT": 25000,
     # Process management
     "STREAM_TIMEOUT_SECONDS": 60.0,
+    # The activity readings (commits in 365 and 90 days, authors, days since the last change; wiki 08-27) have their own complete pass over the
+    # year before HEAD's commit time, bounded by a COMMIT count, not by time or file coverage, so the result never depends on machine speed. Past
+    # the window cap the readings are NULL (not measured); past the dating cap a file untouched for the whole window has no date.
+    "ACTIVITY_MAX_COMMITS": 150000,
+    "ACTIVITY_DATING_MAX_COMMITS": 250000,
     # Dynamic Windowing Constraints (in seconds)
     # 10% of the project's lifespan will be used, bounded by these limits:
     "DYNAMIC_WINDOW_MIN_DAYS": 30,  # Never look at less than 1 month

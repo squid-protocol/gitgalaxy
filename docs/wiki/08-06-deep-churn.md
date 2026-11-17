@@ -3,6 +3,9 @@ description: "> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](ht
 ---
 # Deep Churn (Codebase Volatility)
 
+> **Superseded.** This gauge and its sibling (`hist_churn`, `hist_stability`) are one measurement in two forms (rank correlation about -0.86 within a repository). The plain readings in [Activity Sensor](08-27-activity-sensor.md) (`commits_365d`, `commits_90d`, `days_since_last_change`, `authors_365d`, `top_author_share_365d`) are stored in every scan; this gauge stays for now as a deprecated alias.
+
+
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 >
 > **Metric:** Relative Commit Volatility & Change Frequency

@@ -765,6 +765,11 @@ class RecordKeeper:
                 silo_risk REAL,
                 raw_churn_freq REAL,
                 change_entropy REAL,
+                commits_365d INTEGER,
+                commits_90d INTEGER,
+                days_since_last_change REAL,
+                authors_365d INTEGER,
+                top_author_share_365d REAL,
                 popularity INTEGER,
                 import_count INTEGER,
                 internal_dependency_links INTEGER,
@@ -905,6 +910,18 @@ class RecordKeeper:
         _ensure_columns(cursor, "file_data", ["composition_file_archetype TEXT", "composition_file_z REAL"])
         # temporal-crucible#29: Hassan change entropy (HCM1_LD_30) from the chronometer.
         _ensure_columns(cursor, "file_data", ["change_entropy REAL"])
+        # The activity readings in plain units (#8534, wiki 08-27); NULL = not measured (no usable history, or a file the history walk did not reach).
+        _ensure_columns(
+            cursor,
+            "file_data",
+            [
+                "commits_365d INTEGER",
+                "commits_90d INTEGER",
+                "days_since_last_change REAL",
+                "authors_365d INTEGER",
+                "top_author_share_365d REAL",
+            ],
+        )
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS class_data (
@@ -2002,6 +2019,11 @@ class RecordKeeper:
                 tel.get("author_distribution", 0.0),
                 tel.get("raw_churn_freq", 0.0),
                 tel.get("change_entropy", 0.0),  # temporal-crucible#29 (HCM1_LD_30)
+                tel.get("commits_365d"),
+                tel.get("commits_90d"),
+                tel.get("days_since_last_change"),
+                tel.get("authors_365d"),
+                tel.get("top_author_share_365d"),
                 tel.get("popularity", 0),
                 import_count,
                 internal_dependency_links,
@@ -2225,7 +2247,7 @@ class RecordKeeper:
                 INSERT INTO file_data (
                     repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group,
                     total_loc, coding_loc, doc_loc, structural_mass, cog_raw, ownership_entropy, silo_risk,
-                    raw_churn_freq, change_entropy, popularity, import_count, internal_dependency_links, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
+                    raw_churn_freq, change_entropy, commits_365d, commits_90d, days_since_last_change, authors_365d, top_author_share_365d, popularity, import_count, internal_dependency_links, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
                     control_flow_ratio, function_count, class_count,
                     func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity,
                     avg_func_args, func_complexity_gini, func_internal_density, dependency_density, encapsulation_ratio,

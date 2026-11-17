@@ -45,6 +45,11 @@ def mock_pipeline_state():
                 "ownership_entropy": 0.5,
                 "raw_churn_freq": 12.0,
                 "change_entropy": 0.75,
+                "commits_365d": 14,
+                "commits_90d": 3,
+                "days_since_last_change": 12.5,
+                "authors_365d": 2,
+                "top_author_share_365d": 0.857,
                 "ownership": "BackendTeam",
                 "popularity": 5,
                 "archetype": "API Controller",
@@ -168,6 +173,11 @@ def test_record_keeper_schema_creation(keeper, mock_pipeline_state, tmp_path):
     assert "change_entropy" in columns
     cursor.execute("SELECT raw_churn_freq, change_entropy, popularity FROM file_data")
     assert cursor.fetchone() == (12.0, 0.75, 5)
+    # The activity readings in plain units (wiki 08-27) round-trip in their slots, with the neighbours unmoved.
+    cursor.execute(
+        "SELECT change_entropy, commits_365d, commits_90d, days_since_last_change, authors_365d, top_author_share_365d, popularity FROM file_data"
+    )
+    assert cursor.fetchone() == (0.75, 14, 3, 12.5, 2, 0.857, 5)
 
     # #2908 Phase 2: per-unit is_public/is_documented columns
     # (docs/risk_documentation_contract.md).

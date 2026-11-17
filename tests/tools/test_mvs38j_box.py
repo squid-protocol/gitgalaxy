@@ -31,7 +31,7 @@ def test_unknown_subcommand_is_refused():
 def test_bare_sysgen_is_refused_with_the_automated_stage_named():
     r = _run("sysgen")
     assert r.returncode == 3
-    assert "only 'sysgen starter|smp1|smp2|stage1' are automated" in r.stderr
+    assert "only 'sysgen starter|smp1|smp2|stage1|stage2' are automated" in r.stderr
 
 
 def test_every_tape_pin_is_an_md5():
@@ -172,8 +172,8 @@ def test_the_starter_plan_covers_both_volumes_with_distinct_readers_and_tapes():
 
 
 def test_sysgen_subcommand_refuses_a_stage_that_is_not_automated():
-    r = _run("sysgen", "stage2")
-    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1'" in r.stderr
+    r = _run("sysgen", "sysgen02")
+    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2'" in r.stderr
 
 
 # --- console.py: the telnet 3215 client, against an in-process fake server ---
@@ -403,3 +403,42 @@ def test_stage1_answers_the_ickdsf_alter_ask_and_lists_its_decks_and_expected_co
 def test_stage1_refuses_an_unstaged_work_dir(tmp_path):
     with pytest.raises(sysgen.SysgenError, match="run mvs38j.sh stage first"):
         sysgen.stage1(str(tmp_path), "img", "n", {})
+
+
+STAGE1_SAMPLE = """//SYSGEN1  JOB 1,'A',CLASS=A,MSGLEVEL=(1,1)
+//S1 EXEC PGM=IEFBR14
+//D DD DSN=X,EXPDT=99350
+||||||||||
+
+//SYSGEN2  JOB 1,'B',CLASS=A
+//S2 EXEC PGM=IDCAMS
+//SYSGEN6  JOB 1,'F',CLASS=A,
+//             TYPRUN=HOLD
+//STEPY EXEC PGM=IDCAMS
+"""
+
+
+def test_convert_stage1_holds_each_job_and_drops_separators():
+    out = sysgen.convert_stage1(STAGE1_SAMPLE).splitlines()
+    assert out[0] == "//SYSGEN1  JOB 1,'A',CLASS=A,MSGLEVEL=(1,1),"  # first job: no leading terminator
+    assert out[1:4] == [
+        "//             TYPRUN=HOLD,TIME=1439",
+        "/*JOBPARM LINES=100",
+        "//JOBCAT   DD  DSN=SYS1.VSAM.MASTER.CATALOG,DISP=SHR",
+    ]
+    assert "//D DD DSN=X,EXPDT=00000" in out
+    assert not any(ln.startswith("||||||||||") or ln == "" for ln in out)
+    i = out.index("//SYSGEN2  JOB 1,'B',CLASS=A,")
+    assert out[i - 1] == "//"  # a terminator before every later job
+    j = out.index("//SYSGEN6  JOB 1,'F',CLASS=A,")
+    assert out[j - 1] == "//" and out[j + 1 : j + 4] == [
+        "//             TYPRUN=HOLD",
+        "/*JOBPARM LINES=100",
+        "//STEPY EXEC PGM=IEFBR14",
+    ]  # SYSGEN6 is not re-held; STEPY no longer runs IDCAMS
+    assert out[-1] == "//"
+
+
+def test_stage2_refuses_without_stage1_output(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="run `sysgen stage1` first"):
+        sysgen.stage2(str(tmp_path), "img", "n", {})

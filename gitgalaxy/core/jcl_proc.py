@@ -2,15 +2,16 @@
 #
 # `resolve_job(text, libraries, job)` returns, per EXEC of the job (a procedure call is one entry per procedure step,
 # keyed `CALLSTEP.PROCSTEP`), the program, PARM, COND and the DSN-naming DDs after: symbolic parameters (EXEC value >
-# PROC default; SET for the job's own statements), EXEC `PARM.procstep=` / `COND.procstep=` overrides, `procstep.ddname`
+# PROC default > SET, Table 13; a nullified symbol is empty), EXEC `PARM.procstep=` / `COND.procstep=` overrides, `procstep.ddname`
 # DD overrides and added DDs, INCLUDE, and the JCLLIB ORDER search (first library holding the member wins).
-# `expand_flow_rows(rows)` splices a call's procedure steps into `jcl_job_flow` rows as `CALLSTEP.PROCSTEP` so
+# `expand_flow_rows(rows, job, text, libraries)` splices a call's procedure steps (in-stream or library member) into `jcl_job_flow` rows as `CALLSTEP.PROCSTEP` so
 # `jcl_flow.JclFlow` can answer `IF (CALLSTEP.PROCSTEP.RC = 0)`.
 #
 # ASSUMED (scenarios.json): A1 an in-stream procedure is used before a library member of the same name; A2 INCLUDE
 # searches the JCLLIB ORDER libraries first-wins, as EXEC does.
-# Refused by name (JclProcRefused): an unqualified PARM= / COND= on a procedure call, a symbolic assigned nowhere, a SET
-# of a symbolic the PROC statement also defaults, nested procedure calls, INCLUDE inside a procedure, a DD override that
+# Unqualified EXEC PARM= goes to the first procedure step only (the others' PARM are nullified); unqualified COND= to every step.
+# Refused by name (JclProcRefused): an unqualified PARM= / COND= together with the .procstep form on one call, a symbolic
+# assigned nowhere (undefined, JCL Reference "might cause errors"), nested procedure calls, INCLUDE inside a procedure, a DD override that
 # turns a DD into SYSOUT / DUMMY, a member found in no library.
 from __future__ import annotations
 
@@ -18,7 +19,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-from gitgalaxy.core.job_flow import _parm, _split, _statements
+from gitgalaxy.core.job_flow import _parm, _split, _statements, jcl_job_flow
 
 
 class JclProcRefused(ValueError):
@@ -129,21 +130,24 @@ def _expand_call(
     keyed = call["keyed"]
     reserved = {"PROC", "PGM", "PARM", "COND", "RD", "ACCT", "TIME", "REGION", "ADDRSPC", "DYNAMNBR", "CCSID"}
     exec_values = {k: _parm(v, sublist=False) or "" for k, v in keyed.items() if k not in reserved and "." not in k}
-    for k in keyed:
-        if (k in ("PARM", "COND")) and call["proc"]:
-            raise JclProcRefused(f"unqualified {k}= on a procedure call is not answered")
-    for k in defaults:
-        if k in set_values:
-            raise JclProcRefused(f"SET of &{k}, which the PROC statement also defaults: precedence is not answered")
+    for kw in ("PARM", "COND"):
+        if call["proc"] and kw in keyed and any(k.startswith(f"{kw}.") for k in keyed):
+            raise JclProcRefused(f"{kw}= together with {kw}.procstep= on one call: precedence is not answered")
     values = {**set_values, **defaults, **exec_values}
     proc_steps = _step_dds(body, [], {})
     out: dict[str, dict[str, Any]] = {}
-    for ps in proc_steps:
+    for index, ps in enumerate(proc_steps):
         if ps["proc"]:
             raise JclProcRefused("nested procedure calls are not answered")
         key = f"{call['name']}.{ps['name']}"
         parm = keyed.get(f"PARM.{ps['name']}", ps["parm"])
         cond = keyed.get(f"COND.{ps['name']}", ps["cond"])
+        if (
+            "PARM" in keyed
+        ):  # JCL Reference, EXEC PARM: only the first procedure step gets it, later steps' PARM are nullified
+            parm = (keyed["PARM"] or None) if index == 0 else None
+        if "COND" in keyed:  # EXEC COND: replaces the step's COND, or is added where it has none: every procedure step
+            cond = keyed["COND"] or None
         dds: dict[str, str | None] = {}
         for ddn, dk in ps["dd"]:
             dds[ddn] = _substitute(dk.get("DSN") or dk.get("DSNAME"), values)
@@ -215,9 +219,23 @@ def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str)
     return out
 
 
-def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any]]:
-    """The rows of `job` (JOB row first) with each in-stream procedure call replaced by its steps `CALLSTEP.PROCSTEP` (the call's
-    IF condition kept, COND tests inside the procedure re-pointed at the qualified names, `COND.procstep=` applied)."""
+def _library_order(text: str, job: str) -> list[str]:
+    for _line, _name, op, field in _job_statements(text, job):
+        if op == "JCLLIB":
+            return [x.strip().upper() for x in _keyword(field, "ORDER").strip("()").split(",") if x.strip()]
+    return []
+
+
+def expand_flow_rows(
+    rows: list[dict[str, Any]],
+    job: str,
+    text: str | None = None,
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
+) -> list[dict[str, Any]]:
+    """The rows of `job` (JOB row first) with each procedure call replaced by its steps `CALLSTEP.PROCSTEP` (the call's
+    IF condition kept, COND tests inside the procedure re-pointed at the qualified names, `COND.procstep=` applied).
+    An in-stream procedure is used first (A1); otherwise, given the job's `text` and the `libraries`, the member is
+    searched along the job's JCLLIB ORDER (first library wins, A2) and its steps are read as the in-stream ones are."""
     mine: list[dict[str, Any]] = []
     inside = False
     for r in rows:
@@ -240,7 +258,10 @@ def expand_flow_rows(rows: list[dict[str, Any]], job: str) -> list[dict[str, Any
             out.append(r)
             continue
         if r["proc"] not in procs:
-            raise JclProcRefused(f"procedure {r['proc']} is not in-stream: expand_flow_rows reads in-stream procedures")
+            if text is None or libraries is None:
+                raise JclProcRefused(f"procedure {r['proc']} is not in-stream and no libraries were given")
+            member = _find(r["proc"], _library_order(text, job), libraries)
+            procs[r["proc"]] = [m for m in jcl_job_flow(member) if m["kind"] == "STEP" and m["in_proc"]]
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}
         call = r["step_name"]
         for ps in procs[r["proc"]]:

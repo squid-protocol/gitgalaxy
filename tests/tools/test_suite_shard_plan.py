@@ -251,3 +251,33 @@ def test_cli_e2e_prints_the_outputs(capsys):
     assert plan.main(["--e2e"]) == 0
     out = capsys.readouterr().out.splitlines()
     assert out[0].startswith('matrix={"group": [1') and out[1].startswith("splits=") and out[2].startswith("timeout=")
+
+
+# #5919: the planned balance of every Smoke part and Gate leg, from the committed durations. The CI calibration of
+# 2026-11-16 measured part wall ratios of 1.45-1.97 against the 1.3 acceptance; this pins that the PLAN is not the
+# source (least_duration over .test_durations plans ~1.0), so a measured excess is runner/contention noise and
+# unmeasured tests, which a re-sizing cannot remove. The fixed setup term is paid by every part alike, so it lowers
+# the wall ratio of equal parts; that is checked here too.
+RATIO_LIMIT = 1.3
+
+
+def _planned_ratio(weight, n, setup_s):
+    loads = [w / plan.JOBS for w, _ in sp._shard_loads(weight, n)]
+    return (setup_s + max(loads)) / (setup_s + min(loads))
+
+
+def test_the_smoke_parts_are_planned_balanced(durations):
+    n = plan.smoke_plan(durations)["splits"]
+    assert _planned_ratio(durations, n, plan.SMOKE_SETUP_S) <= RATIO_LIMIT
+    assert _planned_ratio(durations, n, 0) <= RATIO_LIMIT
+
+
+def test_every_gate_leg_is_planned_balanced(durations):
+    mean = sum(durations.values()) / len(durations)
+    legs = {(x["os"], x["python-version"]): x["splits"] for x in plan.gate_plan(durations)["matrix"]}
+    for os_name, py, speed in plan.LEGS:
+        even = os_name.startswith("windows")
+        weight = {k: (mean if even else v) * speed for k, v in durations.items()}
+        n = legs[(os_name, py)]
+        assert _planned_ratio(weight, n, plan.GATE_SETUP_S) <= RATIO_LIMIT, (os_name, py, n)
+        assert _planned_ratio(weight, n, 0) <= RATIO_LIMIT, (os_name, py, n)

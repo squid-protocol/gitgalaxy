@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), read by section (page numbers are not cited): the PROC statement and symbolic parameters (EXEC / PROC / SET value assignment), the SET statement, the EXEC statement's PARM.procstepname and COND.procstepname parameters, DD statement overrides and added DDs in a procedure call, the INCLUDE statement, the JCLLIB statement (ORDER), and the IF/THEN/ELSE/ENDIF relational expression (stepname.procstepname.RC / RUN / ABENDCC). Expected answers were written before any resolver ran on them.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), read by section (the unqualified PARM / COND and SET-versus-PROC scenarios cite V2R2 pages 29, 39-42, 51-52, 345 and 353 in their basis; the earlier ones cite sections only): the PROC statement and symbolic parameters (EXEC / PROC / SET value assignment), the SET statement, the EXEC statement's PARM.procstepname and COND.procstepname parameters, DD statement overrides and added DDs in a procedure call, the INCLUDE statement, the JCLLIB statement (ORDER), and the IF/THEN/ELSE/ENDIF relational expression (stepname.procstepname.RC / RUN / ABENDCC). Expected answers were written before any resolver ran on them.",
   "libraries": {
     "LIB.A": {
       "PRC1": [
@@ -11,6 +11,10 @@
       "PRC3": [
         "//PRC3     PROC",
         "//L3       EXEC PGM=LIBA3"
+      ],
+      "PRC4": [
+        "//PRC4     PROC",
+        "//M1       EXEC PGM=ONLYA"
       ],
       "STDDDS": [
         "//INCA     DD DSN=INC.FROM.A,DISP=SHR"
@@ -24,6 +28,11 @@
       "PRC2": [
         "//PRC2     PROC",
         "//L2       EXEC PGM=ONLYB"
+      ],
+      "PRC4": [
+        "//PRC4     PROC",
+        "//M1       EXEC PGM=PGMM",
+        "//M2       EXEC PGM=PGMN,COND=(4,LT,M1)"
       ],
       "STDDDS": [
         "//INCB     DD DSN=INC.FROM.B,DISP=SHR"
@@ -106,7 +115,41 @@
     "// IF (R1.Q1.ABENDCC = S0C7) THEN",
     "//R5       EXEC PGM=PGMF",
     "// ENDIF",
-    "//R6       EXEC PGM=PGMG,COND=(4,LT,R1.Q2)"
+    "//R6       EXEC PGM=PGMG,COND=(4,LT,R1.Q2)",
+    "//*",
+    "//LIFJOB   JOB (ACCT),'IF LIB PROC',CLASS=A,MSGCLASS=X",
+    "//PROCLIB  JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//T1       EXEC PRC4",
+    "// IF (T1.M2.RC = 0) THEN",
+    "//T2       EXEC PGM=PGMC",
+    "// ELSE",
+    "//T3       EXEC PGM=PGMD",
+    "// ENDIF",
+    "// IF (T1.M2.RUN = FALSE) THEN",
+    "//T4       EXEC PGM=PGME",
+    "// ENDIF",
+    "//T5       EXEC PGM=PGMG,COND=(4,LT,T1.M1)",
+    "//*",
+    "//PCJOB    JOB (ACCT),'CALLING PARM COND',CLASS=A,MSGCLASS=X",
+    "//CP       PROC",
+    "//B1       EXEC PGM=PGMA,PARM='P1'",
+    "//B2       EXEC PGM=PGMB,PARM='P2',COND=(4,LT,B1)",
+    "//B3       EXEC PGM=PGMC,PARM='P3'",
+    "//         PEND",
+    "//C1       EXEC CP,PARM=NEW",
+    "//C2       EXEC CP,COND=(8,LT)",
+    "//*",
+    "//SSJOB    JOB (ACCT),'SET VS PROC',CLASS=A,MSGCLASS=X",
+    "//SP       PROC A=PROCA,B=PROCB,C=DFLT",
+    "//U1       EXEC PGM=PGMA",
+    "//D1       DD DSN=&A..F1,DISP=SHR",
+    "//D2       DD DSN=&B..F2,DISP=SHR",
+    "//D3       DD DSN=HLQ&C..F3,DISP=SHR",
+    "//D4       DD DSN=&Q..F4,DISP=SHR",
+    "//         PEND",
+    "// SET A=SETA,B=SETB,Q=SETQ",
+    "//E1       EXEC SP",
+    "//E2       EXEC SP,A=EXECA,C="
   ],
   "resolve_input": "resolve: the call step of a job, e.g. S1 of SYMJOB; libraries are the libraries object of this file.",
   "resolve_answer": "expect: per proc step (key CALLSTEP.PROCSTEP, or CALLSTEP for a plain step), pgm; parm and cond only where the scenario is about them; dd = every DD naming a DSN, in the order the step ends up with them, as {ddname: dsn}.",
@@ -368,6 +411,92 @@
       },
       "assumed": "A2",
       "basis": "As include-group-first-library with ORDER=(LIB.B,LIB.A)."
+    },
+    {
+      "id": "exec-parm-first-step-only",
+      "job": "PCJOB",
+      "call": "C1",
+      "expect": {
+        "C1.B1": {
+          "pgm": "PGMA",
+          "parm": "NEW",
+          "cond": null,
+          "dd": {}
+        },
+        "C1.B2": {
+          "pgm": "PGMB",
+          "parm": null,
+          "cond": "(4,LT,B1)",
+          "dd": {}
+        },
+        "C1.B3": {
+          "pgm": "PGMC",
+          "parm": null,
+          "cond": null,
+          "dd": {}
+        }
+      },
+      "basis": "JCL Reference, EXEC PARM, 'On an EXEC statement that calls a procedure' (p. 353) and Example 2: PARM without procstepname overrides the PARM on the first EXEC statement only and the system nullifies the PARM on any following EXEC statement in the procedure. Chapter 5 'Modifying EXEC statement parameters' (p. 29) repeats it. COND is not coded on the call, so each step keeps its own."
+    },
+    {
+      "id": "exec-cond-every-step",
+      "job": "PCJOB",
+      "call": "C2",
+      "expect": {
+        "C2.B1": {
+          "pgm": "PGMA",
+          "parm": "P1",
+          "cond": "(8,LT)",
+          "dd": {}
+        },
+        "C2.B2": {
+          "pgm": "PGMB",
+          "parm": "P2",
+          "cond": "(8,LT)",
+          "dd": {}
+        },
+        "C2.B3": {
+          "pgm": "PGMC",
+          "parm": "P3",
+          "cond": "(8,LT)",
+          "dd": {}
+        }
+      },
+      "basis": "JCL Reference, EXEC COND, 'On an EXEC statement that calls a procedure' (p. 345): the COND on the calling EXEC overrides the COND on a called EXEC (B2's (4,LT,B1) is replaced, not joined) and is added to a called EXEC that has none (B1, B3); with no procstepname it applies to all steps of the procedure. The PARMs are not touched."
+    },
+    {
+      "id": "set-loses-to-proc-default",
+      "job": "SSJOB",
+      "call": "E1",
+      "expect": {
+        "E1.U1": {
+          "pgm": "PGMA",
+          "dd": {
+            "D1": "PROCA.F1",
+            "D2": "PROCB.F2",
+            "D3": "HLQDFLT.F3",
+            "D4": "SETQ.F4"
+          }
+        }
+      },
+      "basis": "JCL Reference, 'Defining and nullifying JCL symbols' (pp. 39-40) and 'Using symbols in nested procedures' rule 4 with Table 13 (pp. 51-52): a SET value is used for a symbol in a procedure only when the calling EXEC and the PROC statement do not also define it. A has a PROC default, so it is PROCA, not SETA; B is on the PROC statement only; Q has no EXEC or PROC value, so SETQ. In &C..F3 the first period ends the name and is consumed."
+    },
+    {
+      "id": "exec-value-and-nullified-symbol",
+      "job": "SSJOB",
+      "call": "E2",
+      "expect": {
+        "E2.U1": {
+          "pgm": "PGMA",
+          "dd": {
+            "D1": "EXECA.F1",
+            "D2": "PROCB.F2",
+            "D3": "HLQ.F3",
+            "D4": "SETQ.F4"
+          }
+        }
+      },
+      "basis": "JCL Reference, 'Defining and nullifying JCL symbols' (pp. 39-40, 42): an EXEC value overrides the PROC default (A=EXECA, over PROCA and over SETA); C= on the EXEC nullifies the symbol, and 'if you use an EXEC statement to nullify a JCL symbol, and a PROC statement specifies a default, the JCL symbol is nullified' (p. 42), so &C.. gives the empty text and the DSN is HLQ.F3."
     }
   ],
   "flow": [
@@ -498,6 +627,46 @@
       "assumed": "A3",
       "basis": "As ifp-q1-abends-s0c7, but R1.Q1.ABENDCC = S0C7 is false for S806, so R5 is bypassed too."
     }
+,
+    {
+      "id": "ifp-lib-all-zero",
+      "job": "LIFJOB",
+      "given": {
+        "T1.M1": { "rc": 0 },
+        "T1.M2": { "rc": 0 },
+        "T2": { "rc": 0 },
+        "T5": { "rc": 0 }
+      },
+      "expect": {
+        "T1.M1": "run",
+        "T1.M2": "run",
+        "T2": "run",
+        "T3": "bypass",
+        "T4": "bypass",
+        "T5": "run"
+      },
+      "assumed": "A2",
+      "basis": "PRC4 is a library member (JCLLIB ORDER=(LIB.B,LIB.A); ASSUMED A2: first library holding it wins, so LIB.B's two-step PRC4, not LIB.A's one-step one). Its steps are addressed T1.M1 / T1.M2 exactly as an in-stream procedure's. M1 rc 0: M2 COND (4,LT,M1) is 4 < 0, false, so M2 runs. T1.M2.RC = 0 is true, T2 runs, ELSE T3 does not. T1.M2.RUN = FALSE is false (M2 ran), T4 is bypassed. T5 COND (4,LT,T1.M1): 4 < 0 false, runs."
+    },
+    {
+      "id": "ifp-lib-m1-rc8",
+      "job": "LIFJOB",
+      "given": {
+        "T1.M1": { "rc": 8 },
+        "T3": { "rc": 0 },
+        "T4": { "rc": 0 }
+      },
+      "expect": {
+        "T1.M1": "run",
+        "T1.M2": "bypass",
+        "T2": "bypass",
+        "T3": "run",
+        "T4": "run",
+        "T5": "bypass"
+      },
+      "assumed": "A2",
+      "basis": "M1 ends rc 8: M2 COND (4,LT,M1) is 4 < 8, true, so M2 is bypassed. A bypassed step has no return code, so T1.M2.RC = 0 is false and ELSE T3 runs; T1.M2.RUN = FALSE is true (M2 did not run), T4 runs. T5 COND (4,LT,T1.M1) is 4 < 8, true, bypassed."
+    }
   ],
   "assumed": [
     {
@@ -515,16 +684,16 @@
   ],
   "refused": [
     {
-      "construct": "unqualified PARM= or COND= on an EXEC that calls a procedure",
-      "why": "its effect on the procedure's other steps is a separate rule not answered here; only the procstepname forms are"
+      "construct": "unqualified PARM= or COND= together with the PARM.procstep= / COND.procstep= form on one call",
+      "why": "the manual states each form alone (pp. 345, 353) and is silent on their combination"
     },
     {
-      "construct": "a SET value for a symbolic that the PROC statement also defaults",
-      "why": "precedence between SET and the PROC default is not answered here"
+      "construct": "duplicate symbols on one EXEC, PROC or SET statement",
+      "why": "the manual says the first wins on EXEC and PROC and the last on SET (pp. 40); not answered here"
     },
     {
       "construct": "a symbolic parameter assigned nowhere",
-      "why": "the null-value rule is not answered here"
+      "why": "the manual calls it an undefined JCL symbol that 'might cause errors' (rule 6, p. 51): no answer exists, so it is refused"
     },
     {
       "construct": "nested procedure calls, INCLUDE inside a procedure, a DD override that changes a DD's kind (DSN to SYSOUT or DUMMY)",

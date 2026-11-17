@@ -158,6 +158,9 @@ def test_a_case_with_no_duration_entry_is_planned_at_the_median_and_proven_once(
         ".claude/skills/det-port/SKILL.md",
         ".claude/skills/ladder-slice/SKILL.md",
         ".claude/skills/cics-command-slice/SKILL.md",
+        ".claude/skills/blocker-slice/SKILL.md",
+        ".claude/skills/porting-loop/SKILL.md",
+        ".claude/rules/python-test-traps.md",
     ],
 )
 def test_worker_rules_say_the_nightly_owns_the_durations_file(rel):

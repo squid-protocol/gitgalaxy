@@ -1,0 +1,402 @@
+{
+  "fixture": "flow_jcl (in this file)",
+  "issue": 8413,
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), read by section; page numbers are not cited (the manual was not open in the authoring environment, so no page was invented): the DD statement's DSNAME parameter (temporary datasets &&name, NULLFILE, omitted DSNAME), DUMMY, DISP (defaults, PASS), SYSOUT, OUTPUT, and 'Concatenating datasets'; the JOB statement's MSGCLASS; the EXEC COND parameter. The expected answers were written before any evaluator ran on them.",
+  "scenario_input": "msgclass (optional): the JOB statement's MSGCLASS, read by hand. given: per step that starts, {rc: n} or {abend: code}.",
+  "scenario_answer": "expect: per STEP.DDNAME of each step that runs: {datasets: [...]} in read order, {dummy: true}, {temporary: 'system-named'} or {dd_class, output?}. temporaries: per &&name its creating DD, the DDs that receive it and the step after which it is deleted ('JOB' = at the end of the job).",
+  "flow_jcl": [
+    "//*********************************************************************",
+    "//* #8413 slice 5: data flow between steps. What each DD of a step that",
+    "//* runs names (temporaries passed, DUMMY / NULLFILE, concatenations in",
+    "//* read order, SYSOUT classes and OUTPUT references). The answers are",
+    "//* in scenarios.json, written from IBM's z/OS MVS JCL Reference",
+    "//* (SA23-1385) before any evaluator ran on them.",
+    "//*********************************************************************",
+    "//TMPJOB   JOB (ACCT),'TEMP PASS',CLASS=A,MSGCLASS=X",
+    "//S1       EXEC PGM=SORT",
+    "//SORTOUT  DD DSN=&&SORTED,DISP=(NEW,PASS),UNIT=SYSDA,",
+    "//            SPACE=(CYL,(1,1))",
+    "//WORK     DD UNIT=SYSDA,SPACE=(CYL,(1,1))",
+    "//S2       EXEC PGM=RPT",
+    "//IN       DD DSN=&&SORTED,DISP=(OLD,PASS)",
+    "//S3       EXEC PGM=RPT2",
+    "//IN       DD DSN=&&SORTED,DISP=(OLD,DELETE)",
+    "//*",
+    "//DFLJOB   JOB (ACCT),'TEMP DEFAULTS',CLASS=A,MSGCLASS=X",
+    "//T1       EXEC PGM=MAKE",
+    "//KEPT     DD DSN=&&KEPT,DISP=(NEW,PASS),UNIT=SYSDA,SPACE=(TRK,1)",
+    "//GONE     DD DSN=&&GONE,UNIT=SYSDA,SPACE=(TRK,1)",
+    "//T2       EXEC PGM=USE",
+    "//IN       DD DSN=&&KEPT,DISP=OLD",
+    "//T3       EXEC PGM=USE2",
+    "//IN       DD DSN=&&KEPT,DISP=SHR",
+    "//*",
+    "//BYPJOB   JOB (ACCT),'TEMP BYPASS',CLASS=A,MSGCLASS=X",
+    "//B1       EXEC PGM=CHK",
+    "//B2       EXEC PGM=MAKE,COND=(4,LT,B1)",
+    "//TMP      DD DSN=&&LOST,DISP=(NEW,PASS),UNIT=SYSDA,SPACE=(TRK,1)",
+    "//NUL      DD DUMMY",
+    "//B3       EXEC PGM=USE",
+    "//OUT      DD SYSOUT=A",
+    "//*",
+    "//DUMJOB   JOB (ACCT),'DUMMY',CLASS=A,MSGCLASS=X",
+    "//D1       EXEC PGM=COPY",
+    "//SYSUT1   DD DUMMY",
+    "//SYSUT2   DD DSN=NULLFILE",
+    "//SYSPRINT DD DUMMY,DSN=PAY.REAL,DISP=(NEW,CATLG)",
+    "//SYSIN    DD DSN=PAY.CTL,DISP=SHR",
+    "//*",
+    "//CATJOB   JOB (ACCT),'CONCAT',CLASS=A,MSGCLASS=X",
+    "//M1       EXEC PGM=MERGE",
+    "//IN       DD DSN=A.FIRST,DISP=SHR",
+    "//         DD DSN=A.SECOND,DISP=SHR",
+    "//         DD DSN=A.THIRD,DISP=SHR",
+    "//IN2      DD DSN=B.ONE,DISP=SHR",
+    "//         DD DSN=PAY.GDG(0),DISP=SHR",
+    "//OUT      DD DSN=A.OUT,DISP=(NEW,CATLG)",
+    "//M2       EXEC PGM=MERGE2",
+    "//IN       DD DSN=A.THIRD,DISP=SHR",
+    "//         DD DSN=A.FIRST,DISP=SHR",
+    "//*",
+    "//CATTMP   JOB (ACCT),'CONCAT TEMPS',CLASS=A,MSGCLASS=X",
+    "//K1       EXEC PGM=MAKE",
+    "//OUT      DD DSN=&&PART1,DISP=(NEW,PASS),UNIT=SYSDA,SPACE=(TRK,1)",
+    "//K2       EXEC PGM=MAKE",
+    "//OUT      DD DSN=&&PART2,DISP=(NEW,PASS),UNIT=SYSDA,SPACE=(TRK,1)",
+    "//K3       EXEC PGM=MERGE",
+    "//IN       DD DSN=&&PART2,DISP=(OLD,DELETE)",
+    "//         DD DSN=&&PART1,DISP=(OLD,DELETE)",
+    "//*",
+    "//SYSJOB   JOB (ACCT),'SYSOUT',CLASS=A,MSGCLASS=X",
+    "//OUT1     OUTPUT CLASS=B,COPIES=2",
+    "//R1       EXEC PGM=RPT",
+    "//OUT2     OUTPUT CLASS=C",
+    "//SYSPRINT DD SYSOUT=*",
+    "//REPORT   DD SYSOUT=A",
+    "//SPECIAL  DD SYSOUT=(B,,STD1)",
+    "//ONE      DD SYSOUT=A,OUTPUT=*.OUT1",
+    "//TWO      DD SYSOUT=A,OUTPUT=(*.OUT1,*.OUT2)",
+    "//R2       EXEC PGM=RPT2",
+    "//LATE     DD SYSOUT=D,OUTPUT=*.R1.OUT2"
+  ],
+  "scenarios": [
+    {
+      "id": "temp-pass-chain",
+      "job": "TMPJOB",
+      "given": {
+        "S1": {
+          "rc": 0
+        },
+        "S2": {
+          "rc": 0
+        },
+        "S3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1.SORTOUT": {
+          "datasets": [
+            "&&SORTED"
+          ]
+        },
+        "S1.WORK": {
+          "temporary": "system-named"
+        },
+        "S2.IN": {
+          "datasets": [
+            "&&SORTED"
+          ]
+        },
+        "S3.IN": {
+          "datasets": [
+            "&&SORTED"
+          ]
+        }
+      },
+      "temporaries": {
+        "&&SORTED": {
+          "created_by": "S1.SORTOUT",
+          "received_by": [
+            "S2.IN",
+            "S3.IN"
+          ],
+          "deleted_after": "S3"
+        }
+      },
+      "basis": "DSNAME, temporary datasets (&&name), and DISP: S1 creates &&SORTED with DISP=(NEW,PASS), so the system keeps it and passes it to a later step that refers to it. S2 receives it with DISP=(OLD,PASS) and passes it on; S3 receives it with DISP=(OLD,DELETE), so it is deleted when S3 ends. S1's WORK DD names no dataset and asks for space: the system names a temporary dataset for it (DSNAME, 'if you omit DSNAME for a new dataset')."
+    },
+    {
+      "id": "temp-default-dispositions",
+      "job": "DFLJOB",
+      "given": {
+        "T1": {
+          "rc": 0
+        },
+        "T2": {
+          "rc": 0
+        },
+        "T3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "T1.KEPT": {
+          "datasets": [
+            "&&KEPT"
+          ]
+        },
+        "T1.GONE": {
+          "datasets": [
+            "&&GONE"
+          ]
+        },
+        "T2.IN": {
+          "datasets": [
+            "&&KEPT"
+          ]
+        },
+        "T3.IN": {
+          "datasets": [
+            "&&KEPT"
+          ]
+        }
+      },
+      "temporaries": {
+        "&&KEPT": {
+          "created_by": "T1.KEPT",
+          "received_by": [
+            "T2.IN",
+            "T3.IN"
+          ],
+          "deleted_after": "JOB"
+        },
+        "&&GONE": {
+          "created_by": "T1.GONE",
+          "received_by": [],
+          "deleted_after": "T1"
+        }
+      },
+      "assumed": "A1",
+      "basis": "DISP defaults: a NEW dataset with no normal disposition is deleted at the end of its step, so &&GONE (a DSN with no DISP is NEW) is deleted after T1 and nobody receives it. &&KEPT is passed by T1; T2 and T3 code no normal disposition for an OLD / SHR dataset, which (ASSUMED A1) leaves the passed dataset passed, so T3 still gets it. A temporary dataset is deleted when the job ends, so its last stop is the end of the job."
+    },
+    {
+      "id": "temp-bypassed-creator",
+      "job": "BYPJOB",
+      "given": {
+        "B1": {
+          "rc": 8
+        },
+        "B3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "B3.OUT": {
+          "dd_class": "A"
+        }
+      },
+      "temporaries": {},
+      "basis": "EXEC COND=(4,LT,B1): B1 ended with 8, 4 < 8 is true, so B2 is bypassed. A bypassed step allocates none of its DDs: &&LOST is never created and B2's DUMMY DD does not exist. B3 runs and its SYSOUT=A DD names class A."
+    },
+    {
+      "id": "dummy-and-nullfile",
+      "job": "DUMJOB",
+      "given": {
+        "D1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "D1.SYSUT1": {
+          "dummy": true
+        },
+        "D1.SYSUT2": {
+          "dummy": true
+        },
+        "D1.SYSPRINT": {
+          "dummy": true
+        },
+        "D1.SYSIN": {
+          "datasets": [
+            "PAY.CTL"
+          ]
+        }
+      },
+      "temporaries": {},
+      "basis": "DD DUMMY: no dataset is allocated, a read gets end of file and a write is discarded. DSNAME=NULLFILE has the same effect as DUMMY. On a DD that codes DUMMY the other parameters (here DSN=PAY.REAL and DISP=(NEW,CATLG)) are checked for syntax and ignored, so PAY.REAL is not created or cataloged."
+    },
+    {
+      "id": "concat-read-order",
+      "job": "CATJOB",
+      "given": {
+        "M1": {
+          "rc": 0
+        },
+        "M2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "M1.IN": {
+          "datasets": [
+            "A.FIRST",
+            "A.SECOND",
+            "A.THIRD"
+          ]
+        },
+        "M1.IN2": {
+          "datasets": [
+            "B.ONE",
+            "PAY.GDG(0)"
+          ]
+        },
+        "M1.OUT": {
+          "datasets": [
+            "A.OUT"
+          ]
+        },
+        "M2.IN": {
+          "datasets": [
+            "A.THIRD",
+            "A.FIRST"
+          ]
+        }
+      },
+      "temporaries": {},
+      "basis": "Concatenating datasets: a DD with a ddname followed by DD statements with no name is one logical dataset, read in the order the statements are coded; the same datasets coded in another order (M2.IN) are read in that other order. A concatenation is per step: M1.IN and M2.IN are different DDs. A GDG generation is a member like any other and keeps its relative number as coded."
+    },
+    {
+      "id": "concat-temporaries",
+      "job": "CATTMP",
+      "given": {
+        "K1": {
+          "rc": 0
+        },
+        "K2": {
+          "rc": 0
+        },
+        "K3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "K1.OUT": {
+          "datasets": [
+            "&&PART1"
+          ]
+        },
+        "K2.OUT": {
+          "datasets": [
+            "&&PART2"
+          ]
+        },
+        "K3.IN": {
+          "datasets": [
+            "&&PART2",
+            "&&PART1"
+          ]
+        }
+      },
+      "temporaries": {
+        "&&PART1": {
+          "created_by": "K1.OUT",
+          "received_by": [
+            "K3.IN"
+          ],
+          "deleted_after": "K3"
+        },
+        "&&PART2": {
+          "created_by": "K2.OUT",
+          "received_by": [
+            "K3.IN"
+          ],
+          "deleted_after": "K3"
+        }
+      },
+      "basis": "Two temporaries passed by two steps and received in one concatenation: K3 reads &&PART2 first, then &&PART1 (coded order, not creation order). Each is received by K3.IN, and each DD's DISP=(OLD,DELETE) deletes its own dataset after K3."
+    },
+    {
+      "id": "sysout-classes",
+      "job": "SYSJOB",
+      "msgclass": "X",
+      "given": {
+        "R1": {
+          "rc": 0
+        },
+        "R2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R1.SYSPRINT": {
+          "dd_class": "X"
+        },
+        "R1.REPORT": {
+          "dd_class": "A"
+        },
+        "R1.SPECIAL": {
+          "dd_class": "B"
+        },
+        "R1.ONE": {
+          "dd_class": "A",
+          "output": [
+            "OUT1"
+          ]
+        },
+        "R1.TWO": {
+          "dd_class": "A",
+          "output": [
+            "OUT1",
+            "OUT2"
+          ]
+        },
+        "R2.LATE": {
+          "dd_class": "D",
+          "output": [
+            "R1.OUT2"
+          ]
+        }
+      },
+      "temporaries": {},
+      "assumed": "A2",
+      "basis": "SYSOUT: the first element is the output class; SYSOUT=* is the class of the JOB statement's MSGCLASS (X here); the second and third elements (writer, form) are not the class. OUTPUT=*.name names an OUTPUT statement (ASSUMED A2: the one in the same step, else the job-level one) and *.stepname.name one in that earlier step, so ONE uses OUT1, TWO uses OUT1 and OUT2 (R1's), LATE uses R1's OUT2. 'dd_class' is the class the DD itself codes: which class wins when the OUTPUT statement also codes CLASS is not answered (see refused)."
+    }
+  ],
+  "assumed": [
+    {
+      "id": "A1",
+      "text": "DISP on a DD that receives a passed dataset with no normal disposition (DISP=OLD / SHR): the dataset stays passed. IBM's text for the default of an existing dataset was not at hand; this is the documented PASS continuation as recalled, so it is assumed, not cited."
+    },
+    {
+      "id": "A2",
+      "text": "OUTPUT=*.name resolves to an OUTPUT statement in the same step first, then to a job-level one. IBM's text on the referback forms was not at hand for the job-level case."
+    }
+  ],
+  "refused": [
+    {
+      "construct": "a temporary dataset received before any step creates it, or after it was deleted, or whose creator was bypassed",
+      "why": "a JCL error at allocation, not a data-flow answer"
+    },
+    {
+      "construct": "a temporary dataset with a CATLG / UNCATLG / KEEP disposition",
+      "why": "IBM's treatment of a retained &&name is not answered here"
+    },
+    {
+      "construct": "DUMMY coded on a DD inside a concatenation",
+      "why": "which datasets of the concatenation remain is not answered here"
+    },
+    {
+      "construct": "SYSOUT with no class (SYSOUT=(,)) or SYSOUT=* with no MSGCLASS given",
+      "why": "the class would come from an OUTPUT statement's CLASS or the installation default, not carried by the rows"
+    },
+    {
+      "construct": "an OUTPUT reference that names no OUTPUT statement of the job",
+      "why": "a JCL error, not a data-flow answer"
+    },
+    {
+      "construct": "the class a SYSOUT DD gets when its OUTPUT statement also codes CLASS",
+      "why": "which one wins is not answered here; 'dd_class' is the DD's own"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
- "commit": "1bac7372d",
+ "commit": "289db94d3",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-17T05:09:21Z",
+  "as_of": "2026-11-17T05:11:09Z",
   "core": {
    "closed": 252,
    "open": 12,
@@ -1014,8 +1014,8 @@
    "total": 57
   },
   "infra": {
-   "closed": 257,
-   "open": 32,
+   "closed": 258,
+   "open": 31,
    "total": 289
   },
   "measured": true,
@@ -1084,9 +1084,9 @@
     "total": 206
    },
    {
-    "closed": 56,
+    "closed": 57,
     "number": 12,
-    "open": 3,
+    "open": 2,
     "title": "Yes, but can it go faster...?",
     "total": 59
    },

@@ -900,7 +900,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 28
+   "tests": 29
   },
   {
    "corpus": "zecs",
@@ -2739,7 +2739,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 28
+   "tests": 29
   },
   "zecs-zecsplt": {
    "generated": [],

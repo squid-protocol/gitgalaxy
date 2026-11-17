@@ -13,6 +13,9 @@ LISTING_MARKERS = (
 )  # fmt: skip
 _LISTING_NUMBER = re.compile(r"^ {1,5}(\d{1,5}) +\S")  # a zero-padded or full 6-digit sequence area never matches
 LISTING_NUMBER_MIN_LINES = 20
+CONSECUTIVE_NUMBER_MIN_LINES = (
+    8  # #8412: a banner-less short listing numbers every line 1, 2, 3 ... (level numbers never do)
+)
 
 
 def listing_reason(text: str, rel_parts: tuple[str, ...] = ()) -> str | None:
@@ -34,4 +37,13 @@ def listing_reason(text: str, rel_parts: tuple[str, ...] = ()) -> str | None:
     )  # not level numbers
     if dense and sum(b > a for a, b in pairwise(nums)) >= 0.9 * (len(nums) - 1):
         return "listing line numbers (space-padded, increasing)"
+    # #8412: a short plain listing (no banner, no listing path): every line numbered, one step each
+    steps = [b - a for a, b in pairwise(nums)]
+    if (
+        len(lines) >= CONSECUTIVE_NUMBER_MIN_LINES
+        and len(nums) >= 0.9 * len(lines)
+        and steps
+        and sum(s == 1 for s in steps) >= 0.9 * len(steps)
+    ):
+        return "listing line numbers (space-padded, consecutive)"
     return None

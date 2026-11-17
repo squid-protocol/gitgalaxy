@@ -267,6 +267,7 @@ callgraph.md	tests/tools/doom_speedrun,tests/tools/test_callgraph_oracle.py
 census/INELIGIBLE_FOR_BLIND_ESTATE.md	tests/tools/estate4_draw.py
 chart.svg	tests/tools/unicode_gauntlet.py
 ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
+ci_network_inventory.md	tests/tools/ci_network_inventory.py
 cics_command_spec.md	tests/tools/cics_spec_status.py,tests/tools/crucible_case.py
 cics_crucible.md	tests/tools/cics_crucible.py
 cics_field_testing.md	tests/tools/field_testing.py
@@ -307,6 +308,7 @@ docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
 docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_cancelled_gates.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
+docs/ci_network_inventory.md	tests/tools/ci_network_inventory.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
 docs/cobolrt_api_contract.md	tests/cics_crucible,tests/tools/cobolrt_api.py

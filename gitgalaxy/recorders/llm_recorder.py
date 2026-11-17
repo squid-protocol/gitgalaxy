@@ -1184,6 +1184,16 @@ class LLMRecorder:
                 f"if that is the estate's code page, rescan with `--source-encoding {codecs[0]}` (or the right one "
                 f"of those). E.g. {examples}."
             )
+        # #8412: raw EBCDIC with no declared code page decodes to garbage under the guess ladder
+        raw = [str(f.get("path", "?")) for f in parsed_files if f.get("ebcdic_undeclared")]
+        if raw:
+            examples = ", ".join(f"`{p}`" for p in raw[:5]) + (f" and {len(raw) - 5} more" if len(raw) > 5 else "")
+            lines.append("")
+            lines.append(
+                f"> UNDECLARED EBCDIC: {len(raw)} file(s) read as raw EBCDIC text but no `--source-encoding` was "
+                f"declared, so they were decoded as cp1252 / Latin-1 (garbage). Rescan with the estate's code page "
+                f"(`--source-encoding cp037`, cp500, cp1047 ...). E.g. {examples}."
+            )
         lines.append("")
         return lines
 

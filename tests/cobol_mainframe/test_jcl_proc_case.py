@@ -1,9 +1,10 @@
 """#8413 slice 2: IBM-written answers for PROC resolution and stepname.procstepname tests inside IF.
 
-`tests/equivalence/jcl/proc/scenarios.json` holds the `flow_jcl` lines (five jobs: symbolics and SET, EXEC / DD overrides and an added DD,
+`tests/equivalence/jcl/proc/scenarios.json` holds the `flow_jcl` lines (seven jobs: unqualified EXEC PARM / COND, SET against PROC defaults and a nullified symbol, symbolics and SET, EXEC / DD overrides and an added DD,
 JCLLIB ORDER and INCLUDE twice, an IF over a procedure steps), the JCLLIB library members, and the answers.
 The answers were written from IBM's z/OS MVS JCL Reference (SA23-1385) BEFORE `gitgalaxy.core.jcl_proc` and
-`jcl_flow` ran on them; ASSUMED entries are named in the file. The last tests reproduce every `expect`.
+`jcl_flow` ran on them (the slice-3 PARM / COND / SET-precedence answers were read from the manual text in the same PR that
+changed the resolver to give them; their `basis` quotes the page); ASSUMED entries are named in the file. The last tests reproduce every `expect`.
 """
 
 from __future__ import annotations
@@ -50,6 +51,7 @@ def test_each_resolve_scenario_names_a_call_of_its_job_and_gives_a_basis():
 
 def test_the_scenarios_cover_every_construct_of_the_checklist_line():
     ids = " ".join(s["id"] for s in DOC["resolve"] + DOC["flow"])
+    assert "exec-parm-first-step-only" in ids and "set-loses-to-proc-default" in ids
     for word in (
         "sym-defaults",
         "exec-overrides",
@@ -66,7 +68,7 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
 
 def test_what_is_not_answered_is_refused_by_name():
     refused = " ".join(r["construct"] for r in DOC["refused"])
-    for name in ("unqualified PARM", "SET value", "assigned nowhere", "nested procedure"):
+    for name in ("together with", "duplicate symbols", "assigned nowhere", "nested procedure"):
         assert name in refused, name
 
 
@@ -90,14 +92,15 @@ def test_the_flow_evaluator_reproduces_every_procstep_scenario():
         assert flow.run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]
 
 
-def test_a_symbolic_assigned_nowhere_and_unqualified_parm_are_refused():
+def test_a_symbolic_assigned_nowhere_and_both_override_forms_at_once_are_refused():
     base = "//J JOB\n//PR PROC\n//A EXEC PGM=X,PARM='&NOPE'\n// PEND\n//C EXEC PR\n"
     with pytest.raises(JclProcRefused, match="assigned nowhere"):
         resolve_job(base, {}, "J")
-    with pytest.raises(JclProcRefused, match="unqualified PARM"):
-        resolve_job(base.replace("PARM='&NOPE'", "PARM=Z").replace("EXEC PR", "EXEC PR,PARM=Q"), {}, "J")
-    with pytest.raises(JclProcRefused, match="SET of &V"):
-        resolve_job("//J JOB\n//PR PROC V=1\n//A EXEC PGM=X\n// PEND\n// SET V=2\n//C EXEC PR\n", {}, "J")
+    both = base.replace("PARM='&NOPE'", "PARM=Z").replace("EXEC PR", "EXEC PR,PARM=Q,PARM.A=R")
+    with pytest.raises(JclProcRefused, match=r"PARM= together with PARM\.procstep="):
+        resolve_job(both, {}, "J")
+    with pytest.raises(JclProcRefused, match=r"COND= together with COND\.procstep="):
+        resolve_job(both.replace("PARM", "COND"), {}, "J")
 
 
 def test_a_library_procedure_in_if_flow_needs_the_libraries_and_the_member_to_exist():

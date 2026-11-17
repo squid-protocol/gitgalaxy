@@ -15,49 +15,72 @@ from gitgalaxy.core.source_text import read_source
 REPO = Path(__file__).resolve().parents[2]
 TESTS = REPO / "tests"
 
+WALL_CLOCKS = ("time", "perf_counter", "monotonic")
 WALL_CLOCK_CALL = re.compile(r"\btime\.(?:time|perf_counter|monotonic)(?:_ns)?\(\)")
+_MODULE_ALIAS = re.compile(r"^[ \t]*import[ \t]+time[ \t]+as[ \t]+(\w+)", re.M)
+_FROM_IMPORT = re.compile(r"^[ \t]*from[ \t]+time[ \t]+import[ \t]+(.+)$", re.M)
+
+# Not test assertions: the shared CPU-clock helper, CLI scripts that time subprocesses, golden fixtures.
+SKIP_PREFIXES = ("tests/_timing.py", "tests/tools/", "tests/extraction/tools/", "tests/golden_master")
+
+
+def wall_clock_calls(text: str) -> int:
+    """Count raw wall-clock calls, resolving `import time as t` and `from time import perf_counter as pc`."""
+    count = len(WALL_CLOCK_CALL.findall(text))
+    for alias in _MODULE_ALIAS.findall(text):
+        count += len(re.findall(rf"\b{re.escape(alias)}\.(?:time|perf_counter|monotonic)(?:_ns)?\(\)", text))
+    for names in _FROM_IMPORT.findall(text):
+        for part in names.replace("(", "").replace(")", "").split(","):
+            bits = part.split("#")[0].split()
+            if bits and bits[0] in WALL_CLOCKS:
+                local = bits[-1]
+                count += len(re.findall(rf"(?<![.\w]){re.escape(local)}(?:_ns)?\(\)", text))
+    return count
+
 
 # Existing test files that take >= 2 wall-clock timestamps (a difference). Shrink-only (#8423).
-WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset({
-    "tests/cobol_mainframe/test_pic_run_lengths_7169.py",
-    "tests/cobol_mainframe/test_translator_pic_runs_7169.py",
-    "tests/core_engine/test_api_db_sink_probe_4108.py",
-    "tests/core_engine/test_cics_macro_level.py",
-    "tests/core_engine/test_dense_source_7501.py",
-    "tests/core_engine/test_dense_source_7504.py",
-    "tests/core_engine/test_embedded_credentials_probe_4108.py",
-    "tests/core_engine/test_global_env_mutation_probe_4108.py",
-    "tests/core_engine/test_prefetch.py",
-    "tests/core_engine/test_stego_imports_probe_4108.py",
-    "tests/core_engine/test_vectorized_math_probe_4108.py",
-    "tests/extraction/languages/test_c_kernel_vocab_8016.py",
-    "tests/extraction/languages/test_calls_out_haskell_juxtaposition_6454.py",
-    "tests/extraction/languages/test_calls_out_rust_matches_depth_6454.py",
-    "tests/extraction/languages/test_calls_out_rust_select_arms_6454.py",
-    "tests/extraction/languages/test_csharp_strict.py",
-    "tests/extraction/languages/test_elixir_heredoc_imports_6572.py",
-    "tests/extraction/languages/test_elixir_sigil_imports_6572.py",
-    "tests/extraction/languages/test_elixir_string_imports_6572.py",
-    "tests/extraction/languages/test_go_raw_string_imports_6572.py",
-    "tests/extraction/languages/test_go_semicolon_imports_6572.py",
-    "tests/extraction/languages/test_hlasm_macro_uses.py",
-    "tests/extraction/languages/test_hlasm_strict.py",
-    "tests/extraction/languages/test_perl_heredoc_imports_6572.py",
-    "tests/security_auditing/test_redos_poison.py",
-    "tests/security_auditing/test_secrets_shunt_4987.py",
-    "tests/security_auditing/test_tls_bypass_dotnet_ps_wget_6239.py",
-    "tests/security_auditing/test_tls_bypass_java_6239.py",
-})
+WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
+    {
+        "tests/cobol_mainframe/test_pic_run_lengths_7169.py",
+        "tests/cobol_mainframe/test_translator_pic_runs_7169.py",
+        "tests/core_engine/test_api_db_sink_probe_4108.py",
+        "tests/core_engine/test_cics_macro_level.py",
+        "tests/core_engine/test_dense_source_7501.py",
+        "tests/core_engine/test_dense_source_7504.py",
+        "tests/core_engine/test_embedded_credentials_probe_4108.py",
+        "tests/core_engine/test_global_env_mutation_probe_4108.py",
+        "tests/core_engine/test_prefetch.py",
+        "tests/core_engine/test_stego_imports_probe_4108.py",
+        "tests/core_engine/test_vectorized_math_probe_4108.py",
+        "tests/extraction/languages/test_c_kernel_vocab_8016.py",
+        "tests/extraction/languages/test_calls_out_haskell_juxtaposition_6454.py",
+        "tests/extraction/languages/test_calls_out_rust_matches_depth_6454.py",
+        "tests/extraction/languages/test_calls_out_rust_select_arms_6454.py",
+        "tests/extraction/languages/test_csharp_strict.py",
+        "tests/extraction/languages/test_elixir_heredoc_imports_6572.py",
+        "tests/extraction/languages/test_elixir_sigil_imports_6572.py",
+        "tests/extraction/languages/test_elixir_string_imports_6572.py",
+        "tests/extraction/languages/test_go_raw_string_imports_6572.py",
+        "tests/extraction/languages/test_go_semicolon_imports_6572.py",
+        "tests/extraction/languages/test_hlasm_macro_uses.py",
+        "tests/extraction/languages/test_hlasm_strict.py",
+        "tests/extraction/languages/test_perl_heredoc_imports_6572.py",
+        "tests/security_auditing/test_redos_poison.py",
+        "tests/security_auditing/test_secrets_shunt_4987.py",
+        "tests/security_auditing/test_tls_bypass_dotnet_ps_wget_6239.py",
+        "tests/security_auditing/test_tls_bypass_java_6239.py",
+    }
+)
 
 
 def _find_wall_clock_diff_tests() -> set[str]:
     found: set[str] = set()
-    for path in TESTS.rglob("test_*.py"):
-        if path == Path(__file__).resolve():
+    for path in TESTS.rglob("*.py"):
+        rel = path.relative_to(REPO).as_posix()
+        if path == Path(__file__).resolve() or rel.startswith(SKIP_PREFIXES):
             continue
-        text = read_source(path).text
-        if len(WALL_CLOCK_CALL.findall(text)) >= 2:
-            found.add(path.relative_to(REPO).as_posix())
+        if wall_clock_calls(read_source(path).text) >= 2:
+            found.add(rel)
     return found
 
 

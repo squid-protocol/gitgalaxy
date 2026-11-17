@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `59b45804e` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `59bb3d215` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -63,8 +63,8 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 | `cics-genapp` | 31 | 11 | 0 | 0 | 25.7% (2768 of 10761) | 100.0% (10993 of 10993) | 1014 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `zecs` | 7 | 4 | 1 | 0 | 47.9% (1191 of 2488) | 100.0% (2592 of 2593) | 843 | 364 |
-| **Total** | 158 | 60 | 8 | 0 | 49.8% (18133 of 36426) | 67.8% (37605 of 55429) | 5532 | 1046 |
+| `zecs` | 7 | 4 | 1 | 0 | 47.9% (1191 of 2488) | 100.0% (2557 of 2558) | 839 | 354 |
+| **Total** | 158 | 60 | 8 | 0 | 49.8% (18133 of 36426) | 67.8% (37570 of 55394) | 5528 | 1036 |
 
 ## Capability ledger
 
@@ -133,7 +133,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-17T02:46:52Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-17T03:51:01Z.
 
 - `scope:core`: 12 open, 252 closed.
 - Milestone 28: 0 open, 112 closed.

@@ -245,6 +245,7 @@ A translator fix is never a hand edit of a port.
   (refresh refuses) and dropping killed ids from the survivors file (#6024, #6165). `det_mutation.py run` defaults to
   `--sample 150` and overwrites a full-sample ledger: pass `--sample 0`. A `refresh` after a survivors-text edit re-runs every
   survivor (~30 min/case): start it with `bg-job.sh`, since a foreground `heavy-run.sh` hits the 10-min cap (#8092).
+- **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it and a case with no entry weighs the median in `proof_sweep.py --shard`; no test or gate fails on it, and an added line conflicts with sibling PRs.
 - **Case-draw traps (2).** A new LINKed-program scenario with no COMMAREA or a stated `commarea_length` fails the java-facade
   side: run `evidence.py prove <case>` before the long mutation run (#6024). A case with run-time-built file names needs
   `install_symbols` incl. `ID`; a KeyError on a dataset name is a file-lineage fix in galaxy_ir, not the case (#5972). A port's

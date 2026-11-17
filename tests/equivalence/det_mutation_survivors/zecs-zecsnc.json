@@ -828,132 +828,6 @@
    "reason": "PARAGRAPHS table entry on line 183; table is only queried for dynamic condition handling which is unused in ZECSNC."
   },
   {
-   "id": "4162f0c23e",
-   "op": "NEG",
-   "line": 188,
-   "before": "if (i == null) {",
-   "after": "if (!(i == null)) {",
-   "verdict": "equivalent",
-   "reason": "Mutant on line 188; does not alter observable program behavior."
-  },
-  {
-   "id": "7d14cd4a42",
-   "op": "ROR",
-   "line": 188,
-   "before": "if (i == null) {",
-   "after": "if (i != null) {",
-   "verdict": "equivalent",
-   "reason": "Mutant on line 188; does not alter observable program behavior."
-  },
-  {
-   "id": "cf11a5ccc2",
-   "op": "LIT",
-   "line": 189,
-   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "equivalent",
-   "reason": "Mutant on line 189; does not alter observable program behavior."
-  },
-  {
-   "id": "5b517f7961",
-   "op": "NEG",
-   "line": 201,
-   "before": "if (h != null) {",
-   "after": "if (!(h != null)) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 201; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "b78db22764",
-   "op": "ROR",
-   "line": 201,
-   "before": "if (h != null) {",
-   "after": "if (h == null) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 201; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "ba030c5d5a",
-   "op": "NEG",
-   "line": 204,
-   "before": "if (DetCics.ignoredByDefault(cond)) {",
-   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 204; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "569c664d02",
-   "op": "CON",
-   "line": 205,
-   "before": "return -1;",
-   "after": "return -2;",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 205; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "1675aa1199",
-   "op": "LIT",
-   "line": 207,
-   "before": "Integer error = handlers.get(\"ERROR\");",
-   "after": "Integer error = handlers.get(\"XRROR\");",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 207; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "3466c1f950",
-   "op": "NEG",
-   "line": 208,
-   "before": "if (error != null) {",
-   "after": "if (!(error != null)) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 208; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "3e70b2467d",
-   "op": "ROR",
-   "line": 208,
-   "before": "if (error != null) {",
-   "after": "if (error == null) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 208; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "8c52cf5154",
-   "op": "NEG",
-   "line": 212,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 212; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "bc973a04f4",
-   "op": "ROR",
-   "line": 212,
-   "before": "if (label == null) {",
-   "after": "if (label != null) {",
-   "verdict": "unreachable",
-   "reason": "Dynamic condition handling method on line 212; all CICS commands use NOHANDLE so condition handling is never invoked."
-  },
-  {
-   "id": "651ba06711",
-   "op": "ROR",
-   "line": 219,
-   "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
-   "after": "return task.eibcalen() != null ? whole : task.eibcalen();",
-   "verdict": "case-gap",
-   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
-  },
-  {
-   "id": "12c9e2b1ad",
-   "op": "DEL",
-   "line": 225,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "case-gap",
-   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
-  },
-  {
    "id": "14010c2ba8",
    "op": "DEL",
    "line": 237,
@@ -1296,24 +1170,6 @@
    "reason": "Commarea boundary check on line 305; commarea length matches DFHCA size (8 bytes) exactly."
   },
   {
-   "id": "4120d2bd0d",
-   "op": "ROR",
-   "line": 309,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "runTask entry handling for AID and raw COMMAREA length check"
-  },
-  {
-   "id": "775b3b02f6",
-   "op": "DEL",
-   "line": 310,
-   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 310; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
    "id": "1792cb0b30",
    "op": "CON",
    "line": 314,
@@ -1330,96 +1186,6 @@
    "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
    "verdict": "case-gap",
    "reason": "the typed-COMMAREA guard turned to calen != 0: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "5804f60796",
-   "op": "CON",
-   "line": 316,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "the DTO's bytes land at offset 1 of DFHCOMMAREA, shifting CA_TRAN or overrunning the area. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "993f65a7f5",
-   "op": "CON",
-   "line": 316,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "the DTO's bytes are copied from offset 1, shifting CA_TRAN one byte. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "f183235bb1",
-   "op": "DEL",
-   "line": 316,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "the DTO's layout bytes are not copied, so CA_TRAN stays empty and Z_NC is wrong. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "652af721dc",
-   "op": "NEG",
-   "line": 317,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "the over-length test on the DTO's bytes is negated, so an exact 8-byte area takes copyOfRange. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "7045321c62",
-   "op": "ROR",
-   "line": 317,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "the over-length test on the DTO's bytes is <=, so an exact 8-byte area takes copyOfRange. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "9d65975e18",
-   "op": "ROR",
-   "line": 317,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "the over-length test on the DTO's bytes is >=, the boundary at exactly 8 bytes. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "d624d25814",
-   "op": "DEL",
-   "line": 318,
-   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "bytes of the DTO past 8 are not kept in `beyond`. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "391af974e6",
-   "op": "DEL",
-   "line": 320,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "EIBCALEN stays 0 for a DTO, so the program would RECEIVE instead of reading CA_TRAN. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
-  },
-  {
-   "id": "4614ea140a",
-   "op": "DEL",
-   "line": 326,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "case-gap",
-   "reason": "`beyond` is not set from a longer area. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
-   "id": "c8305fee01",
-   "op": "ROR",
-   "line": 326,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "case-gap",
-   "reason": "`beyond` is set for an exact 8-byte area too, an empty range. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "3c9c961def",
@@ -1463,15 +1229,6 @@
    "line": 333,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "unreachable",
-   "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
-  },
-  {
-   "id": "553b85bcaa",
-   "op": "DEL",
-   "line": 336,
-   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
    "verdict": "unreachable",
    "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
   },

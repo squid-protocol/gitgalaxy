@@ -209,6 +209,28 @@ def write_carddemo_measured(corpus: Path) -> Path:
     return JCL_MEASURED
 
 
+def proc_scenarios_live() -> tuple[int, int]:
+    """(answers reproduced, answers) of the PROC case (#8413 slice 2): each `resolve` scenario (the step list a call
+    step ends up with) and each `flow` scenario (run or bypass over procedure steps), run live."""
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_flow import JclFlow
+    from gitgalaxy.core.jcl_proc import expand_flow_rows, resolve_job
+
+    doc = json.loads((JCL_CASES / "proc" / "scenarios.json").read_text(encoding="utf-8"))
+    text = "\n".join(doc["flow_jcl"]) + "\n"
+    libs = {lib: {m: "\n".join(lines) + "\n" for m, lines in ms.items()} for lib, ms in doc["libraries"].items()}
+    ok = 0
+    for sc in doc["resolve"]:
+        got = resolve_job(text, libs, sc["job"])
+        ok += all(k in got and all(got[k][f] == v for f, v in want.items()) for k, want in sc["expect"].items()) and [
+            k for k in got if k.split(".")[0] == sc["call"]
+        ] == list(sc["expect"])
+    rows = job_flow.jcl_job_flow(text)
+    for sc in doc["flow"]:
+        ok += JclFlow(expand_flow_rows(rows, sc["job"])).run(sc["job"], sc["given"]).actions == sc["expect"]
+    return ok, len(doc["resolve"]) + len(doc["flow"])
+
+
 def jcl_step_flow() -> dict[str, Any]:
     """The JCL step-flow evaluator (gitgalaxy.core.jcl_flow) run live on its answer sets: the IBM-written FLOW fixture
     (in the repo, always run) and the CardDemo case (8 jobs with EXEC COND; run only when the pinned CardDemo corpus is
@@ -225,6 +247,9 @@ def jcl_step_flow() -> dict[str, Any]:
         flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / level / "FLOW.jcl").read_text(encoding="latin-1")))
         fx_ok += sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
         fx_n += len(fx["scenarios"])
+    px_ok, px_n = proc_scenarios_live()  # PROC resolution and procstep flow (#8413 slice 2)
+    fx_ok += px_ok
+    fx_n += px_n
     cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
     n_cd = sum(len(j["scenarios"]) for j in cd["jobs"])
     corpus = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / cd["corpus"]

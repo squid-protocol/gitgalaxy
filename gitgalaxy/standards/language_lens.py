@@ -400,8 +400,8 @@ def _dbb_libs(folder: str) -> list[Any]:
 
 def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
     """#8111: the absolute library directories `folder` declares (proc_grps.json `libs`, settings.json
-    `cpy-manager.paths-local`, zapp.yaml `propertyGroups`, DBB `application-conf` `cobol_dependencySearch`), in declaration order, relative entries only; [] when
-    none or unreadable."""
+    `cpy-manager.paths-local`, zapp.yaml `propertyGroups`, DBB `application-conf` `cobol_dependencySearch`), in
+    declaration order, relative entries only; [] when none or unreadable."""
     entries: list[Any] = []
     zapp = os.path.join(folder, "zapp.yaml")
     if os.path.isfile(zapp):

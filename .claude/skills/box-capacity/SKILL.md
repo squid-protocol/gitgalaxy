@@ -106,3 +106,4 @@ pytest, a `--jobs` sweep) reads `GG_JOB_CORES` the same way, never `os.cpu_count
 - [ ] Singletons it needs (Db2, golden lock, pins) are free or queued behind their holder.
 - [ ] The brief says: heavy commands through `heavy-run.sh`, golden through `golden-lock.sh`, own scratch subdir.
 - [ ] My own heavy runs are counted and wrapped too.
+- [ ] File-cap grant (#8422): pass `churn queue add --file-cap-exception` only for an atomic rename, a pin bump, a new language profile, or a mechanical one-line change across many files. Never for a feature, and equivalence-case work stays one program per PR. A worker cannot grant its own; a report with **Needs a file-cap grant** is the cue to re-queue the item with the grant.

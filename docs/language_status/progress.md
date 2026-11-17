@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `6dbabf542` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `4891a4d9c` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -94,7 +94,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Data and messaging | IMS DL/I | Partial | 0 of 16 rules match IBM | calls run on our own model, so no rule matches yet |
 | Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
-| Batch | JCL step flow | Works | 32 of 32 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's JCL Reference before the evaluator ran) |
+| Batch | JCL step flow | Works | 52 of 52 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's JCL Reference before the evaluator ran) |
 | Batch | JCL in the real codebases | Partial | 8 of 22 COND jobs answer-checked | 159 jobs read in 230 JCL members; 22 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
 | Batch | JCL job execution | Partial | no denominator | 1 multi-step job case (the programs' steps are wired by the case, not yet run from the JCL) |
 | Other languages | HLASM assembler | Partial | no denominator | 21 opcodes, the zECS subset |
@@ -133,7 +133,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-17T02:44:07Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-17T02:45:26Z.
 
 - `scope:core`: 12 open, 252 closed.
 - Milestone 28: 0 open, 112 closed.

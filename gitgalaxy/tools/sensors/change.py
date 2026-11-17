@@ -28,6 +28,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from gitgalaxy.core.source_text import decode_bytes
 from gitgalaxy.tools.sensors import libsurface, reach
 
 MIN_REPEAT = 5  # a swap seen this often in one change is reported as a repeated rename
@@ -71,13 +72,11 @@ def _git(repo: Path, *args: str) -> str:
     out = subprocess.run(  # noqa: S603
         ["git", "-C", str(repo), *args],  # noqa: S607
         capture_output=True,
-        text=True,
         check=False,
-        errors="replace",
     )
     if out.returncode:
-        raise RuntimeError(out.stderr.strip() or f"git {' '.join(args)} failed")
-    return out.stdout
+        raise RuntimeError(decode_bytes(out.stderr).strip() or f"git {' '.join(args)} failed")
+    return decode_bytes(out.stdout)
 
 
 def parse_diff(

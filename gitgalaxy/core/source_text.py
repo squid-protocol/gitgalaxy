@@ -38,7 +38,7 @@ import fnmatch
 import io
 import re
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from gitgalaxy.core.ebcdic_codecs import EBCDIC_CODE_PAGES, register
@@ -63,6 +63,7 @@ class SourceText:
     encoding: str  # the codec that decoded it
     how: str  # "bom" | "utf-16-heuristic" | "utf-8" | "declared" | "cp1252-fallback" | "latin-1-fallback"
     cjk_candidates: tuple[str, ...] = ()  # #3878: a legacy guess that decodes strictly as these
+    ebcdic_undeclared: bool = False  # #8412: a legacy guess made on bytes that read as raw EBCDIC
 
 
 # What the estate declares: one codec for every file, or {glob: codec} matched in order against the
@@ -151,6 +152,36 @@ def _utf16_without_bom(data: bytes) -> str | None:
         if nul_lane * 10 >= pairs * 3 and other_lane * 20 <= pairs:  # >=30% NUL in one lane, <=5% in the other
             return codec
     return None
+
+
+# #8412: EBCDIC letters, digits and the blank (0x40) -- the bytes of a COBOL / JCL / HLASM member. In
+# ASCII, 0x40 is `@` and 0x81-0xF9 are high bytes only a legacy text holds a few of, so a sample made
+# mostly of them, with a blank every few bytes and next to no printable ASCII, is raw EBCDIC.
+_EBCDIC_TEXT_BYTES = frozenset(
+    {0x40}
+    | set(range(0x81, 0x8A))
+    | set(range(0x91, 0x9A))
+    | set(range(0xA2, 0xAA))
+    | set(range(0xC1, 0xCA))
+    | set(range(0xD1, 0xDA))
+    | set(range(0xE2, 0xEA))
+    | set(range(0xF0, 0xFA))
+)
+_EBCDIC_SAMPLE = 4096
+
+
+def looks_like_ebcdic(data: bytes) -> bool:
+    """#8412: True when `data` is raw EBCDIC text that no code page was declared for. The guess ladder
+    (cp1252, then Latin-1) decodes every such byte to something, so the garbage was silent; this names
+    it. A sniff, never a decode: which national page (cp037, cp500, cp1047...) is the estate's to say."""
+    sample = data[:_EBCDIC_SAMPLE]
+    if len(sample) < 16:
+        return False
+    n = len(sample)
+    text_like = sum(1 for b in sample if b in _EBCDIC_TEXT_BYTES)
+    blanks = sample.count(0x40)
+    ascii_printable = sum(1 for b in sample if 0x20 <= b <= 0x7E and b != 0x40)  # the blank is 0x40
+    return text_like * 100 >= n * 60 and blanks * 100 >= n * 4 and ascii_printable * 100 <= n * 40
 
 
 _FB_LRECL = 80  # a card image: the record length of source PDSes (JCL, COBOL, PL/I, HLASM)
@@ -272,7 +303,7 @@ def decode_source(data: bytes, *, truncated: bool = False, declared: str | None 
         text, name, how = data.decode("cp1252"), "cp1252", "cp1252-fallback"
     except UnicodeDecodeError:  # cp1252 leaves 0x81 0x8D 0x8F 0x90 0x9D unmapped
         text, name, how = data.decode("latin-1"), "latin-1", "latin-1-fallback"
-    return SourceText(text, name, how, cjk_candidates(data))
+    return SourceText(text, name, how, cjk_candidates(data), ebcdic_undeclared=not declared and looks_like_ebcdic(data))
 
 
 def decode_bytes(data: bytes, declared: str | None = None) -> str:
@@ -292,7 +323,7 @@ def read_source(path: str | Path, limit: int | None = None, declared: str | None
         return src
     # universal newlines, as text-mode open() gave every caller: CRLF and lone CR become LF, so line
     # counts, `$` anchors and fixed-format columns see one line ending whatever the file used
-    return SourceText(src.text.replace("\r\n", "\n").replace("\r", "\n"), src.encoding, src.how)
+    return replace(src, text=src.text.replace("\r\n", "\n").replace("\r", "\n"))
 
 
 def open_source(path: str | Path, declared: str | None = None) -> io.StringIO:

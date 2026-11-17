@@ -1397,6 +1397,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "source_decode": source.how,
             # #3878: a guessed file that decodes strictly as a CJK code page (the report says so).
             **({"cjk_candidates": list(source.cjk_candidates)} if source.cjk_candidates else {}),
+            # #8412: a guessed file whose bytes read as raw EBCDIC and no code page was declared.
+            **({"ebcdic_undeclared": True} if source.ebcdic_undeclared else {}),
             # #3200/#3201/#3246/#3211-followup: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,

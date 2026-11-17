@@ -140,25 +140,54 @@ def markers(hunks: list[tuple[str, list[str], list[str]]], source: set[str]) -> 
     return out
 
 
-def touched_functions(db: Path, ranges: dict[str, list[tuple[int, int]]]) -> list[dict]:
-    """Functions whose line span overlaps a changed hunk (new side), with their caller counts. Needs a scan of the tree at REV."""
+_SIG_CALLERS = 5  # callers named under a function whose signature changed
+_WHILE_HERE_LINES = (
+    50  # source lines changed before the "while you are here" list is offered (exploratory rule, see the wiki page)
+)
+_BLAME_CAP = 40  # markers blamed per report
+
+
+def _args_by_key(db: Path) -> dict[tuple[str, str], int]:
+    """Parameter count of every function whose (file, name) is unique in the scan."""
     con = reach.open_scan_db(db)
     try:
         rows = con.execute(
-            "SELECT f.id, f.func_name, f.start_line, f.loc, fi.file_path FROM function_data f JOIN file_data fi ON fi.id = f.file_id"
+            "SELECT fi.file_path, f.func_name, f.args FROM function_data f JOIN file_data fi ON fi.id = f.file_id"
+        ).fetchall()
+    finally:
+        con.close()
+    count = collections.Counter((p, n) for p, n, _ in rows)
+    return {(p, n): int(a or 0) for p, n, a in rows if count[(p, n)] == 1}
+
+
+def touched_functions(db: Path, ranges: dict[str, list[tuple[int, int]]], base_db: Path | None = None) -> list[dict]:
+    """Functions whose line span overlaps a changed hunk (new side), with their callers. Needs a scan of the tree at REV.
+
+    A function's signature counts as changed when its parameter count differs between the base scan and this one (needs `base_db`), or, without
+    one, when a changed hunk covers the line the function starts on. Those come first, then the most-called."""
+    con = reach.open_scan_db(db)
+    try:
+        rows = con.execute(
+            "SELECT f.id, f.func_name, f.start_line, f.loc, fi.file_path, f.args FROM function_data f JOIN file_data fi ON fi.id = f.file_id"
         ).fetchall()
         edges = con.execute(
             "SELECT dst_func_id, src_func_id, src_file_id FROM fcall_data WHERE kind = 'call' AND dst_func_id IS NOT NULL"
         ).fetchall()
     finally:
         con.close()
+    names = {r[0]: (r[1], r[4]) for r in rows}
+    base_args = None
+    now_args: dict[tuple[str, str], int] = {}
+    if base_db is not None:
+        base_args = _args_by_key(base_db)
+        now_args = _args_by_key(db)
     caller_fns: dict[int, set[int]] = collections.defaultdict(set)
     caller_files: dict[int, set[int]] = collections.defaultdict(set)
     for dst, src, src_file in edges:
         caller_fns[dst].add(src)
         caller_files[dst].add(src_file)
     out = []
-    for fid, name, start, loc, path in rows:
+    for fid, name, start, loc, path, _args in rows:
         if not start or path not in ranges:
             continue
         end = start + max(loc or 1, 1) - 1
@@ -167,6 +196,14 @@ def touched_functions(db: Path, ranges: dict[str, list[tuple[int, int]]]) -> lis
             two: set[int] = set()
             for c in direct:
                 two |= caller_fns.get(c, set())
+            signature = None
+            if base_args is not None:
+                before, after = base_args.get((path, name)), now_args.get((path, name))
+                if before is not None and after is not None and before != after:
+                    signature = f"parameters {before} -> {after}"
+            elif any(s <= start < s + max(n, 1) for s, n in ranges[path]):
+                signature = "declaration line edited"
+            callers = sorted({f"{names[c][0]} ({names[c][1]})" for c in direct if c in names})
             out.append(
                 {
                     "function": name,
@@ -174,9 +211,61 @@ def touched_functions(db: Path, ranges: dict[str, list[tuple[int, int]]]) -> lis
                     "caller_functions": len(direct),
                     "caller_files": len(caller_files.get(fid, ())),
                     "one_hop_out": len(two - direct - {fid}),
+                    "signature_changed": signature,
+                    "callers": callers[:_SIG_CALLERS] if signature else [],
                 }
             )
-    return sorted(out, key=lambda r: (-r["caller_functions"], r["file"], r["function"]))
+    return sorted(out, key=lambda r: (r["signature_changed"] is None, -r["caller_functions"], r["file"], r["function"]))
+
+
+def while_you_are_here(repo: Path, rev: str, db: Path, source_lines: int, files: set[str]) -> dict:
+    """The open TODO / FIXME / HACK / XXX markers in the touched source files, oldest and this author's own first, when the change is large enough.
+
+    Needs a scan of the tree at REV that recorded markers (`debt_marker`); age and author come from `git blame` of each marker's line at REV."""
+    res: dict = {
+        "offered": source_lines >= _WHILE_HERE_LINES,
+        "source_lines": source_lines,
+        "measured": True,
+        "markers": [],
+    }
+    con = reach.open_scan_db(db)
+    try:
+        if con.execute("SELECT 1 FROM sqlite_master WHERE name = 'debt_marker'").fetchone() is None:
+            res["measured"] = False
+            return res
+        if not res["offered"]:
+            return res
+        found = con.execute(
+            "SELECT fi.file_path, m.line, m.class, m.text FROM debt_marker m JOIN file_data fi ON fi.id = m.file_id ORDER BY fi.file_path, m.line"
+        ).fetchall()
+    finally:
+        con.close()
+    found = [r for r in found if r[0] in files]
+    res["open_markers"] = len(found)
+    author = _git(repo, "show", "-s", "--format=%ae", rev).strip().lower()
+    now = int(_git(repo, "show", "-s", "--format=%ct", rev).strip())
+    out = []
+    for path, line, cls, text in found[:_BLAME_CAP]:
+        info = _git(repo, "blame", "--porcelain", "-L", f"{line},{line}", rev, "--", path).splitlines()
+        sha = info[0].split()[0] if info else ""
+        mail = next((x[12:].strip("<>").lower() for x in info if x.startswith("author-mail ")), "")
+        when = next((int(x[12:]) for x in info if x.startswith("author-time ")), now)
+        if sha.lstrip("^") == rev[: len(sha.lstrip("^"))]:
+            continue  # written by this change
+        out.append(
+            {
+                "file": path,
+                "line": line,
+                "class": cls,
+                "text": text,
+                "age_years": round((now - when) / (365.25 * 86400), 1),
+                "by_author": mail == author,
+            }
+        )
+    out.sort(key=lambda m: (not m["by_author"], -m["age_years"], m["file"], m["line"]))
+    res["markers"] = out
+    res["truncated"] = len(found) > _BLAME_CAP
+    return res
 
 
 def surface_moves(base_db: Path, db: Path) -> list[dict]:
@@ -226,7 +315,9 @@ def build_report(repo: Path, rev: str, base: str, scan_db: Path | None, base_db:
         "markers": markers(hunks, source),
     }
     if scan_db:
-        result["touched_functions"] = touched_functions(scan_db, ranges)
+        result["touched_functions"] = touched_functions(scan_db, ranges, base_db)
+        source_lines = sum(sum(files[p]) for p in source)
+        result["while_you_are_here"] = while_you_are_here(repo, rev, scan_db, source_lines, source)
     if scan_db and base_db:
         result["library_moves"] = surface_moves(base_db, scan_db)
     return result
@@ -253,14 +344,46 @@ def report(res: dict, top: int = 6) -> str:
             out.append(f"    {sign} {path}: {text[:80]}")
     if "touched_functions" in res:
         t = res["touched_functions"]
+        flagged = [r for r in t if r["signature_changed"]]
         out.append(
-            f"FUNCTIONS TOUCHED ({len(t)}), most-called first; one hop out = further functions that reach it through a caller"
+            f"FUNCTIONS TOUCHED ({len(t)}; {len(flagged)} with a changed signature first, then most-called); one hop out = further functions that reach it through a caller"
         )
-        out.extend(
-            f"  {r['function']} ({r['file']}): {r['caller_functions']} caller functions in {r['caller_files']} files, {r['one_hop_out']} one hop out"
-            for r in t[:top]
-        )
+        for r in t[:top]:
+            mark = f"! {r['signature_changed']}; " if r["signature_changed"] else ""
+            out.append(
+                f"  {r['function']} ({r['file']}): {mark}{r['caller_functions']} caller functions in {r['caller_files']} files, {r['one_hop_out']} one hop out"
+            )
+            if r["callers"]:
+                out.append("      callers to check: " + ", ".join(r["callers"]))
+        if flagged:
+            out.append(
+                "  Callers are listed for a changed signature because that is where later fixes tended to land: in the study behind this order, fixes after a signature change"
+                " were found in the callers about 1.2 times as often as in other functions of the same file, pooled over six repositories (exploratory; docs/wiki/08-26)."
+            )
         out.append("  Counts come from the scan you gave; a call the scan could not resolve is not counted.")
+    w = res.get("while_you_are_here")
+    if w is not None:
+        if not w["measured"]:
+            out.append(
+                "WHILE YOU ARE HERE: not measured (this scan recorded no debt markers; rescan with a current engine)"
+            )
+        elif not w["offered"]:
+            out.append(
+                f"WHILE YOU ARE HERE: not offered (source changes of {_WHILE_HERE_LINES}+ lines trigger it; this one has {w['source_lines']})"
+            )
+        else:
+            out.append(
+                f"WHILE YOU ARE HERE (source changes of {_WHILE_HERE_LINES}+ lines; {w.get('open_markers', 0)} open markers in the touched files, this author's and the oldest first)"
+            )
+            for m in w["markers"][:top]:
+                who = ", written by this author" if m["by_author"] else ""
+                out.append(
+                    f"  {m['file']}:{m['line']} {m['class']} open {m['age_years']:.1f} y{who} | {m['text'][:80]}"
+                )
+            if not w["markers"]:
+                out.append("  none left open by earlier changes")
+            if w.get("truncated"):
+                out.append(f"  (first {_BLAME_CAP} markers by file order were aged)")
     if "library_moves" in res:
         mv = res["library_moves"]
         out.append(f"LIBRARY COUPLING THAT MOVED ({len(mv)})")
@@ -280,7 +403,9 @@ def add_arguments(p: argparse.ArgumentParser) -> None:
         "--scan-db", type=Path, help="a scan of the tree at REV: adds the functions touched and who calls them"
     )
     p.add_argument(
-        "--base-db", type=Path, help="a scan of the base (needs --scan-db): adds the library coupling that moved"
+        "--base-db",
+        type=Path,
+        help="a scan of the base (needs --scan-db): adds parameter-count changes and the library coupling that moved",
     )
     p.add_argument("--top", type=int, default=6)
     p.add_argument("--json", type=Path, metavar="FILE", help="also write the full result as JSON")

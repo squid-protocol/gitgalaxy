@@ -60,7 +60,8 @@ def test_committed_excerpt_matches_the_manifest(corpus):
 def test_committed_excerpt_is_byte_identical_to_the_clone(corpus):
     """Local only: skipped unless the corpus is fetched at its pin."""
     clone = mc.clone_path(corpus)
-    if not (clone / ".git").exists() or _git("rev-parse", "HEAD", cwd=clone) != corpus["ref"]:
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=clone, capture_output=True, text=True).stdout.strip()
+    if not (clone / ".git").exists() or head != corpus["ref"]:  # a clone with no commit (broken fetch) is not fetched
         pytest.skip(f"{corpus['name']} not fetched (mainframe_corpus.py fetch)")
     for rel in corpus["excerpt"]["files"]:
         assert (mc.EXCERPTS / corpus["name"] / rel).read_bytes() == (clone / rel).read_bytes(), rel

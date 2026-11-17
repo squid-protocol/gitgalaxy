@@ -108,6 +108,7 @@ A translator fix is never a hand edit of a port.
       `equivalence_cics.py` templates).
 
 **A new case:**
+- [ ] One program per PR; the cap exception is the orchestrator's to grant, never yours (worker rules, #8422).
 - [ ] `tests/equivalence/<case>/case.json`, plus a NOTICE naming the corpus licence and what was derived.
 - [ ] Scenarios that reach the error paths: file statuses, RESP conditions, SQLCODEs (+100, -803, -811,
       constraints), and faults. A Db2 case gets one SQL-fault task per statement it executes by default

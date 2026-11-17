@@ -118,6 +118,7 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
   program in it. Case data -- `case.json`, scenario input files, infeasible entries -- and generated files (ledgers,
   evidence records, `-generated` twins) don't count toward the 5-file cap. Data-only ladder PRs merged in 9-53 min at
   any size; the slow ones (78-158 min, 4-13 commits) all changed code.
+- **Not the new-case rule:** a NEW equivalence case is one program per PR (#8422); a ladder slice adds scenarios to existing cases, one estate per PR.
 - **No code in a ladder PR.** A harness / tool / translator change it needs is its own small PR first (this slice
   queues after it), or the outcome stays open citing #6271.
 - **Never let one program hold the estate:** a program that won't close in the run is dropped to **Remaining

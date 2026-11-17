@@ -25,6 +25,7 @@ tests/tools/box/mvs38j/mvs38j.sh stage     # lay conf/ jcl/ tape/ sajobs/ and th
 tests/tools/box/mvs38j/mvs38j.sh dasd starter   # empty DASD volumes of one stage (starter | dlibs | sysgen | user), via dasdinit in the image
 tests/tools/box/mvs38j/mvs38j.sh sysgen smp1 [--tape VOLSER=FILE ...]   # starter-system IPL, SMP jobs over the 3215 console (smp2 likewise)
 tests/tools/box/mvs38j/mvs38j.sh sysgen stage1    # sysgen00 (ICKDSF init of the target volumes) + sysgen01 (stage 1 assembly), then hetget of stage1.output
+tests/tools/box/mvs38j/mvs38j.sh sysgen stage2    # stage1.output -> jcl/stage2.jcl (Moseley's awk, ported), SYSGEN1..6 released one by one (code written; not yet run live)
 tests/tools/box/mvs38j/mvs38j.sh sysgen starter   # START1 + SPOOL0: DASDI then DUMP/RESTORE per volume, driven over the console (~11 s)
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
 tests/tools/box/mvs38j/mvs38j.sh start     # needs $MVS38J_WORK/conf/mvs.conf (the generated system)
@@ -36,7 +37,7 @@ tests/tools/box/mvs38j/mvs38j.sh stop
 committed. `start` binds the card-reader socket (3505) and the console (3270) to 127.0.0.1 only. Scratch containers are
 named `churn-<issue>-<n>` (`MVS38J_NAME`).
 
-## System generation (staging, starter, smp1, smp2 and stage 1 automated; the rest not yet)
+## System generation (staging, starter, smp1, smp2 and stage 1 automated, stage 2 written; the rest not yet)
 
 `stage` and `dasd` are verified (2026-11-13): all four stages' volumes create in about 4 GB of sparse files, answering "n" to
 `create.dasd.sh`'s compression prompt. Moseley's configs use paths relative to `$MVS38J_WORK`, which `stage` reproduces.
@@ -94,6 +95,12 @@ with the image's `hetget -a` (`hetget`). `FDZ1D02` (ICKDSF R13) is not part of i
 catalog as `JOBCAT` (`IEF212I ... DATA SET NOT FOUND`, step not executed) until sysgen00 has defined it, so it belongs after the
 target system exists (Moseley runs it last). Re-running a stage needs fresh volumes: `mvs38j.sh dasd starter|dlibs|sysgen` first.
 
+`sysgen.py stage2` (**written and unit-tested only; not yet run live**) ports `stage2.awk` as `convert_stage1` (SYSGEN1..5 held with
+`TYPRUN=HOLD,TIME=1439` and the target master catalog as `JOBCAT`, `EXPDT=99350` -> `00000`, SYSGEN6's `STEPY` -> `IEFBR14`, separator
+cards dropped), writes `jcl/stage2.jcl`, IPLs the starter again, attaches the targets, feeds the deck and releases each job with
+`$A'SYSGENn'`, waiting for its `$HASP395 ENDED`. It reads `stage1.output` from a good `stage1` run (an earlier leftover was truncated
+after SYSGEN1: rerun `stage1` from fresh volumes). Its expected-condcode table is not yet filled: it only reports steps over CC 4.
+
 ## Job runner
 
 `tests/tools/box/mvs38j/runner.py` (stdlib, host side; **fixture-tested only, not yet run against a live 3.8J log**) is
@@ -110,7 +117,8 @@ Results are internal only (Q16).
 ### Remaining slices (#8414)
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
-2. Stage 2 (`stage2.rexx`/`awk` port or call on `stage1.output`, `sysgen02..06`, FDZ1D02), the user mods and the `mvs.cnf` first
+2. Run `stage2` live and fill its expected-condcode table; then `sysgen02..06` (`PVTMAC` tape), the user mods (`SMPPTF`), FDZ1D02 (its `MVS38J`
+   volser clashes with `DEFAULT_TAPES`: needs `--tape MVS38J=tape/dz1d02.het`), the starter shutdown, the user mods and the `mvs.cnf` first
    IPL of the generated system, the socket reader on 3505.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the
    runner's message patterns against a live log; merge `sysgen.step_results` onto `runner.parse_log`.

@@ -225,3 +225,16 @@ def test_the_evidence_plan_tolerates_a_few_unlisted_cases_but_not_a_stopped_feed
     stopped = {f"case{i:03d}": 100.0 for i in range(20)}
     with pytest.raises(dsp._shard_plan().PlanError):
         dsp.evidence_plan(stopped | real_db2, cases_dir=tmp_path)
+
+
+def test_the_only_demand_for_a_durations_entry_is_the_stopped_feed_bound():
+    """#8422: no test or gate asks a new case for its own det_sweep_durations.json line. The plan fails only when more
+    than GRACE_CASES and more than MAX_UNMEASURED of the cases are unlisted (the nightly stopped recording)."""
+    names, durations = _real_cases_and_durations()
+    sp = dsp._shard_plan()
+    grace = [f"unlisted-{i}" for i in range(sp.GRACE_CASES)]
+    assert dsp.shards_for(_narrow([*names, *grace]), durations)  # the grace allowance alone never fails
+    over = [f"unlisted-{i}" for i in range(len(names) // 2 + sp.GRACE_CASES)]
+    with pytest.raises(sp.PlanError):
+        dsp.shards_for(_narrow([*names, *over]), durations)
+    assert dsp.shards_for({**_narrow([*names, *over]), "new_cases": over}, durations)  # a PR's own cases are exempt

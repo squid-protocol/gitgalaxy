@@ -543,7 +543,7 @@ mutation_equivalent_spot_check.md	tests/cobol_mainframe
 mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 mutation_testing.md	tests/tools/mutation_scores.py
 none.md	tests/core_engine
-notes.md	tests/cobol_mainframe
+notes.md	tests/cobol_mainframe,tests/tools/test_activity_sensor.py
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
 p.md	tests/tools/test_generated_docs.py

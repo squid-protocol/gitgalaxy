@@ -43,5 +43,10 @@ def test_the_stub_len_is_read_into_the_cobol_event():
 
 
 def test_a_return_with_no_commarea_records_no_length():
-    res = {"events": ["RETURN level=1 transid= len=0"], "screens": [], "text": [], "return": {"transid": "", "commarea": None}}
+    res = {
+        "events": ["RETURN level=1 transid= len=0"],
+        "screens": [],
+        "text": [],
+        "return": {"transid": "", "commarea": None},
+    }
     assert "length" not in ec.cobol_events(res)[0]

@@ -238,9 +238,13 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
         for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
-        if c["event"] == "RETURN" and c.get("length") is not None and j.get("length") is not None:
-            if int(c["length"]) != int(j["length"]):  # #7955: LENGTH of a RETURN COMMAREA (the next EIBCALEN)
-                bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
+        if (
+            c["event"] == "RETURN"
+            and c.get("length") is not None
+            and j.get("length") is not None
+            and int(c["length"]) != int(j["length"])
+        ):  # #7955: LENGTH of a RETURN COMMAREA (the next EIBCALEN)
+            bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
         if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
             bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways

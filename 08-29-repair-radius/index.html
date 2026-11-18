@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="> **Topic:** What tends to follow a change to a function? A plain-language account of the repair radius: where later fixes land, what they change and how that depends on the size of the change. Measured on 3,000 to 24,000 named cause-and-fix pairs in each of the Linux kernel, DPDK and Mesa, and on curl, OpenSSL and FreeBSD.">
+        <meta name="description" content="> **Topic:** What tends to follow a change to a function? A plain-language account of the repair radius: where later fixes land, what they change and how that depends on the size of the change. Measured on 3,000 to 24,000 named cause-and-fix pairs in each of the Linux kernel, DPDK and Mesa, and on curl, OpenSSL and FreeBSD, and checked on Python and Go projects; also around added and deleted functions, as a ranking test against size, and as a test of whether a change will need a fix.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -12695,6 +12695,50 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#added-and-deleted-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added and deleted functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-good-is-it-as-a-ranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How good is it as a ranking?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#will-a-change-need-a-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Will a change need a fix?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other languages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-it-does-not-say" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12762,8 +12806,8 @@
 
 <h1 id="repair-radius-what-tends-to-follow-a-change">Repair Radius: What Tends to Follow a Change</h1>
 <blockquote>
-<p><strong>Status:</strong> exploratory research, one author, not peer reviewed. Every number is an association measured on C code in six open-source projects. The scripts, outputs and a prediction written before each run are in the temporal-crucible repository (<code>docs/sensor-overhaul/sensors/ripple_radius.md</code>); several predictions failed, and the failures are recorded there. This page replaces the headline of <a href="../08-28-blast-radius/">Blast Radius of a Change</a> with measurements on verified functions and more repositories.</p>
-<p><strong>Summary:</strong> When a function is changed and a bug caused by that change is later fixed, the fix is most often in the same function, then in a close neighbour in the call graph, and it often reuses a name the change touched. Small changes are repaired once, close by; big changes are repaired again and again, scattered. This appears to be useful as a checklist when changing a function, not as a prediction.</p>
+<p><strong>Status:</strong> exploratory research, one author, not peer reviewed. Every number is an association measured on open-source projects, six of them C and the rest Python, Go, Java and Rust. The scripts, outputs and a prediction written before each run are in the temporal-crucible repository (<code>docs/sensor-overhaul/sensors/ripple_radius.md</code>); several predictions failed, and the failures are recorded there. This page replaces the headline of <a href="../08-28-blast-radius/">Blast Radius of a Change</a> with measurements on verified functions and more repositories.</p>
+<p><strong>Summary:</strong> When a function is changed and a bug caused by that change is later fixed, the fix is most often in the same function, then in a close neighbour in the call graph, and it often reuses a name the change touched. Small changes are repaired once, close by; big changes are repaired again and again, scattered. The same pattern holds around functions that are added or deleted. Given a change that is later fixed, ranking by file and call distance finds the repaired function in its top 20 of tens of thousands for about half of the cases (size alone: 0.2%); whether a change will need a fix at all is mostly a matter of its size. This appears to be useful as a checklist when changing a function, not as a prediction.</p>
 </blockquote>
 <p><img src="../media/repair-radius.gif" width="760" alt="Four functions A, B, C and D: if B changes, the fix tends to be in B, then A or C, with a new check in callers and a shared name in D; small changes stay close, big ones scatter"></p>
 <h2 id="an-example-with-four-functions">An example with four functions</h2>
@@ -12897,11 +12941,133 @@
 </tr>
 </tbody>
 </table>
+<h2 id="added-and-deleted-functions">Added and deleted functions</h2>
+<p>Everything above is about functions a change <em>modified</em>. The same measurement around functions a change <strong>adds</strong> or <strong>deletes</strong> (DPDK and Mesa; added and deleted functions found by comparing each changed file with its parent with tree-sitter; moves and renames excluded):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>DPDK</th>
+<th>Mesa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repairs within 2 calls of an <strong>added</strong> function, against the same-file baseline</td>
+<td><strong>2.2</strong></td>
+<td><strong>3.0</strong></td>
+</tr>
+<tr>
+<td>Repairs within 2 calls of a <strong>deleted</strong> function (in the call graph before the commit)</td>
+<td><strong>2.8 to 3.2</strong></td>
+<td><strong>2.9 to 3.1</strong></td>
+</tr>
+<tr>
+<td>Callers against callees, added functions</td>
+<td>3.5 against 1.5</td>
+<td>4.9 against 1.8</td>
+</tr>
+<tr>
+<td>Callers against callees, deleted functions</td>
+<td>4.6 against 1.9</td>
+<td>5.5 against 2.4</td>
+</tr>
+<tr>
+<td>The fix edits the new function itself</td>
+<td>57%</td>
+<td>46%</td>
+</tr>
+<tr>
+<td>A deleted function with 3 or more callers draws a repair in its old neighbourhood, against one with 0 or 1 callers</td>
+<td>48% against 27% (1.8 times), both projects pooled</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>For modified functions the same measurement gives 1.6 (DPDK) and 1.8 (Mesa), so the call graph absorbs the arrival or loss of a function at least as locally as a change to one. <strong>The result does not depend on how renames are handled</strong>: it moves by under 3% around added functions, and at most 10% around deleted ones, across six ways of recognising a move (none at all, three token-overlap thresholds, the engine's structural fingerprint, and a combination). Token overlap found 77% of the moves that git's own line tracking finds, with 4% false alarms; the structural fingerprint found 57%; about one move in five (a function split in two, or rewritten on the way) is found by neither.</p>
+<h2 id="how-good-is-it-as-a-ranking">How good is it as a ranking?</h2>
+<p>Given a change that is later fixed, rank every function in the program (and every file) and see where the repaired one lands. A comparison with size alone, because bigger code is simply repaired more often. DPDK and Mesa for added and deleted functions; the kernel, DPDK and Mesa for modified ones.</p>
+<table>
+<thead>
+<tr>
+<th>Ranker</th>
+<th>Repaired function in the top 20 (of 30,000 to 110,000)</th>
+<th>Area under the curve (AUC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Random</td>
+<td>0.0 to 0.1%</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>Size alone (largest first)</td>
+<td><strong>0.2 to 0.4%</strong></td>
+<td>0.74 to 0.83</td>
+</tr>
+<tr>
+<td>Call distance alone</td>
+<td>30% (modified), 36 to 41% (added, deleted)</td>
+<td>0.73 (0.66 to 0.70 for added, deleted)</td>
+</tr>
+<tr>
+<td>Same file, then call distance, then size</td>
+<td><strong>45%</strong> (modified), <strong>44 to 53%</strong> (added, deleted)</td>
+<td>0.91 to 0.93</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Not only size.</strong> Among functions of the same size, call distance alone separates the repaired function with an AUC of 0.73 (modified) and 0.66 to 0.70 (added, deleted); with the file, 0.85 (modified). This is a different question from which files will have bugs: it is where a fix goes once one is needed.</li>
+<li><strong>Files.</strong> Ranking every file in the program, a repaired file is among the top 20 for 67 to 80% of added or deleted functions (random 0.5 to 1.3%). Much of that is the change's own file; counting only repairs in <strong>other</strong> files, the top 20 still holds a repaired file for <strong>39 to 50%</strong> (random 0.5 to 1.3%, file size alone 2.5 to 5.7%), found by call distance.</li>
+</ul>
+<h2 id="will-a-change-need-a-fix">Will a change need a fix?</h2>
+<p>The reverse question, on <strong>all</strong> changes including those never fixed (DPDK and Mesa; label: named as the cause of a fix within two years):</p>
+<ul>
+<li><strong>Size predicts it</strong> (AUC 0.77 and 0.72). Nothing known when the change is made adds to size here except the kind of change.</li>
+<li><strong>The neighbourhood does not</strong> (+0.003 and +0.000 AUC over size and process), and neither does the author's experience or how often the touched files changed recently.</li>
+<li><strong>The kind of change adds a little</strong> (+0.016 and +0.027 AUC), carried by added conditions; it transfers from one project to the other. But it disappears when the label does not use <code>Fixes:</code> trailers (+0.002 and +0.003), so it predicts being <em>named</em> as a cause (the bug is blamed on added lines), not that the code is fixed soon. Deleted-only changes are named about 0.3 times as often as same-size changes, partly for the same reason: a fix names the commit that added the faulty lines.</li>
+</ul>
+<p>The neighbourhood is a <strong>where</strong> predictor, not a <strong>whether</strong> predictor.</p>
+<h2 id="other-languages">Other languages</h2>
+<p>Python, Go, Java and Rust projects do not write <code>Fixes:</code> lines, so a different way of finding the cause was used: for each fix commit (a subject containing "fix", "bug" or "regression"), the lines it removes are traced with <code>git blame</code> to the commit that wrote them, and that commit is the cause. The method was <strong>calibrated on C</strong> first: on DPDK it gives a radius of 1.55 (trailers: 1.57) and on curl 1.43 (trailers: 1.65).</p>
+<table>
+<thead>
+<tr>
+<th>Language (projects)</th>
+<th>Repairs within 2 calls of the changed functions, against the same-file baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python (sphinx, scapy, sqlmap)</td>
+<td><strong>1.70</strong> (1.48, 1.62 and 1.85 by project)</td>
+</tr>
+<tr>
+<td>Go (prometheus)</td>
+<td><strong>1.50</strong></td>
+</tr>
+<tr>
+<td>Java (commons-lang, commons-io)</td>
+<td>1.63, but only 110 pairs (interval 1.2 to 2.1)</td>
+</tr>
+<tr>
+<td>Rust (ripgrep)</td>
+<td>1.04, only 56 pairs</td>
+</tr>
+<tr>
+<td>C, same method (DPDK, curl)</td>
+<td>1.50</td>
+</tr>
+</tbody>
+</table>
+<p>The size trend appears again (causes under 30 changed lines about 2.1 times, 100 lines or more about 1.4 times, pooled). <strong>The callers-first direction does not carry over</strong>: in Python and Java repairs in a different file lie near callees more than near callers. <strong>What the call graph does and does not know in these languages.</strong> It records an edge for 86 to 97% of the calls that can be matched to a function of the same name in Python, Go and Java (C: 96 to 99%), but only 33 to 62% resolve to one target, because a method called on an object matches several functions of the same name; the measurement above used only the one-target edges, and admitting the ambiguous ones leaves the Python radius unchanged (1.70 to 1.66) and the callees-over-callers direction too. <strong>Rust is the real gap</strong>: the engine records only a third of its name-resolvable calls (member calls a quarter), so the ripgrep figure is a statement about the call graph, not about Rust. The added and deleted function results, the ranking and the will-it-need-a-fix test were not repeated outside C.</p>
 <h2 id="what-it-does-not-say">What it does not say</h2>
 <ul>
 <li><strong>Association, not cause.</strong> Nothing here shows why a fix lands where it does. A shared name can mean an interface changed and its users had to follow, the same hardware condition handled elsewhere, or a copied pattern.</li>
-<li><strong>It describes, it does not predict.</strong> A given change may break nothing. Only changes that were later fixed and whose fix names its cause are in the data, so the figures cannot say how likely a change is to be fixed at all.</li>
-<li><strong>C only.</strong> Only <code>.c</code> and <code>.h</code> files were read; Mesa's and QEMU's C++ and Rust are outside. Nothing has been tested for other languages.</li>
+<li><strong>It describes where, it does not predict whether.</strong> A given change may break nothing. The radius and the ranking are measured on changes that were later fixed and whose fix names its cause, so they cannot say how likely a change is to be fixed; size is the only predictor of that found, and the small gain from the kind of change depends on how causes are labelled.</li>
+<li><strong>Mostly C.</strong> The main figures are C (<code>.c</code> and <code>.h</code> files; Mesa's and QEMU's C++ and Rust are outside). The radius itself reproduces in Python and Go with a different cause label (see above); nothing else was tested outside C, and for Rust the call graph is too incomplete to say anything.</li>
 <li><strong>Modest effects.</strong> 1.6 to 2.2 times a baseline for the radius, and weaker for big changes (1.2 to 1.3 at 500 lines or more), partly because a big change has a big neighbourhood.</li>
 <li><strong>Selection by habit.</strong> Projects that write <code>Fixes:</code> lines are the ones measured; DPDK's near-mandatory trailer gives a different mix of changes from the kernel's.</li>
 <li><strong>Static calls.</strong> Calls through function pointers are missing from the call graph, which understates the radius somewhat.</li>

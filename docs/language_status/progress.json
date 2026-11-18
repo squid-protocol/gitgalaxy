@@ -1,5 +1,5 @@
 {
- "commit": "1acb4a410",
+ "commit": "9e4bc9344",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-18T10:41:08Z",
+  "as_of": "2026-11-18T11:38:35Z",
   "core": {
    "closed": 253,
    "open": 11,
@@ -1222,6 +1222,13 @@
     "open": 0,
     "title": "DOOM Port Speedrun",
     "total": 47
+   },
+   {
+    "closed": 0,
+    "number": 32,
+    "open": 9,
+    "title": "Trust But Verify \ud83d\udee1\ufe0f \u2014 Security Claims vs Evidence",
+    "total": 9
    }
   ],
   "sweep": {

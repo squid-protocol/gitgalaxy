@@ -47,8 +47,8 @@ TESTED**, **10 UNTESTED**, **39 FALSE**, **14 VAGUE**.
    zero_dependency_mode.md (short version), github-action-readme.md (`full_precision`) and wiki/index.md describe a
    working Trojan/Stealer/Dropper/Botnet classifier. The Action's `full.txt` also lacks scikit-learn, so it could not run
    even with a model. The pipeline template's "ML Malware Gate" job gates on `--fail-on-malware`, which cannot fire.
-2. **The standalone `supply-chain-firewall` CLI (and `tool: supply-chain-firewall` in the Action) never blocks on real
-   input.** `run_firewall_audit` reads `raw_imports` and `risk_vector` (`supply_chain_firewall.py:125,244`); the audit
+2. **(Fixed in #8595; kept for the record.) The standalone `supply-chain-firewall` CLI (and `tool: supply-chain-firewall`
+   in the Action) never blocked on real input.** `run_firewall_audit` reads `raw_imports` and `risk_vector` (`supply_chain_firewall.py:125,244`); the audit
    JSON stores them as `"9. Extracted Dependencies"` and `"4. Vulnerability & Risk Exposures"` and drops `risk_vector`
    (`audit_recorder.py:709,811,859`). Reproduced: strict mode with `requests` blacklisted passes with 0 unknown, 0
    threats, exit 0. Its tests feed only the old JSON shape. This repo's own CI pre-gate runs it
@@ -138,7 +138,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | `--paranoid` changes only secrets thresholds | CLI ref:81; github-action-readme.md:103-106 | TESTED | `test_signal_processor.py::..._paranoid_mode_skips_clamp`; log line overstates; `ThreatPolicy` "paranoid" is dead code | Fix the log line |
 | `--ai-guardrails` off by default; NULL vs 0 columns | CLI ref:82 | TESTED | `test_record_keeper.py`, `test_galaxyscope.py::test_ai_guardrails_off_by_default` | — |
 | AI sensors hunt "RCE Funnels, God-Mode Agents, Context Window Shredders" | wiki/index.md:52 | FALSE | RCE detectors removed | Describe the heuristics plainly |
-| Sentinel tools exit 1 and break the build | github-action-readme.md:17,74 | TESTED | `test_vault_sentinel_control.py`, `test_xray_control.py`, `test_supply_chain_firewall.py::test_strict_mode_enforcement` (the firewall CLI part is FALSE, problem 2) | — |
+| Sentinel tools exit 1 and break the build | github-action-readme.md:17,74 | TESTED | `test_vault_sentinel_control.py`, `test_xray_control.py`, `test_supply_chain_firewall.py::test_strict_mode_enforcement` (the firewall CLI part was FALSE, problem 2, fixed in #8595) | — |
 | SARIF output | README.md:40,235 | TESTED | `test_sarif_recorder.py`, golden `sarif.json` | — |
 | Per-file vectors show where secrets and unsafe calls concentrate | README.md:224 | TESTED | Goldens, planted probes | — |
 | Analysis is "identifying potential vulnerabilities", outputs "vulnerability flags" | 04-00:25,51,58 | MEASURED (negative) | validation.md:309-318: per-file risk does not predict defects | Reword as surface description; cite the result |
@@ -157,18 +157,18 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 
 | Claim | Where | Tag | Evidence | Fix |
 |---|---|---|---|---|
-| Standalone firewall blocks blacklisted/unknown imports and behavioural threats, exit 1 | enforce-supply-chain-firewall.md:39-67; supply_chain_security/README.md:79-98,123-139; 04-03:55 | FALSE | Reads keys the audit JSON lacks (problem 2) | Fix the reader; add an end-to-end test |
+| Standalone firewall blocks blacklisted/unknown imports and behavioural threats, exit 1 | enforce-supply-chain-firewall.md:39-67; supply_chain_security/README.md:79-98,123-139; 04-03:55 | TESTED | Reader fixed in #8595: `_audit_file_to_node` translates the audit JSON; `test_supply_chain_firewall.py::test_real_audit_json_blacklisted_import_blocks` runs a real scan, then the CLI (exit 1) | Config lists ship empty: say to set them first |
 | Firewall scans every dependency file inside `node_modules`/`venv` | supply_chain_security/README.md:7,16; enforce…md:10,17 | FALSE | Both are excluded by config (`gitgalaxy_config.py:191,212`) | "Gates the repo's own imports" |
 | Firewall flags network requests, typosquatting, I/O hooks, install-time hooks | supply_chain_security/README.md:16,30; tools/README.md:46,72 | FALSE | Gate reads only `secrets_risk`; the engine's typosquat radar only logs | List only what is gated |
 | Risk categories "Hidden Malware, Data Injection, Secrets Leak" | 04-03:24 | FALSE | One mapped vector, `secrets_risk` | Name it; link the vectors.md caveat |
 | Firewall hunts homoglyphs, shadow-import steganography, tainted I/O | enforce…md:23-28 | FALSE | Never calls SecurityLens; taint removed | Delete the section |
 | 10x multiplier on `package.json` hooks and setup scripts trips on any I/O or execution | supply_chain_security/README.md:40; 04-03:27,49 | FALSE | `package.json` skipped by the `.json` shield; npm scripts never parsed; multiplier scales only secrets risk. setup.py/build.rs/*install.js part tested (`test_build_time_execution_multiplier`) | "10x on secrets risk for setup.py, build.rs, *install.js" |
-| Audit mode blocks blacklist; strict mode blocks anything not approved | enforce…md:19-20; 04-03:48 | TESTED | `test_supply_chain_firewall.py::test_zero_trust_import_verification`, `::test_strict_mode_enforcement`; logic only | Add a real-scan test |
+| Audit mode blocks blacklist; strict mode blocks anything not approved | enforce…md:19-20; 04-03:48 | TESTED | `test_zero_trust_import_verification`, `::test_strict_mode_enforcement` (logic) and, on a real scan plus the CLI, `::test_real_audit_json_blacklisted_import_blocks`, `::test_real_audit_json_strict_mode_unapproved_fails_approved_passes` (#8595) | — |
 | Alias dereferencing catches dependency confusion | 04-03:21; supply_chain_security/README.md:41 | TESTED | `test_alias_spoofing_detection`; engine path only, needs a blacklist entry | Say so |
 | Manifest flags hand entries to the firewall to block | supply_chain_security/README.md:33,41 | FALSE | Detection tested; nothing reads the flags | Wire them in, or say "logged only" |
 | Centrality multiplier | 04-03:28 | TESTED | `test_network_weighting_*`; off by default, undisclosed | Say opt-in |
 | "RAM-exclusive, zero disk I/O, sub-second across tens of thousands of dependencies" | supply_chain_security/README.md:39; 04-03:52 | VAGUE | CLI spawns a full scan; no benchmark | Drop scale claims |
-| Showcase results (Terraform, tRPC, pwntools) | supply_chain_security/README.md:51,58,79-98 | UNTESTED | No committed command or output; current code would report 0 unknown | Re-run and commit, or remove |
+| Showcase results (Terraform, tRPC, pwntools) | supply_chain_security/README.md:51,58,79-98 | REMOVED | No committed command or output ever existed; the tRPC and pwntools runs were removed from the README in #8604 (the Terraform one was gone earlier) | Re-add only with a committed command and output |
 | Sentinel Tier 0 blocks `.pem`, `id_rsa`, `.env` by path | supply_chain_security/README.md:19,32; 04-04:22; deploy-vault-sentinel.md:25 | TESTED | `test_vault_sentinel_control.py::test_a_secret_file_fails_by_its_name_alone`; not zero-I/O | Drop "zero-I/O" |
 | Sentinel Tier 1 catches cloud keys, tokens, private keys, passwords | 04-04:9,23; deploy-vault-sentinel.md:6 | TESTED | `test_the_real_detector_fails_ci_on_a_planted_secret` (9 kinds), `test_a_secret_on_a_long_line_fails` | Real-leak eval before effectiveness claims |
 | Sentinel catches secrets in commented-out code | supply_chain_security/README.md:19; 04-04:23 | UNTESTED | Raw text is read; no test plants one | Add a case |

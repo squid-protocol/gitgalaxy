@@ -17,6 +17,7 @@ from typing import Any
 
 from gitgalaxy.core.rule_prefilter import derive_literal_gate, fold_haystack
 from gitgalaxy.security.credential_lexicon import COBOL_CREDENTIAL_ALTERNATION, CODE_CREDENTIAL_ALTERNATION
+from gitgalaxy.security.long_lines import CHUNK, OVERLAP
 from gitgalaxy.standards.language_standards.identifiers import VIRAMA
 
 logger = logging.getLogger("security_lens")
@@ -813,6 +814,26 @@ class SecurityLens:
         indents = [len(line) - len(line.lstrip()) if len(line) < 250 else 0 for line in lines]
         return "\n".join(line.strip() if len(line) < 250 else "" for line in lines), indents
 
+    @staticmethod
+    def _long_line_secret_hits(text: str, regex: re.Pattern[str]) -> list[tuple[int, int, str]]:
+        """(line, column, text) of each `regex` match on a line of 250+ chars, both 1-indexed in the ORIGINAL file.
+        A line is read in overlapping pieces (`long_lines.CHUNK` / `OVERLAP`); a match seen in two pieces counts once."""
+        step = CHUNK - OVERLAP
+        hits: list[tuple[int, int, str]] = []
+        for line_no, line in enumerate(text.splitlines(), 1):
+            if len(line) < 250:
+                continue
+            spans: list[tuple[int, int]] = []
+            for start in range(0, len(line), step):
+                for m in regex.finditer(line[start : start + CHUNK]):
+                    lo, hi = start + m.start(), start + m.end()
+                    # the overlap shows one value to two pieces (the later one possibly without the name's head)
+                    if any(lo < e and hi > b for b, e in spans):
+                        continue
+                    spans.append((lo, hi))
+                    hits.append((line_no, lo + 1, m.group(0).strip()))
+        return hits
+
     def scan_content(
         self, content: str, code_stream: str | None = None, prose: bool = False, language: str | None = None
     ) -> dict:
@@ -953,6 +974,24 @@ class SecurityLens:
                     positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
             counts[key] = counts.get(key, 0) + new_hits
+
+        # ---> LONG-LINE SECRETS (#8429) <---
+        # `_armor` emptied every line of 250+ chars, so a credential on one was never seen. Re-read only those
+        # lines, in overlapping short pieces, for hardcoded_secrets alone (each piece is under the armor limit, so
+        # the regex stays bounded). The other signals still skip long lines (docs/known_blind_spots.md).
+        if "hardcoded_secrets" in self.THREAT_SIGNATURES:
+            long_hits = self._long_line_secret_hits(content, self.THREAT_SIGNATURES["hardcoded_secrets"])
+            if long_hits:
+                counts["hardcoded_secrets"] = counts.get("hardcoded_secrets", 0) + len(long_hits)
+                snips = snippets.setdefault("hardcoded_secrets", [])
+                site_list = sites.setdefault("hardcoded_secrets", [])
+                site_list.extend([None] * (len(snips) - len(site_list)))
+                for line_no, col, snip in long_hits:
+                    if len(snips) < 3 and snip not in snips:
+                        snips.append(snip)
+                        site_list.append(None if is_auto_gen else [line_no, col])
+                    if not is_auto_gen:
+                        positions["hardcoded_secrets"].append(line_no)
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0

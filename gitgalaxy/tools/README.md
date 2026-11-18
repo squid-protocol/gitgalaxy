@@ -43,7 +43,7 @@ and secrets firewall, an OpenAPI vs. code route auditor, or a streaming PII log 
 | **CICS to Java & Proof Harness** | [`cobol_to_java/`](./cobol_to_java/README.md) | `cobol-to-java`, `python -m gitgalaxy.tools.cobol_to_java.port_runner` (not a console script) | Generates a Spring Boot project from verified facts, translates COBOL/CICS deterministically (`det-port`) or via porting tickets, and proves equivalence against GnuCOBOL + CICS/Db2/LE models. |
 | **Offline Estate Readiness** | [`readiness/`](./readiness/README.md) | `gitgalaxy assess` | Runs an air-gapped, read-only assessment of a COBOL/CICS estate: tags programs across 5 CICS eras (`era_tags.py`), counts whole translations vs. holes, and validates zero source text leakage. |
 | **Mainframe Fact Extraction** | [`cobol_to_cobol/`](./cobol_to_cobol/README.md) | `cobol-refractor` | Expands copybooks, extracts `GalaxyIR` record layouts, parses CSD and twelve CICS macro table families (`DFHSIT`, `PCT`, `PPT`, `FCT`, `DCT` and more), finds dead code, and generates PostgreSQL DDL & least-privilege JCL. |
-| **Supply Chain & Secrets Defense** | [`supply_chain_security/`](./supply_chain_security/README.md) | `supply-chain-firewall`, `vault-sentinel`, `xray-inspector` | Gates the repo's own imports against block/allow lists plus one secrets-risk score (the standalone CLI exits 1 on a finding), scans for exposed keys, and flags magic-byte mismatches, embedded executable headers and high-entropy data. |
+| **Supply Chain & Secrets Defense** | [`supply_chain_security/`](./supply_chain_security/README.md) | `import-policy-gate`, `vault-sentinel`, `xray-inspector` | Gates the repo's own imports against block/allow lists plus one secrets-risk score (the standalone CLI exits 1 on a finding), scans for exposed keys, and flags magic-byte mismatches, embedded executable headers and high-entropy data. |
 | **API Network Auditing** | [`network_auditing/`](./network_auditing/README.md) | `api-network-map` | Extracts inbound and outbound HTTP routing across web frameworks and diffs them against OpenAPI/Swagger specs to surface undocumented endpoints. |
 | **Streaming Log & PII Scanning** | [`terabyte_log_scanning/`](./terabyte_log_scanning/README.md) | `pii-leak-hunter`, `terabyte-log-scanner` | Streams large log files in bounded memory to redact PII patterns and correlate runtime log traces with static repository files. |
 
@@ -69,7 +69,7 @@ The mainframe toolchain spans three packages that run in sequence:
 ## Security, network, and log auditing suites
 
 - **[Supply Chain & CI/CD Defense](./supply_chain_security/README.md):**
-  - `supply-chain-firewall`: gates the repository's own imports (audit-mode blacklist, strict-mode allowlist) and one behavioural score, `secrets_risk` >= 50. It does not read `node_modules`/`venv` or check network calls, typosquatting or install hooks. The standalone CLI and the Action's `tool: supply-chain-firewall` exit 1 when it counts a threat (fixed in #8595; before that they never blocked, #8428).
+  - `import-policy-gate`: gates the repository's own imports (audit-mode blacklist, strict-mode allowlist) and one behavioural score, `secrets_risk` >= 50. It does not read `node_modules`/`venv` or check network calls, typosquatting or install hooks. The standalone CLI and the Action's `tool: import-policy-gate` exit 1 when it counts a threat (fixed in #8595; before that they never blocked, #8428).
   - `vault-sentinel`: two-stage secrets scanner: file-name blocking, then the `hardcoded_secrets` regexes plus its own `EXTRA_SECRETS` patterns (no entropy check).
   - `xray-inspector`: magic-byte and embedded-header checks, entropy thresholds (string literals 4.8, raw bytes 7.95, dense text runs 5.0) and an indexed-XOR trap.
 - **[API Network Auditing](./network_auditing/README.md):**
@@ -107,7 +107,7 @@ pii-leak-hunter ./logs/app.log
       - name: Run GitGalaxy Tool
         uses: squid-protocol/gitgalaxy@main
         with:
-          tool: 'vault-sentinel'  # or: galaxyscope, blast, supply-chain-firewall, xray-inspector, pii-leak-hunter, terabyte-log-scanner, api-network-map
+          tool: 'vault-sentinel'  # or: galaxyscope, blast, import-policy-gate, xray-inspector, pii-leak-hunter, terabyte-log-scanner, api-network-map
           target: '.'
 ```
 

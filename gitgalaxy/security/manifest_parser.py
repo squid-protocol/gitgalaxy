@@ -91,7 +91,7 @@ class ManifestParser:
 
         # Lifecycle hooks run at install time on the installer's machine. Only hooks that
         # fetch or evaluate remote/dynamic code are flagged (a benign "build": "tsc" or
-        # a "postinstall": "node-gyp rebuild" is not); the firewall reads the flag (#8432).
+        # a "postinstall": "node-gyp rebuild" is not); the import policy gate reads the flag (#8432).
         scripts = data.get("scripts", {})
         if isinstance(scripts, dict):
             for hook in ("preinstall", "install", "postinstall", "prepare"):
@@ -142,7 +142,7 @@ class ManifestParser:
 
             # DEFENSIVE GUARD: Registry Spoofing
             # If the resolved URL points to a non-standard domain or a direct Git link, map it
-            # so the downstream firewall can flag it as an untrusted source.
+            # so the downstream import policy gate can flag it as an untrusted source.
             if resolved_url and not resolved_url.startswith("https://registry.npmjs.org/"):
                 resolution_map[pkg_name] = resolved_url
                 self.logger.info(
@@ -160,7 +160,7 @@ class ManifestParser:
                     continue
 
                 # 1. Check for Direct URI References (git+https://, file://)
-                # These bypass PyPI and must be mapped exactly as written to trigger firewall rules.
+                # These bypass PyPI and must be mapped exactly as written to trigger import policy gate rules.
                 uri_match = self.python_direct_uri_regex.match(line)
                 if uri_match:
                     resolution_map[line] = line
@@ -197,7 +197,7 @@ class ManifestParser:
                     # Tunneling services (ngrok) in production configs indicate severe architectural risk.
                     if url.startswith("http://") or "ngrok" in url or "localtunnel" in url:
                         self.logger.warning(f"🚨 Manifest Parser: INSECURE REGISTRY PROTOCOL DETECTED -> {url}")
-                        # Prefix with INSECURE_REGISTRY so the Supply Chain Firewall can instantly block it
+                        # Prefix with INSECURE_REGISTRY so the Import Policy Gate can instantly block it
                         resolution_map[f"INSECURE_REGISTRY_{filepath.name}"] = url
 
     def _parse_pyproject_toml(self, filepath: Path, resolution_map: dict):

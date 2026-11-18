@@ -13,7 +13,7 @@ For a deep dive into the methodology, see [The blAST Paradigm](docs/wiki/01-03-t
 
 ## The "Golden Path" (Recommended Pipeline)
 
-For standard PR gating, use the **3-job sentinel pipeline**: `vault-sentinel`, `xray-inspector`, and `supply-chain-firewall` run in parallel, and any one of them can fail the build.
+For standard PR gating, use the **3-job sentinel pipeline**: `vault-sentinel`, `xray-inspector`, and `import-policy-gate` run in parallel, and any one of them can fail the build.
 
 Rather than pasting the workflow here (which is exactly how our version pins drifted out of sync last time), use the maintained template directly:
 
@@ -28,7 +28,7 @@ If you also want GitGalaxy to keep an LLM-readable architecture brief up to date
 ```yaml
   architectural-report:
     name: Autonomous LLM Brief
-    needs: [vault-sentinel, xray-inspector, supply-chain-firewall]
+    needs: [vault-sentinel, xray-inspector, import-policy-gate]
     runs-on: ubuntu-latest
     permissions:
       contents: write # This job pushes to main — grant this scope deliberately
@@ -73,7 +73,7 @@ The `tool` input determines which GitGalaxy program executes. Choose the right t
 *These tools are designed to `sys.exit(1)` and break the build instantly if a threat is detected.*
 * **[`vault-sentinel`](docs/wiki/04-04-vault-sentinel.md)**: High-speed secrets scanner. Drops the hammer on hardcoded API keys, exposed `.env` variables, and cryptographic vault leaks.
 * **[`xray-inspector`](docs/wiki/04-05-binary-anomaly-detector.md)**: Binary and Obfuscation scanner. Hunts for high-entropy encrypted payloads, sub-atomic XOR loops, and hidden executables disguised via magic byte mismatches (e.g., malware hidden in a `.png`).
-* **[`supply-chain-firewall`](docs/wiki/04-03-supply-chain-firewall.md)**: Import and secrets gate. Inside a `galaxyscope` scan it checks imports against a blacklist (audit mode; `BLACKLISTED_IMPORTS` ships empty) or an allowlist (strict mode), and blocks files whose `secrets_risk` is 50 or more. It does not look for steganography or tainted I/O. The standalone CLI, which `tool: supply-chain-firewall` runs, currently never blocks on real scan output ([#8428](https://github.com/squid-protocol/gitgalaxy/issues/8428)); other enforcement gaps are in [#8432](https://github.com/squid-protocol/gitgalaxy/issues/8432).
+* **[`import-policy-gate`](docs/wiki/04-03-supply-chain-firewall.md)**: Import and secrets gate. Inside a `galaxyscope` scan it checks imports against a blacklist (audit mode; `BLACKLISTED_IMPORTS` ships empty) or an allowlist (strict mode), and blocks files whose `secrets_risk` is 50 or more. It does not look for steganography or tainted I/O. The standalone CLI, which `tool: import-policy-gate` runs, currently never blocks on real scan output ([#8428](https://github.com/squid-protocol/gitgalaxy/issues/8428)); other enforcement gaps are in [#8432](https://github.com/squid-protocol/gitgalaxy/issues/8432).
 
 ### 3. AI Agent Guardrails
 These are not separate `tool` values. They run inside `galaxyscope` as its Phase 5, off by default: pass `args: '--ai-guardrails'` ([AI AppSec sensor](docs/wiki/02-17-ai-appsec-sensor.md), [dev-agent firewall](docs/wiki/02-18-dev-agent-firewall.md)). The prompt-injection and agentic-RCE detectors these once described were removed (#1020, #1102).

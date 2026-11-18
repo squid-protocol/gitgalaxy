@@ -392,7 +392,7 @@
       "shadow_count": 377,
       "status": "success"
     },
-    "firewall": {
+    "import_policy_gate": {
       "imports_blacklisted": 0,
       "imports_unknown": 10573,
       "imports_whitelisted": 0,

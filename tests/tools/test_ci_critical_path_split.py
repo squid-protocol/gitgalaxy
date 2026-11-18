@@ -295,10 +295,10 @@ def test_golden_crucible_paths_cover_every_file_the_test_imports():
 
 def test_the_three_pre_gates_are_one_job():
     jobs = _jobs("gitgalaxy.yml")
-    assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
+    assert {"vault-sentinel", "xray-inspector", "import-policy-gate"}.isdisjoint(jobs)
     steps = jobs["pre-gate"]["steps"]
     gates = [s for s in steps if s.get("uses") == "./"]
-    assert [s["with"]["tool"] for s in gates] == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    assert [s["with"]["tool"] for s in gates] == ["vault-sentinel", "xray-inspector", "import-policy-gate"]
     # each gate runs even when an earlier one failed, and none may swallow its own failure
     assert all("!cancelled()" in str(s.get("if", "")) for s in gates[1:])
     assert not any(s.get("continue-on-error") for s in steps)

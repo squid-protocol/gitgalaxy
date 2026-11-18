@@ -296,7 +296,7 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (SCALA) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Anchored to the start of the line `^[ \t]*`. Scala
             # developers frequently scope imports locally inside methods, classes,

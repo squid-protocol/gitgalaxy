@@ -83,6 +83,82 @@ def test_latest_verdicts_takes_newest_by_id():
     assert mw.latest_verdicts([run(1, conclusion="success"), run(2)])[WF]["conclusion"] == "failure"
 
 
+# --- infra reruns and re-verify -------------------------------------------------------------------------------------
+
+LOST = "The hosted runner lost communication with the server. Anything in your workflow that terminates it..."
+
+
+def test_infra_loss_is_read_from_the_annotations():
+    assert mw.infra_loss(["x", LOST]) and mw.infra_loss(["The runner has received a shutdown signal."])
+    assert not mw.infra_loss(["Process completed with exit code 1."]) and not mw.infra_loss([])
+
+
+def test_rerun_only_when_every_failed_job_lost_its_runner_on_a_first_attempt():
+    lost, real = ("det-mutation (3)", [LOST]), ("refresh", ["Process completed with exit code 1."])
+    assert mw.rerun_wanted(1, [lost]) and mw.rerun_wanted(1, [lost, ("det-mutation (2)", [LOST])])
+    assert not mw.rerun_wanted(1, [lost, real])  # one real failure: a person looks
+    assert not mw.rerun_wanted(2, [lost])  # never a second retry
+    assert not mw.rerun_wanted(1, [])  # only cancelled legs: nothing to rerun
+
+
+def test_a_retried_failure_says_so_in_the_issue():
+    (a,) = mw.decide(snap(retry=True))
+    assert a["op"] == "create" and "lost its runner" in a["body"] and "rerun once" in a["body"]
+    (b,) = mw.decide(snap())
+    assert "lost its runner" not in b["body"]
+
+
+def test_reconcile_reads_the_workflows_own_runs_not_a_window_of_all_main_runs(monkeypatch):
+    """#8572: the nightly's green run was invisible in the newest 300 runs of main, so its issue never closed."""
+    asked, applied = [], []
+
+    def fake_paged(path, key=None, limit=3):
+        asked.append(path)
+        if path.endswith("/actions/workflows"):
+            return [{"name": WF, "id": 77}]
+        return [{"id": 9, "name": WF, "conclusion": "success", "event": "schedule", "head_branch": "main",
+                 "head_sha": "b" * 40, "html_url": URL, "updated_at": "2026-11-18T13:00:00Z"}]  # fmt: skip
+
+    monkeypatch.setattr(mw, "paged", fake_paged)
+    monkeypatch.setattr(
+        mw, "open_issues", lambda repo: {f"main is red: {WF}": {"number": 8572, "created_at": "2026-11-17T14:00:00Z"}}
+    )
+    monkeypatch.setattr(mw, "issue_text", lambda repo, i: {"number": i["number"], "text": "old"})
+    monkeypatch.setattr(mw, "apply", lambda repo, acts, dry: applied.extend(acts))
+    mw.cmd_reconcile("x/y", True)
+    assert any("/actions/workflows/77/runs?branch=main" in p for p in asked)
+    assert [a["op"] for a in applied] == ["close"] and applied[0]["number"] == 8572
+
+
+NOW = "2026-11-18T12:00:00+00:00"
+
+
+def red(updated="2026-11-18T01:00:00Z", conclusion="failure"):
+    return {"conclusion": conclusion, "updated_at": updated}
+
+
+def test_reverify_is_due_for_an_old_red_with_newer_commits():
+    assert mw.reverify_due(NOW, red(), 5, False, "") is None
+
+
+@pytest.mark.parametrize(
+    ("run", "ahead", "active", "text", "why"),
+    [
+        (red(conclusion="success"), 5, False, "", "green"),
+        (red("2026-11-18T10:00:00Z"), 5, False, "", "under 4 h"),
+        (red(), 0, False, "", "no new commit"),
+        (red(), 5, True, "", "already queued"),
+        (red(), 5, False, f"x {mw.REVERIFY_MARK}2026-11-18T05:00:00+00:00 -->", "within 12 h"),
+    ],
+)  # fmt: skip
+def test_reverify_waits(run, ahead, active, text, why):
+    assert why in mw.reverify_due(NOW, run, ahead, active, text)
+
+
+def test_an_old_reverify_marker_does_not_block_another():
+    assert mw.reverify_due(NOW, red(), 1, False, f"{mw.REVERIFY_MARK}2026-11-17T12:00:00+00:00 -->") is None
+
+
 # --- the workflows ----------------------------------------------------------------------------------------------------
 
 
@@ -113,6 +189,13 @@ def test_a_cancelled_leg_says_how_long_it_ran():
         {"name": "old", "conclusion": "cancelled"},  # no timestamps: the bare name
     ]  # fmt: skip
     assert mw.legs(jobs) == ([], ["mac 3 after 45 min", "old"])
+
+
+def test_main_watch_may_rerun_and_dispatch():
+    """The rerun (event path) and the dispatch (reconcile) both need actions: write; the rerun reads the attempt."""
+    wf = read("main-watch.yml")
+    assert wf.count("actions: write") == 2 and "actions: read" not in wf
+    assert "RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}" in wf
 
 
 def _on(doc):

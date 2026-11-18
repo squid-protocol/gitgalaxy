@@ -5,7 +5,7 @@ description: "> **File Reference:** [gitgalaxy/tools/supply_chain_security/suppl
 
 > **File Reference:** [gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py)
 
-> **Known bug (#8428):** the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, currently never block on real scan output. The CLI hands the gate file entries from the audit JSON, which has neither `raw_imports` nor `risk_vector`, so every check is skipped and the run exits 0. The engine-internal call in `galaxyscope.py` (`run_firewall_audit(repository_graph, ...)`) receives the in-memory graph and works; its result is recorded in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Other enforcement gaps: #8432.
+> **Fixed in #8595 (#8428):** the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, now read the audit JSON's real keys and exit 1 on a counted threat; before the fix they never blocked. The engine-internal call in `galaxyscope.py` (`run_firewall_audit(repository_graph, ...)`) records its result in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Other enforcement gaps: #8432.
 
 ## Engineering Summary
 The Supply Chain Firewall is a gate over the scanned repository's own files. It compares each file's imports with configured block and allow lists, and checks one behavioural risk score the engine has already computed. It does not read installed dependency code: `node_modules`, `venv`, `.venv`, `vendor` and `third_party` are excluded by the default scan config (`gitgalaxy/standards/gitgalaxy_config.py`).
@@ -15,7 +15,7 @@ Fail a build when the repository imports a blocked package (audit mode) or an un
 
 ## Design
 ### Input
-The firewall reads the engine's in-memory file graph (`parsed_files`): per file, `raw_imports`, `risk_vector` and, when centrality weighting is on, `telemetry.network_metrics`. Lists and flags come from the resolved config (`.galaxyscope.yaml` over `gitgalaxy_config.py`).
+Inside a scan the firewall reads the engine's in-memory file graph (`parsed_files`): per file, `raw_imports`, `risk_vector` and, when centrality weighting is on, `telemetry.network_metrics`. The standalone CLI reads a GalaxyScope audit JSON instead and translates each file entry into that shape (`_audit_file_to_node`): imports from `9. Extracted Dependencies`, risk scores from `4. Vulnerability & Risk Exposures` (a `%` string per risk label, or `[UNSCANNED - NO DATA]`, read as 0). The CLI has no `telemetry.network_metrics`, so `FIREWALL_NETWORK_WEIGHTING` has no effect there. Lists and flags come from the resolved config (`.galaxyscope.yaml` over `gitgalaxy_config.py`).
 
 ### Import Verification & Alias Resolution
 Imports are normalized to a root package name (relative imports dropped, deep module paths collapsed). Then:
@@ -48,10 +48,10 @@ graph LR
     E --> F
 ```
 
-In a `galaxyscope` scan the result is attached to the scan summary. The standalone CLI exits 1 when it counts threats, which with #8428 open does not happen on real input.
+In a `galaxyscope` scan the result is attached to the scan summary. The standalone CLI exits 1 when it counts threats (blacklisted imports, strict-mode unknowns, secrets-risk files).
 
 ## Evidence
-The import checks, alias resolution and multipliers are tested with hand-built file entries (`tests/security_auditing/test_supply_chain_firewall.py`). No test runs the CLI end to end on a real scan, which is how #8428 went unnoticed. There is no measured detection rate on real compromised packages.
+The import checks, alias resolution and multipliers are tested with hand-built file entries (`tests/security_auditing/test_supply_chain_firewall.py`). Since #8595 the CLI is also tested end to end: a real scan of a planted repo, then the CLI on the resulting audit JSON (`test_real_audit_json_*`, `test_audit_risk_exposure_round_trips_to_the_firewall`). Before that, no test did, which is how #8428 went unnoticed. There is no measured detection rate on real compromised packages.
 
 ## Tradeoffs
 * **Strict mode vs. developer velocity:** strict mode fails on every new dependency until it is approved.

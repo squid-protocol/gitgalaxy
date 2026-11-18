@@ -930,3 +930,42 @@ def test_the_skeleton_is_uts39s():
     assert not is_confusable_token(
         "\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c"
     )  # has letters with no Latin twin
+
+
+# --- #8429: a credential on a line of 250+ characters is still read ---------------------------------
+_AWS = 'aws_access_key_id = "AKIAIOSFODNN7EXAMPLE"'
+
+
+def _pad_to(prefix: str, suffix: str, width: int) -> str:
+    return prefix + ("x" * (width - len(prefix) - len(suffix))) + suffix
+
+
+@pytest.mark.parametrize("width", [250, 300, 449, 1000])
+def test_a_secret_on_a_long_line_is_counted_8429(lens, width):
+    # at the start, in the middle (across a chunk join) and at the end of the line
+    for line in (
+        _pad_to(_AWS + "; // ", "", width),
+        _pad_to("var pad = '", "'; " + _AWS, width),
+        "a = 1; " + "y" * (width // 2 - 7) + _AWS + "; " + "z" * (width // 2),
+    ):
+        assert len(line) >= 250
+        result = lens.scan_content("let ok = 1;\n" + line + "\n")
+        assert result["counts"]["hardcoded_secrets"] == 1, line
+        assert result["positions"]["hardcoded_secrets"] == [2]
+        site = result["sites"]["hardcoded_secrets"][0]
+        assert site[0] == 2 and line[site[1] - 1 :].startswith(result["snippets"]["hardcoded_secrets"][0])
+
+
+def test_a_long_line_without_a_secret_is_not_flagged_8429(lens):
+    near_miss = 'aws_access_key_id = "short"; ' + "x" * 300  # value under the 16-character floor
+    assert lens.scan_content(near_miss + "\n")["counts"]["hardcoded_secrets"] == 0
+
+
+def test_a_long_line_secret_is_counted_once_across_the_chunk_overlap_8429(lens):
+    line = "q" * 105 + _AWS + "r" * 300  # the key sits inside the 80-character overlap of two pieces
+    assert lens.scan_content(line + "\n")["counts"]["hardcoded_secrets"] == 1
+
+
+def test_a_poison_long_line_stays_bounded_8429(lens):
+    poison = "password=" + '"' + "A" * 5000 + "!" + ("password=" * 600) + "\n"
+    assert_cpu_below(lambda: lens.scan_content(poison), 5, what="poisoned long line")

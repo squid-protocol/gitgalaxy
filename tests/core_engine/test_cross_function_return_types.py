@@ -223,6 +223,28 @@ def test_go_and_rust_factory_assignments():
     assert rs_site["dst_line"] == 3
 
 
+def test_cpp_std_namespace_and_test_dir_isolation():
+    files = {
+        "include/fmt.h": "void move(int x) {}\n",
+        "test/helper_test.cc": "void tm(int x) {}\n",
+        "src/app.cpp": (
+            '#include "include/fmt.h"\n'
+            "void run(int x) {\n"
+            "    std::move(x);\n"
+            "    tm(x);\n"
+            "}\n"
+        ),
+    }
+    sites, _ = resolve_calls(_scan("cpp", files), [{"src": "src/app.cpp", "dst": "include/fmt.h"}])
+    move_site = _site(sites, "run", "move")
+    assert move_site["step"] == "none"
+    assert move_site["resolution"] == "external"
+
+    tm_site = _site(sites, "run", "tm")
+    assert tm_site["step"] == "unseen"
+    assert tm_site["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
 def test_unannotated_return_inference():
     assert extract_return_type("python", "def get_store():\n    return Store()\n") == "Store"
     assert extract_return_type("python", "def get_store(ok):\n    if ok:\n        return Store()\n    return None\n") == "Store"
@@ -337,3 +359,25 @@ def test_go_and_rust_factory_assignments():
     assert rs_site["step"] == "typed"
     assert rs_site["resolution"] in CONFIDENT_RESOLUTIONS
     assert rs_site["dst_line"] == 3
+
+
+def test_cpp_std_namespace_and_test_dir_isolation():
+    files = {
+        "include/fmt.h": "void move(int x) {}\n",
+        "test/helper_test.cc": "void tm(int x) {}\n",
+        "src/app.cpp": (
+            '#include "include/fmt.h"\n'
+            "void run(int x) {\n"
+            "    std::move(x);\n"
+            "    tm(x);\n"
+            "}\n"
+        ),
+    }
+    sites, _ = resolve_calls(_scan("cpp", files), [{"src": "src/app.cpp", "dst": "include/fmt.h"}])
+    move_site = _site(sites, "run", "move")
+    assert move_site["step"] == "none"
+    assert move_site["resolution"] == "external"
+
+    tm_site = _site(sites, "run", "tm")
+    assert tm_site["step"] == "unseen"
+    assert tm_site["resolution"] not in CONFIDENT_RESOLUTIONS

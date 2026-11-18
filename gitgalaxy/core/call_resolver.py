@@ -1816,6 +1816,13 @@ def _class_in_view(d: _Definition, owner_key: str, caller: _File) -> bool:
     return any(p == caller.path or p in caller.imported for p in caller.class_files.get(owner_key, ()))
 
 
+_TEST_DIRS = frozenset({"test", "tests", "__tests__"})
+
+
+def _in_test_dir(path: str) -> bool:
+    return any(seg in _TEST_DIRS for seg in path.lower().split("/")[:-1])
+
+
 def _resolve_one(
     bucket: _Bucket | None,
     caller: _File,
@@ -1868,6 +1875,8 @@ def _resolve_one(
         if not qualifier:
             step, d = _ladder(bucket.free, caller, True, cache)  # a global `::f()`: a visible free function only
             return (step, d) if step in ("file", "import") else ("none", None)
+        if caller.lang == "cpp" and (qualifier == "std" or qualifier.startswith("std.")):
+            return "none", None  # C++ standard library (`std::move`, `std::chrono::...`), never a repo function
 
     if caller.lang == "objective-c":
         # #5639: a send's receiver is recorded as its qualifier, but objc methods carry no owner here, so
@@ -1908,6 +1917,13 @@ def _resolve_one(
             and not (caller.lang in _PACKAGE_DIR_LANGS and d is not None and d.pkg == caller.pkg)
         ):
             return "unseen", d  # #3443: the only definition, but not one this caller can see
+        if (
+            step == "unique"
+            and d is not None
+            and _in_test_dir(d.path)
+            and not _in_test_dir(caller.path)
+        ):
+            return "unseen", d  # production code never links to a test-only definition
         return step, d
 
     if caller.lang in _PATH_QUALIFIED_LANGS and qualifier is not None and qualifier.startswith("::"):

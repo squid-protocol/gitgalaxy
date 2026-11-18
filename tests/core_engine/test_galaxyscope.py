@@ -93,17 +93,22 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         With the CLI flag active, `_enforce_policy_gates` MUST set `policy_failed = True`
         (main() turns that into exit 1); with the flag off, or a clean graph, it must not.
         """
-        secret = self._file(telemetry={"threat_snippets": {"sec_hardcoded_secrets": 1}})
+        # The secrets-risk component of the risk vector trips the gate; the fixture is a flagged file, not a secret.
+        from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+        leaky_vector = [0.0] * len(SignalProcessor.RISK_SCHEMA)
+        leaky_vector[SignalProcessor.RISK_SCHEMA.index("secrets_risk")] = 90.0
+        flagged = self._file(risk_vector=leaky_vector)
         malware = self._file(is_ml_threat=True, telemetry={"domain_context": {"AI Threat Class": "Reverse Shell"}})
         clean = self._file()
 
         # Secrets gate
-        failed, log = self._gate([secret], FAIL_ON_SECRETS=True)
+        failed, log = self._gate([flagged], FAIL_ON_SECRETS=True)
         self.assertTrue(failed)
         self.assertIn("Hardcoded secret", log.critical.call_args[0][0])
         self.assertFalse(self._gate([clean], FAIL_ON_SECRETS=True)[0])
-        self.assertFalse(self._gate([secret], FAIL_ON_MALWARE=True)[0], "secret must not trip the malware gate")
-        self.assertFalse(self._gate([secret])[0], "no gate enabled: never fails")
+        self.assertFalse(self._gate([flagged], FAIL_ON_MALWARE=True)[0], "secret must not trip the malware gate")
+        self.assertFalse(self._gate([flagged])[0], "no gate enabled: never fails")
 
         # Malware gate
         failed, log = self._gate([malware], FAIL_ON_MALWARE=True)

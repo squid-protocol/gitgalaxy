@@ -14,6 +14,7 @@ yaml = pytest.importorskip("yaml")
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 import ci_layout as cl  # noqa: E402
+import workflow_inputs as wi  # noqa: E402
 
 WORKFLOWS = ROOT / ".github" / "workflows"
 
@@ -246,34 +247,11 @@ def _on(name):
     return doc.get(True) or doc.get("on")
 
 
-def _glob(pattern):
-    """GitHub's filter glob: `**` crosses directories, `*` does not, a leading `!` excludes."""
-    import re
-
-    out, i = "", 0
-    while i < len(pattern):
-        if pattern.startswith("**/", i):
-            out, i = out + "(?:.*/)?", i + 3
-        elif pattern.startswith("**", i):
-            out, i = out + ".*", i + 2
-        elif pattern[i] == "*":
-            out, i = out + "[^/]*", i + 1
-        else:
-            out, i = out + re.escape(pattern[i]), i + 1
-    return re.compile(out + r"\Z")
-
-
 def _starts(name, changed):
-    """Whether a PR that changes only `changed` starts the workflow (GitHub: any path matches, last pattern wins)."""
+    """Whether a PR that changes only `changed` starts the workflow: workflow_inputs.triggers, the planner's own filter
+    (GitHub: any path matches, last pattern wins)."""
     patterns = _on(name)["pull_request"]["paths"]
-    for f in changed:
-        hit = False
-        for p in patterns:
-            if _glob(p.lstrip("!")).match(f):
-                hit = not p.startswith("!")
-        if hit:
-            return True
-    return False
+    return any(wi.triggers(patterns, f) for f in changed)
 
 
 ENGINE = "gitgalaxy/core/detector.py"

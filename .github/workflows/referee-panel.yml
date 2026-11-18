@@ -144,12 +144,14 @@ jobs:
             echo "MAPA_CALLTREE_JAR=$REFEREES_DIR/mapa/cobol/CallTree.jar"
           } >> "$GITHUB_ENV"
 
+      # Share the mainframe-corpora cache the ground-truth jobs keep warm: ibm/example-health-apis is gone from
+      # GitHub (404), so a cold clone of the pinned corpora fails and that cache holds the only CI copy.
       - name: Restore the pinned corpora
         id: corpora
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
-          key: referee-panel-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
 
       - name: Fetch the pinned corpora
         run: |
@@ -157,12 +159,12 @@ jobs:
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
       - name: Save the pinned corpora
-        if: steps.corpora.outputs.cache-hit != 'true'
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
         continue-on-error: true  # best effort: a miss only costs the next run a clone
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
-          key: referee-panel-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
 
       - name: Run the panel
         run: |

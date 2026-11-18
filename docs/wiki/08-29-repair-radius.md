@@ -1,9 +1,9 @@
 ---
-description: "> **Topic:** What tends to follow a change to a function? A plain-language account of the repair radius: where later fixes land, what they change and how that depends on the size of the change. Measured on 3,000 to 24,000 named cause-and-fix pairs in each of the Linux kernel, DPDK and Mesa, and on curl, OpenSSL and FreeBSD; also around added and deleted functions, as a ranking test against size, and as a test of whether a change will need a fix."
+description: "> **Topic:** What tends to follow a change to a function? A plain-language account of the repair radius: where later fixes land, what they change and how that depends on the size of the change. Measured on 3,000 to 24,000 named cause-and-fix pairs in each of the Linux kernel, DPDK and Mesa, and on curl, OpenSSL and FreeBSD, and checked on Python and Go projects; also around added and deleted functions, as a ranking test against size, and as a test of whether a change will need a fix."
 ---
 # Repair Radius: What Tends to Follow a Change
 
-> **Status:** exploratory research, one author, not peer reviewed. Every number is an association measured on C code in six open-source projects. The scripts, outputs and a prediction written before each run are in the temporal-crucible repository (`docs/sensor-overhaul/sensors/ripple_radius.md`); several predictions failed, and the failures are recorded there. This page replaces the headline of [Blast Radius of a Change](08-28-blast-radius.md) with measurements on verified functions and more repositories.
+> **Status:** exploratory research, one author, not peer reviewed. Every number is an association measured on open-source projects, six of them C and the rest Python, Go, Java and Rust. The scripts, outputs and a prediction written before each run are in the temporal-crucible repository (`docs/sensor-overhaul/sensors/ripple_radius.md`); several predictions failed, and the failures are recorded there. This page replaces the headline of [Blast Radius of a Change](08-28-blast-radius.md) with measurements on verified functions and more repositories.
 >
 > **Summary:** When a function is changed and a bug caused by that change is later fixed, the fix is most often in the same function, then in a close neighbour in the call graph, and it often reuses a name the change touched. Small changes are repaired once, close by; big changes are repaired again and again, scattered. The same pattern holds around functions that are added or deleted. Given a change that is later fixed, ranking by file and call distance finds the repaired function in its top 20 of tens of thousands for about half of the cases (size alone: 0.2%); whether a change will need a fix at all is mostly a matter of its size. This appears to be useful as a checklist when changing a function, not as a prediction.
 
@@ -82,10 +82,23 @@ The reverse question, on **all** changes including those never fixed (DPDK and M
 
 The neighbourhood is a **where** predictor, not a **whether** predictor.
 
+## Other languages
+Python, Go, Java and Rust projects do not write `Fixes:` lines, so a different way of finding the cause was used: for each fix commit (a subject containing "fix", "bug" or "regression"), the lines it removes are traced with `git blame` to the commit that wrote them, and that commit is the cause. The method was **calibrated on C** first: on DPDK it gives a radius of 1.55 (trailers: 1.57) and on curl 1.43 (trailers: 1.65).
+
+| Language (projects) | Repairs within 2 calls of the changed functions, against the same-file baseline |
+|---|---|
+| Python (sphinx, scapy, sqlmap) | **1.70** (1.48, 1.62 and 1.85 by project) |
+| Go (prometheus) | **1.50** |
+| Java (commons-lang, commons-io) | 1.63, but only 110 pairs (interval 1.2 to 2.1) |
+| Rust (ripgrep) | 1.04, only 56 pairs |
+| C, same method (DPDK, curl) | 1.50 |
+
+The size trend appears again (causes under 30 changed lines about 2.1 times, 100 lines or more about 1.4 times, pooled). **The callers-first direction does not carry over**: in Python and Java repairs in a different file lie near callees more than near callers. **A caution for every non-C figure:** the call graph of these languages is much sparser (0.7 to 1.6 resolved calls per function in these projects against about 2 in C; 9 to 36% of functions have a recorded caller against 56 to 67% in C), because calls through objects, interfaces and traits are not resolved. A sparse graph misses neighbours, so the radius is probably understated here, the caller figures cannot be trusted, and Java and Rust are untestable in practice rather than negative. The added and deleted function results, the ranking and the will-it-need-a-fix test were not repeated outside C.
+
 ## What it does not say
 - **Association, not cause.** Nothing here shows why a fix lands where it does. A shared name can mean an interface changed and its users had to follow, the same hardware condition handled elsewhere, or a copied pattern.
 - **It describes where, it does not predict whether.** A given change may break nothing. The radius and the ranking are measured on changes that were later fixed and whose fix names its cause, so they cannot say how likely a change is to be fixed; size is the only predictor of that found, and the small gain from the kind of change depends on how causes are labelled.
-- **C only, so far.** Only `.c` and `.h` files were read; Mesa's and QEMU's C++ and Rust are outside. Other languages are being tested with a cause label that needs no trailers; until that is done nothing here is shown for them.
+- **Mostly C.** The main figures are C (`.c` and `.h` files; Mesa's and QEMU's C++ and Rust are outside). The radius itself reproduces in Python and Go with a different cause label (see above); nothing else was tested outside C, and the other languages' sparser call graphs limit what can be said for them.
 - **Modest effects.** 1.6 to 2.2 times a baseline for the radius, and weaker for big changes (1.2 to 1.3 at 500 lines or more), partly because a big change has a big neighbourhood.
 - **Selection by habit.** Projects that write `Fixes:` lines are the ones measured; DPDK's near-mandatory trailer gives a different mix of changes from the kernel's.
 - **Static calls.** Calls through function pointers are missing from the call graph, which understates the radius somewhat.

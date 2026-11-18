@@ -33,14 +33,14 @@ jobs:
           tool: 'xray-inspector'
           target: '.'
 
-  supply-chain-firewall:
-    name: Supply Chain Firewall
+  import-policy-gate:
+    name: Import Policy Gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, hash-pinned v2.11.0
         with:
-          tool: 'supply-chain-firewall'
+          tool: 'import-policy-gate'
           target: '.'
 
   galaxyscope-report:

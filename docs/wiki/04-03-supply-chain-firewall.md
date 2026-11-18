@@ -1,9 +1,9 @@
 ---
-description: "> **File Reference:** [gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/t..."
+description: "> **File Reference:** [gitgalaxy/tools/supply_chain_security/import_policy_gate.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/t..."
 ---
 # Supply Chain Firewall (Import and Secrets-Risk Gate)
 
-> **File Reference:** [gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py)
+> **File Reference:** [gitgalaxy/tools/supply_chain_security/import_policy_gate.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/import_policy_gate.py)
 
 > **Fixed in #8595 (#8428):** the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, now read the audit JSON's real keys and exit 1 on a counted threat; before the fix they never blocked. The engine-internal call in `galaxyscope.py` (`run_firewall_audit(repository_graph, ...)`) records its result in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Other enforcement gaps: #8432.
 
@@ -26,7 +26,7 @@ Imports are normalized to a root package name (relative imports dropped, deep mo
 When the engine supplies a manifest alias map, an aliased package is resolved to its true name before the blacklist check, so an alias cannot hide a blacklisted package (`test_alias_spoofing_detection`). The standalone CLI passes an empty alias map. The manifest auditor's other flags (namespace hijacking, direct-URI resolution, insecure registries) are written but not read by the firewall (#8432).
 
 ### Behavioural Gate
-The firewall reads one risk vector from `SignalProcessor.RISK_SCHEMA`: `secrets_risk`, labelled "Secrets Leak Risk" (`_FIREWALL_RISK_MAP` in `supply_chain_firewall.py`). A file is flagged when the score, after multipliers, reaches 50 (`_FIREWALL_BLOCK_THRESHOLD`). No other risk category is gated. This vector (now `credential_material`) is REWORK-flagged as a formula artifact (#2979); see [`docs/vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md).
+The firewall reads one risk vector from `SignalProcessor.RISK_SCHEMA`: `secrets_risk`, labelled "Secrets Leak Risk" (`_FIREWALL_RISK_MAP` in `import_policy_gate.py`). A file is flagged when the score, after multipliers, reaches 50 (`_FIREWALL_BLOCK_THRESHOLD`). No other risk category is gated. This vector (now `credential_material`) is REWORK-flagged as a formula artifact (#2979); see [`docs/vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md).
 
 ### Multipliers
 1. **Build-time multiplier (10x):** the secrets-risk score is multiplied by 10 for files named setup.py, `build.rs`, `preinstall.js` or `postinstall.js` (`test_build_time_execution_multiplier`). `package.json` is also in the code's list, but `.json` files are skipped before this point, so it never gets the multiplier, and npm `scripts` hooks are not parsed.
@@ -51,7 +51,7 @@ graph LR
 In a `galaxyscope` scan the result is attached to the scan summary. The standalone CLI exits 1 when it counts threats (blacklisted imports, strict-mode unknowns, secrets-risk files).
 
 ## Evidence
-The import checks, alias resolution and multipliers are tested with hand-built file entries (`tests/security_auditing/test_supply_chain_firewall.py`). Since #8595 the CLI is also tested end to end: a real scan of a planted repo, then the CLI on the resulting audit JSON (`test_real_audit_json_*`, `test_audit_risk_exposure_round_trips_to_the_firewall`). Before that, no test did, which is how #8428 went unnoticed. There is no measured detection rate on real compromised packages.
+The import checks, alias resolution and multipliers are tested with hand-built file entries (`tests/security_auditing/test_import_policy_gate.py`). Since #8595 the CLI is also tested end to end: a real scan of a planted repo, then the CLI on the resulting audit JSON (`test_real_audit_json_*`, `test_audit_risk_exposure_round_trips_to_the_firewall`). Before that, no test did, which is how #8428 went unnoticed. There is no measured detection rate on real compromised packages.
 
 ## Tradeoffs
 * **Strict mode vs. developer velocity:** strict mode fails on every new dependency until it is approved.

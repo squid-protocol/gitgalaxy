@@ -63,9 +63,9 @@ def test_cli_overrides_yaml(tmp_path):
 
 
 def test_cli_overrides_default_with_no_yaml():
-    resolved = resolve_config(cli_overrides={"FIREWALL_NETWORK_WEIGHTING": True})
+    resolved = resolve_config(cli_overrides={"IMPORT_GATE_NETWORK_WEIGHTING": True})
 
-    assert resolved.FIREWALL_NETWORK_WEIGHTING is True
+    assert resolved.IMPORT_GATE_NETWORK_WEIGHTING is True
 
 
 def test_yaml_overrides_security_scan_inert_formats_default(tmp_path):

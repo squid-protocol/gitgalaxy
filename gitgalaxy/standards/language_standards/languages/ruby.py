@@ -325,11 +325,11 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (RUBY) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Supply Chain Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Originally, this regex was anchored to the start of the
             # line `^[ \t]*`. While this perfectly prevented hallucinations on commented-out
-            # imports, it completely blinded the firewall to Ruby's highly dynamic execution
+            # imports, it completely blinded the import policy gate to Ruby's highly dynamic execution
             # patterns. Ruby developers frequently lazy-load dependencies inside methods
             # (e.g., `def parse; require 'json'; end`) or behind conditionals. The anchored
             # regex missed these entirely, allowing Trojans to slip through.

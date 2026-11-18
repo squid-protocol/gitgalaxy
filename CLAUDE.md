@@ -180,7 +180,7 @@ sample, in the PR that makes the change.
 so a PR head never goes through the matrix unless asked. For an OS- or version-sensitive change (Windows paths, 3.11
 syntax): add the `shepherd:matrix` label (auto-merge waits for a green run on that head), or
 `gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>`. Don't add a `pull_request`/`synchronize` trigger
-(#3209, #4518). Details: `docs/agents/full-suite-matrix.md`.
+(#3209, #4518). A `shepherd:merge` PR that fixes a `ci-red-main` issue or adds an unguarded platform-tool / path-case test gets the matrix without the label (#8425); guard such tests. Details: `docs/agents/full-suite-matrix.md`.
 
 ## Comparative claims and AST comparison
 

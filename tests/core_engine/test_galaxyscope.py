@@ -791,7 +791,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     @patch("gitgalaxy.galaxyscope.Orchestrator._calculate_risk_exposures")
     @patch("gitgalaxy.galaxyscope.run_api_audit")
     @patch("gitgalaxy.galaxyscope.run_xray_audit")
-    @patch("gitgalaxy.galaxyscope.run_firewall_audit")
+    @patch("gitgalaxy.galaxyscope.run_import_gate_audit")
     def test_zero_dependency_mode_execution(self, mock_fw, mock_xr, mock_api, mock_calc, mock_res, mock_ext, mock_cen):
         """
         DEVIOUS EDGE CASE: Running on a stripped-down Alpine Linux container without
@@ -2174,7 +2174,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         with (
             patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}),
             patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}),
-            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}),
+            patch("gitgalaxy.galaxyscope.run_import_gate_audit", return_value={}),
         ):
             scope.execute_pipeline("test_output.json")
 
@@ -2208,7 +2208,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             patch("gitgalaxy.recorders.sarif_recorder.SarifRecorder.generate_report"),
             patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}),
             patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}),
-            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}),
+            patch("gitgalaxy.galaxyscope.run_import_gate_audit", return_value={}),
         ):
             mock_firewall.return_value.evaluate_ecosystem.side_effect = lambda files: files
             mock_sensor.return_value.hunt_threats.side_effect = lambda files: files
@@ -2379,7 +2379,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         with (
             patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}),
             patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}),
-            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}),
+            patch("gitgalaxy.galaxyscope.run_import_gate_audit", return_value={}),
         ):
             try:
                 scope.execute_pipeline("fake_output.json")
@@ -2797,7 +2797,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         with (
             patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}),
             patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}),
-            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}),
+            patch("gitgalaxy.galaxyscope.run_import_gate_audit", return_value={}),
         ):
             scope.execute_pipeline("fake_output.json")
 

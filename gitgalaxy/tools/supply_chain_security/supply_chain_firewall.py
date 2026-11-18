@@ -235,9 +235,9 @@ def run_firewall_audit(
         # .d.ts files are TypeScript declarations. They contain no executable logic.
         # package.json is the exception: it carries npm lifecycle hooks, so the build-time
         # multiplier below must see it (#8432).
-        if (
-            Path(rel_path_str).name != "package.json"
-            and ext
+        is_package_json = Path(rel_path_str).name == "package.json"
+        if not is_package_json and (
+            ext
             in {
                 ".svg",
                 ".xml",

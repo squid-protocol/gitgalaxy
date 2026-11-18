@@ -133,10 +133,10 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-18T13:07:31Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-18T13:56:57Z.
 
 - `scope:core`: 11 open, 253 closed.
-- Milestone 28: 0 open, 112 closed.
+- Milestone 28: 0 open, 136 closed.
 - Last 7 days: 4 opened, 10 closed, net +6 closed.
 - ETA (open / net closure rate): **13 days**.
 
@@ -144,7 +144,7 @@ Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-
 
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
-- `scope:frontier`: 3 found in the last 7 days, 210 in total (79 open, 131 closed).
-- Milestone 30 (Gap Atlas): 57 issues.
+- `scope:frontier`: 8 found in the last 7 days, 215 in total (84 open, 131 closed).
+- Milestone 30 (Gap Atlas): 63 issues.
 - `scope:sweep`: 0 open, 106 closed.
 - `scope:infra`: 31 open, 259 closed.

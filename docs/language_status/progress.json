@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-18T13:07:31Z",
+  "as_of": "2026-11-18T13:56:57Z",
   "core": {
    "closed": 253,
    "open": 11,
@@ -988,10 +988,10 @@
    "opened": 4
   },
   "core_milestone": {
-   "closed": 112,
+   "closed": 136,
    "number": 28,
    "open": 0,
-   "total": 112
+   "total": 136
   },
   "epics": {
    "4890": "open",
@@ -1003,15 +1003,15 @@
   "eta": "13 days",
   "frontier": {
    "closed": 131,
-   "found_last_window": 3,
-   "open": 79,
-   "total": 210
+   "found_last_window": 8,
+   "open": 84,
+   "total": 215
   },
   "frontier_milestone": {
    "closed": 19,
    "number": 30,
-   "open": 38,
-   "total": 57
+   "open": 44,
+   "total": 63
   },
   "infra": {
    "closed": 259,
@@ -1084,11 +1084,11 @@
     "total": 206
    },
    {
-    "closed": 57,
+    "closed": 85,
     "number": 12,
     "open": 2,
     "title": "Yes, but can it go faster...?",
-    "total": 59
+    "total": 87
    },
    {
     "closed": 57,
@@ -1098,11 +1098,11 @@
     "total": 57
    },
    {
-    "closed": 84,
+    "closed": 88,
     "number": 14,
-    "open": 8,
+    "open": 10,
     "title": "Compiler call-graph comparison",
-    "total": 92
+    "total": 98
    },
    {
     "closed": 98,
@@ -1149,9 +1149,9 @@
    {
     "closed": 3,
     "number": 21,
-    "open": 5,
+    "open": 0,
     "title": "Worms Armageddon \ud83e\udeb1 \u2014 The GlassWorm Hunter",
-    "total": 8
+    "total": 3
    },
    {
     "closed": 65,
@@ -1168,11 +1168,11 @@
     "total": 22
    },
    {
-    "closed": 13,
+    "closed": 16,
     "number": 24,
-    "open": 0,
+    "open": 3,
     "title": "Class Change \ud83d\udd04 \u2014 COBOL Becomes Java",
-    "total": 13
+    "total": 19
    },
    {
     "closed": 8,
@@ -1189,46 +1189,95 @@
     "total": 30
    },
    {
-    "closed": 20,
+    "closed": 22,
     "number": 27,
-    "open": 3,
+    "open": 4,
     "title": "Save Integrity \ud83d\udcbe \u2014 Same Code, Same Answer",
-    "total": 23
+    "total": 26
    },
    {
-    "closed": 274,
+    "closed": 303,
     "number": 28,
     "open": 0,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 274
+    "total": 303
    },
    {
-    "closed": 2,
+    "closed": 4,
     "number": 29,
-    "open": 6,
+    "open": 4,
     "title": "Open World \ud83d\uddfa\ufe0f \u2014 leaving the starter zone",
     "total": 8
    },
    {
     "closed": 19,
     "number": 30,
-    "open": 38,
+    "open": 44,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
-    "total": 57
+    "total": 63
    },
    {
-    "closed": 47,
+    "closed": 51,
     "number": 31,
-    "open": 0,
+    "open": 1,
     "title": "DOOM Port Speedrun",
-    "total": 47
+    "total": 52
+   },
+   {
+    "closed": 8,
+    "number": 32,
+    "open": 10,
+    "title": "Trust But Verify \ud83d\udee1\ufe0f \u2014 Security Claims vs Evidence",
+    "total": 18
    },
    {
     "closed": 0,
-    "number": 32,
-    "open": 9,
-    "title": "Trust But Verify \ud83d\udee1\ufe0f \u2014 Security Claims vs Evidence",
-    "total": 9
+    "number": 33,
+    "open": 11,
+    "title": "Training Montage 2 \ud83c\udfcb\ufe0f \u2014 Prepping for Blind Draw 2",
+    "total": 11
+   },
+   {
+    "closed": 33,
+    "number": 34,
+    "open": 1,
+    "title": "Blind Playthrough 1 \ud83d\ude48 \u2014 example-health-apis",
+    "total": 34
+   },
+   {
+    "closed": 12,
+    "number": 35,
+    "open": 5,
+    "title": "Survival Mode \ud83e\udddf \u2014 L5 Mutation Survivors",
+    "total": 17
+   },
+   {
+    "closed": 59,
+    "number": 36,
+    "open": 11,
+    "title": "Pit Crew \ud83d\udd27 \u2014 CI, Shepherd & the Churn Factory",
+    "total": 70
+   },
+   {
+    "closed": 21,
+    "number": 37,
+    "open": 3,
+    "title": "Friendly Fire \ud83c\udfaf \u2014 Signal Misfires",
+    "total": 24
+   },
+   {
+    "closed": 17,
+    "number": 38,
+    "open": 6,
+    "title": "Charisma +10 \ud83d\udcac \u2014 Public Face & Product Presentation",
+    "total": 23
+   },
+   {
+    "closed": 0,
+    "number": 39,
+    "open": 5,
+    "title": "Infiltration \ud83d\udd75\ufe0f \u2014 CICS Cross-Program SAST",
+    "total": 5
    }
   ],
   "sweep": {
@@ -1239,11 +1288,11 @@
   "title_counts": {
    "cics": {
     "closed": 130,
-    "total": 141
+    "total": 145
    },
    "cobol": {
     "closed": 146,
-    "total": 156
+    "total": 157
    }
   },
   "window_days": 7

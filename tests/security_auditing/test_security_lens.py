@@ -759,8 +759,8 @@ UNGATEABLE_SIGNATURES = {
 
 
 def _safe_content(content):
-    """Mirror of scan_content's ReDoS-armored haystack construction."""
-    return "\n".join(line.strip() for line in content.splitlines() if len(line) < 250)
+    """The haystack scan_content builds: the lens's own armor, not a copy (#8434)."""
+    return SecurityLens._armor(content)[0]
 
 
 def _gate_rejects(gate, safe_content):

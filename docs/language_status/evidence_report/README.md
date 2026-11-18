@@ -14,13 +14,13 @@ These files are derived output, published on the `generated` branch and not comm
 |---|---|---|---|---|---|---|---|
 | [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 0 | 0 | 38 | 4 |
 | [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 10 | 0 |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 29 | 2 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 30 | 1 |
 | [cics-crucible](cics-crucible/report.md) | 139 | 6 | 48 | 0 | 0 | 85 | 0 |
 | [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 | 0 |
 | [example-health-apis](example-health-apis/report.md) | 29 | 1 | 0 | 4 | 4 | 20 | 0 |
 | [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 7 | 0 |
-| total | 297 | 10 | 48 | 4 | 4 | 225 | 6 |
+| total | 297 | 10 | 48 | 4 | 4 | 226 | 5 |
 
 ## Non-burned estates
 

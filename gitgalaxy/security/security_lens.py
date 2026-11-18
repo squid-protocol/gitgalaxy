@@ -18,6 +18,7 @@ from typing import Any
 from gitgalaxy.core.rule_prefilter import derive_literal_gate, fold_haystack
 from gitgalaxy.security.credential_lexicon import COBOL_CREDENTIAL_ALTERNATION, CODE_CREDENTIAL_ALTERNATION
 from gitgalaxy.security.long_lines import CHUNK, OVERLAP
+from gitgalaxy.security.mainframe_secrets import MAINFRAME_SECRET_LANGUAGES, mainframe_secret_sites
 from gitgalaxy.standards.language_standards.identifiers import VIRAMA
 
 logger = logging.getLogger("security_lens")
@@ -996,6 +997,24 @@ class SecurityLens:
                     positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
             counts[key] = counts.get(key, 0) + new_hits
+
+        # ---> MAINFRAME CREDENTIAL SHAPES (#8625) <---
+        # A JCL `PASSWORD=` is 8 characters and unquoted, so the `hardcoded_secrets` signature above (16+ quoted
+        # characters) cannot see it. Counted onto the same signal for the languages that carry these shapes.
+        if language in MAINFRAME_SECRET_LANGUAGES:
+            mf_sites = mainframe_secret_sites(content)
+            if mf_sites:
+                key = "hardcoded_secrets"
+                counts[key] = counts.get(key, 0) + len(mf_sites)
+                snips = snippets.setdefault(key, [])
+                site_list = sites.setdefault(key, [])
+                site_list.extend([None] * (len(snips) - len(site_list)))
+                for line_no, col, label in mf_sites:
+                    if len(snips) < 3 and label not in snips:
+                        snips.append(label)
+                        site_list.append(None if is_auto_gen else [line_no, col])
+                    if not is_auto_gen:
+                        positions[key].append(line_no)
 
         # ---> LONG-LINE SIGNATURES (#8429) <---
         # `_armor` emptied every line of 250+ chars, so a hit on one was never seen. Re-read only those lines, in

@@ -78,6 +78,7 @@ Gates are off by default. A gate that trips makes the scan exit `1` after every 
 
 | Flag | Promise |
 | :--- | :--- |
+| `--offline` | Refuse every network call (also `GITGALAXY_OFFLINE=1`). The tiktoken encoding download is refused by name, so token mass is NULL and the run is labelled Zero-Dependency Mode (`gitgalaxy/tools/readiness/offline.py`). |
 | `--paranoid` | Makes the `secrets_risk` vector more sensitive: its threshold drops from 3.0 to 0.5, its slope rises from 1.0 to 2.0, and the 2.0 cap on its carelessness amplifiers is lifted. No other vector or threshold changes. |
 | `--ai-guardrails` | Enables Phase 5 (Zero-Trust AI Guardrails: `dev_agent_firewall.py` and `ai_appsec_sensor.py`). Off by default: without it the columns `agentic_isolation_risk`, `requires_hitl`, `hallucination_zone`, `silent_mutation_risk` and `appsec_god_mode` record `NULL` ("not evaluated"; `0` means "evaluated, no risk found") and no `GG-AGENT-GUARDRAIL` SARIF results are emitted. The engine never turns this on by itself. |
 | `--shadow-patch-detected` | A manual flag: you assert that a shadow patch happened. GitGalaxy compares no hashes or versions. When set, every file with `file_impact` above 0.5 gets an alert ("SHADOW PATCH (manually asserted ...)"). It assigns no threat class, no score and no `is_ml_threat`, and it works without a model (`gitgalaxy/security/security_auditor.py`). |

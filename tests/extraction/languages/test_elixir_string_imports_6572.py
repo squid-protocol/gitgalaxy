@@ -1,6 +1,6 @@
 """#6572: a `use`/`alias` line inside an ordinary multi-line Elixir "..." string is text, not an import."""
 
-import time
+from linear_assert import assert_linear
 
 from gitgalaxy.galaxyscope import extract_raw_imports
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -44,12 +44,7 @@ def test_unterminated_string_stops_at_the_cap():
 
 
 def test_many_unterminated_openers_stay_linear():
-    def cost(n: int) -> float:
-        src = 'x = "\n' * n
-        t = time.perf_counter()
-        _imports(src)
-        return time.perf_counter() - t
+    def make(n: int) -> str:
+        return 'x = "\n' * n
 
-    cost(200)
-    small, big = cost(2000), cost(4000)
-    assert big < max(small * 6, 0.5)
+    assert_linear(_imports, make(2000), make(4000))

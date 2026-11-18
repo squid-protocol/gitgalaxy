@@ -69,56 +69,76 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # ==============================================================================
     # TEST 2: THE CI/CD GATE TRIPWIRES (Policy Enforcement)
     # ==============================================================================
-    @patch("gitgalaxy.galaxyscope.Orchestrator._prepare_target")
-    @patch("gitgalaxy.galaxyscope.logger")
-    def test_cicd_policy_enforcement_gates(self, mock_logger, mock_prepare):
+    def _gate(self, graph, **gates) -> tuple[bool, MagicMock]:
+        """Runs the real Phase 10.6 gate (`Orchestrator._enforce_policy_gates`) and returns
+        (policy_failed, logger mock). Only the gates named in `gates` are enabled."""
+        config = self.mock_config.copy()
+        config.update(gates)
+        with patch("gitgalaxy.galaxyscope.Orchestrator._prepare_target", return_value=Path("/fake/target")):
+            scope = Orchestrator("/fake/target", config)
+        scope.policy_failed = None  # the gate must set it itself, not inherit it
+        with patch("gitgalaxy.galaxyscope.logger") as log:
+            scope._enforce_policy_gates(graph)
+        return scope.policy_failed, log
+
+    @staticmethod
+    def _file(**over):
+        base = {"path": "src/a.py", "risk_vector": [0.0] * 5, "telemetry": {}}
+        base.update(over)
+        return base
+
+    def test_cicd_policy_enforcement_gates(self):
         """
         DEVIOUS EDGE CASE: A developer pushes malware or hardcoded secrets.
-        If the CLI flags are active, the Orchestrator MUST flip `policy_failed = True`
-        so the GitHub Action runner receives an exit(1) and halts the build.
+        With the CLI flag active, `_enforce_policy_gates` MUST set `policy_failed = True`
+        (main() turns that into exit 1); with the flag off, or a clean graph, it must not.
         """
-        # Bypass the OS-level symlink resolution entirely
-        mock_prepare.return_value = Path("/fake/target")
+        secret = self._file(telemetry={"threat_snippets": {"sec_hardcoded_secrets": 1}})
+        malware = self._file(is_ml_threat=True, telemetry={"domain_context": {"AI Threat Class": "Reverse Shell"}})
+        clean = self._file()
 
-        # Enable all CI/CD gates
-        config = self.mock_config.copy()
-        config["FAIL_ON_SECRETS"] = True
-        config["FAIL_ON_MALWARE"] = True
-        config["MAX_RISK_EXPOSURE"] = 80.0
+        # Secrets gate
+        failed, log = self._gate([secret], FAIL_ON_SECRETS=True)
+        self.assertTrue(failed)
+        self.assertIn("Hardcoded secret", log.critical.call_args[0][0])
+        self.assertFalse(self._gate([clean], FAIL_ON_SECRETS=True)[0])
+        self.assertFalse(self._gate([secret], FAIL_ON_MALWARE=True)[0], "secret must not trip the malware gate")
+        self.assertFalse(self._gate([secret])[0], "no gate enabled: never fails")
 
-        scope = Orchestrator("/fake/target", config)
+        # Malware gate
+        failed, log = self._gate([malware], FAIL_ON_MALWARE=True)
+        self.assertTrue(failed)
+        self.assertIn("Reverse Shell", log.critical.call_args[0][0])
+        self.assertFalse(self._gate([clean], FAIL_ON_MALWARE=True)[0])
+        self.assertFalse(self._gate([malware], FAIL_ON_SECRETS=True)[0], "malware must not trip the secrets gate")
 
-        # Inject an apocalyptic graph
-        mock_repository_graph = [
-            {
-                "path": "src/evil.py",
-                "is_ml_threat": True,  # Triggers Malware Gate
-                "risk_vector": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    100.0,
-                ],  # Index doesn't matter, max is 100.0 (Triggers Max Risk Gate)
-                "telemetry": {
-                    "threat_snippets": {"sec_hardcoded_secrets": 1},  # Triggers Secrets Gate
-                    "domain_context": {"AI Threat Class": "Reverse Shell"},
-                },
-            }
-        ]
+    def test_max_risk_exposure_gate_at_threshold_and_below(self):
+        at = self._file(risk_vector=[0.0, 0.0, 0.0, 0.0, 80.0])
+        below = self._file(risk_vector=[0.0, 0.0, 0.0, 0.0, 79.9])
+        self.assertTrue(self._gate([at], MAX_RISK_EXPOSURE=80.0)[0], "risk == threshold must fail")
+        self.assertFalse(self._gate([below], MAX_RISK_EXPOSURE=80.0)[0], "risk below threshold must pass")
+        self.assertTrue(self._gate([below, self._file(risk_vector=[100.0])], MAX_RISK_EXPOSURE=80.0)[0])
+        self.assertFalse(self._gate([at])[0], "MAX_RISK_EXPOSURE of 0 disables the gate")
 
-        # We manually trigger the logic inside Phase 10.5 of execute_pipeline
-        scope.policy_failed = False
-        for file_data in mock_repository_graph:
-            has_secrets = "sec_hardcoded_secrets" in file_data.get("telemetry", {}).get("threat_snippets", {})
-            if has_secrets:
-                scope.policy_failed = True
-            if file_data.get("is_ml_threat"):
-                scope.policy_failed = True
-            if max(file_data.get("risk_vector", [0.0])) >= 80.0:
-                scope.policy_failed = True
+    def test_max_systemic_threat_gate_at_threshold_and_below(self):
+        def f(magnitude, blast):
+            return self._file(file_impact=magnitude, telemetry={"network_metrics": {"normalized_blast_radius": blast}})
 
-        self.assertTrue(scope.policy_failed, "The CI/CD Gate failed to drop the guillotine on a lethal payload!")
+        # magnitude * blast radius: 50 * 0.5 = 25
+        failed, log = self._gate([f(50.0, 0.5)], MAX_SYSTEMIC_THREAT=25.0)
+        self.assertTrue(failed, "systemic threat == ceiling must fail")
+        self.assertIn("Systemic Threat", log.critical.call_args[0][0])
+        self.assertFalse(self._gate([f(50.0, 0.5)], MAX_SYSTEMIC_THREAT=25.1)[0], "just below the ceiling passes")
+        self.assertFalse(self._gate([f(0.0, 1.0)], MAX_SYSTEMIC_THREAT=1.0)[0], "no magnitude: no threat")
+        self.assertFalse(self._gate([f(50.0, 0.5)])[0], "ceiling of 0 disables the gate")
+
+    def test_max_systemic_threat_not_evaluated_without_blast_radius(self):
+        """No blast radius computed: warn, do not fail on a placeholder (galaxyscope.py #3027)."""
+        no_blast = self._file(path="src/heavy.py", file_impact=1e9, telemetry={"network_metrics": {}})
+        failed, log = self._gate([no_blast], MAX_SYSTEMIC_THREAT=1.0)
+        self.assertFalse(failed)
+        warning = log.warning.call_args[0][0]
+        self.assertIn("not evaluated for src/heavy.py", warning)
 
     # ==============================================================================
     # TEST 3: THE EMPTY GALAXY (Vacuum Survival)

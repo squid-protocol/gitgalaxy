@@ -41,27 +41,34 @@ def test_the_stage_step_writes_a_marker_with_the_claim_outcome():
     assert "if: always()" in text[stage : stage + 120]
 
 
-def test_the_gates_honour_a_lost_shard_but_still_fail_a_failed_claim():
+def test_the_gates_read_the_marker_verdict_not_the_job_result():
+    """#8590: det-mutation is continue-on-error (a lost runner no longer reds the run), so its result cannot gate."""
     text = _text()
-    assert "steps.shardloss.outputs.lost == 'true'" in text
-    assert "needs.det-mutation.result != 'success' && steps.shardloss.outputs.lost != 'true'" in text
-    # the lost-shard step only looks at a failed det-mutation job
-    assert "needs.det-mutation.result == 'failure'" in "\n".join(_step_block())
+    job = text[text.index("  det-mutation:") : text.index("  refresh:\n")]
+    assert "\n    continue-on-error: true\n" in job
+    assert (
+        "needs.det-mutation.result"
+        not in text.split("- name: Take the det mutation ledgers")[0].split("  refresh:")[-1]
+    )
+    assert "steps.shardloss.outputs.failed == 'false'" in text
+    assert "steps.shardloss.outputs.failed != 'false'" in text
+    assert "if: always()" in "\n".join(_step_block()[:5])
 
 
 @pytest.mark.skipif(sys.platform != "linux" or shutil.which("bash") is None, reason="needs bash on linux (#7312)")
 @pytest.mark.parametrize(
-    ("markers", "lost"),
+    ("markers", "lost", "failed"),
     [
-        ({1: "success", 3: "success"}, True),  # shard 2 lost: the 2026-11-16 shape
-        ({1: "success", 2: "success", 3: "success"}, False),  # nothing missing
-        ({1: "failure", 3: "success"}, False),  # a claim failed, and another shard was lost
-        ({1: "success", 2: "failure"}, False),  # a claim failed in a present shard
-        ({}, False),  # no artifact at all: download failed, nothing is tolerated
-        ({2: "success"}, True),  # two lost
+        ({1: "success", 3: "success"}, True, False),  # shard 2 lost: the 2026-11-16 shape
+        ({1: "success", 2: "success", 3: "success"}, False, False),  # nothing missing
+        ({1: "failure", 3: "success"}, False, True),  # a claim failed, and another shard was lost
+        ({1: "success", 2: "failure"}, False, True),  # a claim failed in a present shard
+        ({}, False, True),  # no artifact at all: download failed, nothing is tolerated
+        ({2: "success"}, True, False),  # two lost
     ],
 )
-def test_the_marker_separates_a_lost_shard_from_a_failed_claim(tmp_path, markers, lost):
+@pytest.mark.parametrize("result", ["success", "failure", "cancelled"])
+def test_the_marker_separates_a_lost_shard_from_a_failed_claim(tmp_path, markers, lost, failed, result):
     d = tmp_path / "in"
     d.mkdir()
     for n, outcome in markers.items():
@@ -69,14 +76,29 @@ def test_the_marker_separates_a_lost_shard_from_a_failed_claim(tmp_path, markers
     out = tmp_path / "out.txt"
     r = subprocess.run(
         ["bash", "-c", _script()],
-        env={"PATH": "/usr/bin:/bin", "SHARDS": "1 2 3", "MARKER_DIR": str(d), "GITHUB_OUTPUT": str(out)},
+        env={
+            "PATH": "/usr/bin:/bin",
+            "SHARDS": "1 2 3",
+            "DETMUT_RESULT": result,
+            "MARKER_DIR": str(d),
+            "GITHUB_OUTPUT": str(out),
+        },
         capture_output=True,
         text=True,
         check=False,
     )
     assert r.returncode == 0, r.stderr
-    assert out.read_text(encoding="utf-8").strip() == f"lost={'true' if lost else 'false'}"
+    verdict = f"lost={'true' if lost else 'false'}\nfailed={'true' if failed else 'false'}"
+    assert out.read_text(encoding="utf-8").strip() == verdict
     assert ("::warning" in r.stdout) == lost
+
+
+@pytest.mark.skipif(sys.platform != "linux" or shutil.which("bash") is None, reason="needs bash on linux (#7312)")
+def test_a_skipped_det_mutation_job_still_fails_the_gate(tmp_path):
+    out = tmp_path / "out.txt"
+    env = {"PATH": "/usr/bin:/bin", "SHARDS": "1 2 3", "DETMUT_RESULT": "skipped", "MARKER_DIR": str(tmp_path)}
+    subprocess.run(["bash", "-c", _script()], env={**env, "GITHUB_OUTPUT": str(out)}, check=True, capture_output=True)
+    assert "failed=true" in out.read_text(encoding="utf-8")
 
 
 def _put_in_place_script():

@@ -498,11 +498,13 @@ def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
 
 
 def test_updcust_non_digit_mutants_are_undefined_by_ibm():
-    """Owner ruling 2026-11-03 (#7495, #7607): the two UPDCUST mutants that die only on non-digit data in a numeric
+    """Owner ruling 2026-11-03 (#7495, #7607): the UPDCUST mutant that dies only on non-digit data in a numeric
     DISPLAY item are `undefined-by-ibm`, each citing the item and the input, and no case-gap is left."""
     ledger = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updcust.json").read_text())["survivors"]
     undefined = {s["id"]: s for s in ledger if s["verdict"] == dm.UNDEFINED}
-    assert set(undefined) == {"ab6f13f763", "0e4d7d1e73"}
+    # 0e4d7d1e73 was the second until the #7954 slice 18 scenarios (non-digit raw payloads) killed it in case.json: a kill
+    # the case now makes itself is no survivor to excuse (owner OK 2026-11-18); the ruling still covers ab6f13f763
+    assert set(undefined) == {"ab6f13f763"}
     assert all(s["undefined"]["item"].strip() and s["undefined"]["input"].strip() for s in undefined.values())
     assert not [s for s in ledger if s["verdict"] == "case-gap"]
 

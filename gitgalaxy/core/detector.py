@@ -72,6 +72,11 @@ from gitgalaxy.standards.language_standards._shared_patterns import (
 )
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START, WIDE_HYPHENS
 
+# #8624: `--offline` / GITGALAXY_OFFLINE=1 installs the network guard here, before tiktoken may download an encoding.
+from gitgalaxy.tools.readiness.offline import enable_if_requested, requested
+
+enable_if_requested()
+
 HAS_TIKTOKEN = False
 try:
     import tiktoken
@@ -85,6 +90,10 @@ except Exception as _encoding_error:  # #3791: installed, but its encoding canno
     # get_encoding downloads cl100k_base on first use: offline (an air-gapped site, a proxy, a sandbox) it
     # raises a network error, not an ImportError. That must not take the engine down: token mass is NULL and
     # the run is labelled Zero-Dependency Mode, as when tiktoken is not installed (docs/zero_dependency_mode.md).
+    if requested():
+        _encoding_error = RuntimeError(  # #8624: named, not an obscure socket refusal
+            "offline mode refuses the tiktoken cl100k_base download"
+        )
     logging.getLogger(__name__).warning(
         "tiktoken is installed but its cl100k_base encoding could not be loaded (%s: %s); token mass is not "
         "computed (set TIKTOKEN_CACHE_DIR to a cache holding it to enable)",

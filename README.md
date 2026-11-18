@@ -350,6 +350,21 @@ GitGalaxy is designed for local and air-gapped operation.
 -   CI/CD execution can remain inside the user's environment.
 -   The browser visualizer operates on locally supplied data.
 
+### Offline guarantee, by command
+
+A guarantee here means a socket guard (`gitgalaxy/tools/readiness/offline.py`) refuses every non-local network call
+with `OfflineViolation`, in the main process and in spawn-start workers, and a test pins it.
+
+| Command | Offline status |
+|---|---|
+| `gitgalaxy assess` | Guaranteed: always under the guard (#4726, #5235). |
+| `galaxyscope <path> --offline` (or `GITGALAXY_OFFLINE=1`) | Guaranteed under the guard (#8624). Without the opt-in it only promises. |
+| Other report and audit tools | Not yet guarded: they make no network call, but nothing enforces it (tracked in #8624). |
+
+Exceptions, refused by name when offline: the tiktoken `cl100k_base` download (token mass is left NULL; point
+`TIKTOKEN_CACHE_DIR` at a cache holding the encoding to keep it) and the opt-in LLM port runner (it calls a model
+API by design; not yet refused by name, tracked in #8624).
+
 ## Installation
 
 ``` bash

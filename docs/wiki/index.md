@@ -159,6 +159,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [08-26: Change Report](08-26-change-report.md)
 * [08-27: Activity Sensor](08-27-activity-sensor.md)
 * [08-28: Blast Radius of a Change](08-28-blast-radius.md)
+* [08-29: Repair Radius](08-29-repair-radius.md)
 
 ### 🗄️ The Cookbook (Applied Use Cases)
 * [Audit Local AI Models](cookbook/audit-local-ai-models.md)

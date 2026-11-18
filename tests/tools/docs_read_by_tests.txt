@@ -246,7 +246,7 @@ _galaxy_llm.md	gitgalaxy
 _layout.json	tests/golden_store.py,tests/tools/bugfix_kit.py,tests/tools/register.py
 _llm.md	tests/golden_outputs_snapshot.py
 _port_ticket.md	gitgalaxy
-a.md	tests/core_engine,tests/extraction,tests/tools/test_doc_drift_issues.py
+a.md	tests/core_engine,tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
 a/b.md	tests/tools/test_post_merge_dispatch.py
 a/b/c.md	tests/tools/test_post_merge_dispatch.py
 agent_guardrail.md	gitgalaxy,tests/cobol_mainframe

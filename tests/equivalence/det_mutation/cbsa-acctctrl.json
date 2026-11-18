@@ -5,24 +5,25 @@
  "case": "cbsa-acctctrl",
  "entry": {
   "program": "ACCTCTRL",
-  "commit": "637b9b7bcabea64cd03b1723ae2ecc617c9b1cc5+uncommitted",
-  "date": "2026-11-15",
+  "commit": "3a66f15403bdf0658eeda38a28a33ef94d15ad3b+uncommitted",
+  "date": "2026-11-16",
   "mode": "fast",
   "seed": 0,
   "mutants": 519,
   "out_of_scope": 24,
   "chosen": 519,
-  "coverage": "proven on 39 scenarios, covering 7/7 paragraphs and 2/2 branches",
+  "coverage": "proven on 51 scenarios, covering 7/7 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 214,
+   "killed": 220,
    "timeout": 1,
-   "survived": 279,
+   "survived": 273,
    "stillborn": 25,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "056bbf4eb4",
+   "0654ba327e",
    "065ece9be3",
    "0665324e2f",
    "068591b99d",
@@ -38,6 +39,7 @@
    "14e4c4cc0b",
    "155ba94f42",
    "1718c27ea6",
+   "1a49c9d82f",
    "1d5488bc85",
    "1fa849c85d",
    "226b2dcb82",
@@ -77,6 +79,7 @@
    "436c0cbdfc",
    "44df1949be",
    "44fcd9edf7",
+   "4753ba9a37",
    "49c81b0fa5",
    "4aba2c01a9",
    "4f7091ada8",
@@ -144,6 +147,7 @@
    "895181f3a4",
    "8ba657d496",
    "8bd6eb0ceb",
+   "8e70405752",
    "8fd9d7a5c0",
    "90769b2179",
    "90f0d9f8f3",
@@ -155,6 +159,7 @@
    "9bfe9be7df",
    "9c0028592c",
    "9de37421c1",
+   "9f1780c403",
    "9f689c2e0c",
    "a347365ec8",
    "a3be2c9901",
@@ -213,6 +218,7 @@
    "e16d91d54e",
    "e1cfc24255",
    "e1e5cfedf8",
+   "e3b249b85b",
    "e4ff3906f6",
    "e50367123c",
    "e78345fc84",
@@ -825,14 +831,6 @@
     "line": 160,
     "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
     "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
-   },
-   {
-    "id": "4753ba9a37",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 160,
-    "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-    "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
    },
    {
     "id": "8f1039edc5",
@@ -1803,14 +1801,6 @@
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
    {
-    "id": "9f1780c403",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 344,
-    "before": "caBack = () -> { };",
-    "after": "/* caBack = () -> { }; */"
-   },
-   {
     "id": "202a212cf6",
     "op": "DEL",
     "file": "service/AcctctrlService.java",
@@ -1979,44 +1969,12 @@
     "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
    },
    {
-    "id": "e3b249b85b",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 369,
-    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
-   },
-   {
-    "id": "8e70405752",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 377,
-    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
-   },
-   {
     "id": "e191f2a317",
     "op": "ROR",
     "file": "service/AcctctrlService.java",
     "line": 377,
     "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
     "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
-   },
-   {
-    "id": "0654ba327e",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 379,
-    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
-   },
-   {
-    "id": "1a49c9d82f",
-    "op": "AOR",
-    "file": "service/AcctctrlService.java",
-    "line": 379,
-    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
    },
    {
     "id": "48df5b2eb1",
@@ -2503,11 +2461,11 @@
    "port": "c1b896d270b5d666112e07556361697c5430a47251aefbeadb21a038c5776110",
    "runtime": "b890b6e017021042ba93628dc1bce7ea501f673a92f49188d3b7520de34d04f9",
    "generator": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
-   "case": "c317a7f6201ebafd4143b98befd6d6c03cffcd836bcb34d170b8a2ab7e452ea2",
+   "case": "cae436f84480c5236844d80895470f5696e8b575d424cb06d10ade0795d8bab9",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
    "harness": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "fa2084a18916a1f6e322d8e211e1ec1628c6b3d78932c7668193c264042339e0"
+   "survivors": "b0cfd897b7b52ec97dce20fc47a7338e4ad2ee9f2eb9950ba09686f330a686b7"
   },
   "components": {
    "generator": {
@@ -2553,7 +2511,7 @@
    "survivors_rerun": 279,
    "fresh": 0,
    "stale": [
-    "survivors"
+    "case"
    ]
   }
  }

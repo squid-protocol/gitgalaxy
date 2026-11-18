@@ -357,8 +357,8 @@ def report(res: dict, top: int = 6) -> str:
                 out.append("      callers to check: " + ", ".join(r["callers"]))
         if flagged:
             out.append(
-                "  Callers are listed for a changed signature because that is where later fixes tended to land: in the study behind this order, fixes after a signature change"
-                " were found in the callers about 1.2 times as often as in other functions of the same file, pooled over six repositories (exploratory; docs/wiki/08-26)."
+                "  Callers are listed for a changed signature because they must agree with it: a checklist, not a risk estimate. In named-cause data"
+                " (Linux kernel, 2,962 pairs) fixes after a signature change were not found in callers more often than after other changes (docs/wiki/08-28)."
             )
         out.append("  Counts come from the scan you gave; a call the scan could not resolve is not counted.")
     w = res.get("while_you_are_here")

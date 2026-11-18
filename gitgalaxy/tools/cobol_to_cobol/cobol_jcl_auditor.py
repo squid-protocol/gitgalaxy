@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 SYSTEM_DDS = {
     "STEPLIB",
@@ -156,7 +157,9 @@ def main():
         help="Output raw JSON instead of a formatted terminal report",
     )
 
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
     generated_path = Path(args.generated).resolve()
     legacy_path = Path(args.legacy).resolve()
 

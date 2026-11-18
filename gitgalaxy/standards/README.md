@@ -35,7 +35,7 @@ The true flexibility of GitGalaxy lies in its decoupled architecture. The core e
 
 While that many variables might sound intimidating, they are your primary lever against alert fatigue. Every single dial can be tuned to reduce false positives for your specific environment—giving you a scanner that highlights genuine architectural threats without wasting engineering time on expected structural noise.
 
-Want to scan an untrusted package? Flip the engine to `paranoid` mode to instantly tighten the `ThreatPolicy` thresholds. Need to support a proprietary, in-house legacy language? Inject a new structural dictionary into `language_standards/`. The engine dynamically adopts these new constraints at runtime without requiring a single modification to the core parsing algorithms.
+Want to scan an untrusted package? Pass `--paranoid` to tighten the secrets-exposure scoring (it changes no other check). Need to support a proprietary, in-house legacy language? Inject a new structural dictionary into `language_standards/`. The engine dynamically adopts these new constraints at runtime without requiring a single modification to the core parsing algorithms.
 
 ---
 

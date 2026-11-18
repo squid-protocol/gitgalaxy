@@ -2346,6 +2346,8 @@ class Gen:
             if s.data["depending"] is None:
                 if len(t) != 1 or t[0] not in self.para_index:
                     raise Untranslatable(f"GO TO {t}")
+                if self.structured:
+                    return [c, f"{ind}if (true) {{ {self.method(self.para_index[t[0]])}(); return; }}"]
                 return [c, f"{ind}if (true) return GOTO | {self.para_index[t[0]]};"]
             sw = [c, f"{ind}switch ({self.int_expr(s.data['depending'])}) {{"]
             for i, name in enumerate(t, 1):

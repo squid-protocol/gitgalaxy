@@ -974,6 +974,35 @@ def test_an_i_o_control_apply_hint_is_read_past(tmp_path):
     assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["W"].size == 2
 
 
+@pytest.mark.parametrize(
+    "clauses",
+    [
+        ["    RERUN ON SYSCKPT EVERY 1000 RECORDS OF F."],
+        ["    RERUN", "        EVERY 500 RECORDS OF F."],
+        ["    SAME AREA FOR F G."],
+        ["    SAME RECORD AREA FOR F G."],
+        ["    SAME SORT AREA FOR F G."],
+        ["    MULTIPLE FILE TAPE CONTAINS F POSITION 1", "        G POSITION 2."],
+        ["    RERUN ON SYSCKPT EVERY 10 RECORDS OF F.", "    SAME AREA FOR F G."],
+    ],
+)
+def test_an_i_o_control_rerun_same_area_or_multiple_file_clause_is_read_past(tmp_path, clauses):
+    """#8412 (Batch Badlands BDLDCKP: `RERUN ON SYSCKPT EVERY 1000 RECORDS OF TRAN-FILE` refused the DATA DIVISION): IBM
+    accepts RERUN, SAME [RECORD | SORT] AREA and MULTIPLE FILE TAPE with no effect on a record's layout; the layout skips
+    each clause, one or several lines long, and still reads the records after it."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    prog = tmp_path / "P.cbl"
+    prog.write_text(_fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. P.", "ENVIRONMENT DIVISION.",
+                           "INPUT-OUTPUT SECTION.", "FILE-CONTROL.", "    SELECT F ASSIGN TO FIN.",
+                           "    SELECT G ASSIGN TO GOUT.", "I-O-CONTROL.", *clauses, "DATA DIVISION.", "FILE SECTION.",
+                           "FD  F.", "01  R PIC X(80).", "FD  G.", "01  R2 PIC X(40).", "WORKING-STORAGE SECTION.",
+                           "01  W PIC X(2).", "PROCEDURE DIVISION.", "    GOBACK."), encoding="utf-8")  # fmt: skip
+    recs = {r.name: r for r in L.parse(SRC.program_lines(prog, []))}
+    assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["R2"].size == 40 and recs["W"].size == 2
+
+
 @pytest.mark.parametrize("strict", [False, True])
 def test_the_port_tickets_collisions_carry_their_libraries_and_the_strict_mode(tmp_path, strict):
     """#4486: the skeleton's copy_collisions rows name the library chosen and the others; strict comes from the
@@ -1233,14 +1262,16 @@ def test_eoc_is_ignored_by_default_and_handled_like_any_condition():
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     src = Path(P.__file__).read_text(encoding="utf-8")
-    body = src[src.index("private int condition(String cond)") :]
-    assert (
-        body.index("handlers.get(cond)") < body.index("DetCics.ignoredByDefault(cond)") < body.index("abendOnCondition")
-    )
+    assert "DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended);" in src
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA
 
     # DetCics.condition / resp delegate to the generated CicsSpec (#4270 spec PR 4)
-    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8") + CICS_SPEC_JAVA
+    det_cics = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    cond_body = det_cics[det_cics.index("public static int resolveCondition(") :]
+    assert (
+        cond_body.index("handlers.get(cond)") < cond_body.index("ignoredByDefault(cond)") < cond_body.index("abendOnCondition")
+    )
+    rt = det_cics + CICS_SPEC_JAVA
     assert 'case 6 -> "EOC";' in rt and 'case "EOC" -> 6;' in rt
     assert re.search(
         r'ignoredByDefault\(String condition\) \{\s*return "EOC"\.equals\(condition\) \|\| "EXPIRED"\.equals\(condition\);',
@@ -2505,11 +2536,12 @@ def test_condition_takes_the_error_label_only_for_a_condition_whose_default_is_a
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     src = Path(P.__file__).read_text(encoding="utf-8")
-    body = src[src.index("private int condition(String cond)") :]
-    order = [body.index(x) for x in ("handlers.get(cond)", "DetCics.ignoredByDefault(cond)",
+    assert "DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended);" in src
+    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
+    body = rt[rt.index("public static int resolveCondition(") :]
+    order = [body.index(x) for x in ("handlers.get(cond)", "ignoredByDefault(cond)",
                                      'handlers.get("ERROR")', "task.abendOnCondition(cond)")]  # fmt: skip
     assert order == sorted(order)
-    rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     m = re.search(r"public static Integer aidLabel\(.*?\n    \}\n", rt, re.S)
     assert m and '"CLEAR".equals(key)' in m.group(0) and "ENTER" not in m.group(0).split("{", 1)[1]
     assert "ANYKEY takes the key is not documented" in m.group(0)
@@ -3173,7 +3205,7 @@ def test_a_linked_programs_commarea_goes_back_to_its_caller_when_an_abend_ends_i
     body = body[: body.index("\n    }\n")]
     assert "if (task.level() > 1) {" in body and "caBack.run();" in body and "return new Goback();" in body
     cond = r.java[r.java.index("private int condition(String cond)") :]
-    assert "if (label == null) {\n            throw abended();" in cond[: cond.index("\n    }\n")]
+    assert "DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended);" in cond[: cond.index("\n    }\n")]
     assert "throw abended();" in r.java[r.java.index("task.abend(") :]
 
 
@@ -3432,11 +3464,10 @@ def test_a_commarea_of_a_stated_length_is_all_dfhcommarea_holds(tmp_path):
     run = r.java[r.java.index("public void runTask(CicsTask task)") :]
     run = " ".join(run[: run.index("\n    }\n")].split())  # (the body is indented under the TRUNC wrapper)
     assert "if (task.exactCommarea() && calen < " in run and ".bytes = java.util.Arrays.copyOf(caWhole, calen);" in run
-    assert "caBack = () -> { caWhole(whole); typed.run(); };" in run
+    assert "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };" in run
     assert "} catch (IndexOutOfBoundsException e) { if (caWhole == null) { throw e; }" in run
     assert 'throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");' in run
-    assert "} finally { if (caWhole != null) { caWhole(caWhole); } }" in run
-    assert "private void caWhole(byte[] whole) {" in r.java
+    assert "} finally { if (caWhole != null) { DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole); } }" in run
 
 
 # ---- #4501: an XCTL COMMAREA whose LENGTH is past the target's DTO ----------------------------------------

@@ -1314,6 +1314,36 @@ class RecordKeeper:
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcand_src_file ON fcall_candidates(src_file_id);")
+        # External calls, aggregated: one row per (calling file, callee name) for every call the resolver could not
+        # tie to a definition in the repository (standard library, macros, third-party packages, built-ins). They are
+        # not fcall_data rows (that would roughly double the table: curl has about as many external caller-callee
+        # pairs as resolved ones) and never part of PageRank, fan-in or the file graph. `callers` is the number of
+        # calling functions (or top-level slices) in that file that make the call. Same cascade as fcall_data.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS fcall_external (
+                id INTEGER PRIMARY KEY,
+                src_file_id INTEGER,
+                callee TEXT,
+                callers INTEGER,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_fext_src_file ON fcall_external(src_file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_fext_callee ON fcall_external(callee);")
+        # #8534: one row per TODO / FIXME / HACK / XXX marker the scan found in a comment: its line, its class
+        # (planned = TODO-type, fragile = HACK, FIXME, XXX, BUG and the like, the engine's own split) and the comment line's
+        # text (200 characters), so the same marker can be followed between scans and given an age from git history.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS debt_marker (
+                id INTEGER PRIMARY KEY,
+                file_id INTEGER,
+                line INTEGER,
+                class TEXT,
+                text TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_debt_marker_file ON debt_marker(file_id);")
         # #3331: how the call resolver fared, per language and for the whole
         # repository (language '*'): (caller, callee) pairs in each resolution
         # class. External pairs are counted here although they are not
@@ -1538,6 +1568,16 @@ class RecordKeeper:
             (repo_name, commit_hash),
         )
         cursor.execute(
+            "DELETE FROM fcall_external WHERE src_file_id IN "
+            "(SELECT id FROM file_data WHERE repo_name = ? AND commit_hash = ?)",
+            (repo_name, commit_hash),
+        )
+        cursor.execute(
+            "DELETE FROM debt_marker WHERE file_id IN "
+            "(SELECT id FROM file_data WHERE repo_name = ? AND commit_hash = ?)",
+            (repo_name, commit_hash),
+        )
+        cursor.execute(
             "DELETE FROM file_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
         )
@@ -1569,6 +1609,7 @@ class RecordKeeper:
         # auto-assigns ids in list order (base+1, base+2, ...), byte-identical to
         # the old per-row path.
         all_file_rows: list = []
+        all_marker_rows: list = []
         all_class_rows: list = []
         all_func_rows: list[list[Any]] = []
 
@@ -2079,6 +2120,9 @@ class RecordKeeper:
             file_id = file_id_base + len(all_file_rows) + 1
             all_file_rows.append(row_data)
             path_to_file_id[file_data.get("path", "")] = file_id
+            all_marker_rows.extend(
+                (file_id, m["line"], m["class"], m["text"]) for m in file_data.get("debt_markers", ())
+            )
 
             # 1. Extract and Insert Classes
             classes = file_data.get("classes", [])
@@ -2206,6 +2250,11 @@ class RecordKeeper:
                 all_file_rows,
             )
 
+        if all_marker_rows:
+            cursor.executemany(
+                "INSERT INTO debt_marker (file_id, line, class, text) VALUES (?, ?, ?, ?)", all_marker_rows
+            )
+
         if all_class_rows:
             cursor.executemany(
                 """
@@ -2319,8 +2368,15 @@ class RecordKeeper:
         if fcall_sites:
             fcall_rows = []
             variant_rows = []
+            external: dict[tuple[int, str], set[tuple[str, int]]] = {}
             for site in fcall_sites:
                 if site.get("step") == "none":
+                    # an external call (no definition in the repository): aggregated per (file, callee), never a fcall_data row
+                    ext_id = path_to_file_id.get(str(site.get("src_path") or ""))
+                    if ext_id is not None and (site.get("kind") or "call") == "call" and site.get("callee"):
+                        external.setdefault((ext_id, str(site["callee"])[:255]), set()).add(
+                            (str(site.get("src_name") or ""), int(site.get("src_line") or 0))
+                        )
                     continue
                 src_path = str(site.get("src_path") or "")
                 src_id = path_to_file_id.get(src_path)
@@ -2376,6 +2432,11 @@ class RecordKeeper:
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     fcall_rows,
+                )
+            if external:
+                cursor.executemany(
+                    "INSERT INTO fcall_external (src_file_id, callee, callers) VALUES (?, ?, ?)",
+                    [(fid, callee, len(callers)) for (fid, callee), callers in external.items()],
                 )
             if variant_rows:
                 cursor.executemany(

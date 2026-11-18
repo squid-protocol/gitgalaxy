@@ -1052,6 +1052,44 @@ way.
   never emits cannot appear in `args_comparable` — so there is no live metric backing this the way
   Claim 8 is backed by `ts_extra_functions`.
 
+## Claim 16: resolving a call to the file that defines it, in languages with scoping (2026-11-16)
+
+Found 2026-11-16 while measuring `gitgalaxy reach` (#8532, #8539) against a tree-sitter baseline. For the narrow question **"which file does this call land in?"**, in languages with methods, modules or packages (Python, TypeScript, JavaScript, Java, Rust and, less clearly, Go), GitGalaxy's scope-aware call resolution is **more precise** than resolving the same calls by name over a tree-sitter parse, and ranks files by how many other files call into them **better** than the "match every definition of the name" resolver does. It is a claim about **call resolution**, not about parsing: tree-sitter parses calls and definitions perfectly well; it does not resolve a call to a definition, so a name matcher is what a tool built on it has to write.
+
+## Plain-language version
+
+Tree-sitter gives you every call expression and every function definition in a file, exactly. To turn that into a call graph, something has to decide which definition each call means. Without types or a build, the simplest tool matches the name: `obj.get()` is a call to every function called `get` anywhere in the repository. In C that works, because C has one flat namespace and most names are defined once. In a language with methods and modules it does not: a repository of a few hundred files has dozens of `get`, `run`, `close`.
+
+GitGalaxy resolves a call through scope first (the caller's own file, what it imports, a typed or qualified receiver) and only then by name, and it marks the links it is unsure of as ambiguous. The result is fewer wrong links.
+
+## The evidence
+
+Every source below was scored against the engine gate's own compiler-grade reference graph, built by the gate's own adapters (`tests/tools/callgraph_refs.py`; the reference tools are listed in [`graph_accuracy.md`](graph_accuracy.md)): libclang for C, pyan3 for Python, the TypeScript checker for TS and JS, `golang.org/x/tools` VTA for Go, scip-java for Java, rust-analyzer for Rust. The unit is the cross-file edge "file A calls a function defined in file B", which is what reach counts. Two tree-sitter baselines, written for this measurement from tree-sitter's call and definition nodes, matched a call's last name to **every** file defining it (`ts-all`) or only when **one** file defines it (`ts-unique`). A call through a field or pointer names no function in C and is not matched. The "engine" column is the edges `gitgalaxy reach` counts (one definition, not ambiguous).
+
+Mean over each language's repositories (pinned, from the gate's corpus; a repository with fewer than 20 reference edges is not a test), precision % / recall % / the Spearman correlation of the per-file caller count with the reference's:
+
+| Language (repositories) | engine | tree-sitter, one defining file (`ts-unique`) | tree-sitter, every defining file (`ts-all`) |
+|---|---|---|---|
+| Python (fastapi, flask, httpx) | 53 / 65 / **+0.69** | 50 / 48 / +0.60 | 16 / 82 / +0.52 |
+| TypeScript (zod) | 91 / 58 / **+0.66** | 23 / 73 / +0.63 | 3 / 99 / +0.43 |
+| JavaScript (axios) | 55 / 74 / **+0.86** | 15 / 69 / +0.66 | 4 / 82 / +0.24 |
+| Go (cobra, gin) | 81 / 64 / +0.72 | 75 / 64 / +0.72 | 53 / 88 / +0.72 |
+| Java (gson) | 82 / 73 / **+0.87** | 67 / 40 / +0.72 | 10 / 87 / +0.45 |
+| Rust (serde-json, ripgrep) | 58 / 67 / **+0.83** | 51 / 63 / +0.80 | 16 / 87 / +0.73 |
+| C (expat, redis, hiredis, libuv, ndpi, zlib) | 89 / 70 / +0.72 | 85 / 66 / +0.77 | 85 / 83 / **+0.86** |
+
+Reading it: outside C, GitGalaxy's edges are more precise than both baselines in every language, by 3 (Python) to 68 (TypeScript) points against `ts-unique` and 28 (Go) to 88 (TypeScript) points against `ts-all`. Its reach ranking is better than `ts-all` in every language but Go, and at least as good as `ts-unique` in every language (level in Go, where all three agree at +0.72). On gson, for example, `ts-all` has 10% precision (6,379 edges against 743 real ones) and a ranking correlation of +0.45; the engine has 82% and +0.87. The scripts and per-repository output are in temporal-crucible, `docs/sensor-overhaul/sensors/reach_vs_treesitter.md` ([link](https://github.com/squid-protocol/temporal-crucible/blob/sensor-overhaul/docs/sensor-overhaul/sensors/reach_vs_treesitter.md)).
+
+## Where Claim 16 does NOT apply
+
+- **C is the opposite.** With one flat namespace, name matching over tree-sitter ranks reach better than GitGalaxy (+0.86 against +0.72) and finds more of the real callers (83% against 70% recall); GitGalaxy is only more precise there (89% against 85%). The table's C row is the reason this claim is limited to languages with scoping.
+- **It is not a claim against a compiler.** The references (libclang, rust-analyzer, scip-java, the TypeScript checker, Go VTA) resolve calls with types and a build, and are the ground truth here. GitGalaxy finds 58 to 74% of their cross-file edges in these repositories, and its counts are lower bounds. If a build is available, a compiler-backed call graph is the better one. GitGalaxy's case is a call graph with no build, in any language, from the source alone.
+- **The baseline is a construction, not a product.** It is a minimal tree-sitter name matcher written for this measurement. A tree-sitter-based tool with its own scope or import resolution would be a different baseline and was not tested. No claim is made about any particular tool.
+- **Small and exploratory.** One to three repositories per language (one each for TypeScript, JavaScript and Java), pinned ones chosen by the gate rather than at random, references that are themselves analysers with gaps (pyan3 does not type-check), file-level scoring only, no registered test. Go is a tie on ranking.
+- **Ambiguous links cost precision outside C.** Counting the links GitGalaxy marks ambiguous raises recall in every language but costs precision in TypeScript (91 to 41), Java (82 to 67) and JavaScript (55 to 44); `gitgalaxy reach` therefore shows them beside the count as "possible callers" and does not fold them in.
+- **It says nothing about parsing.** Claims 1 to 15 are about what a parse reads; this one is about linking a call to a definition once both have been read.
+- **`file` (the C repository) was excluded as a reference, not as a result:** libclang could not parse its real sources and the 16 edges it left were in `src/missing/`, a vendored-shim folder GitGalaxy skips by design.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to
@@ -1102,3 +1140,7 @@ way.
   corpus and every sub-100 language already has a validated "GitGalaxy is correct" verdict — so
   Claim 14 is the one durable finding worth a claim of its own; it's cited from
   `tests/tools/tri_comparison_reconcile.py`'s `EXISTENCE VS ARGS` docstring section.
+- Claim 16 (call resolution in languages with scoping) comes from the 2026-11-16 measurement of `gitgalaxy reach`
+  against compiler-grade references (the tools in [`graph_accuracy.md`](graph_accuracy.md)). It is the one claim here
+  about linking a call to a definition rather than reading a parse, its baseline is a name matcher written for the
+  measurement (tree-sitter does not resolve calls), and C is its stated counter-example.

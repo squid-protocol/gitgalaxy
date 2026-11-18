@@ -14,6 +14,22 @@
     "stand_in_copybooks": { "$ref": "#/$defs/family_category" },
     "call_targets": { "$ref": "#/$defs/family_category" },
     "eras": { "$ref": "#/$defs/eras" },
+    "excluded_listings": {
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer", "minimum": 1 },
+        "by_reason": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "path": { "type": "string" }, "reason": { "type": "string" } },
+            "required": ["path", "reason"]
+          }
+        }
+      },
+      "required": ["count", "by_reason", "members"]
+    },
     "unparsed_programs": {
       "type": "array",
       "items": {

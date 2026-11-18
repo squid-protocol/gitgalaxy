@@ -947,4 +947,58 @@ public final class DetCics {
             throw new UnsupportedOperationException(what + " an item that is not a whole 01 record: not modelled");
         }
     }
+
+    /** Copies incoming COMMAREA bytes into `st`, retaining any overflow past `st.bytes` in `st.beyond`. */
+    public static void loadCommarea(Storage st, byte[] cb) {
+        System.arraycopy(cb, 0, st.bytes, 0, Math.min(cb.length, st.bytes.length));
+        int keep = st.bytes.length;
+        st.beyond = cb.length > keep ? Arrays.copyOfRange(cb, keep, cb.length) : null;
+    }
+
+    /** #4270 (X23): restores `st.bytes` to `whole` after an exact-EIBCALEN task, copying back the EIBCALEN bytes. */
+    public static void restoreCommarea(Storage st, byte[] whole) {
+        if (st.bytes != whole) {
+            System.arraycopy(st.bytes, 0, whole, 0, st.bytes.length);
+            st.bytes = whole;
+        }
+    }
+
+    /** Effective EIBCALEN for a task: `task.eibcalen()` when overridden, else `whole`. */
+    public static int eibCalen(CicsTask task, int whole) {
+        return task.eibcalen() == null ? whole : task.eibcalen();
+    }
+
+    /** Looks up a paragraph's dispatch index in `paragraphs`, throwing if missing. */
+    public static int paragraph(java.util.Map<String, Integer> paragraphs, String name) {
+        Integer i = paragraphs.get(name);
+        if (i == null) {
+            throw new IllegalStateException("no paragraph " + name);
+        }
+        return i;
+    }
+
+    /** Resolves an unhandled CICS condition: HANDLE/IGNORE CONDITION, default-ignore, ERROR, abend exit, or abend. */
+    public static int resolveCondition(
+            java.util.Map<String, Integer> handlers,
+            CicsTask task,
+            String cond,
+            java.util.Map<String, Integer> paragraphs,
+            Supplier<? extends RuntimeException> onAbend) {
+        Integer h = handlers.get(cond);
+        if (h != null) {
+            return h;
+        }
+        if (ignoredByDefault(cond)) {
+            return -1;
+        }
+        Integer error = handlers.get("ERROR");
+        if (error != null) {
+            return error;
+        }
+        String label = task.abendOnCondition(cond);
+        if (label == null) {
+            throw onAbend.get();
+        }
+        return paragraph(paragraphs, label);
+    }
 }

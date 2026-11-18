@@ -1953,20 +1953,8 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5",
-    "link-bytes-invmpsz",
-    "link-clear-invmpsz",
-    "link-dataonly-invmpsz",
-    "link-dataonly-tsioerr",
-    "link-first-tsioerr"
-   ]
+   "verdict": "harness-gap",
+   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
   },
   {
    "id": "4bb9a2d8c0",
@@ -1974,20 +1962,8 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5",
-    "link-bytes-invmpsz",
-    "link-clear-invmpsz",
-    "link-dataonly-invmpsz",
-    "link-dataonly-tsioerr",
-    "link-first-tsioerr"
-   ]
+   "verdict": "harness-gap",
+   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
   },
   {
    "id": "cbe87f47a9",
@@ -1995,20 +1971,8 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5",
-    "link-bytes-invmpsz",
-    "link-clear-invmpsz",
-    "link-dataonly-invmpsz",
-    "link-dataonly-tsioerr",
-    "link-first-tsioerr"
-   ]
+   "verdict": "harness-gap",
+   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
   },
   {
    "id": "f42cdb99f1",
@@ -2016,20 +1980,8 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5",
-    "link-bytes-invmpsz",
-    "link-clear-invmpsz",
-    "link-dataonly-invmpsz",
-    "link-dataonly-tsioerr",
-    "link-first-tsioerr"
-   ]
+   "verdict": "harness-gap",
+   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
   },
   {
    "id": "4ac6ec7eaf",
@@ -2037,8 +1989,8 @@
    "line": 169,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "09cd9cad88",
@@ -2200,66 +2152,6 @@
    ]
   },
   {
-   "id": "3b9d1f1e5e",
-   "op": "NEG",
-   "line": 191,
-   "before": "if (i == null) {",
-   "after": "if (!(i == null)) {",
-   "verdict": "equivalent",
-   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
-   "tried": [
-    "flow-plumbing"
-   ]
-  },
-  {
-   "id": "f94d09890f",
-   "op": "ROR",
-   "line": 191,
-   "before": "if (i == null) {",
-   "after": "if (i != null) {",
-   "verdict": "equivalent",
-   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
-   "tried": [
-    "flow-plumbing"
-   ]
-  },
-  {
-   "id": "95aa8321ee",
-   "op": "LIT",
-   "line": 192,
-   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "equivalent",
-   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
-   "tried": [
-    "flow-plumbing"
-   ]
-  },
-  {
-   "id": "1974f1bb66",
-   "op": "CON",
-   "line": 208,
-   "before": "return -1;",
-   "after": "return -2;",
-   "verdict": "equivalent",
-   "reason": "Generated dispatch plumbing the port's own control flow settles: condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike (survivor_attack.py facts: flow-plumbing)",
-   "tried": [
-    "flow-plumbing"
-   ]
-  },
-  {
-   "id": "8507d5afc3",
-   "op": "LIT",
-   "line": 210,
-   "before": "Integer error = handlers.get(\"ERROR\");",
-   "after": "Integer error = handlers.get(\"XRROR\");",
-   "verdict": "equivalent",
-   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "never-populated"
-   ]
-  },
-  {
    "id": "8737649c5d",
    "op": "NEG",
    "line": 226,
@@ -2381,15 +2273,6 @@
    ]
   },
   {
-   "id": "c81484870f",
-   "op": "DEL",
-   "line": 245,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "e1b4cfd463",
    "op": "DEL",
    "line": 261,
@@ -2449,8 +2332,8 @@
    "line": 287,
    "before": "caBack = () -> { };",
    "after": "/* caBack = () -> { }; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "c574ccef86",
@@ -3512,8 +3395,8 @@
    "line": 339,
    "before": "caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "fcd78b146d",
@@ -3521,17 +3404,8 @@
    "line": 339,
    "before": "caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "a644ca6d66",
-   "op": "CON",
-   "line": 340,
-   "before": "calen = cx(task, 1);",
-   "after": "calen = cx(task, 2);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "0ace941cd9",
@@ -3543,67 +3417,13 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "b0abbd90a0",
-   "op": "CON",
-   "line": 345,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "fa0123762f",
-   "op": "DEL",
-   "line": 345,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "f439332578",
-   "op": "ROR",
-   "line": 346,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "9d73e7a347",
-   "op": "DEL",
-   "line": 347,
-   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "6c7399c733",
-   "op": "DEL",
-   "line": 355,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "742d4326e1",
-   "op": "ROR",
-   "line": 355,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "930d1607e1",
    "op": "AOR",
    "line": 357,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "e14663ca65",
@@ -3611,8 +3431,8 @@
    "line": 357,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "f7009ac474",
@@ -3620,8 +3440,8 @@
    "line": 357,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "15b8a3c09d",
@@ -3760,14 +3580,10 @@
    "line": 378,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same",
    "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
+    "refusal-text"
    ]
   },
   {
@@ -3776,28 +3592,10 @@
    "line": 378,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "0f71a38fbd",
-   "op": "DEL",
-   "line": 381,
-   "before": "caWhole(caWhole);",
-   "after": "/* caWhole(caWhole); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same",
    "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5",
-    "link-bytes-invmpsz",
-    "link-clear-invmpsz",
-    "link-dataonly-invmpsz",
-    "link-dataonly-tsioerr",
-    "link-first-tsioerr"
+    "refusal-text"
    ]
   },
   {
@@ -3806,8 +3604,8 @@
    "line": 385,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "d6d36dddc8",
@@ -3842,8 +3640,11 @@
    "line": 424,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen",
+   "tried": [
+    "exception-ctor"
+   ]
   },
   {
    "id": "c65638a175",
@@ -4163,8 +3964,8 @@
    "line": 509,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "5d37526ba3",
@@ -4386,24 +4187,8 @@
    "line": 587,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "9ef4716f97",
-   "op": "CON",
-   "line": 588,
-   "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 2, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
-   ]
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "bc8ae86c09",
@@ -4411,15 +4196,8 @@
    "line": 588,
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
-   ]
+   "verdict": "harness-gap",
+   "reason": "The RETURN event the proof compares is {transid, commarea decoded by the case's COMMAREA layout} (equivalence_cics_compare.py RETURN arm): the LENGTH and any byte past the 1-byte WS-CA layout are not compared, so this edit to the RETURN's length / area size changes behaviour the proof runs and does not compare; survivor_attack try with raw-hex, tail-bytes and CLEAR/ENTER/first-display inputs all survived (open: the harness must compare RETURN LENGTH and bytes)"
   },
   {
    "id": "f0f1835023",
@@ -5170,8 +4948,8 @@
    "line": 718,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "harness-gap",
+   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "3378f543ef",
@@ -5179,31 +4957,8 @@
    "line": 719,
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
-   ]
-  },
-  {
-   "id": "b92ae1ae61",
-   "op": "CON",
-   "line": 719,
-   "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 2, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
-   ]
+   "verdict": "harness-gap",
+   "reason": "The RETURN event the proof compares is {transid, commarea decoded by the case's COMMAREA layout} (equivalence_cics_compare.py RETURN arm): the LENGTH and any byte past the 1-byte WS-CA layout are not compared, so this edit to the RETURN's length / area size changes behaviour the proof runs and does not compare; survivor_attack try with raw-hex, tail-bytes and CLEAR/ENTER/first-display inputs all survived (open: the harness must compare RETURN LENGTH and bytes)"
   },
   {
    "id": "39d2a6dc83",

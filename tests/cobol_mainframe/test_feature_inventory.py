@@ -123,6 +123,14 @@ ASM = {
 }
 
 
+# #8411 listings: an expanded copy (hidden directory), a banner listing and a real program next to them
+LISTINGS = {
+    ".expanded/EXPANDED.cbl": SNIPPETS["statements"].replace(" P.", " EXPANDED."),
+    "BANNERED.cbl": "1PP 5655-W32 IBM ENTERPRISE COBOL FOR Z/OS\n"
+    + SNIPPETS["statements"].replace(" P.", " BANNERED."),
+}
+
+
 @pytest.fixture(scope="module")
 def synthetic(tmp_path_factory):
     """(estate dir, db dir, inventory) for the combined synthetic estate; tmp_path_factory keeps it xdist-safe."""
@@ -134,6 +142,9 @@ def synthetic(tmp_path_factory):
     for name, code in COPYBOOKS.items():
         (d / f"{name}.cpy").write_text(code)
     for name, code in ASM.items():
+        (d / name).write_text(code)
+    for name, code in LISTINGS.items():
+        (d / name).parent.mkdir(exist_ok=True)
         (d / name).write_text(code)
     db_dir = base / "db"
     db_dir.mkdir()
@@ -355,6 +366,17 @@ def check_schema(data, node, root, where="$"):
             check_schema(v, node["items"], root, f"{where}[{i}]")
 
 
+def test_compile_listings_and_expanded_copies_are_excluded_not_counted(synthetic):  # #8411
+    inv = synthetic[2]
+    ex = inv["excluded_listings"]
+    assert set(LISTINGS) == {m["path"] for m in ex["members"]}  # noqa: S101
+    assert ex["count"] == len(LISTINGS) == sum(ex["by_reason"].values())  # noqa: S101
+    assert all(m["reason"] for m in ex["members"])  # noqa: S101
+    assert not any(k in LISTINGS for k in inv["eras"]["programs"])  # noqa: S101
+    assert all(p not in LISTINGS for x in inv["statements"].values() for p in x["programs"])  # noqa: S101
+    assert "statements.cbl" in inv["eras"]["programs"]  # noqa: S101 -- the real programs stay
+
+
 def test_schema_over_fixtures():
     schema = json.loads(SCHEMA_FILE.read_text())
     fixtures = sorted((TOOLS.parent / "fixtures" / "feature_inventory").glob("*.json"))
@@ -371,6 +393,7 @@ def test_schema_over_fixtures():
                 "eras",
                 "unparsed_programs",
                 "refusal_families",
+                "excluded_listings",
             )  # (#5121: assembler members carry no COBOL era tag)
             for x in v.values()
             for p in x["programs"]
@@ -378,6 +401,16 @@ def test_schema_over_fixtures():
         assert counted <= set(d["eras"]["programs"]), f.name  # noqa: S101
         s = d["eras"]["summary"]
         assert s["programs"] == len(d["eras"]["programs"]) == sum(s["by_era"].values()), f.name  # noqa: S101
+    for f in fixtures:  # #8411: the six older estates have no listing, so no key
+        if f.stem != "example-health-apis":
+            assert "excluded_listings" not in json.loads(f.read_text()), f.name  # noqa: S101
+    d = json.loads((f.parent / "example-health-apis.json").read_text())  # #8411: the authored estate only
+    progs = d["eras"]["programs"]
+    assert len(progs) == 29, len(progs)  # noqa: S101 -- the 29 authored programs, not the 58 with .expanded copies
+    assert not [p for p in progs if "/.expanded/" in p], "compile-listing copies counted as programs"  # noqa: S101
+    ex = d["excluded_listings"]
+    assert ex["count"] == len(ex["members"]) == 29, ex["count"]  # noqa: S101
+    assert all("/.expanded/" in m["path"] for m in ex["members"])  # noqa: S101
     with pytest.raises(AssertionError):
         check_schema({"statements": "not an object"}, schema, schema)
 

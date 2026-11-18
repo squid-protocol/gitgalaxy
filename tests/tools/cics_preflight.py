@@ -2,7 +2,7 @@
 
     python tests/tools/cics_census.py preflight [--census-corpora DIR] [--root DIR] [--t0 SHA]
 
-Seven checks (#8112 adds the listing and duplicate counts to the first; #8111 adds the sixth; #8412 the seventh), each printing a count and no corpus, program or member name:
+Eight checks (#8112 adds the listing and duplicate counts to the first; #8111 adds the sixth; #8412 the seventh and eighth), each printing a count and no corpus, program or member name:
   1. programs vs copy members in the census (`cics_census.copy_member_reason`): no program at all is a finding;
      listing-shaped files and duplicate PROGRAM-IDs (`cics_census.not_program_rows`) are counted apart, each a finding;
   2. copybook names COPY'd by census programs whose 3-letter prefix is in neither the estate's own members nor the
@@ -16,6 +16,8 @@ Seven checks (#8112 adds the listing and duplicate counts to the first; #8111 ad
   7. archive files (#8412, `gap_prevalence.archive_files`): zip / tar / XMIT / TERSE / unload files hide members from the
      engine and from the file search alike; counted by name only, never opened. Any is a finding, and a clone with one
      never earns the clone-defect label (`gap_prevalence.ARCHIVED`).
+  8. RECFM=V exports (#8412, `gap_prevalence.rdw_files`): files whose records carry RDW (or BDW+RDW) length prefixes are
+     binary framing, not text: the aperture drops them and nothing names it. Counted by structure, never decoded or named.
 """
 
 from __future__ import annotations
@@ -179,6 +181,8 @@ def run_preflight(
 
         archives = sum(gp.archive_files(corpus) for _n, corpus in cc.corpus_dirs([census]))
         note(f"archive files {archives} (members inside are invisible)", archives > 0)  # #8412
+        rdws = sum(gp.rdw_files(corpus) for _n, corpus in cc.corpus_dirs([census]))
+        note(f"RECFM=V exports {rdws} (RDW-framed, not scanned as text)", rdws > 0)  # #8412
         problems = cc.census_root_problems(census)
         note(f"census dir: {len(problems)} problems" + (f" ({'; '.join(p.split(':')[0] for p in problems)})" if problems else ""),
              bool(problems))  # fmt: skip

@@ -36,6 +36,8 @@ $$\text{TimeRange} = \max(\text{RepoMaxTime} - \text{RepoMinTime}, 1.0)$$
 $$\text{StabilityScore} = \min\left( \left( \frac{\text{SecondsFromMax}}{\text{TimeRange}} \right) \times 100.0, 100.0 \right)$$
 *(When Newest file, Score = 0.0; When Oldest file, Score = 100.0)*
 
+**What this measures.** `FileMTime` is the file's last modification time, so the score is the time since the file's **last change** as a share of the repository's whole timeline, not its age since creation: a ten-year-old file edited yesterday scores about 0 (RECENT). With no usable history (not a git checkout, an exported tree with no `.git`, a shallow clone) the engine returns a neutral `50.0`.
+
 ## Pipeline Integration
 ```mermaid
 flowchart LR
@@ -53,13 +55,24 @@ flowchart LR
 
 ## Limitations
 - A single rogue commit (e.g., automated formatting across all files) will reset the `RepoMaxTime` and heavily skew the relative age of untouched files.
-- Relies on Git commit timestamps which can be manually spoofed or accidentally rewritten during interactive rebases.
+- Relies on Git commit timestamps which can be manually spoofed or accidentally rewritten during interactive rebases.- Relies on Git commit timestamps which can be manually spoofed or accidentally rewritten during interactive rebases.
+- The same effect as the rogue formatting commit happens at smaller scale all the time: in 13 repositories 4-44% of in-place edits (median about 22%) were mechanical sweeps that reset a file's last-modified time without new work.
+- Follows paths, not file identity: renaming or moving a file resets its history (libgit2's 2022 source reorganisation made 15-year-old files look 3.5 years old to a path-following history).
+- Neither this value nor [Deep Churn](08-06-deep-churn.md) gives true file age (time since creation) or lifetime commit counts.
 
 ## Performance Notes
 Requires a complete initial pass (Phase 1) over the codebase to determine global boundaries before calculating individual file scores. Once boundaries are established, the calculation is extremely fast $O(1)$ arithmetic.
 
 ## Future Work
 Currently relies solely on raw commit epoch timestamps. Planned improvements include clustering algorithms to ignore massive automated formatting commits that artificially reset the active edge of the repository timeline.
+
+## Measured Behavior (exploratory, 2026-11)
+> **Research notes:** temporal-crucible, branch `sensor-overhaul`, `docs/sensor-overhaul/` (guide, `sensors/activity.md`, `sensors/tech_debt.md`) and `docs/turn_surface_area.md`. Measurements are exploratory (13 repositories; a 580-repository population sample confirms the descriptive results).
+
+- **It is days since the last change.** Across 35,287 file-intervals in 7 repositories the persisted stability correlates 0.97 (within-repository ranks) with the number of days since the file's last commit.
+- **One axis with churn, not two.** Churn and stability correlate -0.86 within repositories and -0.88 across 494 repositories of the population database; the intended short-term versus long-term pair is not realised because both are driven by the same recency input.
+- **Relation to outcomes (descriptive).** Within size quartiles, stability ranks later fixes at AUC 0.41 (0.59 inverted: recently changed files get more fixes) and correlates -0.17 with later change.
+- **True file age is a different, independent quantity.** Years since the first commit (following renames) correlates at most 0.15 in absolute value with recent activity and is not predictive (AUC 0.47); it is useful as context ("old and settled" versus "new").
 
 ## Related Components
 - Deep Churn (Volatility normalizer)

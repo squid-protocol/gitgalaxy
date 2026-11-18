@@ -77,3 +77,65 @@ def test_the_marker_separates_a_lost_shard_from_a_failed_claim(tmp_path, markers
     assert r.returncode == 0, r.stderr
     assert out.read_text(encoding="utf-8").strip() == f"lost={'true' if lost else 'false'}"
     assert ("::warning" in r.stdout) == lost
+
+
+def _put_in_place_script():
+    lines = _text().splitlines()
+    start = next(
+        i for i, ln in enumerate(lines) if ln.strip() == "- name: Put the renewed det mutation ledgers in place (#5862)"
+    )
+    i = next(i for i in range(start, len(lines)) if lines[i].strip() == "run: |")
+    body = []
+    for ln in lines[i + 1 :]:
+        if ln.strip() and not ln.startswith(" " * 10):
+            break
+        body.append(ln[10:])
+    return "\n".join(body)
+
+
+def _run_put_in_place(tmp_path, files, symlink=None):
+    temp = tmp_path / "tmp"
+    base = temp / "detmut-in"
+    ledgers = base / "records" / "tests" / "equivalence" / "det_mutation"
+    ledgers.mkdir(parents=True)
+    for rel in files:
+        (base / rel).parent.mkdir(parents=True, exist_ok=True)
+        (base / rel).write_text("{}", encoding="utf-8")
+    if symlink:
+        (base / symlink).symlink_to(base)
+    dest = tmp_path / "gitgalaxy" / "tests" / "equivalence" / "det_mutation"
+    dest.mkdir(parents=True)
+    r = subprocess.run(
+        ["bash", "-c", _put_in_place_script()],
+        env={"PATH": "/usr/bin:/bin", "RUNNER_TEMP": str(temp)},
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return r, dest
+
+
+@pytest.mark.skipif(sys.platform != "linux" or shutil.which("bash") is None, reason="needs bash on linux (#7312)")
+def test_the_shard_markers_do_not_fail_the_put_in_place_filter(tmp_path):
+    """The 2026-11-16 shape: markers share the artifact dir with the ledgers and the filter rejected them."""
+    files = ["shard-1.done", "shard-2.done", "records/tests/equivalence/det_mutation/case.json"]
+    r, dest = _run_put_in_place(tmp_path, files)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (dest / "case.json").is_file()
+
+
+@pytest.mark.skipif(sys.platform != "linux" or shutil.which("bash") is None, reason="needs bash on linux (#7312)")
+@pytest.mark.parametrize(
+    ("files", "symlink"),
+    [
+        (["stray.txt"], None),
+        (["shard-1.done.sh"], None),
+        (["other.done"], None),
+        ([], "link.json"),
+    ],
+)
+def test_the_put_in_place_filter_still_rejects_anything_else(tmp_path, files, symlink):
+    r, _ = _run_put_in_place(tmp_path, files, symlink)
+    assert r.returncode == 1
+    assert "unexpected files in the artifact" in r.stdout

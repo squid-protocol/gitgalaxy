@@ -231,3 +231,116 @@ def test_the_harness_tags_a_plain_cases_own_rows_when_the_entity_names_an_instan
     java = EC.cics_equivalence_test(case, tmp_path, FILES1)
     assert 'row.getId().setVsamInstance("ZC01FILE")' in java
     assert '"ZC01FILE".equals(row.getId().getVsamInstance())' in java
+
+
+# ---- #7965 slice 5: a variable-length template's record lengths, per instance ----------------------------------------
+def _variable(tmp_path, own, other, own_lengths, other_lengths):
+    case = _stated(tmp_path, own, other)
+    case["datasets"]["zcfile"].update({"vsam": {"variable": True}, "lengths": own_lengths})
+    case["region_instances"]["datasets"]["ZC02FILE"]["lengths"] = other_lengths
+    return case
+
+
+def test_a_variable_length_instance_dataset_is_no_longer_refused_and_keeps_its_own_lengths(tmp_path):
+    key = "AAAAAAAA".encode().hex().upper()
+    case = _variable(tmp_path, _rec("AAAAAAAA"), _rec("AAAAAAAA"), {key: 30}, {key: 50})
+    assert EC.instance_records(case, tmp_path, FILES1, scoped={"zcfile"}) == {"ZC02FILE": _rec("AAAAAAAA")}
+    lens = EC.instance_lengths(case, tmp_path, FILES1)
+    assert list(lens) == ["ZC02FILE"] and EC.parse_lengths(lens["ZC02FILE"]) == {key: 50}  # not the own file's 30
+    assert EC.parse_lengths(EC.record_lengths(case, tmp_path, case["datasets"]["zcfile"], FILES1[0])) == {key: 30}
+
+
+def test_a_fixed_length_file_and_an_unstated_instance_have_no_instance_lengths(tmp_path):
+    assert EC.instance_lengths(_stated(tmp_path, _rec("AAAAAAAA"), _rec("BBBBBBBB")), tmp_path, FILES1) == {}
+    plain = {**_variable(tmp_path, _rec("A"), _rec("B"), {}, {})}
+    plain["region_instances"].pop("datasets")
+    assert EC.instance_lengths(plain, tmp_path, FILES1) == {}
+
+
+def test_compare_files_judges_each_instances_record_lengths(tmp_path):
+    key = "AAAAAAAA".encode().hex().upper()
+    case = _variable(tmp_path, _rec("AAAAAAAA"), _rec("AAAAAAAA"), {}, {})
+    out = tmp_path / "out"
+    out.mkdir()
+    cobol = {
+        "zcfile": _rec("AAAAAAAA"),
+        "zcfile.ZC02FILE": _rec("AAAAAAAA"),
+        "zcfile.ZC02FILE.len": f"{key} 50\n".encode(),
+    }
+    (out / "s.zcfile.out").write_bytes(_rec("AAAAAAAA"))
+    (out / "s.zcfile.ZC02FILE.out").write_bytes(_rec("AAAAAAAA"))
+    (out / "s.zcfile.ZC02FILE.len.out").write_text(f"{key} 50\n")
+    assert EC.compare_files(case, tmp_path, FILES1, cobol, out, "s") == {}
+    (out / "s.zcfile.ZC02FILE.len.out").write_text(f"{key} 30\n")  # the port kept the other instance's length
+    got = EC.compare_files(case, tmp_path, FILES1, cobol, out, "s")
+    assert list(got) == ["zcfile.ZC02FILE lengths"]
+    assert got["zcfile.ZC02FILE lengths"]["lengths"] == [{"key": key, "cobol": 50, "java": 30}]
+
+
+def test_the_java_test_loads_and_dumps_lengths_under_each_instances_key(tmp_path):
+    import equivalence_java as ej
+
+    (tmp_path / "service").mkdir()
+    (tmp_path / "service" / f"{ej._service_class('PROG')}.java").write_text("public void handleLink() {}")
+    _entity(tmp_path, "ZcFile", "class ZcFile {\n    @EmbeddedId\n    private ZcFileKey id;\n}")
+    _entity(tmp_path, "ZcFileKey", 'class ZcFileKey { private String vsamInstance = ""; }')
+    case = {
+        **_variable(tmp_path, _rec("AAAAAAAA"), _rec("AAAAAAAA"), {}, {}),
+        "program": "PROG", "commarea": None, "scenarios": [], "transid": "ABCD", "name": "n", "screens": {},
+        "clock": "2026/10/01 10:30:15.00",
+    }  # fmt: skip
+    java = EC.cics_equivalence_test(case, tmp_path, FILES1)
+    assert 'lengthsIn(sc, "zcfile", CicsTask.instanceKey("ZcFile", "ZC01FILE"));' in java
+    assert 'lengthsIn(sc, "zcfile.ZC02FILE", CicsTask.instanceKey("ZcFile", "ZC02FILE"));' in java
+    assert 'zcfile.ZC02FILE.len.out", CicsTask.instanceKey("ZcFile", "ZC02FILE"));' in java
+    # a store whose entity names no instance is one shared table: the entity's own key, as before (#6839)
+    _entity(tmp_path, "ZcFile", "class ZcFile { }")
+    shared = EC.cics_equivalence_test(
+        {**case, "region_instances": {"values": ["ZC02FILE"], "why": "x"}}, tmp_path, FILES1
+    )
+    assert 'lengthsIn(sc, "zcfile", "ZcFile");' in shared and "instanceKey" not in shared.split("lengthsIn(sc", 1)[1]
+
+
+def test_the_translator_and_runtime_key_a_stores_lengths_by_instance():
+    from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge
+    from gitgalaxy.tools.cobol_to_java.det import cics as det_cics
+
+    text = Path(det_cics.__file__).read_text(encoding="utf-8")
+    assert "withLengths(CicsTask.recordLengths({G_jstr(entity)}, n))" in text  # the instance Store
+    assert "withLengths(CicsTask.recordLengths({G_jstr(entity)}))" in text  # a shared store, unchanged
+    assert 'return entity + "@" + instance.stripTrailing();' in forge.CICS_TASK_JAVA
+    assert "recordLengths(String entity, String instance)" in forge.CICS_TASK_JAVA
+
+
+def test_a_scenario_may_leave_an_extra_instance_out_of_its_region():
+    case = _case(["ZC02FILE", "ZC02KEY"])
+    sc = {"name": "s", "undefined_files": ["ZC02FILE"]}
+    assert EC.undefined_files(case, sc, FILES) == ["ZC02FILE"]
+    cfg = EC._instance_cfg(case, FILES, "/work/files", sc).splitlines()
+    assert [ln.split()[0] for ln in cfg] == ["ZC02KEY"]  # the other instance stays installed
+    assert len(EC._instance_cfg(case, FILES, "/work/files").splitlines()) == 2  # no scenario: both
+    with pytest.raises(EC.Unsupported):  # a name that is neither the case's file nor an instance it states
+        EC.undefined_files(case, {"name": "s", "undefined_files": ["ZC03FILE"]}, FILES)
+
+
+def test_an_instance_fits_a_store_by_its_template_once_the_install_symbols_resolved_its_name():
+    resolved = [
+        {**f, "file": f["file"].replace("@ID@", "01"), "template": f["file"]} if "@" in f["file"] else f for f in FILES
+    ]
+    got = EC.region_instances(_case(["ZC02FILE", "ZC02KEY"]), resolved)
+    assert [(n, f["base"]) for n, f in got] == [("ZC02FILE", "zcfile"), ("ZC02KEY", "zckey")]
+    with pytest.raises(EC.Unsupported):  # the case's own resolved name is no extra instance
+        EC.region_instances(_case(["ZC01FILE"]), resolved)
+
+
+def test_zecs003_holds_one_key_in_two_instances_and_the_task_leaves_the_other_alone():
+    import json
+
+    d = Path(__file__).resolve().parents[1] / "equivalence" / "zecs-zecs003"
+    case = json.loads((d / "case.json").read_text(encoding="utf-8"))
+    assert case["region_instances"]["values"] == ["ZC02FILE"] and case["region_instances"]["why"]
+    names = {s["name"]: s for s in case["scenarios"]}
+    assert "expired-record-deleted-other-instance-same-key" in names
+    assert names["transid-zc02"]["undefined_files"] == ["ZC02FILE"]  # #7487: still the region without instance 02
+    own, other = (d / "zcfile-expired.bin").read_bytes(), (d / "zcfile-zc02.bin").read_bytes()
+    assert own != other and own[:16] == other[:16]  # the same key, other contents

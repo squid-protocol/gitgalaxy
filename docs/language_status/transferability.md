@@ -83,8 +83,43 @@ Gap pointers re-checked on 2026-10-25: #6065 closed, #5856 closed, #6066 open (f
 program needs any gap in the table above. The non-burned rate is still the 2026-10-22 peek: the first scheduled census
 run (#6064) has not run, so no newer non-burned number exists and none is claimed here.
 
+## Update 2026-11-16: the first-contact rows this record was waiting for
+
+Two measurements of code the translator was not built on have closed since the 2026-10-22 peek. Neither changes the
+"Numbers" table above, which stays the 2026-10-22 baseline. Both are counts only; the oracle is GnuCOBOL plus IBM
+documentation, not z/OS.
+
+| measurement | what it is | first contact | at close-out |
+|---|---|---|---|
+| Census mock trial (#7709, closed 2026-11-07, final write-up on the issue) | the 40 census programs (39 after the inventory fix #7901), tools only, L1 | 8 of 40 whole at T0 (frozen prediction: 25 of 40) | **13 of 39 whole (33%)**, 37 of 39 accounted (the ceiling); the 2 unaccounted are the z/OS Connect BAQ programs by owner ruling (#7900) |
+| Blind estate trial 1 (#8073, `ibm/example-health-apis`, drawn blind, closed 2026-11-12) | 29 programs, L1 then L2 then proof | **0 of 29 whole** (1 of 29 accounted, in hindsight) | 25 of 29 whole (86%), 28 of 28 eligible cased (L2); **first-try det proof 23 of 28 (82%)** at frozen engine `5e4575d77` |
+
+What they say about transfer, stated plainly:
+
+- **Burned-estate tuning did not lift unseen code.** The census trial scored 0 programs of lift between 2026-10-24 and
+  its T0, while burned CICS sat at 97%. Blind 1 translated 0 of 29 whole at first contact.
+- **Plumbing, not semantics, decided first contact.** On Blind 1, 28 of the 29 first-contact failures were copybook
+  resolution, none was unmodelled semantics, and all 17 real SQL statements translated. On the census trial, most of the
+  gain in "accounted" came from naming source defects, not from translating.
+- **Our measurement was wrong in both directions, twice.** Blind 1's "10 EXEC SQL programs" were duplicates carrying
+  listing line numbers, and 6 of 7 "missing copybook" labels were our resolver bug (#8074). The census trial's
+  inventory counted a copy member as a program (#7901). Report first contact and close-out together: 86% alone
+  misrepresents what a cold estate does to the system.
+- **The remediation loop works fast; the first try does not.** Blind 1 went from 0 to 86% whole in about a day of
+  tools-only work (25 of 29 at 2026-11-08), and the census trial from 8 to 13 of 39 in about three days (104 PRs).
+- **The proof number is n=1 and det-only.** 23 of 28 is one estate at one engine version (Run B, harness at current
+  main, Amendment 4). Run A on the frozen harness proved 5 and left 23 unjudged by a harness defect, so it is not a
+  rate. The 5 misses were two engine bugs, both since fixed (#8225, #8246, #8269); the current engine proves 28 of 28.
+  The det-then-model companion figure is still owed (#8372). The estate is now a development estate (#8157).
+
+Gaps 1 to 3 in the table above are unchanged: `dsf` and `zopeneditor-sample` are still re-measurements, not first
+contacts, and PL/I (#6066) is untouched. The scheduled non-burned series (#6064, now census nightly) is the
+continuing number; no rate below is current.
+
 ## Going forward
 
 - `dsf` and `zopeneditor-sample`: their next scan is a re-measurement (see the 2026-10-24 update), not a first contact.
   Record it here, then decide on #6066.
-- Breadth is the fix for transfer: more estates scanned at first contact (the blind estate draw), not more depth on the six.
+- Breadth is the fix for transfer: more estates scanned at first contact, not more depth on the six. Blind 1 is done and
+  can never be drawn again; the next draw is gated by the prep issues #8111-#8113 and #8412, with its forecast frozen after
+  eligibility is applied (#8321).

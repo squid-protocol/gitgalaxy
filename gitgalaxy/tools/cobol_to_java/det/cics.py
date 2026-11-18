@@ -885,7 +885,7 @@ class Cics(
                     f"n.stripTrailing().equals({get})).toList(), e -> e.toRecord(CS), "
                     f"b -> {entity}.fromRecord(b, CS), e -> task.write({G_jstr(name)}, () -> {{ {put}; {repo}.save(e); }}), "
                     f"e -> task.write({G_jstr(name)}, () -> {repo}.delete(e)), {off}, {length}, CS)"
-                    f"{by_id}.withLengths(CicsTask.recordLengths({G_jstr(entity)}))"
+                    f"{by_id}.withLengths(CicsTask.recordLengths({G_jstr(entity)}, n))"  # #7965: this instance's
                 )
                 self.g.entities.add(entity)
                 continue

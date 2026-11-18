@@ -142,6 +142,8 @@ ATTACK_SETTLED = (
     "map-length-scale",
     "goto-flag-bit",
     "eib-resp-unread",
+    "refusal-text",
+    "exception-ctor",
 )
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap

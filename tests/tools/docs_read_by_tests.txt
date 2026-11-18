@@ -2,14 +2,18 @@
 # test or engine code names, with the scopes that name them. tests/tools/test_change_classifier.py fails when stale.
 **/*.md	tests/tools/post_merge_dispatch.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_workflow_inputs.py
 .claude/*	tests/tools/test_evidence_report_single_source.py
-.claude/agents/gitgalaxy-pr-worker.md	tests/tools/box,tests/tools/test_ci_replay_6278.py,tests/tools/test_shepherd_markers_not_hand_written.py
+.claude/agents/gitgalaxy-pr-worker.md	tests/tools/box,tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py,tests/tools/test_shepherd_markers_not_hand_written.py
 .claude/rules/a.md	tests/tools/test_context_pack.py
 .claude/rules/ci-workflows.md	tests/tools/test_pr_runner_cost.py
-.claude/rules/python-test-traps.md	tests/tools/test_ci_replay_6278.py
+.claude/rules/python-test-traps.md	tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py
 .claude/rules/shepherd-markers.md	tests/tools/test_shepherd_markers_not_hand_written.py
 .claude/rules/test-writing.md	tests/tools/test_ci_replay_6278.py
 .claude/rules/x.md	tests/tools/test_engine_reach_workflows.py
-.claude/skills/det-port/SKILL.md	tests/tools/test_ci_replay_6278.py
+.claude/skills/blocker-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
+.claude/skills/cics-command-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
+.claude/skills/det-port/SKILL.md	tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py
+.claude/skills/ladder-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
+.claude/skills/porting-loop/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
 /*.cbl	tests/cobol_mainframe
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py
@@ -190,7 +194,7 @@
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
 /testing	tests/cobol_mainframe
-/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
+/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_no_raw_wall_clock_timing_8423.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 0.md	tests/tools/test_doc_drift_issues.py
@@ -263,6 +267,7 @@ callgraph.md	tests/tools/doom_speedrun,tests/tools/test_callgraph_oracle.py
 census/INELIGIBLE_FOR_BLIND_ESTATE.md	tests/tools/estate4_draw.py
 chart.svg	tests/tools/unicode_gauntlet.py
 ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
+ci_network_inventory.md	tests/tools/ci_network_inventory.py
 cics_command_spec.md	tests/tools/cics_spec_status.py,tests/tools/crucible_case.py
 cics_crucible.md	tests/tools/cics_crucible.py
 cics_field_testing.md	tests/tools/field_testing.py
@@ -273,7 +278,7 @@ cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,test
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
 cobolrt_api.json	tests/tools/cobolrt_api.py
-cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_exit_report.py,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 cobolrt_rules.md	tests/tools/cobolrt_rules.py
 construct_correspondence.md	tests/tools/test_progress_report.py
 core/README.md	gitgalaxy
@@ -303,6 +308,7 @@ docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
 docs/ci.md	tests/tools/shepherd_gh.py,tests/tools/test_cancelled_gates.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_engine_reach_workflows.py,tests/tools/test_post_merge_dispatch.py
 docs/ci_env_gated_tests.md	tests/tools/test_env_gated_tests_run_in_ci_5954.py
+docs/ci_network_inventory.md	tests/tools/ci_network_inventory.py
 docs/class_start_rule_contract.md	gitgalaxy
 docs/cleanup_rule_contract.md	gitgalaxy
 docs/cobolrt_api_contract.md	tests/cics_crucible,tests/tools/cobolrt_api.py
@@ -349,7 +355,7 @@ docs/language_status/cobol_move_matrix.md	gitgalaxy
 docs/language_status/cobol_sort_matrix.md	gitgalaxy
 docs/language_status/cobol_string_matrix.md	gitgalaxy
 docs/language_status/cobolrt_api.json	tests/tools/cobolrt_api.py
-docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
+docs/language_status/cobolrt_rules.json	gitgalaxy,tests/cobol_mainframe,tests/tools/cobolrt_exit_report.py,tests/tools/cobolrt_rules.py,tests/tools/progress_report.py,tests/tools/support_matrix.py
 docs/language_status/cobolrt_rules.md	tests/tools/cobolrt_rules.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/det_port_design.md	tests/cobol_mainframe,tests/tools/test_progress_report.py
 docs/language_status/det_survey.md	tests/tools/test_progress_report.py
@@ -471,6 +477,7 @@ docs/wiki/03-05-claim-5-file-archetypes.md	tests/core_engine
 docs/wiki/05-19-proven-cobol-to-java-ports.md	tests/cobol_mainframe
 docs/wiki/05-20-equivalence-harness.md	tests/cobol_mainframe,tests/tools/test_generated_branch.py
 docs/wiki/08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
+docs/wiki/08-26	gitgalaxy
 docs/wrapper_aware_count_contract.md	gitgalaxy
 docs/x.md	tests/test_golden_db_snapshot.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_generated_docs.py
 docs/x.py	tests/tools/test_post_merge_dispatch.py
@@ -539,7 +546,7 @@ mutation_equivalent_spot_check.md	tests/cobol_mainframe
 mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 mutation_testing.md	tests/tools/mutation_scores.py
 none.md	tests/core_engine
-notes.md	tests/cobol_mainframe
+notes.md	tests/cobol_mainframe,tests/tools/test_activity_sensor.py
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
 p.md	tests/tools/test_generated_docs.py
@@ -575,7 +582,8 @@ src/harness_report.md	tests/tools/test_harness_report.py
 stray.md	tests/tools/test_evidence_report.py
 strengthen.md	tests/tools/strengthen.py
 subsystem_distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_subsystem_distribution.py
-summary.md	tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_codeql_new_alerts.py,tests/tools/test_time_ratchet.py
+sum.md	tests/tools/test_assess_summary_md.py
+summary.md	tests/tools/test_assess_summary_md.py,tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_codeql_new_alerts.py,tests/tools/test_time_ratchet.py
 survey.md	tests/tools/det_survey.py
 tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progress_report.py,tests/tools/test_readme_hand_counts.py
 tests/equivalence/det_mutation/notes.md	tests/tools/test_docs_only_required_checks.py
@@ -584,6 +592,7 @@ tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py
 tests/tools/referees/README.md	tests/tools/referees
 tilde.md	tests/core_engine
 transferability.md	tests/tools/test_status_page_snapshots.py
+translation_fidelity.md	tests/tools/publish_examples.py
 tree_sitter_accuracy_chart.svg	tests/tools/tree_sitter_accuracy_audit.py
 tree_sitter_accuracy_history.csv	tests/tools/tree_sitter_accuracy_audit.py
 tri_comparison_chart.svg	tests/tools/tri_comparison_chart.py

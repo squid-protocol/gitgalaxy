@@ -149,3 +149,22 @@ def test_a_case_with_no_duration_entry_is_planned_at_the_median_and_proven_once(
     assert sorted(flat) == sorted(new) and len(flat) == len(set(flat))
     plans = [ps.shard_plan(new, (i, n), dur) for i in range(1, n + 1)]
     assert sorted(c for p in plans for c in p["unmeasured"]) == ["case-new-a", "case-new-b"]
+
+
+@pytest.mark.parametrize(
+    "rel",
+    [
+        ".claude/agents/gitgalaxy-pr-worker.md",
+        ".claude/skills/det-port/SKILL.md",
+        ".claude/skills/ladder-slice/SKILL.md",
+        ".claude/skills/cics-command-slice/SKILL.md",
+        ".claude/skills/blocker-slice/SKILL.md",
+        ".claude/skills/porting-loop/SKILL.md",
+        ".claude/rules/python-test-traps.md",
+    ],
+)
+def test_worker_rules_say_the_nightly_owns_the_durations_file(rel):
+    """#8422: every surface that guides a case-adding PR says never to edit det_sweep_durations.json."""
+    text = (ROOT / rel).read_text(encoding="utf-8")
+    assert "Never edit `tests/equivalence/det_sweep_durations.json`" in text, rel
+    assert "nightly owns it" in text, rel

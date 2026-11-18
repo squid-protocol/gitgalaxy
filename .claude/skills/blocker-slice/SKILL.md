@@ -69,6 +69,7 @@ $PY tests/tools/cics_census.py check                          # your branch's HE
 - `docs/language_status/cics_spec_status.md` is git-ignored and published to the `generated` branch by generated-docs.yml
   (#4789 / #5057): never commit it (`cics_spec_status.py render` only to look). After a slice, commit `refresh --census --crucible DIR`'s
   `cics_spec_status.json`. A spec PR adds its row to `SPEC_PRS_DONE` there.
+- **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it and a case with no entry weighs the median in `proof_sweep.py --shard`; no test or gate fails on it, and an added line conflicts with sibling PRs.
 - The det-sweep coverage ledger is one file per case, `tests/equivalence/det_sweep_coverage/<case>.json` (#4789):
   `det_coverage_ledger.py update <sweep DIR>` rewrites only the files of the cases that sweep ran.
   (#5084) An entry also holds `linked`: the counts of the programs the case LINKs / CALLs (coverage.json `linked`), which

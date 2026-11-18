@@ -265,9 +265,14 @@ def _data_only(lines: list[Line]) -> list[Line]:
                 if done:
                     break
             continue
-        if re.match(r"APPLY\s+(WRITE-ONLY|CORE-INDEX|RECORD-OVERFLOW|REORG-CRITERIA)\b", t):
+        if re.match(
+            r"(APPLY\s+(WRITE-ONLY|CORE-INDEX|RECORD-OVERFLOW|REORG-CRITERIA)|RERUN|SAME\s+(RECORD\s+|SORT\s+|SORT-MERGE\s+)?AREA|MULTIPLE\s+FILE)\b",
+            t,
+        ):
             # #4486 (estate-crucible PAYMAIN): an I-O-CONTROL APPLY clause is an IBM buffering / access hint with no
-            # storage of its own, which the grammar does not read
+            # storage of its own, which the grammar does not read. So are RERUN (checkpoint request; Batch Badlands
+            # BDLDCKP, #8412), SAME [RECORD | SORT | SORT-MERGE] AREA (storage sharing between files) and MULTIPLE
+            # FILE TAPE (tape positioning): IBM accepts them with no effect on a record's layout or on a run
             while k < len(out):
                 ended = out[k].text.rstrip().endswith(".")
                 out[k].text = ""

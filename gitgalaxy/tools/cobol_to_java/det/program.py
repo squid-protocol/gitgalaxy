@@ -277,17 +277,35 @@ def performs_cyclically(proc: S.Procedure) -> bool:
     return any(state[i] == 0 and cyclic(i) for i in range(len(edges)))
 
 
+def _terminal_goto_targets(proc: S.Procedure) -> set[str]:
+    """Paragraphs whose final top-level statement unconditionally ends the program (GOBACK / STOP RUN / EXIT PROGRAM)."""
+    out: set[str] = set()
+    for p in proc.paragraphs:
+        if p.section == p.name or not p.body:
+            continue
+        last = p.body[-1]
+        if last.kind in ("GOBACK", "STOP") or (
+            last.kind == "EXIT" and (last.data.get("what") or [])[:1] == ["PROGRAM"]
+        ):
+            out.add(p.name)
+    return out
+
+
 def structurable(proc: S.Procedure) -> bool:
-    """Whether paragraphs can be plain methods called in order: no GO TO (nor ALTER), no EXEC CICS HANDLE (its
-    exits transfer control like a GO TO), no SECTION. Then PERFORM a THRU b is a, ..., b in turn, and falling off a
-    paragraph is falling into the next -- exactly COBOL's flow, with no dispatcher."""
+    """Whether paragraphs can be plain methods called in order: no non-terminal GO TO (nor ALTER), no EXEC CICS
+    HANDLE (its exits transfer control like a GO TO), no SECTION. Terminal GO TOs to paragraphs ending in
+    GOBACK / STOP RUN / EXIT PROGRAM are emitted as direct tail calls in structured mode."""
+    terminal = _terminal_goto_targets(proc)
     for p in proc.paragraphs:
         if p.section == p.name:
             return False
         for s in S.walk(p.body):
-            if s.kind == "GOTO" or (
-                s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text)
-            ):
+            if s.kind == "GOTO":
+                t = s.data.get("targets") or []
+                if s.data.get("depending") is not None or len(t) != 1 or t[0] not in terminal:
+                    return False
+                continue
+            if s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text):
                 return False
             if s.kind == "ALTER" or (s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text)):
                 return False
@@ -1854,14 +1872,40 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         raise SqlcaBytesRead(program.name)
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
-    java = with_trunc(
-        java,
-        trunc_mode(program, options, page),
-        numproc_pfd(program, options, page),
-        arith_extend(program, options, page),
-        gen.zos_comp5,
+    tmode = trunc_mode(program, options, page)
+    pfd = numproc_pfd(program, options, page)
+    extend = arith_extend(program, options, page)
+    lilian = intdate_lilian(program, options, page)
+    dcomma = bool(getattr(prog, "decimal_comma", False))
+    cpage = page or "IBM037"
+    stats["cobolrt_version"] = "0.1.0"
+    stats["profile_fingerprint"] = (
+        f"TRUNC={tmode};NUMPROC={'PFD' if pfd else 'NOPFD'};ARITH={'EXTEND' if extend else 'COMPAT'};"
+        f"ZOS_COMP5={'true' if gen.zos_comp5 else 'false'};INTDATE={'LILIAN' if lilian else 'ANSI'};"
+        f"DECIMAL_POINT={'COMMA' if dcomma else 'PERIOD'};CODEPAGE={cpage}"
     )
-    if intdate_lilian(program, options, page):
+    profile_const = (
+        f"    public static final CobolProfile PROFILE = new CobolProfile("
+        f"CobolProfile.TruncMode.{tmode}, "
+        f"CobolProfile.NumprocMode.{'PFD' if pfd else 'NOPFD'}, "
+        f"CobolProfile.ArithMode.{'EXTEND' if extend else 'COMPAT'}, "
+        f"{'true' if gen.zos_comp5 else 'false'}, "
+        f"{'true' if lilian else 'false'}, "
+        f"{'true' if dcomma else 'false'}, "
+        f"{G.jstr(cpage)});\n"
+    )
+    java = java.replace(
+        f"import {pkg}.cobolrt.Funcs;\n",
+        f"import {pkg}.cobolrt.CobolProfile;\nimport {pkg}.cobolrt.Funcs;\n",
+        1,
+    )
+    java = java.replace(
+        "    private static final int GOTO = 1 << 20;\n",
+        f'    public static final String COBOLRT_VERSION = "0.1.0";\n    private static final int GOTO = 1 << 20;\n{profile_const}',
+        1,
+    )
+    java = with_trunc(java, tmode, pfd, extend, gen.zos_comp5)
+    if lilian:
         java = with_intdate_lilian(java)
     return Result(java, service, stats, siblings_out)
 
@@ -1932,7 +1976,6 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         )
     dfhca = next((r for r in records if r.section == "LINKAGE" and r.name == "DFHCOMMAREA"), None)
     ca_in: list[str] = []
-    ca_whole: list[str] = []
     if dfhca is not None:
         st = _storage_name(roots[id(dfhca)])
         for cls in [x for x in dict.fromkeys([cx.gp.contract, *cx.gp.records.values()]) if x]:
@@ -1953,7 +1996,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             kw = "if" if not ca_in else "} else if"
             ca_in += [f"        {kw} (ca instanceof {cls} x) {{", f"            in_{cls}(x, {st}, 0);",
                       f"            caBack = () -> fill_{cls}(x, {st}, 0);",
-                      f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
+                      f"            calen = DetCics.eibCalen(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
         # #4501: a COMMAREA a det caller's RETURN / XCTL passed with a LENGTH past the DTO is its bytes (DetCics
@@ -1963,11 +2006,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         ca_in += [f"        {st}.beyond = null;",
                   "        if (ca instanceof byte[] cb0) {",
                   "            byte[] cb = DetCics.commareaIn(cb0, CS);",
-                  f"            System.arraycopy(cb, 0, {st}.bytes, 0, Math.min(cb.length, {st}.bytes.length));",
-                  f"            if (cb.length > {st}.bytes.length) {{",
-                  f"                {st}.beyond = java.util.Arrays.copyOfRange(cb, {st}.bytes.length, cb.length);",
-                  "            }",
-                  "            calen = cx(task, cb.length);",
+                  f"            DetCics.loadCommarea({st}, cb);",
+                  "            calen = DetCics.eibCalen(task, cb.length);",
                   "        }"]  # fmt: skip
         # #5053: a COMMAREA of another program's DTO (a RETURN TRANSID into a program the stub types `Object`: pc-wizard's
         # PCWIZ into PCCONF) is read through its layout -- the bytes of the record, in this port's page, as the program
@@ -1975,20 +2015,16 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         if cx.gp.contract is None:  # (a stub that types its COMMAREA takes no other class: the harness passes its own)
             ca_in += ["        if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
                       "            byte[] cb = DetCics.layoutBytes(ca);",
-                      f"            System.arraycopy(cb, 0, {st}.bytes, 0, Math.min(cb.length, {st}.bytes.length));",
-                      f"            if (cb.length > {st}.bytes.length) {{",
-                      f"                {st}.beyond = java.util.Arrays.copyOfRange(cb, {st}.bytes.length, cb.length);",
-                      "            }",
-                      "            calen = cx(task, cb.length);",
+                      f"            DetCics.loadCommarea({st}, cb);",
+                      "            calen = DetCics.eibCalen(task, cb.length);",
                       "        }"]  # fmt: skip
         # #4181 follow-up: a det caller's LINK passes its COMMAREA's bytes (by reference): they are DFHCOMMAREA, every
         # byte -- the ones the contract DTO does not name too -- and what the program leaves there goes back to them
         # #4679: bytes of a LINK LENGTH past the record are kept past it (Storage.beyond) and go back with the rest
         ca_in += ["        byte[] raw = task.linkArea();",
                   "        if (raw != null) {",
-                  f"            System.arraycopy(raw, 0, {st}.bytes, 0, Math.min(raw.length, {st}.bytes.length));",
+                  f"            DetCics.loadCommarea({st}, raw);",
                   f"            int keep = {st}.bytes.length;",
-                  f"            {st}.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
                   "            Runnable typed = caBack;",
                   # #7485: the bytes go to the link area BEFORE the typed fill: fill_ reads signed DISPLAY fields through
                   # Cobol.num, which does GnuCOBOL's PUT_SIGN, so a read of a field the program never touched (spaces)
@@ -2006,18 +2042,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                   f"            {st}.bytes = java.util.Arrays.copyOf(caWhole, calen);",
                   "            Runnable typed = caBack;",
                   "            byte[] whole = caWhole;",
-                  "            caBack = () -> { caWhole(whole); typed.run(); };",
+                  f"            caBack = () -> {{ DetCics.restoreCommarea({st}, whole); typed.run(); }};",
                   "        }"]  # fmt: skip
-        ca_whole = [
-            "    /** #4270 (X23): DFHCOMMAREA's whole record again, with what the task left in its EIBCALEN bytes. */",
-            "    private void caWhole(byte[] whole) {",
-            f"        if ({st}.bytes != whole) {{",
-            f"            System.arraycopy({st}.bytes, 0, whole, 0, {st}.bytes.length);",
-            f"            {st}.bytes = whole;",
-            "        }",
-            "    }",
-            "",
-        ]
     else:
         # #4270 (GenApp's LGTESTP1-4: no DFHCOMMAREA, `IF EIBCALEN > 0 GO TO A-GAIN`): a program with no LINKAGE
         # COMMAREA still has EIBCALEN, the length of the area its task started with (the RETURN TRANSID COMMAREA it
@@ -2028,12 +2054,12 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             except (OSError, C.CicsError):
                 continue
             kw = "if" if not ca_in else "} else if"
-            ca_in += [f"        {kw} (ca instanceof {cls}) {{", f"            calen = cx(task, {size});"]
+            ca_in += [f"        {kw} (ca instanceof {cls}) {{", f"            calen = DetCics.eibCalen(task, {size});"]
         if ca_in:
             ca_in.append("        }")
         # #7589: untyped bytes (a LINK's area, or a scenario's commarea_hex) are EIBCALEN too, whatever the program's DTOs
         ca_in += ["        if (calen == 0 && task.linkArea() != null) {",
-                  "            calen = cx(task, task.linkArea().length);",
+                  "            calen = DetCics.eibCalen(task, task.linkArea().length);",
                   "        }"]  # fmt: skip
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
@@ -2103,11 +2129,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    );",
         "",
         "    private static int paragraph(String name) {",
-        "        Integer i = PARAGRAPHS.get(name);",
-        "        if (i == null) {",
-        '            throw new IllegalStateException("no paragraph " + name);',
-        "        }",
-        "        return i;",
+        "        return DetCics.paragraph(PARAGRAPHS, name);",
         "    }",
         "",
         "    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd",
@@ -2116,22 +2138,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         '     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an',
         "     *  abend, to this program's HANDLE ABEND exit or ending the task. */",
         "    private int condition(String cond) {",
-        "        Integer h = handlers.get(cond);",
-        "        if (h != null) {",
-        "            return h;",
-        "        }",
-        "        if (DetCics.ignoredByDefault(cond)) {",
-        "            return -1;",
-        "        }",
-        '        Integer error = handlers.get("ERROR");',
-        "        if (error != null) {",
-        "            return error;",
-        "        }",
-        "        String label = task.abendOnCondition(cond);",
-        "        if (label == null) {",
-        "            throw abended();",
-        "        }",
-        "        return paragraph(label);",
+        "        return DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended);",
         "    }",
         "",
         *(
@@ -2154,10 +2161,6 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             if cx.handle_aid
             else []
         ),
-        "    private static int cx(CicsTask task, int whole) {",
-        "        return task.eibcalen() == null ? whole : task.eibcalen();",
-        "    }",
-        "",
     ]
     for code in cx.codecs.values():
         members += code
@@ -2189,10 +2192,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         *ca_in,
         f"        Cobol.store({gen.eib('EIBCALEN')}, BigDecimal.valueOf(calen), false, CS);",
         "        try {",
-        *(["            try {"] if ca_whole else []),
-        f"            {'    ' if ca_whole else ''}{'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
-        f"        {'    ' if ca_whole else ''}}} catch (Goback g) {{",
-        f"            {'    ' if ca_whole else ''}// RETURN / XCTL / an abend ended the program",
+        *(["            try {"] if dfhca is not None else []),
+        f"            {'    ' if dfhca is not None else ''}{'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
+        f"        {'    ' if dfhca is not None else ''}}} catch (Goback g) {{",
+        f"            {'    ' if dfhca is not None else ''}// RETURN / XCTL / an abend ended the program",
         *(
             [
                 "            }",
@@ -2203,10 +2206,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                 '            throw new DetCics.PastFrom("COMMAREA past EIBCALEN (" + calen + " bytes): not modelled");',
                 "        } finally {",
                 "            if (caWhole != null) {",
-                "                caWhole(caWhole);",
+                f"                DetCics.restoreCommarea({_storage_name(roots[id(dfhca)])}, caWhole);",
                 "            }",
             ]
-            if ca_whole
+            if dfhca is not None
             else []
         ),
         "        }",
@@ -2217,7 +2220,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
-    return members + ca_whole, entry + facades(stub, cx.passes_bytes, wide_shapes(cx))
+    return members, entry + facades(stub, cx.passes_bytes, wide_shapes(cx))
 
 
 def answer_lines(ret: str, own: str | None, codec: bool = False) -> list[str]:

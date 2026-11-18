@@ -115,7 +115,7 @@ _JAVA_METHOD_RE = re.compile(
     re.MULTILINE,
 )
 _JAVA_BRANCH_RE = re.compile(r"\b(?:if|else\s+if|switch|case|for|while|catch)\b|\?")
-_JAVA_CALL_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(")
+_JAVA_CALL_RE = re.compile(r"(?:([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*)?\b([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 _JAVA_CALL_SKIP = frozenset(
     {
         "if",
@@ -130,6 +130,53 @@ _JAVA_CALL_SKIP = frozenset(
         "super",
         "this",
         "synchronized",
+        "initialState",
+        "runAll",
+        "perform",
+        "equals",
+        "equalsIgnoreCase",
+        "compareTo",
+        "toString",
+        "valueOf",
+        "length",
+        "size",
+        "isEmpty",
+        "get",
+        "set",
+        "add",
+        "put",
+        "trim",
+        "substring",
+        "format",
+        "parseInt",
+        "parseLong",
+        "parseDouble",
+    }
+)
+_JAVA_RUNTIME_RECEIVERS = frozenset(
+    {
+        "Cobol",
+        "CobolBytes",
+        "DetCics",
+        "DetSql",
+        "Funcs",
+        "Accept",
+        "Hfp",
+        "Math",
+        "Integer",
+        "Long",
+        "Double",
+        "String",
+        "BigDecimal",
+        "Optional",
+        "List",
+        "Map",
+        "Set",
+        "Collections",
+        "Arrays",
+        "Objects",
+        "System",
+        "LocalDateTime",
     }
 )
 _JAVA_IDENT_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]{2,})\b")
@@ -344,7 +391,13 @@ def parse_java_methods(java_path: Path) -> list[JavaMethodMetrics]:
         if loc == 0:
             continue
         branches = len(_JAVA_BRANCH_RE.findall(body_no_doc))
-        calls_out = sum(1 for c in _JAVA_CALL_RE.findall(body_no_doc) if c not in _JAVA_CALL_SKIP)
+        calls_out = sum(
+            1
+            for recv, callee in _JAVA_CALL_RE.findall(body_no_doc)
+            if callee not in _JAVA_CALL_SKIP
+            and not callee.startswith(("pack_", "unpack_"))
+            and recv not in _JAVA_RUNTIME_RECEIVERS
+        )
         refs = frozenset(
             _norm_name(tok)
             for tok in _JAVA_IDENT_RE.findall(body_no_doc)
@@ -463,7 +516,9 @@ def evaluate_fidelity(
 ) -> dict:
     """Evaluate per-paragraph, per-program, and estate-level fidelity against null controls."""
     trace_map = load_traceability_map(trace_path)
-    cbl_by_prog = {p.stem.lower(): p for p in sorted(cobol_dir.rglob("*.cbl"))}
+    cbl_by_prog = {
+        p.stem.lower(): p for p in sorted(cobol_dir.rglob("*")) if p.is_file() and p.suffix.lower() in (".cbl", ".cob")
+    }
     java_by_prog: dict[str, Path] = {}
     for jp in sorted(java_dir.rglob("*.java")):
         stem = jp.stem.lower().removesuffix("service")

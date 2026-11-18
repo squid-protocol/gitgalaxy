@@ -759,8 +759,8 @@ UNGATEABLE_SIGNATURES = {
 
 
 def _safe_content(content):
-    """Mirror of scan_content's ReDoS-armored haystack construction."""
-    return "\n".join(line.strip() for line in content.splitlines() if len(line) < 250)
+    """The haystack scan_content builds: the lens's own armor, not a copy (#8434)."""
+    return SecurityLens._armor(content)[0]
 
 
 def _gate_rejects(gate, safe_content):
@@ -1047,3 +1047,42 @@ def test_a_poison_long_line_stays_bounded_for_each_signature_8429(lens, key):
         "state_mutation": "a.prototype." * 1500,
     }[key]
     assert_cpu_below(lambda: lens.scan_content(poison + "\n"), 5, what=f"poisoned long line ({key})")
+
+
+# --- #8429 slice 3: a high-entropy string literal on a line of 250+ characters is measured -----------------
+def _entropic(n: int) -> str:
+    import base64
+    import hashlib
+
+    raw = b"".join(hashlib.sha256(str(i).encode()).digest() for i in range(n // 40 + 2))
+    return base64.b64encode(raw).decode()[:n]
+
+
+@pytest.mark.parametrize("literal_len", [96, 300, 700, 1000])
+def test_an_entropic_literal_on_a_long_line_is_counted_8429(lens, literal_len):
+    blob = _entropic(literal_len)
+    assert "'" not in blob and '"' not in blob
+    # short literal (control), then the same literal on a line that is 250+ chars
+    line = "var b = '" + blob + "'; " + "z" * 300
+    assert len(line) >= 250
+    result = lens.scan_content("let ok = 1;\n" + line + "\n")
+    assert result["counts"]["entropy"] == 1
+    assert result["positions"]["entropy"] == [2]
+    assert result["snippets"]["entropy"][0].startswith(blob[:60])
+
+
+def test_a_long_line_with_low_entropy_or_prose_literal_is_not_flagged_8429(lens):
+    low = "var b = '" + "a" * 400 + "'; " + "z" * 300  # one repeated character
+    prose = "var b = '" + ("the quick brown fox jumps " * 12) + "'; " + "z" * 300  # spaces: prose, not a payload
+    assert lens.scan_content(low + "\n")["counts"]["entropy"] == 0
+    assert lens.scan_content(prose + "\n")["counts"]["entropy"] == 0
+
+
+def test_a_long_line_entropy_is_off_on_generated_files_8429(lens):
+    line = "var b = '" + _entropic(300) + "';"
+    assert lens.scan_content("// @generated\n" + line + "\n")["counts"]["entropy"] == 0
+
+
+def test_a_poison_long_line_entropy_stays_bounded_8429(lens):
+    poison = ("'" + "a\"" * 40) * 4000 + "\n"
+    assert_cpu_below(lambda: lens.scan_content(poison), 5, what="quote-heavy long line")

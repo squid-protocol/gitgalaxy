@@ -392,6 +392,17 @@ class SecurityLens:
                 r"(?<![\w.])exec[ \t]*\([ \t]*(?:(?:base64\.)?b64decode|(?:zlib\.)?decompress|codecs\.decode|marshal\.loads|bytes\.fromhex|f[\"'\x60]|[\"'][^\"'\n]{0,80}[\"'][ \t]*(?:%|\+|\.format|\.join)|[A-Za-z_][\w.]{0,40}\.decode[ \t]*\()|"
                 r"\.write[ \t]*\([ \t]*(?:base64\.)?b64decode[ \t]*\(|"
                 r"\bmarshal\.loads[ \t]*\(|"
+                # #8433 slice 2: javascript-obfuscator identifiers (`_0x` + 4-6 LOWERCASE hex, used as a call, an index or a
+                # string-array / wrapper assignment; `0x1f`, `my_0x1a2b`, `_0xFFFF` and a bare mention stay silent).
+                r"(?-i:(?<![\w$])_0x[0-9a-f]{4,6})(?![\w$])[ \t]*(?:[(\[]|=[ \t]*(?:\[|function\b))|"
+                # #8433 slice 2: a `pull_request_target` workflow (runs with secrets on a fork's PR) that checks out or runs
+                # the PR head: a `ref:` / `repository:` / `run:` line, or a script-body line, that expands github.head_ref or
+                # github.event.pull_request.head.*. An env-var assignment (`BRANCH: ${{ github.head_ref }}`) is the safe form.
+                r"\bpull_request_target\b(?:[^\n]*\n){0,150}?(?:(?:-[ \t]*)?(?:ref|repository|run)[ \t]*:|(?![\w.-]+[ \t]*:))[^\n]*"
+                r"\$\{\{[ \t]*github\.(?:head_ref|event\.pull_request\.head\.(?:ref|sha|repo\.full_name))[ \t]*\}\}|"
+                # #8433 slice 2: the whole secrets context serialised (`toJSON(secrets)`), the exfiltration idiom; one named
+                # secret (`toJSON(secrets.X)`) and other contexts (`toJSON(github)`) are not it.
+                r"\$\{\{[^}\n]{0,80}?\btoJSON[ \t]*\([ \t]*secrets[ \t]*\)|"
                 r"getattr\s*\(\s*__import__\s*\(|importlib\.import_module\s*\(|\brequire\s*\(\s*(?!['\"])[a-zA-Z_$]|__builtins__\[|Assembly\.Load\s*\(|"
                 r"\$\{\{\s*github\.event\.(?:issue|pull_request|comment|review|push\.commits).*?\}\}",
                 re.I | re.X,
@@ -795,6 +806,8 @@ class SecurityLens:
             (r"assert\b", frozenset({"php"})),
             (r"child_process\b", _JS_FAMILY),
             (r"(?:window|global|this|globalThis)\[", _JS_FAMILY),
+            (r"pull_request_target\b", frozenset({"yaml"})),
+            (r"_0x", _JS_FAMILY),
             (r"\$\{\{", frozenset({"yaml", "markdown"})),
             (r"\$", frozenset({"php"})),
             (r"(?:getattr|importlib|__builtins__)\b", frozenset({"python", "embedded_python"})),
@@ -1026,6 +1039,20 @@ class SecurityLens:
                     if entropy > 4.8:
                         entropy_hits += 1
                         positions["entropy"].append(bisect.bisect_right(line_starts, match.start()))
+                        if len(entropy_snippets) < 3:
+                            entropy_snippets.append(extracted_string[:60] + "...")
+
+            # #8429: `_armor` emptied every line of 250+ chars, so a literal on one was never measured. The
+            # extractor already bounds a literal at 1024 chars, so it reads the raw long line (not 200-char pieces,
+            # which would cut a 300-char literal in two); a pass over a line is linear in its quote count.
+            for line_no, line in enumerate(content.splitlines(), 1):
+                if len(line) < 250:
+                    continue
+                for match in self.string_extractor.finditer(line):
+                    extracted_string = match.group(2)
+                    if extracted_string.count(" ") < 3 and self._calculate_shannon_entropy(extracted_string) > 4.8:
+                        entropy_hits += 1
+                        positions["entropy"].append(line_no)
                         if len(entropy_snippets) < 3:
                             entropy_snippets.append(extracted_string[:60] + "...")
 

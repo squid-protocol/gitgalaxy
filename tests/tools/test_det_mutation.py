@@ -798,3 +798,38 @@ def test_write_mutant_hardlinks_without_mutating_source(tmp_path):
     assert "int x = 2;" in (dest / "service" / "A.java").read_text(encoding="utf-8")
     assert "int x = 1;" in orig_a.read_text(encoding="utf-8")
     assert (dest / "service" / "B.java").stat().st_ino == orig_b.stat().st_ino
+
+
+def _results(killed=0, survived=0, **other):
+    return [{"id": f"{v}{i:05d}", "verdict": v} for v, n in (("killed", killed), ("survived", survived), *other.items())
+            for i in range(n)]  # fmt: skip
+
+
+def test_a_run_that_kills_every_judged_mutant_is_refused_as_a_broken_judge(monkeypatch):
+    """#7954 (2026-11-18): the one-JVM runner lost the X23 stop mark and reported every UPDCUST / ABNDPROC mutant killed.
+    30 judged and none surviving is refused; fewer judged, any survivor, or the override is not."""
+    monkeypatch.delenv(dm.ALLOW_ALL_KILLED_ENV, raising=False)
+    assert "all 30 judged mutants were killed" in dm.all_killed_reason(_results(killed=30))
+    assert dm.all_killed_reason(_results(killed=29)) is None  # too few to say
+    assert dm.all_killed_reason(_results(killed=400, survived=1)) is None
+    # stillborn / timeout / error are not judged by the proof: they neither make nor break the tripwire
+    assert dm.all_killed_reason(_results(killed=29, stillborn=50, timeout=5)) is None
+    assert dm.all_killed_reason(_results(killed=30, stillborn=50)) is not None
+    monkeypatch.setenv(dm.ALLOW_ALL_KILLED_ENV, "1")
+    assert dm.all_killed_reason(_results(killed=30)) is None
+
+
+def test_record_writes_no_ledger_for_an_all_killed_run(tmp_path, monkeypatch, capsys):
+    monkeypatch.delenv(dm.ALLOW_ALL_KILLED_ENV, raising=False)
+    (tmp_path / "mutation.json").write_text(json.dumps({"results": _results(killed=40)}), encoding="utf-8")
+    monkeypatch.setattr(dm, "write", lambda *a, **k: pytest.fail("an all-killed run was written as a ledger"))
+    assert dm.record(CASE, tmp_path, tmp_path / "port") == 1
+    assert f"{CASE}: not recorded: all 40 judged mutants were killed" in capsys.readouterr().out
+
+
+def test_no_committed_ledger_looks_like_an_all_killed_run():
+    """The tripwire's threshold is read off the committed ledgers: none judged ALL_KILLED_MIN mutants and lost none."""
+    for case, e in dm.load().items():
+        c = e["counts"]
+        judged = c["killed"] + c["survived"]
+        assert judged < dm.ALL_KILLED_MIN or c["survived"] > 0, case

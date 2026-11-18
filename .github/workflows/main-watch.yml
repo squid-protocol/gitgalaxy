@@ -13,6 +13,11 @@ name: Main Watch
 # `reconcile` job (hourly, or by hand) is the safety net for any event GitHub drops: for each open `ci-red-main` issue
 # it reads the latest completed non-cancelled run of that workflow on main and comments or closes (tests/tools/main_watch.py).
 #
+# Two shortcuts for a red that outlived its cause (Nov 2026: Evidence Refresh red 38 h on a lost runner, Full Suite Gate
+# red 22 h after its fix merged, each waiting on the next nightly): the event path reruns the failed jobs ONCE when every
+# failed job lost its runner, and the reconcile job dispatches the workflow on main for a red that stood 4 h with newer
+# commits on main (once per 12 h per issue). See tests/tools/main_watch.py.
+#
 # `workflow_run` runs this file as it is on main, never a PR's copy. It checks out main only (the decision logic is
 # tests/tools/main_watch.py), reads no artifacts and never runs pull-request code.
 
@@ -64,10 +69,11 @@ jobs:
     permissions:
       contents: read
       issues: write
-      actions: read
+      actions: write  # rerun the failed jobs once when every one lost its runner (main_watch.py rerun_wanted)
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
+      RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
       WF: ${{ github.event.workflow_run.name }}
       CONCLUSION: ${{ github.event.workflow_run.conclusion }}
       RUN_URL: ${{ github.event.workflow_run.html_url }}
@@ -95,7 +101,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-      actions: read
+      actions: write  # dispatch a stale red's workflow on main (main_watch.py reverify_due)
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}

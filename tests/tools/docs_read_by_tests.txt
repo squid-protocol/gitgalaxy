@@ -107,6 +107,7 @@
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
+/b.c	tests/core_engine
 /bad.forbidden	tests/security_auditing
 /baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine

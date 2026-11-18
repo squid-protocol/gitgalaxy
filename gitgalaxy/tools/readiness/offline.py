@@ -37,6 +37,26 @@ _local = threading.local()
 # Set in the scan child so galaxyscope's worker initializer installs the guard in spawn-start workers too.
 OFFLINE_ENV = "GITGALAXY_ASSESS_OFFLINE"
 
+# #8624: the opt-in for a direct `galaxyscope` scan (the `--offline` flag or this variable set to 1).
+REQUEST_ENV = "GITGALAXY_OFFLINE"
+
+
+def requested(argv: list[str] | None = None) -> bool:
+    """True when `--offline` is on argv or `GITGALAXY_OFFLINE=1` / `GITGALAXY_ASSESS_OFFLINE=1` is set."""
+    args = sys.argv[1:] if argv is None else argv
+    return "--offline" in args or os.environ.get(REQUEST_ENV) == "1" or os.environ.get(OFFLINE_ENV) == "1"
+
+
+def enable_if_requested(argv: list[str] | None = None) -> bool:
+    """Install the guard and set `OFFLINE_ENV` (so `_init_worker` guards spawn-start workers) when requested.
+    Call before importing anything that may fetch (tiktoken's encoding download)."""
+    if not requested(argv):
+        return False
+    os.environ[OFFLINE_ENV] = "1"
+    install()
+    return True
+
+
 # Runs galaxyscope's own __main__ with the guard installed first (the argv after `-c` is galaxyscope's).
 BOOTSTRAP = (
     "import runpy, sys; from gitgalaxy.tools.readiness.offline import install; install(); "
@@ -49,7 +69,7 @@ class OfflineViolation(OSError):
 
 
 def _refuse(what: str) -> OfflineViolation:
-    return OfflineViolation(f"gitgalaxy assess runs offline: {what} refused")
+    return OfflineViolation(f"gitgalaxy runs offline (--offline / assess): {what} refused")
 
 
 @contextmanager

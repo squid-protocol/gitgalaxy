@@ -931,6 +931,9 @@ jobs:
     # not when the lane job says a push run stands down for a full run (#4743)
     if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
+    # #8590: a shard lost to the runner (exit 143) must not turn the run red: the refresh job reads each shard's marker and
+    # fails the run for a failed claim (steps.shardloss.outputs.failed), so the job's own result is not the signal
+    continue-on-error: true
     # Three shards (det_mutation.py refresh --shard, balanced by recorded survivors): one runner timed out on 5 of the 10
     # runs to 2026-11-07 (COSGN00C alone re-ran 718 survivors, ~100 min), and a cancelled job fails the refresh, so its PR
     # never gets auto-merge. Each shard's budget (130 of 150 min, counted from the start) leaves a case it cannot finish
@@ -1372,12 +1375,15 @@ jobs:
       # claim still uploads its marker ("failure") and keeps failing the run.
       - name: Tell a det mutation shard lost to the runner from a failed claim (#8509)
         id: shardloss
-        if: always() && needs.det-mutation.result == 'failure'
+        if: always()
         shell: bash
         env:
           SHARDS: "1 2 3"
           MARKER_DIR: ${{ runner.temp }}/detmut-in
+          DETMUT_RESULT: ${{ needs.det-mutation.result }}
         run: |
+          # #8590: det-mutation is continue-on-error, so its result no longer says a claim failed: only the markers do.
+          # failed = a marker that is not "success", no marker at all, or a job that did not run (as before #8590)
           present=0; missing=""; bad=0
           for n in $SHARDS; do
             f="$MARKER_DIR/shard-$n.done"
@@ -1388,12 +1394,15 @@ jobs:
               missing="$missing $n"
             fi
           done
-          if [ "$present" -gt 0 ] && [ -n "$missing" ] && [ "$bad" -eq 0 ]; then
-            echo "lost=true" >> "$GITHUB_OUTPUT"
+          lost=false; failed=false
+          if [ "$DETMUT_RESULT" = "skipped" ] || [ "$present" -eq 0 ] || [ "$bad" -ne 0 ]; then
+            failed=true
+          elif [ -n "$missing" ]; then
+            lost=true
             echo "::warning title=det mutation::shard(s)$missing lost to the runner (no ledgers kept); their stale cases are run again on the next night"
-          else
-            echo "lost=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "lost=$lost" >> "$GITHUB_OUTPUT"
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
       - name: Put the renewed det mutation ledgers in place (#5862)
         if: steps.detmut_in.outcome == 'success'
@@ -1608,7 +1617,7 @@ jobs:
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
-        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && (needs.det-mutation.result == 'success' || steps.shardloss.outputs.lost == 'true') && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && steps.shardloss.outputs.failed == 'false' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
@@ -1624,7 +1633,7 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || (needs.det-mutation.result != 'success' && steps.shardloss.outputs.lost != 'true') || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || steps.shardloss.outputs.failed != 'false' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
           echo "::error title=Evidence refresh::a record's proof, the det sweep, the Db2 job or the blocker-feed leak scan failed or could not run -- see the summary"
           exit 1

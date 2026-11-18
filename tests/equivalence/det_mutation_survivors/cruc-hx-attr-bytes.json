@@ -4014,6 +4014,18 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "bc8ae86c09",
+   "op": "CON",
+   "line": 556,
+   "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
+   "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(1) cuts the raw COMMAREA area to 1 byte (areaOf), so commarea size 2 instead of 1 carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
    "id": "81606d71df",
    "op": "LIT",
    "line": 561,
@@ -4189,15 +4201,6 @@
    "after": "/* caBack.run(); */",
    "verdict": "harness-gap",
    "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "bc8ae86c09",
-   "op": "CON",
-   "line": 588,
-   "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
-   "verdict": "harness-gap",
-   "reason": "The RETURN event the proof compares is {transid, commarea decoded by the case's COMMAREA layout} (equivalence_cics_compare.py RETURN arm): the LENGTH and any byte past the 1-byte WS-CA layout are not compared, so this edit to the RETURN's length / area size changes behaviour the proof runs and does not compare; survivor_attack try with raw-hex, tail-bytes and CLEAR/ENTER/first-display inputs all survived (open: the harness must compare RETURN LENGTH and bytes)"
   },
   {
    "id": "f0f1835023",
@@ -4591,6 +4594,18 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "3378f543ef",
+   "op": "CON",
+   "line": 687,
+   "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
+   "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(1) cuts the raw COMMAREA area to 1 byte (areaOf), so commarea size 2 instead of 1 carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
    "id": "482912c588",
    "op": "LIT",
    "line": 688,
@@ -4950,15 +4965,6 @@
    "after": "/* caBack.run(); */",
    "verdict": "harness-gap",
    "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "3378f543ef",
-   "op": "CON",
-   "line": 719,
-   "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
-   "verdict": "harness-gap",
-   "reason": "The RETURN event the proof compares is {transid, commarea decoded by the case's COMMAREA layout} (equivalence_cics_compare.py RETURN arm): the LENGTH and any byte past the 1-byte WS-CA layout are not compared, so this edit to the RETURN's length / area size changes behaviour the proof runs and does not compare; survivor_attack try with raw-hex, tail-bytes and CLEAR/ENTER/first-display inputs all survived (open: the harness must compare RETURN LENGTH and bytes)"
   },
   {
    "id": "39d2a6dc83",

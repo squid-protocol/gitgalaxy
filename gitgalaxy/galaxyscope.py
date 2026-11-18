@@ -2103,6 +2103,21 @@ class Orchestrator:
                     repository_graph, is_shadow_patch=is_shadow_patch
                 )
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
+            # #8431: real shadow-patch detection, model-independent: content changed since the base ref while
+            # the governing manifest's version did not. Its own per-file telemetry field; assigns no class.
+            shadow_base = self.config.get("SHADOW_PATCH_BASE")
+            if shadow_base and repository_graph:
+                from gitgalaxy.security.shadow_patch import detect_against_ref
+
+                hits = {h["path"]: h for h in detect_against_ref(str(self.root), shadow_base)}
+                for file_data in repository_graph:
+                    hit = hits.get(file_data.get("path", "").replace("\\", "/"))
+                    if hit:
+                        file_data.setdefault("telemetry", {})["shadow_patch"] = {
+                            "base_ref": shadow_base,
+                            "version": hit["version"],
+                            "manifest_dir": hit["manifest_dir"],
+                        }
 
             # ==========================================================
             # PHASE 10: ECOSYSTEM SECURITY AUDITS
@@ -4331,6 +4346,14 @@ def main():
         help="Manual assertion that a shadow patch happened (no hash or version is compared). Adds an alert to files with file_impact > 0.5; assigns no threat class.",
     )
 
+    parser.add_argument(
+        "--shadow-patch-base",
+        metavar="REF",
+        default=None,
+        help="Git ref to compare against: flags a file whose content changed since REF while its nearest "
+        "package.json / pyproject.toml / Cargo.toml version did not (telemetry field `shadow_patch`; no threat class).",
+    )
+
     # --- EXCLUSIVE RECORDER FLAGS ---
     parser.add_argument("--llm-only", action="store_true", default=None, help="Run ONLY the LLM recorder")
     parser.add_argument("--gpu-only", action="store_true", default=None, help="Run ONLY the GPU recorder")
@@ -4467,6 +4490,7 @@ def main():
         "debug": False,
         "paranoid": False,
         "shadow_patch_detected": False,
+        "shadow_patch_base": None,
         "llm_only": False,
         "gpu_only": False,
         "audit_only": False,
@@ -4658,6 +4682,7 @@ def main():
             "DOCUMENTATION_LANGUAGES": ASSET_MASKS.get("DOCUMENTATION_LANGUAGES", set()),
             "PARANOID_MODE": args.paranoid,
             "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,
+            "SHADOW_PATCH_BASE": args.shadow_patch_base,
             "LLM_ONLY": args.llm_only,
             "GPU_ONLY": args.gpu_only,
             "AUDIT_ONLY": args.audit_only,

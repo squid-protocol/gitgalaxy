@@ -18,6 +18,7 @@ from pathlib import Path
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.security.long_lines import chunk_long_lines
+from gitgalaxy.security.mainframe_secrets import mainframe_secret_hits
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.config_resolver import path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -151,7 +152,7 @@ def main():
             content = read_source(file_path).text  # #3813: no byte dropped
 
             sec_results = security.scan_content(chunk_long_lines(content))
-            extra_hits = sum(1 for pattern in EXTRA_SECRETS if pattern.search(content))
+            extra_hits = sum(1 for pattern in EXTRA_SECRETS if pattern.search(content)) + mainframe_secret_hits(content)
 
             if sec_results["counts"].get("hardcoded_secrets", 0) > 0 or extra_hits:
                 if is_whitelisted:

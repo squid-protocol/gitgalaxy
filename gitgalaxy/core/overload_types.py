@@ -640,8 +640,6 @@ def _cpp_compat(param: str, arg: str, subtype: Subtype | None) -> bool | None:
         return None
     if arg in _CPP_PRIMS:
         if param in _CPP_PRIMS:
-            if param == arg:
-                return True
             if param in ("double", "float") and arg in ("int", "long", "unsigned", "short", "char", "float"):
                 return True
             if param in ("int", "long", "unsigned", "size_t") and arg in ("bool", "char", "short", "int"):

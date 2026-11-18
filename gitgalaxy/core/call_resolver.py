@@ -2773,7 +2773,7 @@ def resolve_calls(
                     and dst.line == caller_line
                     and dst.name == caller_name
                     and bucket.free.defs
-                    and lang not in overload_types.LANGS
+                    and lang not in ("csharp", "kotlin")
                 ):
                     # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
                     # detector keeps it because a free `f` (this file or another) may be the callee.

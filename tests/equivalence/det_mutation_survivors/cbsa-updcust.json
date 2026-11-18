@@ -1536,15 +1536,6 @@
    "reason": "initialState(): all storage fields are either overwritten before read or unreferenced in the PROCEDURE DIVISION"
   },
   {
-   "id": "4985be3287",
-   "op": "DEL",
-   "line": 356,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "UPDCUST references only EIBCALEN (and EIBRESP/RESP2 the commands set); unreferenced EIB fields or task setups cannot show"
-  },
-  {
    "id": "a140d4b141",
    "op": "DEL",
    "line": 357,
@@ -1764,22 +1755,6 @@
     "raw-entry-direct-1985",
     "raw-entry-direct-1986",
     "raw-entry-direct-2000"
-   ]
-  },
-  {
-   "id": "0e4d7d1e73",
-   "op": "COR",
-   "line": 394,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "undefined-by-ibm",
-   "reason": "`exactCommarea() || calen < 261`: only a LINK with no COMMAREA (input no-commarea) kills it, and that run moves COMM-CUSTNO's non-digit bytes into the numeric DISPLAY item DESIRED-CUSTNO PIC 9(10). IBM documents no result for that MOVE, so the kill says nothing about z/OS (owner ruling 2026-11-03, #7495; rule 7 extension).",
-   "undefined": {
-    "item": "DESIRED-CUSTNO PIC 9(10) (moved from COMM-CUSTNO)",
-    "input": "no-commarea: a LINK with no COMMAREA, so COMM-CUSTNO is non-digit bytes"
-   },
-   "tried": [
-    "no-commarea"
    ]
   },
   {

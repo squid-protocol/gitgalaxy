@@ -1212,15 +1212,6 @@
    "reason": "WS-ABND-KEY-LEN is never referenced in the PROCEDURE DIVISION (the WRITE specifies RIDFLD directly)"
   },
   {
-   "id": "0dc3363e3f",
-   "op": "DEL",
-   "line": 300,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "caBack is re-assigned on line 320; default no-op caBack initialization deletion has no effect"
-  },
-  {
    "id": "05db6f9d64",
    "op": "DEL",
    "line": 303,
@@ -1462,15 +1453,6 @@
     "raw-entry-direct-1986",
     "raw-entry-direct-2000"
    ]
-  },
-  {
-   "id": "3056d19f0e",
-   "op": "COR",
-   "line": 338,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
   },
   {
    "id": "6ffd2eaf92",

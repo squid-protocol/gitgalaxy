@@ -18,6 +18,8 @@
         <link rel="prev" href="../08-27-activity-sensor/">
       
       
+        <link rel="next" href="../08-29-repair-radius/">
+      
       
         
       
@@ -11817,6 +11819,8 @@
       
         
       
+        
+      
     
     
     
@@ -12695,6 +12699,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-29-repair-radius/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repair Radius
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -12733,6 +12765,7 @@
 <h1 id="blast-radius-of-a-change">Blast Radius of a Change</h1>
 <blockquote>
 <p><strong>Status:</strong> exploratory research, one author, not peer reviewed. The measurements are in the temporal-crucible repository (<code>docs/sensor-overhaul/sensors/ripple_radius.md</code>, with scripts and outputs). This page says what was found, how much weight it bears and how <code>gitgalaxy change</code> uses it.</p>
+<p><strong>Newer:</strong> <a href="../08-29-repair-radius/">08-29 Repair Radius</a> restates the findings in plain language with measurements on verified functions and two more large repositories (DPDK, Mesa); where the figures differ, 08-29 supersedes this page.</p>
 <p><strong>Command that uses it:</strong> <a href="../08-26-change-report/"><code>gitgalaxy change</code></a>: changed signatures first, with their callers named.</p>
 <p><strong>Summary:</strong> After a change, the later fix for it is most often in a function the change touched. When it is not, it is found near the change in the call graph, more often than a function of similar size in the same file. A short list of the changed functions plus their nearest neighbours covers about half of all named-cause cases we could measure, and about 80% of those we could map (curl, OpenSSL and FreeBSD; not yet measured on the kernel).</p>
 </blockquote>

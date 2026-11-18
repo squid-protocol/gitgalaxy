@@ -1585,7 +1585,7 @@ def inactive_vectors(scan_config: dict[str, Any] | None = None) -> set[str]:
 # The measurement-tier model is ADDITIVE: the frozen legacy risk_* columns
 # (RISK_SCHEMA above), their sigmoid formulas, and every mp/multiplier stay
 # byte-identical -- golden masters, bless baselines, and the
-# supply_chain_firewall 50.0-cutoff are unaffected. Tiers surface only in
+# import_policy_gate 50.0-cutoff are unaffected. Tiers surface only in
 # new telemetry keys / DB columns / the LLM brief. See docs/vectors.md
 # "The tier model" for the full design writeup.
 #

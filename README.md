@@ -359,6 +359,8 @@ with `OfflineViolation`, in the main process and in spawn-start workers, and a t
 |---|---|
 | `gitgalaxy assess` | Guaranteed: always under the guard (#4726, #5235). |
 | `galaxyscope <path> --offline` (or `GITGALAXY_OFFLINE=1`) | Guaranteed under the guard (#8624). Without the opt-in it only promises. |
+| The completeness report (`completeness_report`, run as `python -m`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The forensic audit recorder CLI (`audit_recorder`, run as `python -m`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
 | Other report and audit tools | Not yet guarded: they make no network call, but nothing enforces it (tracked in #8624). |
 
 Exceptions, refused by name when offline: the tiktoken `cl100k_base` download (token mass is left NULL; point

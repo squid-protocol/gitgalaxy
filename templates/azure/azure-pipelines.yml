@@ -56,8 +56,8 @@ stages:
     - script: xray-inspector .
       displayName: 'Run X-Ray Inspector'
 
-  - job: SupplyChainFirewall
-    displayName: 'Supply Chain Firewall'
+  - job: ImportPolicyGate
+    displayName: 'Import Policy Gate'
     pool:
       vmImage: 'ubuntu-latest'
     steps:
@@ -72,8 +72,8 @@ stages:
       displayName: 'Install GitGalaxy'
     - checkout: self
       fetchDepth: 0
-    - script: supply-chain-firewall .
-      displayName: 'Run Supply Chain Firewall'
+    - script: import-policy-gate .
+      displayName: 'Run Import Policy Gate'
 
   - job: GalaxyScopeReport
     displayName: 'GalaxyScope Reporting (SARIF + ML Malware Gate)'

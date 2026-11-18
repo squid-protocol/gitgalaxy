@@ -217,7 +217,7 @@ DEFINITION: dict[str, Any] = {
     # network_risk_sensor.py resolves a `./name` module token by that tree only.
     "imports_follow_module_tree": True,
     # `_dependency_capture` group 2 is that `mod name;` declaration: galaxyscope records
-    # it as `./name`, a LOCAL token, so the supply-chain firewall and the typosquat radar
+    # it as `./name`, a LOCAL token, so the import policy gate and the typosquat radar
     # never read a module file name as an external crate.
     "local_module_capture_group": 2,
     # #4544: group 3 is a `#[path = "..."] mod name;` file, recorded as `./<path>` (or the
@@ -491,7 +491,7 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (RUST) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Supply Chain Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Originally, this regex was anchored to the start of the
             # line `^[ \t]*`. While Rust doesn't evaluate dependencies dynamically at

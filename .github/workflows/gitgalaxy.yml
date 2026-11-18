@@ -89,11 +89,11 @@ jobs:
           target: .
           version: local
 
-      - name: Supply Chain Firewall
+      - name: Import Policy Gate
         if: ${{ !cancelled() && steps.plan.outputs.mode != 'none' }}
         uses: ./
         with:
-          tool: supply-chain-firewall
+          tool: import-policy-gate
           target: .
           version: local
 

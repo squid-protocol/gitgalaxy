@@ -68,7 +68,7 @@ REPRO: list[tuple[str, str]] = [
     ),
 ]
 NO_LOCAL = re.compile(r"^(CodeQL|Analyze|Muninn|muninn|Small audits|rosetta-audit|"
-                      r"Supply Chain Firewall|Full Report)", re.I)  # fmt: skip
+                      r"Import Policy Gate|Full Report)", re.I)  # fmt: skip
 
 # Test names the shepherd reruns once instead of reporting as a real failure. Empty on purpose: the wall-clock
 # tests that used to live here (#4477) assert CPU-time ratios / best-of-3 CPU bounds now (tests/_timing.py), so

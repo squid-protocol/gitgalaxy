@@ -41,7 +41,7 @@ pipelines:
               - xray-inspector .
 
         - step:
-            name: 'Supply Chain Firewall'
+            name: 'Import Policy Gate'
             caches:
               - pip
             script:
@@ -51,7 +51,7 @@ pipelines:
                 python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
                 echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
                 pip install --require-hashes -r /tmp/gg-requirements.txt
-              - supply-chain-firewall .
+              - import-policy-gate .
 
         - step:
             name: 'GalaxyScope Reporting (SARIF + ML Malware Gate)'

@@ -14,6 +14,7 @@ checks on `main` are green, and (#6919) no check that ran on the head is red: se
 | `shepherd:merge` | Marks the PR ready and turns on auto-merge (squash). GitHub merges it when the required checks pass. |
 | `shepherd:hold` | Never auto-merge. Wins over `shepherd:merge`. |
 | `shepherd:matrix` | Runs the full OS x Python matrix (`full-suite-gate.yml`) on the PR's head. Auto-merge stays off until a green run exists for that head. Same-repo branches only; for a fork, run the matrix by hand. |
+| (no label: implied matrix) | A PR carrying `shepherd:merge` also runs the matrix when `tests/tools/matrix_plan.py` selects it: it fixes a `ci-red-main` issue, or adds or changes a test that shells out to a platform tool without a guard or depends on path case (#8425). The digest names the reason. About 20 PRs a week (7.3% of merged PRs, replay 2026-11-18); a run is 12-14 jobs and 140-180 runner-min (4 runs, 2026-11), so about 3,000-3,600 runner-min a week. Rules and replay: `docs/agents/full-suite-matrix.md`. |
 | `shepherd:full` | The det sweep plans a full sweep instead of narrowing it to the changed cases: the shepherd reruns the latest sweep, which reads the label when it plans. (Label changes do not start the det sweep by themselves.) |
 
 A label added by someone without write access is removed by the bot, with a comment.

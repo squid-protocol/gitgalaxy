@@ -591,7 +591,46 @@ _BUILTIN_INSTANCE_METHODS_GO = frozenset(
     {"Close", "Error", "String", "Lock", "Unlock", "RLock", "RUnlock", "Load", "Store", "Next", "Err"}
 )
 _BUILTIN_INSTANCE_METHODS_RUST = frozenset({"len", "iter", "clone", "into", "unwrap", "as_ref", "fmt"})
-_BUILTIN_INSTANCE_METHODS_CPP = frozenset({"size", "data", "begin", "end", "push_back", "c_str"})
+_BUILTIN_INSTANCE_METHODS_CPP = frozenset(
+    {
+        "size",
+        "data",
+        "begin",
+        "end",
+        "cbegin",
+        "cend",
+        "rbegin",
+        "rend",
+        "empty",
+        "clear",
+        "push_back",
+        "pop_back",
+        "emplace_back",
+        "resize",
+        "reserve",
+        "capacity",
+        "front",
+        "back",
+        "find",
+        "count",
+        "substr",
+        "c_str",
+        "length",
+        "append",
+        "insert",
+        "erase",
+        "swap",
+        "get",
+        "reset",
+        "release",
+        "put",
+        "write",
+        "read",
+        "flush",
+        "str",
+        "at",
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "go": _BUILTIN_INSTANCE_METHODS_GO,
     "rust": _BUILTIN_INSTANCE_METHODS_RUST,

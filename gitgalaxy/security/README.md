@@ -23,7 +23,7 @@ The AI guardrails (below) flag an **Over-Permissioned Agent Binding**: an agent 
 `--shadow-patch-detected` is a flag the caller sets; GitGalaxy computes no hashes and compares no versions to set it. When it is set, `security_auditor.py` adds an alert ("manually asserted") to every file with `file_impact > 0.5`, with or without the XGBoost model. It assigns no threat class and no score.
 
 ### Long-line blind spot
-Before any `SecurityLens` regex or the entropy check runs, `SecurityLens._armor` empties every line of 250 or more characters (`security_lens.py`), to keep the regexes from backtracking. Nothing on such a line is matched, except `hardcoded_secrets`, which re-reads long lines in overlapping pieces (#8429): a key or an `eval(` on a minified line is not reported. When armoring removes over 90% of a file, a short literal screen for a few execution, network and TLS-bypass strings runs on the raw text; it does not cover secrets. Only Vault Sentinel reads long lines, through `long_lines.py`. Tracked in #8429.
+Before any `SecurityLens` regex or the entropy check runs, `SecurityLens._armor` empties every line of 250 or more characters (`security_lens.py`), to keep the regexes from backtracking. Such a line is then re-read in overlapping 200-character pieces for every signal except `dead_code` and `homoglyphs` (#8429), so a key or an `eval(` on a minified line is reported; the entropy check still skips it. When armoring removes over 90% of a file, a short literal screen for a few execution, network and TLS-bypass strings runs on the raw text; it does not cover secrets. Only Vault Sentinel reads long lines, through `long_lines.py`. Tracked in #8429.
 
 ---
 

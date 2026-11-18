@@ -759,8 +759,8 @@ UNGATEABLE_SIGNATURES = {
 
 
 def _safe_content(content):
-    """Mirror of scan_content's ReDoS-armored haystack construction."""
-    return "\n".join(line.strip() for line in content.splitlines() if len(line) < 250)
+    """The haystack scan_content builds: the lens's own armor, not a copy (#8434)."""
+    return SecurityLens._armor(content)[0]
 
 
 def _gate_rejects(gate, safe_content):
@@ -969,3 +969,81 @@ def test_a_long_line_secret_is_counted_once_across_the_chunk_overlap_8429(lens):
 def test_a_poison_long_line_stays_bounded_8429(lens):
     poison = "password=" + '"' + "A" * 5000 + "!" + ("password=" * 600) + "\n"
     assert_cpu_below(lambda: lens.scan_content(poison), 5, what="poisoned long line")
+
+
+# --- #8429 slice 2: every other one-line signature reads a long line too ---------------------------------
+_SHORT_BODY = "".join(f"x{i} = {i}\n" for i in range(40))  # keeps the long line under the 90% minified fallback
+_LONG_LINE_TRIGGERS = {
+    "high_risk_execution": "eval(atob(s))",
+    "state_mutation": "Object.prototype.polluted = 1",
+    "safety_bypasses": "NODE_TLS_REJECT_UNAUTHORIZED = 0",
+    "reflection_metaprogramming": "atob(s)",
+    "db_hooks": "cursor.execute(q)",
+    "self_propagation": "shutil.copy(__file__, d)",
+    "shadow_imports": 'import "payload.png"',
+    "bitwise_ops": "k = a ^ b c ^ d",
+    "unicode_steganography": "︀︁︂︃",
+}
+_LONG_LINE_NEAR_MISSES = {
+    "high_risk_execution": "evaluate(s)",
+    "state_mutation": "Object.prototype.polluted",
+    "safety_bypasses": "NODE_TLS_REJECT_UNAUTHORIZED",
+    "reflection_metaprogramming": "atobx(s)",
+    "db_hooks": "cursor.close()",
+    "self_propagation": "shutil.copy(src, d)",
+    "shadow_imports": 'import "payload.js"',
+    "bitwise_ops": "k = a ^ b",
+    "unicode_steganography": "︀︁",
+}
+
+
+def _long(trigger: str, lead: int) -> str:
+    return "p = '" + "x" * lead + "'; " + trigger + "; " + "y" * 300
+
+
+@pytest.mark.parametrize("key", sorted(_LONG_LINE_TRIGGERS))
+@pytest.mark.parametrize("lead", [0, 120, 300])
+def test_a_signature_on_a_long_line_matches_its_short_line_count_8429(lens, key, lead):
+    trigger = _LONG_LINE_TRIGGERS[key]
+    short = lens.scan_content(_SHORT_BODY + trigger + "\n")["counts"][key]
+    assert short >= 1, "the trigger must fire on a short line"
+    line = _long(trigger, lead)
+    assert len(line) >= 250
+    result = lens.scan_content(_SHORT_BODY + line + "\n")
+    assert result["counts"][key] == short
+    assert result["positions"][key] == [41]
+
+
+@pytest.mark.parametrize("key", sorted(_LONG_LINE_NEAR_MISSES))
+def test_a_long_line_near_miss_is_not_flagged_8429(lens, key):
+    assert lens.scan_content(_SHORT_BODY + _LONG_LINE_NEAR_MISSES[key] + "\n")["counts"][key] == 0
+    assert lens.scan_content(_SHORT_BODY + _long(_LONG_LINE_NEAR_MISSES[key], 120) + "\n")["counts"][key] == 0
+
+
+def test_a_long_line_hit_is_counted_once_across_the_chunk_overlap_for_every_signal_8429(lens):
+    for key, trigger in _LONG_LINE_TRIGGERS.items():
+        line = "q" * 108 + "; " + trigger + "; " + "r" * 300  # straddles the start of the second piece
+        assert lens.scan_content(_SHORT_BODY + line + "\n")["counts"][key] == 1, key
+
+
+def test_a_long_line_hit_honours_the_language_scope_8429(lens):
+    line = _long("child_process.exec(c)", 120)
+    assert lens.scan_content(_SHORT_BODY + line + "\n")["counts"]["high_risk_execution"] == 1
+
+
+def test_dead_code_and_homoglyphs_stay_blind_on_long_lines_8429(lens):
+    # documented in docs/known_blind_spots.md; pinned so a change to it is deliberate
+    line = _long("// x = compute(y); z = 3", 120) + "ㅤㅤ"
+    counts = lens.scan_content(_SHORT_BODY + line + "\n")["counts"]
+    assert counts["dead_code"] == 0 and counts["homoglyphs"] == 0
+
+
+@pytest.mark.parametrize("key", ["high_risk_execution", "reflection_metaprogramming", "bitwise_ops", "state_mutation"])
+def test_a_poison_long_line_stays_bounded_for_each_signature_8429(lens, key):
+    poison = {
+        "high_risk_execution": "eval(" * 800,
+        "reflection_metaprogramming": "\\x41" * 2000 + "a" * 15 + "='" + "A" * 3000,
+        "bitwise_ops": "k = " + "a ^ b " * 1500,
+        "state_mutation": "a.prototype." * 1500,
+    }[key]
+    assert_cpu_below(lambda: lens.scan_content(poison + "\n"), 5, what=f"poisoned long line ({key})")

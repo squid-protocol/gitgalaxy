@@ -336,13 +336,19 @@ def test_audit_repository_empty_state():
 # ==============================================================================
 # TEST 8: PANDAS NaN SPARSITY HANDLING (ZERO-DEPENDENCY MODE)
 # ==============================================================================
-def test_construct_feature_matrix_nan_handling(mock_artifacts):
+@patch("gitgalaxy.security.security_auditor.xgb.XGBClassifier")
+def test_construct_feature_matrix_nan_handling(mock_xgb_class, mock_artifacts):
     """
     Proves that missing columns (from Zero-Dependency mode) and Inf values
-    are properly converted to np.nan, preserving the native sparsity required
+    reach the model as np.nan, preserving the native sparsity required
     by XGBoost and preventing artificial data poisoning (Issue #98).
+    Runs the real audit_repository and captures the matrix handed to predict_proba
+    (#8434: it used to re-implement the reindex/replace step inline).
     """
+    mock_model = mock_xgb_class.return_value
+    mock_model.predict_proba.return_value = np.array([[0.99, 0.01, 0.0, 0.0, 0.0], [0.99, 0.01, 0.0, 0.0, 0.0]])
     auditor = SecurityAuditor()
+    auditor.model = mock_model
 
     # 1. Define a schema that includes a feature completely missing from the artifacts
     auditor.SIGNAL_SCHEMA = ["high_risk_execution"]
@@ -354,15 +360,12 @@ def test_construct_feature_matrix_nan_handling(mock_artifacts):
     ]
 
     # 2. Inject an intentional Infinity value to trigger the sanitization block
-    # (e.g. simulating a division by zero that slipped through log1p)
     mock_artifacts[0]["telemetry"]["ownership_entropy"] = np.inf
 
-    auditor._resolve_dependency_graph(mock_artifacts)
-    df = auditor._construct_feature_matrix(mock_artifacts)
-
-    # 3. Simulate the exact Pandas reindexing/sanitization logic from audit_repository()
-    X = df.reindex(columns=auditor.feature_names, fill_value=np.nan)
-    X = X.replace([np.inf, -np.inf], np.nan)
+    # 3. Run the real audit and take the matrix the model actually received
+    auditor.audit_repository(mock_artifacts)
+    mock_model.predict_proba.assert_called_once()
+    X = mock_model.predict_proba.call_args.args[0]
 
     # Assert 1: The missing feature was created but filled with NaN, NOT 0.0
     assert "missing_ml_feature" in X.columns

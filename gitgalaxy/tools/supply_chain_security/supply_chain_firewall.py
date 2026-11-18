@@ -271,6 +271,45 @@ def run_firewall_audit(
     }
 
 
+def _risk_labels() -> list[str]:
+    """The display label AuditRecorder gives each RISK_SCHEMA slot (same derivation as its
+    "4. Vulnerability & Risk Exposures" block), so the CLI reads back what the recorder wrote."""
+    from gitgalaxy.recorders.audit_recorder import AuditRecorder
+    from gitgalaxy.standards import gitgalaxy_config as config
+
+    recorder = AuditRecorder()
+    exposure_labels = getattr(config, "RECORDING_SCHEMAS", {}).get("EXPOSURE_LABELS", {})
+    return [exposure_labels.get(k, recorder.format_label(k)) for k in SignalProcessor.RISK_SCHEMA]
+
+
+def _audit_file_to_node(path: str, entry: dict, labels: list[str]) -> dict:
+    """Translate one audit-JSON file entry (AuditRecorder's shape) into the
+    in-memory node shape run_firewall_audit reads (#8428).
+
+    The audit JSON has no ``raw_imports`` / ``risk_vector``: imports live under
+    "9. Extracted Dependencies" and risk scores under "4. Vulnerability & Risk
+    Exposures" as ``{display label: "12.5%"}`` (or "[UNSCANNED - NO DATA]").
+    """
+    exposures = entry.get("4. Vulnerability & Risk Exposures") or {}
+    vector = []
+    for label in labels:
+        try:
+            vector.append(float(str(exposures.get(label, 0.0)).rstrip("%")))
+        except ValueError:
+            vector.append(0.0)  # "[UNSCANNED - NO DATA]"
+    return {"path": path, "raw_imports": entry.get("9. Extracted Dependencies") or [], "risk_vector": vector}
+
+
+def _parsed_files_from_audit(data: dict) -> list:
+    labels = _risk_labels()
+    groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
+    return [
+        _audit_file_to_node(path, file_info, labels)
+        for folder_data in groups.values()
+        for path, file_info in folder_data.get("Files", {}).items()
+    ]
+
+
 def main():
     """
     Standalone Execution Mode.
@@ -339,23 +378,12 @@ def main():
 
                 with open(audit_files[0], encoding="utf-8") as f:
                     data = json.load(f)
-                    # Extract files from the structured audit directory groups
-                    parsed_files = []
-                    groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
-                    for folder_data in groups.values():
-                        for path, file_info in folder_data.get("Files", {}).items():
-                            file_info["path"] = path  # Ensure path remains attached
-                            parsed_files.append(file_info)
+                    parsed_files = _parsed_files_from_audit(data)
         else:
             # Standard file-based load
             with open(target_path, encoding="utf-8") as f:
                 data = json.load(f)
-                parsed_files = []
-                groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
-                for folder_data in groups.values():
-                    for path, file_info in folder_data.get("Files", {}).items():
-                        file_info["path"] = path
-                        parsed_files.append(file_info)
+                parsed_files = _parsed_files_from_audit(data)
 
     except Exception as e:
         print(f"❌ Failed to parse RAM graph: {e}")

@@ -20,6 +20,13 @@ def _risk_vector(**scores):
     return vector
 
 
+def _exposures(**scores):
+    """The audit JSON's "4. Vulnerability & Risk Exposures" block: {display label: "N%"}."""
+    labels = firewall_module._risk_labels()
+    vector = _risk_vector(**scores)
+    return {label: f"{round(v, 2)}%" for label, v in zip(labels, vector, strict=False)}
+
+
 def _make_config(**overrides):
     """
     Builds a ResolvedConfig for direct run_firewall_audit() calls (#335):
@@ -186,7 +193,11 @@ def test_strict_mode_enforcement(tmp_path):
 
     mock_ram_graph = {
         "6. Parsed Files (Scanned Artifacts)": {
-            "root": {"Files": {"server.js": {"raw_imports": ["shadow-library"], "equations": {}, "coding_loc": 50}}}
+            "root": {
+                "Files": {
+                    "server.js": {"9. Extracted Dependencies": ["shadow-library"], "equations": {}, "coding_loc": 50}
+                }
+            }
         }
     }
 
@@ -218,8 +229,8 @@ def test_behavioral_threat_evaluation(tmp_path):
             "root": {
                 "Files": {
                     "logic.js": {
-                        "raw_imports": [],
-                        "risk_vector": _risk_vector(secrets_risk=70.0),
+                        "9. Extracted Dependencies": [],
+                        "4. Vulnerability & Risk Exposures": _exposures(secrets_risk=70.0),
                         "coding_loc": 50,
                     }
                 }
@@ -437,7 +448,7 @@ def test_tuple_import_handling(tmp_path):
             "root": {
                 "Files": {
                     "app.py": {
-                        "raw_imports": [("express", "Router"), "normal-string"],
+                        "9. Extracted Dependencies": [("express", "Router"), "normal-string"],
                         "equations": {},
                         "coding_loc": 100,
                     }
@@ -473,7 +484,7 @@ def test_directory_execution_and_globbing(mock_subprocess_run, tmp_path):
 
         mock_audit_content = {
             "6. Parsed Files (Scanned Artifacts)": {
-                "root": {"Files": {"app.js": {"raw_imports": [], "equations": {}, "coding_loc": 10}}}
+                "root": {"Files": {"app.js": {"9. Extracted Dependencies": [], "equations": {}, "coding_loc": 10}}}
             }
         }
         audit_file.write_text(json.dumps(mock_audit_content))
@@ -500,8 +511,10 @@ def test_directory_group_schema_parsing(tmp_path, capsys):
     """Proves the firewall iterates nested directory groups to extract files."""
     mock_ram_graph = {
         "6. Parsed Files (Scanned Artifacts)": {
-            "src/backend": {"Files": {"server.py": {"raw_imports": [], "equations": {}, "coding_loc": 10}}},
-            "src/frontend": {"Files": {"ui.jsx": {"raw_imports": [], "equations": {}, "coding_loc": 10}}},
+            "src/backend": {
+                "Files": {"server.py": {"9. Extracted Dependencies": [], "equations": {}, "coding_loc": 10}}
+            },
+            "src/frontend": {"Files": {"ui.jsx": {"9. Extracted Dependencies": [], "equations": {}, "coding_loc": 10}}},
         }
     }
 
@@ -538,8 +551,8 @@ def test_density_dilution_fix_for_build_scripts(tmp_path):
             "root": {
                 "Files": {
                     "postinstall.js": {
-                        "raw_imports": [],
-                        "risk_vector": _risk_vector(secrets_risk=7.0),
+                        "9. Extracted Dependencies": [],
+                        "4. Vulnerability & Risk Exposures": _exposures(secrets_risk=7.0),
                         "coding_loc": 5,
                     }
                 }
@@ -698,7 +711,7 @@ def test_yaml_config_flag_actually_changes_standalone_firewall_behavior(tmp_path
             "root": {
                 "Files": {
                     "app.js": {
-                        "raw_imports": ["totally-innocuous-package"],
+                        "9. Extracted Dependencies": ["totally-innocuous-package"],
                         "equations": {},
                         "coding_loc": 10,
                     }
@@ -727,3 +740,78 @@ def test_yaml_config_flag_actually_changes_standalone_firewall_behavior(tmp_path
             "supply_chain_firewall.py main() -- the #332/#335 reachability "
             "gap is still open."
         )
+
+
+# ==============================================================================
+# TEST: END TO END ON A REAL AUDIT (#8428)
+# ==============================================================================
+def _scan_planted_repo(tmp_path, files):
+    import os
+    import subprocess
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    for name, body in files.items():
+        (repo / name).write_text(body, encoding="utf-8")
+    out = tmp_path / "out" / "scan.json"
+    out.parent.mkdir()
+    env = {**os.environ, "GITGALAXY_DISABLE_GIT_HISTORY": "1"}
+    subprocess.run(  # noqa: S603 -- fixed args
+        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(repo), "--output", str(out)],
+        check=True,
+        capture_output=True,
+        env=env,
+    )
+    audits = list(out.parent.glob("*_audit.json"))
+    assert len(audits) == 1
+    return audits[0]
+
+
+@pytest.fixture(scope="module")
+def real_audit(tmp_path_factory):
+    tmp_path = tmp_path_factory.mktemp("fw8428")
+    return _scan_planted_repo(
+        tmp_path,
+        {
+            "app.py": "import requests\nimport os\n\n\ndef main():\n    return requests.get('http://x')\n",
+            "ok.py": "import json\n\n\ndef f():\n    return json.dumps({})\n",
+        },
+    )
+
+
+def _run_cli(audit, tmp_path, capsys, **cfg):
+    config_path = _write_config_yaml(tmp_path, **cfg)
+    with patch.object(sys, "argv", ["supply_chain_firewall.py", str(audit), "--config", config_path]):
+        try:
+            firewall_module.main()
+            code = 0
+        except SystemExit as exc:
+            code = exc.code
+    return code, capsys.readouterr().out
+
+
+def test_real_audit_json_blacklisted_import_blocks(real_audit, tmp_path, capsys):
+    code, out = _run_cli(real_audit, tmp_path, capsys, BLACKLISTED_IMPORTS=["requests"])
+    assert code == 1, out
+    assert "Banned Packages      : 1" in out
+
+
+def test_real_audit_json_strict_mode_unapproved_fails_approved_passes(real_audit, tmp_path, capsys):
+    code, out = _run_cli(real_audit, tmp_path, capsys, STRICT_IMPORT_MODE=True, APPROVED_IMPORTS=["json"])
+    assert code == 1, out
+    assert "Unknown Packages     : 2" in out  # requests, os
+    code, out = _run_cli(
+        real_audit, tmp_path, capsys, STRICT_IMPORT_MODE=True, APPROVED_IMPORTS=["json", "requests", "os"]
+    )
+    assert code == 0, out
+    assert "Approved Packages    : 3" in out
+
+
+def test_audit_risk_exposure_round_trips_to_the_firewall():
+    labels = firewall_module._risk_labels()
+    entry = {"4. Vulnerability & Risk Exposures": _exposures(secrets_risk=70.0), "9. Extracted Dependencies": []}
+    node = firewall_module._audit_file_to_node("a.js", entry, labels)
+    idx = SignalProcessor.RISK_SCHEMA.index("secrets_risk")
+    assert node["risk_vector"][idx] == 70.0
+    unscanned = {"4. Vulnerability & Risk Exposures": {labels[idx]: "[UNSCANNED - NO DATA]"}}
+    assert firewall_module._audit_file_to_node("a.md", unscanned, labels)["risk_vector"][idx] == 0.0

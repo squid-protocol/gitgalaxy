@@ -12724,7 +12724,7 @@
 <li><strong>Strict mode:</strong> with <code>STRICT_IMPORT_MODE = True</code>, also blocks every package not in <code>APPROVED_IMPORTS</code>.</li>
 <li><strong>One behavioural score:</strong> the engine's <code>secrets_risk</code> score for the file, flagged at 50 or above. The score is multiplied by 10 for setup.py, <code>build.rs</code>, <code>preinstall.js</code> and <code>postinstall.js</code>.</li>
 </ol>
-<p>Both checks are tested on hand-built inputs, and the import checks also end to end (a real scan of a planted repo, then the CLI on its audit JSON) in <code>tests/security_auditing/test_supply_chain_firewall.py</code>. There is no measured detection rate on real compromised packages.</p>
+<p>Both checks are tested on hand-built inputs, and the import checks also end to end (a real scan of a planted repo, then the CLI on its audit JSON) in <code>tests/security_auditing/test_import_policy_gate.py</code>. There is no measured detection rate on real compromised packages.</p>
 <p>What it does not check: network calls, typosquatting, Unicode homoglyphs, files hidden in images, I/O taint, or <code>package.json</code> install scripts (<code>.json</code> files are skipped). It also skips any path containing <code>/test/</code> or <code>/tests/</code> and any file name containing <code>test_</code> or <code>_test</code> (#8432). These gaps are tracked in #8432.</p>
 <h2 id="configuration">Configuration</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># gitgalaxy_config.py (or the same keys in .galaxyscope.yaml)</span>
@@ -12754,7 +12754,7 @@
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>---------------------------------------------------------------------------
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a> [BLOCKING ACTION] &lt;n&gt; high-risk dependencies or policy violations blocked.
 </code></pre></div>
-<p>This is the format <code>supply_chain_firewall.py</code> prints, with placeholders; it is not output from a real run.</p>
+<p>This is the format <code>import_policy_gate.py</code> prints, with placeholders; it is not output from a real run.</p>
 <blockquote>
 <p><strong>Read the full technical specification:</strong> <a href="../../04-03-supply-chain-firewall/">Supply Chain Firewall</a></p>
 </blockquote>

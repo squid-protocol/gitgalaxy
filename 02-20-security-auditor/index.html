@@ -12841,7 +12841,7 @@
 <li><strong>Dependency Graph Features (runs on every scan):</strong> Counts every file each file transitively depends on (<code>total_upstream</code>) and every file that transitively depends on it (<code>total_downstream</code>), with their ratios. The counts are exact: #3040 replaced the 500-file-capped networkx/BFS pair with one native computation (<code>graph_engine.reach_counts</code>: cycle condensation plus reachability bitsets). It is bounded by a deterministic work budget, past which the totals are <code>None</code>.</li>
 <li><strong>Model loading:</strong> Without a model file the auditor stops after the graph step. It also skips inference when <code>xgboost</code>, <code>scikit-learn</code>, <code>pandas</code> or <code>numpy</code> is missing; the AI columns are then NULL, not "Safe".</li>
 <li><strong>Feature vector (code path only):</strong> Applies logarithmic scaling to structural counts and adds Gini coefficients and signature counts. The "global architectural distance" features (<code>assigned_macro_species</code>, <code>primary_z_score</code>, <code>dist_to_*</code>) are frozen constants, the same for every file, since the repo clustering model was retired (<a href="https://github.com/squid-protocol/gitgalaxy/issues/1159">#1159</a>).</li>
-<li><strong>Shadow patch (code path only):</strong> <code>--shadow-patch-detected</code> is a manual flag. No hash or version is compared; when the flag is set, every file with <code>file_impact &gt; 0.5</code> is labelled Stealer / Trojan with the alert text "Hash mutated without version bump!". The override sits after the model check, so without a model it never runs (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8431">#8431</a>).</li>
+<li><strong>Shadow patch (manual hint, runs with or without a model):</strong> <code>--shadow-patch-detected</code> is a manual flag. No hash or version is compared; when the flag is set, every file with <code>file_impact &gt; 0.5</code> gets the alert "SHADOW PATCH (manually asserted via --shadow-patch-detected; no hash or version was compared)". It assigns no AI Threat Class, no score and no <code>is_ml_threat</code> (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8431">#8431</a>, <a href="https://github.com/squid-protocol/gitgalaxy/pull/8611">#8611</a>).</li>
 </ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
@@ -12863,7 +12863,7 @@
 <ul>
 <li><strong>No model, no evaluation:</strong> No model ships and no labelled real-world evaluation exists, so there is no recall, precision or false-positive rate to report.</li>
 <li><strong>Frozen features:</strong> The architectural-distance features carry no per-file information (#1159).</li>
-<li><strong>Shadow patch:</strong> A manual flag with no hash comparison, unreachable without a model (#8431).</li>
+<li><strong>Shadow patch:</strong> A manual hint with no hash or version comparison; it marks files by <code>file_impact</code>, not by change, and assigns no class (#8431).</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <ul>
@@ -12872,7 +12872,7 @@
 <h2 id="future-work">Future Work</h2>
 <ul>
 <li>Decide between shipping a model with a measured detection rate and removing the classifier and <code>--fail-on-malware</code> (#8430).</li>
-<li>Replace or remove the shadow-patch flag (#8431).</li>
+<li>Replace the shadow-patch hint with real detection: a hash against the previous scan plus the manifest version (#8431).</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>

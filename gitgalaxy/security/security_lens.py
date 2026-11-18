@@ -1028,6 +1028,20 @@ class SecurityLens:
                         if len(entropy_snippets) < 3:
                             entropy_snippets.append(extracted_string[:60] + "...")
 
+            # #8429: `_armor` emptied every line of 250+ chars, so a literal on one was never measured. The
+            # extractor already bounds a literal at 1024 chars, so it reads the raw long line (not 200-char pieces,
+            # which would cut a 300-char literal in two); a pass over a line is linear in its quote count.
+            for line_no, line in enumerate(content.splitlines(), 1):
+                if len(line) < 250:
+                    continue
+                for match in self.string_extractor.finditer(line):
+                    extracted_string = match.group(2)
+                    if extracted_string.count(" ") < 3 and self._calculate_shannon_entropy(extracted_string) > 4.8:
+                        entropy_hits += 1
+                        positions["entropy"].append(line_no)
+                        if len(entropy_snippets) < 3:
+                            entropy_snippets.append(extracted_string[:60] + "...")
+
             counts["entropy"] = entropy_hits
             snippets["entropy"] = entropy_snippets
 

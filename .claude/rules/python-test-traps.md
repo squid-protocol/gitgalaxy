@@ -69,6 +69,7 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
 * **A bare `cat > file` (no heredoc) hangs Bash on stdin (write scratch scripts with the Write tool) or truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
   lands empty (#6323).
+* **A test that shells out to a platform tool (rsync, sed, find, cp, chmod) carries a platform guard** (`skipif` on `sys.platform`, or `shutil.which`), and a fixture never relies on two names differing only by case: PRs run Linux only, so an unguarded one turns main red on macOS / Windows, and the PR is selected for the implied matrix. Rule: `docs/agents/full-suite-matrix.md`, "Implied matrix" (#8425).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).

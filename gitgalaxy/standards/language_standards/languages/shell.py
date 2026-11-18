@@ -384,10 +384,10 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (SHELL) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Supply Chain Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Originally, this regex was anchored to the start of the
-            # line `^[ \t]*`. This blinded the firewall to dynamic or conditional shell
+            # line `^[ \t]*`. This blinded the import policy gate to dynamic or conditional shell
             # execution. Shell scripts frequently source environment files inside `if`
             # blocks (e.g., `if [ -f .env ]; then source .env; fi`) or after logical
             # operators (e.g., `test -f lib.sh && . lib.sh`). The anchored regex missed

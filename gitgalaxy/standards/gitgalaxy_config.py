@@ -20,7 +20,7 @@ out noise before the heavy static analysis engines are loaded into memory.
 from typing import Any
 
 # ------------------------------------------------------------------
-# ZERO-TRUST IMPORT CONTROL (Supply Chain Firewall)
+# ZERO-TRUST IMPORT CONTROL (Import Policy Gate)
 # Defines allowed and banned external dependencies (NPM, PyPI, Composer)
 # ------------------------------------------------------------------
 # True  = Strict Mode (Only allow packages explicitly in APPROVED_IMPORTS)
@@ -36,16 +36,16 @@ BLACKLISTED_IMPORTS: list[str] = [
 ]
 
 # ------------------------------------------------------------------
-# NETWORK-CENTRALITY RISK WEIGHTING (Supply Chain Firewall)
+# NETWORK-CENTRALITY RISK WEIGHTING (Import Policy Gate)
 # When True, a file's Downstream Exposure / Blast Radius (Phase 4 network
-# topology) amplifies its behavioral risk score before the firewall's block
+# topology) amplifies its behavioral risk score before the import policy gate's block
 # threshold is applied -- a highly central "hub" file gets less tolerance
 # for the same embedded threat signal than a peripheral one.
 # Off by default: this previously never actually ran in production (it was
 # reading a key nothing ever wrote), so it ships opt-in rather than
 # silently changing what existing pipelines block on.
 # ------------------------------------------------------------------
-FIREWALL_NETWORK_WEIGHTING = False
+IMPORT_GATE_NETWORK_WEIGHTING = False
 
 # ------------------------------------------------------------------
 # SECURITY LENS ON INERT FORMATS (#2978)
@@ -123,7 +123,7 @@ XRAY_BYPASS_PATHS = [
     "gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
     "gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py",
     "gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py",
-    "gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py",
+    "gitgalaxy/tools/supply_chain_security/import_policy_gate.py",
     "site/css/styles.css",
 ]
 

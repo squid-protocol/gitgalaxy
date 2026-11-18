@@ -215,7 +215,7 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (LUA) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Anchored to `^[ \t]*`. In Lua, modules are simply tables
             # returned by the `require` function. They are frequently lazy-loaded

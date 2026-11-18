@@ -141,7 +141,7 @@ def test_dockerfile_signature_positive_and_negative(signature, positive, negativ
 def test_dockerfile_dependency_capture_extracts_base_image_and_build_stage():
     """
     `_dependency_capture` is the capture-group sibling of `import`, used by
-    the Network Graph / Supply Chain Firewall to extract the exact base
+    the Network Graph / Import Policy Gate to extract the exact base
     image (group 1, from `FROM`) or build-stage name (group 2, from
     `COPY --from=`) rather than just detecting presence. Covers plain
     `FROM`, `FROM` with a BuildKit flag (`--platform=`) before the image,

@@ -808,11 +808,11 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (TYPESCRIPT) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Supply Chain Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Originally, this regex was anchored to the start of the
             # line `^[ \t]*`. While this perfectly prevented the engine from hallucinating
-            # commented-out imports (`// import { x }`), it completely blinded the firewall
+            # commented-out imports (`// import { x }`), it completely blinded the import policy gate
             # to dynamic/inline execution. If an attacker tucked an import inside a function
             # (e.g., `const payload = require('malware')` or `await import('trojan')`),
             # it sailed right past the sensors.

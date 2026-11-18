@@ -114,7 +114,7 @@ def test_makefile_signature_positive_and_negative(signature, positive, negative)
 def test_makefile_dependency_capture_extracts_include_path():
     """
     `_dependency_capture` is the capture-group sibling of `import`, used by
-    the Network Graph / Supply Chain Firewall to extract the exact included
+    the Network Graph / Import Policy Gate to extract the exact included
     path rather than just detecting presence. Covers all three real forms:
     plain `include`, error-tolerant `-include`, and the GNU-specific
     `sinclude` alias (functionally identical to `-include`).

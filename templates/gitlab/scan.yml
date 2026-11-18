@@ -3,7 +3,7 @@
 #
 # This is a generic, single-tool component — call it once per tool to build
 # the 4-check Golden Path (vault-sentinel, xray-inspector,
-# supply-chain-firewall, galaxyscope). See github-action-readme.md for the
+# import-policy-gate, galaxyscope). See github-action-readme.md for the
 # full tool directory. Only 'galaxyscope' accepts the args in the example
 # below (--config, --fail-on-malware, --sarif-only, --output); the three
 # sentinel tools take no flags beyond the target path.
@@ -11,7 +11,7 @@
 spec:
   inputs:
     tool:
-      description: "The GitGalaxy command to execute (galaxyscope, vault-sentinel, xray-inspector, or supply-chain-firewall)."
+      description: "The GitGalaxy command to execute (galaxyscope, vault-sentinel, xray-inspector, or import-policy-gate)."
       default: "galaxyscope"
     target:
       description: "The directory or file path to scan."

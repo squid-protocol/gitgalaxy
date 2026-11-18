@@ -261,9 +261,10 @@ class SecurityLens:
     """
     Static Application Security Testing (SAST) Engine.
 
-    Identifies raw structural vulnerabilities (Regex Signatures, Shannon Entropy,
-    and Data Flow Taint) and evaluates them against dynamically injected Policy Thresholds
-    augmented by Network Centrality metrics.
+    Identifies raw structural vulnerabilities (Regex Signatures and Shannon Entropy)
+    and evaluates them against dynamically injected Policy Thresholds. Data-flow taint
+    tracking was removed (#3101), and this lens does not read network centrality: it
+    works file-by-file, and graph metrics are applied downstream of it.
     """
 
     def __init__(self):
@@ -859,7 +860,7 @@ class SecurityLens:
         self, content: str, code_stream: str | None = None, prose: bool = False, language: str | None = None
     ) -> dict:
         """
-        Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
+        Executes primary regex scanning and entropy calculation. Data-flow taint tracking was removed (#3101).
 
         `code_stream` is the comment-blanked, line-preserving payload from prism (CODE_STREAM_SIGNALS
         read it; omitted -> they read `content`). `prose=True` marks a file with no executable

@@ -194,20 +194,20 @@ def test_audit_repository_ml_inference(mock_xgb_class, mock_artifacts):
     main_artifact = audited_artifacts[0]
     utils_artifact = audited_artifacts[1]
 
-    # 3. Assert Shadow Patch Override (main.py has structural_mass > 0.5)
-    # Even though the model predicted Class 1 (Botnet), the Shadow Patch forces it to Class 2 (Trojan/Stealer)
+    # 3. The manual flag only annotates (main.py has file_impact > 0.5): the model's own
+    # Class 1 (Botnet) prediction stands, and the alert says the flag was manually asserted.
     assert main_artifact["is_ml_threat"] is True
-    assert main_artifact["telemetry"]["domain_context"]["AI Threat Class"] == "Stealer / Trojan"
-    assert "SHADOW PATCH: Hash mutated" in main_artifact["telemetry"]["domain_context"]["alert"]
+    assert main_artifact["telemetry"]["domain_context"]["AI Threat Class"] == SecurityAuditor.CLASS_NAMES[1]
+    assert "manually asserted" in main_artifact["telemetry"]["domain_context"]["alert"]
+    assert "Hash mutated" not in main_artifact["telemetry"]["domain_context"]["alert"]
 
     # 4. Assert Safe File (utils.py)
     assert utils_artifact["is_ml_threat"] is False
 
     # 5. Regression test for #364: the producer must write "AI Threat Score",
     # not the near-miss "AI Threat Confidence" every consumer except
-    # sarif_recorder.py used to fall through past. (100.0%, not 99.0%, because
-    # the Shadow Patch override above also forces ml_score to 100.0.)
-    assert main_artifact["telemetry"]["domain_context"]["AI Threat Score"] == "100.0%"
+    # sarif_recorder.py used to fall through past. (99.0%: the flag no longer forces a score.)
+    assert main_artifact["telemetry"]["domain_context"]["AI Threat Score"] == "99.0%"
     assert "AI Threat Confidence" not in main_artifact["telemetry"]["domain_context"]
 
 
@@ -408,3 +408,18 @@ def test_shadow_patch_whitespace_guard(mock_xgb_class, mock_artifacts):
 
     # Because file_impact < 0.5, it should remain Safe Code, bypassing the Trojan override
     assert audited[0]["is_ml_threat"] is False, "Whitespace change was falsely flagged as a Shadow Patch Trojan!"
+
+
+def test_shadow_patch_flag_alerts_without_a_model_and_never_unflagged():
+    def art(impact):
+        return {"path": "a.py", "file_impact": impact, "telemetry": {}}
+
+    auditor = SecurityAuditor(model_path="/nonexistent/model.json")
+    assert auditor.model is None
+    heavy, light = art(0.9), art(0.1)
+    auditor.audit_repository([heavy, light], is_shadow_patch=True)
+    assert "manually asserted" in heavy["telemetry"]["domain_context"]["alert"]
+    assert "alert" not in light["telemetry"].get("domain_context", {})
+    unflagged = art(0.9)
+    auditor.audit_repository([unflagged])
+    assert "alert" not in unflagged["telemetry"].get("domain_context", {})

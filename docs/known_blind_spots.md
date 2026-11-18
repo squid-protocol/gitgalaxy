@@ -132,6 +132,8 @@ Even with the detection pass, these stay blind and belong on this page:
 
 ## Blind spot 2: lines of 250+ characters, in the security lens (gitgalaxy#8429)
 
+**Update:** `hardcoded_secrets` now reads long lines in overlapping pieces (#8429, first slice). Every other signal and the entropy check below are still blind to them.
+
 **Affects:** every security-lens regex (hard-coded secrets, eval/exec, safety bypasses, unusual imports, environment
 mutation, raw database calls and the rest of `SecurityLens.scan_content`) and the high-entropy string check.
 Vault Sentinel is the one caller that is not affected.

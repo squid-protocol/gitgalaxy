@@ -4323,7 +4323,7 @@ def main():
         "--shadow-patch-detected",
         action="store_true",
         default=None,
-        help="Indicates the payload hash mutated without a version bump.",
+        help="Manual assertion that a shadow patch happened (no hash or version is compared). Adds an alert to files with file_impact > 0.5; assigns no threat class.",
     )
 
     # --- EXCLUSIVE RECORDER FLAGS ---

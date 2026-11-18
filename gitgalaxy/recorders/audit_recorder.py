@@ -1208,4 +1208,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="GitGalaxy Forensic Audit Recorder CLI")
     parser.add_argument("input", help="Path to columnar galaxy.json")
     parser.add_argument("--out", help="Optional output path")
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce  # #8624: lazy, this is only the CLI path
+
+    add_flag(parser)
     args = parser.parse_args()
+    enforce(args)

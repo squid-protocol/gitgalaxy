@@ -57,6 +57,24 @@ def enable_if_requested(argv: list[str] | None = None) -> bool:
     return True
 
 
+def add_flag(parser: Any) -> None:
+    """Give a report / recorder CLI the same `--offline` flag galaxyscope has (#8624)."""
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Refuse every network call (also GITGALAXY_OFFLINE=1).",
+    )
+
+
+def enforce(args: Any) -> bool:
+    """Install the guard when `--offline` was parsed or the environment asks for it. Call right after parsing."""
+    if getattr(args, "offline", False):
+        os.environ[OFFLINE_ENV] = "1"
+        install()
+        return True
+    return enable_if_requested([])
+
+
 # Runs galaxyscope's own __main__ with the guard installed first (the argv after `-c` is galaxyscope's).
 BOOTSTRAP = (
     "import runpy, sys; from gitgalaxy.tools.readiness.offline import install; install(); "

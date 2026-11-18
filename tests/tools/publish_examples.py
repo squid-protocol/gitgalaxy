@@ -354,7 +354,7 @@ per-program work, and the equivalence harness below is how it is proven.
 
 Each `examples/<name>/` has:
 - `java/`: the Spring project, as generated;
-- `reports/`: offline readiness & redacted blocker reports (`readiness.json`, `readiness_redacted.json`), plus `translation_fidelity.{json, md}` structural checks;
+- `reports/`: offline readiness & redacted blocker reports (`readiness.json`, `readiness_redacted.json`), plus `translation_fidelity.{{json, md}}` structural checks;
 - `PROVENANCE.md`: source commit, licence, generator commit, commands;
 - `scan_comparison.md`: the source estate and the Java, scanned by the same engine.
 

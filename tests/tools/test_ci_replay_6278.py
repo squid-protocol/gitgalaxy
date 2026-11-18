@@ -9,7 +9,6 @@ filter (GitHub's glob rules). A workflow this test cannot place fails the test, 
 here (a planner or a path filter) and cannot silently join the always-run set.
 """
 
-import re
 import sys
 from pathlib import Path
 
@@ -28,6 +27,7 @@ import graph_accuracy_plan as gap  # noqa: E402
 import ground_truth_plan as gtp  # noqa: E402
 import suite_select_plan as ssp  # noqa: E402
 import sweep_plan as swp  # noqa: E402
+import workflow_inputs as wi  # noqa: E402
 
 yaml = pytest.importorskip("yaml")
 
@@ -78,23 +78,6 @@ SUB_PLANNED = {
 }
 
 
-def glob_regex(pattern: str) -> re.Pattern:
-    """GitHub's filter glob: `**` crosses `/`, `*` and `?` do not."""
-    out, i = "", 0
-    while i < len(pattern):
-        if pattern.startswith("**/", i):
-            out, i = out + "(?:.*/)?", i + 3
-        elif pattern.startswith("**", i):
-            out, i = out + ".*", i + 2
-        elif pattern[i] == "*":
-            out, i = out + "[^/]*", i + 1
-        elif pattern[i] == "?":
-            out, i = out + "[^/]", i + 1
-        else:
-            out, i = out + re.escape(pattern[i]), i + 1
-    return re.compile(out + r"\Z")
-
-
 def pr_trigger(name: str) -> dict | None:
     doc = yaml.safe_load((WORKFLOWS / f"{name}.yml").read_text(encoding="utf-8"))
     on = doc.get(True, doc.get("on"))  # PyYAML reads the key `on` as True
@@ -111,11 +94,11 @@ def path_filtered_runs(name: str, files: list[str]) -> bool:
     trig = pr_trigger(name) or {}
     paths, ignore = trig.get("paths"), trig.get("paths-ignore")
     if paths:
-        pos = [glob_regex(p) for p in paths if not p.startswith("!")]
-        neg = [glob_regex(p[1:]) for p in paths if p.startswith("!")]
+        pos = [wi.glob_re(p) for p in paths if not p.startswith("!")]
+        neg = [wi.glob_re(p[1:]) for p in paths if p.startswith("!")]
         return any(any(r.match(f) for r in pos) and not any(r.match(f) for r in neg) for f in files)
     if ignore:
-        return any(not any(glob_regex(p).match(f) for p in ignore) for f in files)
+        return any(not any(wi.glob_re(p).match(f) for p in ignore) for f in files)
     return True
 
 

@@ -5,6 +5,8 @@ description: "> **Topic:** Where do later fixes land relative to an earlier chan
 
 > **Status:** exploratory research, one author, not peer reviewed. The measurements are in the temporal-crucible repository (`docs/sensor-overhaul/sensors/ripple_radius.md`, with scripts and outputs). This page says what was found, how much weight it bears and how `gitgalaxy change` uses it.
 >
+> **Newer:** [08-29 Repair Radius](08-29-repair-radius.md) restates the findings in plain language with measurements on verified functions and two more large repositories (DPDK, Mesa); where the figures differ, 08-29 supersedes this page.
+>
 > **Command that uses it:** [`gitgalaxy change`](08-26-change-report.md): changed signatures first, with their callers named.
 >
 > **Summary:** After a change, the later fix for it is most often in a function the change touched. When it is not, it is found near the change in the call graph, more often than a function of similar size in the same file. A short list of the changed functions plus their nearest neighbours covers about half of all named-cause cases we could measure, and about 80% of those we could map (curl, OpenSSL and FreeBSD; not yet measured on the kernel).

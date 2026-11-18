@@ -515,7 +515,6 @@ gitgalaxy/standards/cics/README.md	tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py
 gitgalaxy/tools/cobol_to_java/det/NOTES.md	tests/cobol_mainframe
-gitgalaxy/tools/supply_chain_security/README.md	tests/tools/test_readme_hand_counts.py
 github-action-readme.md	tests/tools/test_cli_contract.py
 github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md	tests/tools/test_progress_slide.py
 github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md	gitgalaxy

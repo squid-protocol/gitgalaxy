@@ -30,6 +30,11 @@ class ManifestParser:
         # Matches standard Python packages, extracting the base name and dropping version constraints (==, >=, ~)
         self.python_pkg_regex = re.compile(r"^([a-zA-Z0-9_\-]+)(?:[=><~].*)?$")
 
+        # An install hook that downloads, pipes to a shell, or evals dynamic code.
+        self.install_hook_regex = re.compile(
+            r"\b(?:curl|wget|Invoke-WebRequest|iwr)\b|\|\s*(?:sh|bash|zsh|node|python3?)\b|\beval\b|base64\s+(?:-d|--decode)"
+        )
+
         # Matches direct URI references (git, file, http) that bypass PyPI registry verification
         self.python_direct_uri_regex = re.compile(r"^(?:git\+|file:|https?:|hg\+|svn\+|bzr\+)(.*)$")
 
@@ -83,6 +88,17 @@ class ManifestParser:
         """
         with open_source(filepath) as f:
             data = json.load(f)
+
+        # Lifecycle hooks run at install time on the installer's machine. Only hooks that
+        # fetch or evaluate remote/dynamic code are flagged (a benign "build": "tsc" or
+        # a "postinstall": "node-gyp rebuild" is not); the firewall reads the flag (#8432).
+        scripts = data.get("scripts", {})
+        if isinstance(scripts, dict):
+            for hook in ("preinstall", "install", "postinstall", "prepare"):
+                cmd = scripts.get(hook)
+                if isinstance(cmd, str) and self.install_hook_regex.search(cmd):
+                    resolution_map[f"INSTALL_HOOK_{hook}"] = cmd
+                    self.logger.warning(f"Manifest Parser: SUSPICIOUS INSTALL HOOK '{hook}' -> {cmd}")
 
         deps = data.get("dependencies", {})
         dev_deps = data.get("devDependencies", {})

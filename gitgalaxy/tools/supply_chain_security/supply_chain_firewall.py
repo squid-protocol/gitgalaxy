@@ -44,6 +44,49 @@ _FIREWALL_RISK_INDEXES = {
 # to SignalProcessor's judgment instead of maintaining a second threshold.
 _FIREWALL_BLOCK_THRESHOLD = 50.0
 
+# Manifest flags the ManifestParser writes into the resolution map (#8432).
+_INSECURE_REGISTRY_PREFIX = "INSECURE_REGISTRY_"
+_INSTALL_HOOK_PREFIX = "INSTALL_HOOK_"
+# A resolved value that bypasses the registry (direct URI / VCS / file reference).
+_DIRECT_REF_PREFIXES = ("file:", "github:", "git+", "http:", "hg+", "svn+", "bzr+")
+_TUNNEL_HOSTS = ("ngrok", "localtunnel", "loca.lt")
+
+
+def manifest_flag_findings(alias_map: dict) -> list[tuple[str, str, str]]:
+    """Every manifest flag the parser raised, as (directory, kind, detail).
+
+    The parser records these in the resolution map but nothing read them as
+    findings; the firewall now does (#8432). Kinds: insecure_registry
+    (http:// registry, ngrok / localtunnel host), install_hook (a lifecycle
+    script that fetches or evals), direct_reference (alias or requirement
+    resolved to a file / git / http source that skips registry integrity).
+    """
+    found: list[tuple[str, str, str]] = []
+    for dir_key, local in alias_map.items():
+        if not isinstance(local, dict):
+            continue
+        for key, value in local.items():
+            if not isinstance(value, str):
+                continue
+            if key.startswith(_INSECURE_REGISTRY_PREFIX):
+                found.append((dir_key, "insecure_registry", value))
+            elif key.startswith(_INSTALL_HOOK_PREFIX):
+                found.append((dir_key, "install_hook", value))
+            elif value.lower().startswith(_DIRECT_REF_PREFIXES):
+                kind = "insecure_registry" if any(h in value.lower() for h in _TUNNEL_HOSTS) else "direct_reference"
+                found.append((dir_key, kind, value))
+    return found
+
+
+def _is_test_path(rel_path: str) -> bool:
+    """True only when a path has a directory component named `test` or `tests`.
+
+    Anchored on whole path components, never a substring and never the filename:
+    `src/helper_test.py` or `src/test_x.py` is judged like any other file, so a
+    payload cannot hide by being named like a test (#8432)."""
+    parts = rel_path.lower().replace("\\", "/").split("/")
+    return any(d in ("test", "tests") for d in parts[:-1])
+
 
 def run_firewall_audit(
     parsed_files: list,
@@ -86,6 +129,16 @@ def run_firewall_audit(
             "threats_found": len(threats_found_files),
             "threats_allowed": threats_allowed,
         }
+
+    # Manifest flags (insecure registry, direct refs, install hooks) are threats in
+    # their own right; the allowlist can excuse them like any other threat.
+    for flag_dir, flag_kind, flag_detail in manifest_flag_findings(safe_alias_map):
+        flag_path = f"{flag_dir}/<manifest:{flag_kind}>"
+        if path_allowlisted(flag_dir, allowlist_paths):
+            threats_allowed += 1
+            continue
+        logger.warning(f"🚨 [MANIFEST {flag_kind.upper()}] {flag_detail} (manifest dir: {flag_dir})")
+        threats_found_files.add(flag_path)
 
     for file_node in parsed_files:
         rel_path_str = file_node.get("path", "unknown")
@@ -180,30 +233,31 @@ def run_firewall_audit(
         ext = Path(rel_path_str).suffix.lower()
 
         # .d.ts files are TypeScript declarations. They contain no executable logic.
-        if ext in {
-            ".svg",
-            ".xml",
-            ".jelly",
-            ".html",
-            ".css",
-            ".md",
-            ".json",
-            ".yaml",
-            ".yml",
-            ".txt",
-            ".properties",
-        } or safe_path_lower.endswith(".d.ts"):
+        # package.json is the exception: it carries npm lifecycle hooks, so the build-time
+        # multiplier below must see it (#8432).
+        is_package_json = Path(rel_path_str).name == "package.json"
+        if not is_package_json and (
+            ext
+            in {
+                ".svg",
+                ".xml",
+                ".jelly",
+                ".html",
+                ".css",
+                ".md",
+                ".json",
+                ".yaml",
+                ".yml",
+                ".txt",
+                ".properties",
+            }
+            or safe_path_lower.endswith(".d.ts")
+        ):
             continue
 
         # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data,
         # and contain high-entropy strings which trigger massive false positives in behavioral heuristics.
-        safe_path = rel_path_str.lower()
-        if (
-            "/test/" in safe_path
-            or "/tests/" in safe_path
-            or "test_" in Path(safe_path).name
-            or "_test" in Path(safe_path).name
-        ):
+        if _is_test_path(rel_path_str):
             continue
 
         # DEFENSIVE DESIGN (BUILD-TIME EXECUTION MULTIPLIER):

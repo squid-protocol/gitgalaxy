@@ -396,8 +396,8 @@
       "imports_blacklisted": 0,
       "imports_unknown": 10573,
       "imports_whitelisted": 0,
-      "threats_allowed": 2,
-      "threats_found": 1
+      "threats_allowed": 3,
+      "threats_found": 3
     },
     "xray": {
       "anomalies_found": 63

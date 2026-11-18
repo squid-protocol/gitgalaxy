@@ -502,7 +502,9 @@ def test_updcust_non_digit_mutants_are_undefined_by_ibm():
     DISPLAY item are `undefined-by-ibm`, each citing the item and the input, and no case-gap is left."""
     ledger = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updcust.json").read_text())["survivors"]
     undefined = {s["id"]: s for s in ledger if s["verdict"] == dm.UNDEFINED}
-    assert set(undefined) == {"ab6f13f763", "0e4d7d1e73"}
+    # 0e4d7d1e73 left this set 2026-11-17 (#8513): the 64-scenario case's past-storage LINKs kill it (java), so it no
+    # longer dies only on non-digit data; the owner's ruling covers a mutant killed only that way
+    assert set(undefined) == {"ab6f13f763"}
     assert all(s["undefined"]["item"].strip() and s["undefined"]["input"].strip() for s in undefined.values())
     assert not [s for s in ledger if s["verdict"] == "case-gap"]
 

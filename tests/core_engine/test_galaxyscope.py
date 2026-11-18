@@ -2110,14 +2110,14 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # ==============================================================================
     def test_sarif_ignored_paths_sanitization(self):
         """
-        COVERAGE TARGET: Lines 846-899 (SARIF Sanitization Phase 10.8).
+        Drives Orchestrator._apply_threat_suppression (the sanitization phase).
         Ensures that paths defined in SARIF_IGNORED_PATHS are completely scrubbed
         of equations, hit vectors, and risk vectors to prevent alert fatigue.
         """
         config = self.mock_config.copy()
         config["SARIF_IGNORED_PATHS"] = ["vendor/", "tests/"]
 
-        Orchestrator(".", config)
+        scope = Orchestrator(".", config)
         mock_repo_graph = [
             {
                 "path": "vendor/library.js",
@@ -2128,15 +2128,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             }
         ]
 
-        # Manually invoke Phase 10.8 logic via the exact array handling the orchestrator uses
-        ignored_paths = config.get("SARIF_IGNORED_PATHS", [])
-
-        for file_data in mock_repo_graph:
-            file_path = file_data.get("path", "").replace("\\", "/")
-            if any(p in file_path for p in ignored_paths):
-                file_data["equations"] = {}
-                file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
-                file_data["risk_vector"] = [0.0] * len(file_data["risk_vector"])
+        # Real Phase 10.5 suppression (the code the full and delta scans both call), not a copy of it.
+        scope._apply_threat_suppression(mock_repo_graph)
 
         sanitized = mock_repo_graph[0]
         self.assertEqual(sanitized["equations"], {}, "Failed to wipe equations for ignored path!")
@@ -2561,7 +2554,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # ==============================================================================
     def test_sarif_ignored_rules_purging(self):
         """
-        COVERAGE TARGET: Lines 846-899.
+        Drives Orchestrator._apply_threat_suppression.
         Validates that specific security rules (e.g., GG-AGENT-GUARDRAIL, AI AppSec, or
         specific ML threat classes) are wiped from telemetry if explicitly ignored.
         """
@@ -2584,18 +2577,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             }
         ]
 
-        # Manually trigger the SARIF sanitization block (Phase 10.8)
-        ignored_rules = config.get("SARIF_IGNORED_RULES", [])
-
-        for file_data in scope.parsed_files:
-            if "GG-AGENT-GUARDRAIL" in ignored_rules:
-                if "ai_guardrails" in file_data.get("telemetry", {}):
-                    del file_data["telemetry"]["ai_guardrails"]
-
-            if file_data.get("is_ml_threat"):
-                ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                if f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules:
-                    file_data["is_ml_threat"] = False
+        # Real Phase 10.5 suppression, not a copy of it.
+        scope._apply_threat_suppression(scope.parsed_files)
 
         sanitized = scope.parsed_files[0]
 

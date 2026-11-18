@@ -4,7 +4,7 @@ This directory contains the CI/CD gating mechanisms, pre-commit hooks, and depen
 
 Software Composition Analysis (SCA) tools typically work from manifests: they read `package.json` or `requirements.txt` and look the declared versions up in CVE databases. The tools here instead read the repository's own source and files with GitGalaxy's structural signature engine. They do not replace an SCA tool, and no comparison against one has been run.
 
-> **Known bug (#8428): the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, currently never block on real scan output.** The CLI loads the audit JSON and hands its file entries to the gate, which reads `raw_imports` and `risk_vector`; the audit JSON has neither key, so every import check and the risk gate are skipped and the run exits 0. The engine-internal call (`galaxyscope.py`, `run_firewall_audit(repository_graph, ...)`) receives the in-memory graph and does evaluate imports and risk; its result is recorded in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Further enforcement gaps are tracked in #8432.
+> **Fixed in #8595 (#8428):** the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, now read the audit JSON's real keys (`9. Extracted Dependencies`, `4. Vulnerability & Risk Exposures`). Before the fix they read keys the audit JSON lacks, skipped every check and always exited 0. The CLI now exits 1 on a blacklisted import and, in strict mode, on an unapproved one (`test_real_audit_json_blacklisted_import_blocks`, `test_real_audit_json_strict_mode_unapproved_fails_approved_passes`: a real scan of a planted repo, then the CLI on the audit JSON). The engine-internal call (`galaxyscope.py`, `run_firewall_audit(repository_graph, ...)`) records its result in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Further enforcement gaps are tracked in #8432.
 
 ---
 
@@ -42,39 +42,15 @@ X-Ray reads the first 8 KB of every file for the header, XOR and string-entropy 
 
 ---
 
-## Historical showcase runs
+## Showcase runs removed
 
-The runs below were made on 2026-04-22. No command, config or output artifact was committed for them, and they have not been re-run against the current code. Treat them as historical, not as reproducible results. An earlier firewall showcase on Terraform was removed: with the bug above, the current CLI cannot produce its output.
-
-#### Vault Sentinel on tRPC
-The sentinel evaluated 871 files, scanned the content of 695 of them in **0.53 seconds**, and reported 7 environment files and one hardcoded API key. *Single run, measured 2026-04-22; not a current or average figure, and not reproducible from a committed artifact.*
-
-![Vault Sentinel Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/vault_sentinel_scan.gif)
-
-#### X-Ray on pwntools
-pwntools ships compiled binaries and shellcode. The detector processed 95 files at **2,825 files per second** and reported 13 embedded `ELF` headers. *Single run, measured 2026-04-22; not a current or average figure, and not reproducible from a committed artifact.*
-
-![Binary Anomaly Detector Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/xray_inspector_scan.gif)
-
-~~~text
-===========================================================================
- BINARY ANOMALY DETECTOR: SCAN SUMMARY
-===========================================================================
- Files Evaluated    : 95
- Files Deep Scanned : 95
- Time Elapsed       : 0.03 seconds
- Scan Velocity      : 2,825 files/sec
----------------------------------------------------------------------------
- Anomalies Detected : 13
----------------------------------------------------------------------------
- [BLOCKING ACTION] 13 structural anomalies detected. Failing pipeline.
-~~~
+Earlier versions of this page showed single-run results for the firewall on Terraform, Vault Sentinel on tRPC and X-Ray on pwntools (timings and finding counts, with demo GIFs). No command, config or output artifact was committed for any of them, and the firewall one could not have been produced by the CLI of the time (#8428). They were removed rather than left as unverifiable numbers (#8426, section C). The behaviour of each tool is pinned by the planted-input tests named above, not by a scan of a third-party repository.
 
 ---
 
 ## CI/CD & Pre-Commit Integration
 
-Vault Sentinel and X-Ray exit 1 on a finding, so they can fail a commit hook or a CI step. The firewall CLI does too in principle, but see the known bug above (#8428).
+Vault Sentinel and X-Ray exit 1 on a finding, so they can fail a commit hook or a CI step. The firewall CLI does too (exit 1 on a counted threat).
 
 **Local Pre-Commit Hook Integration:**
 To run the Vault Sentinel automatically before every commit, add this configuration to your `.pre-commit-config.yaml` file:
@@ -94,7 +70,7 @@ repos:
 (`vault-sentinel` takes one target, a directory or a file, so the hook scans the repository root rather than receiving the staged file list.)
 
 **GitHub Actions Integration:**
-The tools can run through the [GitGalaxy GitHub Action](https://github.com/marketplace/actions/gitgalaxy-scanner). The example below runs the firewall step; until #8428 is fixed it will not block.
+The tools can run through the [GitGalaxy GitHub Action](https://github.com/marketplace/actions/gitgalaxy-scanner). The example below runs the firewall step; it fails the job when the firewall counts a threat. `BLACKLISTED_IMPORTS` ships empty and `STRICT_IMPORT_MODE` is off, so configure them first or the step passes.
 
 ~~~yaml
 name: GitGalaxy Zero-Trust Audit

@@ -261,6 +261,41 @@ LIT, NEG, RET, ROR; menu: AOR, CON, COR, DEL, LIT, NEG, ROR). A survivor costs a
 `test_mutation_one_jvm_scope_4047.py` fails the day one does, so that case is compared against `--full` (and recorded
 here) before the default covers it. Entry runs stay covered by unit tests. Db2 and IMS cases always use a JVM per run.
 
+**Where a run's time goes, and two cuts (2026-11-18, #8599).** `det_mutation.py run`, fast+one-jvm, `--jobs 2`, on nyx
+(a laptop, load ~2), with `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER` as CI sets it. Without it every tool start sleeps
+5 s, three times a case: 175 s instead of 141 s for UPDCUST's first row. Phase times come from the run's log:
+
+| run | translate | baseline proof | javac check | prove | total |
+|---|---|---|---|---|---|
+| cbsa-updcust `--sample 60 --seed 1`, origin/main | 20 s | 39 s | 41 s (60 mutants) | 40 s (57) | 141 s |
+| the same, with both cuts | 5 s (warm cache) | 30 s | 14 s | 44 s | 94 s |
+| carddemo-readcust `--sample 80 --seed 3`, origin/main | 34 s | 77 s | 53 s (80) | 436 s (75) | 600 s |
+| the same, with both cuts | 6 s (warm cache) | 63 s | 15 s | 200 s | 312 s |
+
+Translation is already cached (`equivalence_cache`, by engine, corpus and `GITGALAXY_*` environment): a warm one is ~5 s,
+so re-translating an unchanged port costs little. The two cuts:
+
+- **The javac check compiles the program, not the runtime** (`mutation.mutant_sources`). A mutant used to compile every
+  `.java` file of the port, the cobolrt copy too (UPDCUST: 52 files, 13,776 lines, for a 752-line program). Mutants are
+  cut from `service/*.java`; the runtime never refers to the program, and the baseline's compiled runtime is on the
+  classpath, so the program's files are compiled against it. All of them, not only the mutated one: a mutated
+  `static final` constant is inlined into its callers. The overlay manifest lists only what was compiled, since
+  overlay adoption drops the baseline classes of every source it lists (the separate-run fallback's single-file compile
+  listed every source, which would have dropped the runtime's classes).
+- **An in-process proof's time limit comes from the unmutated port** (`mutation.direct_limit`). Each in-process worker
+  first runs the unmutated port (an empty overlay); it must survive, or the worker proves its mutants as separate runs.
+  Its time T0 sets the limit: 5 x the slowest worker's T0, at least 30 s, at most the separate-run limit
+  (`max(300, 3 x baseline)`). A mutant that loops for ever held its worker for 300 s or more; the committed ledgers
+  hold 201 such timeouts in 60,576 mutants. readcust's one timeout now ends at 61 s. A timeout is caught, like a kill,
+  so a mutant only changes verdict if it would survive but runs over 5 x T0. The warm-up also moves the first
+  mutant's JIT cost out of its proof.
+
+Validation: each cut against origin/main in the same mode (fast+one-jvm), same seed: **140 of 140 verdicts identical**
+(UPDCUST 60, CICS; readcust 80, batch, with faults and a timeout), killed, survived, stillborn and timeout alike. Not
+compared against `--full`: neither cut changes how a mutant is judged, only what is compiled and how long a looping
+mutant may run. Still open on #8599: the baseline proof (30-60 s a case, half of it the Java CICS run), the CICS
+in-process path running every scenario before it judges, and the java-facade false survivors.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

@@ -383,14 +383,33 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
     return m.group(1).replace(str(scratch / "target" / "classes"), str(project / "target" / "classes"))
 
 
-def _write_overlay_manifest(out: Path, mutant_port: Path) -> None:
+def _write_overlay_manifest(out: Path, mutant_port: Path, compiled: list[Path] | None = None) -> None:
+    """The overlay's manifest: the sources compiled into `out` (default: all of the port), by sha256. Only these:
+    `_adopt_precompiled_overlay` drops the baseline's classes of every source listed, so a source listed but not
+    compiled would leave its classes missing."""
     sources = {
         p.relative_to(mutant_port).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-        for p in sorted(mutant_port.rglob("*.java"))
+        for p in sorted(compiled if compiled is not None else mutant_port.rglob("*.java"))
     }
     (out / PRECOMPILED_MANIFEST).write_text(
         json.dumps({"javac_options": JAVAC_OPTIONS, "sources": sources}) + "\n", encoding="utf-8"
     )
+
+
+RUNTIME_DIR = "cobolrt"  # the port's copy of the runtime: never depends on the program (#8599)
+
+
+def mutant_sources(mutant_port: Path, mutated: str, classpath: str) -> list[Path]:
+    """The sources a mutant's javac check compiles (#8599). A mutant outside the runtime (`RUNTIME_DIR`) compiles the
+    program's files only, against the baseline's classes on `classpath` (they hold the runtime, built from the same
+    bytes): the runtime never refers to the program, so no constant javac inlines across files can go stale. Every
+    program file is compiled, not just the mutated one, since a mutated constant is inlined into its callers. A
+    mutant inside the runtime, or a port without one, compiles everything, as before."""
+    every = sorted(mutant_port.rglob("*.java"))
+    if Path(mutated).parts[:1] == (RUNTIME_DIR,) or not classpath:
+        return every
+    program = [p for p in every if p.relative_to(mutant_port).parts[:1] != (RUNTIME_DIR,)]
+    return program if program and len(program) < len(every) else every
 
 
 def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None = None) -> tuple[bool, str]:
@@ -399,11 +418,12 @@ def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None
     out.mkdir(parents=True, exist_ok=True)
     single = mutant_port / only_file if only_file else None
     if single is not None and single.is_file() and classpath:
-        sources = [str(single)]
+        compiled = mutant_sources(mutant_port, only_file or "", classpath)
         sp = ("-sourcepath", str(mutant_port))
     else:
-        sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+        compiled = sorted(mutant_port.rglob("*.java"))
         sp = ()
+    sources = [str(p) for p in compiled]
     javac_exe = str(Path(_java_env()["JAVA_HOME"]) / "bin" / "javac")
     try:
         proc = javac_server.javac(
@@ -414,7 +434,7 @@ def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None
         return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
     errors = [x for x in proc.stderr.splitlines() if ": error: " in x]
     if proc.returncode == 0:
-        _write_overlay_manifest(out, mutant_port)
+        _write_overlay_manifest(out, mutant_port, compiled)
     return proc.returncode == 0, (errors[0].split(": error: ", 1)[1] if errors else proc.stderr.strip()[:200])
 
 
@@ -504,9 +524,11 @@ class JavacSession:
             self._lines.put(line)
         self._lines.put(None)
 
-    def compile(self, mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str] | None:
+    def compile(self, mutant_port: Path, classpath: str, out: Path,
+                compiled: list[Path] | None = None) -> tuple[bool, str] | None:  # fmt: skip
         out.mkdir(parents=True, exist_ok=True)
-        sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+        compiled = compiled if compiled is not None else sorted(mutant_port.rglob("*.java"))
+        sources = [str(p) for p in compiled]
         assert self.proc.stdin is not None
         try:
             self.proc.stdin.write(f"{out}\n{classpath}\n" + "\n".join(sources) + "\n\n")
@@ -527,7 +549,7 @@ class JavacSession:
                 code, _, msg = rest.partition(" ")
                 ok = code == "0"
                 if ok:
-                    _write_overlay_manifest(out, mutant_port)
+                    _write_overlay_manifest(out, mutant_port, compiled)
                 return ok, msg
 
     def close(self) -> None:
@@ -939,6 +961,37 @@ class _DirectContext:
                     shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
 
 
+# ---- the in-process time limit (#8599) ---------------------------------------------------------------------------
+DIRECT_LIMIT_FLOOR = 30.0  # seconds: never less, however fast the unmutated port runs in process
+DIRECT_LIMIT_FACTOR = 5.0  # x the slowest worker's run of the unmutated port (PIT's default is 1.25x + 4 s)
+CALIBRATE_ID = "calibrate-unmutated"
+
+
+def direct_limit(limit: float, calib: list[float]) -> float:
+    """The time limit of one in-process mutant proof: `DIRECT_LIMIT_FACTOR` x the slowest calibration run (the
+    unmutated port, in process, on a warm worker), at least `DIRECT_LIMIT_FLOOR`, never more than `limit` (the
+    separate-run limit, `max(300, 3 x baseline)`). A mutant that loops for ever used to hold its worker for the whole
+    `limit`: 201 timeouts in the 2026-11-18 ledgers, 300 s or more each. Timeout and killed are both caught."""
+    if not calib:
+        return limit
+    return min(limit, max(DIRECT_LIMIT_FLOOR, DIRECT_LIMIT_FACTOR * max(calib)))
+
+
+def calibrate(direct: _DirectContext, worker: _MutantWorker, mw: Path, limit: float) -> float | None:
+    """Run the unmutated port (an empty overlay) on the worker; its seconds, or None when it does not survive: the
+    in-process runner would then disagree with the proven baseline, and none of its verdicts can be trusted. Also
+    warms the worker's JVM, which the first mutant paid for before."""
+    (mw / "classes").mkdir(parents=True, exist_ok=True)
+    unmutated = Mutant(id=CALIBRATE_ID, file="", line=0, op="none", before="", after="")
+    started = time.monotonic()
+    try:
+        res = direct.run_mutant(worker, unmutated, mw, limit, False, {})
+    finally:
+        seconds = time.monotonic() - started
+        shutil.rmtree(mw, ignore_errors=True)
+    return seconds if res is not None and res["verdict"] == "survived" else None
+
+
 # ---- the run -----------------------------------------------------------------------------------------------------
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
         keep: bool, full: bool = False, only: Path | None = None, case_file: Path | None = None,
@@ -993,7 +1046,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
                 local_javac.sess = sess
                 with compile_lock:
                     javac_sessions.append(sess)
-            compiled = sess.compile(mdir, classpath, out_dir)
+            compiled = sess.compile(mdir, classpath, out_dir, mutant_sources(mdir, m.file, classpath))
             if compiled is not None:
                 return compiled
             with compile_lock:
@@ -1017,6 +1070,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     print(f"{case}: {len(chosen) - len(live)} stillborn (javac), {len(live)} to prove, {jobs} at a time", flush=True)
 
     direct = _DirectContext.build(case, case_file, work / "baseline", base, one_jvm, full)
+    calib: list[float] = []  # #8599: each in-process worker's run of the unmutated classes, seconds
     claim_text = _baseline_claim(work)
     kill_counts: Counter[str] = Counter()
     state_lock = threading.Lock()
@@ -1039,6 +1093,17 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     def run_worker(worker_id: int) -> None:
         nonlocal done, last_save
         worker = _MutantWorker(worker_id, work, direct) if direct is not None else None
+        if worker is not None and direct is not None and live:
+            seconds = calibrate(direct, worker, work / "mutants" / f".calibrate-{worker_id}", limit)
+            if seconds is None:  # the in-process runner does not reproduce the proven baseline: the slow path only
+                print(f"{case}: worker {worker_id}: the unmutated port does not survive in process: "
+                      "proving its mutants as separate runs", flush=True)  # fmt: skip
+                worker.reset()
+                shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
+                worker = None
+            else:
+                with state_lock:
+                    calib.append(seconds)
         try:
             while True:
                 with state_lock:
@@ -1049,7 +1114,11 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
                 res: dict[str, Any] | None = None
                 mw = work / "mutants" / m.id
                 if worker is not None and direct is not None:
-                    res = direct.run_mutant(worker, m, mw, limit, keep, ranks)
+                    with state_lock:
+                        m_limit = direct_limit(limit, calib)
+                    res = direct.run_mutant(worker, m, mw, m_limit, keep, ranks)
+                    if res is not None and res["verdict"] == "timeout":
+                        res["limit"] = round(m_limit)
                     if res is None:
                         shutil.rmtree(mw / "proof", ignore_errors=True)
                 if res is None:

@@ -435,7 +435,9 @@ def test_import_gate_allowlist_loophole_guard():
     result = gate_module.run_import_gate_audit(mock_ram_graph, config=config)
     assert result["imports_unknown"] == 1
     assert result["imports_blacklisted"] == 1
-    assert result["threats_found"] == 1, "Blacklisted import bypassed the import policy gate via the Allowlist Loophole!"
+    assert result["threats_found"] == 1, (
+        "Blacklisted import bypassed the import policy gate via the Allowlist Loophole!"
+    )
 
 
 # ==============================================================================

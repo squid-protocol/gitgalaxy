@@ -14,7 +14,7 @@ The firewall checks the scanned repository's **own** files. It does not read ins
    * **Strict mode:** with `STRICT_IMPORT_MODE = True`, also blocks every package not in `APPROVED_IMPORTS`.
 2. **One behavioural score:** the engine's `secrets_risk` score for the file, flagged at 50 or above. The score is multiplied by 10 for setup.py, `build.rs`, `preinstall.js` and `postinstall.js`.
 
-Both checks are tested on hand-built inputs, and the import checks also end to end (a real scan of a planted repo, then the CLI on its audit JSON) in `tests/security_auditing/test_supply_chain_firewall.py`. There is no measured detection rate on real compromised packages.
+Both checks are tested on hand-built inputs, and the import checks also end to end (a real scan of a planted repo, then the CLI on its audit JSON) in `tests/security_auditing/test_import_policy_gate.py`. There is no measured detection rate on real compromised packages.
 
 What it does not check: network calls, typosquatting, Unicode homoglyphs, files hidden in images, I/O taint, or `package.json` install scripts (`.json` files are skipped). It also skips any path containing `/test/` or `/tests/` and any file name containing `test_` or `_test` (#8432). These gaps are tracked in #8432.
 
@@ -55,7 +55,7 @@ When the CLI counts a threat it prints a summary and exits 1:
  [BLOCKING ACTION] <n> high-risk dependencies or policy violations blocked.
 ```
 
-This is the format `supply_chain_firewall.py` prints, with placeholders; it is not output from a real run.
+This is the format `import_policy_gate.py` prints, with placeholders; it is not output from a real run.
 
 > **Read the full technical specification:** [Supply Chain Firewall](../04-03-supply-chain-firewall.md)
 

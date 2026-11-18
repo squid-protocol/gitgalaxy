@@ -342,7 +342,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 32
+   "tests": 44
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -351,7 +351,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 38
+   "tests": 50
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -513,7 +513,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 47
+   "tests": 59
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -1840,14 +1840,14 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 32
+   "tests": 44
   },
   "cbsa-acctctrl": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 38,
+   "tests": 50,
    "non_vsam": [
     "db2"
    ]
@@ -2106,7 +2106,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 47
+   "tests": 59
   },
   "cbsa-xfrfun": {
    "generated": [],
@@ -3318,7 +3318,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1227
+   "tests_held": 1239
   },
   {
    "cause": "ims",

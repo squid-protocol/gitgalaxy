@@ -167,6 +167,32 @@ def test_a_reference_past_a_stated_eibcalen_is_judged_up_to_it_x22(tmp_path):
     assert m["assumes"] == "X6" and m["java"].startswith("COMMAREA past EIBCALEN") and not m["ok"]
 
 
+def test_replayed_prefix_marks_let_the_one_jvm_runner_judge_an_x23_stop(tmp_path):
+    """#7954: mutation.py's one-JVM runner rebuilds the case in another process, so the marks run_cobol_cics set in memory
+    are gone; a port that stops at the same X23 refusal then read as a difference and every mutant was killed with no
+    killer. `replay_prefix_marks` sets them again from the finished COBOL run, and only where the COBOL task stopped."""
+    work, out = tmp_path / "cobol", tmp_path / "java"
+    out.mkdir()
+    for name, rc, said in (("stop", "98", "COMMAREA past EIBCALEN: not modelled\n"),
+                           ("other-stop", "98", "START LENGTH > FROM: not modelled\n"),
+                           ("loop", "1", f"{ec.PERFORM_DEPTH}\n"), ("clean", "0", "")):  # fmt: skip
+        d = work / "scenarios" / name
+        d.mkdir(parents=True)
+        (d / "rc").write_text(rc + "\n")
+        (d / "stdout.txt").write_text(said)
+    case = {"scenarios": [{"name": n} for n in ("stop", "other-stop", "loop", "clean", "never-ran")]}
+    ec.replay_prefix_marks(case, work)
+    marks = {sc["name"]: sc.get("prefix_x6") for sc in case["scenarios"]}
+    assert marks == {"stop": "COMMAREA past EIBCALEN: not modelled", "other-stop": None, "loop": ec.PERFORM_DEPTH,
+                     "clean": None, "never-ran": None}  # fmt: skip
+    (out / "stop.x6").write_text("COMMAREA past EIBCALEN (60 bytes): not modelled", encoding="utf-8")
+    ev = [{"event": "RETURN", "transid": None, "commarea": None}]
+    _, _, x = ec.x6_judged(case["scenarios"][0], out, ev, ev)
+    assert x is not None and x["ok"] and x["assumes"] == "X23"
+    _, _, unmarked = ec.x6_judged({"name": "stop"}, out, ev, ev)  # what the one-JVM runner saw before the replay
+    assert unmarked is not None and not unmarked["ok"]
+
+
 _AREA_MAIN = r"""
 #include <stdio.h>
 #include <stdlib.h>

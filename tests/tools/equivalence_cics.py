@@ -2703,6 +2703,29 @@ def judged_refusal(said: str) -> str | None:
     return x6_writeq_refusal(said) or (m.group(0) if m else None)
 
 
+def replay_prefix_marks(case: dict[str, Any], work: Path) -> None:
+    """The marks `run_cobol_cics` sets on a scenario while it reads the COBOL run (`prefix_link`, and `prefix_x6` for
+    X6 / X23 / C20: the COBOL task stopped there and is judged up to it), read again from the finished run in `work`.
+    mutation.py's one-JVM runner rebuilds the case in another process; without the marks a port that stops at the same
+    X23 refusal looks like a difference (`x6_judged`: `ok` needs both sides), and every mutant is killed with no killer.
+    Reads only; nothing is refused here, the COBOL run was judged when it ran."""
+    for sc in case["scenarios"]:
+        base = work / "scenarios" / sc["name"]
+        log = base / "out" / "events.txt"
+        hit = re.search(r"\bNOPROGRAM\b.*?\btarget=(\S*)", log.read_text(encoding="latin-1")) if log.is_file() else None
+        if hit and sc.get("derived"):
+            sc["prefix_link"] = hit.group(1)
+            continue
+        rc, said = base / "rc", base / "stdout.txt"
+        if not (rc.is_file() and said.is_file()):
+            continue
+        text, code = said.read_text(encoding="latin-1"), rc.read_text().strip()
+        if code == "1" and PERFORM_DEPTH in text:
+            sc["prefix_x6"] = PERFORM_DEPTH
+        elif code == "98" and (x6 := judged_refusal(text)):
+            sc["prefix_x6"] = x6
+
+
 def _cobol_read(verb: str, kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     """#4270 (GenApp LGICVS01): a READQ TS / terminal RECEIVE the stub logged (`queue` the name's bytes in hex, `item`
     a number or NEXT, `resp` by number; the bytes read in the event's blob) as CicsTask records it: {queue, item,

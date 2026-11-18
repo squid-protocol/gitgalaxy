@@ -734,7 +734,8 @@ class _DirectContext:
             case = equivalence_inputs.prepare_cics_case(case, corpus, files)
             refused = set(json.loads((cobol_work / "refused.json").read_text(encoding="utf-8")))
             refused.update((report.get("refused") or {}).keys())
-            kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
+            ec.replay_prefix_marks(case, cobol_work)  # X6 / X23 / C20 stops: the COBOL side's, as run_cobol_cics set them
+            kept =[sc for sc in case["scenarios"] if sc["name"] not in refused]
             case = {**case, "scenarios": kept}
             src = project / "src/main/java"
             svc = ej._service_class(case["program"])

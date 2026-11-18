@@ -747,6 +747,7 @@ class SecurityLens:
     # import line in a comment imports nothing: these read the code stream too (hidden text is the
     # exception, see HIDDEN_TEXT_SIGNATURES). Prose files still scan them -- no code stream there.
     CODE_STREAM_SIGNALS = CODE_STREAM_SIGNALS | {"safety_bypasses", "reflection_metaprogramming", "homoglyphs"}
+    LONG_LINE_SKIPPED = frozenset({"dead_code", "homoglyphs"})  # #8429: not re-read on lines of 250+ chars
     PROSE_SKIPPED_SIGNALS = (CODE_STREAM_SIGNALS - {"reflection_metaprogramming", "homoglyphs"}) | {"dead_code"}
 
     # #5463: each high_risk_execution alternative is only an execution vector in the languages that have
@@ -982,23 +983,31 @@ class SecurityLens:
 
             counts[key] = counts.get(key, 0) + new_hits
 
-        # ---> LONG-LINE SECRETS (#8429) <---
-        # `_armor` emptied every line of 250+ chars, so a credential on one was never seen. Re-read only those
-        # lines, in overlapping short pieces, for hardcoded_secrets alone (each piece is under the armor limit, so
-        # the regex stays bounded). The other signals still skip long lines (docs/known_blind_spots.md).
-        if "hardcoded_secrets" in self.THREAT_SIGNATURES:
-            long_hits = self._long_line_secret_hits(content, self.THREAT_SIGNATURES["hardcoded_secrets"])
-            if long_hits:
-                counts["hardcoded_secrets"] = counts.get("hardcoded_secrets", 0) + len(long_hits)
-                snips = snippets.setdefault("hardcoded_secrets", [])
-                site_list = sites.setdefault("hardcoded_secrets", [])
-                site_list.extend([None] * (len(snips) - len(site_list)))
-                for line_no, col, snip in long_hits:
-                    if len(snips) < 3 and snip not in snips:
-                        snips.append(snip)
-                        site_list.append(None if is_auto_gen else [line_no, col])
-                    if not is_auto_gen:
-                        positions["hardcoded_secrets"].append(line_no)
+        # ---> LONG-LINE SIGNATURES (#8429) <---
+        # `_armor` emptied every line of 250+ chars, so a hit on one was never seen. Re-read only those lines, in
+        # overlapping short pieces, for every main signature that is one-line by nature (each piece is under the
+        # armor limit, so each regex stays bounded). Not re-read: dead_code (reads comment text the code stream
+        # blanks) and homoglyphs (needs its whole line). See docs/known_blind_spots.md.
+        has_long_line = any(len(line) >= 250 for line in content.splitlines())
+        for key, regex, raw_only in self._scan_plan if has_long_line else ():
+            if raw_only or key in self.LONG_LINE_SKIPPED or (prose and key in self.PROSE_SKIPPED_SIGNALS):
+                continue
+            src = code_stream if (code_stream is not None and key in self.CODE_STREAM_SIGNALS) else content
+            long_hits = self._long_line_secret_hits(src, regex)
+            if key == "high_risk_execution":
+                long_hits = [h for h in long_hits if self._high_risk_applies(h[2], language)]
+            if not long_hits:
+                continue
+            counts[key] = counts.get(key, 0) + len(long_hits)
+            snips = snippets.setdefault(key, [])
+            site_list = sites.setdefault(key, [])
+            site_list.extend([None] * (len(snips) - len(site_list)))
+            for line_no, col, snip in long_hits:
+                if len(snips) < 3 and snip not in snips:
+                    snips.append(snip)
+                    site_list.append(None if is_auto_gen else [line_no, col])
+                if not is_auto_gen:
+                    positions[key].append(line_no)
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0

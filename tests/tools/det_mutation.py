@@ -118,6 +118,7 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # no handler label) (#7955)
 # map-length-scale: a map length item only stored as a text length and read as == -1 (#7955)
 # goto-flag-bit: the dispatcher's GO TO flag moved to another single bit; it is only ORed on, tested and cleared (#7955)
+# return-area-cut: a RETURN's raw COMMAREA area sized differently but still >= its LENGTH, which cuts it (#7955)
 # eib-resp-unread: a store into a DFHEIBLK item the program never reads (EIBRESP / EIBRESP2), its response local and its
 # declaration moved onto bytes no read EIB item covers (#7955)
 # annotation-text / inert-image: a @SuppressWarnings value (javac lint only); an initial storage image nothing observes
@@ -141,6 +142,7 @@ ATTACK_SETTLED = (
     "inert-image",
     "map-length-scale",
     "goto-flag-bit",
+    "return-area-cut",
     "eib-resp-unread",
     "refusal-text",
     "exception-ctor",

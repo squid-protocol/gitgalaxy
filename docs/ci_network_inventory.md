@@ -11,7 +11,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
 | pip | 15 | 0 | 0 | 0 | 58 |
-| npm | 2 | 0 | 0 | 0 | 0 |
+| node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
 | maven-gradle | 0 | 0 | 0 | 0 | 1 |

@@ -140,6 +140,14 @@ class Chronometer:
         # (temporal-crucible docs/hcm_variants.md). period index -> path -> changes.
         self.hcm_period_counts: dict[int, dict[str, int]] = {}
         self._change_entropy: dict[str, float] | None = None
+        # The activity readings (wiki 08-27): their own complete pass, anchored at HEAD's commit time (see _scan_activity). `activity_complete` is
+        # False when the pass was cut by its commit cap or failed; then no reading is reported (NULL), never a partial count.
+        self.act_commits: dict[str, int] = {}
+        self.act_recent: dict[str, int] = {}
+        self.act_authors: dict[str, dict[str, int]] = {}
+        self.act_last: dict[str, float] = {}
+        self.last_commit_map: dict[str, float] = {}
+        self.activity_complete = False
 
         # Signal 1: Global Temporal Boundaries
         self.repo_min_time = time.time()
@@ -438,6 +446,12 @@ class Chronometer:
         if self.history_as_of:
             self._backfill_last_commit_times(tracked_files, ignored_hashes)
 
+        try:
+            self._scan_activity(tracked_files, ignored_hashes)
+        except Exception as e:  # the readings are an extra: a failure must never cost the scan its history
+            self.activity_complete = False
+            self.logger.error(f"Activity pass failure: {e}")
+
         duration = time.time() - start_time
 
         # Filter our churn map to only count currently tracked files for the final pct
@@ -604,7 +618,14 @@ class Chronometer:
                 scores[path] = scores.get(path, 0.0) + weight * (c / total) * h
         return scores
 
-    def _backfill_last_commit_times(self, tracked_files: set, ignored_hashes: set) -> None:
+    def _backfill_last_commit_times(
+        self,
+        tracked_files: set,
+        ignored_hashes: set,
+        target: dict[str, float] | None = None,
+        max_commits: int | None = None,
+        dated: dict[str, float] | None = None,
+    ) -> bool:
         """temporal-crucible#29: date every tracked file the window missed by its last
         ancestor commit (same filters as the window: --no-merges, ignored revs).
 
@@ -614,9 +635,15 @@ class Chronometer:
         commit at all (only ever touched by merges or ignored revs) is dated at the
         repository's first commit: the oldest age history can support.
         """
-        missing = {p for p in tracked_files if p not in self.mtime_map}
+        # `target` / `max_commits` serve the activity readings: they date into their own map and stop after a fixed number of commits, so a normal
+        # scan never changes the maps the churn and stability gauges read. The as-of call passes neither and behaves exactly as before.
+        out = self.mtime_map if target is None else target
+        already = self.mtime_map if dated is None else dated
+        missing = {p for p in tracked_files if p not in already and p not in out}
         if not missing:
-            return
+            return True
+        complete = True
+        seen_commits = 0
         cmd = [
             _GIT_BIN,
             "-c",
@@ -641,6 +668,10 @@ class Chronometer:
                 if not clean_line:
                     continue
                 if clean_line.startswith("@@GIT_COMMIT@@|"):
+                    seen_commits += 1
+                    if max_commits is not None and seen_commits > max_commits:
+                        complete = False
+                        break
                     parts = clean_line.split("|", 2)
                     if len(parts) == 3 and parts[2].isdigit():
                         current_ts = None if parts[1] in ignored_hashes else float(parts[2])
@@ -651,11 +682,12 @@ class Chronometer:
                     clean_line = clean_line[1:-1]
                 path_key = nfc(Path(clean_line).as_posix())
                 if path_key in missing:
-                    self.mtime_map[path_key] = current_ts
+                    out[path_key] = current_ts
                     missing.discard(path_key)
                     if not missing:
                         break
         except Exception as e:
+            complete = False
             self.logger.error(f"Git log backfill failure: {e}")
         finally:
             if process:
@@ -663,8 +695,95 @@ class Chronometer:
                 process.communicate()
                 if process.stdout:
                     process.stdout.close()
-        for path_key in missing:
-            self.mtime_map[path_key] = self.repo_min_time
+        if complete:
+            for path_key in missing:
+                out[path_key] = self.repo_min_time
+        return complete
+
+    def _scan_activity(self, tracked_files: set, ignored_hashes: set) -> None:
+        """The activity readings: one complete pass over the year before HEAD's commit time (never cut by file coverage or by time), then dating of
+        the files the year did not touch. Same filters as the churn pass (non-merge commits, ignored revisions left out, scan-root-relative paths).
+        Cut only by a commit count, so the result is a function of the history and not of machine speed."""
+        max_commits = int(self.chrono_config.get("ACTIVITY_MAX_COMMITS", 150000))
+        cmd = [
+            _GIT_BIN,
+            "-c",
+            "core.quotepath=off",
+            "log",
+            f"--since=@{int(self.repo_max_time) - _YEAR_SECONDS}",
+            "--name-only",
+            "--relative",
+            "--pretty=format:@@GIT_COMMIT@@|%H|%at|%an",
+            "--no-merges",
+            "--",
+            ".",
+        ]
+        recent_floor = self.repo_max_time - 90 * 86400
+        process = None
+        seen = 0
+        skip = False
+        ts = 0.0
+        author = "Unknown"
+        complete = True
+        try:
+            process = subprocess.Popen(  # noqa: S603 -- cmd is built from _GIT_BIN + fixed args, no external input
+                cmd, cwd=self.root, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1
+            )
+            assert process.stdout is not None  # noqa: S101 -- type narrowing only
+            for line in process.stdout:
+                clean = line.strip()
+                if not clean:
+                    continue
+                if clean.startswith("@@GIT_COMMIT@@|"):
+                    seen += 1
+                    if seen > max_commits:
+                        complete = False
+                        break
+                    parts = clean.split("|", 3)
+                    skip = len(parts) < 3 or not parts[2].isdigit() or parts[1] in ignored_hashes
+                    if not skip:
+                        ts = float(parts[2])
+                        author = parts[3].strip() if len(parts) > 3 else "Unknown"
+                    continue
+                if skip:
+                    continue
+                if clean.startswith('"') and clean.endswith('"'):
+                    clean = clean[1:-1]
+                key = nfc(Path(clean).as_posix())
+                if key not in tracked_files:
+                    continue
+                self.act_commits[key] = self.act_commits.get(key, 0) + 1
+                if ts >= recent_floor:
+                    self.act_recent[key] = self.act_recent.get(key, 0) + 1
+                who = self.act_authors.setdefault(key, {})
+                who[author] = who.get(author, 0) + 1
+                if ts > self.act_last.get(key, 0.0):
+                    self.act_last[key] = ts
+        except Exception as e:
+            complete = False
+            self.logger.error(f"Activity pass streaming failure: {e}")
+        finally:
+            if process:
+                process.kill()
+                process.communicate()
+                if process.stdout:
+                    process.stdout.close()
+        self.activity_complete = complete
+        if not complete:
+            return
+        # Files the year did not touch: date them by their last commit, cut by a commit count (as-of scans were dated by the as-of backfill already).
+        if self.history_as_of:
+            self.last_commit_map = {
+                p: t for p, t in self.mtime_map.items() if p in tracked_files and p not in self.act_last
+            }
+        else:
+            self._backfill_last_commit_times(
+                tracked_files,
+                ignored_hashes,
+                target=self.last_commit_map,
+                max_commits=int(self.chrono_config.get("ACTIVITY_DATING_MAX_COMMITS", 250000)),
+                dated=self.act_last,
+            )
 
     def _survey_filesystem_mtimes(self):
         """OS-level fallback to populate mtime_map in non-Git environments."""
@@ -715,4 +834,15 @@ class Chronometer:
         }
         if not self.history_reliable:
             out["history_unreliable"] = True  # #4548: added only when set
+        elif self.is_git_enabled and self.activity_complete:
+            # The activity readings in plain units (wiki 08-27). A reading is added only when measured; NULL downstream means "not measured".
+            who = self.act_authors.get(lookup_key, {})
+            out["commits_365d"] = self.act_commits.get(lookup_key, 0)
+            out["commits_90d"] = self.act_recent.get(lookup_key, 0)
+            out["authors_365d"] = len(who)
+            if who:
+                out["top_author_share_365d"] = round(max(who.values()) / sum(who.values()), 3)
+            last = self.act_last.get(lookup_key, self.last_commit_map.get(lookup_key))
+            if last is not None:
+                out["days_since_last_change"] = round(max(self.repo_max_time - last, 0.0) / 86400.0, 1)
         return out

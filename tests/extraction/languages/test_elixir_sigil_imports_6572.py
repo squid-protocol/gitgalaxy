@@ -1,8 +1,7 @@
 """#6572: a `use`/`alias` line inside a delimited Elixir sigil body (`~S(..)`, `~s|..|`, ...) is text, not an import."""
 
-import time
-
 import pytest
+from linear_assert import assert_linear
 
 from gitgalaxy.galaxyscope import extract_raw_imports
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -45,15 +44,10 @@ def test_heredoc_sigil_still_blanked():
 
 
 def test_many_unterminated_openers_stay_linear():
-    def cost(n: int) -> float:
-        src = "x = ~S(\n" * n
-        t = time.perf_counter()
-        _imports(src)
-        return time.perf_counter() - t
+    def make(n: int) -> str:
+        return "x = ~S(\n" * n
 
-    cost(200)
-    small, big = cost(2000), cost(4000)
-    assert big < max(small * 6, 0.5)
+    assert_linear(_imports, make(2000), make(4000))
 
 
 @pytest.mark.parametrize("quote", ['"', "'"])
@@ -98,12 +92,7 @@ def test_unterminated_quote_sigil_stops_at_the_cap():
 
 
 def test_many_unterminated_quote_openers_stay_linear():
-    def cost(n: int) -> float:
-        src = 'x = ~s"\n' * n
-        t = time.perf_counter()
-        _imports(src)
-        return time.perf_counter() - t
+    def make(n: int) -> str:
+        return 'x = ~s"\n' * n
 
-    cost(200)
-    small, big = cost(2000), cost(4000)
-    assert big < max(small * 6, 0.5)
+    assert_linear(_imports, make(2000), make(4000))

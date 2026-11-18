@@ -1,8 +1,7 @@
 """#6572: an import-shaped line inside a multi-line Go raw string is data, not an import."""
 
-import time
-
 import pytest
+from linear_assert import assert_linear
 
 from gitgalaxy.galaxyscope import extract_raw_imports
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -52,23 +51,11 @@ def test_bare_quoted_line_in_raw_string_is_no_import():
     assert _imports(src) == set()
 
 
-def _best_of(fn, arg, runs: int = 3) -> float:
-    best = float("inf")
-    for _ in range(runs):
-        start = time.perf_counter()
-        fn(arg)
-        best = min(best, time.perf_counter() - start)
-    return best
-
-
-def _assert_linear(fn, make) -> None:
-    # #7792: an absolute wall-clock bound flaked on CI; doubling the input must not quadruple the time.
-    small, large = _best_of(fn, make(1)), _best_of(fn, make(2))
-    assert large < max(small * 3.2, 0.5)
-
-
 def test_unterminated_backticks_stay_linear():
-    _assert_linear(_imports, lambda k: "package p\n" + "var s = `x\n" * (1500 * k))
+    def make(k: int) -> str:
+        return "package p\n" + "var s = `x\n" * (1500 * k)
+
+    assert_linear(_imports, make(1), make(2))
 
 
 def test_one_line_raw_string_before_the_embedded_program_keeps_pairing():

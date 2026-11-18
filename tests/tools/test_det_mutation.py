@@ -492,9 +492,10 @@ def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
     ):
         assert kept[field] not in ("", "0")
     survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
-    # owner ruling 2026-11-03 (#7495, #7607): the two mutants that die only on non-digit data are undefined by IBM
+    # owner ruling 2026-11-03 (#7495, #7607): the mutant that dies only on non-digit data is undefined by IBM
+    # (bee9666e07, the short-EIBCALEN row, was stated so too until slice 20's scenarios killed it)
     assert not [s for s in survivors if s["verdict"] == "case-gap"]
-    assert {s["id"] for s in survivors if s["verdict"] == dm.UNDEFINED} == {"bee9666e07", "eb7aa72523"}
+    assert {s["id"] for s in survivors if s["verdict"] == dm.UNDEFINED} == {"eb7aa72523"}
 
 
 def test_updcust_non_digit_mutants_are_undefined_by_ibm():

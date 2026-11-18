@@ -384,6 +384,12 @@ class SecurityLens:
                 r"child_process\.(?:exec|spawn|fork)|"
                 r'(?:window|global|this|globalThis)\[[ \t]*(?:["\'][a-zA-Z]["\'][ \t]*\+[ \t]*){1,15}["\'][a-zA-Z]["\'][ \t]*\][ \t]*\(|'
                 r"\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(\s*\$_(?:POST|GET|COOKIE|REQUEST|HEADERS)|"
+                # #8433: Python malware idioms, scoped to python in HIGH_RISK_EXECUTION_SCOPE. `exec(` of a decoded
+                # or built string (a plain literal or a bare name is not matched), a base64 payload written to
+                # a file (decode-and-drop stagers), and `marshal.loads(` (the code-object loader of obfuscated droppers).
+                r"(?<![\w.])exec[ \t]*\([ \t]*(?:(?:base64\.)?b64decode|(?:zlib\.)?decompress|codecs\.decode|marshal\.loads|bytes\.fromhex|f[\"'\x60]|[\"'][^\"'\n]{0,80}[\"'][ \t]*(?:%|\+|\.format|\.join)|[A-Za-z_][\w.]{0,40}\.decode[ \t]*\()|"
+                r"\.write[ \t]*\([ \t]*(?:base64\.)?b64decode[ \t]*\(|"
+                r"\bmarshal\.loads[ \t]*\(|"
                 r"getattr\s*\(\s*__import__\s*\(|importlib\.import_module\s*\(|\brequire\s*\(\s*(?!['\"])[a-zA-Z_$]|__builtins__\[|Assembly\.Load\s*\(|"
                 r"\$\{\{\s*github\.event\.(?:issue|pull_request|comment|review|push\.commits).*?\}\}",
                 re.I | re.X,
@@ -789,6 +795,7 @@ class SecurityLens:
             (r"\$\{\{", frozenset({"yaml", "markdown"})),
             (r"\$", frozenset({"php"})),
             (r"(?:getattr|importlib|__builtins__)\b", frozenset({"python", "embedded_python"})),
+            (r"(?:exec\b|marshal\.loads\b|\.write\b)", frozenset({"python", "embedded_python"})),
             (r"require\b", _JS_FAMILY | {"php", "ruby", "perl"}),
             (r"Assembly\.Load\b", frozenset({"csharp", "powershell"})),
         )

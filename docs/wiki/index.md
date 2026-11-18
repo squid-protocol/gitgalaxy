@@ -22,7 +22,7 @@ If you are looking to secure supply chains, audit AI agents, and generate compli
 * 📜 [The SHBOM Standard (Structural Health Bill of Materials)](01-07-the-shbom-standard.md)
 * 🤖 [Autonomous AI Guardrails (Dev Agent Firewall)](01-08-autonomous-ai-guardrails.md)
 * ⏱️ [The Continuous Delta Paradigm (CI/CD Integration)](01-09-the-continuous-delta-paradigm.md)
-* 🗄️ [Cookbook: Enforce a Supply Chain Firewall](cookbook/enforce-supply-chain-firewall.md)
+* 🗄️ [Cookbook: Enforce a Import Policy Gate](cookbook/enforce-import-policy-gate.md)
 
 ### 🏦 For Legacy Modernization Teams
 If you are tasked with breaking apart 40-year-old IBM monoliths without using an emulator:
@@ -168,7 +168,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [Deploy Vault Sentinel](cookbook/deploy-vault-sentinel.md)
 * [Detect Architectural Drift](cookbook/detect-architectural-drift.md)
 * [Detect Binary Anomalies](cookbook/detect-binary-anomalies.md)
-* [Enforce Supply Chain Firewall](cookbook/enforce-supply-chain-firewall.md)
+* [Enforce Import Policy Gate](cookbook/enforce-import-policy-gate.md)
 * [Generate LLM Architecture Briefs](cookbook/generate-llm-architecture-briefs.md)
 * [Generate Zero-Trust SBOM](cookbook/generate-zero-trust-sbom.md)
 * [Hunt PII Leaks](cookbook/hunt-pii-leaks.md)

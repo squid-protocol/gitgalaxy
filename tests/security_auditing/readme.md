@@ -32,7 +32,7 @@ Validates the sensors that monitor LLMs and autonomous agents interacting with t
 
 #### 2. Supply Chain & Vault Security
 Validates the perimeter defenses that block hostile dependencies and credential leaks.
-* **`test_import_policy_gate.py`** — Validates the [Import Policy Gate](../../docs/wiki/04-03-supply-chain-firewall.md). Proves the import slicer enforces strict-mode allowlists, cross-references physical imports against known-bad packages, and correctly skips minified data files rather than misparsing them.
+* **`test_import_policy_gate.py`** — Validates the [Import Policy Gate](../../docs/wiki/04-03-import-policy-gate.md). Proves the import slicer enforces strict-mode allowlists, cross-references physical imports against known-bad packages, and correctly skips minified data files rather than misparsing them.
 * **`test_vault_sentinel.py`** — Validates the [Vault Sentinel](../../docs/wiki/04-04-vault-sentinel.md). Proves the two-layer secrets scanner blocks forbidden file extensions outright and separately halts the pipeline on a deep-scan match for hardcoded `AKIA`-prefixed AWS keys in otherwise ordinary source code.
 * **`test_binary_anomaly_detector.py`** — Validates the [Binary Anomaly Detector](../../docs/wiki/04-05-binary-anomaly-detector.md). Proves the binary inspector catches magic-byte mismatches (e.g. an executable disguised as a `.jpg`), flags high-entropy payloads consistent with encryption, and enforces the shebang check.
 * **`test_sbom_generator.py`** (in [`tests/tools_recorders/`](../tools_recorders)) — Validates the [SBOM Generator](../../docs/wiki/04-02-sbom-generator.md). Proves the manifest slicer translates threat state into compliant CycloneDX JSON without blindly trusting package names.

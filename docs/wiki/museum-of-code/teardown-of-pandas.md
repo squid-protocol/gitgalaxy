@@ -75,7 +75,7 @@ In massive open-source projects, highly specialized knowledge domains create a "
 Parsing dynamic, untrusted data formats (CSV, JSON, Parquet) creates an inherent security attack surface. How well does Pandas defend its perimeter?
 
 * **Autonomous AI Threats & Malware:** **0 detected**. The codebase is secure against recognized structural malware.
-* **Supply Chain Firewall:** **0 Blacklisted Dependencies**, with only **12 Unknown Dependencies**. An incredibly tight perimeter for a Python project of this scale.
+* **Import Policy Gate:** **0 Blacklisted Dependencies**, with only **12 Unknown Dependencies**. An incredibly tight perimeter for a Python project of this scale.
 * **Binary Anomalies (X-Ray):** **11 hits**. Flagged for high entropy, these are entirely expected as they correspond to serialized test payloads (like SAS and Parquet binary files).
 * **Weaponizable Injection Vectors:** The engine flagged testing files like `test_css.py` and `test_file_buffer_url.py` with **100.0% Exploit Generation Surface** and **100% Injection Surface**. Because Pandas tests its HTML rendering and URL buffer reading by injecting raw, potentially malicious strings into parsers, this triggers the static security lens. However, because this is strictly confined to the `tests/` directory, it confirms a healthy, well-guarded production boundary.
 
@@ -89,7 +89,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

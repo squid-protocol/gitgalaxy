@@ -75,7 +75,7 @@ In a 13.8-million-line repository, isolated domain knowledge is a severe "Bus Fa
 Applying modern zero-trust security lenses to an operating system reveals an expectedly vast attack surface.
 
 * **Autonomous AI Threats & Malware:** **0 detected**. The codebase is a positive validation of FreeBSD's strict commit and review hygiene.
-* **Supply Chain Firewall:** **0 Blacklisted / 2 Unknown Dependencies**. An incredibly tight perimeter for a project of this size.
+* **Import Policy Gate:** **0 Blacklisted / 2 Unknown Dependencies**. An incredibly tight perimeter for a project of this size.
 * **Binary Anomalies (X-Ray):** **1079 hits**. This high entropy is completely expected, as the source tree includes compiled firmware blobs for hardware drivers and hardcoded TLS certificates (`contrib/bearssl/samples/`).
 * **Weaponizable Surface Exposures:** System utilities like `bin/pax/cpio.c` and `bin/ps/ps.c` flag for **10% Raw Memory Manipulation**. Furthermore, test harnesses (e.g., `contrib/sendmail/contrib/movemail.pl`) flag for **100% Exploit Generation Surface** due to unrestricted dynamic execution paths native to legacy Perl scripts.
 
@@ -89,7 +89,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

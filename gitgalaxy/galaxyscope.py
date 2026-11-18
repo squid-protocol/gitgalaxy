@@ -4327,6 +4327,11 @@ def main():
     parser.add_argument("--output", default=None, help="Optional output filename override")
     parser.add_argument("--debug", action="store_true", default=None, help="Turn on verbose Analytical logging")
     parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Refuse every network call (also GITGALAXY_OFFLINE=1); the tiktoken download is refused by name.",
+    )
+    parser.add_argument(
         "--paranoid",
         action="store_true",
         default=None,

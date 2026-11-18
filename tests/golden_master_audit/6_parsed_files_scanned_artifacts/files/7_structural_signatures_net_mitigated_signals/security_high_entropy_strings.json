@@ -2523,7 +2523,7 @@
       "perl/bugzilla/Requirements.pm": 0
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 1,
+      "perl/exiftool/ExifTool.pm": 2,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
@@ -3894,7 +3894,7 @@
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 0,
-      "typescript/playwright/README.md": 0,
+      "typescript/playwright/README.md": 1,
       "typescript/playwright/SECURITY.md": 0,
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 0,
@@ -4055,7 +4055,7 @@
       "zig/bun/MimallocArena.zig": 0,
       "zig/bun/Parser.zig": 0,
       "zig/bun/comptime_string_map.zig": 0,
-      "zig/bun/napi.zig": 2
+      "zig/bun/napi.zig": 3
     },
     "zig/mach": {
       "zig/mach/Core.zig": 0,
@@ -4099,7 +4099,7 @@
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
       "zig/zls/config_gen.zig": 0,
-      "zig/zls/langref.html.in": 0,
+      "zig/zls/langref.html.in": 1,
       "zig/zls/print_ast.zig": 0
     }
   },

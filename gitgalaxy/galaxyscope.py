@@ -4315,7 +4315,7 @@ def main():
         "--paranoid",
         action="store_true",
         default=None,
-        help="Lower security thresholds to flag more potential threats.",
+        help="Tighten the secrets-exposure scoring only (lower threshold, steeper slope, no reflection cap); no other check changes.",
     )
 
     # ---> NEW: THE SHADOW PATCH OVERRIDE <---
@@ -4628,7 +4628,7 @@ def main():
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
             logging.getLogger("GalaxyScope").info(
-                "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
+                "🔒 --paranoid: secrets-exposure scoring only (paranoid_threshold/paranoid_slope, no reflection cap); no other check changes."
             )
         # -------------------------------
 

@@ -64,11 +64,6 @@ class ThreatPolicy:
             "secrets_risk_threshold": 0.001,  # 0.1% density
             "hidden_malware_threshold": 0.60,  # 60% density
         },
-        # The Hazmat Suit: For scanning unknown PyPI/npm packages in a quarantine sandbox.
-        "paranoid": {
-            "secrets_risk_threshold": 0.0001,  # Any trace is critical
-            "hidden_malware_threshold": 0.15,  # 15% density trips the wire
-        },
     }
 
     @staticmethod
@@ -1900,8 +1895,8 @@ FUNCTION_LEVEL_ABSENT_SIGNALS: dict[str, str] = {
     "sec_self_propagation": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
     "sec_db_hooks": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
     "sec_amplified_sql_injection": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
-    "sec_extension_mismatch": "never set: zero in every file and function row of the v2.12.0 population",
-    "sec_tainted_injection": "never set: zero in every file and function row of the v2.12.0 population",
+    "sec_extension_mismatch": "file-level only: set by the disguised-executable check (#4126) in galaxyscope.py",
+    "sec_tainted_injection": "never set: the data-flow taint tracker was removed (#3101), positional placeholder only",
     "prompt_injection": "never set: detector removed (#1020), positional placeholder only",
     "agentic_rce": "never set: detector removed (#1020), positional placeholder only",
 }

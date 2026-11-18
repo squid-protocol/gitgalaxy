@@ -46,7 +46,7 @@ __all__ = [
     "site_arg_types",
 ]
 
-LANGS = frozenset({"csharp", "kotlin"})
+LANGS = frozenset({"csharp", "kotlin", "cpp"})
 Subtype = Callable[[str, str], bool | None]
 _IDENT = r"[A-Za-z_][\w]{0,127}"
 
@@ -123,7 +123,29 @@ def normalize(written: str, lang: str) -> str:
     t = written.strip()
     if not t or t[0] == "(" or "->" in t:
         return ""
+    if lang == "cpp":
+        t = re.sub(r"\b(?:const|volatile|struct|class|enum|typename)\b", " ", t)
+        t = re.sub(r"<[^<>]{0,400}>", "", t)
+        t = re.sub(r"<[^<>]{0,400}>", "", t)
+        ptr = "*" in t
+        t = t.replace("*", "").replace("&", "").replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "")
+        base = t.rsplit("::", 1)[-1]
+        if not base or not re.fullmatch(r"\w+", base):
+            return ""
+        base = _CPP_ALIASES.get(base, base)
+        return base + ("*" if ptr else "")
     t = re.sub(r"<[^<>]{0,400}>", "", t)
+    if lang == "cpp":
+        t = re.sub(r"\b(?:const|volatile|struct|class|enum|typename)\b", " ", t)
+        t = re.sub(r"<[^<>]{0,400}>", "", t)
+        t = re.sub(r"<[^<>]{0,400}>", "", t)
+        ptr = "*" in t
+        t = t.replace("*", "").replace("&", "").replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "")
+        base = t.rsplit("::", 1)[-1]
+        if not base or not re.fullmatch(r"\w+", base):
+            return ""
+        base = _CPP_ALIASES.get(base, base)
+        return base + ("*" if ptr else "")
     t = re.sub(r"<[^<>]{0,400}>", "", t)  # one level of nesting
     t = t.replace("global::", "").replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "")
     nullable = t.endswith("?")
@@ -206,6 +228,16 @@ def declared_value_types(text: str, lang: str) -> dict[str, str | None]:
         for m in _CS_LAMBDA_ONE.finditer(text):
             _note(found, m.group("n"), None)
         return found
+    if lang == "cpp":
+        for m in _CPP_DECL.finditer(text):
+            name, typ = m.group("n"), m.group("t")
+            if name in _CPP_DECL_STOP or typ in _CPP_DECL_STOP:
+                continue
+            _note(found, name, normalize(typ + (m.group("ptr") or ""), lang) or None)
+        for m in _CPP_AUTO.finditer(text):
+            typ = arg_type(_initializer(text, m.end()), {}, {}, lang)
+            _note(found, m.group("n"), typ if typ and typ != "nullptr" else None)
+        return found
     for m in _KT_DECL.finditer(text):
         _note(found, m.group("n"), normalize(m.group("t") + (m.group("null") or ""), lang) or None)
     for m in _KT_VAL.finditer(text):
@@ -224,11 +256,40 @@ def declared_value_types(text: str, lang: str) -> dict[str, str | None]:
 
 _KT_PROPERTY = re.compile(r"\b(?:val|var)[ \t]++(?P<n>" + _IDENT + r")[ \t]*+:[ \t]*+" + _KT_TYPE + r"(?![\w.<])")
 
+_CPP_ALIASES = {
+    "int8_t": "char",
+    "uint8_t": "unsigned",
+    "int16_t": "short",
+    "uint16_t": "unsigned",
+    "int32_t": "int",
+    "uint32_t": "unsigned",
+    "int64_t": "long",
+    "uint64_t": "unsigned",
+    "intptr_t": "long",
+    "uintptr_t": "unsigned",
+    "ptrdiff_t": "long",
+    "ssize_t": "long",
+}
+_CPP_PRIMS = frozenset({"bool", "char", "short", "int", "unsigned", "long", "size_t", "float", "double"})
+_CPP_TYPE = (
+    r"(?:(?:const|volatile|struct|class|typename)[ \t]+){0,3}"
+    r"(?P<t>(?:[A-Za-z_]\w{0,63}::){0,8}[A-Za-z_]\w{0,127})"
+    r"(?:[ \t]*<[^;=(){}]{0,200}?>)?"
+    r"(?:[ \t]*\bconst\b)?"
+    r"(?P<ptr>(?:[ \t]*[*&]){0,2})"
+)
+_CPP_DECL = re.compile(r"(?<![\w.:])" + _CPP_TYPE + r"[ \t\r\n]+(?P<n>" + _IDENT + r")[ \t\r\n]*(?=[=;,:)])")
+_CPP_AUTO = re.compile(r"\b(?:const[ \t]+)?auto(?:[ \t]*[*&]){0,2}[ \t]+(?P<n>" + _IDENT + r")[ \t]*=(?!=)[ \t]*")
+_CPP_DECL_STOP = frozenset(
+    {"return", "new", "delete", "throw", "else", "case", "sizeof", "alignof", "decltype", "auto", "using", "typedef"}
+)
+_CPP_PARAM = re.compile(r"[ \t\r\n]*" + _CPP_TYPE + r"(?:[ \t\r\n]+(?P<n>" + _IDENT + r"))?(?:[ \t]*\[[^\]\n]{0,40}\])?[ \t\r\n]*")
+
 
 def field_value_types(field_text: str, file_text: str, lang: str) -> dict[str, str | None]:
     """The file's field / property types: C# from its member declarations (`field_text`, bodies blanked); Kotlin
     from every `val` / `var` with a declared type (a primary constructor's included), across the file."""
-    if lang == "csharp":
+    if lang in ("csharp", "cpp"):
         return declared_value_types(field_text, lang)
     found: dict[str, str | None] = {}
     for m in _KT_PROPERTY.finditer(file_text):
@@ -277,6 +338,25 @@ def _closes_at_end(text: str, open_at: int) -> bool:
 
 def _literal(a: str, lang: str) -> str | None:
     """The type of a literal, "" for one this scan does not type, None when `a` is no literal."""
+    if lang == "cpp":
+        if a[0] == '"' or a.startswith(('u"', 'U"', 'L"', 'u8"', 'R"')):
+            return "char*"
+        if a[0] == "'" and len(a) >= 3 and a.endswith("'"):
+            return "char"
+        if a in ("true", "false"):
+            return "bool"
+        if a in ("nullptr", "NULL"):
+            return "nullptr"
+        if _CS_INT.fullmatch(a):
+            return "int"
+        m = _CS_SUFFIXED.fullmatch(a)
+        if m:
+            s = m.group("s").lower()
+            return "unsigned" if "u" in s else "long"
+        m = _REAL.fullmatch(a)
+        if m and ("." in a or "e" in a.lower() or m.group("s")):
+            return "float" if m.group("s").lower() == "f" else "double"
+        return None
     if a[0] == '"' or a.startswith(('@"', '$"', '$@"', '@$"')):
         q = a.index('"')
         return "string" if lang == "csharp" else ("String" if a.endswith('"') and len(a) > q + 1 else "")
@@ -432,7 +512,15 @@ def param_types(text: str, header_end: int | None, lang: str) -> tuple[list[str]
         p, has_default = _split_default(p)
         is_variadic = bool(re.search(r"\bparams\b" if lang == "csharp" else r"\bvararg\b", p))
         p = (_CS_MODIFIERS if lang == "csharp" else _KT_MODIFIERS).sub(" ", p).strip()
-        if lang == "csharp":
+        if lang == "cpp":
+            if p.strip() == "void":
+                continue
+            if p.strip() == "...":
+                variadic = True
+                continue
+            pm = _CPP_PARAM.fullmatch(p.strip())
+            typ = normalize(pm.group("t") + (pm.group("ptr") or ""), lang) if pm else ""
+        elif lang == "csharp":
             pm = _CS_PARAM.fullmatch(p)
             typ = normalize(pm.group("t"), lang) if pm else ""
         else:
@@ -535,9 +623,49 @@ def _kt_compat(param: str, arg: str, subtype: Subtype | None) -> bool | None:
     return None
 
 
+def _cpp_compat(param: str, arg: str, subtype: Subtype | None) -> bool | None:
+    if param == arg:
+        return True
+    if arg == "nullptr":
+        return param.endswith("*")
+    if _is_type_var(param) or _is_type_var(arg):
+        return None
+    if arg == "char*":
+        if param in ("char*", "void*", "string", "string_view", "bool"):
+            return True if param != "bool" else None
+        if param in _CPP_PRIMS:
+            return False
+        return None
+    if arg in _CPP_PRIMS:
+        if param in _CPP_PRIMS:
+            if param == arg:
+                return True
+            if param in ("double", "float") and arg in ("int", "long", "unsigned", "short", "char", "float"):
+                return True
+            if param in ("int", "long", "unsigned", "size_t") and arg in ("bool", "char", "short", "int"):
+                return True
+            return None
+        if param.endswith("*") or param in ("string", "string_view"):
+            return False
+        return None
+    if param.endswith("*") and arg.endswith("*"):
+        if param == "void*":
+            return True
+        if subtype is not None:
+            return subtype(arg[:-1], param[:-1])
+        return None
+    if param.endswith("*") != arg.endswith("*"):
+        return False if (param in _CPP_PRIMS or arg in _CPP_PRIMS) else None
+    if subtype is not None:
+        return subtype(arg, param)
+    return None
+
+
 def _compat(param: str, arg: str, lang: str, subtype: Subtype | None) -> bool | None:
     if not param:
         return None
+    if lang == "cpp":
+        return _cpp_compat(param, arg, subtype)
     return _cs_literal_compat(param, arg, subtype) if lang == "csharp" else _kt_compat(param, arg, subtype)
 
 

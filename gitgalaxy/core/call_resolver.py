@@ -811,6 +811,7 @@ class _Definition:
         "path",
         "pkg",
         "prop",
+        "return_type",
         "shape",
         "stem",
     )
@@ -829,6 +830,7 @@ class _Definition:
         arity: int | None = None,
         pkg: str | None = None,
         params: list[str] | None = None,
+        return_type: str | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -848,6 +850,8 @@ class _Definition:
         self.params = params
         # #8161 (Y2): a Python `@property` / `@cached_property` getter: reading the attribute runs it
         self.prop = False
+        # Declared return class name on the function header (for cross-function receiver typing)
+        self.return_type = return_type
         # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
         self.min_arity: int | None = arity
         self.max_arity: int | None = arity
@@ -1025,6 +1029,7 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                 int(func.get("args", 0) or 0),
                 pkg=pkg,
                 params=func.get("param_types"),
+                return_type=func.get("return_type"),
             )
             definition.prop = bool(_PROPERTY_DECORATORS.intersection(func.get("decorated_by") or ()))
             rng = func.get("arity_range")
@@ -2103,6 +2108,12 @@ def _choose_overloads(
         else:
             chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
         if not sites or any(k is None for k in chosen):
+            if lang == "cpp":
+                exact = _arity_matches(overloads, n)
+                if len(exact) == 1:
+                    if exact[0] not in picked:
+                        picked.append(exact[0])
+                    continue
             ambiguous = True  # a site no type decides: the count keeps its `overload` row
         for k in chosen:
             if k is not None and match[k] not in picked:
@@ -2327,6 +2338,72 @@ def _variants(cset: "_Set") -> list[dict[str, Any]]:
     ]
 
 
+def _resolve_call_return_type(
+    expr: str,
+    index: dict[tuple[str, str], _Bucket],
+    group: str,
+    lang: str,
+    caller: _File,
+    lineage: list[str],
+    cache: _Cache,
+    parents: dict[tuple[str, str], set[str]],
+    typed: dict[str, list[str]],
+    typed_scope: dict[str, set[str]],
+    static_memo: dict[tuple[int, str], _Bucket],
+) -> list[str] | None:
+    """Resolve a call expression or chain (`get_store()`, `svc.get_store()`) to its return class lineage."""
+    if not expr or lang in _GUARD_ONLY_RECEIVER_TYPES:
+        return None
+    segments = [s for s in expr.split(".") if s]
+    if not segments or len(segments) > 4:
+        return None
+
+    def _step(qual: str, callee_name: str, step_typed: dict[str, list[str]]) -> list[str] | None:
+        bkt = _visible_statics(index.get((group, _key(callee_name, lang))), caller, static_memo)
+        st, d = _resolve_one(bkt, caller, lineage, qual, cache, step_typed, typed_scope)
+        if RESOLUTION_OF_STEP.get(st) not in CONFIDENT_RESOLUTIONS or d is None or not d.return_type:
+            return None
+        if not _is_class(index, group, d.return_type, lang):
+            return None
+        return _lineage(d.return_type, group, lang, parents)
+
+    if len(segments) == 1:
+        seg = segments[0]
+        fn_name = seg[:-2] if seg.endswith("()") else seg
+        return _step("", fn_name, typed)
+
+    cur_lineage: list[str] | None = None
+    first = segments[0]
+    if first in _SELF_RECEIVERS and lineage:
+        cur_lineage = lineage
+    elif first in typed:
+        cur_lineage = typed[first]
+    elif first.endswith("()"):
+        cur_lineage = _step("", first[:-2], typed)
+        if cur_lineage is None:
+            return None
+
+    for idx, seg in enumerate(segments[1:], start=1):
+        is_last = idx == len(segments) - 1
+        if not seg.endswith("()") and not is_last:
+            # Field/property intermediate without a call: only handle `self.<field>` if already typed
+            if idx == 1 and first in _SELF_RECEIVERS and f"{first}.{seg}" in typed:
+                cur_lineage = typed[f"{first}.{seg}"]
+                continue
+            return None
+        callee_name = seg[:-2] if seg.endswith("()") else seg
+        if cur_lineage is not None:
+            cur_lineage = _step("<chain>", callee_name, {**typed, "<chain>": cur_lineage})
+        elif idx == 1:
+            # First segment was a module alias or class/package name
+            cur_lineage = _step(first, callee_name, typed)
+        else:
+            return None
+        if cur_lineage is None:
+            return None
+    return cur_lineage
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: list[dict[str, Any]] | None = None,
@@ -2482,6 +2559,21 @@ def resolve_calls(
                     if files and _is_class(index, group, leaf, lang):
                         typed[q] = _lineage(leaf, group, lang, parents)
                         typed_scope[q] = files
+                elif c and q not in typed and not _is_class(index, group, str(c), lang):
+                    # Cross-function return type: `x = get_store()` where `get_store` has `return_type = "Store"`
+                    ret_lineage = _resolve_call_return_type(
+                        str(c), index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                    )
+                    if ret_lineage is not None:
+                        typed[q] = ret_lineage
+            for q, call_expr in (func.get("calls_out_call_assigns") or {}).items():
+                if q not in typed and call_expr:
+                    ret_lineage = _resolve_call_return_type(
+                        str(call_expr), index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                    )
+                    if ret_lineage is not None:
+                        typed[q] = ret_lineage
+            expr_chains: dict[str, list[str]] = func.get("calls_out_expr_chains") or {}
             recursive: list[str] = []
             renames = func.get("calls_out_renames") or {}
             for callee, kind in callees:
@@ -2499,12 +2591,30 @@ def resolve_calls(
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
                 init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
                 options = list(dict.fromkeys(None if q == INIT_LIST_QUALIFIER else q for q in options))
-                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed, typed_scope)
-                used = options[0]
+
+                def _resolve_option(q: str | None) -> tuple[str, _Definition | None, str | None]:
+                    if q == "<expr>" and kind == "call" and expr_chains.get(callee):
+                        best: tuple[str, _Definition | None, str | None] = ("none", None, q)
+                        for ch in expr_chains[callee]:
+                            ch_lineage = _resolve_call_return_type(
+                                ch, index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                            )
+                            if ch_lineage is not None:
+                                st, d = _resolve_one(
+                                    bucket, caller, lineage, "<chain>", cache, {**typed, "<chain>": ch_lineage}, typed_scope
+                                )
+                                if best[1] is None or _RANK[st] < _RANK[best[0]]:
+                                    best = (st, d, "<expr>")
+                        if best[1] is not None:
+                            return best[0], best[1], best[2]
+                    st, d = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
+                    return st, d, q
+
+                step, dst, used = _resolve_option(options[0])
                 for q in options[1:]:
-                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
+                    alt_step, alt_dst, alt_used = _resolve_option(q)
                     if _RANK[alt_step] < _RANK[step]:
-                        step, dst, used = alt_step, alt_dst, q
+                        step, dst, used = alt_step, alt_dst, alt_used
                 if (
                     lang in ("csharp", "kotlin")
                     and kind == "call"
@@ -2513,7 +2623,11 @@ def resolve_calls(
                     and used
                     and (
                         used in _CS_KEYWORD_TYPES
-                        or (receiver_types.get(used) and not _is_class(index, group, str(receiver_types[used]), lang))
+                        or (
+                            used not in typed
+                            and receiver_types.get(used)
+                            and not _is_class(index, group, str(receiver_types[used]), lang)
+                        )
                     )
                 ):
                     # #8161 (PR 5): a receiver declared with a type the repo does not define (`BinaryReader _reader`,

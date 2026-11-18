@@ -4628,7 +4628,7 @@ def main():
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
             logging.getLogger("GalaxyScope").info(
-                "🔒 --paranoid: secrets-exposure scoring only (paranoid_threshold/paranoid_slope, no reflection cap); no other check changes."
+                "🔒 --paranoid: stricter exposure-risk scoring only (paranoid_threshold/paranoid_slope, no reflection cap); no other check changes."
             )
         # -------------------------------
 

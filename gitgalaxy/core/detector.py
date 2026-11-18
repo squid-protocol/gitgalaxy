@@ -33,7 +33,6 @@ from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.cpp_ctor_forms import ctor_sites
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
-from gitgalaxy.core.return_types import extract_call_assigns, extract_expr_chain, extract_return_type
 from gitgalaxy.core.import_renames import RENAME_LANGS, import_renames
 from gitgalaxy.core.java_arg_types import declared_value_types as java_value_types
 from gitgalaxy.core.java_arg_types import mask_literals as java_mask_literals
@@ -45,6 +44,7 @@ from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
 from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
+from gitgalaxy.core.return_types import extract_call_assigns, extract_expr_chain, extract_return_type
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -12311,9 +12311,7 @@ class StructuralExtractor:
                     if marked not in seen:
                         seen.append(marked)
                     if marked == "<expr>" and not is_send:
-                        chain = extract_expr_chain(
-                            safe_block, callee_pos, _qualifier_separators(self.primary_lang_id)
-                        )
+                        chain = extract_expr_chain(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
                         if chain:
                             seen_chains = expr_chains_seen.setdefault(callee, [])
                             if chain not in seen_chains:

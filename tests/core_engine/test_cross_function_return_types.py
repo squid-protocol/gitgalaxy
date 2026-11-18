@@ -64,18 +64,9 @@ def test_extract_expr_chain():
 def test_python_factory_assignment_and_chained_receiver():
     files = {
         "models.py": (
-            "class Store:\n"
-            "    def save(self):\n"
-            "        pass\n\n"
-            "class Other:\n"
-            "    def save(self):\n"
-            "        pass\n"
+            "class Store:\n    def save(self):\n        pass\n\nclass Other:\n    def save(self):\n        pass\n"
         ),
-        "factory.py": (
-            "from models import Store\n\n"
-            "def get_store() -> Store:\n"
-            "    return Store()\n"
-        ),
+        "factory.py": ("from models import Store\n\ndef get_store() -> Store:\n    return Store()\n"),
         "app.py": (
             "from factory import get_store\n\n"
             "def run_var():\n"
@@ -227,13 +218,7 @@ def test_cpp_std_namespace_and_test_dir_isolation():
     files = {
         "include/fmt.h": "void move(int x) {}\n",
         "test/helper_test.cc": "void tm(int x) {}\n",
-        "src/app.cpp": (
-            '#include "include/fmt.h"\n'
-            "void run(int x) {\n"
-            "    std::move(x);\n"
-            "    tm(x);\n"
-            "}\n"
-        ),
+        "src/app.cpp": ('#include "include/fmt.h"\nvoid run(int x) {\n    std::move(x);\n    tm(x);\n}\n'),
     }
     sites, _ = resolve_calls(_scan("cpp", files), [{"src": "src/app.cpp", "dst": "include/fmt.h"}])
     move_site = _site(sites, "run", "move")
@@ -247,8 +232,14 @@ def test_cpp_std_namespace_and_test_dir_isolation():
 
 def test_unannotated_return_inference():
     assert extract_return_type("python", "def get_store():\n    return Store()\n") == "Store"
-    assert extract_return_type("python", "def get_store(ok):\n    if ok:\n        return Store()\n    return None\n") == "Store"
-    assert extract_return_type("python", "def get_store(ok):\n    if ok:\n        return Store()\n    return Other()\n") is None
+    assert (
+        extract_return_type("python", "def get_store(ok):\n    if ok:\n        return Store()\n    return None\n")
+        == "Store"
+    )
+    assert (
+        extract_return_type("python", "def get_store(ok):\n    if ok:\n        return Store()\n    return Other()\n")
+        is None
+    )
     assert extract_return_type("python", "def get_store(x):\n    if x:\n        return x\n    return Store()\n") is None
     assert extract_return_type("javascript", "function getStore() {\n    return new Store();\n}\n") == "Store"
 
@@ -365,13 +356,7 @@ def test_cpp_std_namespace_and_test_dir_isolation():
     files = {
         "include/fmt.h": "void move(int x) {}\n",
         "test/helper_test.cc": "void tm(int x) {}\n",
-        "src/app.cpp": (
-            '#include "include/fmt.h"\n'
-            "void run(int x) {\n"
-            "    std::move(x);\n"
-            "    tm(x);\n"
-            "}\n"
-        ),
+        "src/app.cpp": ('#include "include/fmt.h"\nvoid run(int x) {\n    std::move(x);\n    tm(x);\n}\n'),
     }
     sites, _ = resolve_calls(_scan("cpp", files), [{"src": "src/app.cpp", "dst": "include/fmt.h"}])
     move_site = _site(sites, "run", "move")

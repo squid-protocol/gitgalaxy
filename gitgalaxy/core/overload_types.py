@@ -283,7 +283,9 @@ _CPP_AUTO = re.compile(r"\b(?:const[ \t]+)?auto(?:[ \t]*[*&]){0,2}[ \t]+(?P<n>" 
 _CPP_DECL_STOP = frozenset(
     {"return", "new", "delete", "throw", "else", "case", "sizeof", "alignof", "decltype", "auto", "using", "typedef"}
 )
-_CPP_PARAM = re.compile(r"[ \t\r\n]*" + _CPP_TYPE + r"(?:[ \t\r\n]+(?P<n>" + _IDENT + r"))?(?:[ \t]*\[[^\]\n]{0,40}\])?[ \t\r\n]*")
+_CPP_PARAM = re.compile(
+    r"[ \t\r\n]*" + _CPP_TYPE + r"(?:[ \t\r\n]+(?P<n>" + _IDENT + r"))?(?:[ \t]*\[[^\]\n]{0,40}\])?[ \t\r\n]*"
+)
 
 
 def field_value_types(field_text: str, file_text: str, lang: str) -> dict[str, str | None]:

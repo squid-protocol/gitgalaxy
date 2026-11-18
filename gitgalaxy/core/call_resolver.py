@@ -1917,12 +1917,7 @@ def _resolve_one(
             and not (caller.lang in _PACKAGE_DIR_LANGS and d is not None and d.pkg == caller.pkg)
         ):
             return "unseen", d  # #3443: the only definition, but not one this caller can see
-        if (
-            step == "unique"
-            and d is not None
-            and _in_test_dir(d.path)
-            and not _in_test_dir(caller.path)
-        ):
+        if step == "unique" and d is not None and _in_test_dir(d.path) and not _in_test_dir(caller.path):
             return "unseen", d  # production code never links to a test-only definition
         return step, d
 
@@ -2585,7 +2580,17 @@ def resolve_calls(
             for q, call_expr in (func.get("calls_out_call_assigns") or {}).items():
                 if q not in typed and call_expr:
                     ret_lineage = _resolve_call_return_type(
-                        str(call_expr), index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                        str(call_expr),
+                        index,
+                        group,
+                        lang,
+                        caller,
+                        lineage,
+                        cache,
+                        parents,
+                        typed,
+                        typed_scope,
+                        static_memo,
                     )
                     if ret_lineage is not None:
                         typed[q] = ret_lineage
@@ -2608,22 +2613,51 @@ def resolve_calls(
                 init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
                 options = list(dict.fromkeys(None if q == INIT_LIST_QUALIFIER else q for q in options))
 
-                def _resolve_option(q: str | None) -> tuple[str, _Definition | None, str | None]:
-                    if q == "<expr>" and kind == "call" and expr_chains.get(callee):
+                def _resolve_option(
+                    q: str | None,
+                    *,
+                    _bucket: _Bucket | None = bucket,
+                    _caller: _File = caller,
+                    _lineage: list[str] = lineage,
+                    _typed: dict[str, list[str]] = typed,
+                    _typed_scope: dict[str, set[str]] = typed_scope,
+                    _expr_chains: dict[str, list[str]] = expr_chains,
+                    _callee: str = callee,
+                    _kind: str = kind,
+                    _group: str = group,
+                    _lang: str = lang,
+                ) -> tuple[str, _Definition | None, str | None]:
+                    if q == "<expr>" and _kind == "call" and _expr_chains.get(_callee):
                         best: tuple[str, _Definition | None, str | None] = ("none", None, q)
-                        for ch in expr_chains[callee]:
+                        for ch in _expr_chains[_callee]:
                             ch_lineage = _resolve_call_return_type(
-                                ch, index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                                ch,
+                                index,
+                                _group,
+                                _lang,
+                                _caller,
+                                _lineage,
+                                cache,
+                                parents,
+                                _typed,
+                                _typed_scope,
+                                static_memo,
                             )
                             if ch_lineage is not None:
                                 st, d = _resolve_one(
-                                    bucket, caller, lineage, "<chain>", cache, {**typed, "<chain>": ch_lineage}, typed_scope
+                                    _bucket,
+                                    _caller,
+                                    _lineage,
+                                    "<chain>",
+                                    cache,
+                                    {**_typed, "<chain>": ch_lineage},
+                                    _typed_scope,
                                 )
                                 if best[1] is None or _RANK[st] < _RANK[best[0]]:
                                     best = (st, d, "<expr>")
                         if best[1] is not None:
                             return best[0], best[1], best[2]
-                    st, d = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
+                    st, d = _resolve_one(_bucket, _caller, _lineage, q, cache, _typed, _typed_scope)
                     return st, d, q
 
                 step, dst, used = _resolve_option(options[0])

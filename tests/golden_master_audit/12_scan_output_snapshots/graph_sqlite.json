@@ -7551,7 +7551,7 @@
       "cpp/NVDA/espeak.py": "d4459a7af0a3",
       "cpp/NVDA/inProcess.cpp": "1060cf16e7a2",
       "cpp/NVDA/nvdaControllerInternal.cpp": "b0ec1ec03c29",
-      "cpp/NVDA/storage.cpp": "6ad0a9ef83ea",
+      "cpp/NVDA/storage.cpp": "f510e8cf0884",
       "cpp/godot/editor_node.cpp": "f0e282c9967d",
       "cpp/godot/editor_node.h": "429094f2b570",
       "cpp/godot/gdscript_vm.cpp": "2d3e21f9e0f5",

@@ -103,7 +103,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Binding checks and authorization boundaries.
+        # 6. safety (Defensive Checks: assert/try/guards). Binding checks and authorization boundaries.
         "safety": re.compile(
             r"\b(TRY|CATCH|CLEANUP|ASSERT|AUTHORITY-CHECK|IS\s+BOUND|IS\s+ASSIGNED|IS\s+NOT\s+INITIAL|FINAL|READ-ONLY)\b",
             re.I,

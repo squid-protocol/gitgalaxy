@@ -31,6 +31,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_identifier a
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key, sql_name
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 
 def map_type_to_java(json_type: str, description: str) -> str:
@@ -380,7 +381,9 @@ def main():
     parser = argparse.ArgumentParser(description="GitGalaxy Java Entity Generator")
     parser.add_argument("schema_file", help="Path to the GitGalaxy _schema.json file")
     parser.add_argument("--pkg", default="com.gitgalaxy.modernized", help="Base Java package name")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     schema_path = Path(args.schema_file).resolve()
     if not schema_path.exists():

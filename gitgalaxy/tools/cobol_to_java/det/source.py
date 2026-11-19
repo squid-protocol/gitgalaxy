@@ -347,6 +347,13 @@ def _headers(code: str) -> str:
     return _PROGRAM_ID_NO_PERIOD.sub(lambda m: m.group(1) + ".", code, count=1)
 
 
+_REPLACE_STATEMENT = re.compile(r"\s*REPLACE(?:\s+(?:OFF|==)|\s*$)", re.I)
+
+
+class ReplaceStatementRefused(ValueError):
+    """#8412: a REPLACE statement (`REPLACE ==A== BY ==B==.` / `REPLACE OFF.`), which this reader does not apply."""
+
+
 class SourceFormatRefused(ValueError):
     """#5648: a source-format directive this reader does not follow (`>>SOURCE FORMAT IS VARIABLE`)."""
 
@@ -452,6 +459,12 @@ def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]
             row.lost_joined = len(line) > 72 and line[71] != " " and line[72] != " "
         out.append(row)
     cond.finish(Path(file).name)
+    for ln in out:  # #8412: the REPLACE statement (not COPY ... REPLACING) is not applied by this reader
+        if _REPLACE_STATEMENT.match(ln.text):
+            raise ReplaceStatementRefused(
+                f"{Path(ln.file).name}:{ln.line}: the REPLACE statement is not read (it rewrites the text that "
+                "follows it; refused by name rather than translated unreplaced)"
+            )
     return out
 
 

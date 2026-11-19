@@ -75,7 +75,7 @@ When dealing with deep learning frameworks that process arbitrary tensors, the s
 
 * **AI Threat Intelligence:** **0 detected**. The codebase is secure against recognized structural malware.
 * **AI & Machine Learning Topology:** Classified as **Local Sovereignty (Heavy Compute)**. The primary AI integration is a "Pure Producer," deeply embedded with a massive Blast Radius. Hallucinations or injections here will cascade catastrophically.
-* **Supply Chain Firewall:** **0 Blacklisted Dependencies**, but **57 Unknown Dependencies** bypassing the zero-trust whitelist. 
+* **Import Policy Gate:** **0 Blacklisted Dependencies**, but **57 Unknown Dependencies** bypassing the zero-trust whitelist. 
 * **Binary Anomalies (X-Ray):** **51 hits**. High entropy artifacts detected, heavily associated with embedded binary models, flatbuffers, and `.bin` test data payloads.
 * **Weaponizable Injection Vectors:** Files like `cluster_coordinator.py`, `remote_value.py`, and `Session.java` flagged for **100.0% Weaponizable Injection Vectors**, meaning untrusted inputs flow directly into dynamic execution contexts without adequate static safety nets.
 
@@ -89,7 +89,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

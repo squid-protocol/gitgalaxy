@@ -17,7 +17,8 @@ Rules, all in decide() (pure: a snapshot in, actions out):
   * a failure with cancelled legs says so, and one with NO failed leg (only cancelled ones) says that it is not a
     verdict on the code;
   * (event path) a first-attempt failure whose every failed job lost its runner ("The hosted runner lost communication
-    with the server": infra, not code) gets its failed jobs rerun ONCE, and the issue says so. A runner lost in
+    with the server", or "not acquired by Runner", where the job ends `cancelled` with no steps, #8673: infra, not
+    code) gets its failed jobs rerun ONCE, and the issue says so. A runner lost in
     det-mutation kept Evidence Refresh red for 38 h in Nov 2026: the next scheduled run was the only retry;
   * (reconcile path) a red that has stood REVERIFY_AFTER_H with newer commits on main, no run of that workflow queued or
     running, and no re-verify in REVERIFY_EVERY_H, gets the workflow dispatched on main (a fix that merged hours
@@ -42,7 +43,11 @@ PREFIX = "main is red: "
 EVENTS = ("push", "schedule", "workflow_dispatch")
 FAILED_JOB = ("failure", "timed_out")
 # GitHub's annotation text when the runner dies under a job (not the job's own failure)
-INFRA_MARKS = ("lost communication with the server", "received a shutdown signal")
+INFRA_MARKS = (
+    "lost communication with the server",
+    "received a shutdown signal",
+    "was not acquired by runner",  # a hosted runner that never came (macOS capacity, #8673): the job ends `cancelled`
+)
 REVERIFY_AFTER_H = 4  # a red must have stood this long before a re-verify (the fix needs time to land)
 REVERIFY_EVERY_H = 12  # at most one re-verify dispatch per issue per this many hours
 REVERIFY_MARK = "<!-- main-watch reverify at="
@@ -251,9 +256,12 @@ def failed_jobs(repo: str, run_id: int) -> list[tuple[str, list[str]]]:
     """(name, annotation messages) of the failed jobs of the run's latest attempt."""
     out = []
     for j in paged(f"repos/{repo}/actions/runs/{run_id}/jobs?filter=latest", "jobs", limit=2):
-        if j.get("conclusion") in FAILED_JOB:
+        if j.get("conclusion") in FAILED_JOB or j.get("conclusion") == "cancelled":
             notes = gh("api", f"repos/{repo}/check-runs/{j['id']}/annotations") or []
-            out.append((j["name"], [n.get("message") or "" for n in notes]))
+            msgs = [n.get("message") or "" for n in notes]
+            # a cancelled job counts only when it lost its runner: a superseded run or a timeout hang says nothing
+            if j.get("conclusion") in FAILED_JOB or infra_loss(msgs):
+                out.append((j["name"], msgs))
     return out
 
 

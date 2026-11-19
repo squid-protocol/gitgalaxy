@@ -180,7 +180,7 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards, validation)
         # Stack preservation and defensive frame setups.
         # C2: frame mechanics/alignment are structure; CFI/pointer-auth hardening stays.
         "safety": re.compile(

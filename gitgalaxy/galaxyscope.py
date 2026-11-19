@@ -1063,7 +1063,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
                 # can independently corroborate some of these same "sec_" keys (e.g.
                 # sec_tainted_injection, sec_hardcoded_secrets) via its in-segment
-                # spatial correlation. A plain assignment here would silently discard
+                # proximity correlation (two regex hit classes close together, not
+                # value-level taint tracking). A plain assignment here would silently discard
                 # that contribution the moment security_lens's own scan ran second.
                 for sec_key, hit_count in sec_results["counts"].items():
                     mapped_key = f"sec_{sec_key}"
@@ -1078,8 +1079,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # persisted ledger detector.py's rules already populate (#348).
                 # security_lens.py tracks a handful of signals (e.g. db_hooks) that
                 # have no detector.py-side equivalent at all -- without this, that
-                # position data was computed (for security_lens's own internal
-                # taint check) and then simply discarded, leaving post-hoc tools
+                # position data was computed (security_lens's data-flow taint check
+                # was removed, #3101; its positions still feed this ledger) and then
+                # simply discarded, leaving post-hoc tools
                 # outside detector.py (dev_agent_firewall.py, ai_appsec_sensor.py,
                 # #105's future db_hooks correlation) with nothing to correlate
                 # against for these signals.
@@ -1947,7 +1949,10 @@ class Orchestrator:
         Workers (Phase 1) must run before Relational Analysis (Phase 3) so that
         we have exact code tokens in RAM before mapping the API Downstream Exposure.
         Likewise, Network Topology (Phase 4) is required before XGBoost Inference
-        (Phase 9) since a file's centrality influences its logic bomb threat weighting.
+        (Phase 9) since the model's feature matrix reads each file's direct
+        upstream/downstream dependency counts (SecurityAuditor._construct_feature_matrix:
+        popularity, import_count and their log forms). PageRank/betweenness are not
+        model features.
         """
         start_time = time.time()
         logger.info(f"--- PIPELINE_START: {self.root.name} (v{self.version}) ---")
@@ -4335,7 +4340,7 @@ def main():
         "--paranoid",
         action="store_true",
         default=None,
-        help="Lower security thresholds to flag more potential threats.",
+        help="Use the stricter credential-exposure thresholds (paranoid_threshold, paranoid_slope); other Security Lens thresholds are unchanged.",
     )
 
     # ---> NEW: THE SHADOW PATCH OVERRIDE <---
@@ -4657,7 +4662,7 @@ def main():
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
             logging.getLogger("GalaxyScope").info(
-                "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
+                "🔒 PARANOID MODE: stricter credential-exposure thresholds only; other Security Lens thresholds unchanged."
             )
         # -------------------------------
 

@@ -126,7 +126,7 @@ DEFINITION: dict[str, Any] = {
         # AGC lacks native objects.
         "class_start": None,
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards, validation)
         # Real-time safety guards and interrupt control.
         "safety": re.compile(
             r"\b(INHINT|RELINT|TC\s+DOWNRUPT|CS\s+ERESTORE|MUST\s+RESTORE|EDRUPT)\b",

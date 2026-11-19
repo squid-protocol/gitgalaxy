@@ -1,13 +1,13 @@
 ---
-description: "Set up the Supply Chain Firewall: import block and allow lists plus a secrets-risk gate, enforced by the standalone CLI."
+description: "Set up the Import Policy Gate: import block and allow lists plus a secrets-risk gate, enforced by the standalone CLI."
 ---
-# How to Enforce the Supply Chain Firewall
+# How to Enforce the Import Policy Gate
 
-> **Fixed in #8595 (#8428):** the standalone CLI and the Action's `tool: supply-chain-firewall` now read the audit JSON's real keys and exit 1 on a counted threat. Before the fix they never blocked. In a `galaxyscope` scan the firewall's result is recorded in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan; only the standalone CLI sets an exit code. The enforcement gaps that remain are tracked in #8432.
+> **Fixed in #8595 (#8428):** the standalone CLI and the Action's `tool: import-policy-gate` now read the audit JSON's real keys and exit 1 on a counted threat. Before the fix they never blocked. In a `galaxyscope` scan the gate's result is recorded in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan; only the standalone CLI sets an exit code. The enforcement gaps that remain are tracked in #8432.
 
-## What the firewall gates
+## What the gate gates
 
-The firewall checks the scanned repository's **own** files. It does not read installed dependencies: `node_modules`, `venv`, `.venv`, `vendor` and `third_party` are excluded by the default scan config. For each file it checks:
+The gate checks the scanned repository's **own** files. It does not read installed dependencies: `node_modules`, `venv`, `.venv`, `vendor` and `third_party` are excluded by the default scan config. For each file it checks:
 
 1. **Imports against your lists** (`gitgalaxy_config.py` or `.galaxyscope.yaml`):
    * **Audit mode (default):** blocks packages listed in `BLACKLISTED_IMPORTS`. The list ships empty, so add entries before relying on it.
@@ -25,7 +25,7 @@ What it does not check: network calls, typosquatting, Unicode homoglyphs, files 
 STRICT_IMPORT_MODE = True
 APPROVED_IMPORTS = ["requests", "numpy"]
 BLACKLISTED_IMPORTS = ["event-stream"]
-FIREWALL_NETWORK_WEIGHTING = False  # opt-in: raises the multiplier for highly central files
+IMPORT_GATE_NETWORK_WEIGHTING = False  # opt-in: raises the multiplier for highly central files
 ```
 
 ## Running it
@@ -33,14 +33,14 @@ FIREWALL_NETWORK_WEIGHTING = False  # opt-in: raises the multiplier for highly c
 ```bash
 # A directory target runs a GalaxyScope scan first; a GalaxyScope audit JSON is also accepted.
 # Exits 1 when it counts a blacklisted or (strict mode) unapproved import, or a secrets-risk file.
-supply-chain-firewall . --config .galaxyscope.yaml
+import-policy-gate . --config .galaxyscope.yaml
 ```
 
 When the CLI counts a threat it prints a summary and exits 1:
 
 ```text
 ===========================================================================
- 🧱 SUPPLY CHAIN FIREWALL: SCAN SUMMARY
+ 🧱 IMPORT POLICY GATE: SCAN SUMMARY
 ===========================================================================
  Mode                 : Strict (Exclude Blacklist and Unknown)
  Files Evaluated      : <n>
@@ -57,7 +57,7 @@ When the CLI counts a threat it prints a summary and exits 1:
 
 This is the format `import_policy_gate.py` prints, with placeholders; it is not output from a real run.
 
-> **Read the full technical specification:** [Supply Chain Firewall](../04-03-supply-chain-firewall.md)
+> **Read the full technical specification:** [Import Policy Gate](../04-03-import-policy-gate.md)
 
 ---
 

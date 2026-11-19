@@ -188,6 +188,7 @@ def generate_zero_trust_jcl(
 
 def main():
     from gitgalaxy.licensing import enforce_licensing_guard
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
     enforce_licensing_guard("Zero-Trust JCL Generator")
 
@@ -200,7 +201,9 @@ def main():
         type=str,
         help="Output directory (default: isolated timestamped folder)",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     target_path = Path(args.target).resolve()
 

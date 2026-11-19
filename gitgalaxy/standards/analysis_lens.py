@@ -215,6 +215,9 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     # memory model of its own; a routine without PROCEDURE shares the caller's
     # whole variable pool -- implicit globals by default.
     "rexx": (False, False, True, False),
+    # #8625: CLIST -- untyped (every value is a string), no memory model, errors are ignored
+    # unless `ERROR DO` installs a handler, variables are global to the nested CLISTs.
+    "clist": (False, False, True, False),
     "ruby": (False, False, True, True),
     "crystal": (True, True, True, True),  # #5623: compiler-checked types and nil; GC; no implicit globals
     # #6572: dynamically typed (Dialyzer is opt-in); GC per process; immutable data, no implicit globals
@@ -1033,6 +1036,7 @@ LANGUAGE_SECURITY_PROFILES = {
             # #2504: z/OS automation scripting -- ADDRESS TSO/ISPEXEC host
             # commands are the language's purpose, shell's own profile.
             "rexx",
+            "clist",
             "dockerfile",
             "yaml",
             "makefile",

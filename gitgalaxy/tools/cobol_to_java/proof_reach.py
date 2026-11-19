@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.aperture import DET_PORT_MARKER
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 # The methods a proof calls: equivalence_cics.py / cics_crucible.py (runTask), equivalence_call.py (handleCall, and
 # withCallAreas before it on a port that has one: #4778, the USING items' bytes), equivalence_java.py (runBatch).
@@ -351,7 +352,9 @@ def main(argv: list[str] | None = None) -> int:
                          "counted as ported")  # fmt: skip
     ap.add_argument("--json", action="store_true", help="print the report as JSON")
     ap.add_argument("--strict", action="store_true", help="exit 1 when a ported method is never run by the proof")
+    add_flag(ap)  # #8624
     opts = ap.parse_args(argv)
+    enforce(opts)
     report = analyse(opts.paths, generated=opts.generated)
     print(json.dumps(report, indent=1) if opts.json else summary(report))
     return 1 if opts.strict and any(r["ported_unproven"] for r in report.values()) else 0

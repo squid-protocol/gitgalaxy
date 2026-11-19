@@ -22,6 +22,7 @@ from pathlib import Path
 
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 
 def slice_business_logic(
@@ -160,7 +161,9 @@ def main():
     parser = argparse.ArgumentParser(description="GitGalaxy Microservice Logic Extractor v3")
     parser.add_argument("target", help="Path to a .cbl file to slice")
     parser.add_argument("--var", required=True, help="The target variable to track")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():

@@ -17,7 +17,7 @@ needs_linux_bash = pytest.mark.skipif(
 )
 
 
-def _run(tmp_path, attempts, fail_times, *, cmd=None, backoff=3):
+def _run(tmp_path, attempts, fail_times, *, cmd=None, backoff=3, extra_env=None):
     """Run ci_retry.sh around a command that fails `fail_times` times; sleeps are logged, not slept."""
     counter, sleeps = tmp_path / "count", tmp_path / "sleeps"
     sleeper = tmp_path / "fake-sleep"
@@ -33,7 +33,7 @@ def _run(tmp_path, attempts, fail_times, *, cmd=None, backoff=3):
         ["bash", str(SCRIPT), str(attempts), str(backoff), "--", *argv],
         capture_output=True,
         text=True,
-        env={"PATH": "/usr/bin:/bin", "CI_RETRY_SLEEP": str(sleeper)},
+        env={"PATH": "/usr/bin:/bin", "CI_RETRY_SLEEP": str(sleeper), **(extra_env or {})},
     )
     tries = len(counter.read_text().split()) if counter.exists() else 0
     slept = sleeps.read_text().split() if sleeps.exists() else []
@@ -72,6 +72,34 @@ def test_missing_command_is_infrastructure_too_and_args_with_spaces_survive(tmp_
 @needs_linux_bash
 def test_bad_usage_is_refused():
     assert subprocess.run(["bash", str(SCRIPT), "3"], capture_output=True).returncode == 2
+
+
+@needs_linux_bash
+def test_a_cache_hit_skips_the_fetch(tmp_path):
+    proc, tries, slept = _run(tmp_path, 4, 0, extra_env={"CI_RETRY_CACHED": "true"})
+    assert (proc.returncode, tries, slept) == (0, 0, [])
+    assert "cache hit" in proc.stderr
+
+
+@needs_linux_bash
+def test_a_cache_miss_falls_through_to_the_retries(tmp_path):
+    proc, tries, slept = _run(tmp_path, 4, 1, extra_env={"CI_RETRY_CACHED": "false"})
+    assert (proc.returncode, tries, slept) == (0, 2, ["3"])
+
+
+@needs_linux_bash
+def test_the_final_failure_prints_the_cause_line(tmp_path):
+    cmd = ["sh", "-c", "echo first; echo 'E: Failed to fetch http://x  Temporary failure resolving'; echo; exit 9"]
+    proc, _, _ = _run(tmp_path, 2, 0, cmd=cmd)
+    assert proc.returncode == 9
+    assert "ci_retry: cause: E: Failed to fetch http://x  Temporary failure resolving" in proc.stdout
+    assert proc.stdout.index("cause:") < proc.stdout.index("::error::INFRASTRUCTURE")
+
+
+@needs_linux_bash
+def test_a_missing_command_still_has_a_cause(tmp_path):
+    proc, _, _ = _run(tmp_path, 1, 0, cmd=["/nonexistent/docker", "pull"])
+    assert "ci_retry: cause:" in proc.stdout and "nonexistent" in proc.stdout
 
 
 # (workflow, a line that must go through ci_retry.sh, the pin that must survive)

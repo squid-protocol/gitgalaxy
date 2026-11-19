@@ -760,15 +760,18 @@ def test_refresh_runs_only_its_shard(monkeypatch, tmp_path, capsys):
     assert dm.refresh([CASE], tmp_path, shard=(1, 2)) == 0 and calls
 
 
-def test_compiles_only_file_passes_single_source_and_sourcepath(monkeypatch, tmp_path):
+def test_compiles_only_file_passes_program_sources_and_sourcepath(monkeypatch, tmp_path):
+    """#8599: the program's files (B too: a constant mutated in A is inlined into B), never the runtime's."""
     import subprocess
     import javac_server
     import mutation as mu
 
     port = tmp_path / "port"
     (port / "service").mkdir(parents=True)
+    (port / "cobolrt").mkdir(parents=True)
     (port / "service" / "A.java").write_text("class A {}\n", encoding="utf-8")
     (port / "service" / "B.java").write_text("class B {}\n", encoding="utf-8")
+    (port / "cobolrt" / "R.java").write_text("class R {}\n", encoding="utf-8")
     seen: list[list[str]] = []
 
     def fake_javac(cmd, **kw):
@@ -780,7 +783,8 @@ def test_compiles_only_file_passes_single_source_and_sourcepath(monkeypatch, tmp
     ok, _ = mu.compiles(port, "/cp/classes", tmp_path / "out", only_file="service/A.java")
     assert ok and len(seen) == 1
     assert str(port / "service" / "A.java") in seen[0]
-    assert str(port / "service" / "B.java") not in seen[0]
+    assert str(port / "service" / "B.java") in seen[0]
+    assert str(port / "cobolrt" / "R.java") not in seen[0]
     assert "-sourcepath" in seen[0]
 
 

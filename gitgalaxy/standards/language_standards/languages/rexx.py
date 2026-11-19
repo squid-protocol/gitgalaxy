@@ -76,6 +76,8 @@ DEFINITION: dict[str, Any] = {
     # EXECUTION SIGNATURES: Regina/ooRexx scripts on Unix carry a shebang
     # (Regina documents the `#!` first line as a special case it skips).
     "shebangs": ["rexx", "regina", "rexx64", "oorexx"],
+    # #8625: an extensionless exec in a SYSEXEC / SYSPROC-style dataset-qualifier directory (`USER.SYSEXEC/MEMBER`).
+    "library_directory_suffixes": ["rexx", "exec", "sysexec", "rexxlib"],
     # Rationale (how_to_add_a_language.md Step 4 item 8): REXX's comment is
     # `/* ... */` and it DOES nest ("comments may be nested within other
     # comments", TSO/E REXX Reference) -- the recursive_block algorithm -- but

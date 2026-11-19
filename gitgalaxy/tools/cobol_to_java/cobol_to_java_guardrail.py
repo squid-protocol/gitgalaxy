@@ -48,6 +48,7 @@ from pathlib import Path
 
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 BASELINE_FILE = "guardrail_baseline.json"
 BASELINE_VERSION = 1
@@ -417,7 +418,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("project", type=Path, help="the generated Java project (holds guardrail_baseline.json)")
     ap.add_argument("--result", nargs=2, action="append", type=Path, metavar=("TICKET", "RESULT"),
                     help="an agent ticket and the JSON result it returned (its java_code is checked)")  # fmt: skip
+    add_flag(ap)  # #8624
     args = ap.parse_args(argv)
+    enforce(args)
     if not (args.project / BASELINE_FILE).is_file():
         print(f"[!] {args.project / BASELINE_FILE} not found: regenerate the project with cobol-to-java")
         return 2

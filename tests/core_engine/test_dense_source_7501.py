@@ -5,9 +5,9 @@ several functions defined inline per line. Every fixture here is synthetic.
 """
 
 import logging
-import time
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core import dense_source
 from gitgalaxy.core.aperture import ApertureFilter
@@ -203,10 +203,12 @@ def test_the_scan_is_linear_on_adversarial_lines():
         ("a<b,c>[d] " * cap)[:cap],
         ("x::y~z " * cap)[:cap],
     ]
-    start = time.perf_counter()
-    for line in lines:
-        dense_source.has_dense_definitions([line], "x.c")
-    assert time.perf_counter() - start < 1.0
+
+    def scan_all():
+        for line in lines:
+            dense_source.has_dense_definitions([line], "x.c")
+
+    assert_cpu_below(scan_all, 1.0, what="has_dense_definitions on adversarial lines")
 
 
 # ---- the worker's minification test and extraction ----------------------------------------------------

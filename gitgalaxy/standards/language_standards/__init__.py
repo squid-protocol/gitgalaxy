@@ -80,6 +80,7 @@ from .languages import batch as _batch
 from .languages import blp as _blp
 from .languages import bms as _bms
 from .languages import c as _c
+from .languages import clist as _clist
 from .languages import cobol as _cobol
 from .languages import cpp as _cpp
 from .languages import crystal as _crystal
@@ -195,6 +196,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "perl": _perl.DEFINITION,
     "haskell": _haskell.DEFINITION,
     "embedded_python": _embedded_python.DEFINITION,
+    "clist": _clist.DEFINITION,
     "cobol": _cobol.DEFINITION,
     "zig": _zig.DEFINITION,
     "apex": _apex.DEFINITION,

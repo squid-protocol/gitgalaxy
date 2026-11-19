@@ -5211,12 +5211,15 @@ def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dic
 
 
 def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, Any],
-                 facade: dict[str, Any], refused: dict[str, str], cobol_work: Path) -> dict[str, Any]:  # fmt: skip
+                 facade: dict[str, Any], refused: dict[str, str], cobol_work: Path,
+                 quiet: bool = False) -> dict[str, Any]:  # fmt: skip
     """#4449: the java-facade side against the same COBOL tasks as the runTask side, compared the same way (events,
     files, tables, injected faults); a facade's refusal (FacadeRegion) fails its scenario. `entry_points`: per
-    facade method of the case's program, the passing scenarios that entered by it (report `entries`)."""
+    facade method of the case's program, the passing scenarios that entered by it (report `entries`). `quiet`: no
+    per-scenario lines (#8599: mutation.py's in-process workers judge every mutant's facade side)."""
     if "error" in facade:
-        print(f"{case['program']} java-facade: the run failed -- {facade['error'].splitlines()[0]}")
+        if not quiet:
+            print(f"{case['program']} java-facade: the run failed -- {(facade['error'].splitlines() or [''])[0]}")
         return {"proven": False, "error": facade["error"], "outputs": {}, "entry_points": []}
     out: Path = facade["out"]
     outputs: dict[str, Any] = {}
@@ -5259,7 +5262,8 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
         if moved:  # #7954 (X10): the end area of the byte[] entry; only when non-empty (python-test-traps.md)
             o["caller_bytes"] = moved
             ok = False
-            print(f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}")
+            if not quiet:
+                print(f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}")
         if not sc.get("prefix_link") and not x6:
             changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
             changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))
@@ -5269,11 +5273,12 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
         o["pass"] = ok
         ok_all &= ok
         outputs[name] = o
-        print(
-            f"{case['program']} {name} [java-facade]: {d['equal']}/{d['events']} events equal"
-            + (f"; REFUSED: {why}" if why else "")
-            + ("" if ok or why or d["equal"] != d["events"] else "; differs")
-        )
+        if not quiet:
+            print(
+                f"{case['program']} {name} [java-facade]: {d['equal']}/{d['events']} events equal"
+                + (f"; REFUSED: {why}" if why else "")
+                + ("" if ok or why or d["equal"] != d["events"] else "; differs")
+            )
         if ok:
             for e in o["entries"]:
                 if e.get("program") == case["program"] and e.get("method") != "runTask":

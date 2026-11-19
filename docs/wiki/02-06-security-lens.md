@@ -17,7 +17,7 @@ CVE lookups only find known-vulnerable package versions; they say nothing about 
 ## Design
 The engine decouples threat measurement from policy enforcement, allowing dynamic threat threshold injection (e.g., `--paranoid` mode). It scans for 13 signature families, the keys of `THREAT_SIGNATURES` in `security_lens.py`: `reflection_metaprogramming`, `safety_bypasses`, `io`, `high_risk_execution`, `state_mutation`, `dead_code`, `bitwise_ops`, `shadow_imports`, `homoglyphs`, `hardcoded_secrets`, `db_hooks`, `unicode_steganography` and `self_propagation` (a file copying or overwriting itself). It also computes Shannon entropy over string literals (see Tradeoffs). There is no taint or data-flow analysis: it was removed in #3101, and the `threat_tainted_injection` column it fed is an always-zero placeholder. Agentic-RCE detection was removed in #1020.
 
-The lens returns per-file counts, snippets and line positions. It does not read network centrality. Scores are computed later by the signal processor; the only centrality weighting is the opt-in, linear multiplier in the supply-chain firewall (`import_policy_gate.py`: `1.0 + 0.5 × normalized_blast_radius` when that exceeds 1.0, plus 0.5 when betweenness exceeds 0.05).
+The lens returns per-file counts, snippets and line positions. It does not read network centrality. Scores are computed later by the signal processor; the only centrality weighting is the opt-in, linear multiplier in the import policy gate (`import_policy_gate.py`: `1.0 + 0.5 × normalized_blast_radius` when that exceeds 1.0, plus 0.5 when betweenness exceeds 0.05).
 
 Coverage is tested on planted inputs (`tests/security_auditing/test_security_lens.py` and the `*_4108` probe tests). There is no measured real-world recall or precision.
 

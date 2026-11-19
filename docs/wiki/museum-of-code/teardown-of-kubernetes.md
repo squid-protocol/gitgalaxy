@@ -75,7 +75,7 @@ In a repository maintained by thousands of contributors, isolated domain knowled
 Kubernetes controls the security boundaries of the cloud, making its own static threat model a high-priority target.
 
 * **Autonomous AI Threats & Malware:** **0 detected**. The codebase is secure against recognized structural malware.
-* **Supply Chain Firewall:** **0 Blacklisted Dependencies**. However, GitGalaxy flagged **497 Unknown Dependencies** bypassing the zero-trust whitelist, reflecting the massive sprawling nature of the `k8s.io` vendor tree.
+* **Import Policy Gate:** **0 Blacklisted Dependencies**. However, GitGalaxy flagged **497 Unknown Dependencies** bypassing the zero-trust whitelist, reflecting the massive sprawling nature of the `k8s.io` vendor tree.
 * **Binary Anomalies (X-Ray):** **73 hits**. Flagged for high entropy, but cross-referencing shows these are largely expected payloads within test scenarios.
 * **Weaponizable Injection Vectors & Hardcoded Secrets:** Files like `upgradeaware_test.go` and `impersonation_test.go` triggered **100% Injection Surface**, and dozens of `.rsa.key` files triggered **100% Hardcoded Payload Artifacts**. However, spatial mapping confirms these are strictly contained within `testdata` directories (e.g., `cmd/kubeadm/app/util/pkiutil/testing/testdata/`). This is a strong positive validation of the system's security perimeter: dangerous artifacts are effectively quarantined to test harnesses.
 
@@ -89,7 +89,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

@@ -349,3 +349,120 @@ def test_equivalence_main_mutant_session_isolates_epochs(tmp_path: Path):
     finally:
         sess.close()
 
+
+# ---- #8599: a mutant compiles the program's files only, against the baseline's runtime classes -------------------
+def _port_with_runtime(root: Path) -> Path:
+    port = root / "port"
+    (port / "cobolrt").mkdir(parents=True)
+    (port / "service").mkdir(parents=True)
+    (port / "cobolrt" / "Rt.java").write_text(
+        "package cobolrt; public class Rt { public static int twice(int x) { return 2 * x; } }\n", encoding="utf-8")
+    (port / "service" / "Svc.java").write_text(
+        "package service; public class Svc { public int f() { return cobolrt.Rt.twice(Konst.K); } }\n",
+        encoding="utf-8")
+    (port / "service" / "Konst.java").write_text(
+        "package service; public class Konst { public static final int K = 3; }\n", encoding="utf-8")
+    return port
+
+
+def test_mutant_sources_program_only_outside_the_runtime(tmp_path: Path):
+    import shutil
+
+    import mutation as mu
+
+    port = _port_with_runtime(tmp_path)
+
+    def rel(ps: list[Path]) -> list[str]:
+        return sorted(p.relative_to(port).as_posix() for p in ps)
+
+    # a program mutant: every program file (a mutated constant is inlined into its callers), no runtime file
+    assert rel(mu.mutant_sources(port, "service/Svc.java", "cp")) == ["service/Konst.java", "service/Svc.java"]
+    # a runtime mutant, or no baseline classpath to find the runtime on: everything, as before
+    every = ["cobolrt/Rt.java", "service/Konst.java", "service/Svc.java"]
+    assert rel(mu.mutant_sources(port, "cobolrt/Rt.java", "cp")) == every
+    assert rel(mu.mutant_sources(port, "service/Svc.java", "")) == every
+    # a port without a runtime copy: everything
+    shutil.rmtree(port / "cobolrt")
+    assert rel(mu.mutant_sources(port, "service/Svc.java", "cp")) == ["service/Konst.java", "service/Svc.java"]
+
+
+def _baseline_classes(port: Path, out: Path) -> str:
+    import mutation as mu
+
+    env = mu._java_env()
+    javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
+    if not Path(javac).is_file():
+        pytest.skip("javac unavailable")
+    sources = [str(p) for p in sorted(port.rglob("*.java"))]
+    subprocess.run([javac, "-encoding", "UTF-8", "-d", str(out), *sources], check=True, env=env)
+    return str(out)
+
+
+@pytest.mark.parametrize("path", ["session", "fallback"])
+def test_program_only_compile_against_baseline_runtime(tmp_path: Path, path: str):
+    import equivalence_java as ej
+    import mutation as mu
+
+    port = _port_with_runtime(tmp_path)
+    cp = _baseline_classes(port, tmp_path / "baseline-classes")
+
+    def build(mport: Path, mutated: str, out: Path) -> tuple[bool, str]:
+        if path == "fallback":
+            return mu.compiles(mport, cp, out, only_file=mutated)
+        env = mu._java_env()
+        bin_dir = mu._javac_session_bin(env)
+        assert bin_dir is not None
+        sess = mu.JavacSession(bin_dir, env)
+        try:
+            res = sess.compile(mport, cp, out, mu.mutant_sources(mport, mutated, cp))
+        finally:
+            sess.close()
+        assert res is not None
+        return res
+
+    # a live mutant of the constant: the program files are compiled, Svc with it; the runtime is not
+    (port / "service" / "Konst.java").write_text(
+        "package service; public class Konst { public static final int K = 4; }\n", encoding="utf-8")
+    out = tmp_path / "live"
+    ok, why = build(port, "service/Konst.java", out)
+    assert ok, why
+    classes = sorted(p.relative_to(out).as_posix() for p in out.rglob("*.class"))
+    assert classes == ["service/Konst.class", "service/Svc.class"]
+    manifest = json.loads((out / ej.PRECOMPILED_MANIFEST).read_text(encoding="utf-8"))
+    # only what was compiled: overlay adoption drops the baseline classes of every source the manifest lists
+    assert sorted(manifest["sources"]) == ["service/Konst.java", "service/Svc.java"]
+
+    # a mutant that calls the runtime wrongly is still stillborn: the runtime's classes are on the classpath
+    (port / "service" / "Svc.java").write_text(
+        "package service; public class Svc { public int f() { return cobolrt.Rt.thrice(Konst.K); } }\n",
+        encoding="utf-8")
+    ok, why = build(port, "service/Svc.java", tmp_path / "stillborn")
+    assert not ok and "symbol" in why
+
+
+# ---- #8599: the in-process time limit comes from a run of the unmutated port -----------------------------------
+def test_direct_limit_scales_the_slowest_calibration_within_bounds():
+    import mutation as mu
+
+    assert mu.direct_limit(300.0, []) == 300.0  # not calibrated: the separate-run limit, as before
+    assert mu.direct_limit(300.0, [1.0, 2.0]) == mu.DIRECT_LIMIT_FLOOR  # a fast port: the floor
+    assert mu.direct_limit(300.0, [12.0, 7.0]) == 12.0 * mu.DIRECT_LIMIT_FACTOR  # the slowest worker counts
+    assert mu.direct_limit(300.0, [100.0]) == 300.0  # never above the separate-run limit
+
+
+@pytest.mark.parametrize(("verdict", "want"), [("survived", True), ("killed", False), ("timeout", False), (None, False)])
+def test_calibrate_trusts_the_worker_only_when_the_unmutated_port_survives(tmp_path: Path, verdict, want):
+    import mutation as mu
+
+    seen: list[tuple[str, list[Path]]] = []
+
+    class Direct:
+        def run_mutant(self, worker, m, mw, limit, keep, ranks):
+            seen.append((m.id, list((mw / "classes").iterdir())))
+            return None if verdict is None else {"verdict": verdict, "seconds": 0}
+
+    got = mu.calibrate(Direct(), object(), tmp_path / "cal", 300.0)
+    assert (got is not None) is want
+    assert seen == [(mu.CALIBRATE_ID, [])]  # an empty overlay: the baseline's classes, unmutated
+    assert not (tmp_path / "cal").exists()
+

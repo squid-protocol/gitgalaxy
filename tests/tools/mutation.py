@@ -383,14 +383,33 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
     return m.group(1).replace(str(scratch / "target" / "classes"), str(project / "target" / "classes"))
 
 
-def _write_overlay_manifest(out: Path, mutant_port: Path) -> None:
+def _write_overlay_manifest(out: Path, mutant_port: Path, compiled: list[Path] | None = None) -> None:
+    """The overlay's manifest: the sources compiled into `out` (default: all of the port), by sha256. Only these:
+    `_adopt_precompiled_overlay` drops the baseline's classes of every source listed, so a source listed but not
+    compiled would leave its classes missing."""
     sources = {
         p.relative_to(mutant_port).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-        for p in sorted(mutant_port.rglob("*.java"))
+        for p in sorted(compiled if compiled is not None else mutant_port.rglob("*.java"))
     }
     (out / PRECOMPILED_MANIFEST).write_text(
         json.dumps({"javac_options": JAVAC_OPTIONS, "sources": sources}) + "\n", encoding="utf-8"
     )
+
+
+RUNTIME_DIR = "cobolrt"  # the port's copy of the runtime: never depends on the program (#8599)
+
+
+def mutant_sources(mutant_port: Path, mutated: str, classpath: str) -> list[Path]:
+    """The sources a mutant's javac check compiles (#8599). A mutant outside the runtime (`RUNTIME_DIR`) compiles the
+    program's files only, against the baseline's classes on `classpath` (they hold the runtime, built from the same
+    bytes): the runtime never refers to the program, so no constant javac inlines across files can go stale. Every
+    program file is compiled, not just the mutated one, since a mutated constant is inlined into its callers. A
+    mutant inside the runtime, or a port without one, compiles everything, as before."""
+    every = sorted(mutant_port.rglob("*.java"))
+    if Path(mutated).parts[:1] == (RUNTIME_DIR,) or not classpath:
+        return every
+    program = [p for p in every if p.relative_to(mutant_port).parts[:1] != (RUNTIME_DIR,)]
+    return program if program and len(program) < len(every) else every
 
 
 def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None = None) -> tuple[bool, str]:
@@ -399,11 +418,12 @@ def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None
     out.mkdir(parents=True, exist_ok=True)
     single = mutant_port / only_file if only_file else None
     if single is not None and single.is_file() and classpath:
-        sources = [str(single)]
+        compiled = mutant_sources(mutant_port, only_file or "", classpath)
         sp = ("-sourcepath", str(mutant_port))
     else:
-        sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+        compiled = sorted(mutant_port.rglob("*.java"))
         sp = ()
+    sources = [str(p) for p in compiled]
     javac_exe = str(Path(_java_env()["JAVA_HOME"]) / "bin" / "javac")
     try:
         proc = javac_server.javac(
@@ -414,7 +434,7 @@ def compiles(mutant_port: Path, classpath: str, out: Path, only_file: str | None
         return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
     errors = [x for x in proc.stderr.splitlines() if ": error: " in x]
     if proc.returncode == 0:
-        _write_overlay_manifest(out, mutant_port)
+        _write_overlay_manifest(out, mutant_port, compiled)
     return proc.returncode == 0, (errors[0].split(": error: ", 1)[1] if errors else proc.stderr.strip()[:200])
 
 
@@ -504,9 +524,11 @@ class JavacSession:
             self._lines.put(line)
         self._lines.put(None)
 
-    def compile(self, mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str] | None:
+    def compile(self, mutant_port: Path, classpath: str, out: Path,
+                compiled: list[Path] | None = None) -> tuple[bool, str] | None:  # fmt: skip
         out.mkdir(parents=True, exist_ok=True)
-        sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
+        compiled = compiled if compiled is not None else sorted(mutant_port.rglob("*.java"))
+        sources = [str(p) for p in compiled]
         assert self.proc.stdin is not None
         try:
             self.proc.stdin.write(f"{out}\n{classpath}\n" + "\n".join(sources) + "\n\n")
@@ -527,7 +549,7 @@ class JavacSession:
                 code, _, msg = rest.partition(" ")
                 ok = code == "0"
                 if ok:
-                    _write_overlay_manifest(out, mutant_port)
+                    _write_overlay_manifest(out, mutant_port, compiled)
                 return ok, msg
 
     def close(self) -> None:
@@ -587,9 +609,19 @@ def killers(report: dict[str, Any]) -> list[str]:
             if (o["equal"] != o["records"] or o.get("diffs") or (fired and fired["cobol"] != fired["java"])
                     or o.get("files") or sql.get("equal") != sql.get("statements")):  # fmt: skip
                 out.append(name)
+        fc = report.get("facade")
+        if fc and not fc.get("proven", True):  # #8599: seen only through the deployed entry points
+            out += facade_killers(fc)
         return out
     out = ["main"] if not all(e.get("ok") for e in report.get("environments", [{"ok": True}])) else []
     return out + [f["name"] for f in report.get("faults", []) if not f.get("ok")]
+
+
+def facade_killers(facade: dict[str, Any]) -> list[str]:
+    """#8599: the scenarios a judged java-facade side failed (`<scenario> [java-facade]`); the run itself failing is
+    `java-facade`."""
+    failed = [f"{n} [java-facade]" for n, o in (facade.get("outputs") or {}).items() if not o.get("pass")]
+    return failed or ["java-facade"]
 
 
 _ORIGINAL_PROVE = prove
@@ -663,8 +695,9 @@ class _DirectContext:
                  cobol_batch: dict[str, bytes] | None = None, cobol_faults: dict[str, dict[str, bytes]] | None = None,
                  fault_props: dict[str, str] | None = None, cics_in: Path | None = None, cics_cobol_work: Path | None = None,
                  cics_files: list[dict[str, Any]] | None = None, cics_cobol: dict[str, Any] | None = None,
-                 cics_shape: Any = None, cics_ret_read: Any = None) -> None:  # fmt: skip
+                 cics_shape: Any = None, cics_ret_read: Any = None, cics_facade: bool = False) -> None:  # fmt: skip
         self.kind = kind
+        self.cics_facade = cics_facade  # #8599: the baseline was proven through the deployed entry points too
         self.case = case
         self.corpus = corpus
         self.project = project
@@ -763,7 +796,7 @@ class _DirectContext:
                 kind="cics", case=case, corpus=corpus, project=project, base_classes=base_classes,
                 env_default=env0, base_jvm_flags=base_flags, shell=shell, inputs=cics_in,
                 cics_in=cics_in, cics_cobol_work=cobol_work, cics_files=files, cics_cobol=cobol,
-                cics_shape=shape, cics_ret_read=ret_read,
+                cics_shape=shape, cics_ret_read=ret_read, cics_facade=report.get("facade") is not None,
             )
 
         inputs = baseline_work / "cobol"
@@ -840,6 +873,41 @@ class _DirectContext:
                 read[extra] = read[extra].strip()
         return 0, read
 
+    def _run_facade(self, session: Any, worker: _MutantWorker, m_id: str, area: Path,
+                    timeout: float) -> dict[str, Any] | str | None:  # fmt: skip
+        """#8599: every scenario once more through the program's deployed entry points (`-Dequivalence.facades=true`,
+        equivalence_cics._run_facade's run), judged by `judge_facade` as `run_case` judges the baseline. Without it a
+        mutant in facade-only code (handleLink, handleTransaction, lastLinkBytes) survived in process where a separate
+        run kills it (ABNDPROC `661ba858a8`). Its own epoch: a fresh class loader, as a separate JVM would be.
+        The judged facade, `"timeout"`, or None when the session JVM failed."""
+        import equivalence_cics as ec
+
+        out, datasets = area / "out", area / "datasets"
+        out.mkdir(parents=True, exist_ok=True)
+        datasets.mkdir(parents=True, exist_ok=True)
+        argline = (f"{self.base_jvm_flags} -Dequivalence.in={self.cics_in} -Dequivalence.out={out} "
+                   f"-Dequivalence.datasets={datasets} -Dequivalence.facades=true")  # fmt: skip
+        proc = session.run(argline, timeout, epoch=f"{m_id}:facade", cp=worker.cp)
+        if proc.returncode == 124:
+            return "timeout"
+        if "the session JVM" in proc.stderr:
+            return None
+        facade: dict[str, Any] = {}
+        if proc.returncode != 0:  # (run_maven raises: _run_facade records it as the facade run's error)
+            facade["error"] = (proc.stderr or proc.stdout or f"exit {proc.returncode}")[-3000:]
+        else:
+            facade["out"] = out
+            facade["events"] = ec._java_events(self.case, out, self.cics_shape, self.cics_ret_read)
+            facade["entries"], facade["refused"] = {}, {}
+            for sc in self.case["scenarios"]:
+                ent, why = out / f"{sc['name']}.entries.json", out / f"{sc['name']}.refused"
+                facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
+                if why.is_file():
+                    facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
+        assert self.cics_cobol_work is not None
+        return ec.judge_facade(self.case, self.corpus, self.cics_files, self.cics_cobol, facade, {},
+                               self.cics_cobol_work, quiet=True)  # fmt: skip
+
     def run_mutant(self, worker: _MutantWorker, m: Mutant, mw: Path, limit: float, keep: bool,
                    fault_ranks: dict[str, int]) -> dict[str, Any] | None:  # fmt: skip
         classes = mw / "classes"
@@ -886,8 +954,24 @@ class _DirectContext:
                     self.case, self.corpus, self.cics_cobol_work, out, self.cics_files,
                     self.cics_cobol, java, quiet=True,
                 )
-                kb = [] if ok else killers({"kind": "cics", "outputs": outs})
-                return {"verdict": "survived" if ok else "killed", "seconds": secs, "killed_by": kb}
+                if not ok:
+                    return {"verdict": "killed", "seconds": secs,
+                            "killed_by": killers({"kind": "cics", "outputs": outs})}  # fmt: skip
+                if self.cics_facade:  # #8599: the java-facade side, as the baseline was proven (run_case facades)
+                    left = max(1.0, deadline - time.monotonic())
+                    judged = self._run_facade(session, worker, m.id, proof / "facade", left)
+                    secs = round(time.time() - started)
+                    if judged == "timeout":
+                        poisoned = True
+                        worker.reset()
+                        return {"verdict": "timeout", "seconds": secs}
+                    if judged is None:  # the session JVM failed: the separate-run fallback judges this mutant
+                        poisoned = True
+                        worker.reset()
+                        return None
+                    if not judged["proven"]:
+                        return {"verdict": "killed", "seconds": secs, "killed_by": facade_killers(judged)}
+                return {"verdict": "survived", "seconds": secs, "killed_by": []}
 
             import equivalence as eq
 
@@ -937,6 +1021,37 @@ class _DirectContext:
                 except OSError:
                     worker.reset()
                     shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
+
+
+# ---- the in-process time limit (#8599) ---------------------------------------------------------------------------
+DIRECT_LIMIT_FLOOR = 30.0  # seconds: never less, however fast the unmutated port runs in process
+DIRECT_LIMIT_FACTOR = 5.0  # x the slowest worker's run of the unmutated port (PIT's default is 1.25x + 4 s)
+CALIBRATE_ID = "calibrate-unmutated"
+
+
+def direct_limit(limit: float, calib: list[float]) -> float:
+    """The time limit of one in-process mutant proof: `DIRECT_LIMIT_FACTOR` x the slowest calibration run (the
+    unmutated port, in process, on a warm worker), at least `DIRECT_LIMIT_FLOOR`, never more than `limit` (the
+    separate-run limit, `max(300, 3 x baseline)`). A mutant that loops for ever used to hold its worker for the whole
+    `limit`: 201 timeouts in the 2026-11-18 ledgers, 300 s or more each. Timeout and killed are both caught."""
+    if not calib:
+        return limit
+    return min(limit, max(DIRECT_LIMIT_FLOOR, DIRECT_LIMIT_FACTOR * max(calib)))
+
+
+def calibrate(direct: _DirectContext, worker: _MutantWorker, mw: Path, limit: float) -> float | None:
+    """Run the unmutated port (an empty overlay) on the worker; its seconds, or None when it does not survive: the
+    in-process runner would then disagree with the proven baseline, and none of its verdicts can be trusted. Also
+    warms the worker's JVM, which the first mutant paid for before."""
+    (mw / "classes").mkdir(parents=True, exist_ok=True)
+    unmutated = Mutant(id=CALIBRATE_ID, file="", line=0, op="none", before="", after="")
+    started = time.monotonic()
+    try:
+        res = direct.run_mutant(worker, unmutated, mw, limit, False, {})
+    finally:
+        seconds = time.monotonic() - started
+        shutil.rmtree(mw, ignore_errors=True)
+    return seconds if res is not None and res["verdict"] == "survived" else None
 
 
 # ---- the run -----------------------------------------------------------------------------------------------------
@@ -993,7 +1108,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
                 local_javac.sess = sess
                 with compile_lock:
                     javac_sessions.append(sess)
-            compiled = sess.compile(mdir, classpath, out_dir)
+            compiled = sess.compile(mdir, classpath, out_dir, mutant_sources(mdir, m.file, classpath))
             if compiled is not None:
                 return compiled
             with compile_lock:
@@ -1017,6 +1132,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     print(f"{case}: {len(chosen) - len(live)} stillborn (javac), {len(live)} to prove, {jobs} at a time", flush=True)
 
     direct = _DirectContext.build(case, case_file, work / "baseline", base, one_jvm, full)
+    calib: list[float] = []  # #8599: each in-process worker's run of the unmutated classes, seconds
     claim_text = _baseline_claim(work)
     kill_counts: Counter[str] = Counter()
     state_lock = threading.Lock()
@@ -1039,6 +1155,17 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     def run_worker(worker_id: int) -> None:
         nonlocal done, last_save
         worker = _MutantWorker(worker_id, work, direct) if direct is not None else None
+        if worker is not None and direct is not None and live:
+            seconds = calibrate(direct, worker, work / "mutants" / f".calibrate-{worker_id}", limit)
+            if seconds is None:  # the in-process runner does not reproduce the proven baseline: the slow path only
+                print(f"{case}: worker {worker_id}: the unmutated port does not survive in process: "
+                      "proving its mutants as separate runs", flush=True)  # fmt: skip
+                worker.reset()
+                shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
+                worker = None
+            else:
+                with state_lock:
+                    calib.append(seconds)
         try:
             while True:
                 with state_lock:
@@ -1049,7 +1176,11 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
                 res: dict[str, Any] | None = None
                 mw = work / "mutants" / m.id
                 if worker is not None and direct is not None:
-                    res = direct.run_mutant(worker, m, mw, limit, keep, ranks)
+                    with state_lock:
+                        m_limit = direct_limit(limit, calib)
+                    res = direct.run_mutant(worker, m, mw, m_limit, keep, ranks)
+                    if res is not None and res["verdict"] == "timeout":
+                        res["limit"] = round(m_limit)
                     if res is None:
                         shutil.rmtree(mw / "proof", ignore_errors=True)
                 if res is None:

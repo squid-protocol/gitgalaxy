@@ -438,7 +438,21 @@ def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
 _COBOL_MEMBER_BODY = re.compile(
     _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM)) + ")", re.M | re.I
 )
-_PDS_MEMBER_EVIDENCE = {"cobol": _COBOL_MEMBER_BODY, "pli": _PLI_INCLUDE_BODY}
+# #8625: extensionless TSO/E members. A REXX exec identifies itself by a first-line comment naming REXX (TSO/E REXX
+# Reference, "Identifying a REXX exec": `/* REXX */`; case-insensitive, so `/* Rexx */` too).
+_REXX_EXEC_MARKER = re.compile(r"\A[ \t]*/\*[^\r\n]{0,60}?\bREXX\b", re.I)
+# A CLIST member has no marker comment: it is proved by at least two distinct statement shapes only CLIST has (`PROC 1 X`,
+# `CONTROL NOMSG`, `SET &X = 1`, `WRITE`/`READ` of an `&` variable, a `&SYS...` function). Shell, Pascal and Perl text
+# carry at most one by accident.
+_CLIST_MEMBER_SHAPES = (
+    re.compile(r"^[ \t]*PROC[ \t]+\d+\b", re.M | re.I),
+    re.compile(r"^[ \t]*CONTROL[ \t]+(?:NO)?(?:MSG|LIST|SYMLIST|CONLIST|PROMPT|FLUSH|MAIN|END)\b", re.M | re.I),
+    re.compile(r"^[ \t]*(?:\w+:[ \t]*)?SET[ \t]+&[A-Z@#$][\w@#$]*[ \t]*=", re.M | re.I),
+    re.compile(r"^[ \t]*(?:WRITE|WRITENR|READ|READDVAL)[ \t]+.*&[A-Z@#$]", re.M | re.I),
+    re.compile(r"&SYS[A-Z]{2,12}\b", re.I),
+)
+_CLIST_MEMBER_MIN_SHAPES = 2
+_PDS_MEMBER_EVIDENCE = {"cobol": _COBOL_MEMBER_BODY, "pli": _PLI_INCLUDE_BODY, "rexx": _REXX_EXEC_MARKER}
 
 
 def _trampoline_interpreter(content: str) -> str:
@@ -1456,6 +1470,8 @@ class LanguageDetector:
             evidence = _PDS_MEMBER_EVIDENCE.get(lid)
             if evidence and evidence.search(content):
                 return lid
+            if lid == "clist" and self._clist_member_body(content):
+                return lid
             if content and self._tier_3_lexical_scan(content, "", claimed_lang=lid)[0] == lid:
                 return lid
         return None
@@ -1468,9 +1484,21 @@ class LanguageDetector:
         strong line and a group header.
         PL/I and the other `_PDS_MEMBER_EVIDENCE` shapes are weaker and stay library-directory only.
         """
-        if "cobol" not in self.languages or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
+        if not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
             return None
-        return "cobol" if self._cobol_member_body(content) else None
+        if "cobol" in self.languages and self._cobol_member_body(content):
+            return "cobol"
+        # #8625: a REXX exec or a CLIST member, proved by its own body (a marker comment / two CLIST-only statements)
+        if "rexx" in self.languages and _REXX_EXEC_MARKER.search(content):
+            return "rexx"
+        if "clist" in self.languages and self._clist_member_body(content):
+            return "clist"
+        return None
+
+    @staticmethod
+    def _clist_member_body(content: str) -> bool:
+        """#8625: at least `_CLIST_MEMBER_MIN_SHAPES` distinct CLIST-only statement shapes."""
+        return sum(1 for shape in _CLIST_MEMBER_SHAPES if shape.search(content)) >= _CLIST_MEMBER_MIN_SHAPES
 
     @staticmethod
     def _cobol_member_body(content: str) -> bool:

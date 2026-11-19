@@ -205,7 +205,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Defensive programming and screen/message locking.
+        # 6. safety (Defensive Checks: assert/try/guards). Defensive programming and screen/message locking.
         # C2: throw raises, not handles. (batch4's livecode throw safety+branch pair retires.)
         "safety": re.compile(
             r"\b(try|catch|finally|lock\s+screen|lock\s+messages|lock\s+errordialogs|assert|strict\s+compilation|is\s+a|is\s+strictly)\b",

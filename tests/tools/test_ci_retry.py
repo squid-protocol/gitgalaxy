@@ -153,6 +153,10 @@ def test_corpus_clone_goes_through_ci_retry_and_keeps_the_pin(name):
 
 # #5048: hash-pinned pip installs. pip's own --retries covers only connection resets, so the wrapper is the fix.
 PIP_RETRIED = [
+    "archetype-validation.yml",
+    "blocker-baseline.yml",
+    "call-graph-accuracy-audit.yml",
+    "call-resolution-history.yml",
     "dependabot-relock.yml",
     "det-sweep.yml",
     "full-suite-gate.yml",
@@ -186,7 +190,7 @@ def test_workflows_with_an_unretried_hash_pinned_pip_install_do_not_grow():
         )
     )
     assert not set(PIP_RETRIED) & set(unwrapped)
-    assert len(unwrapped) <= 32, f"a new workflow has an unretried pip install: {unwrapped}"
+    assert len(unwrapped) <= 28, f"a new workflow has an unretried pip install: {unwrapped}"
 
 
 DIGEST = "icr.io/x/db2@sha256:" + "a" * 64

@@ -5,9 +5,8 @@ deeply the first operand nests or however long it is. The guard and the other ar
 Driven through `StructuralExtractor.splice()`, the path a scan takes.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -44,14 +43,12 @@ def test_unbalanced_matches_does_not_crash():
 
 
 def test_unclosed_matches_run_is_linear():
-    start = time.perf_counter()
-    _callees("assert!(" + "matches!(x, " * 20000)
-    assert time.perf_counter() - start < 5
+    body = "assert!(" + "matches!(x, " * 20000
+    assert_cpu_below(lambda: _callees(body), 5, what="unclosed matches run")
 
 
 def test_long_operand_is_linear():
     operand = "x" + ".f(1)" * 400
-    start = time.perf_counter()
-    callees = _callees("assert!(matches!(" + operand + ", Bar(_)));")
-    assert "Bar" not in callees
-    assert time.perf_counter() - start < 5
+    body = "assert!(matches!(" + operand + ", Bar(_)));"
+    assert_cpu_below(lambda: _callees(body), 5, what="long operand")
+    assert "Bar" not in _callees(body)

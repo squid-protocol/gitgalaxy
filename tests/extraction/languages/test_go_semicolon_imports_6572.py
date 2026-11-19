@@ -1,8 +1,7 @@
 """#6572: a Go grouped import block may hold `;`-separated specs on one line."""
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.galaxyscope import extract_raw_imports
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -42,6 +41,4 @@ def test_code_after_semicolon_is_no_import():
 
 def test_pathological_line_is_bounded():
     src = "import (\n" + '\t"a"; ' * 5000 + "\n" + '\t"b"\n' * 2000
-    t = time.perf_counter()
-    _imports(src)
-    assert time.perf_counter() - t < 5
+    assert_cpu_below(lambda: _imports(src), 5, what="pathological import line")

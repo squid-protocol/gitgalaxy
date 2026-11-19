@@ -26,6 +26,7 @@ from typing import Any
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards.config_resolver import ResolvedConfig, path_allowlisted, resolve_config
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 # The behavioral category this import policy gate gates on, mapped to its name in
 # SignalProcessor.RISK_SCHEMA -- Phase 3 computes it once; the import policy gate
@@ -384,7 +385,9 @@ def main():
         "same resolver galaxyscope.py uses, so standalone runs honor the same "
         "STRICT_IMPORT_MODE / BLACKLISTED_IMPORTS / etc. overrides (#335).",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     resolved_config = resolve_config(yaml_path=args.config)
 

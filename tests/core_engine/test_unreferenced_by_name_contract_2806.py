@@ -385,6 +385,7 @@ def test_exactly_the_declared_languages_carry_a_lexicon():
         "batch",
         "easytrieve",
         "zscript",
+        "clist",
     }
     assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol", "batch", "easytrieve"}
 
@@ -456,6 +457,11 @@ _CASE_FOLD_SHAPES = {
         "on mouseUp\n   engineBuilderBuildiOS 1, 2\nend mouseUp\n\n"
         "command engineBuilderBuildIOS pEdition, pVersion\n   put pEdition into tX\nend engineBuilderBuildIOS\n",
         "engineBuilderBuildIOS",
+    ),
+    # #8625: a CLIST label is reached by `SYSCALL name`; the label is written in another case.
+    "clist": (
+        "PROC 0\nSYSCALL clean_up\nEXIT\n\nCLEAN_UP: PROC 0\n  WRITE done\n  RETURN\n",
+        "CLEAN_UP",
     ),
     "ada": (
         "package body Probe is\n   procedure Run is\n   begin\n      clone_repo;\n   end Run;\n\n"

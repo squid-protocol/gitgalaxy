@@ -19,6 +19,7 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -79,6 +80,7 @@ def test_clist_registration():
     assert CLIST["extensions"] == [".clist"]
     assert CLIST["lexical_family"] == "standard_block"
     assert CLIST["case_insensitive_imports"] is True
+    assert CLIST["identifier_case"] == "insensitive"
     assert "identifier_case" not in CLIST_RULES  # a helper key at rules level would be compiled as a regex
     assert set(CLIST["library_directory_suffixes"]) == {"clist", "clistlib", "sysproc"}
 
@@ -129,6 +131,12 @@ def test_clist_comments_are_shielded_from_rules():
     assert not CLIST_RULES["safety_bypasses"].search(streams["code_stream"])
     assert "GOTO NOWHERE" in streams["comment_stream"]
     assert CLIST_RULES["state_mutation"].search(streams["code_stream"])
+
+
+def test_clist_labels_slice_through_mode_a_as_named_units():
+    sample = "PROC 0\nSYSCALL work\nEXIT\nwork: PROC 0\n  WRITE WORK\n  RETURN\nclean_up: PROC 0\n  FREE FILE(IN)\n  RETURN\n"
+    functions = StructuralExtractor("clist", LANGUAGE_DEFINITIONS).splice(sample, "")["functions"]
+    assert {f["name"] for f in functions} == {"work", "clean_up"}
 
 
 _N = 5000

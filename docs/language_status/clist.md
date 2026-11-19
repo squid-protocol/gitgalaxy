@@ -26,7 +26,7 @@ keyword-rosetta `data/clist` control shell exists yet (see §7), so the rules ar
 | `lexical_family` | `standard_block` — `/* */` comments, never nested |
 | `invocation_model` | default (`by_name`): `GOTO label` and `SYSCALL name` reach labels by writing their names, so the `unreferenced_by_name` census applies |
 | Structural signature keys wired | 24 live rules, 31 explicit `None` (see §4) |
-| Strict-signature tests (`test_clist_strict.py`) | 52 |
+| Strict-signature tests (`test_clist_strict.py`) | 53 |
 | Routing tests (`test_extensionless_rexx_clist_8625.py`) | extensionless REXX and CLIST members, both directions |
 
 ## 2. Identification surface
@@ -73,7 +73,7 @@ every keyword rule carries explicit guards (`(?<![\w@#$&])` / `(?![\w@#$])`) rat
 
 ### Case folding
 `identifier_case: insensitive` (top level, never inside `rules`) makes `SYSCALL clean_up` reach `CLEAN_UP:` in the
-`unreferenced_by_name` census (slice 5, PR #8649, open when this was written; pinned in `test_unreferenced_by_name_contract_2806.py`).
+`unreferenced_by_name` census (slice 5, PR #8649; pinned in `test_unreferenced_by_name_contract_2806.py`).
 
 ### Security lens
 CLIST is a mainframe-scope language for the security lens (slice 5, PR #8649, `_MAINFRAME`): `IKJEFT01`, `BPXBATCH` and `IRXJCL`
@@ -91,7 +91,7 @@ dependency edges from `_dependency_capture`), no types, threads or tests; the st
 
 ## 5. Test depth
 
-`test_clist_strict.py` (52 cases): a positive and a near-miss negative for every live rule, a guard that no live rule
+`test_clist_strict.py` (53 cases): a positive and a near-miss negative for every live rule, a guard that no live rule
 lacks a case, the `None`-key set, registration, case-blind matching, `calls_out` group capture, the `DO` group-versus-loop
 split, `GOTO` / `ERROR OFF` as bypass, comment shielding through the prism, and a ReDoS payload per unbounded shape.
 

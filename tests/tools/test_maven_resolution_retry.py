@@ -140,3 +140,33 @@ def test_the_matrix_maven_build_reruns_a_resolution_failure(monkeypatch, tmp_pat
     calls = _script(monkeypatch, [_proc(1, err=DEPS_LOG), _proc(0)])
     ok, _errors = jtm.build(tmp_path, 17, tmp_path / "m2")
     assert ok and len(calls) == 2 and "-U" in calls[1]
+
+
+# #8671: the matrix's Gradle build had no retry either.
+GRADLE_429_LOG = (
+    "> Could not resolve all files for configuration ':compileClasspath'.\n"
+    "   > Could not GET 'https://repo.maven.apache.org/maven2/x.pom'. Received status code 429 from server"
+)
+
+
+def test_gradle_resolution_failures_are_told_from_compile_errors():
+    assert maven_exe.is_gradle_resolution_failure(GRADLE_429_LOG)
+    assert not maven_exe.is_gradle_resolution_failure("error: cannot find symbol")
+
+
+def test_the_matrix_gradle_build_reruns_a_resolution_failure(monkeypatch, tmp_path):
+    import java_target_matrix as jtm
+
+    (tmp_path / "build.gradle").write_text("", encoding="utf-8")
+    monkeypatch.setattr(maven_exe.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(jtm, "_jdk", lambda _v: "")
+    monkeypatch.setattr(jtm, "launcher_executable", lambda name, _env=None: name)
+    calls = _script(monkeypatch, [_proc(1, err=GRADLE_429_LOG), _proc(0)])
+    ok, _errors = jtm.build(tmp_path, 17, tmp_path / "m2")
+    assert ok and len(calls) == 2 and "--refresh-dependencies" in calls[1]
+
+
+def test_a_gradle_compile_error_runs_once(monkeypatch):
+    calls = _script(monkeypatch, [_proc(1, err="error: cannot find symbol")])
+    assert maven_exe.run_gradle_retrying_resolution([MVN, "compileJava"]).returncode == 1
+    assert len(calls) == 1

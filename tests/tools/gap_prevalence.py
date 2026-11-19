@@ -580,13 +580,45 @@ ARCHIVE_EXTS = frozenset(
 )
 
 
-def archive_files(clone: Path) -> int:
-    """#8412: how many archive-named files `clone` holds (`.git` skipped). A count: no name is kept and no file is opened."""
-    return sum(
-        f.suffix.lower() in ARCHIVE_EXTS
-        for f in clone.rglob("*")
-        if ".git" not in f.relative_to(clone).parts and f.is_file()
+# #8412: leading bytes of an archive whatever its name. TERSE has no entry: its header is not pinned by a source we can
+# cite, so a TERSE file with no `.terse` / `.trs` name is not counted (a stated gap, not a guess).
+_MAGIC_PREFIX = (
+    b"PK\x03\x04",  # zip
+    b"PK\x05\x06",  # empty zip
+    b"\x1f\x8b",  # gzip
+    b"BZh",  # bzip2
+    b"\xfd7zXZ\x00",  # xz
+    b"7z\xbc\xaf\x27\x1c",  # 7-zip
+    b"Rar!\x1a\x07",  # rar
+)
+_XMIT_FIRST_RECORD = "INMR01".encode("cp037")  # the TRANSMIT control record that opens every XMIT file, after 2 bytes
+_IEBCOPY_COPYR1 = b"\xca\x6d\x0f"  # IEBCOPY unload (PDS unload): COPYR1 identifier, headerless or behind BDW / RDW
+
+
+def archive_magic(head: bytes) -> bool:
+    """#8412: do a file's first bytes (`head`, 512 is enough) match a zip / gzip / bzip2 / xz / 7z / rar / tar / XMIT /
+    IEBCOPY-unload signature."""
+    return (
+        head.startswith(_MAGIC_PREFIX)
+        or head[257:262] == b"ustar"
+        or head[2:8] == _XMIT_FIRST_RECORD
+        or _IEBCOPY_COPYR1 in head[:12]
     )
+
+
+def archive_files(clone: Path) -> int:
+    """#8412: how many archive files `clone` holds, by name or by leading-byte signature (`.git` skipped). A count: no
+    name is kept, and only the first 512 bytes of a file the name did not settle are read; nothing is unpacked."""
+    n = 0
+    for f in clone.rglob("*"):
+        if ".git" in f.relative_to(clone).parts or not f.is_file():
+            continue
+        if f.suffix.lower() in ARCHIVE_EXTS:
+            n += 1
+            continue
+        with f.open("rb") as fh:
+            n += archive_magic(fh.read(512))
+    return n
 
 
 def rdw_files(clone: Path) -> int:

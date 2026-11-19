@@ -187,6 +187,19 @@ on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed 
 scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
 unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
 
+**A cheaper Spring context per run (2026-11-18, #8599).** Each run of a proof starts a Spring context of its own (the
+generated test is `@DirtiesContext`, so a session JVM's runs do not share state), and on a warm session JVM that was
+93% of a mutant run: 1.05 s of readcust's 1.14 s per run (7 runs a survivor: the main run and 6 faults), the program
+itself ~0.08 s. Every generated test (batch, CICS, CALL) now starts with `equivalence_java.SPRING_TEST_PROPERTIES`: JPA
+repositories built on first use (`spring.data.jpa.repositories.bootstrap-mode=lazy`) and no web layer
+(`spring.main.web-application-type=none`; the test calls the service, never a controller, and no generated class names
+a servlet type). Measured on nyx, the same recorded survivors, verdicts unchanged: a readcust run 1.14 -> 0.73 s, an
+UPDCUST run (64 scenarios) 1.84 -> 1.35 s; lazy beans (`spring.main.lazy-initialization`) and quieter logging gained
+nothing. Whole proofs (`det_port.py run`, readcust, UPDCUST, ABNDPROC, dateutil, zecs003: batch with faults, CICS,
+LINK-bytes facades, CALL, CICS WEB): all proven, their Java runs 81.0 -> 62.8 s. A context these properties break fails
+its baseline proof, not a mutant. Reusing one context across runs would cut the rest, but the context is built with
+the run's own properties (`gitgalaxy.datasets.directory`), so that is a change to the isolation model, not a setting.
+
 **The 17 crucible ports get a fast mode (2026-10-21, #4047).** `mutation_crucible.py` already ran every scenario of a
 side in one JVM (`mvn test`, one JVM per side); what each mutant repeated was the refactor and cobol-to-java generate.
 Fast mode (the default; `--full` opts out) generates the case's Java project once, in the baseline proof, and each mutant

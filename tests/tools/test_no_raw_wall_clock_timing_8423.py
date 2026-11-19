@@ -44,8 +44,6 @@ WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
         "tests/cobol_mainframe/test_pic_run_lengths_7169.py",
         "tests/cobol_mainframe/test_translator_pic_runs_7169.py",
         "tests/core_engine/test_cics_macro_level.py",
-        "tests/core_engine/test_dense_source_7501.py",
-        "tests/core_engine/test_dense_source_7504.py",
         "tests/core_engine/test_prefetch.py",
         "tests/core_engine/test_vectorized_math_probe_4108.py",
         "tests/extraction/languages/test_c_kernel_vocab_8016.py",
@@ -55,8 +53,6 @@ WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
         "tests/extraction/languages/test_go_semicolon_imports_6572.py",
         "tests/security_auditing/test_redos_poison.py",
         "tests/security_auditing/test_secrets_shunt_4987.py",
-        "tests/security_auditing/test_tls_bypass_dotnet_ps_wget_6239.py",
-        "tests/security_auditing/test_tls_bypass_java_6239.py",
     }
 )
 

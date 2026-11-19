@@ -162,7 +162,7 @@ Live `IEF285I` (2026-11-19, a NEW,CATLG then OLD,DELETE deck): a disposition lin
 regex rejected (only the marker-less line parsed); `VOL SER NOS=` lines are not dispositions. Live findings (2026-11-19, four probe decks through `run`): the JCL-error line is `IEF452I NAME    JOB NOT RUN - JCL ERROR` with no
 ` - ` after the job name (the first regex needed it, so the job never read as ended); the abended step has an `IEF450I` and no
 `IEF142I` (its record is the abend, not a step with a code); the printer file also carries `IEF236I/237I/373I/374I/375I/376I/472I/643I`,
-now known informational lines (`unparsed_ief` is 0 on all four decks). Trap: wrapping `stop` in `heavy-run.sh` queued it behind
+now known informational lines (`unparsed_ief` is 0 on all four decks). PROC steps: a step line may carry a PROCSTEP name after the job step (`IEF142I JOB STEP PROCSTEP - STEP WAS EXECUTED ...`); the runner keeps both (`step`, `procstep`; `procstep` is null for a plain step), pinned offline on fixture text (`test_proc_steps_keep_the_step_and_procstep_names_apart`), not yet seen in a live log. The exact `IEF202I` wording is likewise unverified live. Trap: wrapping `stop` in `heavy-run.sh` queued it behind
 another worker's slot and the box ran on.
 
 ### Remaining slices (#8414)

@@ -4,9 +4,9 @@ Every fixture is synthetic. A packed file is compared with the same units one pe
 """
 
 import logging
-import time
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core import dense_source
 from gitgalaxy.galaxyscope import _init_worker, _process_file_worker, _worker_state
@@ -108,7 +108,9 @@ def test_split_is_linear_on_adversarial_lines():
         "fn " * 1600,
         "int a(int x){} " * 330,
     ]
-    start = time.perf_counter()
-    for line in lines:
-        dense_source.split_inline_definitions(line)
-    assert time.perf_counter() - start < 1.0
+
+    def split_all():
+        for line in lines:
+            dense_source.split_inline_definitions(line)
+
+    assert_cpu_below(split_all, 1.0, what="split_inline_definitions on adversarial lines")

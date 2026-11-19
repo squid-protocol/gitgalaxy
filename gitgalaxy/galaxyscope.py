@@ -1060,7 +1060,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
                 # can independently corroborate some of these same "sec_" keys (e.g.
                 # sec_tainted_injection, sec_hardcoded_secrets) via its in-segment
-                # spatial correlation. A plain assignment here would silently discard
+                # proximity correlation (two regex hit classes close together, not
+                # value-level taint tracking). A plain assignment here would silently discard
                 # that contribution the moment security_lens's own scan ran second.
                 for sec_key, hit_count in sec_results["counts"].items():
                     mapped_key = f"sec_{sec_key}"
@@ -1075,8 +1076,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # persisted ledger detector.py's rules already populate (#348).
                 # security_lens.py tracks a handful of signals (e.g. db_hooks) that
                 # have no detector.py-side equivalent at all -- without this, that
-                # position data was computed (for security_lens's own internal
-                # taint check) and then simply discarded, leaving post-hoc tools
+                # position data was computed (security_lens's data-flow taint check
+                # was removed, #3101; its positions still feed this ledger) and then
+                # simply discarded, leaving post-hoc tools
                 # outside detector.py (dev_agent_firewall.py, ai_appsec_sensor.py,
                 # #105's future db_hooks correlation) with nothing to correlate
                 # against for these signals.

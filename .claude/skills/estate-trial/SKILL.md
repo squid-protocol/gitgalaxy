@@ -30,6 +30,12 @@ Then record the draw on the journey, in the same PR as the T0 post's record (the
 --source <T0 comment URL> [--trial-issues sub,issues]`, then `estate_journey.py` to regenerate. It refuses a repeated
 draw, a draw outside the pre-registered count, or an unsourced number, and recounts the "N draws remain" prose.
 
+Then register the forecast (#8321): once the eligibility rules are applied and the eligible set is declared (rehearse the
+counts with `trial.py preview`), `trial.py start ... --forecast whole_first_contact=LOW-HIGH --forecast whole_closeout=...
+--forecast accounted_closeout=... --forecast first_try_proof=...` (program counts over the eligible set). It is the only
+forecast: a number in an issue or comment is a labelled mid-trial note, and `start` / `check` refuse none or two.
+Section 7's calibration is not a forecast.
+
 ## 3. Tools-only loop
 * Nobody reads estate source, and nobody makes an edited, patched or excerpted copy of it, even unprinted (rule 3).
   Tools run over the clone as is, with aggregate or scrubbed output (`--unmask` must not print names, #7755).

@@ -4335,7 +4335,7 @@ def main():
         "--paranoid",
         action="store_true",
         default=None,
-        help="Lower security thresholds to flag more potential threats.",
+        help="Use the stricter credential-exposure thresholds (paranoid_threshold, paranoid_slope); other Security Lens thresholds are unchanged.",
     )
 
     # ---> NEW: THE SHADOW PATCH OVERRIDE <---
@@ -4657,7 +4657,7 @@ def main():
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
             logging.getLogger("GalaxyScope").info(
-                "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
+                "🔒 PARANOID MODE: stricter credential-exposure thresholds only; other Security Lens thresholds unchanged."
             )
         # -------------------------------
 

@@ -5,25 +5,24 @@
  "case": "cruc-hc-abend-link-sub",
  "entry": {
   "program": "HCSUB",
-  "commit": "3be51bec1dad2c0957c8fc16ac3fa004bbf3968a",
-  "date": "2026-11-13",
+  "commit": "5716d1540fee326c0d26730a8b3997671e321c37+uncommitted",
+  "date": "2026-11-19",
   "mode": "fast",
   "seed": 0,
-  "mutants": 353,
+  "mutants": 324,
   "out_of_scope": 6,
-  "chosen": 150,
+  "chosen": 141,
   "coverage": "proven on 5 scenarios, covering 2/2 paragraphs and 5/5 branches",
   "counts": {
-   "killed": 36,
+   "killed": 33,
    "timeout": 0,
-   "survived": 107,
-   "stillborn": 7,
+   "survived": 102,
+   "stillborn": 6,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "0676ec1c1d",
-   "09ac43b359",
    "0dcf41d5cf",
    "14eace41a2",
    "1a5bfd18ab",
@@ -31,7 +30,6 @@
    "39595ef3d3",
    "3c44ea7e62",
    "41a0841193",
-   "448c2d51be",
    "4836e45b49",
    "51201f135d",
    "589428d0b6",
@@ -44,7 +42,6 @@
    "982d1d5cc4",
    "a3bc516977",
    "a9af82633a",
-   "b6acff63aa",
    "c081cc1dc3",
    "cf21c1114a",
    "cf2ae8420e",
@@ -62,7 +59,6 @@
   "stillborn": [
    "440d39333e",
    "63594e5b01",
-   "6be96a96a1",
    "702934fd5c",
    "7610598cda",
    "78ac2223a2",
@@ -206,14 +202,6 @@
     "after": "java.util.Map.entry(\"SUB-MAIN\", 1)"
    },
    {
-    "id": "5e82c143af",
-    "op": "LIT",
-    "file": "service/HcsubService.java",
-    "line": 106,
-    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
-   },
-   {
     "id": "97110e93f7",
     "op": "AOR",
     "file": "service/HcsubService.java",
@@ -316,22 +304,6 @@
     "line": 154,
     "before": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 4, 0, true, false), CS).intValue());",
     "after": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 4, 1, true, false), CS).intValue());"
-   },
-   {
-    "id": "937f2c793a",
-    "op": "NEG",
-    "file": "service/HcsubService.java",
-    "line": 166,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
-   },
-   {
-    "id": "e1f9fad1cb",
-    "op": "DEL",
-    "file": "service/HcsubService.java",
-    "line": 168,
-    "before": "s_DFHCOMMAREA.bytes = whole;",
-    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
    },
    {
     "id": "f6b5b45be5",
@@ -446,38 +418,6 @@
     "after": "/* s_DFHCOMMAREA.beyond = null; */"
    },
    {
-    "id": "93261a0db3",
-    "op": "NEG",
-    "file": "service/HcsubService.java",
-    "line": 231,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
-   },
-   {
-    "id": "c3ac60c890",
-    "op": "ROR",
-    "file": "service/HcsubService.java",
-    "line": 231,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "7b91f26f0d",
-    "op": "ROR",
-    "file": "service/HcsubService.java",
-    "line": 231,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "d0e001f0ac",
-    "op": "ROR",
-    "file": "service/HcsubService.java",
-    "line": 240,
-    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-    "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
-   },
-   {
     "id": "4862fc3cad",
     "op": "DEL",
     "file": "service/HcsubService.java",
@@ -580,14 +520,6 @@
     "line": 263,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
-   },
-   {
-    "id": "f8a244796d",
-    "op": "DEL",
-    "file": "service/HcsubService.java",
-    "line": 266,
-    "before": "caWhole(caWhole);",
-    "after": "/* caWhole(caWhole); */"
    },
    {
     "id": "1cb1ec1996",
@@ -924,23 +856,47 @@
     "line": 441,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "39a09586e3",
+    "op": "DEL",
+    "file": "service/HcsubService.java",
+    "line": 203,
+    "before": "calen = DetCics.eibCalen(task, cb.length);",
+    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
+   },
+   {
+    "id": "56151c6019",
+    "op": "CON",
+    "file": "service/HcsubService.java",
+    "line": 197,
+    "before": "calen = DetCics.eibCalen(task, 20);",
+    "after": "calen = DetCics.eibCalen(task, 21);"
+   },
+   {
+    "id": "615135c3bc",
+    "op": "DEL",
+    "file": "service/HcsubService.java",
+    "line": 202,
+    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
    }
   ],
   "inputs": {
-   "port": "2da598b333e4fe9478cfbcbee383d25c2d1786673874d3732d65124ecb375ce4",
-   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
-   "generator": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
+   "port": "bc698f188f23818d22e2939bc73e9404553e08dfbeab8d5877a1b6ae23bd93e6",
+   "runtime": "66bda5999b70689e073b040600cbed86b0b3da96422152b516d140fcf62a4af5",
+   "generator": "2de0781ffb970c646b70df3964fd4d648450edd2869a314418024c4380cd5099",
    "case": "8a4a77f46dad4f2a4706d8e0835f3d95f74f506f70c3993d82981ae8580c1a94",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
+   "harness": "bbe0b5c69920ce5f946f96767c46abd8f31b7d548515293b0a29e880a06fa4f0",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "08f61aa78102fe8584901712b5839c57040498247382e17816053668e40421f6"
   },
   "components": {
    "generator": {
-    "generator:core": "14036b3dac86cb4bc53a23171455347ab95c84129749c8485ef13a3c90769d1a",
+    "generator:core": "5b5ee004f595a9311d1e894faf553f2d21972c109dc961fa998cb6efdb097309",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
@@ -958,11 +914,11 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:cics": "7e00f67547797a34f2b15d5ae76f363d97c8896fdf5bef20550bebdda8e7de0d",
+    "harness:cics": "a087f5d0b585502485eec7ddf951b2c18be810732088641086f699ff3087848b",
     "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
    },
    "oracle": {
@@ -971,6 +927,12 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "017c25f735 021b96b22e 042d3aece0 048c8c07c4 0628907df3 0676ec1c1d 06871cadd0 087c3b5346 09ac43b359 0aaa09eeda 0b5173b18c 0b72ea8dcf 0c60885bfe 0ca3f51fe4 0dcf41d5cf 0dd5928152 0fc96e5689 11bc2a4535 12561ffa0d 12acd4bc34 149ea90f79 14eace41a2 167ddbfe76 174dc46cda 18e30ddc27 1a5bfd18ab 1ba73703a5 1c6da9f1f2 1cb1ec1996 1da4da225c 1fd01a48bc 2018346954 20ec72af6c 20fc8db49b 21093fb932 21edeab7bb 22158e4151 22395b148c 22833a8664 232a55a631 2367fb3d95 23f899c520 240317aaf0 24a5069c03 261bc40ce2 26936f2bb1 271d1d7e3d 276c9edb9b 2b0f9c4e51 2b10553fcb 2b1627ac07 2b34558c07 2dff7d56a8 2e28cf61c2 304573d6af 30b9ef3e94 31814bda96 318667b762 319f54a0e0 31a9530835 31bb731fb3 33f6210949 35389c5c57 354af3e8e6 35a4917e96 3709976247 3733276d58 389f551b1b 38b53687af 39595ef3d3 3a3ed1cea1 3aa61b0379 3ab3f7b2cd 3b3e1bb88f 3c44ea7e62 3dd6e416cb 3fd0bbaa53 415867a3bc 4191b16031 41a0841193 41eca9a047 424b4b3593 43bbc079a4 440d39333e 446824d9c4 448c2d51be 459cc9f4a2 45b6c4f251 47bfe43db5 47ec83127d 4836e45b49 4862fc3cad 4a77f3b455 4b9b223b8b 4e152aa9a2 4f9cf9c2e8 51201f135d 515e6dbb13 51a1a22be0 51e10481ed 53688e9c10 53af198f8d 56f7f3e936 589428d0b6 599ba1df2f 59a2b72a4d 5a0118567c 5a3b6a0577 5ad96507d9 5b2c7dbbd4 5ba974598e 5cec8d17e9 5d271e5cf5 5e08a091de 5e82c143af 5f0eebb895 5fafee35cb 6070845848 607b493c36 609981f442 6166fc9bb3 6181f972ab 62893de8f1 629f52d617 6316805913 6336e34183 63594e5b01 6365aac062 64032b8287 6428b430b9 64feb1390b 65b3f87ae2 65e1d364ab 66642388bf 66f56d2415 6936f87da5 6adf06376b 6b10620a6d 6be96a96a1 6c417ac37c 6cb41dfa1b 6dae24a46e 700744101a 702934fd5c 702a2cff2c 70acd89c03 71f74902ce 72dfe34985 73712b76b2 73b56dd809 73d05d5937 743d1ec82b 74f0ba0f8e 7610598cda 762d9292f9 7732fc8107 774423beaf 7799880d84 78ac2223a2 797c882f22 79dbe7b7b7 7b91f26f0d 7d04de39df 7d8865f1db 7da9866b87 7e6cbcfef3 7f519925db 804f8fb920 806800e7f3 813c10298b 820d427913 82109c3ef3 8228f30612 846d1309de 8476265715 855a86852c 85a094c890 86759c6df6 874d753a76 875e773b92 8903fdeac3 893ea2ccfc 89a82e5579 89f88e2de9 8c09dd17e9 8c31e2fcfb 8c9426f563 8dfe65aa0d 8e5213a632 8e6270c917 8f2145b944 8f47a8f8ab 90469423de 9144a55ba9 9317693bef 93261a0db3 937f2c793a 94c07d8ea9 960f2581d4 960f31cc07 96803eda3c 96a039308a 96e446cd89 97110e93f7 979c6a4c0f 980246439c 982d1d5cc4 987fd35b75 9d54420739 9d6ac08da5 9ddd622422 9f1d4e5ca7 9f505493ff 9f81758ec4 9f8fe028e5 a03566ed59 a11c3e8b87 a220683c53 a3bc516977 a429cac841 a4d6065f4a a549943bcf a751d8b5d2 a772bb0397 a7b591af9b a8281ea66b a968b40e48 a985e0e328 a9a655f40c a9af82633a aa9bc0c674 ab1e355dc7 ab2bfd5b4f abd273d75d adf2aaea99 af6ce47505 afa7dcf877 b03ad0b6b7 b07fe37c25 b1dec3bc03 b21fd77b97 b27d6f4185 b3b6c1ef99 b3f20ca125 b5517c4402 b62f62c372 b685fbf678 b6acff63aa b6b2745599 b74087dd5e b74bd7b9a1 b869206083 b9258ff86b b9e23d49e8 bb380f38be bc1239d359 bcc4210203 bebae28a90 c081cc1dc3 c0e611233d c10cb0fd94 c22596709e c29d868c0b c390d80f79 c3ac60c890 c568cbc7b6 c5b055b1de c5b9a3258b c66730dacb c6697ba399 c6983a33db c6f2a27772 c72186878c c7af0c6f59 c7b528a816 c7d12b0315 ca30aff829 ca4690d1b6 ca8ff89572 cb3475cc4a cda8eca646 ce07e4d6c4 cf21c1114a cf2ae8420e cf7f84e9ec cfa167c388 d0e001f0ac d2934bad40 d30bc29b2f d382a3c9db d3a3a6b036 d3e1465016 d54d56bbcb d7268a0580 d7a3ad654b d7e3fa61af d7f49f98e1 da39a0d7e8 db04afd5d9 db186f08f8 dbf29d458d dc4f72714d dcafbb9ea8 dd02927094 dd443c9723 dd76827c19 dfaab9d179 e000fa855a e0223de1ce e146dc44b9 e15d37b01b e16208ce0a e18a050250 e1f9fad1cb e229cc93b6 e33835a729 e4946a9480 e58b617272 e5b1234c99 e6d5064bcb e74c6b9ec6 e7adb62288 e8339b232d e85c980c92 e939f5b317 e9cb0d2c7a ead4a53f06 eb0d017bec eb16476ad6 ecced4cf86 ed579cae44 ee34a619cc eeb679781d f083bc7bb0 f29f310334 f3ea9384d5 f4ba26ce87 f4eb1f7da3 f6b5b45be5 f878ec3657 f8a244796d f8fa49dc09 f9e30ac6ae fa8889d290 fac9a49d31 fb150356a3 fcba0db1f5 fcf0d4562b fea728ab4a fee07d793b ff17c356ce ffb6136918 fff942a982"
+  "every": "017c25f735 021b96b22e 042d3aece0 048c8c07c4 0628907df3 0676ec1c1d 087c3b5346 0aaa09eeda 0b5173b18c 0b72ea8dcf 0c60885bfe 0ca3f51fe4 0dcf41d5cf 0dd5928152 0fc96e5689 11bc2a4535 12561ffa0d 12acd4bc34 149ea90f79 14eace41a2 167ddbfe76 174dc46cda 18e30ddc27 1a5bfd18ab 1ba73703a5 1c6da9f1f2 1cb1ec1996 1da4da225c 1fd01a48bc 2018346954 20ec72af6c 20fc8db49b 21093fb932 21edeab7bb 22158e4151 22395b148c 22833a8664 232a55a631 2367fb3d95 240317aaf0 24a5069c03 26936f2bb1 271d1d7e3d 276c9edb9b 2b0f9c4e51 2b10553fcb 2b1627ac07 2b34558c07 2dff7d56a8 2e28cf61c2 304573d6af 30b9ef3e94 31814bda96 318667b762 319f54a0e0 31a9530835 31bb731fb3 33f6210949 35389c5c57 354af3e8e6 35a4917e96 3709976247 3733276d58 389f551b1b 38b53687af 39595ef3d3 39a09586e3 3a3ed1cea1 3aa61b0379 3ab3f7b2cd 3b3e1bb88f 3c44ea7e62 3dd6e416cb 3fd0bbaa53 415867a3bc 4191b16031 41a0841193 41eca9a047 424b4b3593 43bbc079a4 440d39333e 446824d9c4 459cc9f4a2 47bfe43db5 47ec83127d 4836e45b49 4862fc3cad 4a77f3b455 4e152aa9a2 4f9cf9c2e8 51201f135d 515e6dbb13 51a1a22be0 51e10481ed 53688e9c10 53af198f8d 56151c6019 56f7f3e936 589428d0b6 599ba1df2f 5a0118567c 5a3b6a0577 5ad96507d9 5b2c7dbbd4 5ba974598e 5cec8d17e9 5d271e5cf5 5e08a091de 5f0eebb895 5fafee35cb 6070845848 607b493c36 609981f442 615135c3bc 6166fc9bb3 6181f972ab 62893de8f1 629f52d617 6316805913 6336e34183 63594e5b01 6365aac062 64032b8287 6428b430b9 64feb1390b 66642388bf 66f56d2415 6936f87da5 6adf06376b 6b10620a6d 6c417ac37c 6cb41dfa1b 6dae24a46e 700744101a 702934fd5c 702a2cff2c 70acd89c03 71f74902ce 72dfe34985 73712b76b2 73b56dd809 743d1ec82b 74f0ba0f8e 7610598cda 762d9292f9 76a6e20c94 7732fc8107 774423beaf 7799880d84 78ac2223a2 797c882f22 79dbe7b7b7 7d04de39df 7d8865f1db 7da9866b87 7e6cbcfef3 7f519925db 804f8fb920 813c10298b 8183dd4d4e 820d427913 82109c3ef3 8228f30612 855a86852c 85a094c890 874d753a76 875e773b92 8903fdeac3 893ea2ccfc 89a82e5579 89f88e2de9 8c09dd17e9 8c31e2fcfb 8c9426f563 8dfe65aa0d 8e5213a632 8e6270c917 8f2145b944 8f47a8f8ab 9144a55ba9 9317693bef 94c07d8ea9 960f2581d4 96803eda3c 96a039308a 96e446cd89 97110e93f7 979c6a4c0f 980246439c 982d1d5cc4 9d54420739 9d6ac08da5 9ddd622422 9f1d4e5ca7 9f505493ff 9f81758ec4 9f8fe028e5 a03566ed59 a11c3e8b87 a220683c53 a3bc516977 a429cac841 a4d6065f4a a549943bcf a751d8b5d2 a8281ea66b a968b40e48 a985e0e328 a9af82633a aa9bc0c674 ab1e355dc7 ab2bfd5b4f abd273d75d adf2aaea99 af6ce47505 afa7dcf877 b03ad0b6b7 b07fe37c25 b1dec3bc03 b21fd77b97 b27d6f4185 b3f20ca125 b5517c4402 b62f62c372 b685fbf678 b6b2745599 b74087dd5e b74bd7b9a1 b869206083 b9258ff86b b9e23d49e8 bb380f38be bc1239d359 bcc4210203 bcc5f2a761 c081cc1dc3 c10cb0fd94 c22596709e c29d868c0b c390d80f79 c568cbc7b6 c5b055b1de c5b9a3258b c66730dacb c6697ba399 c6983a33db c6f2a27772 c72186878c c7af0c6f59 c7b528a816 c7d12b0315 ca30aff829 ca4690d1b6 ca8ff89572 cb3475cc4a cd1138b536 cda8eca646 ce07e4d6c4 cf21c1114a cf2ae8420e cf7f84e9ec d2934bad40 d30bc29b2f d382a3c9db d3a3a6b036 d3e1465016 d54d56bbcb d7268a0580 d7a3ad654b d7f49f98e1 da39a0d7e8 db04afd5d9 db186f08f8 dbf29d458d dc4f72714d dcafbb9ea8 dd02927094 dd443c9723 dd76827c19 dfaab9d179 e000fa855a e0223de1ce e146dc44b9 e15d37b01b e16208ce0a e18a050250 e229cc93b6 e33835a729 e4946a9480 e58b617272 e5b1234c99 e6d5064bcb e74c6b9ec6 e7adb62288 e8339b232d e85c980c92 e939f5b317 e9cb0d2c7a ead1b68342 ead4a53f06 eb0d017bec eb16476ad6 ecced4cf86 ee34a619cc eeb679781d f083bc7bb0 f29f310334 f3ea9384d5 f4ba26ce87 f4eb1f7da3 f6b5b45be5 f878ec3657 f8fa49dc09 fa58600c34 fa8889d290 fac9a49d31 fb150356a3 fcba0db1f5 fcf0d4562b fea728ab4a fee07d793b ff17c356ce ffb6136918 fff942a982",
+  "refreshed": {
+   "from": "2026-11-13",
+   "survivors_rerun": 0,
+   "fresh": 3,
+   "stale": []
+  }
  }
 }

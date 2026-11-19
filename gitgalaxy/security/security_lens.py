@@ -788,7 +788,7 @@ class SecurityLens:
         "apex",
         "yaml",
     }
-    _MAINFRAME = frozenset({"cobol", "jcl", "rexx", "pli", "hlasm", "bms", "easytrieve", "db2_sql", "csd"})
+    _MAINFRAME = frozenset({"cobol", "jcl", "rexx", "pli", "hlasm", "bms", "easytrieve", "db2_sql", "csd", "clist"})
     HIGH_RISK_EXECUTION_SCOPE: tuple[tuple[re.Pattern[str], frozenset[str]], ...] = tuple(
         (re.compile(pat, re.I), langs)
         for pat, langs in (

@@ -6483,6 +6483,10 @@ class StructuralExtractor:
                         # never a brace. Routines don't nest, so Mode A's greedy
                         # label-to-label body is the real boundary.
                         "rexx",
+                        # #8625: clist is rexx's shape -- a `label:` runs to its RETURN/EXIT or the next
+                        # label, no braces; without this the labels fell through to Mode_B_Braces and
+                        # 0 of a member's raw func_start matches reached function_data.
+                        "clist",
                         # #3211-followup: csd is bms's shape again -- a CSD deck has
                         # no braces (a `{` can only appear inside an INITIAL='...'/
                         # DESCRIPTION(...) literal) and no ScopeParsingRegistry entry,

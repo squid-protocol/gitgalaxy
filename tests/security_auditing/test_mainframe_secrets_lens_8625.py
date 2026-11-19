@@ -126,3 +126,11 @@ def test_a_clist_member_routes_to_clist_by_extension():
 
     lang, _, _ = LanguageDetector(LANGUAGE_DEFINITIONS, {}).focus("lib/member.clist", "PROC 1 DSN\nSET &X = 1\n")
     assert lang == "clist"
+
+
+@pytest.mark.parametrize("hit", ["IKJEFT01", "BPXBATCH", "IRXJCL"])
+def test_a_clist_member_running_a_batch_host_program_is_a_vector(hit):
+    """#8625: IKJEFT01 / BPXBATCH / IRXJCL run a TSO command or REXX exec from JCL and a CLIST: in scope for clist and
+    still not for a language outside the mainframe set."""
+    assert SecurityLens._high_risk_applies(hit, "clist")
+    assert not SecurityLens._high_risk_applies(hit, "rust")

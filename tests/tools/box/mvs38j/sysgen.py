@@ -447,6 +447,14 @@ def convert_stage1(text):
     return "\n".join([*out, "//"]) + "\n"
 
 
+TARGET_UNITS = ("149", "14A", "14B", "14C")  # the `attach` lines of conf/sysgen.script
+# Steps of SYSGEN1..6 allowed above CC 4 (live 2026-11-19, fresh volumes: 130 steps; nine `LK` link-edit steps in SYSGEN1/2 end CC 4, within bound).
+STAGE2_EXPECTED = {
+    ("SYSGEN6", "STEPZ1"): (
+        8,
+        "IEHPROGM SCRATCH of SYS1.NUCLEUS(SYSCATLG): IEH207I DATA SET OR MEMBER NOT FOUND on a fresh build",
+    ),
+}
 STAGE2_JOBS = tuple(f"SYSGEN{n}" for n in range(1, 7))
 
 
@@ -465,12 +473,20 @@ def stage2(work, image, name, tapes, port=3270, job_timeout=3600):
     try:
         ipl_starter(herc, con)
         attach_targets(herc, work)
+        for unit in TARGET_UNITS:  # SYSGEN1 allocates MVSRES on 3350: an attached volume is offline (`IEF247I ... 149 OFFLINE`, live 2026-11-19)
+            con.send(f"v {unit},online")
+            time.sleep(
+                3
+            )  # back-to-back lines overrun the 3215 input buffer (`HHC02913E COMM: Buffer overrun` drops the console); VARY echoes nothing
         printed = printer_file(work, conf)
         printed_from = printed.stat().st_size if printed.exists() else 0
+        deck_since = con.mark()
         herc.send(f"devinit {SMP_READER} {deck.relative_to(work)}")
         for job in STAGE2_JOBS:
             since = con.mark()
-            con.wait(rf"\$HASP\d+\s+{job}\s+.*(ON READER|HELD)|{job}.*HELD|\$HASP100\s+{job}", 600)
+            # `$A` before `$HASP101 <job> HELD` answers `$HASP000 NOT HELD` and the job then waits forever (live 2026-11-19)
+            # the reader queues the next job while the last runs, so look from the deck's start, not this job's mark
+            con.wait(rf"\$HASP101\s+{job}\s+HELD", 600, deck_since)
             con.send(f"$A'{job}'")
             await_ended(herc, con, work, conf, job, since, tapes, job_timeout)
             bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
@@ -478,9 +494,13 @@ def stage2(work, image, name, tapes, port=3270, job_timeout=3600):
                 raise SysgenError(f"{job}: {bad[0].strip()}")
             print(f"stage2: {job} ended")
         results = step_results(printed.read_bytes()[printed_from:].decode("latin-1"))
-        print(
-            f"stage2: {len(results)} steps ran; condcodes over 4: {[r for r in results if (r['cond_code'] or 0) > 4]}"
-        )
+        failed = smp_failed_steps(results, STAGE2_EXPECTED)
+        if failed:
+            raise SysgenError(f"stage2: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")
+        print(f"stage2: {len(results)} steps checked (condcode)")
+    except (SysgenError, telnet_console.ConsoleError):
+        print("stage2: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
     finally:
         con.close()
         herc.quit()

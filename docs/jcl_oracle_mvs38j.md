@@ -95,11 +95,17 @@ with the image's `hetget -a` (`hetget`). `FDZ1D02` (ICKDSF R13) is not part of i
 catalog as `JOBCAT` (`IEF212I ... DATA SET NOT FOUND`, step not executed) until sysgen00 has defined it, so it belongs after the
 target system exists (Moseley runs it last). Re-running a stage needs fresh volumes: `mvs38j.sh dasd starter|dlibs|sysgen` first.
 
-`sysgen.py stage2` (**written and unit-tested only; not yet run live**) ports `stage2.awk` as `convert_stage1` (SYSGEN1..5 held with
-`TYPRUN=HOLD,TIME=1439` and the target master catalog as `JOBCAT`, `EXPDT=99350` -> `00000`, SYSGEN6's `STEPY` -> `IEFBR14`, separator
-cards dropped), writes `jcl/stage2.jcl`, IPLs the starter again, attaches the targets, feeds the deck and releases each job with
-`$A'SYSGENn'`, waiting for its `$HASP395 ENDED`. It reads `stage1.output` from a good `stage1` run (an earlier leftover was truncated
-after SYSGEN1: rerun `stage1` from fresh volumes). Its expected-condcode table is not yet filled: it only reports steps over CC 4.
+`sysgen.py stage2` (verified live 2026-11-19, from fresh volumes through `starter`, `smp1`, `smp2`, `stage1`; 130 steps, SYSGEN1..6 each
+ended) ports `stage2.awk` as `convert_stage1` (SYSGEN1..6 held with `TYPRUN=HOLD,TIME=1439` and the target master catalog as `JOBCAT`,
+`EXPDT=99350` -> `00000`, SYSGEN6's `STEPY` -> `IEFBR14`, separator cards dropped), writes `jcl/stage2.jcl`, IPLs the starter again,
+attaches the targets, feeds the deck and releases each job with `$A'SYSGENn'`, waiting for its `$HASP395 ENDED`. Traps found live:
+(1) `$A` sent before `$HASP101 <job> HELD` answers `$HASP000 NOT HELD` and the job waits forever, so the driver waits for HELD, looking
+from the deck's start (the reader queues the next job while the last one runs); (2) an `attach`ed volume is offline, and SYSGEN1's `LPA1`
+step stops at `IEF238D REPLY DEVICE NAME` (`IEF247I ... 149 OFFLINE`), so the driver sends `v 149|14A|14B|14C,online`; (3) back-to-back
+console lines overrun the 3215 input buffer (`HHC02913E COMM: Buffer overrun` closes the console), so they are paced 3 s apart.
+`stage1.output` must come from a good `stage1` run on fresh volumes (1058265 bytes, 17 steps; a 199017-byte one was truncated after
+SYSGEN1). `STAGE2_EXPECTED`: only `SYSGEN6 STEPZ1` (IEHPROGM SCRATCH of `SYS1.NUCLEUS(SYSCATLG)`, `IEH207I` not found) ends CC 8; nine
+`LK` link-edit steps in SYSGEN1/2 end CC 4, within the bound; every other step ends CC 0. Re-running needs fresh volumes (SYSGEN1 creates the target datasets).
 
 ## Job runner
 
@@ -117,7 +123,7 @@ Results are internal only (Q16).
 ### Remaining slices (#8414)
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
-2. Run `stage2` live and fill its expected-condcode table; then `sysgen02..06` (`PVTMAC` tape), the user mods (`SMPPTF`), FDZ1D02 (its `MVS38J`
+2. `sysgen02..06` (`PVTMAC` tape), the user mods (`SMPPTF`), FDZ1D02 (its `MVS38J`
    volser clashes with `DEFAULT_TAPES`: needs `--tape MVS38J=tape/dz1d02.het`), the starter shutdown, the user mods and the `mvs.cnf` first
    IPL of the generated system, the socket reader on 3505.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the

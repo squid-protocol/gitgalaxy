@@ -359,7 +359,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # C1: type names/constructors invisible; fallback family + handled None arm are the forms. C3: bare match is branch's; Mutex/Arc concurrency-adjacent. (if let keeps its pre-existing branch dual — doc-noted.)
         "safety": re.compile(
             r"\b(if\s+let|while\s+let|let\s+else)\b|\b(?:unwrap_or|unwrap_or_else|unwrap_or_default|ok_or|ok_or_else|map_or|map_or_else)\b|None\s*=>"

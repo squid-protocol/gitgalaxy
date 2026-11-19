@@ -2230,9 +2230,8 @@ def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_file
 
 # #8161 (PR 5): C#'s keyword type names, a call qualifier that is always a library type (`char.IsWhiteSpace(c)`)
 _CS_KEYWORD_TYPES = frozenset(overload_types.CS_PRIMITIVES | {"string", "object"})
-# #8161 (PR 5): languages whose receiver types only keep a library-typed receiver off repo methods (the guard above);
-# Kotlin's do not answer the `typed` step yet (its nested same-named `Builder` classes cost precision)
-_GUARD_ONLY_RECEIVER_TYPES = frozenset({"kotlin"})
+# #8161 (PR 5): languages whose receiver types only keep a library-typed receiver off repo methods (the guard above)
+_GUARD_ONLY_RECEIVER_TYPES: frozenset[str] = frozenset()
 
 
 def _java_subtype(
@@ -2400,58 +2399,69 @@ def _resolve_call_return_type(
     typed: dict[str, list[str]],
     typed_scope: dict[str, set[str]],
     static_memo: dict[tuple[int, str], _Bucket],
-) -> list[str] | None:
-    """Resolve a call expression or chain (`get_store()`, `svc.get_store()`) to its return class lineage."""
+) -> tuple[list[str], set[str] | None] | None:
+    """Resolve a call expression or chain (`get_store()`, `svc.get_store()`) to `(return_lineage, scope_files)`."""
     if not expr or lang in _GUARD_ONLY_RECEIVER_TYPES:
         return None
     segments = [s for s in expr.split(".") if s]
     if not segments or len(segments) > 4:
         return None
 
-    def _step(qual: str, callee_name: str, step_typed: dict[str, list[str]]) -> list[str] | None:
+    def _step(
+        qual: str, callee_name: str, step_typed: dict[str, list[str]], step_scope: dict[str, set[str]]
+    ) -> tuple[list[str], set[str] | None] | None:
         bkt = _visible_statics(index.get((group, _key(callee_name, lang))), caller, static_memo)
-        st, d = _resolve_one(bkt, caller, lineage, qual, cache, step_typed, typed_scope)
+        st, d = _resolve_one(bkt, caller, lineage, qual, cache, step_typed, step_scope)
         if RESOLUTION_OF_STEP.get(st) not in CONFIDENT_RESOLUTIONS or d is None or not d.return_type:
             return None
         if not _is_class(index, group, d.return_type, lang):
             return None
-        return _lineage(d.return_type, group, lang, parents)
+        ret_lin = _lineage(d.return_type, group, lang, parents)
+        ret_key = _key(d.return_type, lang)
+        # If multiple files define `d.return_type` (e.g. Kotlin's nested `Builder`), scope to `d.path`
+        files = caller.class_files.get(ret_key, set())
+        scope = {d.path} if len(files) > 1 and d.path in files else None
+        return ret_lin, scope
 
     if len(segments) == 1:
         seg = segments[0]
         fn_name = seg[:-2] if seg.endswith("()") else seg
-        return _step("", fn_name, typed)
+        return _step("", fn_name, typed, typed_scope)
 
     cur_lineage: list[str] | None = None
+    cur_scope: set[str] | None = None
     first = segments[0]
     if first in _SELF_RECEIVERS and lineage:
         cur_lineage = lineage
     elif first in typed:
         cur_lineage = typed[first]
+        cur_scope = typed_scope.get(first)
     elif first.endswith("()"):
-        cur_lineage = _step("", first[:-2], typed)
-        if cur_lineage is None:
+        hit = _step("", first[:-2], typed, typed_scope)
+        if hit is None:
             return None
+        cur_lineage, cur_scope = hit
 
     for idx, seg in enumerate(segments[1:], start=1):
         is_last = idx == len(segments) - 1
         if not seg.endswith("()") and not is_last:
-            # Field/property intermediate without a call: only handle `self.<field>` if already typed
             if idx == 1 and first in _SELF_RECEIVERS and f"{first}.{seg}" in typed:
                 cur_lineage = typed[f"{first}.{seg}"]
+                cur_scope = typed_scope.get(f"{first}.{seg}")
                 continue
             return None
         callee_name = seg[:-2] if seg.endswith("()") else seg
         if cur_lineage is not None:
-            cur_lineage = _step("<chain>", callee_name, {**typed, "<chain>": cur_lineage})
+            next_scope = {**typed_scope, "<chain>": cur_scope} if cur_scope is not None else typed_scope
+            hit = _step("<chain>", callee_name, {**typed, "<chain>": cur_lineage}, next_scope)
         elif idx == 1:
-            # First segment was a module alias or class/package name
-            cur_lineage = _step(first, callee_name, typed)
+            hit = _step(first, callee_name, typed, typed_scope)
         else:
             return None
-        if cur_lineage is None:
+        if hit is None:
             return None
-    return cur_lineage
+        cur_lineage, cur_scope = hit
+    return (cur_lineage, cur_scope) if cur_lineage is not None else None
 
 
 def resolve_calls(
@@ -2596,7 +2606,10 @@ def resolve_calls(
             typed = {
                 q: _lineage(c, group, lang, parents)
                 for q, c in receiver_types.items()
-                if c and _is_class(index, group, str(c), lang) and lang not in _GUARD_ONLY_RECEIVER_TYPES
+                if c
+                and _is_class(index, group, str(c), lang)
+                and lang not in _GUARD_ONLY_RECEIVER_TYPES
+                and not (lang == "kotlin" and len(class_files.get(_key(str(c), lang), ())) > 1)
             }
             typed_scope: dict[str, set[str]] = {}
             for q, c in receiver_types.items():
@@ -2611,14 +2624,16 @@ def resolve_calls(
                         typed_scope[q] = files
                 elif c and q not in typed and not _is_class(index, group, str(c), lang):
                     # Cross-function return type: `x = get_store()` where `get_store` has `return_type = "Store"`
-                    ret_lineage = _resolve_call_return_type(
+                    ret_hit = _resolve_call_return_type(
                         str(c), index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
                     )
-                    if ret_lineage is not None:
-                        typed[q] = ret_lineage
+                    if ret_hit is not None:
+                        typed[q], ret_scope = ret_hit
+                        if ret_scope is not None:
+                            typed_scope[q] = ret_scope
             for q, call_expr in (func.get("calls_out_call_assigns") or {}).items():
                 if q not in typed and call_expr:
-                    ret_lineage = _resolve_call_return_type(
+                    ret_hit = _resolve_call_return_type(
                         str(call_expr),
                         index,
                         group,
@@ -2631,8 +2646,10 @@ def resolve_calls(
                         typed_scope,
                         static_memo,
                     )
-                    if ret_lineage is not None:
-                        typed[q] = ret_lineage
+                    if ret_hit is not None:
+                        typed[q], ret_scope = ret_hit
+                        if ret_scope is not None:
+                            typed_scope[q] = ret_scope
             expr_chains: dict[str, list[str]] = func.get("calls_out_expr_chains") or {}
             recursive: list[str] = []
             renames = func.get("calls_out_renames") or {}
@@ -2669,7 +2686,7 @@ def resolve_calls(
                     if q == "<expr>" and _kind == "call" and _expr_chains.get(_callee):
                         best: tuple[str, _Definition | None, str | None] = ("none", None, q)
                         for ch in _expr_chains[_callee]:
-                            ch_lineage = _resolve_call_return_type(
+                            ch_hit = _resolve_call_return_type(
                                 ch,
                                 index,
                                 _group,
@@ -2682,7 +2699,11 @@ def resolve_calls(
                                 _typed_scope,
                                 static_memo,
                             )
-                            if ch_lineage is not None:
+                            if ch_hit is not None:
+                                ch_lineage, ch_scope = ch_hit
+                                next_scope = (
+                                    {**_typed_scope, "<chain>": ch_scope} if ch_scope is not None else _typed_scope
+                                )
                                 st, d = _resolve_one(
                                     _bucket,
                                     _caller,
@@ -2690,7 +2711,7 @@ def resolve_calls(
                                     "<chain>",
                                     cache,
                                     {**_typed, "<chain>": ch_lineage},
-                                    _typed_scope,
+                                    next_scope,
                                 )
                                 if best[1] is None or _RANK[st] < _RANK[best[0]]:
                                     best = (st, d, "<expr>")

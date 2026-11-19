@@ -266,3 +266,42 @@ def test_cpp_std_namespace_and_test_dir_isolation():
     tm_site = _site(sites, "run", "tm")
     assert tm_site["step"] == "unseen"
     assert tm_site["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_kotlin_builder_chain_disambiguated_by_file_scope():
+    files = {
+        "FunSpec.kt": (
+            "class FunSpec {\n"
+            "  class Builder {\n"
+            "    fun addCode(s: String): Builder { return this }\n"
+            "    fun build(): FunSpec { return FunSpec() }\n"
+            "  }\n"
+            "  companion object {\n"
+            "    @JvmStatic fun builder(name: String): Builder { return Builder() }\n"
+            "  }\n"
+            "}\n"
+        ),
+        "TypeSpec.kt": (
+            "class TypeSpec {\n"
+            "  class Builder {\n"
+            "    fun addCode(s: String): Builder { return this }\n"
+            "    fun build(): TypeSpec { return TypeSpec() }\n"
+            "  }\n"
+            "  companion object {\n"
+            "    @JvmStatic fun builder(name: String): Builder { return Builder() }\n"
+            "  }\n"
+            "}\n"
+        ),
+        "App.kt": ('fun run() {\n  FunSpec.builder("f").addCode("x").build()\n}\n'),
+    }
+    deps = [{"src": "App.kt", "dst": "FunSpec.kt"}, {"src": "App.kt", "dst": "TypeSpec.kt"}]
+    sites, _ = resolve_calls(_scan("kotlin", files), deps)
+    add_site = _site(sites, "run", "addCode")
+    assert add_site["step"] == "typed"
+    assert add_site["resolution"] in CONFIDENT_RESOLUTIONS
+    assert add_site["dst_path"] == "FunSpec.kt"
+
+    build_site = _site(sites, "run", "build")
+    assert build_site["step"] == "typed"
+    assert build_site["resolution"] in CONFIDENT_RESOLUTIONS
+    assert build_site["dst_path"] == "FunSpec.kt"

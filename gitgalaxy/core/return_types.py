@@ -366,13 +366,14 @@ def _extract_rust(text: str, parent_class: str | None) -> str | None:
 
 
 def _extract_kotlin(text: str, parent_class: str | None) -> str | None:
-    m = _KT_HEADER.match(text)
+    cleaned = re.sub(r"^(?:[ \t]*@[A-Za-z_]\w*(?:\([^)]*\))?[ \t\r\n]*)+", "", text)
+    m = _KT_HEADER.match(cleaned)
     if not m:
         return None
-    end = _close_paren(text, m.end() - 1)
+    end = _close_paren(cleaned, m.end() - 1)
     if end < 0:
         return None
-    tail = text[end : end + 300]
+    tail = cleaned[end : end + 300]
     cm = re.match(r"[ \t]*:[ \t]*([^\n{=]{1,200}?)[ \t]*(?:\{|=|\n)", tail)
     if not cm:
         return None

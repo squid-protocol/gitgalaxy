@@ -173,3 +173,86 @@ def test_a_comp5_item_holds_the_native_value_in_its_bytes(estate, row):
         data = L.encode_number(it, Decimal(v))
         assert len(data) == size
         assert int.from_bytes(data, L.comp5_order(), signed=it.signed) == v
+
+
+# --- slice 2 (#8412): the NUMPROC sign-nibble cells and the TRUNC variants ---------------------------------------
+# The image is option-independent: what the translator writes for a packed item is IBM's preferred sign (C / D signed,
+# F unsigned), the one sign NUMPROC(PFD) trusts and NUMPROC(NOPFD) also repairs. So the cells below pin (a) which
+# option value reaches the translator for every spelling a compile step can use, and (b) every sign nibble the image
+# reads. The run-time refusal of a non-preferred sign under PFD (Codec.preferredSign) is a Java cell: Docker slice.
+from gitgalaxy.tools.cobol_to_java.det import program as P  # noqa: E402
+
+_NUMPROC = {"PFD": True, "NOPFD": False, "MIG": False, None: False}  # MIG is NOPFD (Migration Guide, Table 18)
+_TRUNC = {"STD": "STD", "BIN": "BIN", "OPT": "OPT", None: "STD"}  # IBM's default is STD
+
+
+def _opt_program(tmp_path, card):
+    p = tmp_path / "OPTTOY.cbl"
+    p.write_text(f"{card}       IDENTIFICATION DIVISION.\n       PROGRAM-ID. OPTTOY.\n       PROCEDURE DIVISION.\n"
+                 "           GOBACK.\n", encoding="utf-8")  # fmt: skip
+    return p
+
+
+@pytest.mark.parametrize("numproc", list(_NUMPROC), ids=str)
+@pytest.mark.parametrize("trunc", list(_TRUNC), ids=str)
+@pytest.mark.parametrize("via", ["parm", "cbl-card"])
+def test_every_numproc_and_trunc_spelling_reaches_the_translator(tmp_path, numproc, trunc, via):
+    named = [f"{k}({v})" for k, v in (("NUMPROC", numproc), ("TRUNC", trunc)) if v]
+    parm = named if via == "parm" else None
+    card = f"       CBL {','.join(named)}\n" if via == "cbl-card" and named else ""
+    prog = _opt_program(tmp_path, card)
+    assert P.numproc_pfd(prog, parm) is _NUMPROC[numproc]
+    assert P.trunc_mode(prog, parm) == _TRUNC[trunc]
+    assert P.trunc_std(prog, parm) is (_TRUNC[trunc] != "BIN")
+
+
+def test_a_cbl_card_overrides_the_compile_step_parm(tmp_path):
+    prog = _opt_program(tmp_path, "       CBL NUMPROC(NOPFD),TRUNC(BIN)\n")
+    assert P.numproc_pfd(prog, ["NUMPROC(PFD)"]) is False
+    assert P.trunc_mode(prog, ["TRUNC(OPT)"]) == "BIN"
+
+
+@pytest.mark.parametrize("row", [r for r in ROWS if r[4] == "PACKED"], ids=lambda r: r[0])
+def test_every_sign_nibble_a_packed_item_can_carry_is_read_or_refused_by_name(estate, row):
+    """Each nibble 0-F on every packed width: C D F read as IBM's preferred signs; none other reads as a number (the
+    image returns None, never a wrong value). A / B / E (NOPFD repairs them on z/OS; PFD does not) are the sibling gap."""
+    name, _, _, size, _ = row
+    it = estate[1][name]
+    body = "0" * (size * 2 - 2) + "7"
+    seven = Decimal(7) / Decimal(10) ** it.scale
+    for nib in "0123456789ABCDEF":
+        got = L.decode_number(it, bytes.fromhex(body + nib))
+        if nib in "CF":
+            assert got == seven, (name, nib)
+        elif nib == "D":
+            assert got == -seven, (name, nib)
+        else:
+            assert got is None, (name, nib)
+
+
+@pytest.mark.parametrize("row", [r for r in ROWS if r[4] == "PACKED"], ids=lambda r: r[0])
+def test_the_image_writes_only_the_preferred_sign_pfd_accepts(estate, row):
+    """What PFD trusts is what the image writes: a signed zero is C (never D), a signed negative D, unsigned F."""
+    name = row[0]
+    it = estate[1][name]
+    for v in (Decimal(0), Decimal("-0"), Decimal(7), Decimal("-7")):
+        data = L.encode_number(it, v)
+        nib = data.hex()[-1].upper()
+        if not it.signed:
+            assert nib == "F"
+        elif v < 0:
+            assert nib == "D"
+        else:
+            assert nib == "C"  # a zero, positive or negative, is C: PFD refuses D on a zero (preferredSign)
+
+
+@pytest.mark.parametrize("row", [r for r in ROWS if r[4] == "BINARY" and not r[2].endswith("V99")], ids=lambda r: r[0])
+def test_a_binary_value_past_its_picture_keeps_the_pictures_digits_in_the_image(estate, row):
+    """TRUNC(STD) / TRUNC(OPT) keep the PICTURE's low digits; the image is that, whichever TRUNC is in force, because a
+    VALUE or MOVE image is built from the PICTURE (the TRUNC(BIN) full-width arithmetic is the runtime's: Docker cell)."""
+    name, _, _, size, _ = row
+    it = estate[1][name]
+    over = Decimal(10) ** it.digits + 5  # one digit too many: 10**d + 5
+    data = L.encode_number(it, over)
+    assert len(data) == size
+    assert int.from_bytes(data, "big", signed=it.signed) == 5, name

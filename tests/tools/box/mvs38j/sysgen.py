@@ -524,12 +524,19 @@ STAGE3_TAPES = {"PVTMAC": "tape/apvtmacs.het", "SMPPTF": "tape/usermods.het", "M
 STAGE3_EXPECTED: dict = {}
 
 
+# Seen live (2026-11-19, a second starter IPL over the finished volumes): `$p jes2` prints `$HASP395 INIT ENDED` and, when JES2
+# is down, `IEF142I JES2 JES2 - STEP WAS EXECUTED - COND CODE 0000`; `z eod` prints `IEE334I HALT     EOD SUCCESSFUL`. A
+# first guess at `$HASP085 ... TERMINATION COMPLETE` never appeared (the stage timed out after the decks had all passed).
+JES2_STOPPED_RE = r"IEF142I JES2 JES2 - STEP WAS EXECUTED"
+EOD_DONE_RE = r"IEE334I\s+HALT\s+EOD SUCCESSFUL"
+
+
 def shutdown_starter(herc, con):
     """Moseley's "Shut Down the Starter System": `$p jes2`, `z eod`, `quiesce`, then Hercules `quit`."""
     con.send("$p jes2")
-    con.wait(r"\$HASP085|JES2 TERMINATION COMPLETE", 300)
+    con.wait(JES2_STOPPED_RE, 300)
     con.send("z eod")
-    con.wait(r"IEE334I|HALT\s+EOD", 300)
+    con.wait(EOD_DONE_RE, 300)
     con.send("quiesce")
     time.sleep(10)
 

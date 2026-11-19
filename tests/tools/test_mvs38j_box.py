@@ -491,3 +491,10 @@ def test_stage3_tapes_override_the_default_mvs38j_volume():
     con = types.SimpleNamespace(lines=["*01 IEC501A M 170,MVS38J,SL,6250 BPI,"], send=lambda t: None)
     sysgen.answer_mounts(sent.append, con, 0, {**sysgen.STAGE3_TAPES}, set(), "170")
     assert sent == ["devinit 170 tape/dz1d02.het"]
+
+
+def test_shutdown_patterns_match_the_console_lines_seen_live():
+    jes2 = "0000 16.15.53           IEF196I IEF142I JES2 JES2 - STEP WAS EXECUTED - COND CODE 0000"
+    eod = "4000 16.16.23           IEE334I HALT     EOD SUCCESSFUL"
+    assert re.search(sysgen.JES2_STOPPED_RE, jes2) and re.search(sysgen.EOD_DONE_RE, eod)
+    assert not re.search(sysgen.JES2_STOPPED_RE, "IEF142I INIT INIT - STEP WAS EXECUTED")

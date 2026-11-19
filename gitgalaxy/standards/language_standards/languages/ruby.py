@@ -160,7 +160,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards, validation)
         "safety": re.compile(
             r"\&\.|\b(rescue|ensure|fetch|frozen_string_literal|freeze|catch|throw|safe_load|T\.must|T\.let|T\.cast|T\.bind)\b"
         ),

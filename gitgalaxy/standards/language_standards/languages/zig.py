@@ -116,7 +116,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Error handling, payload capturing (|val|), and debug assertions.
+        # 6. safety (Defensive Checks: assert/try/guards). Error handling, payload capturing (|val|), and debug assertions.
         "safety": re.compile(r"\b(try|catch|orelse|errdefer|std\.debug\.assert)\b|\|[ \t]*[a-zA-Z_]\w*[ \t]*\|"),
         # 7. safety_neg: Safety Bypasses. Bypassing safety (undefined, unreachable, raw ptr casting).
         # BUG FIX: the 6 `@`-prefixed builtins (Zig's cast/truncate

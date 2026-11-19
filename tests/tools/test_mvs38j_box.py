@@ -115,6 +115,16 @@ def test_step_results_all_and_job_filter_ignore_case():
     assert sysgen.step_results("no messages here\n") == []
 
 
+def test_step_results_is_the_runner_reading_in_log_order():
+    import runner
+
+    log = runner.parse_log(PRINTER)["step_log"]
+    assert [x["job"] for x in log] == ["SMP4P44", "SMP4P44", "JOBX", "JOBX", "OTHER"]
+    assert [(x["job"], x["step"]) for x in sysgen.step_results(PRINTER)] == [(x["job"], x["step"]) for x in log]
+    # IEF202I (step not run) is a runner pattern the old sysgen regex lacked
+    assert sysgen.step_results(" IEF202I JOBY S9 - STEP WAS NOT RUN\n")[0]["executed"] is False
+
+
 def test_check_expected_flags_wrong_missing_and_unexecuted_steps():
     r = sysgen.step_results(PRINTER)
     assert sysgen.check_expected(r, {"S1": 0, "LK": 4}) == []

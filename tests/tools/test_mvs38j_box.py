@@ -32,7 +32,7 @@ def test_unknown_subcommand_is_refused():
 def test_bare_sysgen_is_refused_with_the_automated_stage_named():
     r = _run("sysgen")
     assert r.returncode == 3
-    assert "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3' are automated" in r.stderr
+    assert "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl' are automated" in r.stderr
 
 
 def test_every_tape_pin_is_an_md5():
@@ -41,6 +41,7 @@ def test_every_tape_pin_is_an_md5():
         "vs2StarterTapes.tar.gz",
         "vs2DistributionTapes.tar.gz",
         "mvsInstallationResources.tar.gz",
+        "SYSCPK.tar.gz",
     ]
     assert all(len(m) == 32 for _, m in pins)
 
@@ -174,7 +175,7 @@ def test_the_starter_plan_covers_both_volumes_with_distinct_readers_and_tapes():
 
 def test_sysgen_subcommand_refuses_a_stage_that_is_not_automated():
     r = _run("sysgen", "sysgen02")
-    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3'" in r.stderr
+    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl'" in r.stderr
 
 
 # --- console.py: the telnet 3215 client, against an in-process fake server ---
@@ -498,3 +499,132 @@ def test_shutdown_patterns_match_the_console_lines_seen_live():
     eod = "4000 16.16.23           IEE334I HALT     EOD SUCCESSFUL"
     assert re.search(sysgen.JES2_STOPPED_RE, jes2) and re.search(sysgen.EOD_DONE_RE, eod)
     assert not re.search(sysgen.JES2_STOPPED_RE, "IEF142I INIT INIT - STEP WAS EXECUTED")
+
+
+def test_ipl_replies_match_the_messages_the_generated_system_printed_live():
+    lines = [
+        "18:00:37 /IEA101A SPECIFY SYSTEM PARAMETERS FOR RELEASE 03.8 .VS2",
+        "18:00:45 /*00 IFB010D ENTER 'IPL REASON,SUBSYSTEM ID' OR 'U'",
+        "18:00:45 /*01 $HASP426 SPECIFY OPTIONS - HASP-II, VERSION JES2 4.1",
+        "18:00:49 /*02 $HASP479 UNABLE TO OBTAIN CKPT DATA SET LOCK - IO ERROR           - REPLY Y OR N TO CONTINUE",
+        "18:00:55 /*03 $HASP436 CONFIRM CHECKPOINT RECORD CHANGE",
+    ]
+    replies = []
+    for line, (rx, reply) in zip(lines, sysgen.IPL_REPLIES, strict=True):
+        m = re.search(rx, line)
+        assert m, line
+        replies.append(reply.format(id=m.group(1) if m.groups() else ""))
+    assert replies == ["r 0,clpa", "r 00,u", "r 01,format,noreq", "r 02,y", "r 03,y"]
+    assert re.search(sysgen.IPL_READY_RE, "/ $HASP099 ALL AVAILABLE FUNCTIONS COMPLETE")
+
+
+def test_ipl_stops_at_the_syscpk_prompt_a_blank_volume_leaves():
+    assert sysgen.IPL_FATAL_RE.search("/IEA317A SPECIFY UNIT FOR SYSC.LINKLIB ON SYSCPK OR CANCEL")
+    assert sysgen.IPL_FATAL_RE.search("/IEA318I UNIT UNACCEPTABLE")
+    assert not sysgen.IPL_FATAL_RE.search("/IEA357I IGC0J05B INVALID - MODULE IGNORED")
+
+
+def test_ipl_conf_enables_the_009_console_and_drops_the_3270(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf/mvs.cnf").write_text(
+        "0010    3270    console                    # master console\n"
+        "#0009    3215-C  /                          # alternate console\n"
+        "0150    3350    dasd/mvsres.3350\n"
+    )
+    assert sysgen.ipl_conf(str(tmp_path)) == "conf/mvs.conf"
+    got = (tmp_path / "conf/mvs.conf").read_text().splitlines()
+    assert got[0].startswith("#0010") and got[1].startswith("0009") and got[2].startswith("0150")
+
+
+def test_ipl_refuses_without_the_system_volumes_and_without_syscpk(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="mvsres.3350 missing"):
+        sysgen.ipl(str(tmp_path), "img", "n")
+    (tmp_path / "dasd").mkdir()
+    (tmp_path / "dasd/mvsres.3350").write_bytes(b"")
+    with pytest.raises(sysgen.SysgenError, match="syscpk.3350 missing"):
+        sysgen.ipl(str(tmp_path), "img", "n")
+
+
+def test_the_card_reader_port_is_published_on_loopback_only():
+    herc = sysgen.Hercules("/w", "conf/mvs.conf", "img", "n", publish=(3505,))
+    with pytest.MonkeyPatch.context() as mp:
+        seen = {}
+        mp.setattr(
+            sysgen.subprocess,
+            "Popen",
+            lambda cmd, **kw: seen.setdefault("cmd", cmd) and types.SimpleNamespace(stdout=iter(()), stdin=None),
+        )
+        mp.setattr(herc, "wait", lambda *a, **k: "")
+        herc.start()
+    assert "127.0.0.1:3505:3505" in seen["cmd"]
+
+
+def test_a_warm_ipl_answers_the_jes2_start_with_noreq_only():
+    first = dict(sysgen.ipl_replies(False))
+    warm = dict(sysgen.ipl_replies(True))
+    assert first[r"\*(\d+)\s+\$HASP426"] == "r {id},format,noreq"
+    assert warm[r"\*(\d+)\s+\$HASP426"] == "r {id},noreq"
+    assert [k for k in first if first[k] != warm[k]] == [r"\*(\d+)\s+\$HASP426"]
+
+
+def test_live_steps_reads_the_console_step_accounting_lines():
+    lines = [
+        "19:09:24 / IEFACTRT S1      /IEFBR14 /00:00:00.01/00:00:00.01/00000/GGPROBE",
+        "19:09:24 / IEFACTRT S2      /IEFBR14 /00:00:00.00/00:00:00.01/00008/GGPROBE",
+        "19:09:24 / IEFACTRT S1      /IEFBR14 /00:00:00.00/00:00:00.01/00000/OTHER",
+        "19:09:24 / $HASP395 GGPROBE  ENDED",
+    ]
+    assert sysgen.live_steps(lines, "GGPROBE") == {("S1", 0), ("S2", 8)}
+
+
+# --- a started box: `start` / `run` / `stop` and the runner's patterns, read from a live 3.8J job log (2026-11-19) ---
+import runner  # noqa: E402
+
+LIVE_JCLERR = (
+    "14.23.20 JOB    6  IEF452I JEJOB    JOB NOT RUN - JCL ERROR\n"
+    "14.23.20 JOB    6  $HASP373 JEJOB    STARTED - INIT  1 - CLASS A - SYS HMVS\n"
+    "14.23.20 JOB    6  $HASP396 JEJOB    TERMINATED\n"
+)
+LIVE_ABEND = (
+    "14.23.19 JOB    5  IEF403I ABJOB - STARTED - TIME=14.23.19\n"
+    "14.23.19 JOB    5  IEF450I ABJOB S1 - ABEND S806 U0000 - TIME=14.23.19\n"
+    "IEF472I ABJOB S1 - COMPLETION CODE - SYSTEM=806 USER=0000\n"
+    "IEF272I ABJOB S2 - STEP WAS NOT EXECUTED.\n"
+    "14.23.19 JOB    5  IEF404I ABJOB - ENDED - TIME=14.23.19\n"
+)
+
+
+def test_a_jcl_error_log_has_no_dash_after_the_job_name_and_ends_with_hasp396():
+    job = runner.parse_log(LIVE_JCLERR, "JEJOB")["jobs"][0]
+    assert job["jcl_error"] and job["ended"]
+
+
+def test_an_abend_log_reads_the_abend_and_the_skipped_step_with_nothing_unparsed():
+    parsed = runner.parse_log(LIVE_ABEND, "ABJOB")
+    job = parsed["jobs"][0]
+    assert job["abends"] == [{"step": "S1", "system": "S806", "user": "U0000"}]
+    assert [(s["step"], s["executed"]) for s in job["steps"]] == [("S2", False)]
+    assert parsed["unparsed_ief"] == 0
+
+
+def test_the_allocation_and_timing_messages_are_known_not_unparsed():
+    text = "IEF236I ALLOC. FOR OKJOB S1\nIEF237I JES2 ALLOCATED TO SYSPRINT\nIEF373I STEP /S1      / START 26323.1423\n"
+    assert runner.parse_log(text)["unparsed_ief"] == 0
+
+
+def test_serve_refuses_without_the_generated_system(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="lacks the generated system"):
+        sysgen.serve(str(tmp_path), "img", "n")
+
+
+def test_start_refuses_without_a_generated_system_and_stop_without_a_box(tmp_path):
+    env = {**os.environ, "MVS38J_WORK": str(tmp_path)}
+    for sub, msg in (("start", "mvs.cnf"), ("stop", "not running")):
+        r = subprocess.run(["bash", str(SCRIPT), sub], capture_output=True, text=True, timeout=30, env=env)  # noqa: S603, S607
+        assert r.returncode == 1 and msg in r.stderr
+
+
+def test_start_does_not_go_through_docker_run_d_and_stop_signals_the_driver():
+    text = SCRIPT.read_text()
+    assert 'sysgen.py" serve' in text and "docker run -d" not in text
+    assert 'kill "$pid"' in text

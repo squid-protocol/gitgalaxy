@@ -28,10 +28,11 @@ tests/tools/box/mvs38j/mvs38j.sh sysgen stage1    # sysgen00 (ICKDSF init of the
 tests/tools/box/mvs38j/mvs38j.sh sysgen stage2    # stage1.output -> jcl/stage2.jcl (Moseley's awk, ported), SYSGEN1..6 released one by one (verified live 2026-11-19)
 tests/tools/box/mvs38j/mvs38j.sh sysgen stage3    # sysgen02..06, USERMODS, FDZ1D02 on the starter, condcode check, starter shutdown (verified live 2026-11-19)
 tests/tools/box/mvs38j/mvs38j.sh sysgen starter   # START1 + SPOOL0: DASDI then DUMP/RESTORE per volume, driven over the console (~11 s)
+tests/tools/box/mvs38j/mvs38j.sh sysgen ipl [--probe DECK]   # first IPL of the generated system, optional probe job + live-log check (verified live 2026-11-19)
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
-tests/tools/box/mvs38j/mvs38j.sh start     # needs $MVS38J_WORK/conf/mvs.conf (the generated system)
+tests/tools/box/mvs38j/mvs38j.sh start     # resident driver (sysgen.py serve): IPL (warm after the first), returns once JES2 is ready; needs the generated system
 tests/tools/box/mvs38j/mvs38j.sh run DECK  # submit a deck, wait for the job, print the parsed JES2 log as JSON
-tests/tools/box/mvs38j/mvs38j.sh stop
+tests/tools/box/mvs38j/mvs38j.sh stop      # SIGTERM to the driver: $P JES2, Z EOD, quiesce, quit (not a heavy step: do not wrap it in heavy-run.sh)
 ```
 
 `MVS38J_WORK` defaults to `/srv/storage_16tb/projects/gitgalaxy/mvs38j`, outside the repo; the system image is never
@@ -122,28 +123,53 @@ HMASMP and four USERMODS link-edit steps). It takes about 25 min (`usermods` alo
 guessed (`$HASP085`) and timed out after every deck had passed; the real lines (`IEF142I JES2 JES2 - STEP WAS EXECUTED` after
 `$p jes2`, `IEE334I HALT EOD SUCCESSFUL` after `z eod`) were read from a second starter IPL over the finished volumes and pinned in
 `JES2_STOPPED_RE` / `EOD_DONE_RE`. **Not verified in one continuous run:** the decks ran in one run, the corrected shutdown in the
-second IPL; `quiesce` prints nothing. The first IPL of the generated system (`conf/mvs.cnf`) is the next page of Moseley's guide
-("Customizing Your New MVS 3.8 System") and is not built.
+second IPL; `quiesce` prints nothing. The first IPL of the generated system is `sysgen ipl`, below.
+
+### ipl (verified live 2026-11-19)
+
+`mvs38j.sh sysgen ipl [--probe DECK]` writes `conf/mvs.conf` from Moseley's `conf/mvs.cnf` (the 3270 master console at 010 is
+commented out and the 1052-C at 009 enabled, so `/` lines on Hercules stdin are console input; the 3505 reader binds every
+interface so docker's loopback publish reaches it), IPLs unit 150 and answers by message: `IEA101A` `r 0,clpa`, `IFB010D`
+`r N,u`, `$HASP426` `r N,format,noreq`, `$HASP479` `r N,y`, `$HASP436` `r N,y`; ready is `$HASP099 ALL AVAILABLE FUNCTIONS
+COMPLETE` (~105 log lines). A first IPL formats the spool; once it has finished, `ipl.done` in `$MVS38J_WORK` makes every later
+IPL warm: `$HASP426` is answered `r N,noreq` (Moseley's normal-start-up page; answering `format,noreq` on a formatted spool
+hung with no further prompt, 600 s). Then it shuts down (`$p jes2`, `z eod`, `quiesce`).
+
+* **SYSCPK is needed.** SYSC.LINKLIB and SYSC.PROCLIB are on the SYSCPK 3350 (unit 253). Without it the IPL stops at
+  `IEA317A`; a blank 3350 is refused with `IEA318I ... UNACCEPTABLE`. `mvs38j.sh tapes` downloads `SYSCPK.tar.gz` (md5 pinned) and
+  `ipl` copies `syscpk.3350` into `dasd/`.
+* `IEA357I INVALID - MODULE IGNORED` lines during CLPA are benign (Moseley).
+* **Probe (`--probe DECK`)**: the deck goes to the 3505 reader through `runner.submit`; `ipl` waits for `$HASP395 JOB ENDED`,
+  reads the printer file (`runner.parse_log`) and compares its (step, condition code) pairs with the `IEFACTRT` lines the console
+  printed live (`sysgen.live_steps`). The live console carries `IEFACTRT` step accounting, not the `IEF142I` of the printer
+  listing, and the two agree. Run: two-step `IEFBR14` job, both CC 0, 115 log lines, exit 0. This is the one deck run so far: the
+  runner's other patterns (`IEF272I`, `IEF450I`, `IEF285I`, the JCL error) are still fixture-tested only.
 
 ## Job runner
 
-`tests/tools/box/mvs38j/runner.py` (stdlib, host side; **fixture-tested only, not yet run against a live 3.8J log**) is
+`tests/tools/box/mvs38j/runner.py` (stdlib, host side; **checked against a live 3.8J log (2026-11-19, `start` + `run`): `IEF142I` step lines with a zero and a non-zero (4) code, `IEF272I`, `IEF450I` abend (S806, an unknown program), `IEF452I` JCL error; `IEF285I` is fixture-tested only**) is
 reached through `mvs38j.sh run DECK [--timeout S] [--host H] [--port P] [--printer FILE]`. It needs a started box
-(`mvs38j.sh start`). The deck's first card must be `//NAME JOB ...`; each line is padded to an 80-column card image and sent
+(`mvs38j.sh start`, which runs `sysgen.py serve`: a resident host process that owns Hercules' console pipe, IPLs, writes `box.ready` and `box.pid` in the work dir and, on SIGTERM, stops JES2 cleanly so the next start is a warm IPL; its log is `box.log`). The deck's first card must be `//NAME JOB ...`; each line is padded to an 80-column card image and sent
 to the socket reader on 127.0.0.1:3505, and the connection closing ends the deck. `--printer` defaults to the first 1403
-printer of `$MVS38J_WORK/conf/mvs.conf`. The runner waits for `$HASP395 NAME ENDED` (or `IEF452I` JCL error), then prints JSON
+printer of `$MVS38J_WORK/conf/mvs.conf`. The runner waits for `$HASP395 NAME ENDED` (a JCL-error job ends with `$HASP396 NAME TERMINATED` instead; both count), then prints JSON
 with provenance `mvs38j-run`, per job: steps (`IEF142I` executed with its completion code; `IEF272I` / `IEF202I` not
 executed), dataset dispositions (`IEF285I`), abends (`IEF450I`), the JCL-error flag and the SYSOUT line count. A message
 it does not know is counted in `unparsed_ief`, never guessed. `runner.py parse PRINTER_FILE [JOB]` parses a captured
 printer file without a box. Exit 1 on a timeout or a deck without a JOB card; 2 on a missing deck or usage error.
 Results are internal only (Q16).
 
+Live findings (2026-11-19, four probe decks through `run`): the JCL-error line is `IEF452I NAME    JOB NOT RUN - JCL ERROR` with no
+` - ` after the job name (the first regex needed it, so the job never read as ended); the abended step has an `IEF450I` and no
+`IEF142I` (its record is the abend, not a step with a code); the printer file also carries `IEF236I/237I/373I/374I/375I/376I/472I/643I`,
+now known informational lines (`unparsed_ief` is 0 on all four decks). Trap: wrapping `stop` in `heavy-run.sh` queued it behind
+another worker's slot and the box ran on.
+
 ### Remaining slices (#8414)
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
-2. The first IPL of the generated system (`conf/mvs.cnf`, socket reader on 3505) and Moseley's "Customizing MVS" page; `mvs38j.sh start` / `run` against it.
-3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the
-   runner's message patterns against a live log; merge `sysgen.step_results` onto `runner.parse_log`.
+2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
+3. Probe run of the era-compatible IBM-written scenarios; live confirmation of `IEF285I` dispositions (a deck with a cataloged
+   dataset); merge `sysgen.step_results` onto `runner.parse_log`.
 
 ## What this tier cannot test
 

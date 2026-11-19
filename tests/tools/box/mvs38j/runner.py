@@ -26,7 +26,7 @@ _STEP = re.compile(
     r"(IEF142I|IEF272I|IEF202I)\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+STEP WAS (NOT )?(?:EXECUTED|RUN)"
     r"(?:.*?COND CODE (\d{4}))?"
 )
-_DISP = re.compile(r"IEF285I\s+(\S.*?)\s+(KEPT|DELETED|PASSED|CATALOGED|UNCATALOGED|SYSOUT)\s*$")
+_DISP = re.compile(r"IEF285I\s+(\S.*?)\s+(KEPT|DELETED|PASSED|CATALOGED|UNCATALOGED|SYSOUT)(?:\s+\*-+\d*)?\s*$")
 _ABEND = re.compile(r"IEF450I\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+ABEND\s+(S[0-9A-F]{3})\s+(U\d{4})")
 _JCLERR = re.compile(r"IEF452I\s+(\S+)\s+(?:-\s+)?JOB NOT RUN - JCL ERROR")
 _ANY_IEF = re.compile(r"\bIEF\d{3}[A-Z]\b")

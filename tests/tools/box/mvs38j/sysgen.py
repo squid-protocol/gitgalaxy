@@ -5,10 +5,10 @@ Internal use only until counsel answers Q16. Stdlib only; runs on the host and s
 (`docker run -i`), feeding it commands on stdin and reading its log (which carries the integrated 1052-C console) on
 stdout. Stages are small functions over `Hercules`; each one checks the messages and PSW the guide documents and raises
 `SysgenError` rather than carry on. Implemented: `starter` (the two stand-alone programs per volume) and `smp1` / `smp2` (starter-system
-IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). Not yet: sysgen02..06, user mods: see docs/jcl_oracle_mvs38j.md "Remaining slices".
+IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). `stage3` (sysgen02..06, the user mods, FDZ1D02, shutdown of the starter). Not yet: the first IPL of the generated system: see docs/jcl_oracle_mvs38j.md "Remaining slices".
 
     sysgen.py starter [--work DIR] [--image IMG] [--name NAME]
-    sysgen.py smp1|smp2|stage1|stage2 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
+    sysgen.py smp1|smp2|stage1|stage2|stage3 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
     sysgen.py condcode PRINTER_FILE JOB|ALL [--expect STEP=CC ...]
 """
 
@@ -506,6 +506,84 @@ def stage2(work, image, name, tapes, port=3270, job_timeout=3600):
         herc.quit()
 
 
+# Moseley's "after stage 2" order (iSYSGENv8.htm, fetched 2026-11-19), all on the still-running STARTER system: sysgen02..06, the
+# seven USERMODS jobs, FDZ1D02. Value = `$HASP395 ENDED` lines the deck makes: sysgen04 and FDZ1D02 submit a second job of the
+# same name, USERMODS is seven jobs in one file. Tapes the decks ask for, by volser (read from the decks' VOL=SER, not guessed):
+# sysgen03 PVTMAC, usermods SMPPTF, fdz1d02 MVS38J (which DEFAULT_TAPES maps to zdlib1, so it is overridden here).
+STAGE3_DECKS = (
+    ("sysgen02.jcl", 1),
+    ("sysgen03.jcl", 1),
+    ("sysgen04.jcl", 2),
+    ("sysgen05.jcl", 1),
+    ("sysgen06.jcl", 1),
+    ("usermods.jcl", 7),
+    ("fdz1d02.jcl", 2),
+)
+STAGE3_TAPES = {"PVTMAC": "tape/apvtmacs.het", "SMPPTF": "tape/usermods.het", "MVS38J": "tape/dz1d02.het"}
+# Steps above CC 4 allowed: none (Moseley's expected codes are 0, with CC 4 for sysgen06's HMASMP and four USERMODS link-edit warnings).
+STAGE3_EXPECTED: dict = {}
+
+
+# Seen live (2026-11-19, a second starter IPL over the finished volumes): `$p jes2` prints `$HASP395 INIT ENDED` and, when JES2
+# is down, `IEF142I JES2 JES2 - STEP WAS EXECUTED - COND CODE 0000`; `z eod` prints `IEE334I HALT     EOD SUCCESSFUL`. A
+# first guess at `$HASP085 ... TERMINATION COMPLETE` never appeared (the stage timed out after the decks had all passed).
+JES2_STOPPED_RE = r"IEF142I JES2 JES2 - STEP WAS EXECUTED"
+EOD_DONE_RE = r"IEE334I\s+HALT\s+EOD SUCCESSFUL"
+
+
+def shutdown_starter(herc, con):
+    """Moseley's "Shut Down the Starter System": `$p jes2`, `z eod`, `quiesce`, then Hercules `quit`."""
+    con.send("$p jes2")
+    con.wait(JES2_STOPPED_RE, 300)
+    con.send("z eod")
+    con.wait(EOD_DONE_RE, 300)
+    con.send("quiesce")
+    time.sleep(10)
+
+
+def stage3(work, image, name, tapes, port=3270, job_timeout=3600):
+    """IPL the starter system with `conf/sysgen.cnf` over the stage 2 volumes, attach the target volumes, run sysgen02..06,
+    the user mods and FDZ1D02 through the reader (tapes answered by volser), check every step's completion code, then shut
+    down JES2 and MVS the way Moseley does. The first IPL of the generated system is the next page of his guide, not here."""
+    conf = "conf/sysgen.cnf"
+    for need in (conf, "conf/sysgen.script", *(f"jcl/{d}" for d, _ in STAGE3_DECKS), *STAGE3_TAPES.values()):
+        if not (Path(work) / need).is_file():
+            raise SysgenError(f"{work}/{need} missing: run mvs38j.sh stage first")
+    stage2_deck = Path(work) / "jcl/stage2.jcl"
+    if not stage2_deck.is_file():
+        raise SysgenError(f"{stage2_deck} missing: run `sysgen stage2` first")
+    tapes = {**STAGE3_TAPES, **tapes}
+    herc = Hercules(work, conf, image, name, console_port=port).start()
+    herc.wait(r"HHC01024I", 60)
+    con = telnet_console.Console(port=port).connect()
+    try:
+        ipl_starter(herc, con)
+        attach_targets(herc, work)
+        for unit in TARGET_UNITS:
+            con.send(f"v {unit},online")
+            time.sleep(3)  # paced: back-to-back lines overrun the 3215 input buffer (see stage2)
+        printed = printer_file(work, conf)
+        printed_from = printed.stat().st_size if printed.exists() else 0
+        for deck, ended in STAGE3_DECKS:
+            since = run_deck(herc, con, work, conf, Path(work) / "jcl" / deck, tapes, job_timeout, ended)
+            bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
+            if bad:
+                raise SysgenError(f"{deck}: {bad[0].strip()}")
+            print(f"stage3: {deck} ended")
+        results = step_results(printed.read_bytes()[printed_from:].decode("latin-1"))
+        failed = smp_failed_steps(results, STAGE3_EXPECTED)
+        if failed:
+            raise SysgenError(f"stage3: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")
+        print(f"stage3: {len(results)} steps checked (condcode)")
+        shutdown_starter(herc, con)
+    except (SysgenError, telnet_console.ConsoleError):
+        print("stage3: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        con.close()
+        herc.quit()
+
+
 def hetget(work, image, name, het, out, fileno):
     """Extract file `fileno` of a tape image as ASCII text into `work/out` with the image's `hetget -a`."""
     cmd = ["docker", "run", "--rm", "--name", f"{name}-hetget", "--user", f"{os.getuid()}:{os.getgid()}"]
@@ -572,7 +650,7 @@ def main(argv=None):
     st.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
     st.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
     st.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
-    for stage in ("smp1", "smp2", "stage1", "stage2"):
+    for stage in ("smp1", "smp2", "stage1", "stage2", "stage3"):
         sp = sub.add_parser(stage)
         sp.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
         sp.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
@@ -588,10 +666,12 @@ def main(argv=None):
         if args.cmd == "starter":
             starter(args.work, args.image, args.name)
             return 0
-        if args.cmd in ("smp1", "smp2", "stage1", "stage2"):
+        if args.cmd in ("smp1", "smp2", "stage1", "stage2", "stage3"):
             tapes = dict(t.split("=", 1) for t in args.tape)
-            if args.cmd in ("stage1", "stage2"):
-                (stage1 if args.cmd == "stage1" else stage2)(args.work, args.image, args.name, tapes, args.port)
+            if args.cmd in ("stage1", "stage2", "stage3"):
+                {"stage1": stage1, "stage2": stage2, "stage3": stage3}[args.cmd](
+                    args.work, args.image, args.name, tapes, args.port
+                )
                 return 0
             smp_stage(args.work, args.image, args.name, args.cmd, tapes, args.port)
             return 0

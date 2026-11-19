@@ -230,3 +230,26 @@ def test_every_watched_workflow_exists_and_runs_on_main():
         fname, doc = by_name[name]
         assert _runs_on_main(_on(doc)), f"{fname} ({name!r}) never runs on main (no main push, schedule or dispatch)"
         assert "workflow_run" not in _on(doc), f"{fname} is itself a workflow_run consumer: Main Watch would loop"
+
+
+def test_a_never_acquired_cancelled_leg_is_a_runner_loss_8673(monkeypatch):
+    notacq = "The job was not acquired by Runner of type hosted even after multiple attempts"
+    assert mw.infra_loss([notacq])
+    jobs = [
+        {"id": 1, "name": "mac 3.11", "conclusion": "cancelled"},
+        {"id": 2, "name": "hang", "conclusion": "cancelled"},
+        {"id": 3, "name": "ok", "conclusion": "success"},
+        {"id": 4, "name": "real", "conclusion": "failure"},
+    ]
+    notes = {
+        1: [notacq],
+        2: ["The job exceeded the maximum execution time"],
+        4: ["Process completed with exit code 1."],
+    }
+    monkeypatch.setattr(mw, "paged", lambda *a, **k: jobs)
+    monkeypatch.setattr(mw, "gh", lambda *a: [{"message": m} for m in notes[int(a[1].split("/")[4])]])
+    got = mw.failed_jobs("x/y", 5)
+    assert [n for n, _ in got] == ["mac 3.11", "real"]  # the hang is not a runner loss
+    assert not mw.rerun_wanted(1, got)  # a real failure beside it: a person looks
+    assert mw.rerun_wanted(1, got[:1])
+    assert not mw.rerun_wanted(1, [])

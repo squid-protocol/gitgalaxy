@@ -29,6 +29,8 @@ REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.tools.readiness import offline  # noqa: E402
+
 CLAUDE = ("bash -c \"cd {prompt_dir} && exec claude -p --model MODEL --tools '' --strict-mcp-config "
           "--disable-slash-commands --no-session-persistence --output-format text < {prompt_file}\"")  # fmt: skip
 
@@ -76,7 +78,7 @@ def run(opts: argparse.Namespace) -> dict[str, Any]:
     return record
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
@@ -95,7 +97,11 @@ def main() -> int:
     r.add_argument("--faults", default="all")
     r.add_argument("--timeout", type=int, default=600)
     r.add_argument("--max-tokens", type=int, default=16000)
-    opts = r.parse_args(sys.argv[2:]) if len(sys.argv) > 1 and sys.argv[1] == "run" else ap.parse_args()
+    given = sys.argv[1:] if argv is None else argv
+    if offline.requested(given):
+        # #8624: `run` is the only subcommand and it calls a model (command / anthropic / openai backend): refuse by name.
+        raise SystemExit("det_refine run refuses --offline / GITGALAXY_OFFLINE=1: it calls a model API (network)")
+    opts = r.parse_args(given[1:]) if given and given[0] == "run" else ap.parse_args(given)
     record = run(opts)
     b, a = record["before"], record["after"]
     kept = sum(1 for s in record["steps"] if s.get("verdict") == "kept")

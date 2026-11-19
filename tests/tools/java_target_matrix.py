@@ -42,7 +42,14 @@ from unittest.mock import patch
 
 REPO_ROOT = Path(os.environ.get("GITGALAXY_CODE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import GRADLE_DAEMON_ARG, gradle_utf8_env, maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
+from maven_exe import (
+    GRADLE_DAEMON_ARG,
+    gradle_utf8_env,
+    maven_utf8_env,
+    mvn_executable,
+    run_decoded,
+    run_maven_retrying_resolution,
+)  # noqa: E402
 from launcher_exe import launcher_executable  # noqa: E402
 
 _TIMESTAMP = re.compile(rb"gitgalaxy_(clean|java_spring)_[0-9]{8}_[0-9]{6}")
@@ -318,10 +325,12 @@ def build(project: Path, version: int, m2: Path) -> tuple[bool, str]:
             GRADLE_DAEMON_ARG,
         ]
         env = gradle_utf8_env(env)
+        run = run_decoded
     else:
+        run = run_maven_retrying_resolution  # #8674: a Central hiccup earns one -U rerun with backoff
         cmd = [mvn_executable(), "-q", "-B", "compile", f"-Dmaven.repo.local={m2}"]
         env = maven_utf8_env(env)
-    proc = run_decoded(cmd, cwd=project, env=env, timeout=1800)
+    proc = run(cmd, cwd=project, env=env, timeout=1800)
     return proc.returncode == 0, build_errors(proc.stdout + proc.stderr)
 
 

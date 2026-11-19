@@ -79,6 +79,7 @@ def run_decoded(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[st
 # shared local repository failed every later build of the job with no retry (det sweep run 42721961353: 30 of 30).
 RESOLUTION_FAILURE_MARKERS = (
     "Could not find artifact",
+    "Could not resolve dependencies",  # #8674: the CICS crucible's compile failed on it with the cause line unread
     "Could not transfer artifact",
     "Connection reset",
     "Read timed out",

@@ -94,3 +94,49 @@ def test_a_cached_miss_reruns_with_dash_u_which_ignores_the_cache(monkeypatch):
     calls = _script(monkeypatch, [_proc(1, err=CACHED_MISS_LOG), _proc(0, out="ok")])
     assert maven_exe.run_maven_retrying_resolution([MVN, "-q", "-B", "test"]).returncode == 0
     assert calls[1] == [MVN, "-U", "-q", "-B", "test"]
+
+
+# #8674: the CICS crucible's forge compile and the matrix build called Maven without the retry; one Central hiccup
+# failed all 13 Java cells of a scheduled main run ("Could not resolve dependencies", cause line unread).
+DEPS_LOG = (
+    "[ERROR] Failed to execute goal on project hc-file-unlock: Could not resolve dependencies for project "
+    "com.gitgalaxy.modernized:hc-file-unlock:jar:1.0.0-SNAPSHOT"
+)
+
+
+def test_a_could_not_resolve_dependencies_report_is_a_resolution_failure():
+    assert maven_exe.is_resolution_failure(DEPS_LOG)
+
+
+def _crucible_maven(monkeypatch, tmp_path, results, offline):
+    import cics_crucible
+
+    monkeypatch.setattr(maven_exe.time, "sleep", lambda _s: None)
+    calls = _script(monkeypatch, results)
+    ok, _errors = cics_crucible.maven(tmp_path, ["compile"], offline, tmp_path / "m.log")
+    return ok, calls
+
+
+def test_the_crucible_forge_compile_reruns_a_resolution_failure(monkeypatch, tmp_path):
+    ok, calls = _crucible_maven(monkeypatch, tmp_path, [_proc(1, err=DEPS_LOG), _proc(0)], offline=False)
+    assert ok and len(calls) == 2 and "-U" in calls[1]
+
+
+def test_the_crucible_forge_compile_runs_a_compile_error_once_and_offline_never_retries(monkeypatch, tmp_path):
+    ok, calls = _crucible_maven(monkeypatch, tmp_path, [_proc(1, err="COMPILATION ERROR")], offline=False)
+    assert not ok and len(calls) == 1
+    import cics_crucible
+
+    monkeypatch.setattr(cics_crucible, "run_decoded", lambda _cmd, **_k: _proc(1, err=DEPS_LOG))
+    ok, _ = cics_crucible.maven(tmp_path, ["compile"], True, tmp_path / "m.log")
+    assert not ok
+
+
+def test_the_matrix_maven_build_reruns_a_resolution_failure(monkeypatch, tmp_path):
+    import java_target_matrix as jtm
+
+    monkeypatch.setattr(maven_exe.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(jtm, "_jdk", lambda _v: "")
+    calls = _script(monkeypatch, [_proc(1, err=DEPS_LOG), _proc(0)])
+    ok, _errors = jtm.build(tmp_path, 17, tmp_path / "m2")
+    assert ok and len(calls) == 2 and "-U" in calls[1]

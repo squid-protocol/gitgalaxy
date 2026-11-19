@@ -187,6 +187,22 @@ on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed 
 scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
 unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
 
+**The in-process CICS path judges the java-facade side too (2026-11-18, #8599).** A CICS baseline is proven twice:
+through `runTask`, and once more through the program's deployed entry points (`run_case(facades=True)`, #4449). A
+separate-run mutant proof does both. The in-process worker (`_DirectContext`, fast+one-jvm, non-Db2 / non-IMS) ran
+only the `runTask` side, so a mutant in facade-only code (`handleLink`, `handleTransaction`, `lastLinkBytes`) survived
+in process where a separate run killed it (ABNDPROC `661ba858a8`, COR on `lastLinkBytes`). When the baseline has a facade
+side, the worker now runs it after a passing `runTask` side, in the same session JVM under its own class loader
+(`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
+named `<scenario> [java-facade]`; `killers` names those for a separate run too.
+
+cbsa-abndproc's 212 recorded survivors (fast+one-jvm, seed 0; 195 still in the port), re-judged in process: **8 now
+die**, 187 survive (2.2 s a survivor, the facade side included). The 8 and 6 random survivors, re-judged with
+`--no-one-jvm`: **14 of 14 agree**, with the same scenarios in `killed_by` (2 s in process, 31-54 s as separate runs).
+None of the 8 was a stated `equivalent` / `unreachable` claim. The ledgers' harness fingerprint is information, not
+staleness, so a recorded false survivor stays until its case is re-run: 112 CICS ledgers can use the in-process path, with
+30,800 survivors between them.
+
 **The 17 crucible ports get a fast mode (2026-10-21, #4047).** `mutation_crucible.py` already ran every scenario of a
 side in one JVM (`mvn test`, one JVM per side); what each mutant repeated was the refactor and cobol-to-java generate.
 Fast mode (the default; `--full` opts out) generates the case's Java project once, in the baseline proof, and each mutant

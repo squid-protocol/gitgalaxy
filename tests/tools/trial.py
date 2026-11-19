@@ -1131,6 +1131,26 @@ def trial_blockers(trial: dict[str, Any], facts: dict[str, dict[str, Any]] | Non
     return rows
 
 
+def forecast_rows(trial: dict[str, Any]) -> list[tuple[str, str, str]]:
+    """(figure, registered range, measured) per forecast figure, from the ledger alone (#8321).
+
+    Only the first-try proof count is measured in the ledger; the translation figures (whole, accounted) are
+    measured by the census and read "not measured here" rather than borrowed from another source."""
+    f = trial.get("forecast")
+    if not isinstance(f, dict):
+        return []
+    counted = [p for p in trial["programs"].values() if _counted(trial, p)]
+    rows = []
+    for name in FORECAST_FIGURES:
+        lo, hi = f["figures"][name]
+        measured = "not measured here"
+        if name == "first_try_proof":
+            first = sum(p["final"] == "proven@1" for p in counted)
+            measured = f"{first} of {len(counted)}" if counted else "not measured (no program attempted)"
+        rows.append((name, f"{lo}-{hi} of {f['over']}", measured))
+    return rows
+
+
 def trial_page(
     ledger: dict[str, Any],
     trial: dict[str, Any],
@@ -1168,6 +1188,12 @@ def trial_page(
             f"- proven: {proven} of {len(elig)} eligible ({_pct(proven, len(elig))})",
             f"- {measured}",
             "", "## Run status", ""]  # fmt: skip
+    rows = forecast_rows(trial)
+    if rows and not rehearsal:
+        i = out.index("## Run status")
+        out[i:i] = ["## Forecast (registered at start) beside measured", "",
+                    "| figure | forecast (programs) | measured |", "|---|---|---|",
+                    *[f"| {a} | {b} | {c} |" for a, b, c in rows], ""]  # fmt: skip
     out += [
         f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted", "withdrawn")
     ]
@@ -1307,6 +1333,11 @@ def render(ledger: dict[str, Any]) -> str:
                        f"{sysm['model_version']} ({sysm['backend']}) | "
                        f"{len(t['eligible'])} | {len(t['out_of_scope'])} | "
                        + " | ".join(str(bins.get(c, 0)) for c in (*COLUMNS, "withdrawn", "open")) + " |")  # fmt: skip
+        rows_all = [(t["id"], *r) for t in ledger["trials"] for r in forecast_rows(t)]
+        if rows_all:
+            out += ["", "## Forecast beside measured", "",
+                    "| trial | figure | forecast (programs) | measured |", "|---|---|---|---|",
+                    *[f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows_all]]  # fmt: skip
         out += [
             "",
             "## Programs",

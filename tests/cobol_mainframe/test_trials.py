@@ -1227,3 +1227,22 @@ def test_one_forecast_per_trial_over_the_declared_set_8321(started, tmp_path):
     assert any("whole_closeout" in e for e in errors(forecast=wide))
     legacy = errors(forecast=None, started="2026-11-09")
     assert legacy == []
+
+
+def test_the_forecast_range_sits_beside_the_measured_figure_8321(started):
+    """#8321 slice 3: the report page and the trials page show each registered range beside its measured figure."""
+    ledger = trial.load(started["ledger"])
+    t = ledger["trials"][0]
+    rows = {name: (rng, measured) for name, rng, measured in trial.forecast_rows(t)}
+    assert list(rows) == list(trial.FORECAST_FIGURES)  # every figure, in registered order
+    lo, hi = t["forecast"]["figures"]["first_try_proof"]
+    assert rows["first_try_proof"][0] == f"{lo}-{hi} of {t['forecast']['over']}"
+    assert rows["whole_closeout"][1] == "not measured here"  # never borrowed from another source
+    page = trial.trial_page(ledger, t)
+    assert "## Forecast (registered at start) beside measured" in page
+    assert f"| first_try_proof | {rows['first_try_proof'][0]} | {rows['first_try_proof'][1]} |" in page
+    assert f"| {t['id']} | first_try_proof | {rows['first_try_proof'][0]} |" in trial.render(ledger)
+    assert "beside measured" not in trial.trial_page(ledger, t, rehearsal=True)
+    legacy = {**t, "forecast": None}
+    assert trial.forecast_rows(legacy) == []  # a pre-rule trial shows no forecast block
+    assert "beside measured" not in trial.trial_page(ledger, legacy)

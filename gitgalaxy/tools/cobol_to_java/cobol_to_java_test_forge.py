@@ -23,6 +23,8 @@ import json
 import sys
 from pathlib import Path
 
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
+
 
 def generate_context_test(package_name: str, class_name: str) -> str:
     """Generates a @SpringBootTest to ensure the entire dependency injection context loads."""
@@ -93,7 +95,9 @@ def main():
     parser = argparse.ArgumentParser(description="GitGalaxy Java Test Generator")
     parser.add_argument("ir_file", help="Path to the GitGalaxy _ir.json state dump")
     parser.add_argument("--pkg", default="com.gitgalaxy.modernized", help="Base Java package name")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     ir_path = Path(args.ir_file).resolve()
     if not ir_path.exists():

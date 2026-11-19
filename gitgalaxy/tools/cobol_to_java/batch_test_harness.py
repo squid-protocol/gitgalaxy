@@ -21,6 +21,8 @@ import sys
 import time
 from pathlib import Path
 
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
+
 # S607/S603 hardening (#472): sys.executable for "python" (guarantees the
 # same interpreter/venv this harness itself runs under), shutil.which for
 # "mvn" (resolves once to an absolute path rather than a PATH lookup per
@@ -69,7 +71,9 @@ def main():
     parser = argparse.ArgumentParser(description="GitGalaxy Pipeline Validation Harness")
     parser.add_argument("corpus_dir", help="Path to the directory containing legacy COBOL repos")
     parser.add_argument("--n", type=int, default=0, help="Number of repositories to process (0 for all)")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     corpus_path = Path(args.corpus_dir).resolve()
     v6_dir = corpus_path.parents[1] / "v6" / "gitgalaxy"

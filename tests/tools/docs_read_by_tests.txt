@@ -96,6 +96,7 @@
 /ZZREPO	tests/tools/test_cics_census_listing_8112.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
+/a.c	tests/core_engine
 /a.py	tests/core_engine
 /action.yml	tests/core_engine
 /api_v1	tests/security_auditing

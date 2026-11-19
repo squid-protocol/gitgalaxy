@@ -38,6 +38,8 @@ _DB2_CONNECT = re.compile(
     r"\bCONNECT\b(?:[ \t]+TO[ \t]+[\w.:$#@-]{1,64})?[ \t]+USER[ \t]+[^\s]{1,64}[ \t]+USING[ \t]+(?![:&?])['\"]?[^\s'\";:]{1,64}",
     re.I,
 )
+_CONNECT_WORD = re.compile(r"\bCONNECT\b(?![ \t]+(?:USER|USING)\b)", re.I)
+_CONNECT_SPAN = 4  # a wrapped CONNECT: its own line plus up to three continuation lines
 _REXX_PW = re.compile(
     r"\b(?:PW|PWD|PASS|PASSWD|PASSWORD|PSW|PSWD)[A-Z0-9_.]{0,12}[ \t]*=[ \t]*(['\"])[^'\"\s&]{1,32}\1", re.I
 )
@@ -112,6 +114,10 @@ def mainframe_secret_sites(text: str) -> list[tuple[int, int, str]]:
             add(i, m, "in-stream FTP login")
             continue
         m = _DB2_CONNECT.search(ln)
+        if not m and _CONNECT_WORD.search(ln):
+            # Embedded SQL is usually wrapped: `CONNECT TO db` / `USER u` / `USING pw` on successive lines.
+            window = " ".join(x.strip() for x in lines[i : i + _CONNECT_SPAN])
+            m = _DB2_CONNECT.search(window)
         if m:
             add(i, m, "Db2 CONNECT ... USING")
             continue

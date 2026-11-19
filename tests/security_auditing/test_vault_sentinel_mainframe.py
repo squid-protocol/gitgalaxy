@@ -21,6 +21,7 @@ PLANTED = {
     "ftp in-stream login": "//FTPSTEP  EXEC PGM=FTP\n" + DD_FTP + "10.1.2.3\nBATCH1\nPASS Xy7pq2\n/*\n",
     "db2 connect rexx": '/* REXX */\naddress tso\n"db2 connect to PRODDB user batch1 using Xy7pq2"\n',
     "db2 connect embedded sql": "       EXEC SQL CONNECT TO PRODDB USER BATCH1 USING 'Xy7pq2' END-EXEC.\n",
+    "db2 connect wrapped over lines": "       EXEC SQL CONNECT TO PRODDB\n           USER BATCH1\n           USING 'Xy7pq2'\n       END-EXEC.\n",
     "rexx literal next to user": "/* REXX */\nuserid = 'BATCH1'\npw = 'Xy7pq2'\n",
     "clist literal next to user": "PROC 0\nSET &USERID = BATCH1\nSET &PW = Xy7pq2\n",
 }
@@ -33,6 +34,8 @@ NEAR_MISS = {
     "ftp user only": "//FTPSTEP  EXEC PGM=FTP\n" + DD_FTP + "10.1.2.3\nUSER BATCH1\n/*\n",
     "ftp lines outside a data card": "USER BATCH1 Xy7pq2\nPASS Xy7pq2\n",
     "db2 host variable": "       EXEC SQL CONNECT TO :LOC USER :UID USING :PWD END-EXEC.\n",
+    "db2 wrapped host variable": "       EXEC SQL CONNECT TO :LOC\n           USER :UID\n           USING :PWD\n       END-EXEC.\n",
+    "db2 connect prose then unrelated lines": "The CONNECT TO step is manual.\nUSER guide pages follow.\nUSING the vault is required.\n",
     "db2 comment": "      * EXEC SQL CONNECT TO PRODDB USER BATCH1 USING 'Xy7pq2' END-EXEC.\n",
     "rexx comment": "/* REXX\n userid = 'BATCH1'\n pw = 'Xy7pq2'\n*/\nsay 'done'\n",
     "rexx empty and computed": "userid = 'BATCH1'\npw = ''\npw2 = value('PWENV')\n",

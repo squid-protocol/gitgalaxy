@@ -259,6 +259,7 @@ def calculate_api_drift(physical_endpoints: set, approved_apis: set) -> tuple:
 
 def main():
     from gitgalaxy.licensing import enforce_licensing_guard
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
     enforce_licensing_guard("Full API Network Map")
 
@@ -274,7 +275,9 @@ def main():
         action="store_true",
         help="Merge all discovered Swagger files together (useful for Microservice Monorepos)",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     source_path = Path(args.source).resolve()
 

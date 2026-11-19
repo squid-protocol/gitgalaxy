@@ -1,5 +1,5 @@
 {
- "commit": "4d3f5378f",
+ "commit": "6c19261d9",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,16 +976,16 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-19T21:27:13Z",
+  "as_of": "2026-11-19T21:39:32Z",
   "core": {
    "closed": 253,
-   "open": 11,
-   "total": 264
+   "open": 12,
+   "total": 265
   },
   "core_last_window": {
    "closed": 6,
-   "net_closed": 2,
-   "opened": 4
+   "net_closed": 1,
+   "opened": 5
   },
   "core_milestone": {
    "closed": 136,
@@ -1000,7 +1000,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "38 days",
+  "eta": "84 days",
   "frontier": {
    "closed": 131,
    "found_last_window": 5,
@@ -1014,8 +1014,8 @@
    "total": 63
   },
   "infra": {
-   "closed": 263,
-   "open": 30,
+   "closed": 264,
+   "open": 29,
    "total": 293
   },
   "measured": true,
@@ -1189,9 +1189,9 @@
     "total": 30
    },
    {
-    "closed": 22,
+    "closed": 23,
     "number": 27,
-    "open": 4,
+    "open": 3,
     "title": "Save Integrity \ud83d\udcbe \u2014 Same Code, Same Answer",
     "total": 26
    },
@@ -1233,9 +1233,9 @@
    {
     "closed": 1,
     "number": 33,
-    "open": 10,
+    "open": 11,
     "title": "Training Montage 2 \ud83c\udfcb\ufe0f \u2014 Prepping for Blind Draw 2",
-    "total": 11
+    "total": 12
    },
    {
     "closed": 33,

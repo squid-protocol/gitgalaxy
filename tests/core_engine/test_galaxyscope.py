@@ -3063,3 +3063,13 @@ class TestSyntheticSliceExclusion(unittest.TestCase):
         real = [f for f in functions if not f.get("is_synthetic_slice")]
         self.assertEqual(max(f["branch"] for f in real), 2, "max is over real functions")
         self.assertEqual(sum(f["branch"] for f in functions), 8, "file-level total keeps the bucket")
+
+
+def test_fail_on_malware_flag_is_gone_8430(capsys):
+    """#8430: the classifier is removed, so argparse refuses the flag instead of silently ignoring it."""
+    from gitgalaxy.galaxyscope import main
+
+    with patch("sys.argv", ["galaxyscope", ".", "--fail-on-malware"]), pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 2
+    assert "--fail-on-malware" in capsys.readouterr().err

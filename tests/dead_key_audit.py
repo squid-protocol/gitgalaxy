@@ -241,6 +241,8 @@ ALLOWLIST = {
     # there), not in a Python dict literal this walker can see.
     "author": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py)",
     "file_path": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py)",
+    "structural_mass": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py); #8430 removed the ML feature dict that used to spell it",
+    "silo_risk": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py); #8430 removed the ML feature dict that used to spell it",
     "src/hacked.py": "test fixture value inside state_rehydrator.py's own embedded test, not a real key",
     # --- Dynamically-keyed dicts (walker can't trace the indirection) ---
     # audit_recorder.py builds a dict keyed by each entry's own "label" value

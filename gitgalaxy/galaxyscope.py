@@ -2151,7 +2151,7 @@ class Orchestrator:
             loc_per_sec = int(total_loc / raw_duration) if raw_duration > 0 else 0
             duration = round(raw_duration, 2)
 
-            session_meta = {
+            session_meta: dict[str, Any] = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
                 "timestamp": datetime.now(UTC).isoformat(),
@@ -4219,7 +4219,7 @@ class Orchestrator:
             self._apply_threat_suppression(repository_graph)
             self._enforce_policy_gates(repository_graph)
 
-            session_meta = {
+            session_meta: dict[str, Any] = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
                 "timestamp": datetime.now(UTC).isoformat(),

@@ -25,7 +25,8 @@ tests/tools/box/mvs38j/mvs38j.sh stage     # lay conf/ jcl/ tape/ sajobs/ and th
 tests/tools/box/mvs38j/mvs38j.sh dasd starter   # empty DASD volumes of one stage (starter | dlibs | sysgen | user), via dasdinit in the image
 tests/tools/box/mvs38j/mvs38j.sh sysgen smp1 [--tape VOLSER=FILE ...]   # starter-system IPL, SMP jobs over the 3215 console (smp2 likewise)
 tests/tools/box/mvs38j/mvs38j.sh sysgen stage1    # sysgen00 (ICKDSF init of the target volumes) + sysgen01 (stage 1 assembly), then hetget of stage1.output
-tests/tools/box/mvs38j/mvs38j.sh sysgen stage2    # stage1.output -> jcl/stage2.jcl (Moseley's awk, ported), SYSGEN1..6 released one by one (code written; not yet run live)
+tests/tools/box/mvs38j/mvs38j.sh sysgen stage2    # stage1.output -> jcl/stage2.jcl (Moseley's awk, ported), SYSGEN1..6 released one by one (verified live 2026-11-19)
+tests/tools/box/mvs38j/mvs38j.sh sysgen stage3    # sysgen02..06, USERMODS, FDZ1D02 on the starter, condcode check, starter shutdown (verified live 2026-11-19)
 tests/tools/box/mvs38j/mvs38j.sh sysgen starter   # START1 + SPOOL0: DASDI then DUMP/RESTORE per volume, driven over the console (~11 s)
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
 tests/tools/box/mvs38j/mvs38j.sh start     # needs $MVS38J_WORK/conf/mvs.conf (the generated system)
@@ -107,6 +108,23 @@ console lines overrun the 3215 input buffer (`HHC02913E COMM: Buffer overrun` cl
 SYSGEN1). `STAGE2_EXPECTED`: only `SYSGEN6 STEPZ1` (IEHPROGM SCRATCH of `SYS1.NUCLEUS(SYSCATLG)`, `IEH207I` not found) ends CC 8; nine
 `LK` link-edit steps in SYSGEN1/2 end CC 4, within the bound; every other step ends CC 0. Re-running needs fresh volumes (SYSGEN1 creates the target datasets).
 
+`sysgen.py stage3` (verified live 2026-11-19 on the stage 2 volumes: 7 decks, 209 steps, none not executed, none over CC 4) is
+Moseley's "after stage 2" part (iSYSGENv8.htm, fetched 2026-11-19). It runs on the **starter** system, not on an IPL of the generated
+one: it IPLs the starter with `conf/sysgen.cnf`, attaches and varies the target volumes online (as stage 2), and feeds `sysgen02`,
+`sysgen03`, `sysgen04`, `sysgen05`, `sysgen06`, `usermods` and `fdz1d02` through the reader at 00C in that order, then shuts down
+(`$p jes2`, `z eod`, `quiesce`, Hercules `quit`). Each deck is done when its `$HASP395 ENDED` lines have appeared: 1, 1, **2**
+(sysgen04 submits a continuation job of the same name), 1, 1, **7** (USERMODS is seven jobs in one file), **2** (FDZ1D02 builds and
+submits its second job). Tapes are answered by the volser the deck names (`DD ... VOL=SER=`): `PVTMAC` -> `tape/apvtmacs.het`,
+`SMPPTF` -> `tape/usermods.het`, `MVS38J` -> `tape/dz1d02.het` (it overrides `DEFAULT_TAPES`' `zdlib1`); sysgen04's `IEC507D REPLY 'U'`
+is answered by the existing `USE_ASK_RE`. `STAGE3_EXPECTED` is empty: no step is allowed above CC 4 (Moseley lists CC 4 for sysgen06's
+HMASMP and four USERMODS link-edit steps). It takes about 25 min (`usermods` alone ~7 min); it changes the volumes, so keep a copy of
+`$MVS38J_WORK/dasd` before running (there is no re-run without fresh volumes). Trap found live: the shutdown wait patterns were first
+guessed (`$HASP085`) and timed out after every deck had passed; the real lines (`IEF142I JES2 JES2 - STEP WAS EXECUTED` after
+`$p jes2`, `IEE334I HALT EOD SUCCESSFUL` after `z eod`) were read from a second starter IPL over the finished volumes and pinned in
+`JES2_STOPPED_RE` / `EOD_DONE_RE`. **Not verified in one continuous run:** the decks ran in one run, the corrected shutdown in the
+second IPL; `quiesce` prints nothing. The first IPL of the generated system (`conf/mvs.cnf`) is the next page of Moseley's guide
+("Customizing Your New MVS 3.8 System") and is not built.
+
 ## Job runner
 
 `tests/tools/box/mvs38j/runner.py` (stdlib, host side; **fixture-tested only, not yet run against a live 3.8J log**) is
@@ -123,9 +141,7 @@ Results are internal only (Q16).
 ### Remaining slices (#8414)
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
-2. `sysgen02..06` (`PVTMAC` tape), the user mods (`SMPPTF`), FDZ1D02 (its `MVS38J`
-   volser clashes with `DEFAULT_TAPES`: needs `--tape MVS38J=tape/dz1d02.het`), the starter shutdown, the user mods and the `mvs.cnf` first
-   IPL of the generated system, the socket reader on 3505.
+2. The first IPL of the generated system (`conf/mvs.cnf`, socket reader on 3505) and Moseley's "Customizing MVS" page; `mvs38j.sh start` / `run` against it.
 3. Probe run: the era-compatible IBM-written scenarios through `mvs38j.sh run`, once the generated system IPLs; confirm the
    runner's message patterns against a live log; merge `sysgen.step_results` onto `runner.parse_log`.
 

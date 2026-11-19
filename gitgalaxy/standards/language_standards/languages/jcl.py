@@ -27,7 +27,7 @@ DEFINITION: dict[str, Any] = {
     # #5089: `.idcams` is the IDCAMS SYSIN member a job runs (walmartlabs/zECS
     # `Source/ZECSFILE.idcams`, DEFINE CLUSTER with install symbols); it reads through the
     # jcl dialect's `vsam_defines`, which takes raw IDCAMS text without `//` cards.
-    "extensions": [".jcl", ".prc", ".idcams"],
+    "extensions": [".jcl", ".prc", ".proc", ".idcams"],
     "exact_matches": [],
     "discriminators": [".cbl", ".cob", ".cpy"],
     # #7064: an extensionless PDS member under `PAYR.JCL/`, `PAYR.CNTL/`, `SYS1.PROCLIB/` or `PAYR.PROC/` (see

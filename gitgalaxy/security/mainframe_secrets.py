@@ -84,24 +84,43 @@ def _code_lines(text: str) -> list[str]:
     return out
 
 
-def mainframe_secret_hits(text: str) -> int:
-    """How many mainframe credential shapes `text` holds (0 for a clean or non-mainframe file)."""
+# Languages whose files `SecurityLens` reads these shapes in: the JCL / PROC and REXX profiles, and COBOL for an
+# embedded Db2 CONNECT. The snippet never holds the value: it names the shape.
+MAINFRAME_SECRET_LANGUAGES = frozenset({"jcl", "rexx", "cobol"})
+
+
+def mainframe_secret_sites(text: str) -> list[tuple[int, int, str]]:
+    """Each mainframe credential shape in `text` as (1-indexed line, 1-indexed column, redacted label); [] when clean."""
     lines = _code_lines(text)
-    hits = 0
+    sites: list[tuple[int, int, str]] = []
     in_stream = False
     user_lines = [i for i, ln in enumerate(lines) if _REXX_USER.search(ln) or _CLIST_USER.search(ln)]
+
+    def add(i: int, m: "re.Match[str] | None", label: str) -> None:
+        if m:
+            sites.append((i + 1, m.start() + 1, f"{label} [REDACTED]"))
+
     for i, ln in enumerate(lines):
         if _JCL_STATEMENT.match(ln):
             in_stream = bool(_INSTREAM_START.match(ln))
-            hits += bool(_JCL_PASSWORD.search(ln)) + bool(_JCL_PARM_PASSWORD.search(ln))
+            add(i, _JCL_PASSWORD.search(ln), "JCL PASSWORD=")
+            add(i, _JCL_PARM_PASSWORD.search(ln), "JCL PARM= password")
             continue
         if ln.startswith("/*"):
             in_stream = False
-        elif in_stream and (_FTP_USER_PW.match(ln) or _FTP_PASS.match(ln)):
-            hits += 1
+        elif in_stream and (m := _FTP_USER_PW.match(ln) or _FTP_PASS.match(ln)):
+            add(i, m, "in-stream FTP login")
             continue
-        literal_pw_near_user = (_REXX_PW.search(ln) or _CLIST_PW.search(ln)) and any(
-            abs(u - i) <= _USER_WINDOW for u in user_lines
-        )
-        hits += bool(_DB2_CONNECT.search(ln) or literal_pw_near_user)
-    return hits
+        m = _DB2_CONNECT.search(ln)
+        if m:
+            add(i, m, "Db2 CONNECT ... USING")
+            continue
+        m = _REXX_PW.search(ln) or _CLIST_PW.search(ln)
+        if m and any(abs(u - i) <= _USER_WINDOW for u in user_lines):
+            add(i, m, "literal password next to a user ID")
+    return sites
+
+
+def mainframe_secret_hits(text: str) -> int:
+    """How many mainframe credential shapes `text` holds (0 for a clean or non-mainframe file)."""
+    return len(mainframe_secret_sites(text))

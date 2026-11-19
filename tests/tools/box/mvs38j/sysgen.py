@@ -5,16 +5,19 @@ Internal use only until counsel answers Q16. Stdlib only; runs on the host and s
 (`docker run -i`), feeding it commands on stdin and reading its log (which carries the integrated 1052-C console) on
 stdout. Stages are small functions over `Hercules`; each one checks the messages and PSW the guide documents and raises
 `SysgenError` rather than carry on. Implemented: `starter` (the two stand-alone programs per volume) and `smp1` / `smp2` (starter-system
-IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). `stage3` (sysgen02..06, the user mods, FDZ1D02, shutdown of the starter). Not yet: the first IPL of the generated system: see docs/jcl_oracle_mvs38j.md "Remaining slices".
+IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). `stage3` (sysgen02..06, the user mods, FDZ1D02, shutdown of the starter). `ipl` (the first IPL of the generated system over the 009 console, with an optional probe deck). Not yet: Moseley's "Customizing MVS" page: see docs/jcl_oracle_mvs38j.md "Remaining slices".
 
     sysgen.py starter [--work DIR] [--image IMG] [--name NAME]
     sysgen.py smp1|smp2|stage1|stage2|stage3 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
+    sysgen.py ipl [--work DIR] [--image IMG] [--name NAME] [--probe DECK]
     sysgen.py condcode PRINTER_FILE JOB|ALL [--expect STEP=CC ...]
 """
 
 import argparse
+import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -22,7 +25,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # run as `python3 -I`: the script dir is not on the path
-import console as telnet_console  # noqa: E402
+import console as telnet_console
 
 DEFAULT_WORK = "/srv/storage_16tb/projects/gitgalaxy/mvs38j"
 PSW_RE = re.compile(r"HHC02278I Processor CP\d+ PSW: ([0-9A-F]{8}) ([0-9A-F]{8})")
@@ -40,8 +43,9 @@ class SysgenError(RuntimeError):
 class Hercules:
     """One Hercules process in the box image, with its log collected on a thread."""
 
-    def __init__(self, work, conf, image, name, user=None, console_port=None):
+    def __init__(self, work, conf, image, name, user=None, console_port=None, publish=()):
         self.work, self.conf, self.image, self.name = Path(work), conf, image, name
+        self.publish = tuple(publish)  # more loopback-only ports to publish (the card reader socket, 3505)
         self.console_port = console_port  # publish the telnet 3215 console (loopback only) when set
         self.user = user or f"{os.getuid()}:{os.getgid()}"
         self.lines = []
@@ -52,6 +56,8 @@ class Hercules:
         cmd = ["docker", "run", "--rm", "-i", "--name", self.name, "--user", self.user, "-v", f"{self.work}:/mvs"]
         if self.console_port:
             cmd[3:3] = ["-p", f"127.0.0.1:{self.console_port}:3270"]
+        for port in self.publish:
+            cmd[3:3] = ["-p", f"127.0.0.1:{port}:{port}"]
         cmd += ["-w", "/mvs", "--entrypoint", "hercules", self.image, "-f", self.conf, "--daemon"]
         self.proc = subprocess.Popen(  # noqa: S603
             cmd,
@@ -584,6 +590,164 @@ def stage3(work, image, name, tapes, port=3270, job_timeout=3600):
         herc.quit()
 
 
+# Moseley's "IPL the MVS System" page (iCUSTv8, read 2026-11-19) and what this box printed live the same day: `ipl 150`;
+# IEA101A -> `r 0,clpa`; IFB010D -> `r 0,u`; $HASP426 -> `r 1,format,noreq`; $HASP479 -> `r 2,y`; $HASP436 -> `r 3,y`; the IPL is
+# done at `$HASP099 ALL AVAILABLE FUNCTIONS COMPLETE`. SYSC.LINKLIB / SYSC.PROCLIB live on SYSCPK: without it the IPL stops at
+# IEA317A (a blank 3350 of that volser is refused as an unacceptable unit), so the real volume is needed (a 3350 image).
+SYSCPK_ARCHIVE = "dl/SYSCPK/SYSCPK.tar.gz"
+SYSCPK_IMAGE = "dl/SYSCPK/x/dasd/syscpk.3350"
+IPL_REPLIES = (  # (message pattern, reply)
+    (r"IEA101A", "r 0,clpa"),
+    (r"\*(\d+)\s+IFB010D", "r {id},u"),
+    (r"\*(\d+)\s+\$HASP426", "r {id},format,noreq"),
+    (r"\*(\d+)\s+\$HASP479", "r {id},y"),
+    (r"\*(\d+)\s+\$HASP436", "r {id},y"),
+)
+# Warm IPL (Moseley iNORMv8, read 2026-11-19): $HASP426 -> `r 1,noreq` keeps the JES2 queues as the last shutdown left them;
+# `format` is for the first IPL (it also draws the two checkpoint-reset prompts). A marker file records the first IPL.
+IPL_DONE_MARKER = "ipl.done"
+IPL_READY_RE = r"\$HASP099\s+ALL AVAILABLE FUNCTIONS COMPLETE"
+IPL_FATAL_RE = re.compile(r"IEA317A|IEA3\d\dI.*UNACCEPTABLE|IEA\d{3}W|\bWAIT STATE\b|HHC00828E")
+
+
+def ipl_conf(work):
+    """Write `conf/mvs.conf` (the file `mvs38j.sh start` and the image's CMD read) from Moseley's `conf/mvs.cnf`: the 1052-C
+    at 009 takes `/` commands from the Hercules console (no tn3270 client), so the 3270 master console at 010 is commented
+    out. Idempotent; returns the conf path relative to `work`."""
+    src, dst = Path(work) / "conf/mvs.cnf", Path(work) / "conf/mvs.conf"
+    if not src.is_file():
+        raise SysgenError(f"{src} missing: run mvs38j.sh stage first")
+    out = []
+    for line in src.read_text().splitlines():
+        if re.match(r"0010\s+3270\s+console", line):
+            line = "#" + line
+        elif re.match(r"#0009\s+3215-C\s+/", line):
+            line = line[1:]
+        out.append(
+            re.sub(r"^(000C\s+3505\s+)localhost:3505\b", r"\g<1>3505", line)
+        )  # bind every interface: docker's publish needs it
+    dst.write_text("\n".join(out) + "\n")
+    return "conf/mvs.conf"
+
+
+def ipl_replies(warm):
+    """IPL_REPLIES, with the JES2 start reply `noreq` (warm) instead of `format,noreq` (first IPL)."""
+    return tuple((p, r.replace(",format,noreq", ",noreq") if warm else r) for p, r in IPL_REPLIES)
+
+
+def ipl_system(herc, timeout=600, warm=False):
+    """Drive the first IPL of the generated system: `ipl 150`, the console replies in IPL_REPLIES as each message appears,
+    until the JES2-ready line. Returns the log mark taken before the IPL. A fatal wait or IEA317A raises."""
+    since = herc.mark()
+    herc.send("ipl 150")
+    replies = ipl_replies(warm)
+    patterns = [re.compile(p) for p, _ in replies]
+    done, end, i = set(), time.monotonic() + timeout, since
+    ready = re.compile(IPL_READY_RE)
+    while time.monotonic() < end:
+        with herc._cv:
+            lines = herc.lines[i:]
+            i = len(herc.lines)
+        for ln in lines:
+            if ready.search(ln):
+                return since
+            if IPL_FATAL_RE.search(ln):
+                raise SysgenError(f"ipl: {ln.strip()}")
+            for k, (rx, (_, reply)) in enumerate(zip(patterns, replies, strict=True)):
+                m = rx.search(ln)
+                if m and k not in done:
+                    done.add(k)
+                    herc.send("/" + reply.format(id=m.group(1) if m.groups() else ""))
+        time.sleep(0.5)
+    raise SysgenError(f"ipl: no {IPL_READY_RE} within {timeout}s; replies given: {sorted(done)}")
+
+
+def shutdown_system(herc):
+    """`$p jes2`, `z eod`, `quiesce` on the 009 console, then Hercules `quit` (the generated system's JES2 stop message)."""
+    since = herc.mark()
+    herc.send("/$p jes2")
+    herc.wait(JES2_STOPPED_RE + r"|\$HASP085|\$HASP099", 300, since)
+    herc.send("/z eod")
+    herc.wait(EOD_DONE_RE, 300, since)
+    herc.send("/quiesce")
+    time.sleep(10)
+
+
+def ipl(work, image, name, probe=None, job_timeout=90):
+    """The first IPL of the generated system (needs the stage 3 volumes and SYSCPK in `dasd/`), reaching the JES2-ready line.
+    With `probe` (a JCL deck), submit it through the card reader socket (3505, published on the loopback) with the
+    runner and print its parsed log, and check the runner's patterns against the live console log. Then shut down."""
+    if not (Path(work) / "dasd/mvsres.3350").is_file():
+        raise SysgenError(f"{work}/dasd/mvsres.3350 missing: run the sysgen stages first")
+    syscpk = Path(work) / "dasd/syscpk.3350"
+    if not syscpk.is_file():
+        src = Path(work) / SYSCPK_IMAGE
+        if not src.is_file():
+            raise SysgenError(f"{syscpk} missing: run `mvs38j.sh tapes` (downloads SYSCPK) first")
+        shutil.copyfile(src, syscpk)
+    conf = ipl_conf(work)
+    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    try:
+        marker = Path(work) / IPL_DONE_MARKER
+        since = ipl_system(herc, warm=marker.exists())
+        marker.write_text("first IPL done; later IPLs are warm (JES2 reply noreq)\n")
+        print(f"ipl: JES2 ready ({len(herc.lines) - since} log lines)")
+        if probe:
+            probe_deck(herc, work, conf, probe, job_timeout)
+        shutdown_system(herc)
+    except SysgenError:
+        print("ipl: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        herc.quit()
+
+
+ACCT_RE = re.compile(r"IEFACTRT\s+(\S+)\s+/[^/]*/[^/]*/[^/]*/(\d{5})/(\S+)")
+
+
+def live_steps(lines, job):
+    """(step, condition code) of every `IEFACTRT` step-accounting line the console printed for `job`: the live log carries
+    these, not the IEF142I the printer listing has."""
+    out = set()
+    for ln in lines:
+        m = ACCT_RE.search(ln)
+        if m and m.group(3) == job:
+            out.add((m.group(1), int(m.group(2))))
+    return out
+
+
+def probe_deck(herc, work, conf, deck, timeout):
+    """Submit `deck` through the socket reader and compare the runner's reading of the printer file with the live console."""
+    import runner
+
+    first = Path(deck).read_text().splitlines()[0]
+    m = re.match(r"//(\S+)\s+JOB\b", first)
+    if not m:
+        raise SysgenError(f"{deck}: the first card must be '//NAME JOB ...'")
+    job, printed = m.group(1), printer_file(work, conf)
+    before = printed.stat().st_size if printed.exists() else 0
+    since = herc.mark()
+    runner.submit(deck)
+    try:
+        herc.wait(rf"\$HASP395\s+{re.escape(job)}\s+ENDED", timeout, since)
+    except SysgenError:
+        herc.send("devlist 00c")  # what the reader and JES2 say, for the failure tail
+        herc.send("/$d rdr1")
+        time.sleep(5)
+        raise
+    if not runner.wait_for_job(printed, job, 60, before):
+        raise SysgenError(f"probe: {job} ended on the console but never in {printed}")
+    text = printed.read_bytes()[before:].decode("utf-8", "backslashreplace")
+    parsed = runner.parse_log(text, job)
+    mine = {(s["step"], s["cond_code"]) for j in parsed["jobs"] for s in j["steps"]}
+    seen = live_steps(herc.lines[since:], job)
+    print(json.dumps({"printer": parsed, "live_steps": sorted(map(list, seen))}, indent=1, default=str))
+    if mine != seen:
+        raise SysgenError(
+            f"probe: runner read steps {sorted(mine)} from the printer, the live log shows {sorted(seen)}"
+        )
+
+
 def hetget(work, image, name, het, out, fileno):
     """Extract file `fileno` of a tape image as ASCII text into `work/out` with the image's `hetget -a`."""
     cmd = ["docker", "run", "--rm", "--name", f"{name}-hetget", "--user", f"{os.getuid()}:{os.getgid()}"]
@@ -657,6 +821,11 @@ def main(argv=None):
         sp.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
         sp.add_argument("--port", type=int, default=3270)
         sp.add_argument("--tape", action="append", default=[], metavar="VOLSER=FILE")
+    ip = sub.add_parser("ipl")
+    ip.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
+    ip.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
+    ip.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
+    ip.add_argument("--probe", metavar="DECK")
     cc = sub.add_parser("condcode")
     cc.add_argument("printer_file")
     cc.add_argument("job")
@@ -665,6 +834,9 @@ def main(argv=None):
     try:
         if args.cmd == "starter":
             starter(args.work, args.image, args.name)
+            return 0
+        if args.cmd == "ipl":
+            ipl(args.work, args.image, args.name, args.probe)
             return 0
         if args.cmd in ("smp1", "smp2", "stage1", "stage2", "stage3"):
             tapes = dict(t.split("=", 1) for t in args.tape)

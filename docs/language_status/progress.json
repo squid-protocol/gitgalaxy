@@ -1,5 +1,5 @@
 {
- "commit": "9fcf8f23e",
+ "commit": "29423b000",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-19T09:12:06Z",
+  "as_of": "2026-11-19T10:43:48Z",
   "core": {
    "closed": 253,
    "open": 11,
@@ -1014,8 +1014,8 @@
    "total": 63
   },
   "infra": {
-   "closed": 260,
-   "open": 33,
+   "closed": 261,
+   "open": 32,
    "total": 293
   },
   "measured": true,
@@ -1224,9 +1224,9 @@
     "total": 52
    },
    {
-    "closed": 16,
+    "closed": 17,
     "number": 32,
-    "open": 5,
+    "open": 4,
     "title": "Trust But Verify \ud83d\udee1\ufe0f \u2014 Security Claims vs Evidence",
     "total": 21
    },

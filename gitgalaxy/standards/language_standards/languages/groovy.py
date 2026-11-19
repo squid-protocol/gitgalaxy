@@ -310,7 +310,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK ENGINE (Structural Integrity) ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # C1: Optional is a type name; @Immutable is not runtime validation (twin of java.py).
         "safety": re.compile(r"\b(try|catch|finally|assert|instanceof)\b|@(?:Valid|Validated|NotNull|NonNull)"),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)

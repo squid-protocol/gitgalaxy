@@ -94,7 +94,7 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Hardening the container. Dropping root privileges (`USER nonroot`), explicit `HEALTHCHECK`,
         # setting explicit shell crash flags (`set -e`), and safe file ownership (`--chown`).
         "safety": re.compile(

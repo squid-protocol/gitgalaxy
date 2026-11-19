@@ -1984,10 +1984,12 @@ def _java_run(
     trunc_std: bool = False,
     trunc_opt: bool = False,
     arith_extend: bool = False,
+    numproc_pfd: bool = False,
 ) -> str:
     """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), `trunc_opt` under
     TRUNC(OPT) (STD with Cobol.setTruncOpt's stop, #4706), else TRUNC(BIN) as `cobc -std=ibm` alone; `arith_extend`
-    under ARITH(EXTEND) (Cobol.swapArithExtend's stop on a 30-digit intermediate, #4706)."""
+    under ARITH(EXTEND) (Cobol.swapArithExtend's stop on a 30-digit intermediate, #4706); `numproc_pfd` under
+    NUMPROC(PFD) (Cobol.swapNumprocPfd: a non-preferred sign is refused by name, #8412)."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (work / f"{name}.cbl").write_text(src)
@@ -2007,6 +2009,7 @@ def _java_run(
     trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
     trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
     trunc += f"{PKG}.cobolrt.Cobol.swapArithExtend(true); " if arith_extend else ""
+    trunc += f"{PKG}.cobolrt.Cobol.swapNumprocPfd(true); " if numproc_pfd else ""
     main_java = srcdir / "Main.java"
     main_java.write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
                          f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip

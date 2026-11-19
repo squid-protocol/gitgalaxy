@@ -32,6 +32,7 @@ _DRIVER = (
     "    print('RC', e.code or 0)\n"
 )
 
+
 def _env(**extra):
     env = dict(os.environ, PYTHONPATH=str(REPO), GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER")
     env.pop("GITGALAXY_OFFLINE", None)

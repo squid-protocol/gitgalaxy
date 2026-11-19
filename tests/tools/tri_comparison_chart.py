@@ -193,6 +193,7 @@ _GG_ONLY_LANGS = (
     "agc_assembly",
     "assembly",
     "bms",
+    "clist",
     "cobol",
     "csd",
     "db2_sql",

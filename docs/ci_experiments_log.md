@@ -51,6 +51,17 @@ the leg timeouts (28 min) cover run time, not queue wait, and a longer timeout w
 Sample: two runs, one SHA, 2026-11-04. Follow-up: if unassigned macOS legs recur on several SHAs, measure macOS
 queue wait per run before cutting macOS legs.
 
+## 2026-11-19 OS Smoke Grid red from an unassigned macOS leg (#8673)
+
+### Second sample of macOS legs that never got a runner — `measured; watcher wording fixed`
+Question: is OS Smoke Grid run 44540996202 (sha da739bbd0454, nightly) a code failure? Method: the attempt-1 jobs API.
+Result: no. `smoke-test (macos-latest, 3.11)` was `cancelled` after 15 min (the job timeout) with an empty `steps` list: no
+runner took it. The other five legs passed in about 1 min; attempt 2 passed all six. Same shape as #7719 (Full Suite Gate,
+2026-11-04), so the #7719 follow-up trigger (recurs on several SHAs) is met across two workflows. Change: `main_watch.py`
+labels a cancelled leg with no steps "never got a runner" instead of offering a hang as the cause; the workflow is
+unchanged (a job timeout covers run time, not queue wait). Sample: two runs, two workflows. Next: measure macOS queue
+wait per run before cutting macOS legs.
+
 ## 2026-11-04 merge queue re-check for red main
 
 ### Re-run the repo-wide guards in a merge queue — `open PR` (off until the ruleset enables it)

@@ -393,7 +393,8 @@ def _baseline_classes(port: Path, out: Path) -> str:
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
     if not Path(javac).is_file():
         pytest.skip("javac unavailable")
-    subprocess.run([javac, "-d", str(out), *[str(p) for p in sorted(port.rglob("*.java"))]], check=True, env=env)
+    sources = [str(p) for p in sorted(port.rglob("*.java"))]
+    subprocess.run([javac, "-encoding", "UTF-8", "-d", str(out), *sources], check=True, env=env)
     return str(out)
 
 

@@ -1,5 +1,5 @@
 {
- "commit": "489e7f8a9",
+ "commit": "ffa3d7be8",
  "components": {
   "capabilities": {
    "groups": [
@@ -247,13 +247,13 @@
      "unit": ""
     },
     {
-     "done": 93,
+     "done": 97,
      "found": "",
      "group": "Batch",
      "have": "run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers",
      "name": "JCL step flow",
      "note": "answers written from IBM's JCL Reference before the evaluator ran",
-     "of": 93,
+     "of": 97,
      "state": "works",
      "unit": "IBM-written scenarios"
     },
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-19T21:45:23Z",
+  "as_of": "2026-11-19T22:24:54Z",
   "core": {
    "closed": 253,
    "open": 12,
@@ -1015,8 +1015,8 @@
   },
   "infra": {
    "closed": 264,
-   "open": 29,
-   "total": 293
+   "open": 30,
+   "total": 294
   },
   "measured": true,
   "milestones": [
@@ -1168,9 +1168,9 @@
     "total": 22
    },
    {
-    "closed": 16,
+    "closed": 17,
     "number": 24,
-    "open": 3,
+    "open": 2,
     "title": "Class Change \ud83d\udd04 \u2014 COBOL Becomes Java",
     "total": 19
    },
@@ -1254,16 +1254,16 @@
    {
     "closed": 60,
     "number": 36,
-    "open": 10,
+    "open": 11,
     "title": "Pit Crew \ud83d\udd27 \u2014 CI, Shepherd & the Churn Factory",
-    "total": 70
+    "total": 71
    },
    {
     "closed": 21,
     "number": 37,
-    "open": 3,
+    "open": 4,
     "title": "Friendly Fire \ud83c\udfaf \u2014 Signal Misfires",
-    "total": 24
+    "total": 25
    },
    {
     "closed": 17,
@@ -1291,7 +1291,7 @@
     "total": 146
    },
    "cobol": {
-    "closed": 146,
+    "closed": 147,
     "total": 157
    }
   },

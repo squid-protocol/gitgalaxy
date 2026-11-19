@@ -16,8 +16,10 @@ from typing import Any, TypedDict
 
 from gitgalaxy.core.dense_source import has_dense_definitions, is_dense_source
 from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
-from gitgalaxy.core.source_text import decode_bytes, open_source
+from gitgalaxy.core.source_text import _RDW_SAMPLE, decode_bytes, open_source, rdw_framing
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+RDW_READ = _RDW_SAMPLE + 1  # one byte past the sniff's sample, so a longer file reads as cut
 
 # ==============================================================================
 # GitGalaxy Phase 0.1: Ingestion & Filtering (The Aperture Filter)
@@ -747,6 +749,8 @@ class ApertureFilter:
             result["total_loc"] = integrity["loc"]
 
             if not integrity["valid"]:
+                if integrity["reason"] == "Blocked (Binary Format Detected)":
+                    integrity["reason"] = self._name_rdw_export(path_obj) or integrity["reason"]
                 result.update({"classification": integrity["classification"], "reason": integrity["reason"]})
                 self._log_exclusion(relative_path, result["reason"])
                 return result
@@ -759,6 +763,23 @@ class ApertureFilter:
             self.logger.error(f"Filter Collision on '{relative_path}': {e!s}")
             result["reason"] = f"Internal Exception: {e!s}"
             return result
+
+    @staticmethod
+    def _name_rdw_export(path_obj: Path) -> str | None:
+        """#8412: the refusal reason for a file dropped as binary that is really a RECFM=V / VB export
+        (RDW or BDW+RDW length prefixes), else None. Names it; never decodes it."""
+        try:
+            with open(path_obj, "rb") as f:
+                head = f.read(RDW_READ)
+        except OSError:
+            return None
+        framing = rdw_framing(head)
+        if framing is None:
+            return None
+        return (
+            f"Blocked (RECFM=V export: {framing.upper()} length-prefixed records; "
+            "download the member as text or convert it to RECFM=F/FB)"
+        )
 
     def _check_artifact_integrity(
         self, content: str, rel_path: str, has_intent: bool = False, port: bool = False

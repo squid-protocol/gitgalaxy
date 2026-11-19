@@ -436,11 +436,6 @@ def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]
         ind = line[6]
         if ind in "*/Dd":
             continue
-        if "\t" in line[:7]:  # #8412: a tab in the sequence area / indicator column shifts every column after it
-            raise SourceFormatRefused(
-                f"{where}: a tab character in columns 1-7 of a fixed-form code line: IBM reads no tab stops "
-                "(a GnuCOBOL / Micro Focus extension), so the columns are not known (refused by name)"
-            )
         body = line[7:72]
         if ind == "-" and out:
             prev = out[-1]

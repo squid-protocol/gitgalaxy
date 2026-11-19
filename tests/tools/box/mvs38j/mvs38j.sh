@@ -56,9 +56,20 @@ case "$1" in
     stage=$2; shift 2
     MVS38J_WORK="$WORK" MVS38J_IMAGE="$IMAGE" MVS38J_NAME="$NAME" exec python3 -I "$HERE/sysgen.py" "$stage" "$@" ;;
   start)
-    [ -f "$WORK/conf/mvs.conf" ] || { echo "no $WORK/conf/mvs.conf: generate the system first" >&2; exit 1; }
-    # the card reader is a socket device on the loopback only; jobs are submitted through it
-    docker run -d --rm --name "$NAME" -p 127.0.0.1:3505:3505 -p 127.0.0.1:3270:3270 -v "$WORK:/mvs" "$IMAGE" ;;
+    # IPL the generated system (warm after the first IPL) in a resident driver, `sysgen.py serve`; returns once JES2 is ready.
+    # The card reader is a socket device on the loopback only (3505); jobs are submitted through it by `run`.
+    [ -f "$WORK/conf/mvs.cnf" ] || { echo "no $WORK/conf/mvs.cnf: generate the system first" >&2; exit 1; }
+    [ ! -f "$WORK/box.pid" ] || { echo "box already running (pid $(cat "$WORK/box.pid"))" >&2; exit 1; }
+    rm -f "$WORK/box.ready"
+    MVS38J_WORK="$WORK" MVS38J_IMAGE="$IMAGE" MVS38J_NAME="$NAME" nohup python3 -I "$HERE/sysgen.py" serve \
+      > "$WORK/box.log" 2>&1 < /dev/null &
+    drv=$!
+    for _ in $(seq 1 900); do
+      [ -f "$WORK/box.ready" ] && { echo "box ready (pid $(cat "$WORK/box.pid"))"; exit 0; }
+      kill -0 "$drv" 2>/dev/null || { echo "box failed to start:" >&2; tail -20 "$WORK/box.log" >&2; exit 1; }
+      sleep 1
+    done
+    echo "box not ready after 900 s: see $WORK/box.log" >&2; exit 1 ;;
   run)
     # submit one JCL deck through the card reader of a started box and print the parsed JES2 job log as JSON
     # (runner.py, provenance mvs38j-run). The printer file defaults to the first 1403 of conf/mvs.conf.
@@ -75,8 +86,13 @@ case "$1" in
     esac
     exec python3 -I "$HERE/runner.py" submit "$deck" "$@" ;;
   stop)
-    docker stop "$NAME" ;;
+    # SIGTERM the resident driver: it stops JES2, quiesces and quits Hercules (a clean shutdown keeps the next IPL warm)
+    [ -f "$WORK/box.pid" ] || { echo "box not running" >&2; exit 1; }
+    pid=$(cat "$WORK/box.pid"); kill "$pid"
+    for _ in $(seq 1 400); do kill -0 "$pid" 2>/dev/null || { echo "box stopped"; exit 0; }; sleep 1; done
+    echo "box still running after 400 s (pid $pid)" >&2; exit 1 ;;
   status)
+    [ -f "$WORK/box.ready" ] && echo "box ready (pid $(cat "$WORK/box.pid"))" || echo "box not ready"
     docker ps --filter "name=$NAME" --format '{{.Names}} {{.Status}}'
     for t in "${TAPES[@]}"; do read -r f _ <<<"$t"; [ -f "$WORK/dl/${f%.tar.gz}/$f" ] && echo "tape ok: $f" || echo "tape missing: $f"; done ;;
   *) usage ;;

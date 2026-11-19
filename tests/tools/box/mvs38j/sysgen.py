@@ -10,6 +10,7 @@ IPL over the telnet 3215 console, jobs through the card reader at 00C, tape moun
     sysgen.py starter [--work DIR] [--image IMG] [--name NAME]
     sysgen.py smp1|smp2|stage1|stage2|stage3 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
     sysgen.py ipl [--work DIR] [--image IMG] [--name NAME] [--probe DECK]
+    sysgen.py serve [--work DIR] [--image IMG] [--name NAME]   # resident box for mvs38j.sh start/stop
     sysgen.py condcode PRINTER_FILE JOB|ALL [--expect STEP=CC ...]
 """
 
@@ -702,6 +703,45 @@ def ipl(work, image, name, probe=None, job_timeout=90):
         herc.quit()
 
 
+SERVE_READY, SERVE_PID = "box.ready", "box.pid"
+
+
+def serve(work, image, name, ready_timeout=900):
+    """The resident box behind `mvs38j.sh start`: IPL the generated system (warm after the first IPL), write `box.ready`,
+    keep Hercules running (the card reader socket on 127.0.0.1:3505) until SIGTERM/SIGINT, then shut the system down
+    cleanly. The host process stays because Hercules' console is its stdin pipe."""
+    import signal
+
+    work = Path(work)
+    for f in (SERVE_READY, SERVE_PID):
+        (work / f).unlink(missing_ok=True)
+    if not (work / "dasd/mvsres.3350").is_file() or not (work / "dasd/syscpk.3350").is_file():
+        raise SysgenError(f"{work}/dasd lacks the generated system: run `mvs38j.sh sysgen ipl` first")
+    conf = ipl_conf(work)
+    stop = threading.Event()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, lambda *_: stop.set())
+    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    try:
+        marker = work / IPL_DONE_MARKER
+        ipl_system(herc, timeout=ready_timeout, warm=marker.exists())
+        marker.write_text("first IPL done; later IPLs are warm (JES2 reply noreq)\n")
+        (work / SERVE_PID).write_text(f"{os.getpid()}\n")
+        (work / SERVE_READY).write_text("JES2 ready\n")
+        print("serve: JES2 ready; card reader on 127.0.0.1:3505", flush=True)
+        while not stop.is_set() and herc.proc.poll() is None:
+            stop.wait(1.0)
+        if herc.proc.poll() is None:
+            shutdown_system(herc)
+    except SysgenError:
+        print("serve: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        herc.quit()
+        for f in (SERVE_READY, SERVE_PID):
+            (work / f).unlink(missing_ok=True)
+
+
 ACCT_RE = re.compile(r"IEFACTRT\s+(\S+)\s+/[^/]*/[^/]*/[^/]*/(\d{5})/(\S+)")
 
 
@@ -826,6 +866,10 @@ def main(argv=None):
     ip.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
     ip.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
     ip.add_argument("--probe", metavar="DECK")
+    sv = sub.add_parser("serve")
+    sv.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
+    sv.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
+    sv.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j"))
     cc = sub.add_parser("condcode")
     cc.add_argument("printer_file")
     cc.add_argument("job")
@@ -834,6 +878,9 @@ def main(argv=None):
     try:
         if args.cmd == "starter":
             starter(args.work, args.image, args.name)
+            return 0
+        if args.cmd == "serve":
+            serve(args.work, args.image, args.name)
             return 0
         if args.cmd == "ipl":
             ipl(args.work, args.image, args.name, args.probe)

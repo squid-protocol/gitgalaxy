@@ -575,3 +575,56 @@ def test_live_steps_reads_the_console_step_accounting_lines():
         "19:09:24 / $HASP395 GGPROBE  ENDED",
     ]
     assert sysgen.live_steps(lines, "GGPROBE") == {("S1", 0), ("S2", 8)}
+
+
+# --- a started box: `start` / `run` / `stop` and the runner's patterns, read from a live 3.8J job log (2026-11-19) ---
+import runner  # noqa: E402
+
+LIVE_JCLERR = (
+    "14.23.20 JOB    6  IEF452I JEJOB    JOB NOT RUN - JCL ERROR\n"
+    "14.23.20 JOB    6  $HASP373 JEJOB    STARTED - INIT  1 - CLASS A - SYS HMVS\n"
+    "14.23.20 JOB    6  $HASP396 JEJOB    TERMINATED\n"
+)
+LIVE_ABEND = (
+    "14.23.19 JOB    5  IEF403I ABJOB - STARTED - TIME=14.23.19\n"
+    "14.23.19 JOB    5  IEF450I ABJOB S1 - ABEND S806 U0000 - TIME=14.23.19\n"
+    "IEF472I ABJOB S1 - COMPLETION CODE - SYSTEM=806 USER=0000\n"
+    "IEF272I ABJOB S2 - STEP WAS NOT EXECUTED.\n"
+    "14.23.19 JOB    5  IEF404I ABJOB - ENDED - TIME=14.23.19\n"
+)
+
+
+def test_a_jcl_error_log_has_no_dash_after_the_job_name_and_ends_with_hasp396():
+    job = runner.parse_log(LIVE_JCLERR, "JEJOB")["jobs"][0]
+    assert job["jcl_error"] and job["ended"]
+
+
+def test_an_abend_log_reads_the_abend_and_the_skipped_step_with_nothing_unparsed():
+    parsed = runner.parse_log(LIVE_ABEND, "ABJOB")
+    job = parsed["jobs"][0]
+    assert job["abends"] == [{"step": "S1", "system": "S806", "user": "U0000"}]
+    assert [(s["step"], s["executed"]) for s in job["steps"]] == [("S2", False)]
+    assert parsed["unparsed_ief"] == 0
+
+
+def test_the_allocation_and_timing_messages_are_known_not_unparsed():
+    text = "IEF236I ALLOC. FOR OKJOB S1\nIEF237I JES2 ALLOCATED TO SYSPRINT\nIEF373I STEP /S1      / START 26323.1423\n"
+    assert runner.parse_log(text)["unparsed_ief"] == 0
+
+
+def test_serve_refuses_without_the_generated_system(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="lacks the generated system"):
+        sysgen.serve(str(tmp_path), "img", "n")
+
+
+def test_start_refuses_without_a_generated_system_and_stop_without_a_box(tmp_path):
+    env = {**os.environ, "MVS38J_WORK": str(tmp_path)}
+    for sub, msg in (("start", "mvs.cnf"), ("stop", "not running")):
+        r = subprocess.run(["bash", str(SCRIPT), sub], capture_output=True, text=True, timeout=30, env=env)  # noqa: S603, S607
+        assert r.returncode == 1 and msg in r.stderr
+
+
+def test_start_does_not_go_through_docker_run_d_and_stop_signals_the_driver():
+    text = SCRIPT.read_text()
+    assert 'sysgen.py" serve' in text and "docker run -d" not in text
+    assert 'kill "$pid"' in text

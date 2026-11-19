@@ -100,7 +100,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. State reversion, assertions, and defensive modifier usage.
+        # 6. safety (Defensive Checks: assert/try/guards). State reversion, assertions, and defensive modifier usage.
         "safety": re.compile(r"\b(require|assert|revert|modifier|nonReentrant|onlyOwner)\b"),
         # 7. safety_neg: Safety Bypasses. Bypassing overflow checks (0.8+) or dangerous delegation.
         "safety_bypasses": re.compile(r"\b(unchecked|assembly|delegatecall)\b"),

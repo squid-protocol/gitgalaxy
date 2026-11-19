@@ -1,7 +1,7 @@
 """#8625 slice 2: a real scan (the CLI, nothing hand-built) counts mainframe credential shapes as `hardcoded_secrets`.
 
 Planted case and near-miss per member type: JCL, PROC (`.prc` and `.proc`), REXX, CLIST (`.clist`, slice 3) and
-embedded Db2. Every value is invented. Extensionless members are not routed yet (own slice).
+embedded Db2. Every value is invented. Extensionless members route by directory or body (slice 4, `test_extensionless_rexx_clist_8625.py`).
 """
 
 import os

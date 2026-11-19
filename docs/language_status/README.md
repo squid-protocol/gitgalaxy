@@ -126,6 +126,7 @@ in `gitgalaxy/standards/language_standards/languages/<lang>.py`, and the test co
 | **[apex](apex.md)** | production | standard_block | **written** |
 | **[assembly](assembly.md)** | production | line_exclusive | **written** |
 | **[c](c.md)** | production | standard_block | **written** |
+| **[clist](clist.md)** | production | standard_block | **written** (#8625) |
 | **[cobol](cobol.md)** | production | positional_anchored | **written** |
 | **[cpp](cpp.md)** | production | standard_block | **written** |
 | **[crystal](crystal.md)** | production | line_exclusive | **written** (#5623) |

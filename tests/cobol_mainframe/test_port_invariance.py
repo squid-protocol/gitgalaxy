@@ -70,6 +70,26 @@ def test_a_reading_that_depends_on_the_language_is_caught(measured):
     assert any("methods <" in p for p in problems)
 
 
+def test_drift_check_is_green_on_every_committed_pair_and_catches_io_and_globals_drift(measured):
+    assert pi.drift_problems(measured) == []
+    carddemo = [m for m in measured if m["estate"].startswith("aws-")]
+    assert len(carddemo) == 7
+    # a port that reads far more I/O than its COBOL, one that dropped most of it, and one that sprays statics
+    for field, value, text in (("arch_io", 90, "arch_io drift, port has 90"),
+                               ("arch_io", 0, "arch_io drift, port kept 0"),
+                               ("arch_globals", 5000, "arch_globals drift")):  # fmt: skip
+        broken = copy.deepcopy([m for m in measured if m["cobol_r"]["arch_io"] >= pi.IO_FLOOR_MIN])
+        broken[0]["java_r"][field] = value
+        assert any(text in p for p in pi.drift_problems(broken)), field
+        assert any(text in p for p in pi.evaluate(broken, "fixture")[1]), field
+    # struct_args / struct_branch lowering shifts are expected: never a problem on their own
+    shifted = copy.deepcopy(measured)
+    for m in shifted:
+        m["java_r"]["struct_branch"] += 7
+        m["java_r"]["code_loc"] += 0
+    assert pi.drift_problems(shifted) == []
+
+
 @pytest.mark.skipif(not os.environ.get("PORT_INVARIANCE_WORK"),
                     reason="set PORT_INVARIANCE_WORK to a det sweep's work dir (and GITGALAXY_MAINFRAME_CORPORA)")  # fmt: skip
 def test_contract_holds_on_every_swept_port():

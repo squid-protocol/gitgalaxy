@@ -57,10 +57,19 @@ def title_of(wf: str) -> str:
     return f"{PREFIX}{wf}"
 
 
+NO_RUNNER = " (no steps ran: never got a runner)"
+
+
 def legs_note(failed: list[str], cancelled: list[str]) -> str:
     """Words for a failure's legs ('' when no leg was cancelled or none are known)."""
     if not cancelled:
         return ""
+    if not failed and all(c.endswith(NO_RUNNER) for c in cancelled):
+        return (
+            f"\n\nNo job failed on its own: {len(cancelled)} were cancelled with no steps run "
+            f"({', '.join(cancelled[:8])}). No runner took them (runner capacity, not a hang or a test result): "
+            "rerun the cancelled legs."
+        )
     if not failed:
         return (
             f"\n\nNo job failed on its own: {len(cancelled)} were cancelled ({', '.join(cancelled[:8])}), "
@@ -172,7 +181,10 @@ def legs(jobs: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
     for j in jobs:
         if j.get("conclusion") == "cancelled":
             m = _minutes(j)
-            cancelled.append(j["name"] if m is None else f"{j['name']} after {m} min")
+            label = j["name"] if m is None else f"{j['name']} after {m} min"
+            if j.get("steps") == []:  # the API lists steps: none means no runner ever took the job (#8673)
+                label += NO_RUNNER
+            cancelled.append(label)
     return failed, cancelled
 
 

@@ -50,8 +50,10 @@ DEFINITION: dict[str, Any] = {
     "shebangs": [],
     # `/* ... */` comments, not nested; the PL/I family's morphology.
     "lexical_family": "standard_block",
-    # CLIST names are case-insensitive, but declaring `identifier_case` joins the pinned lexicon set in
-    # test_unreferenced_by_name_contract_2806.py (a sixth file): left to the next slice of #8625.
+    # #8625: the identifier lexicon of the `unreferenced_by_name` census (corollary 7, #3198). CLIST labels
+    # and member names fold to upper case, so `GOTO loop` names `LOOP:`. Pinned in
+    # test_unreferenced_by_name_contract_2806.py. TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     "case_insensitive_imports": True,
     # invocation_model: DEFAULT (by_name): a CLIST label is reached by `GOTO label` and a
     # sub-procedure by `SYSCALL name`; both name the unit func_start extracts.

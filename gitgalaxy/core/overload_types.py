@@ -212,6 +212,9 @@ def _initializer(text: str, start: int) -> str:
     return text[start:k]
 
 
+_KT_FOR = re.compile(r"\bfor[ \t]*\([ \t]*(?:\([^)]{0,120}\)|(?P<n>" + _IDENT + r"))[ \t]+in\b")
+
+
 def declared_value_types(text: str, lang: str) -> dict[str, str | None]:
     """Every variable `text` declares -> its type; None when the name is bound twice with different types, or
     with no type the scan reads (a lambda parameter, `var x = f()`, a Kotlin `vararg` parameter -- an array)."""
@@ -251,6 +254,9 @@ def declared_value_types(text: str, lang: str) -> dict[str, str | None]:
         for part in m.group("p").split(","):
             if re.fullmatch(_IDENT, part.strip()):
                 _note(found, part.strip(), None)
+    for m in _KT_FOR.finditer(text):
+        if m.group("n"):
+            _note(found, m.group("n"), None)
     return found
 
 
@@ -289,8 +295,8 @@ _CPP_PARAM = re.compile(
 
 
 def field_value_types(field_text: str, file_text: str, lang: str) -> dict[str, str | None]:
-    """The file's field / property types: C# from its member declarations (`field_text`, bodies blanked); Kotlin
-    from every `val` / `var` with a declared type (a primary constructor's included), across the file."""
+    """The file's field / property types: C# and C++ from member declarations (`field_text`, bodies blanked);
+    Kotlin from every `val` / `var` with a declared type (a primary constructor's included), across the file."""
     if lang in ("csharp", "cpp"):
         return declared_value_types(field_text, lang)
     found: dict[str, str | None] = {}
@@ -738,13 +744,16 @@ def receiver_types(text: str, receivers: set[str], fields: dict[str, str | None]
     too (both languages have an implicit `this`). A primitive, an array, a nullable value type, or a name bound
     with no single known type maps to "", which hides any other answer for it."""
     local = declared_value_types(text, lang)
+    # Kotlin's file-wide `field_value_types` scans `file_text` (including other functions' local `val`s),
+    # so only use `local` for Kotlin `receiver_types` to avoid cross-function type leaks.
+    field_map = (fields or {}) if lang != "kotlin" else {}
     out: dict[str, str] = {}
     scopes: tuple[dict[str, str | None], ...]
     for r in receivers:
         if r.startswith("this."):
-            name, scopes = r[5:], (fields or {},)
+            name, scopes = r[5:], (field_map,)
         else:
-            name, scopes = r, (local, fields or {})
+            name, scopes = r, (local, field_map)
         if not name or "." in name or not re.fullmatch(_IDENT, name):
             continue
         for scope in scopes:

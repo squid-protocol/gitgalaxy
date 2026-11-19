@@ -1,5 +1,5 @@
 {
- "commit": "eaca1bc11",
+ "commit": "36d1e5402",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-19T18:56:13Z",
+  "as_of": "2026-11-19T19:28:13Z",
   "core": {
    "closed": 253,
    "open": 11,

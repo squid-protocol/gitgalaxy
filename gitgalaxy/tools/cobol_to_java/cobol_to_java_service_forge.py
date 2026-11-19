@@ -28,6 +28,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     program_key_from_ir,
 )
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 
 def generate_service_skeleton(
@@ -128,7 +129,9 @@ def main():
     parser = argparse.ArgumentParser(description="GitGalaxy Service Scaffolding Generator")
     parser.add_argument("ir_file", help="Path to the GitGalaxy _ir.json state dump")
     parser.add_argument("--pkg", default="com.gitgalaxy.modernized", help="Base Java package name")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     ir_path = Path(args.ir_file).resolve()
     if not ir_path.exists():

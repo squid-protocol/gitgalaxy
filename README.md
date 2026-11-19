@@ -370,7 +370,7 @@ with `OfflineViolation`, in the main process and in spawn-start workers, and a t
 Exceptions, refused by name when offline: the tiktoken `cl100k_base` download (token mass is left NULL; point
 `TIKTOKEN_CACHE_DIR` at a cache holding the encoding to keep it) and the opt-in LLM port runner (it calls a model
 API by design; `port_runner --offline` or `GITGALAXY_OFFLINE=1` exits naming it, and so do the porting loop's `run` and `run-many`, which
-drive it; its `report`, `adopt` and `tidy` run under the guard, #8624).
+drive it; its `report`, `adopt` and `tidy` run under the guard. `strengthen run` and `det_refine run` refuse the same way; `strengthen report` runs under the guard, #8624).
 
 ## Installation
 

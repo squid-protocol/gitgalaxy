@@ -20,6 +20,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 # Copybook members are found by stem. .cbl/.cob are allowed because some shops keep
 # copybooks under program extensions, but a member with a PROGRAM-ID is a program
@@ -684,7 +685,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="GitGalaxy Deprecated Trails Analyzer")
     parser.add_argument("target", help="Directory containing legacy COBOL payloads")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():

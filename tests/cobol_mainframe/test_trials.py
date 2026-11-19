@@ -39,6 +39,10 @@ def test_the_ledger_is_valid_and_the_report_is_current():
     assert trial.CHART.read_text(encoding="utf-8") == trial.render_svg(ledger), "stale: trial.py report --write"
 
 
+FORECAST = ["--forecast", "whole_first_contact=0-1", "--forecast", "whole_closeout=1-2",
+            "--forecast", "accounted_closeout=2-2", "--forecast", "first_try_proof=0-2"]  # fmt: skip
+
+
 def _batch(name: str) -> str:
     return f"""\
        IDENTIFICATION DIVISION.
@@ -126,7 +130,7 @@ def started(tmp_path_factory):
     common = ["--ledger", str(ledger), "--repo", str(engine)]
     rc = trial.main([*common, "start", "tiny-estate", "--estate-path", str(estate), "--work", str(base / "work"),
                      "--model", "stand-in", "--backend", "command", "--repo-url", "https://example.com/tiny",
-                     "--ref", "abc123"])  # fmt: skip
+                     "--ref", "abc123", *FORECAST])  # fmt: skip
     assert rc == 0
     return {"base": base, "estate": estate, "engine": engine, "ledger": ledger, "common": common,
             "project": base / "work" / "java_h2"}  # fmt: skip
@@ -622,7 +626,7 @@ def test_start_sync_close_regenerate_the_estate_pages(started, tmp_path, monkeyp
     common = ["--ledger", str(ledger_path), "--repo", str(started["engine"])]
     rc = trial.main([*common, "start", "tiny-estate", "--estate-path", str(started["estate"]),
                      "--work", str(tmp_path / "work"), "--model", "stand-in", "--backend", "command",
-                     "--repo-url", "https://example.com/tiny", "--ref", "abc123"])  # fmt: skip
+                     "--repo-url", "https://example.com/tiny", "--ref", "abc123", *FORECAST])  # fmt: skip
     assert rc == 0
     ledger = trial.load(ledger_path)
     assert trial.stale_pages(ledger, pages) == [] and (tmp_path / ("trials" + ".md")).is_file()
@@ -1180,3 +1184,46 @@ def test_tickets_command_leaves_the_ledger_alone_and_writes_a_manifest(tmp_path,
     (work2 / "frozen-engine").mkdir(parents=True)
     argv[-1] = str(work2)
     assert trial.main(argv) == 1
+
+
+def test_one_forecast_per_trial_over_the_declared_set_8321(started, tmp_path):
+    """#8321: start refuses without a forecast; check fails none, two, or one over another basis."""
+    base = ["--ledger", str(_ledger(tmp_path / "t.json")), "--repo", str(started["engine"])]
+    start = [
+        "start",
+        "tiny-estate",
+        "--estate-path",
+        str(started["estate"]),
+        "--work",
+        str(tmp_path / "w"),
+        "--model",
+        "m",
+        "--backend",
+        "command",
+        "--repo-url",
+        "https://example.com/tiny",
+        "--ref",
+        "abc123",
+    ]
+    with pytest.raises(SystemExit, match="missing"):
+        trial.main([*base, *start, *FORECAST[:6]])  # a figure is missing
+    with pytest.raises(SystemExit, match="twice"):
+        trial.main([*base, *start, *FORECAST, *FORECAST[:2]])
+    t = trial.load(started["ledger"])["trials"][0]
+    assert t["forecast"]["over"] == len(t["eligible"]) and t["forecast"]["declared"] == t["declared"]
+    ledger = {**trial.load(started["ledger"])}
+
+    def errors(**edit):
+        copy = json.loads(json.dumps(ledger))
+        copy["trials"][0].update(edit)
+        return trial.validate(copy)
+
+    assert errors() == []
+    assert any("no forecast" in e for e in errors(forecast=None))
+    assert any("one forecast" in e for e in errors(forecasts=[1, 2]))
+    over = {**t["forecast"], "over": 58}
+    assert any("not over the declared" in e for e in errors(forecast=over))
+    wide = {**t["forecast"], "figures": {**t["forecast"]["figures"], "whole_closeout": [0, 9]}}
+    assert any("whole_closeout" in e for e in errors(forecast=wide))
+    legacy = errors(forecast=None, started="2026-11-09")
+    assert legacy == []

@@ -8,6 +8,7 @@ development data for good, and so is every estate once it has been through a tri
 one-shot measurement at a named, frozen system.
 
     python tests/tools/trial.py start <estate-id> --estate-path P --model M --backend B --work W
+                                     --forecast FIGURE=LOW-HIGH ...   # one per FIGURES, in programs, over the eligible set (#8321)
                                      [--ref R] [--repo-url U] [--kind public|private --label L]
                                      [--model-version V] [--exclude PROG=reason ...] [--shipped-data PROG ...]
     python tests/tools/trial.py preview <estate-id> --estate-path P --work W [--json F]   # rehearsal, no ledger
@@ -27,6 +28,13 @@ refract -> cobol-to-java path the equivalence harness builds its project with (t
 writes the porting tickets, and declares UP FRONT which programs are eligible and why every other one is
 out of scope (out_of_scope_reason / ELIGIBILITY_RULES: CICS online and batch COBOL, prereg section 5; `--exclude` adds declared exclusions, at start only: the declaration is
 hashed, so an exclusion added later to hide a failure fails validation).
+
+ONE forecast per trial (#8321): `--forecast FIGURE=LOW-HIGH` for each of FORECAST_FIGURES (whole at first contact,
+whole at close-out, accounted at close-out, first-try proof), as program counts over the eligible set just
+declared (rehearse it with `preview`; the order is draw, scan, eligibility, declare, THEN forecast). It is stored in
+the trial beside the declaration hash it was made over and is never edited: `start` refuses to run without it and
+`check` fails a trial (started on or after FORECAST_REQUIRED_FROM) with none, with two, or one whose basis is not the
+declared eligible set. A second number in a trial issue is a mid-trial note, not a forecast.
 
 Each program is then ported with the porting loop (gitgalaxy/tools/cobol_to_java/port_runner.py run /
 prove). `sync` turns its log into attempts: one attempt per proof verdict (or per run that produced no
@@ -75,6 +83,9 @@ OUTCOMES = ("proven", "failed", "no-port", "error")
 OUR_CAUSES = ("ticket", "generator", "engine", "harness")  # a fix on our side, with its commit
 CAUSES = ("model", *OUR_CAUSES)
 ORACLE = ("compiled", "compile-failed", "unknown")  # #8325: did cobc compile the reference (Amendment 4)
+# #8321: every figure a trial reports gets its own forecast, registered once over the declared eligible set
+FORECAST_FIGURES = ("whole_first_contact", "whole_closeout", "accounted_closeout", "first_try_proof")
+FORECAST_REQUIRED_FROM = "2026-11-19"  # trial-001 (blind 1) predates the rule and keeps its history
 BINS = ("@1", "@2", "@3", "@4+")
 # The frozen system's harness: the files the proof runs through (tests/tools/equivalence*.py and its image).
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
@@ -376,6 +387,51 @@ def declaration_hash(eligible: list[str], out_of_scope: dict[str, str]) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def parse_forecast(items: list[str] | None) -> dict[str, list[int]]:
+    """`--forecast FIGURE=LOW-HIGH` (program counts) -> {figure: [low, high]}; every figure, once."""
+    out: dict[str, list[int]] = {}
+    for item in items or []:
+        m = re.fullmatch(r"([a-z_]{1,32})=(\d{1,6})-(\d{1,6})", item)
+        if not m or m.group(1) not in FORECAST_FIGURES:
+            raise SystemExit(f"--forecast {item!r}: expected FIGURE=LOW-HIGH with FIGURE in {FORECAST_FIGURES}")
+        if m.group(1) in out:
+            raise SystemExit(f"--forecast {m.group(1)} given twice: one forecast per figure")
+        out[m.group(1)] = [int(m.group(2)), int(m.group(3))]
+    missing = [f for f in FORECAST_FIGURES if f not in out]
+    if missing:
+        raise SystemExit(
+            f"a trial needs a forecast for every reported figure, missing {missing} (--forecast FIGURE=LOW-HIGH)"
+        )
+    return out
+
+
+def build_forecast(figures: dict[str, list[int]], eligible: list[str], declared: str) -> dict[str, Any]:
+    return {"over": len(eligible), "declared": declared, "figures": figures}
+
+
+def _validate_forecast(t: dict[str, Any]) -> list[str]:
+    if "forecasts" in t or isinstance(t.get("forecast"), list):
+        return ["one forecast per trial: a second number is a mid-trial note, not a forecast"]
+    f = t.get("forecast")
+    if f is None:
+        if str(t.get("started")) >= FORECAST_REQUIRED_FROM:
+            return ["no forecast: a trial registers one over its declared eligible set at start"]
+        return []
+    if not isinstance(f, dict):
+        return ["forecast must be one object"]
+    errors: list[str] = []
+    if f.get("declared") != t.get("declared") or f.get("over") != len(t.get("eligible", [])):
+        errors.append("the forecast is not over the declared eligible set (frozen after eligibility, never before)")
+    figures = f.get("figures", {})
+    if sorted(figures) != sorted(FORECAST_FIGURES):
+        errors.append(f"the forecast needs exactly the figures {FORECAST_FIGURES}")
+    for name, v in figures.items():
+        ok = isinstance(v, list) and len(v) == 2 and all(isinstance(x, int) for x in v)
+        if not ok or not 0 <= v[0] <= v[1] <= f.get("over", 0):
+            errors.append(f"forecast {name} is [low, high] programs with 0 <= low <= high <= {f.get('over')}")
+    return errors
+
+
 def declare(clean: Path, project: Path, estate: Path, excludes: dict[str, str], shipped: set[str]
             ) -> tuple[list[str], dict[str, str]]:  # fmt: skip
     """(eligible programs, {program: out-of-scope reason}) for every program the scan found."""
@@ -479,6 +535,7 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
         errors.append("withdrawn is the one-line reason the trial's proof phase never ran")
     if t.get("withdrawn") and not t.get("closed"):
         errors.append("a withdrawn trial is closed")
+    errors += _validate_forecast(t)
     eligible, out = t.get("eligible", []), t.get("out_of_scope", {})
     if eligible != sorted(set(eligible)):
         errors.append("eligible is a sorted list of distinct programs")
@@ -633,6 +690,7 @@ def cmd_start(opts: argparse.Namespace) -> int:
     elif opts.ref and estate.get("ref") and opts.ref != estate["ref"]:
         raise SystemExit(f"{opts.estate} is recorded at ref {estate['ref']}, not {opts.ref}")
     excludes = _parse_pairs(opts.exclude, "--exclude")
+    figures = parse_forecast(opts.forecast)  # refused before any scan: no forecast, no trial
     system = frozen_system(opts.repo, opts.model, opts.backend, opts.model_version)
 
     project, eligible, out = scan_and_declare(path, opts.work, excludes, set(opts.shipped_data or []))
@@ -646,6 +704,7 @@ def cmd_start(opts: argparse.Namespace) -> int:
         "eligible": eligible,
         "out_of_scope": out,
         "declared": declaration_hash(eligible, out),
+        "forecast": build_forecast(figures, eligible, declaration_hash(eligible, out)),
         "programs": {k: {"attempts": [], "final": "open"} for k in eligible},
     })  # fmt: skip
     # #3803: the estate joins the development set for good -- the moment it is seen, not when it is proven
@@ -1749,6 +1808,9 @@ def main(argv: list[str] | None = None) -> int:
     st.add_argument("--label", help="a private estate's anonymised label")
     st.add_argument("--exclude", action="append", help="PROGRAM=reason: a declared exclusion (at start only)")
     st.add_argument("--shipped-data", action="append", help="PROGRAM whose input data the estate ships")
+    st.add_argument(
+        "--forecast", action="append", help=f"FIGURE=LOW-HIGH programs, over the eligible set: {FORECAST_FIGURES}"
+    )
     pv = sub.add_parser("preview", help="rehearse the declaration on any estate (burned included); writes no ledger")
     pv.add_argument("estate")
     pv.add_argument("--estate-path", type=Path, required=True)

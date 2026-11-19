@@ -53,6 +53,8 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(TOOLS))
 
+from gitgalaxy.tools.readiness import offline  # noqa: E402
+
 import equivalence as eq  # noqa: E402
 import porting_loop as pl  # noqa: E402
 
@@ -597,7 +599,14 @@ def main(argv: list[str] | None = None) -> int:
                    f"the rounds (default file: {SCORES.relative_to(REPO_ROOT)})")  # fmt: skip
     rp = sub.add_parser("report")
     rp.add_argument("work", type=Path)
-    args = ap.parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    wants_offline = offline.requested(raw)
+    args = ap.parse_args([a for a in raw if a != "--offline"])
+    if wants_offline:
+        # #8624: `run` calls a model (claude -p or a --backend-command): refuse by name. `report` runs under the guard.
+        if args.cmd == "run":
+            raise SystemExit("strengthen run refuses --offline / GITGALAXY_OFFLINE=1: it calls a model API (network)")
+        offline.enable_if_requested(raw)
     if args.cmd == "report":
         data = json.loads((args.work / "strengthen.json").read_text(encoding="utf-8"))
         print(report_md(data))

@@ -21,6 +21,7 @@ if _EXTRACTION_DIR not in sys.path:
     sys.path.insert(0, _EXTRACTION_DIR)
 
 from _extraction_harness import assert_redos_immune  # noqa: E402 # type: ignore
+from _timing import assert_cpu_below  # noqa: E402
 
 
 def _callees(body: str) -> set[str]:
@@ -352,13 +353,10 @@ def test_sibling_bindings_in_a_sliced_block_do_not_join():
 
 
 def test_continuation_join_is_redos_immune():
-    import time
-
     from gitgalaxy.standards.language_standards.languages.haskell import _hs_join_continuations
 
-    t = time.perf_counter()
-    _hs_join_continuations("x = f\n" + "  a\n" * 50000 + "g\n" * 50000)
-    assert time.perf_counter() - t < 3.0
+    payload = "x = f\n" + "  a\n" * 50000 + "g\n" * 50000
+    assert_cpu_below(lambda: _hs_join_continuations(payload), 3.0, what="_hs_join_continuations")
 
 
 @pytest.mark.parametrize(
@@ -380,13 +378,10 @@ def test_primed_identifiers_are_not_char_literals(body, callees, absent):
 
 
 def test_prime_masking_is_redos_immune():
-    import time
-
     from gitgalaxy.standards.language_standards.languages.haskell import _hs_mask_primes
 
-    t = time.perf_counter()
-    _hs_mask_primes("x' " * 100000 + "'" * 100000 + "\\'" * 50000)
-    assert time.perf_counter() - t < 3.0
+    payload = "x' " * 100000 + "'" * 100000 + "\\'" * 50000
+    assert_cpu_below(lambda: _hs_mask_primes(payload), 3.0, what="_hs_mask_primes")
 
 
 @pytest.mark.parametrize(

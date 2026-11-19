@@ -47,7 +47,6 @@ WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
         "tests/core_engine/test_prefetch.py",
         "tests/core_engine/test_vectorized_math_probe_4108.py",
         "tests/extraction/languages/test_c_kernel_vocab_8016.py",
-        "tests/extraction/languages/test_calls_out_haskell_juxtaposition_6454.py",
         "tests/extraction/languages/test_calls_out_rust_matches_depth_6454.py",
         "tests/extraction/languages/test_calls_out_rust_select_arms_6454.py",
         "tests/extraction/languages/test_go_semicolon_imports_6572.py",

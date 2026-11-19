@@ -815,14 +815,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10529,14 +10529,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12829,7 +12829,7 @@
 <p>CVE lookups only find known-vulnerable package versions; they say nothing about what a repository's own files do. Some risky shapes are visible in the text itself: zero-width and bidi characters, arbitrary <code>eval</code>, prototype poisoning, disabled TLS verification, credentials assigned to string literals. This lens flags those shapes for review. No evaluation set exists for unknown or obfuscated attacks, so it makes no claim about catching them.</p>
 <h2 id="design">Design</h2>
 <p>The engine decouples threat measurement from policy enforcement, allowing dynamic threat threshold injection (e.g., <code>--paranoid</code> mode). It scans for 13 signature families, the keys of <code>THREAT_SIGNATURES</code> in <code>security_lens.py</code>: <code>reflection_metaprogramming</code>, <code>safety_bypasses</code>, <code>io</code>, <code>high_risk_execution</code>, <code>state_mutation</code>, <code>dead_code</code>, <code>bitwise_ops</code>, <code>shadow_imports</code>, <code>homoglyphs</code>, <code>hardcoded_secrets</code>, <code>db_hooks</code>, <code>unicode_steganography</code> and <code>self_propagation</code> (a file copying or overwriting itself). It also computes Shannon entropy over string literals (see Tradeoffs). There is no taint or data-flow analysis: it was removed in #3101, and the <code>threat_tainted_injection</code> column it fed is an always-zero placeholder. Agentic-RCE detection was removed in #1020.</p>
-<p>The lens returns per-file counts, snippets and line positions. It does not read network centrality. Scores are computed later by the signal processor; the only centrality weighting is the opt-in, linear multiplier in the supply-chain firewall (<code>import_policy_gate.py</code>: <code>1.0 + 0.5 × normalized_blast_radius</code> when that exceeds 1.0, plus 0.5 when betweenness exceeds 0.05).</p>
+<p>The lens returns per-file counts, snippets and line positions. It does not read network centrality. Scores are computed later by the signal processor; the only centrality weighting is the opt-in, linear multiplier in the import policy gate (<code>import_policy_gate.py</code>: <code>1.0 + 0.5 × normalized_blast_radius</code> when that exceeds 1.0, plus 0.5 when betweenness exceeds 0.05).</p>
 <p>Coverage is tested on planted inputs (<code>tests/security_auditing/test_security_lens.py</code> and the <code>*_4108</code> probe tests). There is no measured real-world recall or precision.</p>
 <p><strong>Long-line blind spot.</strong> Before any security regex or the entropy check runs, <code>SecurityLens._armor</code> empties every line of 250 or more characters. Nothing on such a line is matched, so a secret or <code>eval(</code> on a minified line is not reported. If armoring removed over 90% of a file, a short literal screen (<code>eval(</code>, <code>child_process</code>, <code>fetch(</code>, <code>NODE_TLS_REJECT_UNAUTHORIZED</code> and a few others) runs on the raw text instead; it does not cover secrets. Only Vault Sentinel reads long lines, by cutting them into overlapping pieces (<code>gitgalaxy/security/long_lines.py</code>, #7179). The blind spot is tracked in #8429.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>

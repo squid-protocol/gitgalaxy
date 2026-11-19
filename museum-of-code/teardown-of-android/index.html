@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12695,11 +12695,11 @@ These files act as the system's control towers. They are highly coupled and frag
 <p><em>Note on Anomalies:</em> The engine also detected <code>FillerMethod.java</code>, a massive 65,000 LOC file with 250 orphaned functions. While it appears as catastrophic design slop, contextual analysis reveals this is an intentional stress-test file used to validate the <code>128-multidex-option-overflow</code> limits.</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
 <p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>. </p>
-<p>Furthermore, the rule-based X-Ray and Supply Chain Firewall confirmed an incredibly tight security perimeter:
+<p>Furthermore, the rule-based X-Ray and Import Policy Gate confirmed an incredibly tight security perimeter:
 * <strong>Hardcoded Secrets:</strong> <code>0</code> instances found.
 * <strong>Blacklisted/Unknown Dependencies:</strong> <code>0</code> packages imported that bypass the Zero-Trust whitelist. The build environment is entirely self-contained.
 * <strong>Binary Anomalies (X-Ray):</strong> <code>5</code> minor anomalies detected, representing high-entropy strings or magic byte mismatches likely tied to test <code>.dex</code> or <code>.class</code> payloads rather than active threats.</p>
-<p>By running the X-Ray Inspector and Supply Chain Firewall entirely offline, we mapped these metrics mathematically without ever needing to compile the code or execute the Dalvik engine.</p>
+<p>By running the X-Ray Inspector and Import Policy Gate entirely offline, we mapped these metrics mathematically without ever needing to compile the code or execute the Dalvik engine.</p>
 <h3 id="conclusion">Conclusion</h3>
 <p>Android's <code>platform_dalvik</code> repository is exactly what you would expect from an early-2000s VM compiler: a highly complex, deeply nested, and structurally monolithic engine. While its security perimeter is flawless and entirely self-contained, its technical debt is concentrated in massive, undocumented "God Nodes" (<code>RopTranslator</code>, <code>Main.java</code>, and <code>DalvInsn</code>). Understanding this codebase requires navigating extremely high cognitive load, making it a perfect historical artifact of how complex mobile systems were engineered before the modern era of micro-components.</p>
 <hr />
@@ -12708,7 +12708,7 @@ These files act as the system's control towers. They are highly coupled and frag
 <ul>
 <li>🌌 <strong>Explore the 3D WebGL Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

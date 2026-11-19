@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12705,7 +12705,7 @@ In massive open-source projects, highly specialized knowledge domains create a "
 <p>Parsing dynamic, untrusted data formats (CSV, JSON, Parquet) creates an inherent security attack surface. How well does Pandas defend its perimeter?</p>
 <ul>
 <li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is secure against recognized structural malware.</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted Dependencies</strong>, with only <strong>12 Unknown Dependencies</strong>. An incredibly tight perimeter for a Python project of this scale.</li>
+<li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted Dependencies</strong>, with only <strong>12 Unknown Dependencies</strong>. An incredibly tight perimeter for a Python project of this scale.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <strong>11 hits</strong>. Flagged for high entropy, these are entirely expected as they correspond to serialized test payloads (like SAS and Parquet binary files).</li>
 <li><strong>Weaponizable Injection Vectors:</strong> The engine flagged testing files like <code>test_css.py</code> and <code>test_file_buffer_url.py</code> with <strong>100.0% Exploit Generation Surface</strong> and <strong>100% Injection Surface</strong>. Because Pandas tests its HTML rendering and URL buffer reading by injecting raw, potentially malicious strings into parsers, this triggers the static security lens. However, because this is strictly confined to the <code>tests/</code> directory, it confirms a healthy, well-guarded production boundary.</li>
 </ul>
@@ -12717,7 +12717,7 @@ In massive open-source projects, highly specialized knowledge domains create a "
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

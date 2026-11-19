@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12697,7 +12697,7 @@ Enterprise repositories often suffer from "Bus Factor" risks, where massive file
 <p>For a core banking platform, the security perimeter is paramount. GitGalaxy's rule-based lenses and XGBoost models revealed a mixed security posture:</p>
 <ul>
 <li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is secure against recognized structural malware and Agentic RCE.</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. The dependency tree is immaculate, relying strictly on known, trusted packages.</li>
+<li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. The dependency tree is immaculate, relying strictly on known, trusted packages.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <strong>8 hits</strong>. Flagged for high entropy, likely tied to compressed test payloads or keystores.</li>
 <li><strong>Weaponizable Surface Exposures:</strong> * <code>LocalContentStorageUtil.java</code> and <code>ReportsTest.java</code> both triggered <strong>100.0% Weaponizable Injection Vectors</strong>, indicating external I/O flows directly into dynamic execution contexts without sufficient static safety nets.</li>
 <li><code>keystore.jks</code> triggered <strong>100.0% Hardcoded Payload Artifacts</strong>, confirming the presence of embedded cryptographic material in the repository source.</li>
@@ -12710,7 +12710,7 @@ Enterprise repositories often suffer from "Bus Factor" risks, where massive file
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

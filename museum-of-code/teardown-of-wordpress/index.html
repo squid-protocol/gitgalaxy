@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12704,12 +12704,12 @@ These files pull in the most external dependencies. They are highly coupled and 
 </ul>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
 <p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>. There are no autonomous AI vulnerabilities (Agentic RCE) detected despite the new AI client integrations.</p>
-<p>However, the rule-based X-Ray and Supply Chain Firewall identified several perimeter exposures:
+<p>However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:
 * <strong>Hardcoded Secrets &amp; Artifacts:</strong> <code>3</code> instances found, including exposed <code>.npmrc</code> files in the TwentyTwenty and TwentyTwentyOne themes, and a <code>ca-bundle.crt</code>.
 * <strong>Binary Anomalies (X-Ray):</strong> <code>171</code> anomalies detected. These represent high-entropy strings, packed payloads, or magic byte mismatches that warrant deeper forensic review.
 * <strong>Unknown Dependencies:</strong> <code>144</code> packages imported that bypass the Zero-Trust whitelist.
 * <strong>Typosquatting &amp; Malicious Imports:</strong> <code>0</code> explicitly banned packages imported, validating a clean external supply chain.</p>
-<p>By running the X-Ray Inspector and Supply Chain Firewall entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.</p>
+<p>By running the X-Ray Inspector and Import Policy Gate entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.</p>
 <h3 id="conclusion">Conclusion</h3>
 <p>WordPress remains a structural marvel. Its PHP core maintains a highly decoupled, modular architecture (0.813 Modularity) capable of supporting a massive plugin ecosystem. However, the frontend JavaScript architecture is groaning under extreme technical debt, with monolithic files like <code>csslint.js</code> and <code>esprima.js</code> acting as highly isolated, high-risk "God Nodes." As WordPress continues to integrate complex AI orchestrators, breaking down these legacy JS silos will be critical to its long-term stability.</p>
 <hr />
@@ -12718,7 +12718,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 <ul>
 <li>🌌 <strong>Explore the 3D WebGL Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

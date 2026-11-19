@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12705,7 +12705,7 @@ In a repository maintained by thousands of contributors, isolated domain knowled
 <p>Kubernetes controls the security boundaries of the cloud, making its own static threat model a high-priority target.</p>
 <ul>
 <li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is secure against recognized structural malware.</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted Dependencies</strong>. However, GitGalaxy flagged <strong>497 Unknown Dependencies</strong> bypassing the zero-trust whitelist, reflecting the massive sprawling nature of the <code>k8s.io</code> vendor tree.</li>
+<li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted Dependencies</strong>. However, GitGalaxy flagged <strong>497 Unknown Dependencies</strong> bypassing the zero-trust whitelist, reflecting the massive sprawling nature of the <code>k8s.io</code> vendor tree.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <strong>73 hits</strong>. Flagged for high entropy, but cross-referencing shows these are largely expected payloads within test scenarios.</li>
 <li><strong>Weaponizable Injection Vectors &amp; Hardcoded Secrets:</strong> Files like <code>upgradeaware_test.go</code> and <code>impersonation_test.go</code> triggered <strong>100% Injection Surface</strong>, and dozens of <code>.rsa.key</code> files triggered <strong>100% Hardcoded Payload Artifacts</strong>. However, spatial mapping confirms these are strictly contained within <code>testdata</code> directories (e.g., <code>cmd/kubeadm/app/util/pkiutil/testing/testdata/</code>). This is a strong positive validation of the system's security perimeter: dangerous artifacts are effectively quarantined to test harnesses.</li>
 </ul>
@@ -12717,7 +12717,7 @@ In a repository maintained by thousands of contributors, isolated domain knowled
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

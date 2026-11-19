@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12704,12 +12704,12 @@ These files pull in the most external dependencies. They are highly coupled and 
 </ul>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
 <p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>, providing positive validation of OpenCV's perimeter. </p>
-<p>However, the rule-based X-Ray and Supply Chain Firewall identified several surface exposures that require monitoring:
+<p>However, the rule-based X-Ray and Import Policy Gate identified several surface exposures that require monitoring:
 * <strong>Hardcoded Artifacts:</strong> <code>5</code> instances found. The engine detected <code>.pfx</code> temporary keys exposed in Windows/WinRT sample directories (e.g., <code>FaceDetection_TemporaryKey.pfx</code>).
 * <strong>Binary Anomalies (X-Ray):</strong> <code>63</code> anomalies detected, representing high-entropy strings, packed payloads, or magic byte mismatches (likely test images or compiled test payloads).
 * <strong>Unknown Dependencies:</strong> <code>27</code> packages imported that bypass the Zero-Trust whitelist.
 * <strong>AI Systemic Risk:</strong> The AI/DNN integrations act as foundational producers. Because of their massive network blast radius (PageRank: 9.087), any hallucinations or prompt injections introduced here would cascade catastrophically across the C++ core.</p>
-<p>By running the X-Ray Inspector and Supply Chain Firewall entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.</p>
+<p>By running the X-Ray Inspector and Import Policy Gate entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.</p>
 <h3 id="conclusion">Conclusion</h3>
 <p>OpenCV is an architectural titan. Given its 1.27 million lines of code and extensive hardware-specific optimizations, its ability to maintain a 0.7768 Modularity score is a testament to disciplined C++ engineering. However, the system is exposed to extreme Key Person Risk—massive algorithmic centers like <code>ocl.cpp</code> and <code>agast.cpp</code> are entirely siloed. To ensure long-term stability, maintainers must aggressively decouple these "God Nodes," distribute component ownership, and add strict documentation guardrails to the critical Python/C++ binding layers like <code>cv2.cpp</code>.</p>
 <hr />
@@ -12718,7 +12718,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 <ul>
 <li>🌌 <strong>Explore the 3D WebGL Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

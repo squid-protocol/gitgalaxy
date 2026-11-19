@@ -12,7 +12,7 @@
         <meta name="author" content="Joseph Michael Esquibel">
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/04-03-supply-chain-firewall/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/04-03-import-policy-gate/">
       
       
         <link rel="prev" href="../04-02-sbom-generator/">
@@ -29,7 +29,7 @@
     
     
       
-        <title>Supply Chain Firewall - GitGalaxy</title>
+        <title>Import Policy Gate - GitGalaxy</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#supply-chain-firewall-import-and-secrets-risk-gate" class="md-skip">
+        <a href="#import-policy-gate-import-and-secrets-risk-gate" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Supply Chain Firewall
+              Import Policy Gate
             
           </span>
         </div>
@@ -815,14 +815,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10388,7 +10388,7 @@
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -10406,7 +10406,7 @@
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12856,31 +12856,31 @@
   
 
 
-<h1 id="supply-chain-firewall-import-and-secrets-risk-gate">Supply Chain Firewall (Import and Secrets-Risk Gate)</h1>
+<h1 id="import-policy-gate-import-and-secrets-risk-gate">Import Policy Gate (Import and Secrets-Risk Gate)</h1>
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/supply_chain_security/import_policy_gate.py">gitgalaxy/tools/supply_chain_security/import_policy_gate.py</a></p>
-<p><strong>Fixed in #8595 (#8428):</strong> the standalone <code>supply-chain-firewall</code> CLI, and <code>tool: supply-chain-firewall</code> in the GitHub Action, now read the audit JSON's real keys and exit 1 on a counted threat; before the fix they never blocked. The engine-internal call in <code>galaxyscope.py</code> (<code>run_firewall_audit(repository_graph, ...)</code>) records its result in the scan summary (<code>ecosystem_audits.firewall</code>) and does not fail the scan. Other enforcement gaps: #8432.</p>
+<p><strong>Fixed in #8595 (#8428):</strong> the standalone <code>import-policy-gate</code> CLI, and <code>tool: import-policy-gate</code> in the GitHub Action, now read the audit JSON's real keys and exit 1 on a counted threat; before the fix they never blocked. The engine-internal call in <code>galaxyscope.py</code> (<code>run_import_gate_audit(repository_graph, ...)</code>) records its result in the scan summary (<code>ecosystem_audits.firewall</code>) and does not fail the scan. Other enforcement gaps: #8432.</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>The Supply Chain Firewall is a gate over the scanned repository's own files. It compares each file's imports with configured block and allow lists, and checks one behavioural risk score the engine has already computed. It does not read installed dependency code: <code>node_modules</code>, <code>venv</code>, <code>.venv</code>, <code>vendor</code> and <code>third_party</code> are excluded by the default scan config (<code>gitgalaxy/standards/gitgalaxy_config.py</code>).</p>
+<p>The Import Policy Gate is a gate over the scanned repository's own files. It compares each file's imports with configured block and allow lists, and checks one behavioural risk score the engine has already computed. It does not read installed dependency code: <code>node_modules</code>, <code>venv</code>, <code>.venv</code>, <code>vendor</code> and <code>third_party</code> are excluded by the default scan config (<code>gitgalaxy/standards/gitgalaxy_config.py</code>).</p>
 <h2 id="purpose">Purpose</h2>
 <p>Fail a build when the repository imports a blocked package (audit mode) or an unapproved one (strict mode), or when a file's secrets-risk score crosses the threshold.</p>
 <h2 id="design">Design</h2>
 <h3 id="input">Input</h3>
-<p>Inside a scan the firewall reads the engine's in-memory file graph (<code>parsed_files</code>): per file, <code>raw_imports</code>, <code>risk_vector</code> and, when centrality weighting is on, <code>telemetry.network_metrics</code>. The standalone CLI reads a GalaxyScope audit JSON instead and translates each file entry into that shape (<code>_audit_file_to_node</code>): imports from <code>9. Extracted Dependencies</code>, risk scores from <code>4. Vulnerability &amp; Risk Exposures</code> (a <code>%</code> string per risk label, or <code>[UNSCANNED - NO DATA]</code>, read as 0). The CLI has no <code>telemetry.network_metrics</code>, so <code>FIREWALL_NETWORK_WEIGHTING</code> has no effect there. Lists and flags come from the resolved config (<code>.galaxyscope.yaml</code> over <code>gitgalaxy_config.py</code>).</p>
+<p>Inside a scan the gate reads the engine's in-memory file graph (<code>parsed_files</code>): per file, <code>raw_imports</code>, <code>risk_vector</code> and, when centrality weighting is on, <code>telemetry.network_metrics</code>. The standalone CLI reads a GalaxyScope audit JSON instead and translates each file entry into that shape (<code>_audit_file_to_node</code>): imports from <code>9. Extracted Dependencies</code>, risk scores from <code>4. Vulnerability &amp; Risk Exposures</code> (a <code>%</code> string per risk label, or <code>[UNSCANNED - NO DATA]</code>, read as 0). The CLI has no <code>telemetry.network_metrics</code>, so <code>IMPORT_GATE_NETWORK_WEIGHTING</code> has no effect there. Lists and flags come from the resolved config (<code>.galaxyscope.yaml</code> over <code>gitgalaxy_config.py</code>).</p>
 <h3 id="import-verification-alias-resolution">Import Verification &amp; Alias Resolution</h3>
 <p>Imports are normalized to a root package name (relative imports dropped, deep module paths collapsed). Then:</p>
 <ul>
 <li><strong>Audit mode (default):</strong> a package in <code>BLACKLISTED_IMPORTS</code> is blocked; everything else passes. <code>BLACKLISTED_IMPORTS</code> ships empty, so audit mode blocks nothing until you add entries.</li>
 <li><strong>Strict mode (<code>STRICT_IMPORT_MODE = True</code>):</strong> anything not in <code>APPROVED_IMPORTS</code> is also blocked.</li>
 </ul>
-<p>When the engine supplies a manifest alias map, an aliased package is resolved to its true name before the blacklist check, so an alias cannot hide a blacklisted package (<code>test_alias_spoofing_detection</code>). The standalone CLI passes an empty alias map. The manifest auditor's other flags (namespace hijacking, direct-URI resolution, insecure registries) are written but not read by the firewall (#8432).</p>
+<p>When the engine supplies a manifest alias map, an aliased package is resolved to its true name before the blacklist check, so an alias cannot hide a blacklisted package (<code>test_alias_spoofing_detection</code>). The standalone CLI passes an empty alias map. The manifest auditor's other flags (namespace hijacking, direct-URI resolution, insecure registries) are written but not read by the gate (#8432).</p>
 <h3 id="behavioural-gate">Behavioural Gate</h3>
-<p>The firewall reads one risk vector from <code>SignalProcessor.RISK_SCHEMA</code>: <code>secrets_risk</code>, labelled "Secrets Leak Risk" (<code>_FIREWALL_RISK_MAP</code> in <code>import_policy_gate.py</code>). A file is flagged when the score, after multipliers, reaches 50 (<code>_FIREWALL_BLOCK_THRESHOLD</code>). No other risk category is gated. This vector (now <code>credential_material</code>) is REWORK-flagged as a formula artifact (#2979); see <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>docs/vectors.md</code></a>.</p>
+<p>The gate reads one risk vector from <code>SignalProcessor.RISK_SCHEMA</code>: <code>secrets_risk</code>, labelled "Secrets Leak Risk" (<code>_IMPORT_GATE_RISK_MAP</code> in <code>import_policy_gate.py</code>). A file is flagged when the score, after multipliers, reaches 50 (<code>_IMPORT_GATE_BLOCK_THRESHOLD</code>). No other risk category is gated. This vector (now <code>credential_material</code>) is REWORK-flagged as a formula artifact (#2979); see <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>docs/vectors.md</code></a>.</p>
 <h3 id="multipliers">Multipliers</h3>
 <ol>
 <li><strong>Build-time multiplier (10x):</strong> the secrets-risk score is multiplied by 10 for files named setup.py, <code>build.rs</code>, <code>preinstall.js</code> or <code>postinstall.js</code> (<code>test_build_time_execution_multiplier</code>). <code>package.json</code> is also in the code's list, but <code>.json</code> files are skipped before this point, so it never gets the multiplier, and npm <code>scripts</code> hooks are not parsed.</li>
-<li><strong>Network-centrality multiplier (opt-in):</strong> off unless <code>FIREWALL_NETWORK_WEIGHTING = True</code>. When on, files with a normalized blast radius above 1.0 or betweenness above 0.05 get a higher multiplier (<code>test_network_weighting_*</code>).</li>
+<li><strong>Network-centrality multiplier (opt-in):</strong> off unless <code>IMPORT_GATE_NETWORK_WEIGHTING = True</code>. When on, files with a normalized blast radius above 1.0 or betweenness above 0.05 get a higher multiplier (<code>test_network_weighting_*</code>).</li>
 </ol>
 <h3 id="skipped-files">Skipped files</h3>
 <ul>
@@ -12894,7 +12894,7 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    C[Resolved config] --&gt; B
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Blacklist / strict-mode check]
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    A --&gt; E[secrets_risk x multipliers &gt;= 50?]
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    D --&gt; F[Firewall result]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    D --&gt; F[Gate result]
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    E --&gt; F
 </code></pre></div>
 <p>In a <code>galaxyscope</code> scan the result is attached to the scan summary. The standalone CLI exits 1 when it counts threats (blacklisted imports, strict-mode unknowns, secrets-risk files).</p>

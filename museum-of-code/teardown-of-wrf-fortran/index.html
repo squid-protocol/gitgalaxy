@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12703,11 +12703,11 @@ These files pull in the most external dependencies. They are highly coupled and 
 * <strong><code>module_model_constants.F</code></strong> -&gt; Severity: 1046.9 (Blast Radius: 10.4 * Doc Risk: 100.0%)</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
 <p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>. </p>
-<p>Furthermore, the rule-based X-Ray and Supply Chain Firewall confirmed an incredibly tight security perimeter:
+<p>Furthermore, the rule-based X-Ray and Import Policy Gate confirmed an incredibly tight security perimeter:
 * <strong>Hardcoded Secrets:</strong> <code>0</code> instances found.
 * <strong>Blacklisted/Unknown Dependencies:</strong> <code>0</code> packages imported that bypass the Zero-Trust whitelist. The build environment is entirely self-contained.
 * <strong>Binary Anomalies (X-Ray):</strong> <code>98</code> minor anomalies detected. These primarily represent high-entropy scientific payload artifacts like <code>coeff_p.asc</code> and <code>capacity.asc</code> utilized during physics initialization, rather than active malicious threats.</p>
-<p>By running the X-Ray Inspector and Supply Chain Firewall entirely offline, we mapped these metrics mathematically without ever needing to execute the heavy Fortran solver.</p>
+<p>By running the X-Ray Inspector and Import Policy Gate entirely offline, we mapped these metrics mathematically without ever needing to execute the heavy Fortran solver.</p>
 <h3 id="conclusion">Conclusion</h3>
 <p>WRF-Fortran is an architectural marvel. Given its 1.2 million lines of code and extensive computational physics logic, its ability to maintain a 0.6018 Modularity score demonstrates immense discipline in scientific software engineering. However, the system is exposed to extreme Key Person Risk—massive atmospheric solver engines and microphysics drivers are isolated within single-developer silos. To ensure long-term stability and easier scientific contribution, maintainers must aggressively document and decouple these monolithic "God Nodes," particularly the structural pillars (<code>module_configure.F</code> and <code>module_model_constants.F</code>) acting as undocumented blind bottlenecks.</p>
 <hr />
@@ -12716,7 +12716,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 <ul>
 <li>🌌 <strong>Explore the 3D WebGL Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

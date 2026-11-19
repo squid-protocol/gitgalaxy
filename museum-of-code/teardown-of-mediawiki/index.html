@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12699,14 +12699,14 @@ These files pull in the most external dependencies. They are highly coupled and 
 * <strong>Cormac Parle</strong>: Owns 100% of both <code>Controller.js</code> and <code>FiltersViewModel.js</code> (Combined Mass: ~1330).
 * <strong>Ammarpad</strong>: Owns 100% of <code>ApiSandbox.js</code> (Mass: 540.26).</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
-<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>SECURE (No Malware Detected)</strong>. However, the rule-based X-Ray and Supply Chain Firewall identified several perimeter exposures:</p>
+<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>SECURE (No Malware Detected)</strong>. However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:</p>
 <ul>
 <li><strong>Hardcoded Secrets:</strong> <code>4</code> instances found. The Vault Sentinel caught <code>key1.pem</code> and <code>key2.pem</code> (and their public counterparts) exposed in the <code>tests/phpunit/integration/includes/Json/</code> directory.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <code>42</code> anomalies detected. These represent high-entropy strings, packed payloads, or magic byte mismatches that warrant deeper forensic review.</li>
 <li><strong>Unknown Dependencies:</strong> <code>374</code> packages imported that bypass the Zero-Trust whitelist.</li>
 <li><strong>Typosquatting &amp; Malicious Imports:</strong> <code>0</code> explicitly banned packages imported, validating a clean external supply chain.</li>
 </ul>
-<p>By running the X-Ray Inspector and Supply Chain Firewall entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.</p>
+<p>By running the X-Ray Inspector and Import Policy Gate entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.</p>
 <h3 id="conclusion">Conclusion</h3>
 <p>Despite its age and roughly 495,000 lines of code, MediaWiki maintains a surprisingly resilient topology. Its modularity score proves that its maintainers have successfully defended against the "Big Ball of Mud" anti-pattern. However, addressing the isolated "Key Person" silos and decoupling the heavy service wiring orchestrators will be critical for its continued long-term stability and security.</p>
 <hr />
@@ -12715,7 +12715,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 <ul>
 <li>🌌 <strong>Explore the 3D WebGL Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

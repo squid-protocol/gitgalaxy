@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12701,7 +12701,7 @@ GitGalaxy tracks isolated ownership to identify "Bus Factor" risks. In BLAST, do
 <p>For a tool that downloads and processes massive datasets, validating the security perimeter is essential.</p>
 <ul>
 <li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. No malicious structural patterns were flagged (a clean scan, not a guarantee).</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. Every dependency the scan found was a well-known C/C++ include.</li>
+<li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. Every dependency the scan found was a well-known C/C++ include.</li>
 <li><strong>Weaponizable Surface Exposures:</strong> <code>src/app/blast/update_blastdb.pl</code> triggered <strong>100.0% Exploit Generation Surface</strong> due to unrestricted dynamic execution paths inherent to legacy Perl scripts. Additionally, several C files (<code>magicblast.cpp</code>, <code>sls_alp.cpp</code>) exhibit <strong>10.0% Raw Memory Manipulation</strong>, which is completely expected for a system allocating massive memory chunks for sequence alignment matrices. </li>
 <li><strong>Secrets Risk:</strong> The engine flagged <code>psg.crt</code>, <code>psg.key</code>, and <code>.env</code> in the <code>test/ssl</code> and <code>deployable_cgi</code> directories with <strong>100.0% Hardcoded Payload Artifacts</strong>. While these are test/sample artifacts, their presence highlights areas where credential hygiene must be monitored.</li>
 </ul>
@@ -12713,7 +12713,7 @@ GitGalaxy tracks isolated ownership to identify "Bus Factor" risks. In BLAST, do
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="../../../github-action-readme.md">GitHub Action</a> or the <a href="../../../templates/">CI templates</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="../../../github-action-readme.md">GitHub Action</a> or the <a href="../../../templates/">CI templates</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

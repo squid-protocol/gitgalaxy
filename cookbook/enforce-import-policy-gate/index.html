@@ -6,13 +6,13 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Set up the Supply Chain Firewall: import block and allow lists plus a secrets-risk gate, enforced by the standalone CLI.">
+        <meta name="description" content="Set up the Import Policy Gate: import block and allow lists plus a secrets-risk gate, enforced by the standalone CLI.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/cookbook/enforce-supply-chain-firewall/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/cookbook/enforce-import-policy-gate/">
       
       
         <link rel="prev" href="../deploy-vault-sentinel/">
@@ -29,7 +29,7 @@
     
     
       
-        <title>Enforce Supply Chain Firewall - GitGalaxy</title>
+        <title>Enforce Import Policy Gate - GitGalaxy</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-to-enforce-the-supply-chain-firewall" class="md-skip">
+        <a href="#how-to-enforce-the-import-policy-gate" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Enforce Supply Chain Firewall
+              Enforce Import Policy Gate
             
           </span>
         </div>
@@ -834,7 +834,7 @@
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -852,7 +852,7 @@
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -878,10 +878,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-the-firewall-gates" class="md-nav__link">
+  <a href="#what-the-gate-gates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What the firewall gates
+        What the gate gates
       
     </span>
   </a>
@@ -10436,14 +10436,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12712,12 +12712,12 @@
   
 
 
-<h1 id="how-to-enforce-the-supply-chain-firewall">How to Enforce the Supply Chain Firewall</h1>
+<h1 id="how-to-enforce-the-import-policy-gate">How to Enforce the Import Policy Gate</h1>
 <blockquote>
-<p><strong>Fixed in #8595 (#8428):</strong> the standalone CLI and the Action's <code>tool: supply-chain-firewall</code> now read the audit JSON's real keys and exit 1 on a counted threat. Before the fix they never blocked. In a <code>galaxyscope</code> scan the firewall's result is recorded in the scan summary (<code>ecosystem_audits.firewall</code>) and does not fail the scan; only the standalone CLI sets an exit code. The enforcement gaps that remain are tracked in #8432.</p>
+<p><strong>Fixed in #8595 (#8428):</strong> the standalone CLI and the Action's <code>tool: import-policy-gate</code> now read the audit JSON's real keys and exit 1 on a counted threat. Before the fix they never blocked. In a <code>galaxyscope</code> scan the gate's result is recorded in the scan summary (<code>ecosystem_audits.firewall</code>) and does not fail the scan; only the standalone CLI sets an exit code. The enforcement gaps that remain are tracked in #8432.</p>
 </blockquote>
-<h2 id="what-the-firewall-gates">What the firewall gates</h2>
-<p>The firewall checks the scanned repository's <strong>own</strong> files. It does not read installed dependencies: <code>node_modules</code>, <code>venv</code>, <code>.venv</code>, <code>vendor</code> and <code>third_party</code> are excluded by the default scan config. For each file it checks:</p>
+<h2 id="what-the-gate-gates">What the gate gates</h2>
+<p>The gate checks the scanned repository's <strong>own</strong> files. It does not read installed dependencies: <code>node_modules</code>, <code>venv</code>, <code>.venv</code>, <code>vendor</code> and <code>third_party</code> are excluded by the default scan config. For each file it checks:</p>
 <ol>
 <li><strong>Imports against your lists</strong> (<code>gitgalaxy_config.py</code> or <code>.galaxyscope.yaml</code>):</li>
 <li><strong>Audit mode (default):</strong> blocks packages listed in <code>BLACKLISTED_IMPORTS</code>. The list ships empty, so add entries before relying on it.</li>
@@ -12731,16 +12731,16 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">STRICT_IMPORT_MODE</span> <span class="o">=</span> <span class="kc">True</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">APPROVED_IMPORTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"requests"</span><span class="p">,</span> <span class="s2">"numpy"</span><span class="p">]</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">BLACKLISTED_IMPORTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"event-stream"</span><span class="p">]</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">FIREWALL_NETWORK_WEIGHTING</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># opt-in: raises the multiplier for highly central files</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">IMPORT_GATE_NETWORK_WEIGHTING</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># opt-in: raises the multiplier for highly central files</span>
 </code></pre></div>
 <h2 id="running-it">Running it</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># A directory target runs a GalaxyScope scan first; a GalaxyScope audit JSON is also accepted.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># Exits 1 when it counts a blacklisted or (strict mode) unapproved import, or a secrets-risk file.</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>supply-chain-firewall<span class="w"> </span>.<span class="w"> </span>--config<span class="w"> </span>.galaxyscope.yaml
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>import-policy-gate<span class="w"> </span>.<span class="w"> </span>--config<span class="w"> </span>.galaxyscope.yaml
 </code></pre></div>
 <p>When the CLI counts a threat it prints a summary and exits 1:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>===========================================================================
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a> 🧱 SUPPLY CHAIN FIREWALL: SCAN SUMMARY
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a> 🧱 IMPORT POLICY GATE: SCAN SUMMARY
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>===========================================================================
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> Mode                 : Strict (Exclude Blacklist and Unknown)
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a> Files Evaluated      : &lt;n&gt;
@@ -12756,7 +12756,7 @@
 </code></pre></div>
 <p>This is the format <code>import_policy_gate.py</code> prints, with placeholders; it is not output from a real run.</p>
 <blockquote>
-<p><strong>Read the full technical specification:</strong> <a href="../../04-03-supply-chain-firewall/">Supply Chain Firewall</a></p>
+<p><strong>Read the full technical specification:</strong> <a href="../../04-03-import-policy-gate/">Import Policy Gate</a></p>
 </blockquote>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

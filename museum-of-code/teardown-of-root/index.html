@@ -807,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../cookbook/enforce-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enforce Supply Chain Firewall
+    Enforce Import Policy Gate
   
 
     
@@ -10345,14 +10345,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../../04-03-import-policy-gate/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Supply Chain Firewall
+    Import Policy Gate
   
 
     
@@ -12704,7 +12704,7 @@ In a repository of this size, siloed knowledge represents a critical "Bus Factor
 <p>Applying modern zero-trust security lenses to a 30-year-old scientific framework reveals expected vulnerabilities tightly bound to its domain requirements.</p>
 <ul>
 <li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The system is structurally secure against recognized autonomous payloads.</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted / 16 Unknown Dependencies</strong>. Excellent perimeter defense, maintaining strict control over external libraries.</li>
+<li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted / 16 Unknown Dependencies</strong>. Excellent perimeter defense, maintaining strict control over external libraries.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <strong>121 hits</strong>. These anomalies (high entropy, magic byte mismatches) are expected, as ROOT heavily utilizes custom binary serialization formats (<code>.root</code> files) and compressed test data.</li>
 <li><strong>Weaponizable Injection Vectors:</strong> <strong><code>core/metacling/src/TCling.cxx</code></strong> hit <strong>100.0% Exposure</strong>. Because ROOT embeds a Just-In-Time (JIT) C++ compiler (Cling), untrusted input strings are literally compiled and executed at runtime. This is an architectural feature of the framework, but inherently creates an ultimate Remote Code Execution (RCE) surface if exposed to untrusted user data.</li>
 </ul>
@@ -12716,7 +12716,7 @@ In a repository of this size, siloed knowledge represents a critical "Bus Factor
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

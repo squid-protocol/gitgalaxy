@@ -12,7 +12,13 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from gitgalaxy.core.copy_libraries import CopyLibraries, DirectoryIndex, MemberIndex, declared_library_dirs
+from gitgalaxy.core.copy_libraries import (
+    CopyLibraries,
+    DirectoryIndex,
+    MemberIndex,
+    declared_library_dirs,
+    jcl_syslib_orders,
+)
 from gitgalaxy.core.go_modules import GoModules
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
@@ -271,6 +277,8 @@ class NetworkRiskSensor:
         # #4420: the COPYs a declared SYSLIB cannot satisfy (a member in none of the importer's
         # libraries, or not in the one `IN LIB` names): no edge, and a row here instead.
         self.copy_gaps: list[dict[str, Any]] = []
+        # #8412: PROGRAM -> the library names its compile JCL's SYSLIB lists; read once per scan, on first use
+        self._jcl_syslib: dict[str, list[str]] | None = None
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -1507,6 +1515,7 @@ class NetworkRiskSensor:
         self.star_exports = {}
         self.copy_collisions = []
         self.copy_gaps = []
+        self._jcl_syslib = None
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
         # #8111 slice 6: with no declaration, a COPY library is the directory it is named after, and the
         # directories the workspace declares are searched first for an unqualified COPY
@@ -1638,6 +1647,14 @@ class NetworkRiskSensor:
             return hits[0] if len(hits) == 1 else None
         if not self.root:
             return None
+        # #8412: the program's own compile JCL names its SYSLIB concatenation; it is the most specific declaration
+        if self._jcl_syslib is None:
+            self._jcl_syslib = jcl_syslib_orders(self.root)
+        stem = os.path.splitext(os.path.basename(importer))[0].upper()
+        for name in self._jcl_syslib.get(stem, []):
+            hits = self._pick_source_members(by_dir.named(name, member), src_lang, generated_from, file_facts)
+            if hits:
+                return hits[0] if len(hits) == 1 else None
         for directory in declared_library_dirs(self.root, importer, declared_cache):
             hits = self._pick_source_members(by_dir.in_dir(directory, member), src_lang, generated_from, file_facts)
             if hits:

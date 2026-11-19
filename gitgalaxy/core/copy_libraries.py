@@ -34,6 +34,7 @@ from __future__ import annotations
 import fnmatch
 import json
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -185,6 +186,86 @@ class DirectoryIndex:
 
     def in_dir(self, directory: str, member: str) -> list[str]:
         return self._by_dir.get((directory.upper(), member.upper()), [])
+
+
+_JCL_EXTS = (".jcl", ".prc", ".proc")
+_JCL_FILE_CAP = 5000  # JCL files read for one scan; a bigger estate declares nothing past it
+_JCL_PRUNE = {".git", "node_modules"}
+_COMPILER_PGM = "IGYCRCTL"  # Enterprise COBOL; the IGYW* cataloged procs run it under a qualified step name
+_SYSIN_MEMBER = re.compile(r"\(([A-Z0-9@#$]{1,8})\)$", re.I)
+
+
+def _jcl_compiles(text: str) -> list[tuple[str, list[str]]]:
+    """#8412: each compile step of one JCL file as (program, [library name, ...]): the SYSIN member, and the SYSLIB
+    DD concatenation (the DD and its unnamed continuation DDs) read as library names, a dataset's last qualifier
+    (a library is the directory it is named after, as `COPY ... IN` reads it). A step whose SYSIN member is not
+    literal (`&MEMBER`, in-stream), or whose SYSLIB holds a symbolic or member-qualified dataset, declares nothing."""
+    from gitgalaxy.core.jcl_proc import _dd_keys
+    from gitgalaxy.core.job_flow import _statements
+
+    out: list[tuple[str, list[str]]] = []
+    program: str | None = None
+    libs: list[str] | None = None
+    ok = False
+    in_syslib = False
+
+    def close() -> None:
+        if ok and program and libs:
+            out.append((program, libs))
+
+    for _no, name, op, operands in _statements(text):
+        if op == "EXEC":
+            close()
+            up = operands.upper().replace("PROC=", "").replace("PGM=", "")
+            ok = up.startswith(_COMPILER_PGM) or up.startswith("IGYW")
+            program, libs, in_syslib = None, [], False
+        elif op == "DD" and ok:
+            dd = name.rpartition(".")[2]
+            if not name and in_syslib:
+                pass
+            elif dd == "SYSLIB":
+                in_syslib = True
+            else:
+                in_syslib = False
+            keys = _dd_keys(operands)
+            dsn = (keys.get("DSN") or keys.get("DSNAME") or "").upper()
+            if dd == "SYSIN":
+                m = _SYSIN_MEMBER.search(dsn)
+                program = m.group(1) if m else None
+            elif in_syslib and dsn:
+                last = dsn.split("(")[0].rpartition(".")[2]
+                if "&" in dsn or "(" in dsn or not last:
+                    ok = False  # one unreadable library: the whole concatenation is unknown, never half an order
+                elif libs is not None and last not in libs:
+                    libs.append(last)
+    close()
+    return out
+
+
+def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
+    """#8412: PROGRAM -> the library names its compile JCL's SYSLIB concatenation lists, in order, over every
+    `.jcl` / `.prc` / `.proc` under `root`. A program two JCL files compile with different orders is ambiguous
+    and declares nothing, never a guess. Reads nothing past `_JCL_FILE_CAP` files."""
+    from gitgalaxy.core.source_text import read_source
+
+    found: dict[str, list[str] | None] = {}
+    seen = 0
+    for base, dirs, files in os.walk(root):
+        dirs[:] = sorted(d for d in dirs if d not in _JCL_PRUNE)
+        for fname in sorted(files):
+            if not fname.lower().endswith(_JCL_EXTS):
+                continue
+            seen += 1
+            if seen > _JCL_FILE_CAP:
+                break
+            try:
+                text = read_source(os.path.join(base, fname)).text
+            except (OSError, ValueError):
+                continue
+            for program, libs in _jcl_compiles(text):
+                key = program.upper()
+                found[key] = libs if found.get(key, libs) == libs else None
+    return {k: v for k, v in found.items() if v}
 
 
 def declared_library_dirs(root: str, importer: str, cache: dict[str, list[str]]) -> list[str]:

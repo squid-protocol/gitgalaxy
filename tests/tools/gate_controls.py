@@ -108,10 +108,10 @@ GATES = (
         open_gap="a plain XOR loop is not flagged, only repeated indexed XORs (#7187)",
     ),
     Gate(
-        "Supply Chain Firewall",
+        "Import Policy Gate",
         "gitgalaxy.yml",
         "banned packages and risky behaviour",
-        "tests/security_auditing/test_supply_chain_firewall.py::test_behavioral_threat_evaluation",
+        "tests/security_auditing/test_import_policy_gate.py::test_behavioral_threat_evaluation",
         open_gap="no directory-mode end-to-end test; unknown packages pass by default",
     ),
     # Small audits

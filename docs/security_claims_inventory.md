@@ -47,12 +47,12 @@ TESTED**, **10 UNTESTED**, **39 FALSE**, **14 VAGUE**.
    zero_dependency_mode.md (short version), github-action-readme.md (`full_precision`) and wiki/index.md describe a
    working Trojan/Stealer/Dropper/Botnet classifier. The Action's `full.txt` also lacks scikit-learn, so it could not run
    even with a model. The pipeline template's "ML Malware Gate" job gates on `--fail-on-malware`, which cannot fire.
-2. **(Fixed in #8595; kept for the record.) The standalone `supply-chain-firewall` CLI (and `tool: supply-chain-firewall`
-   in the Action) never blocked on real input.** `run_firewall_audit` reads `raw_imports` and `risk_vector` (`supply_chain_firewall.py:125,244`); the audit
+2. **(Fixed in #8595; kept for the record.) The standalone `import-policy-gate` CLI (and `tool: import-policy-gate`
+   in the Action) never blocked on real input.** `run_import_gate_audit` reads `raw_imports` and `risk_vector` (`import_policy_gate.py:125,244`); the audit
    JSON stores them as `"9. Extracted Dependencies"` and `"4. Vulnerability & Risk Exposures"` and drops `risk_vector`
    (`audit_recorder.py:709,811,859`). Reproduced: strict mode with `requests` blacklisted passes with 0 unknown, 0
    threats, exit 0. Its tests feed only the old JSON shape. This repo's own CI pre-gate runs it
-   (`.github/workflows/gitgalaxy.yml:92-96`). The engine-internal firewall path works.
+   (`.github/workflows/gitgalaxy.yml:92-96`). The engine-internal gate path works.
 3. **Lines of 250+ characters are invisible to every engine security regex**, and no doc or known_blind_spots.md says
    so. `SecurityLens._armor` (`security_lens.py:808-814`) blanks them; `long_lines.chunk_long_lines` is used only by
    Vault Sentinel. Reproduced: an AWS key alone reads `hardcoded_secrets: 1`; on a 300-character line it reads nothing.
@@ -65,8 +65,8 @@ TESTED**, **10 UNTESTED**, **39 FALSE**, **14 VAGUE**.
    compared, yet the alert text says "Hash mutated without version bump!" (`security_auditor.py:191-198`). It labels
    every file with `file_impact > 0.5` a Trojan, and it sits after `if not self.model: return` (`:146`), so it never
    fires.
-6. **The firewall's documented scope is mostly fiction.** Its only behavioural input is `secrets_risk`
-   (`_FIREWALL_RISK_MAP`, `supply_chain_firewall.py:33-35`), a vector docs/vectors.md marks REWORK. Claims of malware,
+6. **The gate's documented scope is mostly fiction.** Its only behavioural input is `secrets_risk`
+   (`_IMPORT_GATE_RISK_MAP`, `import_policy_gate.py:33-35`), a vector docs/vectors.md marks REWORK. Claims of malware,
    data injection, network calls, I/O hooks, typosquatting, homoglyphs, steganography, tainted I/O and npm install hooks
    are false. `package.json` is skipped by the `.json` shield before the 10x build-script multiplier applies;
    `node_modules`/`venv` are excluded from the scan; manifest-parser flags (insecure registry, ngrok, direct URI) are
@@ -98,7 +98,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Unicode steganography, zero-width and homoglyph detection | 02-06:15; security/README.md:51; signal_coverage_verdicts.md:16 | TESTED | `test_hidden_text_*_4108.py`, `test_zero_coverage_signals_4108.py::test_planted_file_fires_exactly_its_signal` | — |
 | Data-flow taint analysis from untrusted I/O into sinks | 02-06:9,18,39,45; 08-21:39; `security_lens.py:264,820` docstrings | FALSE | Removed #3101 (`security_lens.py:979-980`); column always 0 | Delete; mark the column a retired placeholder |
 | `threat_api_near_db_sink` has about 0% precision | 08-21:43-46 | UNTESTED | Number cited only to #3018/#3019; no artifact | Commit the count or cite as issue-reported |
-| Threat density "scaled exponentially by network centrality" | 02-06:18,21,23; README.md:5 | FALSE | Lens never reads centrality; only the opt-in firewall applies a linear multiplier (`supply_chain_firewall.py:225-240`) | Scope to the firewall, linear, opt-in |
+| Threat density "scaled exponentially by network centrality" | 02-06:18,21,23; README.md:5 | FALSE | Lens never reads centrality; only the opt-in import policy gate applies a linear multiplier (`import_policy_gate.py:225-240`) | Scope to the gate, linear, opt-in |
 | Entropy threshold "> 7.9" detects packing | 02-06:34 | FALSE | Strings use 4.8 (`security_lens.py:970`); 7.95 is `scan_binary` (`:1019`), reached only from X-Ray | State 4.8 for strings, 7.95 for binaries in X-Ray |
 | Entropy finds payloads in "massive string literals"; "thousands of strings in milliseconds" | security/README.md:20,50 | FALSE | Literal extractor caps at 1024 chars and reads armored text; nothing past ~248 chars is checked; no benchmark | "String literals of 64 to ~248 chars" |
 | Entropy skips machine-generated files | 02-06:34 | UNTESTED | `security_lens.py:279-283,962`; the auto-gen test does not assert entropy | Add the assertion |
@@ -138,7 +138,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | `--paranoid` changes only secrets thresholds | CLI ref:81; github-action-readme.md:103-106 | TESTED | `test_signal_processor.py::..._paranoid_mode_skips_clamp`; log line overstates; `ThreatPolicy` "paranoid" is dead code | Fix the log line |
 | `--ai-guardrails` off by default; NULL vs 0 columns | CLI ref:82 | TESTED | `test_record_keeper.py`, `test_galaxyscope.py::test_ai_guardrails_off_by_default` | — |
 | AI sensors hunt "RCE Funnels, God-Mode Agents, Context Window Shredders" | wiki/index.md:52 | FALSE | RCE detectors removed | Describe the heuristics plainly |
-| Sentinel tools exit 1 and break the build | github-action-readme.md:17,74 | TESTED | `test_vault_sentinel_control.py`, `test_xray_control.py`, `test_supply_chain_firewall.py::test_strict_mode_enforcement` (the firewall CLI part was FALSE, problem 2, fixed in #8595) | — |
+| Sentinel tools exit 1 and break the build | github-action-readme.md:17,74 | TESTED | `test_vault_sentinel_control.py`, `test_xray_control.py`, `test_import_policy_gate.py::test_strict_mode_enforcement` (the gate CLI part was FALSE, problem 2, fixed in #8595) | — |
 | SARIF output | README.md:40,235 | TESTED | `test_sarif_recorder.py`, golden `sarif.json` | — |
 | Per-file vectors show where secrets and unsafe calls concentrate | README.md:224 | TESTED | Goldens, planted probes | — |
 | Analysis is "identifying potential vulnerabilities", outputs "vulnerability flags" | 04-00:25,51,58 | MEASURED (negative) | validation.md:309-318: per-file risk does not predict defects | Reword as surface description; cite the result |
@@ -153,19 +153,19 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | "Zero-Trust" labels | github-action-readme.md:1,5,114; wiki/index.md:21,214 | VAGUE | No defined property | Remove or define |
 | Private vulnerability reporting; 48-hour response | SECURITY.md:4-16 | UNTESTED | Reporting is enabled on GitHub; SLA unverifiable | "Aim to respond" |
 
-## C. Supply-chain tools (firewall, Vault Sentinel, X-Ray, SBOM, shadow APIs)
+## C. Supply-chain tools (import policy gate, Vault Sentinel, X-Ray, SBOM, shadow APIs)
 
 | Claim | Where | Tag | Evidence | Fix |
 |---|---|---|---|---|
-| Standalone firewall blocks blacklisted/unknown imports and behavioural threats, exit 1 | enforce-supply-chain-firewall.md:39-67; supply_chain_security/README.md:79-98,123-139; 04-03:55 | TESTED | Reader fixed in #8595: `_audit_file_to_node` translates the audit JSON; `test_supply_chain_firewall.py::test_real_audit_json_blacklisted_import_blocks` runs a real scan, then the CLI (exit 1) | Config lists ship empty: say to set them first |
-| Firewall scans every dependency file inside `node_modules`/`venv` | supply_chain_security/README.md:7,16; enforce…md:10,17 | FALSE | Both are excluded by config (`gitgalaxy_config.py:191,212`) | "Gates the repo's own imports" |
-| Firewall flags network requests, typosquatting, I/O hooks, install-time hooks | supply_chain_security/README.md:16,30; tools/README.md:46,72 | FALSE | Gate reads only `secrets_risk`; the engine's typosquat radar only logs | List only what is gated |
+| Standalone gate blocks blacklisted/unknown imports and behavioural threats, exit 1 | enforce-import-policy-gate.md:39-67; supply_chain_security/README.md:79-98,123-139; 04-03:55 | TESTED | Reader fixed in #8595: `_audit_file_to_node` translates the audit JSON; `test_import_policy_gate.py::test_real_audit_json_blacklisted_import_blocks` runs a real scan, then the CLI (exit 1) | Config lists ship empty: say to set them first |
+| Gate scans every dependency file inside `node_modules`/`venv` | supply_chain_security/README.md:7,16; enforce…md:10,17 | FALSE | Both are excluded by config (`gitgalaxy_config.py:191,212`) | "Gates the repo's own imports" |
+| Gate flags network requests, typosquatting, I/O hooks, install-time hooks | supply_chain_security/README.md:16,30; tools/README.md:46,72 | FALSE | Gate reads only `secrets_risk`; the engine's typosquat radar only logs | List only what is gated |
 | Risk categories "Hidden Malware, Data Injection, Secrets Leak" | 04-03:24 | FALSE | One mapped vector, `secrets_risk` | Name it; link the vectors.md caveat |
-| Firewall hunts homoglyphs, shadow-import steganography, tainted I/O | enforce…md:23-28 | FALSE | Never calls SecurityLens; taint removed | Delete the section |
+| Gate hunts homoglyphs, shadow-import steganography, tainted I/O | enforce…md:23-28 | FALSE | Never calls SecurityLens; taint removed | Delete the section |
 | 10x multiplier on `package.json` hooks and setup scripts trips on any I/O or execution | supply_chain_security/README.md:40; 04-03:27,49 | FALSE | `package.json` skipped by the `.json` shield; npm scripts never parsed; multiplier scales only secrets risk. setup.py/build.rs/*install.js part tested (`test_build_time_execution_multiplier`) | "10x on secrets risk for setup.py, build.rs, *install.js" |
 | Audit mode blocks blacklist; strict mode blocks anything not approved | enforce…md:19-20; 04-03:48 | TESTED | `test_zero_trust_import_verification`, `::test_strict_mode_enforcement` (logic) and, on a real scan plus the CLI, `::test_real_audit_json_blacklisted_import_blocks`, `::test_real_audit_json_strict_mode_unapproved_fails_approved_passes` (#8595) | — |
 | Alias dereferencing catches dependency confusion | 04-03:21; supply_chain_security/README.md:41 | TESTED | `test_alias_spoofing_detection`; engine path only, needs a blacklist entry | Say so |
-| Manifest flags hand entries to the firewall to block | supply_chain_security/README.md:33,41 | FALSE | Detection tested; nothing reads the flags | Wire them in, or say "logged only" |
+| Manifest flags hand entries to the gate to block | supply_chain_security/README.md:33,41 | FALSE | Detection tested; nothing reads the flags | Wire them in, or say "logged only" |
 | Centrality multiplier | 04-03:28 | TESTED | `test_network_weighting_*`; off by default, undisclosed | Say opt-in |
 | "RAM-exclusive, zero disk I/O, sub-second across tens of thousands of dependencies" | supply_chain_security/README.md:39; 04-03:52 | VAGUE | CLI spawns a full scan; no benchmark | Drop scale claims |
 | Showcase results (Terraform, tRPC, pwntools) | supply_chain_security/README.md:51,58,79-98 | REMOVED | No committed command or output ever existed; the tRPC and pwntools runs were removed from the README in #8604 (the Terraform one was gone earlier) | Re-add only with a committed command and output |
@@ -214,7 +214,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Recidivism and change entropy predict CVE/bug files | vectors.md:31-36,427-437; validation.md:323-334 | MEASURED | HYPOTHESES.md; bh_eval.md (AUC 0.868 vs LOC 0.830) | Both are zero in shipped scans (already stated) |
 | Security-fix experiment is "future work" / "planned harness" | validation.md:276-282,400-449 | FALSE | Already run (same page :293, :372) | Rewrite as done |
 | Signatures cover secrets, injection surface, dynamic execution, entropy, "other characteristics" | validation.md:350-363 | VAGUE | Injection surface removed | Use the concrete signal list |
-| Firewall 50.0 cutoff is an uncalibrated sigmoid midpoint | vectors.md:612-622 | TESTED | `test_supply_chain_firewall.py` | — (honest) |
+| Gate 50.0 cutoff is an uncalibrated sigmoid midpoint | vectors.md:612-622 | TESTED | `test_import_policy_gate.py` | — (honest) |
 | FP/FN rates are gated on labelled ground truth | readme_evidence_roadmap.md:36 | TESTED (honest) | No labelled security artifact exists | List the security detectors as gated |
 | known_blind_spots.md covers the engine's blind spots | known_blind_spots.md | UNTESTED (omission) | Omits the 250-char blind spot (problem 3) | Add it |
 
@@ -236,7 +236,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 
 1. **Fix the FALSE claims**, smallest blast radius first: remove or reword the ML classifier, taint, Obscured Payload,
    shadow-patch, privacy and firewall-scope claims. Split into PRs of at most 5 files each.
-2. **Code bugs this audit found** (issues, not doc edits): the firewall CLI JSON-key mismatch; the 250-char blind spot
+2. **Code bugs this audit found** (issues, not doc edits): the gate CLI JSON-key mismatch; the 250-char blind spot
    in the engine security pass; shadow patch unreachable and mislabelled; manifest-parser flags never enforced;
    `package.json` install hooks never read; the tautological `--max-systemic-threat` test.
 3. **Then measure.** A labelled benchmark (known malicious npm and PyPI packages plus reconstructions of recent

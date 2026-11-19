@@ -22,6 +22,7 @@ from gitgalaxy.security.mainframe_secrets import mainframe_secret_hits
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.config_resolver import path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 MAX_TEXT_BYTES = 5_000_000
 # Secret kinds SecurityLens has no signature for (#7179). Kept here, not in its signatures, because those feed the
@@ -62,7 +63,9 @@ def main():
         "same resolver galaxyscope.py uses, so standalone runs honor the same "
         "ALLOWLIST_PATHS / DENYLIST_PATTERNS / APERTURE_CONFIG overrides (#335).",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     # #335: was a direct module-level gitgalaxy_config.py import, which meant
     # no YAML/CLI override (#332) could ever reach this standalone scanner.

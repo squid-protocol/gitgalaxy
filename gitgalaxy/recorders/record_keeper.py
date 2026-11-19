@@ -2651,7 +2651,7 @@ class RecordKeeper:
             edges_unrecorded,
             int(audits.get("api_mapper", {}).get("shadow_count", 0)),
             int(audits.get("xray", {}).get("anomalies_found", 0)),
-            int(audits.get("firewall", {}).get("imports_unknown", 0)),
+            int(audits.get("import_policy_gate", {}).get("imports_unknown", 0)),
             1 if session_meta.get("zero_dependency_mode") else 0,
             json.dumps(session_meta["missing_dependencies"], sort_keys=True)
             if "missing_dependencies" in session_meta

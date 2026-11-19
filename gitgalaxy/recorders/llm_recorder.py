@@ -1936,7 +1936,7 @@ class LLMRecorder:
         audits = summary.get("ecosystem_audits", {})
         lines.append("## 10.7 ECOSYSTEM SECURITY AUDITS")
         lines.append(
-            "> **AI CONTEXT:** High-level perimeter defense metrics from the X-Ray, Supply Chain Firewall, and API Network Mapper."
+            "> **AI CONTEXT:** High-level perimeter defense metrics from the X-Ray, Import Policy Gate, and API Network Mapper."
         )
         lines.append("")
 
@@ -1954,11 +1954,11 @@ class LLMRecorder:
                 lines.append("- **Known Shadow Routes:** " + ", ".join([f"`{r}`" for r in api.get("shadow_apis")[:5]]))
             lines.append("")
 
-        # 2. X-Ray & Firewall
+        # 2. X-Ray & Import Policy Gate
         xray = audits.get("xray", {})
-        fw = audits.get("firewall", {})
+        fw = audits.get("import_policy_gate", {})
 
-        lines.append("### ☢️ X-Ray & 🧱 Supply Chain Firewall")
+        lines.append("### ☢️ X-Ray & 🧱 Import Policy Gate")
         lines.append(
             f"- **Binary Anomalies (X-Ray):** `{xray.get('anomalies_found', 0)}` (High entropy, packed payloads, or magic byte mismatches)."
         )

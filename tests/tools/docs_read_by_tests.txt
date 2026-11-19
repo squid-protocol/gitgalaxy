@@ -107,6 +107,7 @@
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
+/b.c	tests/core_engine
 /bad.forbidden	tests/security_auditing
 /baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine
@@ -175,6 +176,7 @@
 /pgm.cbl	tests/tools/test_cics_census_listing_8112.py,tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
+/port	tests/tools/test_l5_speedups.py
 /private.key	tests/security_auditing
 /procs	tests/cobol_mainframe
 /production.pem	tests/security_auditing
@@ -567,7 +569,7 @@ register/probe_a.md	tests/tools/test_pr_runner_cost.py
 register/probe_b.md	tests/tools/test_pr_runner_cost.py
 repo/b.md	tests/security_auditing
 repo_galaxy_llm.md	tests/tools/test_cli_contract.py
-report.md	tests/cultural_gauntlet,tests/tools/cics_crucible.py,tests/tools/cultural_gauntlet.py,tests/tools/equivalence.py,tests/tools/equivalence_cics.py,tests/tools/estate_evidence.py,tests/tools/evidence_report.py,tests/tools/publish_examples.py,tests/tools/test_estate_evidence.py,tests/tools/test_evidence_report.py,tests/tools/test_generated_branch.py,tests/tools/test_unicode_gauntlet_vs_treesitter.py,tests/tools/unicode_gauntlet.py,tests/tools/unicode_gauntlet_vs_treesitter.py
+report.md	tests/core_engine,tests/cultural_gauntlet,tests/tools/cics_crucible.py,tests/tools/cultural_gauntlet.py,tests/tools/equivalence.py,tests/tools/equivalence_cics.py,tests/tools/estate_evidence.py,tests/tools/evidence_report.py,tests/tools/publish_examples.py,tests/tools/test_estate_evidence.py,tests/tools/test_evidence_report.py,tests/tools/test_generated_branch.py,tests/tools/test_unicode_gauntlet_vs_treesitter.py,tests/tools/unicode_gauntlet.py,tests/tools/unicode_gauntlet_vs_treesitter.py
 report_generated.md	tests/tools/publish_examples.py
 report_ported.md	tests/tools/publish_examples.py
 response.md	tests/tools/strengthen.py

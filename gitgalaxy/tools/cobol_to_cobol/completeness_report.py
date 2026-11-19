@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 
 def render_markdown(report: dict[str, Any], title: str) -> str:
@@ -49,7 +50,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--repo", help="repository name inside the DB (default: the only / latest one)")
     ap.add_argument("--json", type=Path, help="also write the report as JSON")
     ap.add_argument("--md", type=Path, help="write the Markdown report here instead of stdout")
+    add_flag(ap)  # #8624
     args = ap.parse_args(argv)
+    enforce(args)
     ir = load_galaxy_ir(args.db, args.repo)
     report = ir.completeness()
     md = render_markdown(report, ir.repo_name)

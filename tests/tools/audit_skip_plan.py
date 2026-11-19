@@ -16,7 +16,7 @@ extension that no audit lints, type-checks or loads as config:
   whole engine): the `lint` areas minus `SMALL_READS`, the one doc they open (the four scripts name no other .md, so a
   README or a register page is not their input; they are not the tests that read it, the suite plan runs those).
 
-* `gate` (gitgalaxy.yml's pre-gate: Vault Sentinel, X-Ray, Supply Chain Firewall scan code and manifests): the `lint`
+* `gate` (gitgalaxy.yml's pre-gate: Vault Sentinel, X-Ray, Import Policy Gate scan code and manifests): the `lint`
   areas. The workflow used to ignore `docs/**` altogether; it now asks this plan instead, so prose outside docs/ skips too.
 
 Anything else, a `.py` / `.pyi` / `.toml` / `.json` / `.txt` / `.yml` / `.sh` file even under docs or .claude, a rename from

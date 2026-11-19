@@ -32,6 +32,7 @@ from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.config_resolver import ResolvedConfig, path_allowlisted, resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 MAX_DENSE_SCAN_BYTES = 5_000_000
 ENCODED_RUN = re.compile(rb"[A-Za-z0-9+/_-]{256,}={0,2}")  # a long unbroken encoded run: no backtracking in one class
@@ -88,7 +89,9 @@ def main():
         "same resolver galaxyscope.py uses, so standalone runs honor the same "
         "ALLOWLIST_PATHS / DENYLIST_PATTERNS / XRAY_BYPASS_* overrides (#335).",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     # #335: was a direct module-level gitgalaxy_config.py import, which meant
     # no YAML/CLI override (#332) could ever reach this standalone detector.

@@ -11,12 +11,12 @@ hand to a coding agent. The pipeline is also thorough enough to be the basis for
 <table>
 <tr>
 <td align="center" width="250"><h2>&lt; 1 s</h2></td>
-<td align="center" width="250"><h2>65</h2></td>
+<td align="center" width="250"><h2>66</h2></td>
 <td align="center" width="250"><h2>0</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>for most repositories</strong><br />Kubernetes, 2.46M lines, in about 65 s · single run, 2026-09-19<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
-<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />78 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />79 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
 <td align="center" valign="top"><sub><strong>install dependencies</strong><br />runs locally; nothing leaves your machine<br /><em><a href="#privacy-and-deployment">privacy</a></em></sub></td>
 </tr>
 </table>
@@ -275,7 +275,7 @@ own always-current self-scan brief is at
 <a id="languages"></a>
 
 <details>
-<summary><strong>Languages: 78 recognized, 65 read down to the function</strong></summary>
+<summary><strong>Languages: 79 recognized, 66 read down to the function</strong></summary>
 
 From the engine's language definitions
 ([`gitgalaxy/standards/language_standards/`](gitgalaxy/standards/language_standards/)) on
@@ -283,7 +283,7 @@ From the engine's language definitions
 
 | level | count | languages |
 |---|---|---|
-| **Split into functions**: full structural extraction, functions with their own signals | 65 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `erlang`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hcl`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `julia`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `nim`, `objective-c`, `ocaml`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `r`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
+| **Split into functions**: full structural extraction, functions with their own signals | 66 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `clist`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `erlang`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hcl`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `julia`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `nim`, `objective-c`, `ocaml`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `r`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
 | **Structural rules, no function split** | 4 | `glsl`, `hlo`, `markdown`, `mlir` |
 | **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
 
@@ -349,6 +349,26 @@ GitGalaxy is designed for local and air-gapped operation.
 -   The scanner has no runtime network requirement.
 -   CI/CD execution can remain inside the user's environment.
 -   The browser visualizer operates on locally supplied data.
+
+### Offline guarantee, by command
+
+A guarantee here means a socket guard (`gitgalaxy/tools/readiness/offline.py`) refuses every non-local network call
+with `OfflineViolation`, in the main process and in spawn-start workers, and a test pins it.
+
+| Command | Offline status |
+|---|---|
+| `gitgalaxy assess` | Guaranteed: always under the guard (#4726, #5235). |
+| `galaxyscope <path> --offline` (or `GITGALAXY_OFFLINE=1`) | Guaranteed under the guard (#8624). Without the opt-in it only promises. |
+| The completeness report (`completeness_report`, run as `python -m`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The forensic audit recorder CLI (`audit_recorder`, run as `python -m`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The three cobol_to_cobol reporters (`cobol_system_limits_reporter`, `cobol_jcl_auditor`, `cobol_graveyard_finder`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The three supply-chain CLIs (`vault_sentinel`, `import_policy_gate`, `binary_anomaly_detector`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The two log-scanner CLIs (`pii_leak_hunter`, `terabyte_log_scanner`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| Other report and audit tools | Not yet guarded: they make no network call, but nothing enforces it (tracked in #8624). |
+
+Exceptions, refused by name when offline: the tiktoken `cl100k_base` download (token mass is left NULL; point
+`TIKTOKEN_CACHE_DIR` at a cache holding the encoding to keep it) and the opt-in LLM port runner (it calls a model
+API by design; not yet refused by name, tracked in #8624).
 
 ## Installation
 

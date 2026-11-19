@@ -18,6 +18,7 @@ from typing import Any
 from gitgalaxy.core.rule_prefilter import derive_literal_gate, fold_haystack
 from gitgalaxy.security.credential_lexicon import COBOL_CREDENTIAL_ALTERNATION, CODE_CREDENTIAL_ALTERNATION
 from gitgalaxy.security.long_lines import CHUNK, OVERLAP
+from gitgalaxy.security.mainframe_secrets import MAINFRAME_SECRET_LANGUAGES, mainframe_secret_sites
 from gitgalaxy.standards.language_standards.identifiers import VIRAMA
 
 logger = logging.getLogger("security_lens")
@@ -261,9 +262,10 @@ class SecurityLens:
     """
     Static Application Security Testing (SAST) Engine.
 
-    Identifies raw structural vulnerabilities (Regex Signatures, Shannon Entropy,
-    and Data Flow Taint) and evaluates them against dynamically injected Policy Thresholds
-    augmented by Network Centrality metrics.
+    Identifies raw structural vulnerabilities (Regex Signatures and Shannon Entropy)
+    and evaluates them against dynamically injected Policy Thresholds. Data-flow taint
+    tracking was removed (#3101), and this lens does not read network centrality: it
+    works file-by-file, and graph metrics are applied downstream of it.
     """
 
     def __init__(self):
@@ -859,7 +861,7 @@ class SecurityLens:
         self, content: str, code_stream: str | None = None, prose: bool = False, language: str | None = None
     ) -> dict:
         """
-        Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
+        Executes primary regex scanning and entropy calculation. Data-flow taint tracking was removed (#3101).
 
         `code_stream` is the comment-blanked, line-preserving payload from prism (CODE_STREAM_SIGNALS
         read it; omitted -> they read `content`). `prose=True` marks a file with no executable
@@ -995,6 +997,24 @@ class SecurityLens:
                     positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
             counts[key] = counts.get(key, 0) + new_hits
+
+        # ---> MAINFRAME CREDENTIAL SHAPES (#8625) <---
+        # A JCL `PASSWORD=` is 8 characters and unquoted, so the `hardcoded_secrets` signature above (16+ quoted
+        # characters) cannot see it. Counted onto the same signal for the languages that carry these shapes.
+        if language in MAINFRAME_SECRET_LANGUAGES:
+            mf_sites = mainframe_secret_sites(content)
+            if mf_sites:
+                key = "hardcoded_secrets"
+                counts[key] = counts.get(key, 0) + len(mf_sites)
+                snips = snippets.setdefault(key, [])
+                site_list = sites.setdefault(key, [])
+                site_list.extend([None] * (len(snips) - len(site_list)))
+                for line_no, col, label in mf_sites:
+                    if len(snips) < 3 and label not in snips:
+                        snips.append(label)
+                        site_list.append(None if is_auto_gen else [line_no, col])
+                    if not is_auto_gen:
+                        positions[key].append(line_no)
 
         # ---> LONG-LINE SIGNATURES (#8429) <---
         # `_armor` emptied every line of 250+ chars, so a hit on one was never seen. Re-read only those lines, in

@@ -88,7 +88,7 @@ blast = "gitgalaxy.galaxyscope:main"
 
 # --- THE SPOKES (DevSecOps Tooling) ---
 vault-sentinel = "gitgalaxy.tools.supply_chain_security.vault_sentinel:main"
-supply-chain-firewall = "gitgalaxy.tools.supply_chain_security.supply_chain_firewall:main"
+import-policy-gate = "gitgalaxy.tools.supply_chain_security.import_policy_gate:main"
 xray-inspector = "gitgalaxy.tools.supply_chain_security.binary_anomaly_detector:main"
 # No standalone SBOM command is registered here on purpose. SBOM output is a
 # mode of the hub command (`galaxyscope <target> --sbom-only`), produced by the

@@ -86,8 +86,8 @@ from gitgalaxy.standards.stdlib_modules import is_no_registry_language, is_stdli
 from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
-from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
-    run_firewall_audit,
+from gitgalaxy.tools.supply_chain_security.import_policy_gate import (
+    run_import_gate_audit,
 )
 
 HAS_PYYAML = importlib.util.find_spec("yaml") is not None
@@ -1501,7 +1501,7 @@ class Orchestrator:
        DAGs (Directed Acyclic Graphs) and converts token frequencies into actionable metrics. Note:
        risk exposures are calculated metrics from the raw Structural Signatures, not the hits themselves.
     4. Threat Inference (Phases 5-10): Executes ML pipelines (XGBoost) and zero-trust policies
-       (AppSec/Supply Chain Firewalls) to hunt behavioral anomalies.
+       (AppSec/Import Policy Gate) to hunt behavioral anomalies.
     5. Output Routing (Phases 11-12): Transforms the global RAM state into columnar
        JSON payloads, native SQLite bases, and LLM-ready markdown artifacts.
     """
@@ -2123,7 +2123,7 @@ class Orchestrator:
             # PHASE 10: ECOSYSTEM SECURITY AUDITS
             # Evaluates structural boundaries (Ghost APIs, Supply Chain spoofing).
             # ==========================================================
-            logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Firewall, API Mapper)...")
+            logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Import Policy Gate, API Mapper)...")
 
             # NEW:
             # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
@@ -2156,8 +2156,8 @@ class Orchestrator:
             ecosystem_audits = {
                 "api_mapper": run_api_audit(self.root),
                 "xray": run_xray_audit(self.root, config=self.config),
-                # 3. Pass the RAM graph and the alias map to the Firewall
-                "firewall": run_firewall_audit(repository_graph, alias_map=alias_map, config=self.config),
+                # 3. Pass the RAM graph and the alias map to the Import Policy Gate
+                "import_policy_gate": run_import_gate_audit(repository_graph, alias_map=alias_map, config=self.config),
             }
 
             # Attach it to the summary payload
@@ -4327,10 +4327,15 @@ def main():
     parser.add_argument("--output", default=None, help="Optional output filename override")
     parser.add_argument("--debug", action="store_true", default=None, help="Turn on verbose Analytical logging")
     parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Refuse every network call (also GITGALAXY_OFFLINE=1); the tiktoken download is refused by name.",
+    )
+    parser.add_argument(
         "--paranoid",
         action="store_true",
         default=None,
-        help="Lower security thresholds to flag more potential threats.",
+        help="Use the stricter credential-exposure thresholds (paranoid_threshold, paranoid_slope); other Security Lens thresholds are unchanged.",
     )
 
     # ---> NEW: THE SHADOW PATCH OVERRIDE <---
@@ -4652,7 +4657,7 @@ def main():
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
             logging.getLogger("GalaxyScope").info(
-                "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
+                "🔒 PARANOID MODE: stricter credential-exposure thresholds only; other Security Lens thresholds unchanged."
             )
         # -------------------------------
 

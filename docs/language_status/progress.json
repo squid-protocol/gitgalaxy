@@ -1,5 +1,5 @@
 {
- "commit": "ffa3d7be8",
+ "commit": "d6d36192b",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-19T22:24:54Z",
+  "as_of": "2026-11-19T23:24:19Z",
   "core": {
    "closed": 253,
    "open": 12,
@@ -1268,9 +1268,9 @@
    {
     "closed": 17,
     "number": 38,
-    "open": 6,
+    "open": 12,
     "title": "Charisma +10 \ud83d\udcac \u2014 Public Face & Product Presentation",
-    "total": 23
+    "total": 29
    },
    {
     "closed": 0,

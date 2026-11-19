@@ -233,7 +233,7 @@ def test_every_sign_nibble_a_packed_item_can_carry_is_read_or_refused_by_name(es
 @pytest.mark.parametrize("row", [r for r in ROWS if r[4] == "PACKED"], ids=lambda r: r[0])
 def test_the_image_writes_only_the_preferred_sign_pfd_accepts(estate, row):
     """What PFD trusts is what the image writes: a signed zero is C (never D), a signed negative D, unsigned F."""
-    name, _, _, size, _ = row
+    name = row[0]
     it = estate[1][name]
     for v in (Decimal(0), Decimal("-0"), Decimal(7), Decimal("-7")):
         data = L.encode_number(it, v)

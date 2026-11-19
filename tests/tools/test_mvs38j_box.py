@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -31,7 +32,7 @@ def test_unknown_subcommand_is_refused():
 def test_bare_sysgen_is_refused_with_the_automated_stage_named():
     r = _run("sysgen")
     assert r.returncode == 3
-    assert "only 'sysgen starter|smp1|smp2|stage1|stage2' are automated" in r.stderr
+    assert "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3' are automated" in r.stderr
 
 
 def test_every_tape_pin_is_an_md5():
@@ -173,7 +174,7 @@ def test_the_starter_plan_covers_both_volumes_with_distinct_readers_and_tapes():
 
 def test_sysgen_subcommand_refuses_a_stage_that_is_not_automated():
     r = _run("sysgen", "sysgen02")
-    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2'" in r.stderr
+    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3'" in r.stderr
 
 
 # --- console.py: the telnet 3215 client, against an in-process fake server ---
@@ -452,3 +453,41 @@ def test_stage2_expected_allows_only_the_listed_cc8_step():
     assert sysgen.smp_failed_steps(ok, sysgen.STAGE2_EXPECTED) == []
     assert sysgen.smp_failed_steps([step("SYSGEN6", "STEPZ1", 0)], sysgen.STAGE2_EXPECTED)  # a listed step must match
     assert sysgen.smp_failed_steps([step("SYSGEN3", "X", 8)], sysgen.STAGE2_EXPECTED)  # an unlisted CC 8 fails
+
+
+def test_stage3_refuses_without_the_stage_files(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="missing: run mvs38j.sh stage first"):
+        sysgen.stage3(str(tmp_path), "img", "n", {})
+
+
+def test_stage3_refuses_without_the_stage2_deck(tmp_path):
+    for need in ("conf/sysgen.cnf", "conf/sysgen.script", *(f"jcl/{d}" for d, _ in sysgen.STAGE3_DECKS)):
+        (tmp_path / need).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / need).write_text("")
+    for het in sysgen.STAGE3_TAPES.values():
+        (tmp_path / het).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / het).write_text("")
+    with pytest.raises(sysgen.SysgenError, match="run `sysgen stage2` first"):
+        sysgen.stage3(str(tmp_path), "img", "n", {})
+
+
+def test_stage3_decks_run_in_moseleys_order_with_the_second_job_counted():
+    assert [d for d, _ in sysgen.STAGE3_DECKS] == [
+        "sysgen02.jcl",
+        "sysgen03.jcl",
+        "sysgen04.jcl",
+        "sysgen05.jcl",
+        "sysgen06.jcl",
+        "usermods.jcl",
+        "fdz1d02.jcl",
+    ]
+    ended = dict(sysgen.STAGE3_DECKS)
+    assert ended["sysgen04.jcl"] == 2 and ended["fdz1d02.jcl"] == 2 and ended["usermods.jcl"] == 7
+    assert sysgen.STAGE3_TAPES["MVS38J"] == "tape/dz1d02.het"  # not DEFAULT_TAPES' zdlib1
+
+
+def test_stage3_tapes_override_the_default_mvs38j_volume():
+    sent = []
+    con = types.SimpleNamespace(lines=["*01 IEC501A M 170,MVS38J,SL,6250 BPI,"], send=lambda t: None)
+    sysgen.answer_mounts(sent.append, con, 0, {**sysgen.STAGE3_TAPES}, set(), "170")
+    assert sent == ["devinit 170 tape/dz1d02.het"]

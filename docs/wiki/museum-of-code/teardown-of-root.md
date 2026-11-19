@@ -74,7 +74,7 @@ In a repository of this size, siloed knowledge represents a critical "Bus Factor
 Applying modern zero-trust security lenses to a 30-year-old scientific framework reveals expected vulnerabilities tightly bound to its domain requirements.
 
 * **Autonomous AI Threats & Malware:** **0 detected**. The system is structurally secure against recognized autonomous payloads.
-* **Supply Chain Firewall:** **0 Blacklisted / 16 Unknown Dependencies**. Excellent perimeter defense, maintaining strict control over external libraries.
+* **Import Policy Gate:** **0 Blacklisted / 16 Unknown Dependencies**. Excellent perimeter defense, maintaining strict control over external libraries.
 * **Binary Anomalies (X-Ray):** **121 hits**. These anomalies (high entropy, magic byte mismatches) are expected, as ROOT heavily utilizes custom binary serialization formats (`.root` files) and compressed test data.
 * **Weaponizable Injection Vectors:** **`core/metacling/src/TCling.cxx`** hit **100.0% Exposure**. Because ROOT embeds a Just-In-Time (JIT) C++ compiler (Cling), untrusted input strings are literally compiled and executed at runtime. This is an architectural feature of the framework, but inherently creates an ultimate Remote Code Execution (RCE) surface if exposed to untrusted user data.
 
@@ -88,7 +88,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

@@ -75,7 +75,7 @@ In a 24-million-line repository, isolated domain knowledge is a severe "Bus Fact
 Applying modern zero-trust security lenses to an operating system reveals an expectedly vast and complex attack surface.
 
 * **Autonomous AI Threats & Malware:** **0 detected**. A powerful validation of the Linux kernel's rigorous mailing list patch review process.
-* **Supply Chain Firewall:** **0 Blacklisted / 6 Unknown Dependencies**. An incredibly tight perimeter for a project of this scale, avoiding the volatility of modern package managers.
+* **Import Policy Gate:** **0 Blacklisted / 6 Unknown Dependencies**. An incredibly tight perimeter for a project of this scale, avoiding the volatility of modern package managers.
 * **Binary Anomalies (X-Ray):** **294 hits**. These high-entropy artifacts are expected, primarily consisting of compressed firmware blobs (`.asc`, `.bin`), cryptographic test keys (`data64.key`, `sign_key.pem`), and embedded microcode.
 * **Weaponizable Surface Exposures:** * **Exploit Generation Surface:** Hit **100%** on utility scripts like `extract_xc3028.pl` and `ktest.pl`, due to the unrestricted nature of legacy Perl execution environments.
   * **Raw Memory Manipulation:** Files in `arch/alpha/kernel/` triggered a **10.0%** exposure density. As expected for kernel architectures, Linux relies heavily on direct memory manipulation and raw pointer arithmetic rather than memory-safe abstractions, demanding perfect execution discipline.
@@ -90,7 +90,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

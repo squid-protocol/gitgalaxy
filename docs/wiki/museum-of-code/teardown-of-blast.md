@@ -71,7 +71,7 @@ GitGalaxy tracks isolated ownership to identify "Bus Factor" risks. In BLAST, do
 For a tool that downloads and processes massive datasets, validating the security perimeter is essential.
 
 * **Autonomous AI Threats & Malware:** **0 detected**. No malicious structural patterns were flagged (a clean scan, not a guarantee).
-* **Supply Chain Firewall:** **0 Blacklisted / 0 Unknown Dependencies**. Every dependency the scan found was a well-known C/C++ include.
+* **Import Policy Gate:** **0 Blacklisted / 0 Unknown Dependencies**. Every dependency the scan found was a well-known C/C++ include.
 * **Weaponizable Surface Exposures:** `src/app/blast/update_blastdb.pl` triggered **100.0% Exploit Generation Surface** due to unrestricted dynamic execution paths inherent to legacy Perl scripts. Additionally, several C files (`magicblast.cpp`, `sls_alp.cpp`) exhibit **10.0% Raw Memory Manipulation**, which is completely expected for a system allocating massive memory chunks for sequence alignment matrices. 
 * **Secrets Risk:** The engine flagged `psg.crt`, `psg.key`, and `.env` in the `test/ssl` and `deployable_cgi` directories with **100.0% Hardcoded Payload Artifacts**. While these are test/sample artifacts, their presence highlights areas where credential hygiene must be monitored.
 
@@ -85,7 +85,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Action](../../../github-action-readme.md) or the [CI templates](../../../templates/).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Action](../../../github-action-readme.md) or the [CI templates](../../../templates/).
 
 ---
 

@@ -78,7 +78,7 @@ This represents an immense Key Person Risk. The architecture's most load-bearing
 How secure is the world's most deployed database against modern static threat models?
 
 * **Autonomous AI Threats:** **0 detected**. The codebase is mathematically secure against agentic Prompt Injection or LLM-driven RCE.
-* **Supply Chain Firewall:** **0 Blacklisted / 3 Unknown Dependencies**. The system relies on almost zero third-party packages.
+* **Import Policy Gate:** **0 Blacklisted / 3 Unknown Dependencies**. The system relies on almost zero third-party packages.
 * **Binary Anomalies (X-Ray):** **13 hits**. Flagged for high entropy, likely tied to expected cryptographic test vectors and compressed test DBs.
 * **Weaponizable Surface Exposures:** Files like `autosetup/sqlite-config.tcl` and `ext/wasm/SQLTester/SQLTester.mjs` triggered **100.0% Exploit Generation Surface**, largely because test harnesses intentionally execute dynamic strings and raw payloads to verify the database engine's integrity. Furthermore, **`ext/wasm/c-pp-lite.c`** flags for **100.0% Raw Memory Manipulation**, reflecting the low-level pointer management required to bridge C and WebAssembly.
 
@@ -92,7 +92,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

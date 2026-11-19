@@ -168,13 +168,16 @@ def generate_build_jcl(source_text: str, prog_name: str, files: set, dialect: st
 
 def main():
     from gitgalaxy.licensing import enforce_licensing_guard
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
     enforce_licensing_guard("MVS 3.8j COBOL Compiler Scaffolding")
 
     parser = argparse.ArgumentParser(description="GitGalaxy COBOL Compiler Scaffolding")
     parser.add_argument("source_dir", help="Path to the original COBOL source files")
     parser.add_argument("out_dir", help="Path to save the generated Compiler JCLs")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     src_path = Path(args.source_dir).resolve()
     out_path = Path(args.out_dir).resolve()

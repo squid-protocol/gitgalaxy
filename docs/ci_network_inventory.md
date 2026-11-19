@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 15 | 0 | 0 | 0 | 58 |
+| pip | 19 | 0 | 0 | 0 | 54 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,20 +24,15 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 45 | 73 | 54 | 219 | 110 |
+| **total** | 49 | 73 | 54 | 219 | 106 |
 
 ## Bare steps (the shrink-only backlog)
 
 ### archetype-validation.yml
 
-- `pip` - archetype-validation / Install GitGalaxy (full precision, as the golden crucible job)
 - `gh-api` - archetype-validation / Find the open retrain issue
 - `gh-api` - archetype-validation / Open or update the retrain issue
 - `gh-api` - archetype-validation / Close the retrain issue once every level recovers
-
-### blocker-baseline.yml
-
-- `pip` - baseline / Install GitGalaxy with the translator
 
 ### cache-prune.yml
 
@@ -46,12 +41,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### call-graph-accuracy-audit.yml
 
-- `pip` - call-graph-accuracy-audit / Install GitGalaxy + tree-sitter-language-pack
 - `git-fetch` - plan / Plan the audit
-
-### call-resolution-history.yml
-
-- `pip` - call-resolution-history / Install GitGalaxy
 
 ### cics-crucible.yml
 

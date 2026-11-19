@@ -65,6 +65,30 @@ def test_det_methods_come_from_the_emitter_javadoc_and_spans_match_braces():
     assert cm.method_span(lines, start) == (start, start + 6)  # the "}" in a string does not close it
 
 
+def test_stats_provenance_wins_and_drift_and_fallback():
+    stats = {"1000-SEND-MAP": "sendMap", "1000-EXIT": "p4"}
+    assert cm.det_methods(DET, stats) == stats  # the translator's map is the truth
+    assert cm.det_methods(DET, {}) == cm.det_methods(DET) == {"1000-SEND-MAP": "p3", "1000-EXIT": "p4"}
+    assert cm.provenance_drift(stats, cm.det_methods(DET)) == ["1000-SEND-MAP"]
+    assert cm.provenance_drift({"1000-SEND-MAP": "p3", "1000-EXIT": "p4"}, cm.det_methods(DET)) == []
+    assert cm.provenance_drift({"A": "p0"}, {}) == ["A"]  # only the stats know it
+    assert cm.provenance_drift({}, cm.det_methods(DET)) == []  # no sidecar: nothing to compare
+
+
+def test_sidecar_is_read_and_a_bad_one_falls_back(tmp_path):
+    java = tmp_path / "XService.java"
+    assert cm.read_provenance(java) == {}
+    side = tmp_path / ("XService" + cm.PROVENANCE_SUFFIX)
+    side.write_text('{"A": "p0", "B": "", "C": 3}', encoding="utf-8")
+    assert cm.read_provenance(java) == {"A": "p0"}  # empty and non-string entries dropped
+    side.write_text("not json", encoding="utf-8")
+    assert cm.read_provenance(java) == {}
+    side.write_text("[1]", encoding="utf-8")
+    assert cm.read_provenance(java) == {}
+    # structured (named) and unstructured (pN) method names both pass through
+    assert cm.det_methods("", {"A": "readForward", "B": "p1"}) == {"A": "readForward", "B": "p1"}
+
+
 MODEL = """
     // 9000-READ-ACCT: 9200-GETCARDXREF-BYACCT, 9300-GETACCTDATA-BYACCT
     private void readAcct(CicsTask task) {

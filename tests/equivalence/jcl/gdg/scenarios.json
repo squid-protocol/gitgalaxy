@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed.",
   "scenario_input": "catalog (or catalog_from: another scenario's catalog_after): per GDG base, limit and the cataloged absolute generations, oldest first. given: per step that starts, {rc: n} or {abend: code}.",
   "scenario_answer": "expect: per STEP.DDNAME of each step that runs, the absolute generation number the DD names. catalog_after: per base the cataloged generations, oldest first, after the job ends.",
   "flow_jcl": [
@@ -430,10 +430,6 @@
     }
   ],
   "assumed": [
-    {
-      "id": "A1",
-      "text": "A new generation is rolled into the catalog at the end of the job, not at the end of its creating step (deferred roll-in); the answers for (0) / (-1) after a (+1) in the same job depend on it."
-    },
     {
       "id": "A2",
       "text": "A generation whose creating step abends under (NEW,CATLG,DELETE) is not cataloged, and under (NEW,CATLG) is, per the DISP text; the absolute number is still consumed by that job only (the next job reuses it)."

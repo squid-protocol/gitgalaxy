@@ -5,9 +5,8 @@
 Driven through `StructuralExtractor.splice()`, the path a scan takes.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -41,6 +40,4 @@ def test_select_arm_patterns(body, callees):
 
 def test_long_input_is_bounded():
     body = "select! { " + "Foo { " * 200 + "x" + " }" * 50 + " = f() => 1 }"
-    start = time.monotonic()
-    _callees(body)
-    assert time.monotonic() - start < 5
+    assert_cpu_below(lambda: _callees(body), 5, what="select! long input")

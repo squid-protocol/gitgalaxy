@@ -101,8 +101,6 @@ jobs:
   # POST-GATE — one galaxyscope pass produces all 6 outputs; we route 3 of
   # them (SARIF -> Security tab, SBOM + self-scan DB -> artifacts, LLM brief
   # -> the generated branch) and let the rest live only in the ephemeral runner.
-  # --fail-on-malware stays on here too, as a safety net in case branch
-  # protection is ever bypassed.
   #
   # Runs on a daily schedule (or manual dispatch), NOT per-push: the LLM brief
   # embeds a Timestamp/Scan Duration/Git Commit (llm_recorder.py) so it always
@@ -111,7 +109,7 @@ jobs:
   # confirmed 13-commits-in-13-minutes runaway on 2026-07-25) that also
   # exhausted the mirrored Azure/Bitbucket free CI minutes. A daily brief is
   # plenty for an orientation doc, and a daily SARIF refresh is plenty for a
-  # dashboard. The real per-PR malware gate is the PRE-GATE jobs above.
+  # dashboard.
   # ============================================================
   full-report:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -146,7 +144,7 @@ jobs:
         env:
           GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
         run: |
-          galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results.json
+          galaxyscope . --config .galaxyscope.yaml --output gitgalaxy-results.json
 
       # #935: GitHub's tool-status page shows per-language scan coverage only
       # for integrated tools like CodeQL, and SARIF has no field to fill it.

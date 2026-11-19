@@ -23,7 +23,7 @@ as tests/test_golden_crucible.py): set LANGUAGE_CRUCIBLE_PATH, or have it
 as a sibling directory of this repo checkout.
 
 Updates whichever fixture matches the CURRENT environment (full-precision
-if tiktoken/pandas/xgboost are installed, zero-dependency-mode
+if tiktoken is installed, zero-dependency-mode
 otherwise) -- run it once per mode if both fixtures need updating.
 """
 
@@ -41,7 +41,6 @@ import golden_timeout_guard
 from _crucible_pin import PINNED_TAG, pin_mismatch
 
 from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
-from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")) / "data"
@@ -52,7 +51,7 @@ GOLDEN_SCAN_TIMEOUT = int(os.environ.get("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "600")
 
 
 def zero_dependency_mode() -> bool:
-    return not (HAS_TIKTOKEN and ML_AVAILABLE and HAS_PYYAML)
+    return not (HAS_TIKTOKEN and HAS_PYYAML)
 
 
 def main():

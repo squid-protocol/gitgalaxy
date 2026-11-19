@@ -28,14 +28,14 @@ schedules:
     always: true
 
 # `pr: none`: no PR-validation runs. Redundant with gitgalaxy.yml's per-PR
-# --fail-on-malware gate, and it used to fire on every GitHub PR via the Azure
+# gates, and it used to fire on every GitHub PR via the Azure
 # Pipelines GitHub App's default behavior when `pr:` is unset.
 pr: none
 
 variables:
   GG_TOOL: 'galaxyscope'
   GG_TARGET: '.'
-  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
+  GG_ARGS: '--config .galaxyscope.yaml --max-risk-exposure 120 --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json'
   PIP_CACHE_DIR: '$(Pipeline.Workspace)/.pip-cache'
   GITGALAXY_LICENSE_KEY: 'COMMUNITY_FREE_TIER'
 
@@ -63,7 +63,7 @@ stages:
     # 1. Install the tool globally FIRST (Immune to Poisoned PRs)
     - script: |
         python -m pip install --upgrade pip
-        pip install "gitgalaxy[yaml]" tiktoken xgboost pandas numpy
+        pip install "gitgalaxy[yaml]" tiktoken
       displayName: 'Install GitGalaxy & Heavy Physics Engines'
 
     # 2. NOW pull the potentially untrusted code onto the runner. Shallow: the

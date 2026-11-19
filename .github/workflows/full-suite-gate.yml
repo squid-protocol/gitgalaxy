@@ -154,11 +154,6 @@ jobs:
             pyproject.toml
             ci/requirements/*.txt
 
-      - name: Install macOS dependencies (OpenMP for XGBoost)
-        if: runner.os == 'macOS'
-        timeout-minutes: 5
-        run: tests/tools/ci_retry.sh 3 10 -- brew install libomp
-
       - name: Install dependencies
         shell: bash
         timeout-minutes: 10

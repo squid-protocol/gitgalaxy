@@ -38,7 +38,7 @@ def test_audit_recorder_format_label_and_descale(recorder):
 # ==============================================================================
 def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
     """
-    Proves the recorder prioritizes ML threats, processes Parser Bypasses,
+    Proves the recorder processes Parser Bypasses,
     and correctly maps 'System Purpose'.
     """
     output_file = tmp_path / "forensic_ml_audit.json"
@@ -50,9 +50,8 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
             "lang_id": "python",
             "directory_group": "src/core",
             "telemetry": {
-                "domain_context": {"Purpose": "Handles JWT Validation", "AI Threat Score": "99.9%"},
+                "domain_context": {"Purpose": "Handles JWT Validation"},
             },
-            "is_ml_threat": True,
             "risk_vector": [10.0, 50.0, 0.0],
             "hit_vector": [1, 1],
             "total_loc": 150,
@@ -89,10 +88,10 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
     assert len(unparsable) == 2
     assert unparsable[1]["Forensic Category"] == "Parser Bypass"
 
-    # Validate ML Threat Supremacy
+    # #8430: no classifier verdict; a clean rule-based scan is secure
     security = payload["3. Forensic Security & Vulnerability Audit"]
-    assert security["Audit Status"] == "ML_CONFIRMED_THREAT_DETECTED"
-    assert security["ML Threat Intelligence (XGBoost)"]["Infected Files Detected"] == 1
+    assert security["Audit Status"] == "CRITICAL_THREATS_DETECTED (Rule-Based)"
+    assert "ML Threat Intelligence (XGBoost)" not in security
 
 
 # ==============================================================================
@@ -100,8 +99,8 @@ def test_audit_recorder_generate_ml_threat_report(recorder, tmp_path):
 # ==============================================================================
 def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
     """
-    Proves that if XGBoost clears a file, but the rule-based engine flags a
-    quarantined hardcoded secret, the Audit Status downgrades to Rule-Based safely.
+    Proves that the rule-based engine flags a quarantined hardcoded secret
+    and the Audit Status says Rule-Based.
     """
     output_file = tmp_path / "forensic_rule_audit.json"
 
@@ -116,7 +115,6 @@ def test_audit_recorder_rule_based_threat_routing(recorder, tmp_path):
                     "reason": "CRITICAL LEAK (Exposed Secret: 'hardcoded.py')",
                 }
             },
-            "is_ml_threat": False,  # ML missed it or deemed it safe
             "risk_vector": [100.0, 50.0, 0.0],  # 100% Secrets Risk
         }
     ]
@@ -249,7 +247,6 @@ def test_audit_recorder_output_keyset_unchanged_by_tier_telemetry(recorder, tmp_
                     "author_distribution": 10.0,
                     "ownership_entropy": 0.5,
                 },
-                "is_ml_threat": False,
                 "risk_vector": [10.0, 50.0],
                 "hit_vector": [1, 1],
                 "total_loc": 150,
@@ -494,25 +491,3 @@ def test_file_archetype_profile_reports_distance_not_retired_fields(recorder, tm
     assert prof["Repository Fingerprint"] == {"file_cluster_3": 1.25, "file_cluster_4": 2.5}
     for retired in ("File Archetype", "File Drift (Z-Score)", "File Fingerprint", "Repository Drift (Z-Score)"):
         assert retired not in prof
-
-
-# ==============================================================================
-# TEST 6: ML LAYER NOT RUN IS NOT A CLEAN VERDICT (#2986)
-# ==============================================================================
-@pytest.mark.parametrize(
-    ("session", "expect_key"),
-    [
-        ({"ml_inference_ran": False}, True),
-        ({"ml_inference_ran": True}, False),
-        ({}, False),  # a caller that predates the key
-    ],
-)
-def test_audit_recorder_flags_ml_layer_not_run(recorder, tmp_path, session, expect_key):
-    output_file = tmp_path / "forensic_ml_flag.json"
-    recorder.generate_report([], [], {}, {}, session, str(output_file))
-    with open(output_file, encoding="utf-8") as f:
-        ml = json.load(f)["3. Forensic Security & Vulnerability Audit"]["ML Threat Intelligence (XGBoost)"]
-    assert ml["Infected Files Detected"] == 0
-    assert ("Inference Ran" in ml) is expect_key
-    if expect_key:
-        assert ml["Inference Ran"] is False

@@ -66,7 +66,7 @@ from gitgalaxy.security.ai_appsec_sensor import AIAppSecSensor
 from gitgalaxy.security.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.security.pipeline_pins import KEY as UNPINNED_INSTALL
 from gitgalaxy.security.pipeline_pins import scan_pipeline
-from gitgalaxy.security.security_auditor import HAS_NUMPY, HAS_PANDAS, HAS_XGBOOST, SecurityAuditor
+from gitgalaxy.security.security_auditor import SecurityAuditor
 from gitgalaxy.security.security_lens import SecurityLens, detect_disguised_executable
 from gitgalaxy.standards.analysis_lens import (
     ASSET_MASKS,
@@ -101,9 +101,6 @@ def missing_dependencies() -> dict[str, bool]:
     """
     return {
         "tiktoken": not HAS_TIKTOKEN,
-        "numpy": not HAS_NUMPY,
-        "pandas": not HAS_PANDAS,
-        "xgboost": not HAS_XGBOOST,
         "pyyaml": not HAS_PYYAML,
     }
 
@@ -1500,7 +1497,7 @@ class Orchestrator:
     3. Structural Impact Analysis (Phases 2-4): Returns extracted features to the main thread. Maps out
        DAGs (Directed Acyclic Graphs) and converts token frequencies into actionable metrics. Note:
        risk exposures are calculated metrics from the raw Structural Signatures, not the hits themselves.
-    4. Threat Inference (Phases 5-10): Executes ML pipelines (XGBoost) and zero-trust policies
+    4. Threat Inference (Phases 5-10): Resolves transitive dependency counts and applies zero-trust policies
        (AppSec/Import Policy Gate) to hunt behavioral anomalies.
     5. Output Routing (Phases 11-12): Transforms the global RAM state into columnar
        JSON payloads, native SQLite bases, and LLM-ready markdown artifacts.
@@ -1625,8 +1622,8 @@ class Orchestrator:
         # Zero-Trust execution validation
         self.security_analyzer = SecurityLens()
 
-        # Multi-class XGBoost threat classification model
-        self.model_auditor = SecurityAuditor(model_path="gitgalaxy_malware_xgb_multiclass.json", parent_logger=logger)
+        # Transitive dependency counts and the manual shadow-patch hint (#8430: no model)
+        self.model_auditor = SecurityAuditor(parent_logger=logger)
         # --------------------------------------------------
 
         # ==============================================================================
@@ -1720,9 +1717,9 @@ class Orchestrator:
         # Runs BEFORE the policy gate (Phase 10.6) on purpose: SARIF_IGNORED_PATHS /
         # SARIF_IGNORED_RULES / per-file mitigations are supposed to shield known-noisy
         # paths (e.g. gitgalaxy/standards/'s regex-dense rule files) from build-breaking
-        # false positives, not just from the exported SARIF JSON. Suppressing is_ml_threat
-        # and zeroing risk_vector here, ahead of the gate, is what makes that exclusion
-        # list actually protect --fail-on-malware/--fail-on-secrets/--max-risk-exposure/
+        # false positives, not just from the exported SARIF JSON. Zeroing risk_vector
+        # here, ahead of the gate, is what makes that exclusion
+        # list actually protect --fail-on-secrets/--max-risk-exposure/
         # --max-systemic-threat -- it used to only sanitize post-gate SARIF output, so an
         # excluded path could still fail the build with no way to suppress it.
         logger.info("🧹 Sanitizing telemetry to prevent export of mitigated and ignored threats...")
@@ -1737,7 +1734,6 @@ class Orchestrator:
 
             if path_excluded:
                 file_data["equations"] = {}
-                file_data["is_ml_threat"] = False
 
                 if "hit_vector" in file_data and isinstance(file_data["hit_vector"], list):
                     file_data["hit_vector"] = [0] * len(file_data["hit_vector"])
@@ -1804,14 +1800,6 @@ class Orchestrator:
                 if "ai_guardrails" in file_data.get("telemetry", {}):
                     del file_data["telemetry"]["ai_guardrails"]
 
-            if file_data.get("is_ml_threat"):
-                ai_class = file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                if (
-                    f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}" in ignored_rules
-                    or "ml_threat" in mitigs
-                ):
-                    file_data["is_ml_threat"] = False
-
     def _enforce_policy_gates(self, repository_graph: list[dict[str, Any]] | None) -> None:
         """Phase 10.6, shared by the full and the delta scan: sets `policy_failed`, which main() turns into exit 1.
 
@@ -1823,12 +1811,7 @@ class Orchestrator:
         max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
         max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
 
-        if (
-            self.config.get("FAIL_ON_SECRETS")
-            or self.config.get("FAIL_ON_MALWARE")
-            or max_risk_allowed > 0.0
-            or max_systemic_threat > 0.0
-        ):
+        if self.config.get("FAIL_ON_SECRETS") or max_risk_allowed > 0.0 or max_systemic_threat > 0.0:
             logger.info("🛡️ Evaluating CI/CD Threat Thresholds...")
 
             from gitgalaxy.metrics.signal_processor import SignalProcessor
@@ -1871,16 +1854,6 @@ class Orchestrator:
                             f"BUILD FAILED: Hardcoded secret detected in {file_data.get('path', 'unknown')}"
                         )
                         self.policy_failed = True
-
-                # 2. XGBoost Malware Floor
-                if self.config.get("FAIL_ON_MALWARE") and file_data.get("is_ml_threat", False):
-                    ai_class = (
-                        file_data.get("telemetry", {}).get("domain_context", {}).get("AI Threat Class", "Unknown")
-                    )
-                    logger.critical(
-                        f"BUILD FAILED: Behavioral malware signature ({ai_class}) detected in {file_data.get('path', 'unknown')}"
-                    )
-                    self.policy_failed = True
 
                 # 3. Maximum Risk Exposure Ratchet (per-file)
                 if max_risk_allowed > 0.0:
@@ -1946,8 +1919,8 @@ class Orchestrator:
         The method enforces a strict chronological dependency chain. For example,
         Workers (Phase 1) must run before Relational Analysis (Phase 3) so that
         we have exact code tokens in RAM before mapping the API Downstream Exposure.
-        Likewise, Network Topology (Phase 4) is required before XGBoost Inference
-        (Phase 9) since a file's centrality influences its logic bomb threat weighting.
+        Likewise, Network Topology (Phase 4) is required before Dependency Resolution
+        (Phase 9), which reads the imports it resolved.
         """
         start_time = time.time()
         logger.info(f"--- PIPELINE_START: {self.root.name} (v{self.version}) ---")
@@ -1955,7 +1928,6 @@ class Orchestrator:
         missing = missing_dependencies()
         if any(missing.values()):
             missing_libs = [pkg for pkg, gone in missing.items() if gone]
-            missing_ml = [pkg for pkg in ("xgboost", "pandas", "numpy") if missing[pkg]]
 
             pip_cmd = f"pip install {' '.join(missing_libs)}"
 
@@ -1972,9 +1944,6 @@ class Orchestrator:
             _box("Every structural signal is still measured. Missing engines cost:")
             if missing["tiktoken"]:
                 _box(" - tiktoken: token mass & financial read cost are NULL.")
-            if missing_ml:
-                _box(f" - {'/'.join(missing_ml)}: ML threat inference is skipped")
-                _box("   (--fail-on-malware cannot fire). Rule-based threats still run.")
             if missing["pyyaml"]:
                 _box(" - pyyaml: --config/.galaxyscope.yaml ignored; YAML OpenAPI")
                 _box("   specs are not parsed.")
@@ -2093,8 +2062,7 @@ class Orchestrator:
             report = self.processor.generate_forensic_report(repository_graph)
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
 
-            # PHASE 9: ML Threat Inference & Graph Resolution
-            # Processes the fully formed context through XGBoost trees to isolate embedded Trojans/Stealers.
+            # PHASE 9: Transitive Dependency Resolution (#8430: the XGBoost classifier is removed)
             t_phase = time.time()
             if repository_graph:
                 # Pass the Shadow Patch flag to the Security Auditor
@@ -2102,7 +2070,7 @@ class Orchestrator:
                 repository_graph = self.model_auditor.audit_repository(
                     repository_graph, is_shadow_patch=is_shadow_patch
                 )
-            logger.debug(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
+            logger.debug(f"⏱️ EXECUTION_TIME [Phase 9 - Dependency Resolution]: {time.time() - t_phase:.2f}s")
             # #8431: real shadow-patch detection, model-independent: content changed since the base ref while
             # the governing manifest's version did not. Its own per-file telemetry field; assigns no class.
             shadow_base = self.config.get("SHADOW_PATCH_BASE")
@@ -2192,8 +2160,6 @@ class Orchestrator:
                 "git_audit": self._get_git_audit(),
                 "missing_dependencies": missing_dependencies(),
                 "zero_dependency_mode": any(missing_dependencies().values()),
-                # #3028: the AI threat columns are recorded only when scores exist.
-                "ml_inference_ran": self.model_auditor.inference_ran,
             }
 
             if "unparsable_files" not in summary:
@@ -2378,7 +2344,7 @@ class Orchestrator:
             logger.info(f"--- ARCHIVES_SEALED: {gpu_output} & {audit_output} ---")
 
             # Same trigger as the start-of-run banner (it used to check only
-            # networkx/tiktoken, so a scan missing xgboost or pyyaml ended silently).
+            # networkx/tiktoken, so a scan missing pyyaml ended silently).
             if any(missing_dependencies().values()):
                 logger.warning(
                     ' ⚠️  NOTE: Pipeline completed in Zero-Dependency Mode. Run `pip install "gitgalaxy[full]"` for '
@@ -4225,7 +4191,7 @@ class Orchestrator:
             self.wrappers = resolve_wrappers(self.parsed_files)
             attach_wrappers(self.parsed_files, self.wrappers)
 
-            # 6. Audit Verification & ML Threat Inference
+            # 6. Audit Verification & Dependency Resolution
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
             if repository_graph:
                 repository_graph = self.model_auditor.audit_repository(repository_graph)
@@ -4262,8 +4228,6 @@ class Orchestrator:
                 "git_audit": self._get_git_audit(),  # Gets the NEW commit hash
                 "missing_dependencies": missing_dependencies(),
                 "zero_dependency_mode": any(missing_dependencies().values()),
-                # #3028: the AI threat columns are recorded only when scores exist.
-                "ml_inference_ran": self.model_auditor.inference_ran,
             }
 
             self.db_recorder.record_mission(
@@ -4373,12 +4337,6 @@ def main():
         action="store_true",
         default=None,
         help="CI/CD Gate: Fail build if hardcoded secrets are detected",
-    )
-    parser.add_argument(
-        "--fail-on-malware",
-        action="store_true",
-        default=None,
-        help="CI/CD Gate: Fail build if ML threat inference flags malware",
     )
     parser.add_argument(
         "--max-risk-exposure",
@@ -4499,7 +4457,6 @@ def main():
         "sbom_only": False,
         "ai_guardrails": False,
         "fail_on_secrets": False,
-        "fail_on_malware": False,
         "max_risk_exposure": 0.0,
         "max_systemic_threat": 0.0,
         "spec_alignment": False,
@@ -4691,7 +4648,6 @@ def main():
             "SBOM_ONLY": args.sbom_only,
             "AI_GUARDRAILS": args.ai_guardrails,
             "FAIL_ON_SECRETS": args.fail_on_secrets,
-            "FAIL_ON_MALWARE": args.fail_on_malware,
             "MAX_RISK_EXPOSURE": args.max_risk_exposure,
             "MAX_SYSTEMIC_THREAT": args.max_systemic_threat,
             "SPEC_ALIGNMENT": args.spec_alignment,

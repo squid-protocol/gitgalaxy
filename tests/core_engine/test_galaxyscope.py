@@ -89,7 +89,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
     def test_cicd_policy_enforcement_gates(self):
         """
-        DEVIOUS EDGE CASE: A developer pushes malware or hardcoded secrets.
+        DEVIOUS EDGE CASE: A developer pushes hardcoded secrets (#8430: the malware gate is gone).
         With the CLI flag active, `_enforce_policy_gates` MUST set `policy_failed = True`
         (main() turns that into exit 1); with the flag off, or a clean graph, it must not.
         """
@@ -99,7 +99,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         leaky_vector = [0.0] * len(SignalProcessor.RISK_SCHEMA)
         leaky_vector[SignalProcessor.RISK_SCHEMA.index("secrets_risk")] = 90.0
         flagged = self._file(risk_vector=leaky_vector)
-        malware = self._file(is_ml_threat=True, telemetry={"domain_context": {"AI Threat Class": "Reverse Shell"}})
         clean = self._file()
 
         # Secrets gate
@@ -107,15 +106,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertTrue(failed)
         self.assertIn("Hardcoded secret", log.critical.call_args[0][0])
         self.assertFalse(self._gate([clean], FAIL_ON_SECRETS=True)[0])
-        self.assertFalse(self._gate([flagged], FAIL_ON_MALWARE=True)[0], "secret must not trip the malware gate")
         self.assertFalse(self._gate([flagged])[0], "no gate enabled: never fails")
-
-        # Malware gate
-        failed, log = self._gate([malware], FAIL_ON_MALWARE=True)
-        self.assertTrue(failed)
-        self.assertIn("Reverse Shell", log.critical.call_args[0][0])
-        self.assertFalse(self._gate([clean], FAIL_ON_MALWARE=True)[0])
-        self.assertFalse(self._gate([malware], FAIL_ON_SECRETS=True)[0], "malware must not trip the secrets gate")
 
     def test_max_risk_exposure_gate_at_threshold_and_below(self):
         at = self._file(risk_vector=[0.0, 0.0, 0.0, 0.0, 80.0])
@@ -784,7 +775,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # TEST 12: ZERO-DEPENDENCY MODE SURVIVAL
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.HAS_TIKTOKEN", False)
-    @patch("gitgalaxy.galaxyscope.HAS_PANDAS", False)
     @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
     @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
     @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")
@@ -1482,7 +1472,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         scope.parsed_files = [
             {
                 "path": "src/api.py",
-                "is_ml_threat": True,
                 "mitigations": ["sec_hardcoded_secrets", "ai_appsec"],
                 "equations": {"sec_hardcoded_secrets": 5, "branch": 10},
                 "hit_vector": [1] * sig_len,  # Dynamically match schema length!
@@ -1491,7 +1480,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                     "threat_snippets": {"sec_hardcoded_secrets": ["password='123'"]},
                     "ai_appsec": {"critical_warnings": ["RCE Funnel"]},
                     "ai_guardrails": {"warnings": ["Too complex"]},
-                    "domain_context": {"AI Threat Class": "Trojan"},
                 },
             }
         ]
@@ -2560,11 +2548,10 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     def test_sarif_ignored_rules_purging(self):
         """
         Drives Orchestrator._apply_threat_suppression.
-        Validates that specific security rules (e.g., GG-AGENT-GUARDRAIL, AI AppSec, or
-        specific ML threat classes) are wiped from telemetry if explicitly ignored.
+        Validates that specific security rules (e.g., GG-AGENT-GUARDRAIL or AI AppSec) are wiped from telemetry if explicitly ignored.
         """
         config = self.mock_config.copy()
-        config["SARIF_IGNORED_RULES"] = ["GG-AGENT-GUARDRAIL", "GG-ML-TROJAN"]
+        config["SARIF_IGNORED_RULES"] = ["GG-AGENT-GUARDRAIL"]
         config["SARIF_ONLY"] = True
 
         scope = Orchestrator(".", config)
@@ -2573,9 +2560,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         scope.parsed_files = [
             {
                 "path": "src/hacked.py",
-                "is_ml_threat": True,
                 "telemetry": {
-                    "domain_context": {"AI Threat Class": "Trojan"},
                     "ai_guardrails": {"warnings": ["Context Exhaustion"]},
                     "ai_appsec": {"critical_warnings": ["RCE Funnel"]},
                 },
@@ -2588,7 +2573,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         sanitized = scope.parsed_files[0]
 
         # Assertions
-        self.assertFalse(sanitized["is_ml_threat"], "Failed to purge ignored XGBoost threat class!")
         self.assertNotIn("ai_guardrails", sanitized["telemetry"], "Failed to purge ignored Agent Guardrails!")
 
     # ==============================================================================

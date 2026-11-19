@@ -719,7 +719,7 @@ class AuditRecorder:
 
             domain_data = telemetry.get("domain_context", {})
             for custom_key, custom_val in domain_data.items():
-                if custom_key not in ["ownership", "AI Threat Score"]:
+                if custom_key != "ownership":
                     display_key = custom_key.replace("_", " ").title()
                     # Sanitize internal legacy keys for the formal audit report
                     if display_key == "Purpose":
@@ -730,9 +730,6 @@ class AuditRecorder:
             identity_block["Identity Proof"] = telemetry.get(
                 "identity_source_proof", file_data.get("source_proof", "Discovery")
             )
-
-            if "AI Threat Score" in domain_data:
-                identity_block["AI Threat Confidence"] = domain_data["AI Threat Score"]
 
             # #3813: how the bytes became text. A cp1252-fallback / latin-1-fallback decode is a
             # guess (no BOM, not UTF-8, nothing declared), so a reader can weigh its names.
@@ -989,7 +986,6 @@ class AuditRecorder:
         }
 
         quarantined_files = []
-        ml_threat_files = []  # Container for XGBoost threat hits
 
         vuln_exposures = {
             data["label"]: {
@@ -1013,23 +1009,6 @@ class AuditRecorder:
         for file_data in parsed_files:
             path = file_data.get("path", "Unknown")
             domain_ctx = file_data.get("telemetry", {}).get("domain_context", {})
-
-            is_ml_threat = file_data.get("is_ml_threat", False)
-            ai_score_str = domain_ctx.get("AI Threat Score", "0.0%")
-
-            try:
-                ai_score_float = float(str(ai_score_str).replace("%", ""))
-            except ValueError:
-                ai_score_float = 0.0
-
-            if is_ml_threat or ai_score_float >= 50.0:
-                ml_threat_files.append(
-                    {
-                        "Path": path,
-                        "AI_Confidence": ai_score_float,
-                        "Formatted_Score": ai_score_str,
-                    }
-                )
 
             # Explicit check for manual overrides triggered by the Aperture Engine
             if domain_ctx.get("alert") == "CRITICAL LEAK BYPASS":
@@ -1074,37 +1053,16 @@ class AuditRecorder:
         for exposure in vuln_exposures.values():
             exposure["Critical Files"].sort(key=lambda x: x["Path"])
 
-        # Sort and map the ML (XGBoost) hit list descending by confidence
-        ml_threat_files.sort(key=lambda x: (-x["AI_Confidence"], x["Path"]))
-        top_ml_threats = [
-            {
-                "Path": threat["Path"],
-                "Confidence": threat["Formatted_Score"],
-                "Model": "XGBoost Structural Signatures",
-            }
-            for threat in ml_threat_files
-        ]
-
-        # Tiered Status Routing (ML acts as the supreme authority)
-        is_zero_dep = session_meta.get("zero_dependency_mode", False)
-
-        if ml_threat_files:
-            audit_status = "ML_CONFIRMED_THREAT_DETECTED"
-        elif quarantined_files or has_secrets or malicious_hits_total > 0:
+        # Tiered Status Routing (#8430: rule-based only; no classifier ships)
+        if quarantined_files or has_secrets or malicious_hits_total > 0:
             audit_status = "CRITICAL_THREATS_DETECTED (Rule-Based)"
         elif any(v["Artifacts Flagged"] > 0 for v in vuln_exposures.values()):
             audit_status = "ELEVATED_SURFACE_RISK"
-        elif is_zero_dep:
-            audit_status = "[BYPASSED - ZERO DEPENDENCY MODE]"
         else:
             audit_status = "SECURE_NO_THREATS_DETECTED"
 
         security_audit = {
             "Audit Status": audit_status,
-            "ML Threat Intelligence (XGBoost)": {
-                "Infected Files Detected": len(ml_threat_files),
-                "Critical Targets": top_ml_threats,
-            },
             "Scope": {
                 "Artifacts Evaluated": len(parsed_files),
                 "Threat Signatures Monitored": len(sec_hit_mapping),
@@ -1114,11 +1072,6 @@ class AuditRecorder:
             "Vulnerability Exposures (Rule-Based Threshold Breaches)": vuln_exposures,
             "Raw Threat Signature Hits (Total Repository Occurrences)": raw_threat_hits,
         }
-
-        # #2986: 0 infected files is a verdict only if the model ran. Added only when it
-        # did not (default True keeps callers that predate the key).
-        if not session_meta.get("ml_inference_ran", True):
-            security_audit["ML Threat Intelligence (XGBoost)"]["Inference Ran"] = False
 
         # ==========================================================
         # 5. Final Mission Archive Packaging

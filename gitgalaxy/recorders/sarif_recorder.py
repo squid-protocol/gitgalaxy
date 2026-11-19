@@ -68,28 +68,6 @@ class SarifRecorder:
             telemetry = node.get("telemetry", {})
             start_line = node.get("start_line", 1)
 
-            # A. Extract Multiclass ML Threat Targets (XGBoost)
-            # If zero_dependency_mode is true, this will naturally be false and omit safely
-            if node.get("is_ml_threat", False):
-                ai_class = telemetry.get("domain_context", {}).get("AI Threat Class", "Unknown Threat")
-                # #364: security_auditor.py writes "AI Threat Score", not "AI Threat
-                # Confidence" -- this was the one consumer that had drifted onto the
-                # wrong (unused) name, while every other recorder already expected
-                # "AI Threat Score".
-                confidence = telemetry.get("domain_context", {}).get("AI Threat Score", "0%")
-
-                results_list.append(
-                    {
-                        "ruleId": f"GG-ML-{ai_class.upper().replace(' ', '_').replace('/', '')}",
-                        "level": "error",
-                        "message": {
-                            "text": f"XGBoost Inference confirmed a weaponized behavioral signature: {ai_class} (Confidence: {confidence})."
-                        },
-                        "locations": [self._build_location(rel_path, start_line)],
-                        "properties": {"category": "Machine Learning Inference", "precision": confidence},
-                    }
-                )
-
             # B. Extract Passive Security Lens Snippets (SAST)
             threat_snippets = telemetry.get("threat_snippets", {})
             threat_locations = telemetry.get("threat_locations", {})
@@ -248,14 +226,6 @@ class SarifRecorder:
                     "text": "This file's structural complexity, downstream exposure, or state flux makes it unsafe for autonomous AI agents to edit. Human-in-the-Loop (HITL) supervision is strictly required to prevent architectural degradation or hallucinated logic."
                 },
                 "properties": {"tags": ["architecture", "ai-guardrail", "hitl-required"]},
-            },
-            {
-                "id": "GG-ML-STEALER_TROJAN",
-                "shortDescription": {"text": "Behavioral Malware Signature: Stealer/Trojan"},
-                "fullDescription": {
-                    "text": "The XGBoost inference engine detected high-entropy structural topologies consistent with Trojans or Credential Stealers."
-                },
-                "properties": {"tags": ["CWE-506", "malware"]},
             },
             # Additional mappings will automatically fall back to the ruleId string in the UI if not explicitly defined here
         ]

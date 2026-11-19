@@ -296,6 +296,37 @@ compared against `--full`: neither cut changes how a mutant is judged, only what
 mutant may run. Still open on #8599: the baseline proof (30-60 s a case, half of it the Java CICS run), the CICS
 in-process path running every scenario before it judges, and the java-facade false survivors.
 
+**The same split on a full enumeration and on a loaded box (2026-11-19, #8599).** `det_mutation.py run`, fast+one-jvm,
+`--jobs 2`, `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`, on nyx at origin/main with the two cuts above (a70f86d74), each
+row one run (n=1). Seconds from the run's log, each line stamped with its time since the start; "load" is the 1-minute
+load average over the run (12 cores):
+
+| run | load | translate | baseline proof | javac check | warm-up | prove | total |
+|---|---|---|---|---|---|---|---|
+| cbsa-updcust `--sample 60 --seed 1`, quiet | 2-3 | 2.7 | 13.1 | 7.2 (60) | 4.4 | 11.2 (57) | 39.4 |
+| the same, 12 busy loops beside it | 7-12 | 4.6 | 28.8 | 14.3 (60) | 8.6 | 25.1 (57) | 82.6 |
+| cbsa-updcust `--sample 0` (690 mutants) | 2-3 | 2.8 | 13.0 | 68.9 (690) | 4.3 | 145.0 (666) | 234.8 |
+| carddemo-readcust `--sample 0` (249 mutants, 8 timeouts) | 2-3 | 15.8 (cold) | 26.0 | 20.6 (249) | 13.4 | 288.3 (237) | 364.1 |
+
+"Warm-up" is the time from the stillborn line to the first verdict: the in-process workers' unmutated calibration run.
+What it says:
+
+- **The fixed cost per case is translate + baseline proof + warm-up: about 20 s for UPDCUST (13 of it the baseline) and
+  55 s for readcust (39 once the translation is cached).** It is half of a 60-mutant run (51%, quiet and loaded alike)
+  and 9% of a full UPDCUST enumeration (20 s of 235) and 15% of readcust's (11% warm). The issue's "three quarters of a
+  run is fixed overhead" holds for a `--sample 60` run only; a full enumeration is dominated by the per-mutant part.
+- **The per-mutant cost is the javac check (0.1 s a mutant) plus the proof (0.22 s on UPDCUST, 1.2 s on readcust, which also holds 8 timeouts and whose
+  batch port runs many fault scenarios per mutant).** At full enumeration the proof is 62% (UPDCUST) and 79% (readcust)
+  of the run, so per-mutant work (early exit, ordering kills first, cheaper contexts: #8643) now matters more than the
+  baseline.
+- **A loaded box stretches every phase about 2x (82.6 s against 39.4 s at load 7-12), not one phase**: the baseline
+  proof 2.2x, the javac check 2.0x, the proof 2.2x. The split is stable, so the quiet-box numbers can be compared
+  across changes; wall time on a busy box cannot (compare phases, not totals).
+- **Re-translating an unchanged case is already skipped**: `equivalence_cache` hits, a warm translate is 2.7-2.8 s on
+  UPDCUST (the 15.8 s on readcust is its first translate in this checkout), so a fingerprint skip in `refresh` would save
+  about 3 s a case. The checklist item is closed by this finding, not by new code. Still open: sharing the baseline proof
+  across cases (13-26 s a case), early exit in the CICS in-process path, and the other items in the #8599 checklist.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

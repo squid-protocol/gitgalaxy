@@ -7,7 +7,7 @@
 #
 # Rules modelled: a relative number is resolved against the catalog as it stood when the job started (so a (+1) in a
 # later step is the generation an earlier step created, and (0) is still the old current one); a created generation is
-# rolled into the catalog at the end of the job (ASSUMED A1) and the group's LIMIT drops the oldest; a step that did not
+# rolled into the catalog at the end of the job (User's Guide, Appendix A, GDGBIAS=JOB) and the group's LIMIT drops the oldest; a step that did not
 # run allocates nothing; a created generation's step-end disposition is its abnormal DISP when the step abended (else its
 # normal DISP; NEW with none is DELETE) -- CATLG catalogs it, DELETE removes it, PASS hands it to a later step.
 # Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.

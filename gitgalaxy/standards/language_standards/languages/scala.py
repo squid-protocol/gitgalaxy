@@ -171,7 +171,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Monadic error handling (Option/Try) and assertions.
+        # 6. safety (Defensive Checks: assert/try/guards): monadic error handling (Option/Try) and assertions.
         # C1: constructors/types/sealed/| Null invisible. Try kept: guarded-region opener (immutability_locks dual pre-exists — doc-noted).
         "safety": re.compile(r"\b(require|assert|assume)\b|\bTry\s*[({]"),
         # 7. safety_neg: Safety Bypasses. Actively bypassing type safety (asInstanceOf, .get).

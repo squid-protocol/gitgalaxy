@@ -176,6 +176,7 @@
 /pgm.cbl	tests/tools/test_cics_census_listing_8112.py,tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
+/port	tests/tools/test_l5_speedups.py
 /private.key	tests/security_auditing
 /procs	tests/cobol_mainframe
 /production.pem	tests/security_auditing

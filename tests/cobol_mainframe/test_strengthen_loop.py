@@ -393,3 +393,33 @@ def test_the_updacc_case_judges_each_nullable_column_of_the_select_alone():
         s = scs[name]
         assert rows[int(s["commarea"]["COMM-ACCNO"])] == [col], name
         assert "#4049" in s["why"] and "expected" not in s
+
+
+def test_offline_refuses_the_model_run_by_name(monkeypatch):
+    """#8624: `strengthen run` and `det_refine run` call a model, so --offline and GITGALAXY_OFFLINE=1 stop them by name."""
+    import det_refine as dr
+
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    with pytest.raises(SystemExit, match="strengthen run refuses --offline"):
+        st.main(["run", "x", "--work", "w", "--offline"])
+    with pytest.raises(SystemExit, match="det_refine run refuses --offline"):
+        dr.main(["run", "x", "--port", "p", "--work", "w", "--offline"])
+    monkeypatch.setenv("GITGALAXY_OFFLINE", "1")
+    with pytest.raises(SystemExit, match="strengthen run refuses --offline"):
+        st.main(["run", "x", "--work", "w"])
+    with pytest.raises(SystemExit, match="det_refine run refuses --offline"):
+        dr.main(["run", "x", "--port", "p", "--work", "w"])
+
+
+def test_offline_runs_strengthen_report_under_the_network_guard(tmp_path, monkeypatch):
+    """#8624: `report` needs no network: it runs with --offline and the guard is installed."""
+    from gitgalaxy.tools.readiness import offline
+
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    monkeypatch.delenv(offline.OFFLINE_ENV, raising=False)
+    monkeypatch.setattr(st, "report_md", lambda data: "ok")
+    (tmp_path / "strengthen.json").write_text("{}", encoding="utf-8")
+    seen = []
+    monkeypatch.setattr(offline, "enable_if_requested", lambda argv=None: seen.append(argv) or True)
+    assert st.main(["report", str(tmp_path), "--offline"]) == 0
+    assert seen

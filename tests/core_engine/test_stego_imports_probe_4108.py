@@ -10,9 +10,8 @@ Loader calls that name a non-code payload container and used to read 0, with nea
 imports, code-file loads, dynamic paths) that must stay at zero, and a ReDoS control.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.security.security_lens import SecurityLens
@@ -70,6 +69,4 @@ def test_near_misses_stay_quiet(lens, lang, text):
 
 def test_redos_immune(lens):
     text = "require_relative " * 3000 + "\n" + 'import_module("' + "a" * 5000 + "\n"
-    t = time.perf_counter()
-    _count(lens, "ruby", text)
-    assert time.perf_counter() - t < 5
+    assert_cpu_below(lambda: _count(lens, "ruby", text), 5, what="ruby")

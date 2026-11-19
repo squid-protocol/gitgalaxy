@@ -12,9 +12,8 @@ Planted forms the rule used to miss (a property write through `__proto__`, a des
 must stay at zero (ordinary configuration, reads, `Foo.prototype` mixins, comparisons).
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.security.security_lens import SecurityLens
 
@@ -64,6 +63,5 @@ def test_near_miss_stays_quiet(lens, name):
 
 
 def test_long_lines_are_not_a_redos_shape(lens):
-    start = time.perf_counter()
-    lens.scan_content("o" + ".__proto__" * 400 + "\n" + 'x["__proto__"]' * 300 + "\n" + "environ[" * 500 + "\n")
-    assert time.perf_counter() - start < 2
+    text = "o" + ".__proto__" * 400 + "\n" + 'x["__proto__"]' * 300 + "\n" + "environ[" * 500 + "\n"
+    assert_cpu_below(lambda: lens.scan_content(text), 2, what="scan_content")

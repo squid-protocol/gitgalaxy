@@ -11,9 +11,8 @@ The signal needs an `api` hit in the same function as a `db_hooks` hit, so a han
 must stay at zero, and a ReDoS control.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -40,7 +39,7 @@ QUIET = {
     "js_app_get_setting": ("javascript", "const v = app.get(key);\n"),
     "ts_other_receiver": ("typescript", "const v = store.get('k');\n"),
     "go_unexported_plain": ("go", "func helper(x int) int {\n\treturn x\n}\n"),
-    "go_call_not_decl": ("go", "\thttp.HandleFunc(\"/u\", getUser)\n"),
+    "go_call_not_decl": ("go", '\thttp.HandleFunc("/u", getUser)\n'),
 }
 
 
@@ -66,6 +65,4 @@ def test_redos_immune():
         "go": "func " + "a" * 6000 + " (" + "(" * 3000 + "\n",
     }
     for lang, text in cases.items():
-        t = time.perf_counter()
-        _count(lang, text)
-        assert time.perf_counter() - t < 5
+        assert_cpu_below(lambda: _count(lang, text), 5, what=lang)

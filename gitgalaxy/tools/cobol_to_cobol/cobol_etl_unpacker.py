@@ -35,6 +35,7 @@ from typing import Any
 
 from gitgalaxy.core.ebcdic_codecs import register
 from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 DEFAULT_CODE_PAGE = "cp037"
 _EBCDIC_DIGITS = bytes(range(0xF0, 0xFA))  # the zone-F digits 0-9: the same bytes on every EBCDIC page
@@ -262,7 +263,9 @@ def main():
         default=DEFAULT_CODE_PAGE,
         help="EBCDIC code page of the data (#3833), e.g. cp037 (default), cp273, cp277, cp278, cp297, cp1047",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     try:
         code_page = resolve_code_page(args.code_page)

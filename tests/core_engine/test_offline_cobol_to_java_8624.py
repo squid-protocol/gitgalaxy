@@ -1,4 +1,4 @@
-"""#8624 slice 9: the cobol_to_java forge CLIs and the guardrail CLI take the shared `--offline` flag."""
+"""#8624 slice 10: the test forge, batch harness, proof_reach (and slice 9: the forges and guardrail) take the shared `--offline` flag."""
 
 import json
 import os
@@ -45,6 +45,9 @@ MODS = [
     "cobol_to_java_spring_forge",
     "cobol_to_java_service_forge",
     "cobol_to_java_guardrail",
+    "cobol_to_java_test_forge",
+    "batch_test_harness",
+    "proof_reach",
 ]
 
 
@@ -76,7 +79,13 @@ def planted(tmp_path_factory):
     (proj / "src").mkdir(parents=True)
     (proj / "src" / "DemoService.java").write_text(JAVA)
     write_baseline(proj)
+    corpus = d / "corpus" / "x"
+    corpus.mkdir(parents=True)
+    (d / "Demo.java").write_text(JAVA)
     return {
+        "cobol_to_java_test_forge": [d / "demo_ir.json"],
+        "batch_test_harness": [corpus],
+        "proof_reach": [d / "Demo.java"],
         "cobol_to_java_api_contract_forge": [d / "demo_ir.json"],
         "cobol_to_java_spring_forge": [d / "demo_schema.json"],
         "cobol_to_java_service_forge": [d / "demo_ir.json"],

@@ -16,6 +16,7 @@ from pathlib import Path
 from collections.abc import Callable
 
 from gitgalaxy.core.source_text import decode_bytes
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 # ==============================================================================
 # 1. REGEX PATTERNS (PII SIGNATURES)
@@ -302,7 +303,9 @@ Masked evidence logs are safely written to disk without exposing the full PII.
         type=str,
         help="Optional: comma-separated PII region packs to enable (default: all), e.g. us,iban,in",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     try:
         regions = None if not args.regions else [r.strip().lower() for r in args.regions.split(",") if r.strip()]

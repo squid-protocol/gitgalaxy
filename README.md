@@ -363,6 +363,7 @@ with `OfflineViolation`, in the main process and in spawn-start workers, and a t
 | The forensic audit recorder CLI (`audit_recorder`, run as `python -m`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
 | The three cobol_to_cobol reporters (`cobol_system_limits_reporter`, `cobol_jcl_auditor`, `cobol_graveyard_finder`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
 | The three supply-chain CLIs (`vault_sentinel`, `import_policy_gate`, `binary_anomaly_detector`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The two log-scanner CLIs (`pii_leak_hunter`, `terabyte_log_scanner`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
 | Other report and audit tools | Not yet guarded: they make no network call, but nothing enforces it (tracked in #8624). |
 
 Exceptions, refused by name when offline: the tiktoken `cl100k_base` download (token mass is left NULL; point

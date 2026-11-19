@@ -50,6 +50,17 @@ Two facts must also hold for every pair:
   method per paragraph);
 - the port does file I/O exactly when the COBOL does (`arch_io` zero on both sides or on neither).
 
+Two structural invariants are also bounded per pair (#8487; `drift_problems` in port_invariance.py). Where `struct_args`
+and `struct_branch` shift with how a statement is lowered, the program's resource and state footprint stays put:
+
+- `arch_io`: on the 12 committed pairs the port's I/O count is 0.40 to 1.00 of the COBOL's, never more. A pair is
+  flagged when the port has more than 1.5 × the COBOL's count + 2, or, from 4 COBOL sites up, under a quarter of them.
+- `arch_globals`: COBOL reads 0; every port reads 16 to 53 per 1000 code lines (the runtime's statics). A port over
+  80 per 1000 code lines is flagged. The check is one-sided, a ceiling only.
+
+The bounds are the 12 committed pairs (7 CardDemo, 4 CBSA, 1 GenApp) with a margin; the 49-pair sweep has not been
+re-measured against them. Raw counts, not rank, because the ports' counts are dominated by runtime boilerplate.
+
 ## Readings a port may change
 
 Reported by the study, never asserted:

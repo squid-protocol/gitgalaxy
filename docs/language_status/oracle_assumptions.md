@@ -767,6 +767,52 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),
   `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5); ARITH(EXTEND)'s extended-precision floats (refused; its 30-digit intermediates stop by name, C5), COMP-5's
   z/OS byte order where bytes are observable (C7).
+- **IBM trace of the five ASSUMED HFP rules (#8700, 2026-11-19).** Texts: Enterprise COBOL for z/OS 6.4 Programming Guide
+  (SC27-8714-03), Language Reference (SC27-8713-03), z/Architecture Principles of Operation (SA22-7832). Verdicts:
+  - `RT-HFP-FLOAT-STATEMENT-STORE` -> **MATCHED**. Language Reference, "ROUNDED phrase": "In a floating-point arithmetic
+    operation, the ROUNDED phrase has no effect; the result of a floating-point operation is always rounded", and ROUNDED
+    is "the least significant digit of the resultant identifier is increased by 1 whenever the most significant digit of
+    the excess is greater than or equal to 5" (half away from zero). Programming Guide, "Floating-point evaluations": an
+    operand that "is a reference to a numeric intrinsic function results in floating-point arithmetic" when "the function
+    is a floating-point function", and "Numeric functions" lists the floating-point class as those returning "a long
+    (64-bit) ... floating-point value" (NUMVAL, Language Reference chapter 75; "Converting to numbers"). So a NUMVAL-only
+    statement is floating point and its store is rounded with or without ROUNDED. The earlier ASSUMED note ("IBM does not
+    document an arithmetic statement's store") is out of date. What stays the model's: the value rounded is the long HFP
+    value of the NUMVAL result.
+  - `RT-HFP-NUMVAL-FLOAT` stays **ASSUMED**. Matched by IBM: long (64-bit) result under ARITH(COMPAT); "The arguments must
+    not exceed 18 digits" (the refusal past 18); "At most 15 decimal digits can be converted accurately to long-precision
+    floating point ... if the argument ... has more than 15 digits ... the result may lose precision in an unexpected
+    manner" (the refusal past 15 significant digits, a stated boundary). Not stated: how the digits become the long HFP
+    pattern ("Internally NUMVAL uses long-precision floating calculations"): the truncation of an inexact value is the
+    model's.
+  - `RT-HFP-FIXED-TO-FLOAT` stays **ASSUMED**. Programming Guide, "Conversions and precision": "When the compiler converts
+    from fixed-point to internal floating-point format, fixed-point numbers in base 10 are converted to the numbering
+    system used internally"; "If a fixed-point data item that has 15 or fewer digits is moved to a USAGE COMP-2 data item
+    and then returned to the fixed-point data item, the original value is recovered" (six or fewer for COMP-1). IBM does
+    not say truncated or rounded. Checked against the model on 20 000 random fixed-point values of up to 15 digits and any
+    scale through `Hfp.of` then `to_fixed` (COMP-2), and 20 000 of up to 6 digits through `of`, `to_short`, `to_fixed`
+    (COMP-1): every one recovered, so truncation does not contradict the round-trip text; it is not what the text states.
+  - `RT-HFP-POWER` stays **ASSUMED**. Programming Guide, Appendix A, "Exponentiations evaluated in floating-point
+    arithmetic": "In compatibility mode, floating-point exponentiations are always evaluated using long floating-point
+    arithmetic"; "The value of a negative number raised to a fractional power is undefined in COBOL" (the refusal stays).
+    Language Reference, SIZE ERROR table: zero to the zero power and zero to a negative power are size errors (the
+    zero-to-zero and zero-to-negative refusals are boundaries around IBM's own error cases). No digits of a result are
+    documented, so the exact-then-truncated power is the model's.
+  - `RT-HFP-IEEE-CONVERSION` stays **ASSUMED**, with one documented path that does not agree. IBM documents no IEEE view
+    of a COMP-1 / COMP-2 item. It documents one HFP-IEEE conversion, the COBOL-Java interface (Language Reference, the note
+    on COMP-1 / COMP-2 against Java float / double): "Conversions between IBM hexadecimal floating point format and IEEE
+    floating point format are done via Language Environment special purpose C/C++ interface __fp_htob(), using rounding
+    mode _FP_HB_BRN (biased round to nearest)", and the same for IEEE to hex with `__fp_btoh()`. Principles of Operation
+    (summary of changes) renames "biased round to nearest" to "round to nearest with ties away from 0". `from_ieee` agrees
+    (a binary32 is exact in long HFP, then rounded half away at the first discarded bit). `to_ieee` rounds ties to even: the
+    long HFP value 0.5 + 2^-54 (bytes `4080000000000004`) is a tie between 0.5 and 0.5 + 2^-53 in binary64; the model
+    gives `3fe0000000000000`, ties-away gives `3fe0000000000001`. This is not a verdict on the rule (the oracle's
+    IEEE view of a COMP-1 / COMP-2 is not the Java interface), but anything standing the model in for the Java interface
+    must round ties away.
+  - **Candidate difference, not one of the five (left as is).** The bullet above ("an arithmetic statement that stores a
+    float result in a fixed-point receiver truncates unless ROUNDED") reads against the Language Reference sentence quoted
+    under `RT-HFP-FLOAT-STATEMENT-STORE`: IBM says a floating-point operation's result is always rounded. The model's code
+    path for a general float statement is not covered by a rule in `cobolrt_rules.json`; it needs a ruling and a case.
 
 ### C7. COMP-5 byte order — DIFFERS; byte uses refused by name
 - **What.** GnuCOBOL stores COMP-5 in the machine's order, little-endian on x86; z/OS is big-endian. COMP, COMP-4

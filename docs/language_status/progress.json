@@ -1,5 +1,5 @@
 {
- "commit": "aa8ff0343",
+ "commit": "370d6cf41",
  "components": {
   "capabilities": {
    "groups": [
@@ -16,7 +16,7 @@
    },
    "rows": [
     {
-     "done": 60,
+     "done": 61,
      "found": "",
      "group": "COBOL language",
      "have": "statements, numerics, editing, functions, files",
@@ -376,9 +376,9 @@
      "REFUSED": 1
     },
     "HFP": {
-     "ASSUMED": 5,
+     "ASSUMED": 4,
      "DIFFERS": 1,
-     "MATCHED": 7,
+     "MATCHED": 8,
      "REFUSED": 1
     },
     "LE": {
@@ -412,9 +412,9 @@
    "measured_on_zos": 0,
    "rules": 194,
    "status": {
-    "ASSUMED": 65,
+    "ASSUMED": 64,
     "DIFFERS": 24,
-    "MATCHED": 91,
+    "MATCHED": 92,
     "REFUSED": 14
    }
   },
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-19T23:45:40Z",
+  "as_of": "2026-11-19T23:51:42Z",
   "core": {
    "closed": 253,
    "open": 12,

@@ -442,3 +442,13 @@ def test_convert_stage1_holds_each_job_and_drops_separators():
 def test_stage2_refuses_without_stage1_output(tmp_path):
     with pytest.raises(sysgen.SysgenError, match="run `sysgen stage1` first"):
         sysgen.stage2(str(tmp_path), "img", "n", {})
+
+
+def test_stage2_expected_allows_only_the_listed_cc8_step():
+    def step(job, step, cc):
+        return {"job": job, "step": step, "procstep": None, "executed": True, "cond_code": cc}
+
+    ok = [step("SYSGEN6", "STEPZ1", 8), step("SYSGEN1", "LK", 4)]
+    assert sysgen.smp_failed_steps(ok, sysgen.STAGE2_EXPECTED) == []
+    assert sysgen.smp_failed_steps([step("SYSGEN6", "STEPZ1", 0)], sysgen.STAGE2_EXPECTED)  # a listed step must match
+    assert sysgen.smp_failed_steps([step("SYSGEN3", "X", 8)], sysgen.STAGE2_EXPECTED)  # an unlisted CC 8 fails

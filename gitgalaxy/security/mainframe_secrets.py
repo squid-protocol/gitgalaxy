@@ -86,7 +86,7 @@ def _code_lines(text: str) -> list[str]:
 
 # Languages whose files `SecurityLens` reads these shapes in: the JCL / PROC and REXX profiles, and COBOL for an
 # embedded Db2 CONNECT. The snippet never holds the value: it names the shape.
-MAINFRAME_SECRET_LANGUAGES = frozenset({"jcl", "rexx", "cobol"})
+MAINFRAME_SECRET_LANGUAGES = frozenset({"jcl", "rexx", "clist", "cobol"})
 
 
 def mainframe_secret_sites(text: str) -> list[tuple[int, int, str]]:

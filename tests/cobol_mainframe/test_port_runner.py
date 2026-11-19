@@ -302,3 +302,16 @@ def test_prove_logs_whether_the_oracle_compiled_the_reference(project, tmp_path)
     assert prove("compiled", 0)["oracle"] == "compiled"
     assert prove("failed", 1)["oracle"] == "compile-failed"
     assert prove("none", 1)["oracle"] == "unknown"
+
+
+@pytest.mark.parametrize("sub", ["run", "submit", "prove", "review", "status", "refine"])
+def test_offline_is_refused_by_name_for_every_subcommand(sub, project, monkeypatch):
+    """#8624: the flag in any position, and the env var, stop the runner before any request or file write."""
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    with pytest.raises(SystemExit, match="port_runner refuses --offline"):
+        pr.main([sub, str(project), "--offline"])
+    with pytest.raises(SystemExit, match="port_runner refuses --offline"):
+        pr.main(["--offline", sub, str(project)])
+    monkeypatch.setenv("GITGALAXY_OFFLINE", "1")
+    with pytest.raises(SystemExit, match="port_runner refuses --offline"):
+        pr.main([sub, str(project)])

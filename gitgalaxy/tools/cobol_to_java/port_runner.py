@@ -57,6 +57,7 @@ from typing import Any
 from gitgalaxy.core.source_text import decode_bytes, read_source
 from gitgalaxy.tools.cobol_to_java import proof_reach
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import count_tokens
+from gitgalaxy.tools.readiness import offline
 
 PORTS = Path("ai_agent_jobs") / "ports"
 
@@ -714,6 +715,9 @@ def cmd_status(opts: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # #8624: the LLM backends call out to a model endpoint, so the runner cannot honour the offline guarantee: refuse by name.
+    if offline.requested(sys.argv[1:] if argv is None else argv):
+        raise SystemExit("port_runner refuses --offline / GITGALAXY_OFFLINE=1: it can call a model API (network)")
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="ask a backend to port a ticket")

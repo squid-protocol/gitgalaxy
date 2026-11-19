@@ -39,8 +39,10 @@ DEFINITION: dict[str, Any] = {
         "status": "production",
     },
     # `.clist` is the repository spelling of a CLIST member (the z/OS member has no extension).
-    # Extensionless members are routed by their content (a later slice of #8625).
+    # #8625: an extensionless member is routed by its dataset-qualifier directory (`USER.CLIST/MEMBER`) plus
+    # `language_lens._CLIST_MEMBER_SHAPES`, or by that body evidence alone in an ordinary directory.
     "extensions": [".clist"],
+    "library_directory_suffixes": ["clist", "clistlib", "sysproc"],
     "exact_matches": [],
     # ECOSYSTEM ANCHORS: the JCL that runs a CLIST (IKJEFT01 SYSTSIN) and sibling members.
     "discriminators": [".clist", ".jcl", ".rexx", ".exec"],

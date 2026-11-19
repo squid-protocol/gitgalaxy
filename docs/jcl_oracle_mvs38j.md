@@ -169,7 +169,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run of the era-compatible IBM-written scenarios; merge `sysgen.step_results` onto `runner.parse_log`.
+3. Probe run of the era-compatible IBM-written scenarios. (`sysgen.step_results` now reads through `runner.parse_log`'s `step_log`: one parser of the printer listing.)
 
 ## What this tier cannot test
 

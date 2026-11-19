@@ -48,6 +48,7 @@ def parse_log(text, job=None):
         )
 
     unparsed = 0
+    step_log = []  # every step line in log order, across jobs, each with its job name
     current = None  # IEF285I names no job: it belongs to the job last seen starting or reporting a step
     for line in text.splitlines():
         if m := _STARTED.search(line):
@@ -55,15 +56,15 @@ def parse_log(text, job=None):
         elif m := _STEP.search(line):
             current = rec(m.group(2))
             executed = m.group(5) is None
-            current["steps"].append(
-                {
-                    "step": m.group(3),
-                    "procstep": m.group(4),
-                    "executed": executed,
-                    "cond_code": int(m.group(6)) if executed and m.group(6) else None,
-                    "message": m.group(1),
-                }
-            )
+            step = {
+                "step": m.group(3),
+                "procstep": m.group(4),
+                "executed": executed,
+                "cond_code": int(m.group(6)) if executed and m.group(6) else None,
+                "message": m.group(1),
+            }
+            current["steps"].append(step)
+            step_log.append({"job": m.group(2), **step})
         elif m := _ABEND.search(line):
             rec(m.group(1))["abends"].append({"step": m.group(2), "system": m.group(4), "user": m.group(5)})
         elif m := _JCLERR.search(line):
@@ -78,7 +79,13 @@ def parse_log(text, job=None):
             if ief and ief.group(0) not in _KNOWN_IEF:
                 unparsed += 1
     chosen = [j for j in jobs.values() if job is None or j["job"] == job.upper()]
-    return {"provenance": PROVENANCE, "jobs": chosen, "unparsed_ief": unparsed, "sysout_lines": len(text.splitlines())}
+    return {
+        "provenance": PROVENANCE,
+        "jobs": chosen,
+        "step_log": step_log,
+        "unparsed_ief": unparsed,
+        "sysout_lines": len(text.splitlines()),
+    }
 
 
 def submit(deck, host="127.0.0.1", port=3505):

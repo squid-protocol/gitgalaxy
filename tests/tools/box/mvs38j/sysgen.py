@@ -798,13 +798,6 @@ def hetget(work, image, name, het, out, fileno):
     print(f"stage1: {out} extracted from {het} ({(Path(work) / out).stat().st_size} bytes)")
 
 
-# IEF142I: step executed with its completion code; IEF272I: step not executed (COND bypass / flushed).
-# Layout of the part after the message id: JOB STEP [PROCSTEP] - STEP WAS (NOT) EXECUTED ... [COND CODE nnnn]
-STEP_RE = re.compile(
-    r"(IEF142I|IEF272I)\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+STEP WAS (NOT )?EXECUTED(?:.*?COND CODE (\d{4}))?"
-)
-
-
 def smp_failed_steps(results, expected):
     """Steps not executed, or over CC 4 unless `expected` ({(job, step): (cc, reason)}) lists them; a listed step must match."""
     out = []
@@ -822,23 +815,16 @@ def smp_failed_steps(results, expected):
 
 
 def step_results(printer_text, job="ALL"):
-    """Step results from a Hercules printer file: [{job, step, procstep, executed, cond_code}], in log order."""
-    out = []
-    for line in printer_text.splitlines():
-        m = STEP_RE.search(line)
-        if not m or (job.upper() != "ALL" and m.group(2) != job.upper()):
-            continue
-        executed = m.group(5) is None
-        out.append(
-            {
-                "job": m.group(2),
-                "step": m.group(3),
-                "procstep": m.group(4),
-                "executed": executed,
-                "cond_code": int(m.group(6)) if executed and m.group(6) else None,
-            }
-        )
-    return out
+    """Step results from a Hercules printer file: [{job, step, procstep, executed, cond_code}], in log order.
+
+    Read by `runner.parse_log` (the one parser of the printer listing); `step_log` keeps the order across jobs."""
+    import runner
+
+    return [
+        {k: r[k] for k in ("job", "step", "procstep", "executed", "cond_code")}
+        for r in runner.parse_log(printer_text)["step_log"]
+        if job.upper() == "ALL" or r["job"] == job.upper()
+    ]
 
 
 def check_expected(results, expected):

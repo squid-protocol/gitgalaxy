@@ -5803,7 +5803,9 @@ class StructuralExtractor:
 
             # galaxyscope:ignore sec_high_risk_execution
 
-            # 1. Taint Tracking (RCE Weaponization), 2. The Silencer Region,
+            # 1. RCE Weaponization (proximity correlation of a source and a sink
+            # signal, not value-level taint tracking; see spatial_correlation.py's
+            # NAMING NOTE), 2. The Silencer Region,
             # 3. The Race Condition Radar, 5. The Memory Leak / UAF Tracker, and
             # 6. The OOM Bomb have all been RELOCATED (#346 phase 1, #348 phase 2)
             # to apply_dampener_correlations()/apply_amplifier_correlations() in

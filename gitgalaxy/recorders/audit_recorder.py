@@ -547,6 +547,11 @@ class AuditRecorder:
         label = self._friendly_map.get(clean_key)
 
         if not label:
+            # gitgalaxy#8009: a signal key outside FRIENDLY_MAP still gets its display name.
+            shown = config.signal_display_name(clean_key)
+            label = shown if shown != clean_key else None
+
+        if not label:
             label = " ".join(word.capitalize() for word in clean_key.split("_"))
 
         self._label_cache[key] = label

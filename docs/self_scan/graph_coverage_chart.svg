@@ -1219,11 +1219,11 @@
 <text class="n" x="1240" y="1209">repos=1</text>
 </g>
 <text class="lang" x="22" y="1249.0">typescript</text>
-<g><title>typescript imports: precision 100.0% of 828, recall 100.0% of 870; corpus colinhacks/zod</title>
+<g><title>typescript imports: precision 100.0% of 828, recall 100.0% of 870 (raw 100.0% / 100.0%; 2 shapes without a verdict); corpus colinhacks/zod</title>
 <text class="pr" x="120" y="1242.5">Precision</text>
 <rect class="track" x="166" y="1235" width="110" height="8" rx="2"/>
 <rect x="166" y="1235" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="1243">100.0%</text>
+<text class="val" x="281" y="1243">100.0%*</text>
 <text class="pr" x="120" y="1254.5">Recall</text>
 <rect class="track" x="166" y="1247" width="110" height="8" rx="2"/>
 <rect x="166" y="1247" width="110.0" height="8" rx="2" fill="#eda100"/>

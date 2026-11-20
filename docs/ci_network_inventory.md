@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 24 | 0 | 0 | 0 | 49 |
+| pip | 23 | 0 | 0 | 0 | 50 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 56 | 77 | 54 | 215 | 101 |
+| **total** | 55 | 77 | 54 | 215 | 102 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -162,6 +162,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### java-base-generation.yml
 
 - `pip` - keep / Install GitGalaxy
+
+### java-compile.yml
+
+- `pip` - compile / Install GitGalaxy
 
 ### mainframe-ground-truth.yml
 

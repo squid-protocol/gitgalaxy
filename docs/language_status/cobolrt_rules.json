@@ -2552,7 +2552,7 @@
    "register": [
     "X22"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {

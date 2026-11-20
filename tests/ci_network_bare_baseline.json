@@ -54,6 +54,7 @@
   "mainframe-ground-truth.yml|plan|Plan the check|git-fetch",
   "mypy-audit.yml|mypy-audit|Plan the audit|gh-api",
   "ports-compile.yml|ports-compile|Assess clean-install check (burned estates, translator from a wheelhouse)|pip",
+  "ports-compile.yml|ports-compile|Install GitGalaxy|pip",
   "ports-compile.yml|ports-compile|Plan the clean-install check|gh-api",
   "publish.yml|evidence-report-current|Install GitGalaxy|pip",
   "publish.yml|pypi-publish|Enforce Main Branch Tagging|git-fetch",

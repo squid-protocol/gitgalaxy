@@ -34,7 +34,7 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_libraries_hold_the_members_the_scenarios_search_for():
     assert {k: sorted(v) for k, v in LIBS.items()} == {
-        "LIB.A": ["OUTER", "PRC1", "PRC3", "PRC4", "STDDDS", "SYSOUT2"],
+        "LIB.A": ["GRPX", "GRPY", "OUTER", "PRC1", "PRC3", "PRC4", "STDDDS", "SYSOUT2"],
         "LIB.B": ["PRC1", "PRC2", "PRC4", "STDDDS"],
     }
 
@@ -76,7 +76,7 @@ def test_what_is_not_answered_is_refused_by_name():
         "SYSOUT",
         "backward reference",
         "IF flow",
-        "EXEC or SET statement",
+        "inside a procedure holding an EXEC or SET",
         "after the EXEC",
     ):
         assert name in refused, name
@@ -178,11 +178,13 @@ def test_an_include_group_holding_a_statement_the_manual_forbids_is_invalid(stmt
     _refused(text, "cannot hold", {"LIB.A": {"BAD": "//D DD DSN=A\n" + stmt + "\n"}})
 
 
-def test_an_include_group_holding_an_exec_is_refused_and_one_holding_output_is_not():
+def test_a_job_level_group_holding_exec_and_set_is_spliced_and_one_inside_a_procedure_is_refused():
     text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//C EXEC PGM=X\n// INCLUDE MEMBER=G\n"
-    _refused(text, "EXEC statement in an INCLUDE group", {"LIB.A": {"G": "//B EXEC PGM=Y\n"}})
-    ok = {"LIB.A": {"G": "//O OUTPUT DEST=X\n//D DD DSN=A\n"}}
-    assert resolve_job(text, ok, "J")["C"]["dd"] == {"D": "A"}
+    libs = {"LIB.A": {"G": "//S SET Z=ONE\n//B EXEC PGM=Y\n//D DD DSN=&Z\n//O OUTPUT DEST=X\n"}}
+    got = resolve_job(text, libs, "J")
+    assert list(got) == ["C", "B"] and got["B"]["dd"] == {"D": "ONE"}
+    proc = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//P PROC\n//A EXEC PGM=X\n// INCLUDE MEMBER=G\n// PEND\n//C EXEC P\n"
+    _refused(proc, "EXEC statement in an INCLUDE group inside a procedure", libs | {"LIB.A": {"G": "//B EXEC PGM=Y\n"}})
 
 
 def test_a_symbol_assigned_nowhere_is_invalid():

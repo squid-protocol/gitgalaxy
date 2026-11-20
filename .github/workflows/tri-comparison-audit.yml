@@ -110,9 +110,9 @@ jobs:
         if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e .
-          pip install --require-hashes -r ci/requirements/treesitter.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e .
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Hard preflight, not optional: PR #2111 (2026-08-22, see
       # docs/self_scan/tri_comparison_README.md) is a real incident where Ubuntu's

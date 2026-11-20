@@ -12,7 +12,6 @@
   "cics-crucible.yml|runner-tests|Install GitGalaxy|pip",
   "cics-crucible.yml|runner-tests|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "codeql.yml|analyze|Report the results this PR adds|gh-api",
-  "deploy-docs.yml|deploy|Install Dependencies|pip",
   "det-sweep.yml|db2|Install GitGalaxy with the translator|pip",
   "det-sweep.yml|db2|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "det-sweep.yml|detmut|Check the ledgers of the cases this PR changes|git-fetch",
@@ -61,7 +60,6 @@
   "mainframe-ground-truth.yml|ground-truth-warm|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|plan|Plan the check|git-fetch",
   "mypy-audit.yml|mypy-audit|Plan the audit|gh-api",
-  "os-smoke-grid.yml|smoke-test|Install dependencies|pip",
   "ports-compile.yml|ports-compile|Assess clean-install check (burned estates, translator from a wheelhouse)|pip",
   "ports-compile.yml|ports-compile|Install GitGalaxy|pip",
   "ports-compile.yml|ports-compile|Plan the clean-install check|gh-api",
@@ -82,10 +80,8 @@
   "smoke-test.yml|suite-plan|Plan the suite|gh-api",
   "smoke-test.yml|suite-time|Total against the budget|gh-api",
   "tree-sitter-accuracy-audit.yml|plan|Plan the audit|git-fetch",
-  "tree-sitter-accuracy-audit.yml|tree-sitter-accuracy-audit|Install GitGalaxy + tree-sitter-language-pack|pip",
   "tree-sitter-accuracy-history.yml|plan|Plan the run|gh-api",
   "tri-comparison-audit.yml|plan|Plan the audit|git-fetch",
-  "tri-comparison-audit.yml|tri-comparison-audit|Install GitGalaxy + tree-sitter-language-pack|pip",
   "tri-comparison-history.yml|plan|Plan the run|gh-api"
  ],
  "advisory_uploads": []

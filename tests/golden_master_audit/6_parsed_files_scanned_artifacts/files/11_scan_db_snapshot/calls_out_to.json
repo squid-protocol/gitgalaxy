@@ -151134,7 +151134,7 @@
           "vec"
         ],
         "query_data_derive_contiguous_tuple@838": [
-          "QueryDataA",
+          "struct",
           "new",
           "query",
           "contiguous_iter_mut",
@@ -151544,9 +151544,10 @@
         ],
         "entities_and_commands@4585": [
           "entities_and_commands",
-          "Foo",
+          "struct",
           "new",
           "spawn",
+          "Foo",
           "id",
           "get_mut",
           "unwrap",
@@ -151560,9 +151561,10 @@
           "is_err"
         ],
         "entities_and_commands_deferred@4622": [
-          "Foo",
+          "struct",
           "new",
           "spawn",
+          "Foo",
           "id",
           "from",
           "entities_and_commands",
@@ -154703,6 +154705,7 @@
           "flat_map"
         ],
         "enum_from_ast@133": [
+          "Token",
           "iter",
           "map",
           "from_ast",
@@ -154715,6 +154718,7 @@
           "error_spanned_by"
         ],
         "fields_from_ast@198": [
+          "Token",
           "with_capacity",
           "len",
           "push",
@@ -154809,12 +154813,10 @@
         ],
         "decide_identifier@683": [
           "get_with_tokens",
-          "Some",
           "error_spanned_by"
         ],
         "decide_tag@622": [
           "get_with_tokens",
-          "Some",
           "len",
           "error_spanned_by"
         ],
@@ -155118,6 +155120,7 @@
           "clone",
           "error_spanned_by",
           "format",
+          "Token",
           "value"
         ],
         "parse_lit_into_path@1455": [
@@ -155490,8 +155493,7 @@
           "I8"
         ],
         "test_expecting_message@1834": [
-          "Newtype",
-          "Tuple",
+          "struct",
           "assert_de_tokens_error",
           "Str"
         ],
@@ -155637,8 +155639,9 @@
           "U32"
         ],
         "test_transparent_tuple_struct@1820": [
-          "Transparent",
+          "struct",
           "assert_tokens",
+          "Transparent",
           "U32"
         ],
         "test_unknown_field_rename_enum@777": [
@@ -155773,6 +155776,7 @@
           "add"
         ],
         "empty@112": [
+          "struct",
           "UnsafeSyncEntry",
           "End"
         ],
@@ -155923,12 +155927,14 @@
           "tokens_trailing_brace"
         ],
         "last_type_in_bounds@116": [
+          "Token",
           "last",
           "unwrap",
           "last_type_in_path",
           "Break"
         ],
         "last_type_in_bounds@289": [
+          "Token",
           "last",
           "unwrap",
           "last_type_in_path",

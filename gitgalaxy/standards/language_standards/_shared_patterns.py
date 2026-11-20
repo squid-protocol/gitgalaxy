@@ -477,7 +477,7 @@ _RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b
 CALLS_OUT_RUST = re.compile(
     r"\b(?![A-Z][" + ID_CONTINUE + r"]{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
     rf"([{ID_START}][{ID_CONTINUE}]*)"
-    r"(?:![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
+    r"(?=![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
 )
 
 # #3645 (contract C3): Go writes a conversion to a pointer or qualified type in

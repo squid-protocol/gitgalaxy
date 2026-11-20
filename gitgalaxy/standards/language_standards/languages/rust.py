@@ -42,21 +42,37 @@ def _blank_pattern_span(m: "re.Match[str]") -> str:
 # the call; it holds no top-level `,` `:` (a struct literal's fields, `x: if ..`), `.` (a method call) or `<` `>` (a turbofish) beyond `..` / `::`; it stops at `=>` or at the guard's `if`, whose calls stay. A closure's `|` follows `=` `(` `,` `{` `;` `:` or
 # `move`/`return`, never an operand, so `a | b` and `a || b` are not read as one. Same bounds discipline as above.
 _ARM_PATTERN = re.compile(
-    r"(?<=[{,}])(?!\s*(?:if|else)\b)\s*(?P<pat>(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=>|\s+if\b)"
+    r"(?<=[{,}])(?!\s*(?:if|else)\b)\s*(?P<pat>(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]{0,30}\)){0,30}\)){0,40}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=>|\s+if\b)"
 )
 # #6454: a `select!` arm (`Foo { v: Bar(b) } = fut =>`, `(A(a), B(b)) = fut,`) and a destructuring assignment bind the same
 # way but end at `=`. The pattern must start like a constructor, tuple or reference (`[A-Z(&]`), so `*f(x) = 1` and
 # `x.y = g(1)` keep their calls; the body is `_ARM_PATTERN`'s, bounded the same way.
 _SELECT_ARM_PATTERN = re.compile(
-    r"(?<=[{,}])\s*(?P<pat>(?=[A-Z(&])(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=(?![=>]))"
+    r"(?<=[{,}])\s*(?P<pat>(?=[A-Z(&])(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]{0,30}\)){0,30}\)){0,40}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=(?![=>]))"
 )
 # #6454: a fn's parameter patterns (`fn f(Foo(a): Foo, (A(b), c): (A, i32))`) bind names too, and Rust has no default
 # arguments, so the whole balanced parameter list holds no call; its `Fn(A)` bound types are not calls either.
+# Type-position macro invocations (`Token![,]`, `syn::Token![+]`) inside parameters ARE macro calls (C3) and are kept.
 _FN_PARAMS = re.compile(
     r"\bfn\s+[^\W\d]\w*\s*(?:<(?:[^<>(){}]|<(?:[^<>]|<[^<>]{0,40}>){0,60}>){0,200}>)?\s*"
     r"\((?P<pat>(?:[^()]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)){0,600})\)"
 )
+_PARAM_MACRO_KEEP = re.compile(r"(?:\b[^\W\d]\w*::){0,4}\b[^\W\d]\w*![ \t]{0,8}[(\[{]")
+# Tuple-struct declarations inside a function body (`struct Foo(A);`) are declarations (C5), not calls.
+_STRUCT_DECL = re.compile(r"\bstruct\s+(?P<pat>[^\W\d]\w*)")
 _CLOSURE_PARAMS = re.compile(r"(?:(?<=[=(,{;:])|\b(?:move|return))[ \t\n]*\|(?P<pat>[^|;{}]{0,200})\|(?!\|)")
+
+
+def _blank_fn_params(m: "re.Match[str]") -> str:
+    text = m.group(0)
+    lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
+    pat = text[lo:hi]
+    if "!" not in pat:
+        return text[:lo] + re.sub(r"[^\n]", " ", pat) + text[hi:]
+    blanked = list(re.sub(r"[^\n]", " ", pat))
+    for mm in _PARAM_MACRO_KEEP.finditer(pat):
+        blanked[mm.start() : mm.end()] = pat[mm.start() : mm.end()]
+    return text[:lo] + "".join(blanked) + text[hi:]
 
 
 # #6454: an attribute (`#[cfg(unix)]`, `#![allow(x)]`) names a path and its arguments, it calls nothing. The shield no longer
@@ -176,10 +192,11 @@ def _blank_matches_patterns(text: str) -> str:
 
 
 def _blank_binding_patterns(text: str) -> str:
-    """`text` with every attribute and the pattern of every `let` / `for` binding, match arm, fn parameter list and closure parameter list blanked."""
+    """`text` with every attribute, tuple-struct header, and the pattern of every `let` / `for` binding, match arm, fn parameter list and closure parameter list blanked."""
     text = _INTERPOLATION.sub(_blank_interpolation, _ATTRIBUTE.sub(_blank_attribute, text))
+    text = _STRUCT_DECL.sub(_blank_pattern_span, text)
     text = _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
-    text = _FN_PARAMS.sub(_blank_pattern_span, text)
+    text = _FN_PARAMS.sub(_blank_fn_params, text)
     text = _SELECT_ARM_PATTERN.sub(_blank_pattern_span, text)
     text = _blank_matches_patterns(text)
     return _CLOSURE_PARAMS.sub(_blank_pattern_span, _ARM_PATTERN.sub(_blank_pattern_span, text))

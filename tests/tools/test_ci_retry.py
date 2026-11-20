@@ -161,7 +161,9 @@ PIP_RETRIED = [
     "det-sweep.yml",
     "full-suite-gate.yml",
     "java-base-generation.yml",
+    "java-compile.yml",
     "mainframe-ground-truth.yml",
+    "unicode-gauntlet.yml",
 ]
 PIP_LINE = "pip install --require-hashes"
 
@@ -190,7 +192,7 @@ def test_workflows_with_an_unretried_hash_pinned_pip_install_do_not_grow():
         )
     )
     assert not set(PIP_RETRIED) & set(unwrapped)
-    assert len(unwrapped) <= 28, f"a new workflow has an unretried pip install: {unwrapped}"
+    assert len(unwrapped) <= 26, f"a new workflow has an unretried pip install: {unwrapped}"
 
 
 DIGEST = "icr.io/x/db2@sha256:" + "a" * 64

@@ -73,6 +73,8 @@ ALLOWLIST = {
     # COLUMN names, created by the recorder's CREATE TABLE SQL (record_keeper.py), never a dict literal the walker sees (#8774).
     "raw_state_unreferenced": "file_data column read back from a sqlite3.Row by state_rehydrator (#8774)",
     "exclusion_reason": "excluded_artifacts column read back from a sqlite3.Row by state_rehydrator (#8774)",
+    # A scanned repo's own package.json `workspaces` field (core/package_self_reference.py, #4254): never a literal here.
+    "workspaces": "scanned repo's package.json key, read by package_self_reference.workspace_packages (#4254)",
     # The equivalence harness (tests/tools/equivalence.py cobc_failure_report) writes it into report.json; port_runner
     # reads it back (#8325). The producer lives outside gitgalaxy/.
     "cobol_compile_failed": "report.json key written by tests/tools/equivalence.py, read by port_runner (#8325)",
@@ -245,6 +247,8 @@ ALLOWLIST = {
     # there), not in a Python dict literal this walker can see.
     "author": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py)",
     "file_path": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py)",
+    "structural_mass": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py); #8430 removed the ML feature dict that used to spell it",
+    "silo_risk": "SQLite column, schema confirmed in record_keeper.py (state_rehydrator.py); #8430 removed the ML feature dict that used to spell it",
     "src/hacked.py": "test fixture value inside state_rehydrator.py's own embedded test, not a real key",
     # --- Dynamically-keyed dicts (walker can't trace the indirection) ---
     # audit_recorder.py builds a dict keyed by each entry's own "label" value

@@ -41,7 +41,6 @@ AUDIT = {
     },
     cjs.SECURITY: {
         "Audit Status": "SECURE_NO_THREATS_DETECTED",
-        "ML Threat Intelligence (XGBoost)": {"Infected Files Detected": 0},
         "Exposed Secrets & Credentials (Quarantined Files)": [],
         "Raw Threat Signature Hits (Total Repository Occurrences)": {"_description": "x", "RCE": 2, "Other": 0},
     },

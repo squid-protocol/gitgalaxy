@@ -54732,6 +54732,7 @@
           "substr",
           "nhAssert",
           "getDebugInfo",
+          "addTextFieldNode",
           "LOG_DEBUGWARNING",
           "addAttribute",
           "str"

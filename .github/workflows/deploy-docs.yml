@@ -45,7 +45,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install Dependencies
-        run: pip install --require-hashes -r ci/requirements/docs.txt
+        run: tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/docs.txt
 
       - name: Build and Deploy Docs
         run: mkdocs gh-deploy --force

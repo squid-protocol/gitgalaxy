@@ -542,6 +542,12 @@ def _lexicon_name(key: str) -> str:
     return f"**{config.signal_display_name(key)}** (`{key}`)"
 
 
+def _weighted_label(key: str) -> str:
+    """Display name of a weighted signal; a key that is no signal keeps the Title Case form (gitgalaxy#8009)."""
+    shown = config.signal_display_name(key)
+    return key.replace("_", " ").title() if shown == key else shown
+
+
 def _lexicon_bullets() -> list[str]:
     return [
         f"> * **{title}:** " + ", ".join(f"{_lexicon_name(k)} ({gloss})" for k, gloss in entries) + "."
@@ -708,14 +714,6 @@ class LLMRecorder:
         if role and role != "Unknown":
             parts.append(f"role: {role}")
         return "; ".join(parts)
-
-    def _parse_threat_score(self, artifact: dict) -> tuple[float, str]:
-        """Safely extracts and converts the AI threat score string to a float."""
-        score_str = artifact.get("telemetry", {}).get("domain_context", {}).get("AI Threat Score", "0.0%")
-        try:
-            return float(score_str.replace("%", "")), score_str
-        except ValueError:
-            return 0.0, score_str
 
     def generate_artifacts(
         self,
@@ -1377,30 +1375,11 @@ class LLMRecorder:
             lines.append(
                 f"> Optional engines missing during this scan: {', '.join(f'`{p}`' for p in missing) or 'unknown'}. "
                 "Metrics that need them were NOT computed -- shown as `n/a` or omitted, and no value shown for them "
-                "is a measurement: Token Mass and Financial Read Cost (`tiktoken`); AI threat classification "
-                "(`xgboost`/`pandas`/`numpy`). Every graph metric (PageRank / Blast Radius, the centralities, the "
+                "is a measurement: Token Mass and Financial Read Cost (`tiktoken`). Every graph metric (PageRank / Blast Radius, the centralities, the "
                 "repo network table, connection counts) is computed natively and matches full precision. Do not "
                 "infer values for the missing metrics."
             )
             lines.append("")
-
-        # ---> HARVEST AI THREAT SCORES <---
-        ml_threats = []
-        for s in parsed_files:
-            score_val, score_str = self._parse_threat_score(s)
-            if s.get("is_ml_threat", False) or score_val >= 50.0:
-                ml_threats.append((s, score_val, score_str))
-
-        ml_threats.sort(key=lambda x: x[1], reverse=True)
-
-        lines.append("## 0.5 AI THREAT AUDIT STATUS")
-        if ml_threats:
-            lines.append("> **🚨 ML_CONFIRMED_THREAT_DETECTED**")
-            lines.append(f"> XGBoost Structural Signatures model identified {len(ml_threats)} malicious artifacts.")
-        else:
-            lines.append("> **✅ SECURE_NO_THREATS_DETECTED**")
-            lines.append("> XGBoost Structural Signatures model found no malicious artifacts.")
-        lines.append("")
 
         # --- 1. EXECUTIVE SUMMARY (#3113: answer first) ---
         lines.extend(self._executive_summary_lines(parsed_files, sum_data, comp))
@@ -1882,23 +1861,10 @@ class LLMRecorder:
                         )
         lines.append("")
 
-        # --- 10.5 AI THREAT INTELLIGENCE ---
-        lines.append("## 10.5 AI THREAT INTELLIGENCE (XGBoost)")
-        if ml_threats:
-            lines.append(
-                "> **CRITICAL THREATS DETECTED.** The following files possess the structural signatures of known vulnerabilities.\n"
-            )
-            cutoff = max(10, int(len(ml_threats) * 0.10))
-            for i, (s, _val, string_val) in enumerate(ml_threats[:cutoff]):
-                lines.append(f"{i + 1}. **`{s.get('path')}`** -> AI Confidence: **{string_val}**")
-        else:
-            lines.append("*No files met the threshold for malicious structural signatures.*")
-        lines.append("")
-
         # --- 10.6 CRITICAL VULNERABILITY EXPOSURES (RULE-BASED) ---
         lines.append("## 10.6 WEAPONIZABLE SURFACE EXPOSURES (RULE-BASED SAST)")
         lines.append(
-            "> Secondary Evidence: The following files tripped specific static threat signatures. Use these to explain *why* the XGBoost model flagged the files above.\n"
+            "> Secondary Evidence: The following files tripped specific static threat signatures. Use these to see which static signatures each file tripped.\n"
         )
 
         vuln_keys = [
@@ -2028,10 +1994,7 @@ class LLMRecorder:
             lock_tier = s.get("lock_tier", tel.get("identity_lock_tier", 4))
             purpose = tel.get("domain_context", {}).get("purpose", "")
 
-            ai_score_val, ai_score_str = self._parse_threat_score(s)
-            threat_flag = f" | 🚨 AI THREAT: {ai_score_str}" if ai_score_val >= 50.0 else f" | AI Safe: {ai_score_str}"
-
-            lines.append(f"### `{p}` ({l} | Tier {lock_tier}{threat_flag})")
+            lines.append(f"### `{p}` ({l} | Tier {lock_tier})")
             if purpose:
                 lines.append(f"> **System Purpose:** *{purpose}*")
 
@@ -2104,7 +2067,7 @@ class LLMRecorder:
                 # #2813: the signature lines below are raw counts; the proximity-weighted
                 # figure they used to carry is listed here beside its tally.
                 for w_key, w_val in weighted.items():
-                    lines.append(f"* *{w_key.replace('_', ' ').title()} (weighted view):* {w_val}")
+                    lines.append(f"* *{_weighted_label(w_key)} (weighted view):* {w_val}")
 
             lines.append("**Structural Signatures (Net Mitigated Signals):**")
             lines.append(f"* *Structure:* {', '.join(struct_hits) if struct_hits else 'None'}")
@@ -2381,7 +2344,7 @@ class LLMRecorder:
             "> 2. **Notable Structures & Architecture:** Discuss the architecture based on the Dependency Graph. Identify the foundational load-bearers (highest inbound connections) versus the fragile orchestrators (highest outbound imports)."
         )
         lines.append(
-            "> 3. **Security & Vulnerabilities:** Immediately surface any critical threats flagged in the `AI THREAT INTELLIGENCE (XGBoost)` section. If none exist, briefly confirm the repository is secure from recognized structural threats."
+            "> 3. **Security & Vulnerabilities:** Immediately surface any critical threats flagged in the `WEAPONIZABLE SURFACE EXPOSURES (RULE-BASED SAST)` section. If none exist, briefly confirm the repository is secure from recognized structural threats."
         )
         lines.append(
             "> 4. **Outliers & Extremes:** Focus strictly on statistical anomalies. Highlight files or directory groups with high Structural Magnitude combined with a wide Blast Radius, severe Z-Scores (Architectural Drift), or extreme spikes in individual surface vectors (like Mutation Surface or Complexity Load). Do NOT sum the surface vectors together or treat any total of them as a score -- they are independently scaled meters in different units (#3112). Ignore normal, healthy code."

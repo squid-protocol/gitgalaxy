@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 37 | 0 | 0 | 0 | 35 |
+| pip | 52 | 0 | 0 | 0 | 15 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 69 | 84 | 54 | 208 | 87 |
+| **total** | 84 | 84 | 54 | 208 | 67 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -45,19 +45,12 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### cics-crucible.yml
 
-- `pip` - crucible / Install GitGalaxy
-- `pip` - measure / Install GitGalaxy
 - `docker` - measure / Load or build the oracle image, and check it against its pin (#4309)
-- `pip` - runner-tests / Install GitGalaxy
 - `docker` - runner-tests / Load or build the oracle image, and check it against its pin (#4309)
 
 ### codeql.yml
 
 - `gh-api` - analyze / Report the results this PR adds
-
-### deploy-docs.yml
-
-- `pip` - deploy / Install Dependencies
 
 ### det-sweep.yml
 
@@ -78,12 +71,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### doom-rosetta.yml
 
 - `gh-api` - callgraph / Scope
-- `pip` - callgraph / Install GitGalaxy
-- `pip` - shard / Install GitGalaxy
-
-### engine-coverage-map.yml
-
-- `pip` - map / Install dependencies
 
 ### equivalence-e2e.yml
 
@@ -115,13 +102,8 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - sweep / Install GitGalaxy
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)
 
-### full-suite-gate.yml
-
-- `pip` - full-suite-matrix / Install dependencies
-
 ### gitgalaxy.yml
 
-- `pip` - full-report / Install GitGalaxy & Full Precision Engines
 - `gh-api` - pre-gate / Plan the gates
 
 ### graph-accuracy-audit.yml
@@ -135,29 +117,19 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### mainframe-ground-truth.yml
 
-- `pip` - ground-truth-part / Install GitGalaxy
-- `pip` - ground-truth-warm / Install GitGalaxy
 - `git-fetch` - plan / Plan the check
 
 ### mypy-audit.yml
 
 - `gh-api` - mypy-audit / Plan the audit
 
-### os-smoke-grid.yml
-
-- `pip` - smoke-test / Install dependencies
-
 ### ports-compile.yml
 
-- `pip` - ports-compile / Install GitGalaxy
 - `gh-api` - ports-compile / Plan the clean-install check
-- `pip` - ports-compile / Assess clean-install check (burned estates, translator from a wheelhouse)
 
 ### publish.yml
 
-- `pip` - evidence-report-current / Install GitGalaxy
 - `git-fetch` - pypi-publish / Enforce Main Branch Tagging
-- `pip` - pypi-publish / Install build tools
 
 ### referee-panel.yml
 
@@ -178,8 +150,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### smoke-test.yml
 
-- `pip` - evidence-deltas / Install dependencies
-- `pip` - full-suite-part / Install dependencies
 - `gh-api` - full-suite-part / Plan the ReDoS sweeps (#5166)
 - `gh-api` - suite-plan / Plan the suite
 - `gh-api` - suite-time / Total against the budget
@@ -187,7 +157,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tree-sitter-accuracy-audit.yml
 
 - `git-fetch` - plan / Plan the audit
-- `pip` - tree-sitter-accuracy-audit / Install GitGalaxy + tree-sitter-language-pack
 
 ### tree-sitter-accuracy-history.yml
 
@@ -196,7 +165,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tri-comparison-audit.yml
 
 - `git-fetch` - plan / Plan the audit
-- `pip` - tri-comparison-audit / Install GitGalaxy + tree-sitter-language-pack
 
 ### tri-comparison-history.yml
 

@@ -492,6 +492,42 @@
       "commarea_hex": "C5",
       "link_bytes": true,
       "terminal": "HX02 A"
+    },
+    {
+      "name": "entry-2-enter",
+      "why": "survivor attack (#7955): byte[] entry shorter than the 40-byte DFHCOMMAREA storage (EIBCALEN 2): the exact-area restore path",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "C6C1",
+      "entry_only": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "entry-39-enter",
+      "why": "survivor attack (#7955): byte[] entry shorter than the 40-byte DFHCOMMAREA storage (EIBCALEN 39): the exact-area restore path",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "C6C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1",
+      "entry_only": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "entry-2-pf5",
+      "why": "survivor attack (#7955): byte[] entry shorter than the 40-byte DFHCOMMAREA storage (EIBCALEN 2): the exact-area restore path",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea_hex": "C6C1",
+      "entry_only": true
     }
   ]
 }

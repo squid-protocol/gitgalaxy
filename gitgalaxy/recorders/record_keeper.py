@@ -792,8 +792,6 @@ class RecordKeeper:
                 dependency_density REAL,
                 encapsulation_ratio REAL,
                 author TEXT,
-                ai_threat_class TEXT,
-                ai_threat_confidence REAL,
                 func_z_max REAL DEFAULT 0.0,
                 func_z_mean REAL DEFAULT 0.0,
                 func_z_median REAL DEFAULT 0.0,
@@ -805,8 +803,6 @@ class RecordKeeper:
                 composition_file_z REAL,
                 ecosystem_baseline TEXT,
                 repo_z_score REAL,
-                ai_threat_score REAL,
-                is_malware INTEGER,
                 has_credentials INTEGER,
                 binary_anomaly INTEGER,
                 obfuscation_flag INTEGER,
@@ -967,6 +963,9 @@ class RecordKeeper:
                 ctor_forms TEXT,
                 property_reads TEXT,
                 calls_out_renames TEXT,
+                return_type TEXT,
+                calls_out_expr_chains TEXT,
+                calls_out_call_assigns TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
                 func_fan_out INTEGER,
@@ -1447,6 +1446,10 @@ class RecordKeeper:
         self._heal_column(cursor, "function_data", "property_reads", "TEXT")
         # #8161 (X5): a bare callee that is a renamed import -> the imported name. JSON, NULL where none.
         self._heal_column(cursor, "function_data", "calls_out_renames", "TEXT")
+        # Cross-function return types & chained call-expression receivers
+        self._heal_column(cursor, "function_data", "return_type", "TEXT")
+        self._heal_column(cursor, "function_data", "calls_out_expr_chains", "TEXT")
+        self._heal_column(cursor, "function_data", "calls_out_call_assigns", "TEXT")
         self._heal_column(cursor, "class_data", "method_arities", "TEXT")
         # Decorators applied to the function, aligned like calls_out_to /
         # calls_out_qualifiers (the resolver's kind='decorator' edges).
@@ -1739,20 +1742,6 @@ class RecordKeeper:
                 float(file_data.get("coding_loc", 0) or 0), EVIDENCE_MASS_FLOOR
             )
 
-            # #364: security_auditor.py writes "AI Threat Score" -- "AI Threat
-            # Confidence" was never a real producer key here, just a dead primary
-            # lookup that always fell through to this same fallback anyway.
-            ai_threat_conf_str = tel.get("domain_context", {}).get("AI Threat Score", "0.0%")
-            ai_threat: float | None = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
-            ai_threat_class: str | None = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
-            # #3028: without a real XGBoost run (missing numpy/pandas/xgboost, no
-            # model file, or a failed inference) "Safe" and 0.0 are placeholders,
-            # not verdicts, so the AI threat columns are NULL. The key defaults to
-            # True so a caller that predates it keeps its values.
-            ml_scored = session_meta.get("ml_inference_ran", True)
-            if not ml_scored:
-                ai_threat = None
-                ai_threat_class = None
             encapsulation_ratio = float(tel.get("encapsulation_ratio", 1.0))
 
             rv = file_data.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
@@ -1855,20 +1844,6 @@ class RecordKeeper:
                 agg_test_files += 1
 
             # --- SECURITY EXTRACTIONS ---
-            raw_ai_score = file_data.get(
-                "ai_threat_score",
-                tel.get("domain_context", {}).get("AI Threat Score", 0.0),
-            )
-            try:
-                ai_score: float | None = float(str(raw_ai_score).replace("%", ""))
-            except ValueError:
-                ai_score = 0.0
-
-            # #366: security_auditor.py's real output key is "is_ml_threat", not
-            # "is_malware" -- a near-miss rename that left this column always 0.
-            is_malware: int | None = 1 if file_data.get("is_ml_threat", False) else 0
-            if not ml_scored:
-                is_malware = None  # #3028: no inference, so no verdict either way
             # #367: no producer ever set file_data["has_credentials"]. #381 then
             # read equations["sec_hardcoded_secrets"], but file_data["equations"]
             # is not a durable carrier -- it's rebuilt/emptied/pruned across
@@ -1964,10 +1939,6 @@ class RecordKeeper:
             # zero-dependency mode. So these are read straight through (None ->
             # NULL) instead of being NULLed whenever the scan ran in zero-dependency
             # mode, which discarded real values (the network half of #3028).
-            # #3028: ai_threat_score is NULL on whether inference ran, not on the
-            # global mode flag (a missing pyyaml used to discard real scores).
-            if not ml_scored:
-                ai_score = None
             pagerank_score = net_mets.get("pagerank_score", 0.0)
             blast_radius = net_mets.get("normalized_blast_radius", 0.0)
             betweenness_score = net_mets.get("betweenness_score", 0.0)
@@ -2046,8 +2017,6 @@ class RecordKeeper:
                 dependency_density,
                 encapsulation_ratio,
                 tel.get("ownership", "Unknown"),
-                ai_threat_class,
-                ai_threat,
                 func_z_max,
                 func_z_mean,
                 func_z_median,
@@ -2059,8 +2028,6 @@ class RecordKeeper:
                 composition_file_z,
                 repo_macro,
                 repo_z,
-                ai_score,
-                is_malware,
                 has_creds,
                 bin_anomaly,
                 obfuscation_flag,
@@ -2218,6 +2185,13 @@ class RecordKeeper:
                         json.dumps(func["calls_out_renames"], sort_keys=True)
                         if func.get("calls_out_renames")
                         else None,
+                        func.get("return_type") or None,
+                        json.dumps(func["calls_out_expr_chains"], sort_keys=True)
+                        if func.get("calls_out_expr_chains")
+                        else None,
+                        json.dumps(func["calls_out_call_assigns"], sort_keys=True)
+                        if func.get("calls_out_call_assigns")
+                        else None,
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
@@ -2251,12 +2225,12 @@ class RecordKeeper:
                     control_flow_ratio, function_count, class_count,
                     func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity,
                     avg_func_args, func_complexity_gini, func_internal_density, dependency_density, encapsulation_ratio,
-                    author, ai_threat_class, ai_threat_confidence,
+                    author,
                     func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15,
                     file_archetype, file_fingerprint,
                     composition_file_archetype, composition_file_z,
                     ecosystem_baseline, repo_z_score,
-                    ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
+                    has_credentials, binary_anomaly, obfuscation_flag,
                     token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
                     raw_arch_api, raw_state_unreferenced,
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
@@ -2296,7 +2270,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, ctor_forms, property_reads, calls_out_renames, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, has_header_comment, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, ctor_forms, property_reads, calls_out_renames, return_type, calls_out_expr_chains, calls_out_call_assigns, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, has_header_comment, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

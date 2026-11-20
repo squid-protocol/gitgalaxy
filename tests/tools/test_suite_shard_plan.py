@@ -202,6 +202,15 @@ def test_a_leg_cap_never_drops_below_its_slowest_seen_time(durations):
         assert leg["step_timeout"] == leg["timeout"] - plan.STEP_MARGIN_MIN
 
 
+def test_a_windows_part_that_took_its_measured_minutes_fits_its_step_timeout_8572(durations):
+    # 2026-11-19: windows 3.12 part 1 passed 18499 tests in 25:06 and the 25-min step cap killed it
+    measured = {("windows-latest", "3.12"): 25, ("windows-latest", "3.11"): 21}
+    for leg in plan.gate_plan(durations)["matrix"]:
+        minutes = measured.get((leg["os"], leg["python-version"]))
+        if minutes:
+            assert leg["step_timeout"] >= minutes + 1, leg
+
+
 def _e2e_fits(weight, n):
     return sp.shard_seconds(weight, n, plan.E2E_SETUP_S, plan.E2E_JOBS) <= plan.E2E_TARGET_S
 

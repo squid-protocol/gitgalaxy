@@ -5,7 +5,7 @@
 # the 4-check Golden Path (vault-sentinel, xray-inspector,
 # import-policy-gate, galaxyscope). See github-action-readme.md for the
 # full tool directory. Only 'galaxyscope' accepts the args in the example
-# below (--config, --fail-on-malware, --sarif-only, --output); the three
+# below (--config, --sarif-only, --output); the three
 # sentinel tools take no flags beyond the target path.
 
 spec:

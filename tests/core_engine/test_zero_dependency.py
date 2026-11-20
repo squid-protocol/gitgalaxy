@@ -38,17 +38,15 @@ class TestZeroDependencyMode(unittest.TestCase):
             self.fail(f"Zero-Dependency Mode crashed the Signal Processor due to NoneType math! Error: {e}")
 
     # ==============================================================================
-    # TEST 2: ML THREAT INFERENCE FALLBACK (XGBoost)
+    # TEST 2: SECURITY AUDITOR WITHOUT A MODEL (#8430)
     # ==============================================================================
-    @patch("gitgalaxy.security.security_auditor.ML_AVAILABLE", False)
     def test_blind_auditor_graceful_degradation(self):
         """
-        Simulates a user running GalaxyScope without 'xgboost' installed.
-        Ensures the graph resolution still executes but ML classification is safely bypassed.
+        No classifier ships (#8430): the auditor resolves the dependency graph and flags nothing.
         """
         from gitgalaxy.security.security_auditor import SecurityAuditor
 
-        auditor = SecurityAuditor(model_path="dummy_path.json")
+        auditor = SecurityAuditor()
 
         mock_stars = [
             {
@@ -105,7 +103,6 @@ class TestZeroDependencyMode(unittest.TestCase):
     # TEST 4: ORCHESTRATOR METADATA COMPLIANCE
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.HAS_TIKTOKEN", False)
-    @patch("gitgalaxy.galaxyscope.HAS_XGBOOST", False)
     @patch("gitgalaxy.galaxyscope.HAS_PYYAML", False)
     def test_orchestrator_session_meta_flags(self):
         """
@@ -118,24 +115,22 @@ class TestZeroDependencyMode(unittest.TestCase):
 
         self.assertTrue(any(missing.values()), "Failed to flag Zero-Dependency Mode.")
         self.assertTrue(missing["tiktoken"], "Failed to detect missing tiktoken.")
-        self.assertTrue(missing["xgboost"], "Failed to detect missing xgboost.")
         self.assertTrue(missing["pyyaml"], "Failed to detect missing pyyaml.")
-        self.assertEqual(set(missing), {"tiktoken", "numpy", "pandas", "xgboost", "pyyaml"})
+        self.assertEqual(set(missing), {"tiktoken", "pyyaml"})
 
     # ==============================================================================
     # TEST 5: THE VACUUM PIPELINE (Total Ecosystem Failure)
     # ==============================================================================
-    @patch("gitgalaxy.security.security_auditor.ML_AVAILABLE", False)
     def test_vacuum_pipeline_schema_survival(self):
         """
-        DEVIOUS EDGE CASE: With XGBoost missing, the pipeline routes the RAM state
-        through the network sensor and then the blind ML auditor. This proves
+        DEVIOUS EDGE CASE: The pipeline routes the RAM state
+        through the network sensor and then the auditor. This proves
         the dictionary schema survives the multi-stage vacuum without mutating or crashing.
         """
         from gitgalaxy.security.security_auditor import SecurityAuditor
 
         sensor = NetworkRiskSensor()
-        auditor = SecurityAuditor(model_path="dummy_path.json")
+        auditor = SecurityAuditor()
 
         mock_stars = [
             {
@@ -150,7 +145,7 @@ class TestZeroDependencyMode(unittest.TestCase):
         # Pass 1: Through the blind network sensor
         mapped_stars, macro_metrics = sensor.build_dependency_graph(mock_stars)
 
-        # Pass 2: Through the blind ML auditor
+        # Pass 2: Through the auditor
         final_stars = auditor.audit_repository(mapped_stars)
 
         # Assert the schema survived untouched

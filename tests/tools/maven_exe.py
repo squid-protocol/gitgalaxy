@@ -79,6 +79,7 @@ def run_decoded(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[st
 # shared local repository failed every later build of the job with no retry (det sweep run 42721961353: 30 of 30).
 RESOLUTION_FAILURE_MARKERS = (
     "Could not find artifact",
+    "Could not resolve dependencies",  # #8674: the CICS crucible's compile failed on it with the cause line unread
     "Could not transfer artifact",
     "Connection reset",
     "Read timed out",
@@ -113,6 +114,44 @@ def run_maven_retrying_resolution(cmd: list[str], **kwargs: Any) -> subprocess.C
             proc.stdout
             + proc.stderr
             + f"\n[maven_exe #7561: dependency resolution failed; rerun with -U, attempt {attempt}]\n"
+        )
+        proc = subprocess.CompletedProcess(again.args, again.returncode, again.stdout, again.stderr)
+    if not log:
+        return proc
+    return subprocess.CompletedProcess(proc.args, proc.returncode, log + proc.stdout, proc.stderr)
+
+
+# #8671: Gradle's own texts for a dependency it could not fetch (Central throttling a shared runner answers 429).
+GRADLE_RESOLUTION_FAILURE_MARKERS = (
+    "Could not resolve all",
+    "Could not resolve org.",
+    "Could not GET",
+    "Could not HEAD",
+    "Received status code 429",
+    "Connection reset",
+    "Read timed out",
+)
+
+
+def is_gradle_resolution_failure(text: str) -> bool:
+    """True when Gradle's output shows a dependency that could not be fetched (never a compile error)."""
+    return any(marker in text for marker in GRADLE_RESOLUTION_FAILURE_MARKERS)
+
+
+def run_gradle_retrying_resolution(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    """The Gradle twin of `run_maven_retrying_resolution`: on a resolution failure rerun with `--refresh-dependencies`
+    (ignores cached misses), waiting `RESOLUTION_RETRY_DELAYS_S` before each rerun. Other failures return as they are."""
+    proc = run_decoded(cmd, **kwargs)
+    log = ""
+    for attempt, delay in enumerate(RESOLUTION_RETRY_DELAYS_S, start=2):
+        if proc.returncode == 0 or not is_gradle_resolution_failure(proc.stdout + proc.stderr):
+            break
+        time.sleep(delay)
+        again = run_decoded([cmd[0], "--refresh-dependencies", *cmd[1:]], **kwargs)
+        log += (
+            proc.stdout
+            + proc.stderr
+            + f"\n[maven_exe #8671: dependency resolution failed; rerun with --refresh-dependencies, attempt {attempt}]\n"
         )
         proc = subprocess.CompletedProcess(again.args, again.returncode, again.stdout, again.stderr)
     if not log:

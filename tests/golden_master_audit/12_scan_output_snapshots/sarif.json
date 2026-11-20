@@ -656,21 +656,6 @@
                 "shortDescription": {
                   "text": "Guardrail: High-Complexity File (No Autonomous AI Edits)"
                 }
-              },
-              {
-                "fullDescription": {
-                  "text": "The XGBoost inference engine detected high-entropy structural topologies consistent with Trojans or Credential Stealers."
-                },
-                "id": "GG-ML-STEALER_TROJAN",
-                "properties": {
-                  "tags": [
-                    "CWE-506",
-                    "malware"
-                  ]
-                },
-                "shortDescription": {
-                  "text": "Behavioral Malware Signature: Stealer/Trojan"
-                }
               }
             ],
             "version": "GitGalaxy Scope vlatest (Delta Mode)"

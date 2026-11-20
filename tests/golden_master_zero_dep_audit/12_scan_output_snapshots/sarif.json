@@ -17,7 +17,7 @@
                 },
                 "level": "note",
                 "message": {
-                  "text": "GitGalaxy executed in Zero-Dependency Mode (missing: tiktoken, numpy, pandas, xgboost). Metrics that need those engines were not computed (reported as null / n/a); do not read any value shown for them as a measurement. Structural signals, degree counts and PageRank are unaffected. Per-field detail: https://github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md"
+                  "text": "GitGalaxy executed in Zero-Dependency Mode (missing: tiktoken). Metrics that need those engines were not computed (reported as null / n/a); do not read any value shown for them as a measurement. Structural signals, degree counts and PageRank are unaffected. Per-field detail: https://github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md"
                 }
               }
             ]
@@ -665,21 +665,6 @@
                 },
                 "shortDescription": {
                   "text": "Guardrail: High-Complexity File (No Autonomous AI Edits)"
-                }
-              },
-              {
-                "fullDescription": {
-                  "text": "The XGBoost inference engine detected high-entropy structural topologies consistent with Trojans or Credential Stealers."
-                },
-                "id": "GG-ML-STEALER_TROJAN",
-                "properties": {
-                  "tags": [
-                    "CWE-506",
-                    "malware"
-                  ]
-                },
-                "shortDescription": {
-                  "text": "Behavioral Malware Signature: Stealer/Trojan"
                 }
               }
             ],

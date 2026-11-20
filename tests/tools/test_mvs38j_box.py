@@ -32,7 +32,7 @@ def test_unknown_subcommand_is_refused():
 def test_bare_sysgen_is_refused_with_the_automated_stage_named():
     r = _run("sysgen")
     assert r.returncode == 3
-    assert "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl' are automated" in r.stderr
+    assert "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl|custom' are automated" in r.stderr
 
 
 def test_every_tape_pin_is_an_md5():
@@ -96,9 +96,9 @@ def test_smp2_expected_has_a_reason_for_each_entry():
 
 PRINTER = """\
  IEF142I SMP4P44 S1 - STEP WAS EXECUTED - COND CODE 0000
- IEF142I SMP4P44 LK S3 - STEP WAS EXECUTED - COND CODE 0004
+ IEF142I SMP4P44 S3 LK - STEP WAS EXECUTED - COND CODE 0004
  IEF272I JOBX STEP2 - STEP WAS NOT EXECUTED.
- IEF142I JOBX GO PROC1 - STEP WAS EXECUTED - COND CODE 0012
+ IEF142I JOBX PROC1 GO - STEP WAS EXECUTED - COND CODE 0012
  IEF142I OTHER S1 - STEP WAS EXECUTED - COND CODE 0000
 """
 
@@ -185,7 +185,7 @@ def test_the_starter_plan_covers_both_volumes_with_distinct_readers_and_tapes():
 
 def test_sysgen_subcommand_refuses_a_stage_that_is_not_automated():
     r = _run("sysgen", "sysgen02")
-    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl'" in r.stderr
+    assert r.returncode == 3 and "only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl|custom'" in r.stderr
 
 
 # --- console.py: the telnet 3215 client, against an in-process fake server ---
@@ -285,6 +285,13 @@ def test_mount_requests_are_answered_once_with_devinit_and_a_reply(tmp_path):
     con.lines = ["*IEC501A M 171,NOPE,SL"]
     with pytest.raises(sysgen.SysgenError, match="--tape NOPE=FILE"):
         sysgen.answer_mounts(sent.append, con, 0, {}, set())
+
+
+def test_tape_unit_reads_a_ranged_drive_line(tmp_path):
+    """mvs.conf declares its drives as `0100.4  3420  *` (the live `sysgen custom` run failed on it, 2026-11-20)."""
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "m.conf").write_text("0150 3350 dasd/x\n0100.4  3420    *\n0310.4  3420    *\n")
+    assert sysgen.tape_unit(tmp_path, "conf/m.conf") == "100"
 
 
 def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
@@ -638,3 +645,104 @@ def test_start_does_not_go_through_docker_run_d_and_stop_signals_the_driver():
     text = SCRIPT.read_text()
     assert 'sysgen.py" serve' in text and "docker run -d" not in text
     assert 'kill "$pid"' in text
+
+
+# --- the customizing stage (`sysgen custom`, Moseley's iCUSTv8 page, read 2026-11-20) ---
+
+
+def _custom_lines(*lines):
+    return types.SimpleNamespace(lines=list(lines), sent=[])
+
+
+def test_custom_decks_are_the_pages_four_jobs_and_the_two_that_submit_a_second_job_count_two():
+    assert [d for d, _ in sysgen.CUSTOM_DECKS] == ["mvs00.jcl", "mvs01.jcl", "mvs02.jcl", "mvs03.jcl"]
+    assert dict(sysgen.CUSTOM_DECKS) == {"mvs00.jcl": 2, "mvs01.jcl": 1, "mvs02.jcl": 1, "mvs03.jcl": 2}
+
+
+def test_the_master_catalog_password_and_ickdsf_confirmation_are_answered_once_each():
+    con = types.SimpleNamespace(
+        lines=[
+            "*04 ICK003D REPLY U TO ALTER VOLUME 180 CONTENTS, ELSE T",
+            "*06 IDC3009I ENTER MASTER CATALOG PASSWORD FOR ALIAS",
+            "*06 IDC3009I ENTER MASTER CATALOG PASSWORD FOR ALIAS",
+            "00000010 IEE600I some unrelated line",
+        ],
+        sent=[],
+    )
+    con.send = con.sent.append
+    seen = set()
+    sent_cmds = []
+    for _ in range(2):  # a second poll must not answer again
+        sysgen.answer_mounts(sent_cmds.append, con, 0, {}, seen, "480", sysgen.CUSTOM_REPLIES)
+    assert con.sent == ["r 06,sysprog", "r 04,u"] or sorted(con.sent) == ["r 04,u", "r 06,sysprog"]
+    assert len(con.sent) == 2 and sent_cmds == []
+
+
+def test_the_live_iec301a_master_catalog_ask_gets_the_password():
+    """MVS02's ask as the live run printed it (2026-11-20): no word PASSWORD in the line."""
+    con = types.SimpleNamespace(lines=["*04 IEC301A S JOB MVS02    DSNAME SYS1.VSAM.MASTER.CATALOG"], sent=[])
+    con.send = con.sent.append
+    sysgen.answer_mounts([].append, con, 0, {}, set(), "480", sysgen.CUSTOM_REPLIES)
+    assert con.sent == ["r 04,sysprog"]
+
+
+def test_the_tsoaps_tape_is_mounted_from_the_mvs03_mount_request():
+    con = types.SimpleNamespace(lines=["*07 IEC501A M 100,TSOAPS,SL,COMP,MVS03,STEP02,SYSC.XMIT"], sent=[])
+    con.send = con.sent.append
+    cmds = []
+    sysgen.answer_mounts(cmds.append, con, 0, sysgen.CUSTOM_TAPES, set(), "100", sysgen.CUSTOM_REPLIES)
+    assert cmds == ["devinit 100 tape/tsoaps.het"] and con.sent == []
+
+
+def test_the_slash_console_types_replies_at_the_hercules_prompt():
+    sent = []
+    herc = types.SimpleNamespace(lines=["a"], send=sent.append)
+    con = sysgen.SlashConsole(herc)
+    con.send("r 4,u")
+    assert sent == ["/r 4,u"] and con.lines is herc.lines
+
+
+def test_custom_requires_every_step_0000_where_smp_stages_allow_cc4():
+    ok = {"job": "MVS00", "step": "ICKDSF", "procstep": None, "executed": True, "cond_code": 0}
+    warn = {**ok, "step": "IEBGENER", "cond_code": 4}
+    skipped = {**ok, "step": "IEFBR14", "executed": False, "cond_code": None}
+    assert sysgen.custom_failed_steps([ok]) == []
+    assert sysgen.custom_failed_steps([ok, warn, skipped]) == [warn, skipped]
+    assert sysgen.smp_failed_steps([ok, warn], {}) == []  # the contrast: the SMP stages accept CC 4
+
+
+def test_custom_refuses_without_the_new_volumes_the_script_or_the_tape(tmp_path):
+    with pytest.raises(sysgen.SysgenError, match="pub000.3380 missing"):
+        sysgen.custom(str(tmp_path), "img", "n")
+    for rel in (*sysgen.CUSTOM_VOLUMES, "dasd/mvsres.3350", "dasd/syscpk.3350", "conf/mvs.script"):
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_bytes(b"")
+    with pytest.raises(sysgen.SysgenError, match="tsoaps.het missing"):
+        sysgen.custom(str(tmp_path), "img", "n")
+    (tmp_path / "tape").mkdir()
+    (tmp_path / "tape/tsoaps.het").write_bytes(b"")
+    with pytest.raises(sysgen.SysgenError, match="mvs00.jcl missing"):
+        sysgen.custom(str(tmp_path), "img", "n")
+
+
+def test_ipl_conf_attaches_the_new_volumes_only_after_custom_has_initialized_them(tmp_path):
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf/mvs.cnf").write_text(
+        "#0180    3380    dasd/pub000.3380\n#0190    3390    dasd/pub001.3390 cu=3880\n0150    3350    dasd/mvsres.3350\n"
+    )
+    sysgen.ipl_conf(str(tmp_path))
+    assert (tmp_path / "conf/mvs.conf").read_text().splitlines()[:2] == [
+        "#0180    3380    dasd/pub000.3380",
+        "#0190    3390    dasd/pub001.3390 cu=3880",
+    ]
+    (tmp_path / sysgen.CUSTOM_MARKER).write_text("x")
+    sysgen.ipl_conf(str(tmp_path))
+    assert (tmp_path / "conf/mvs.conf").read_text().splitlines()[:2] == [
+        "0180    3380    dasd/pub000.3380",
+        "0190    3390    dasd/pub001.3390 cu=3880",
+    ]
+
+
+def test_the_shell_wrapper_offers_the_custom_stage():
+    sh = (Path(__file__).parent / "box/mvs38j/mvs38j.sh").read_text()
+    assert "stage3 | ipl | custom)" in sh

@@ -51,9 +51,8 @@ def test_the_header_declarations_ranges_ride_on_the_class():
 
 def test_a_default_argument_and_a_variadic_widen_the_definitions_range():
     sites = _sites()
-    # one argument: the exact one-parameter emit(const char*) wins the count (#3835); that the call means
-    # emit(int, int = 0) only the argument's type tells (follow-up: C++ argument types)
-    assert sites[("one", "emit")]["dst_line"] == 3
+    # one argument: emit(1) passes an int, so C++ argument typing picks emit(int, int = 0) over emit(const char*)
+    assert sites[("one", "emit")]["dst_line"] == 2
     assert sites[("two", "emit")]["dst_line"] == 2  # only the two-parameter overload takes two
     assert sites[("many", "log")]["dst_line"] == 4  # three arguments reach only the variadic
     assert sites[("many", "log")]["resolution"] in CONFIDENT_RESOLUTIONS

@@ -6842,7 +6842,7 @@
         "CLEAR-CURRENT-SCREEN@395": 1.2e-05,
         "INITIALIZE-ALL-FIELDS@403": 1.6e-05,
         "MAIN-PARA@82": 1.1e-05,
-        "POPULATE-HEADER-INFO@296": 5.8e-05,
+        "POPULATE-HEADER-INFO@296": 5.7e-05,
         "PROCESS-ENTER-KEY@143": 1.2e-05,
         "READ-USER-SEC-FILE@320": 1.9e-05,
         "RECEIVE-USRUPD-SCREEN@283": 1.2e-05,
@@ -12099,7 +12099,7 @@
         "WRI-TEST-GF-01-0@680": 1.1e-05,
         "WRI-TEST-GF-01-1@694": 1.5e-05,
         "WRI-WRITE-GF-01-0@705": 1.7e-05,
-        "WRITE-LINE@582": 0.000161,
+        "WRITE-LINE@582": 0.00016,
         "WRT-LN@598": 0.00015
       },
       "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": {
@@ -13432,7 +13432,7 @@
         "TERMINATE-CALL@220": 1.1e-05,
         "TERMINATE-CCVS@218": 1.1e-05,
         "TEST-CHECK1@724": 0.000484,
-        "TEST-CHECK2@727": 0.000145,
+        "TEST-CHECK2@727": 0.000144,
         "TEST-CHECK@729": 0.000424,
         "TEST-FAIL@734": 1.1e-05,
         "TEST-WRITE@738": 0.000216,
@@ -18872,7 +18872,7 @@
         "EditorNode::_file_dialog_thumbnail_callback@6151": 1.1e-05,
         "EditorNode::_file_dialog_unregister@6180": 1.1e-05,
         "EditorNode::_find_and_save_edited_subresources@2181": 7.2e-05,
-        "EditorNode::_find_and_save_resource@2155": 7.3e-05,
+        "EditorNode::_find_and_save_resource@2155": 7.2e-05,
         "EditorNode::_find_node_types@2240": 1.5e-05,
         "EditorNode::_find_scene_in_use@5607": 1.5e-05,
         "EditorNode::_fs_changed@1319": 1.1e-05,
@@ -35575,7 +35575,7 @@
         "__eq__@167": 1.1e-05,
         "__get_pydantic_core_schema__@145": 1.1e-05,
         "__get_pydantic_json_schema__@139": 1.1e-05,
-        "__init__@161": 0.001982,
+        "__init__@161": 0.001981,
         "_validate@133": 2.8e-05,
         "close@124": 1.3e-05,
         "read@86": 1.3e-05,
@@ -35586,7 +35586,7 @@
         "decimal_encoder@43": 1.1e-05,
         "generate_encoders_by_class_tuples@98": 1.9e-05,
         "isoformat@37": 1.1e-05,
-        "jsonable_encoder@112": 0.000366
+        "jsonable_encoder@112": 0.000368
       },
       "python/fastapi/fastapi/exception_handlers.py": {
         "http_exception_handler@11": 0.000138,
@@ -35646,12 +35646,12 @@
         "_async_stream_raw@658": 1.5e-05,
         "_build_response_args@333": 1.5e-05,
         "_extract_endpoint_context@254": 2.8e-05,
-        "_keepalive_inserter@565": 2e-05,
+        "_keepalive_inserter@565": 2.6e-05,
         "_merge_lifespan_context@209": 1.5e-05,
-        "_producer@556": 2e-05,
-        "_serialize_data@471": 4.6e-05,
+        "_producer@556": 2.6e-05,
+        "_serialize_data@471": 4.7e-05,
         "_serialize_item@624": 3.6e-05,
-        "_serialize_sse_item@500": 2.7e-05,
+        "_serialize_sse_item@500": 3.2e-05,
         "_shutdown@4889": 1.9e-05,
         "_sse_producer_cm@535": 1.5e-05,
         "_sse_with_checkpoints@597": 1.5e-05,
@@ -35701,7 +35701,7 @@
       "python/fastapi/fastapi/sse.py": {
         "_check_data_exclusive@136": 1.1e-05,
         "_check_id_no_null@36": 1.1e-05,
-        "format_sse_event@146": 1.8e-05
+        "format_sse_event@146": 1.9e-05
       },
       "python/fastapi/fastapi/utils.py": {
         "create_model_field@58": 1.2e-05,
@@ -37953,7 +37953,7 @@
         "test_routerprefixindex@68": 1.1e-05
       },
       "python/fastapi/tests/test_ws_router.py": {
-        "call_next@199": 4.9e-05,
+        "call_next@199": 4.8e-05,
         "catcher@217": 1.5e-05,
         "custom_handler@262": 1.5e-05,
         "errorhandler@242": 1.5e-05,
@@ -49301,7 +49301,7 @@
         "sortByBestName@8527": 1.1e-05,
         "sortSymbolsIfTSGoCompat@53812": 1.1e-05,
         "sortSymbolsIfTSGoCompat@53813": 1.1e-05,
-        "sortSymbolsIfTSGoCompat@53814": 1.9e-05,
+        "sortSymbolsIfTSGoCompat@53814": 1.8e-05,
         "startRecoveryScope@8122": 1.1e-05,
         "structuredTypeRelatedTo@23469": 1.2e-05,
         "structuredTypeRelatedToWorker@23544": 1.1e-05,
@@ -55576,7 +55576,7 @@
         "getGeneratedTagEnumType@10141": 1.1e-05,
         "getIfExists@10298": 1.1e-05,
         "getIndexMask@1609": 1.1e-05,
-        "getItem@4782": 0.000125,
+        "getItem@4782": 0.000124,
         "getLength@6508": 1.1e-05,
         "getLimbs@1088": 2e-05,
         "getLinkSection@616": 1.1e-05,

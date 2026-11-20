@@ -534,6 +534,13 @@ CALLS_OUT_GO = re.compile(
     + r")?\s*\())"
 )
 
+# Python calls: same-line `[ \t]*\(` (a newline starts a new statement in Python,
+# so `False\n\n(l, rl) = ...` or `m1\n(a, b) = ...` is not a call) and a `class `
+# lookbehind so nested `class Model(BaseModel):` inside a function body is not
+# captured as a call to `Model`. Group 1 is the callee, so detector.py treats it
+# like CALLS_OUT_C_STYLE (qualifier capture, C5 header drop, nested-unit blanking).
+CALLS_OUT_PYTHON = re.compile(rf"(?<!\bclass )(?<!\bclass\t)\b([{ID_START}][{ID_CONTINUE}]*)[ \t]*\(")
+
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
@@ -548,6 +555,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_PERL,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,
+    CALLS_OUT_PYTHON,
 )
 
 # Unsupported / AST-Required (Shell, Markup, Data, Config)

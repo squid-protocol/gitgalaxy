@@ -18,6 +18,7 @@ from gitgalaxy.standards.language_standards._shared_patterns import (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_DART,
     CALLS_OUT_KOTLIN,
+    CALLS_OUT_PYTHON,
 )
 
 
@@ -195,10 +196,10 @@ def test_annotation_languages_use_the_no_annotation_pattern():
         assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION
     # #6266: kotlin's adds the trailing-lambda call `x.f { .. }`
     assert LANGUAGE_DEFINITIONS["kotlin"]["rules"]["calls_out"] is CALLS_OUT_KOTLIN
-    # Python/TypeScript/JavaScript decorator factories ARE invocations (C1) -- the plain pattern.
+    # Python/TypeScript/JavaScript decorator factories ARE invocations (C1) -- no annotation guard.
     # #3644: typescript's generic-aware variant has no annotation guard either.
-    for lang in ("python", "javascript"):
-        assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE
+    assert LANGUAGE_DEFINITIONS["javascript"]["rules"]["calls_out"] is CALLS_OUT_C_STYLE
+    assert LANGUAGE_DEFINITIONS["python"]["rules"]["calls_out"] is CALLS_OUT_PYTHON
     assert LANGUAGE_DEFINITIONS["typescript"]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_GENERIC
 
 

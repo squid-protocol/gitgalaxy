@@ -2855,7 +2855,7 @@
       "python/fastapi/fastapi/params.py": "Many-Argument Workhorses Files",
       "python/fastapi/fastapi/requests.py": "Data / Markup / Trivial",
       "python/fastapi/fastapi/responses.py": "Generic / Templated Code Files",
-      "python/fastapi/fastapi/routing.py": "Large Core Modules (3)",
+      "python/fastapi/fastapi/routing.py": "Generic / Templated Code Files",
       "python/fastapi/fastapi/sse.py": "Encapsulated Accessors Files",
       "python/fastapi/fastapi/staticfiles.py": "Data / Markup / Trivial",
       "python/fastapi/fastapi/templating.py": "Data / Markup / Trivial",

@@ -35653,7 +35653,7 @@
         "_serialize_item@624": 1,
         "_serialize_sse_item@500": 3,
         "_shutdown@4889": 0,
-        "_sse_producer_cm@535": 0,
+        "_sse_producer_cm@535": 2,
         "_sse_with_checkpoints@597": 0,
         "_startup@4873": 0,
         "_sync_stream_jsonl@641": 1,

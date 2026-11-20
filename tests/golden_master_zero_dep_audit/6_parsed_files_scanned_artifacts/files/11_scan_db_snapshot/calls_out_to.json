@@ -54377,8 +54377,8 @@
           "message",
           "run",
           "queueFunction",
-          "CorePump",
           "pumpAll",
+          "CorePump",
           "requestPump",
           "markInitializationComplete",
           "MainLoop",
@@ -133306,7 +133306,6 @@
           "__new__",
           "__PYX_INC_MEMVIEW",
           "_get_base",
-          "ndim",
           "Py_INCREF"
         ],
         "memview@236": [
@@ -136943,7 +136942,11 @@
           "is_async_callable",
           "handler"
         ],
-        "_sse_producer_cm@535": [],
+        "_sse_producer_cm@535": [
+          "create_task_group",
+          "start_soon",
+          "cancel"
+        ],
         "_sse_with_checkpoints@597": [
           "sleep"
         ],
@@ -137018,9 +137021,6 @@
           "__aiter__",
           "iterate_in_threadpool",
           "_sse_producer_cm",
-          "create_task_group",
-          "start_soon",
-          "cancel",
           "enter_async_context",
           "_sse_with_checkpoints",
           "StreamingResponse",
@@ -137551,7 +137551,6 @@
           "TypeAdapter",
           "json_schema",
           "PlainSerializer",
-          "MyModel",
           "ConfigDict",
           "FastAPI",
           "get",
@@ -137575,9 +137574,9 @@
           "TypeAdapter",
           "json_schema",
           "PlainSerializer",
-          "MyModel",
           "ConfigDict",
           "dump_python",
+          "MyModel",
           "FakeNumpyArray",
           "snapshot"
         ]
@@ -137611,10 +137610,9 @@
         ],
         "test_propagates_pydantic2_model_config@39": [
           "FastAPI",
-          "EmbeddedModel",
           "ConfigDict",
           "Missing",
-          "Model",
+          "EmbeddedModel",
           "post",
           "TestClient",
           "json"
@@ -137642,7 +137640,6 @@
         "area@20": [],
         "get_client@8": [
           "FastAPI",
-          "Rectangle",
           "get",
           "TestClient"
         ],
@@ -137772,9 +137769,9 @@
           "isoformat"
         ],
         "test_pydanticv2@8": [
-          "ModelWithDatetimeField",
           "field_serializer",
           "FastAPI",
+          "ModelWithDatetimeField",
           "datetime",
           "get",
           "TestClient",
@@ -139247,9 +139244,6 @@
       "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": {
         "get_client@10": [
           "FastAPI",
-          "ModelB",
-          "ModelC",
-          "ModelA",
           "field_validator",
           "get",
           "TestClient"
@@ -139486,8 +139480,6 @@
       },
       "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": {
         "client_fixture@8": [
-          "Address",
-          "Facility",
           "FastAPI",
           "get",
           "TestClient"
@@ -139664,7 +139656,6 @@
         "test_pydanticv2@27": [
           "FastAPI",
           "get",
-          "SomeCustomClass",
           "field_serializer",
           "TestClient",
           "json"
@@ -139681,13 +139672,11 @@
         "test_invalid_dict@30": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_sequence@6": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_simple_dict@69": [
@@ -139713,7 +139702,6 @@
         "test_invalid_tuple@18": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ]
       },
@@ -139733,25 +139721,21 @@
         "test_invalid_dict@36": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_sequence@6": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_simple_dict@51": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_tuple@21": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ]
       },
@@ -139814,7 +139798,6 @@
           "isoformat"
         ],
         "test_custom_encoders@205": [
-          "safe_datetime",
           "MyDict",
           "now",
           "jsonable_encoder",
@@ -139823,7 +139806,6 @@
         ],
         "test_custom_enum_encoders@228": [
           "custom_enum_encoder",
-          "MyEnum",
           "jsonable_encoder"
         ],
         "test_decimal_encoder_float@280": [
@@ -139850,19 +139832,19 @@
           "jsonable_encoder"
         ],
         "test_encode_custom_json_encoders_model_pydanticv2@140": [
-          "ModelWithCustomEncoder",
           "field_serializer",
-          "ModelWithCustomEncoderSubclass",
+          "ModelWithCustomEncoder",
           "datetime",
-          "jsonable_encoder"
+          "jsonable_encoder",
+          "ModelWithCustomEncoderSubclass"
         ],
         "test_encode_dataclass@125": [
           "Item",
           "jsonable_encoder"
         ],
         "test_encode_deque_encodes_child_models@302": [
-          "Model",
           "deque",
+          "Model",
           "jsonable_encoder"
         ],
         "test_encode_dict@75": [
@@ -139893,8 +139875,8 @@
           "jsonable_encoder"
         ],
         "test_encode_model_with_pure_path@243": [
-          "ModelWithPath",
           "PurePath",
+          "ModelWithPath",
           "jsonable_encoder",
           "str"
         ],
@@ -140868,37 +140850,31 @@
         "endpoint@82": [],
         "endpoint@95": [],
         "test_raises_pydantic_v1_model_in_additional_responses_model@58": [
-          "ErrorModelV1",
           "FastAPI",
           "raises",
           "get"
         ],
         "test_raises_pydantic_v1_model_in_endpoint_param@19": [
-          "ParamModelV1",
           "FastAPI",
           "raises",
           "post"
         ],
         "test_raises_pydantic_v1_model_in_response_model@45": [
-          "ResponseModelV1",
           "FastAPI",
           "raises",
           "get"
         ],
         "test_raises_pydantic_v1_model_in_return_type@32": [
-          "ReturnModelV1",
           "FastAPI",
           "raises",
           "get"
         ],
         "test_raises_pydantic_v1_model_in_sequence@86": [
-          "ModelV1A",
           "FastAPI",
           "raises",
           "post"
         ],
         "test_raises_pydantic_v1_model_in_union@73": [
-          "ModelV1A",
           "FastAPI",
           "raises",
           "post"
@@ -141074,11 +141050,7 @@
         ],
         "full_name@15": [],
         "test_read_with_orm_mode@8": [
-          "PersonBase",
-          "Person",
           "ConfigDict",
-          "PersonCreate",
-          "PersonRead",
           "FastAPI",
           "post",
           "TestClient",
@@ -142035,9 +142007,6 @@
       "python/fastapi/tests/test_schema_compat_pydantic_v2.py": {
         "get_client@12": [
           "FastAPI",
-          "PlatformRole",
-          "OtherRole",
-          "User",
           "get",
           "TestClient"
         ],
@@ -142065,7 +142034,6 @@
         ],
         "create_app@9": [
           "FastAPI",
-          "Item",
           "ConfigDict",
           "post",
           "warns",
@@ -142125,7 +142093,6 @@
       "python/fastapi/tests/test_schema_ref_pydantic_v2.py": {
         "get_client@11": [
           "FastAPI",
-          "ModelWithRef",
           "Field",
           "ConfigDict",
           "get",
@@ -143727,8 +143694,6 @@
         ],
         "test_discriminator_pydantic_v2@10": [
           "FastAPI",
-          "FirstItem",
-          "OtherItem",
           "Tag",
           "Field",
           "post",
@@ -143741,8 +143706,6 @@
       },
       "python/fastapi/tests/test_union_body_discriminator_annotated.py": {
         "client_fixture@13": [
-          "Cat",
-          "Dog",
           "Tag",
           "Discriminator",
           "FastAPI",
@@ -145823,7 +145786,6 @@
           "make_mask",
           "is_mask",
           "_shrink_mask",
-          "m1",
           "ValueError",
           "empty",
           "broadcast",
@@ -146814,7 +146776,6 @@
           "outmess",
           "expandtabs",
           "replace",
-          "False",
           "split_by_unquoted",
           "strip",
           "len",

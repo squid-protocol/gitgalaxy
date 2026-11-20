@@ -166,7 +166,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         "safety": re.compile(
             r"\b(TRANSACTION|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|CONSTRAINT|CHECK|UNIQUE|PRIMARY\s+KEY|FOREIGN\s+KEY|STRICT|IF\s+NOT\s+EXISTS|ON\s+DELETE\s+CASCADE|PRAGMA\s+foreign_keys[ \t]*=\s*(?:1|ON))\b",
             re.I,

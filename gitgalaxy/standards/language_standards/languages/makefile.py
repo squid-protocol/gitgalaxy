@@ -155,7 +155,7 @@ DEFINITION: dict[str, Any] = {
         # --------------------------------------------------------------------------
         # 2. STRUCTURAL INTEGRITY & TECH DEBT (Structural Integrity & Tech Debt)
         # --------------------------------------------------------------------------
-        # Defensive programming: Executing internal logic checks, asserting tool paths, or using safety system states.
+        # safety (Defensive Checks: .POSIX-style special targets, command -v, $(if/or/and)): executing internal logic checks, asserting tool paths, or using safety system states.
         "safety": re.compile(
             r"^[ \t]*\.(?:POSIX|SECONDARY|PRECIOUS|DELETE_ON_ERROR|KEEP_STATE)\b|\bcommand[ \t]+-v\b|\$\((?:if|or|and)[ \t]+",
             re.M,

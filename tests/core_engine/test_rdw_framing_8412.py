@@ -74,3 +74,30 @@ def test_empty_records_chain():
 )
 def test_other_files_are_not_named(data):
     assert rdw_framing(data) is None
+
+
+def _spanned(lines, cp):
+    """RECFM=VS: one long record split in segments, each behind a descriptor whose segment code is
+    1 (first), 3 (middle), 2 (last), 0 (a whole record)."""
+    out = b""
+    for line in lines:
+        rec = line.encode(cp)
+        mid = len(rec) // 2
+        for code, part in ((1, rec[:mid]), (2, rec[mid:])):
+            out += (len(part) + 4).to_bytes(2, "big") + bytes([code, 0]) + part
+        out += (4).to_bytes(2, "big") + b"\x00\x00"
+    return out
+
+
+@pytest.mark.parametrize("cp", ["cp037", "ascii"])
+def test_spanned_records_are_named(cp):
+    assert rdw_framing(_spanned(LINES, cp)) == "rdw-spanned"
+
+
+def test_a_bad_segment_code_or_reserved_byte_is_not_named():
+    assert rdw_framing(_spanned(LINES, "ascii").replace(b"\x01\x00", b"\x04\x00")) is None
+    assert rdw_framing(_spanned(LINES, "ascii").replace(b"\x01\x00", b"\x01\x01")) is None
+
+
+def test_plain_rdw_keeps_its_name():
+    assert rdw_framing(_rdw(LINES, "cp037")) == "rdw"

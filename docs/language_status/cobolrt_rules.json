@@ -719,6 +719,7 @@
     "doc": "cobol-lr",
     "section": "DIVIDE statement (REMAINDER phrase)"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, DIVIDE statement): \"The result of subtracting the product of the quotient and the divisor from the dividend is stored in identifier-4\"; \"the quotient used to calculate the remainder is in an intermediate field. The value of the intermediate field is truncated rather than rounded\"; on a size error in the quotient \"the contents of the quotient field (identifier-3) and the remainder field (identifier-4) are unchanged\". The remainder formula, truncation and the unchanged receivers match; IBM does not say how many decimal places that intermediate field has, so truncation to the first GIVING receiver's scale (and not its high-order digits) stays the assumption. Declared in C14",
    "options": [],
    "register": [
     "C14"
@@ -2296,12 +2297,13 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: TRIM"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, TRIM): \"returns a character string that contains the characters in the argument with leading spaces, trailing spaces, or both, removed\"; \"If argument-1 contains all spaces or argument-1 is of length zero, the returned value is of length zero\"; examples FUNCTION TRIM(\" \") returns \"\". Only the space character is removed, so low-values stay, as the rule says",
    "options": [],
    "features": [
     "intrinsic_functions: TRIM"
    ],
    "register": [],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -2385,6 +2387,7 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: TEST-NUMVAL, TEST-NUMVAL-C"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, TEST-NUMVAL): 0 when argument-1 conforms to NUMVAL; else \"the position of the first character in error\"; otherwise \"FUNCTION LENGTH (argument-1) + 1\" (zero-length, all spaces, or valid but incomplete such as ' +.'); '0 1' returns 3. The runtime matches all of these. IBM adds that under ARITH(COMPAT) the position of the 19th digit is returned when no earlier error exists (the 32nd under ARITH(EXTEND)); Funcs.testNumval has no digit-count check and returns 0. A DIFFERS not yet declared in the register: left ASSUMED until the runtime change and its entry land",
    "options": [],
    "features": [
     "intrinsic_functions: TEST-NUMVAL",
@@ -2886,6 +2889,7 @@
     "doc": "cics-apr",
     "section": "SEND MAP, RECEIVE MAP"
    },
+   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime treats X'00' and a space as not set, so a space attribute (X'40') is dropped where IBM sends it and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -2894,7 +2898,7 @@
    "register": [
     "X2"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -2908,6 +2912,7 @@
     "doc": "cics-apr",
     "section": "RECEIVE MAP, DFHMDF JUSTIFY"
    },
+   "ibm_note": "IBM's DFHMDF JUSTIFY table assumes the missing half: LEFT gives BLANK, RIGHT gives ZERO, BLANK gives LEFT, ZERO gives RIGHT. The runtime fills with ZERO only when ZERO is coded and places RIGHT only when RIGHT is coded, so JUSTIFY=(RIGHT) fills with blanks (IBM: zeros) and JUSTIFY=(,ZERO) is left-justified (IBM: right). Declared in X54",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -2916,7 +2921,7 @@
    "register": [
     "X54"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -4431,6 +4436,7 @@
     "doc": "cobol-lr",
     "section": "File status key"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, File status key): \"a value is placed in the specified file status key ... during execution of any request on that file; the value indicates the status of that request\", placed before any EXCEPTION/ERROR declarative, INVALID KEY or AT END phrase runs; Table 34 gives the meanings. The code meanings are IBM's; that the oracle's files raise each code in the same situation as VSAM, and the order of checks when two apply, stay assumed. Declared in F1",
    "options": [],
    "features": [
     "statements: CLOSE",
@@ -4462,6 +4468,7 @@
     "doc": "cobol-lr",
     "section": "READ statement: KEY phrase"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, READ statement, KEY IS phrase): \"The KEY IS phrase can be specified only for indexed files. data-name-1 must identify a record key associated with file-name-1.\" IBM defines which key a keyed READ names, not how the record is found, so the repository lookup verified against the key bytes is the runtime's mechanism and stays assumed. Declared in F1",
    "options": [],
    "features": [
     "statements: READ",

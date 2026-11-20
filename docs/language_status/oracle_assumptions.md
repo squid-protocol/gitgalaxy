@@ -2708,6 +2708,13 @@ move added seven mutants: four constants nothing reads (`COBOLRT_VERSION`, `PROF
 attempts on record (the typed entry's EIBCALEN default, which neither program reads, and ABNDPROC's exact-length `caBack`
 wrapper). Both read L5 (ABNDPROC 427 mutants, UPDCUST 690, none unaccounted). CBSA still does not reach L5: ACCTCTRL's two 10M-account `case-gap` rows, CRDTAGY1, CUSTCTRL and 23 unmeasured programs remain.
 
+Slice 23 (#7954): ZECSNC re-measured in full (`run --sample 5000`: the ledger had gone stale against the harness, and a
+bare `run` samples 150 and overwrites it). 252 survivors, 22 of them unaccounted; all 22 are now stated with attempts on
+record. Ten are `equivalent` (`caBack` write-back of bytes the program never writes, the `perform` range, the `Goback`
+flags, the region program name, two unread constants, the exact-length wrapper) and twelve `unreachable` (the
+typed-COMMAREA entry, a null AID, the `caBack` tail copy that only runs after an ABEND, a DCOUNTER limit nothing reads,
+the nested-PERFORM loop, the mode restores). ZECSNC reads L5. zECS still has ZECS003 and ECS001 open.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

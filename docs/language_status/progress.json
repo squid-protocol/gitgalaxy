@@ -1,5 +1,5 @@
 {
- "commit": "b34549840",
+ "commit": "4b45f8fb5",
  "components": {
   "capabilities": {
    "groups": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T05:48:41Z",
+  "as_of": "2026-11-20T06:02:33Z",
   "core": {
    "closed": 253,
    "open": 12,
@@ -1168,9 +1168,9 @@
     "total": 22
    },
    {
-    "closed": 17,
+    "closed": 18,
     "number": 24,
-    "open": 2,
+    "open": 1,
     "title": "Class Change \ud83d\udd04 \u2014 COBOL Becomes Java",
     "total": 19
    },

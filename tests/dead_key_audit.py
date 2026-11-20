@@ -69,6 +69,10 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # state_rehydrator reads these from a sqlite3.Row of the baseline file_data / excluded_artifacts tables: they are
+    # COLUMN names, created by the recorder's CREATE TABLE SQL (record_keeper.py), never a dict literal the walker sees (#8774).
+    "raw_state_unreferenced": "file_data column read back from a sqlite3.Row by state_rehydrator (#8774)",
+    "exclusion_reason": "excluded_artifacts column read back from a sqlite3.Row by state_rehydrator (#8774)",
     # The equivalence harness (tests/tools/equivalence.py cobc_failure_report) writes it into report.json; port_runner
     # reads it back (#8325). The producer lives outside gitgalaxy/.
     "cobol_compile_failed": "report.json key written by tests/tools/equivalence.py, read by port_runner (#8325)",

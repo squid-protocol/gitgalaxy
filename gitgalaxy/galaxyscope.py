@@ -1701,7 +1701,7 @@ class Orchestrator:
             "file_count": 0,
         }
 
-    def _run_ecosystem_audits(self, repository_graph: list[dict[str, Any]] | None) -> tuple[dict[str, Any], list[str]]:
+    def _run_ecosystem_audits(self, repository_graph: list[dict[str, Any]]) -> tuple[dict[str, Any], list[str]]:
         """Phase 10, shared by the full and the delta scan: X-Ray, API Mapper and the Import Policy Gate.
         A delta that skipped it recorded 0 for audit_binary_anomalies / audit_unknown_packages / audit_shadow_apis.
         Returns the audits and the manifest paths they were built from (the SBOM recorder reads the same list)."""

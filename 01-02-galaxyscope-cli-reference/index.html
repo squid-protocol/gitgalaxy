@@ -13026,10 +13026,6 @@
 <td style="text-align: left;">Fails on a detected hardcoded secret that is not marked as mitigated. Detection is regex-based and does not see lines of 250 or more characters (<code>SecurityLens._armor</code> blanks them), so a secret on such a line does not trip the gate.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>--fail-on-malware</code></td>
-<td style="text-align: left;">Fails if ML threat inference flags a file. Inference needs <code>numpy</code>, <code>pandas</code> and <code>xgboost</code> (the <code>full</code> extra) and a model file, <code>gitgalaxy_malware_xgb_multiclass.json</code>, in <code>gitgalaxy/security/</code> or <code>gitgalaxy/utilities/</code>. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits <code>0</code>. Because no model ships, the <code>--fail-on-malware</code> gate in the shipped pipeline templates (<code>templates/</code>, the "SARIF + ML Malware Gate" job) is a no-op: that job still writes SARIF, but its malware gate never trips.</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>--max-risk-exposure N</code></td>
 <td style="text-align: left;">Fails if any file's highest risk vector is at or above <code>N</code> percent. <code>0.0</code> disables it.</td>
 </tr>

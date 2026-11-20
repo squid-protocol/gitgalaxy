@@ -21,7 +21,9 @@ import time
 from pathlib import Path
 
 PROVENANCE = "mvs38j-run"
-# IEF142I JOB STEP [PROCSTEP] - STEP WAS EXECUTED - COND CODE 0004 ; IEF272I / IEF202I: not executed / not run.
+# IEF142I JOB [PROCSTEP] STEP - STEP WAS EXECUTED - COND CODE 0004 ; IEF272I / IEF202I: not executed / not run.
+# On a PROC call the PROCSTEP (the step name inside the procedure) comes BEFORE the job step that called it: live 2026-11-20,
+# `IEF142I NPJOB A1 O2` is procedure step A1 of `//O2 EXEC BASE` (#8414). IEF450I is assumed to follow the same order (unseen live).
 _STEP = re.compile(
     r"(IEF142I|IEF272I|IEF202I)\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+STEP WAS (NOT )?(?:EXECUTED|RUN)"
     r"(?:.*?COND CODE (\d{4}))?"
@@ -56,9 +58,10 @@ def parse_log(text, job=None):
         elif m := _STEP.search(line):
             current = rec(m.group(2))
             executed = m.group(5) is None
+            first, second = m.group(3), m.group(4)  # with a second name, the first is the procedure step
             step = {
-                "step": m.group(3),
-                "procstep": m.group(4),
+                "step": second or first,
+                "procstep": first if second else None,
                 "executed": executed,
                 "cond_code": int(m.group(6)) if executed and m.group(6) else None,
                 "message": m.group(1),

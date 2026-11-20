@@ -1,0 +1,110 @@
+{
+ "kind": "cics",
+ "corpus": "cics-crucible",
+ "program": "HXEXT",
+ "program_source": "cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl",
+ "copy_dirs": [
+  "cases/hex-attributes/hx-extended-cursor/copy"
+ ],
+ "transid": "HX02",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl",
+    "record": "WS-CA"
+   }
+  ]
+ },
+ "screens": {
+  "HXM2": {
+   "copybook": "cases/hex-attributes/hx-extended-cursor/copy/HXSET2.cpy",
+   "input": "HXM2I",
+   "output": "HXM2O"
+  }
+ },
+ "notes": "HXEXT as a LINKed program: the COMMAREA sibling of cruc-hx-extended-cursor, which is a terminal transaction (HX02). The det port's LINK-entry code (the DFHCOMMAREA copy-in, the COMMAREA hand-back caBack) is reached only by a LINK entry (#7955: the caBack survivors of cruc-hx-extended-cursor, `det_mutation.py sibling`). Scenarios are inputs of the base case entered by LINK with STARTCODE D (IBM: a task started for a distributed program link, X19). Run through the det port (`det_port.py run cruc-hx-extended-linked --work DIR`), never plain `equivalence.py run`, whose forge stub does not port the LINK body (#6166). Same source as cruc-hx-extended-cursor; LICENSE and NOTICE are the cics-crucible's own.",
+ "scenarios": [
+  {
+   "name": "link-good-entry",
+   "commarea": {
+    "WS-CA": "E"
+   },
+   "aid": "DFHENTER",
+   "receive": {
+    "HXM2": {
+     "ACCTI": "123456",
+     "AMOUNTI": "0000125"
+    }
+   },
+   "why": "a valid account: the OK message is STRINGed, SEND MAP DATAONLY without CURSOR"
+  },
+  {
+   "name": "link-pf5-blink",
+   "commarea": {
+    "WS-CA": "E"
+   },
+   "aid": "DFHPF5",
+   "why": "PF5: BLINK-MISTAKE, X'F1' in the attribute byte next to DFHBLINK in the highlight byte"
+  },
+  {
+   "name": "link-bad-account",
+   "commarea": {
+    "WS-CA": "E"
+   },
+   "aid": "DFHENTER",
+   "receive": {
+    "HXM2": {
+     "ACCTI": "AB12",
+     "AMOUNTI": "125"
+    }
+   },
+   "why": "CHECK-INPUT: ACCTL is not 6: the field is re-sent red, blinking, cursor by -1 in its length"
+  },
+  {
+   "name": "link-tail-enter",
+   "commarea": {
+    "WS-CA": "E"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "41424344454647",
+   "aid": "DFHENTER",
+   "receive": {
+    "HXM2": {
+     "ACCTI": "123456",
+     "AMOUNTI": "0000125"
+    }
+   },
+   "why": "#7955: a LINK whose COMMAREA (8 bytes, EIBCALEN 8) is longer than HXEXT's DFHCOMMAREA storage: the bytes past it are kept (Storage.beyond) and go back to the caller, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
+  },
+  {
+   "name": "link-long-enter",
+   "commarea": {
+    "WS-CA": "E"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F606162636465666768",
+   "aid": "DFHENTER",
+   "receive": {
+    "HXM2": {
+     "ACCTI": "123456",
+     "AMOUNTI": "0000125"
+    }
+   },
+   "why": "#7955: a LINK whose COMMAREA (41 bytes, EIBCALEN 41) is longer than HXEXT's DFHCOMMAREA storage: the bytes past it are kept (Storage.beyond) and go back to the caller, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
+  },
+  {
+   "name": "link-long-pf5",
+   "commarea": {
+    "WS-CA": "E"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "C1C2C3C4C5C6C7C8C9CACBCCCDCECFD0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3",
+   "aid": "DFHPF5",
+   "why": "#7955: a LINK whose COMMAREA (36 bytes, EIBCALEN 36) is longer than HXEXT's DFHCOMMAREA storage: the bytes past it are kept (Storage.beyond) and go back to the caller, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
+  }
+ ],
+ "linked": true,
+ "startcode": "D"
+}

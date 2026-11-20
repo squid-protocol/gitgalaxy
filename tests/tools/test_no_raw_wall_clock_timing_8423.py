@@ -38,27 +38,17 @@ def wall_clock_calls(text: str) -> int:
     return count
 
 
-# Existing test files that take >= 2 wall-clock timestamps (a difference). Shrink-only (#8423).
-WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
-    {
-        "tests/cobol_mainframe/test_pic_run_lengths_7169.py",
-        "tests/cobol_mainframe/test_translator_pic_runs_7169.py",
-        "tests/core_engine/test_cics_macro_level.py",
-        "tests/core_engine/test_dense_source_7501.py",
-        "tests/core_engine/test_dense_source_7504.py",
-        "tests/core_engine/test_prefetch.py",
-        "tests/core_engine/test_vectorized_math_probe_4108.py",
-        "tests/extraction/languages/test_c_kernel_vocab_8016.py",
-        "tests/extraction/languages/test_calls_out_haskell_juxtaposition_6454.py",
-        "tests/extraction/languages/test_calls_out_rust_matches_depth_6454.py",
-        "tests/extraction/languages/test_calls_out_rust_select_arms_6454.py",
-        "tests/extraction/languages/test_go_semicolon_imports_6572.py",
-        "tests/security_auditing/test_redos_poison.py",
-        "tests/security_auditing/test_secrets_shunt_4987.py",
-        "tests/security_auditing/test_tls_bypass_dotnet_ps_wget_6239.py",
-        "tests/security_auditing/test_tls_bypass_java_6239.py",
-    }
-)
+# Existing test files that take >= 2 wall-clock timestamps (a difference) and have not been converted. Shrink-only (#8423).
+WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset()
+
+# Tests where a wall clock is the right instrument, each with the reason. Not a backlog: a new entry needs a
+# reason that CPU time of the calling thread cannot measure the thing.
+WALL_CLOCK_ALLOWED: dict[str, str] = {
+    "tests/security_auditing/test_redos_poison.py": (
+        "a supervisor watching spawned worker processes for a hang or a stall: the work runs in other processes, "
+        "so the parent's CPU time says nothing about it, and the 10 s / 120 s limits sit far above any honest run"
+    ),
+}
 
 
 def _find_wall_clock_diff_tests() -> set[str]:
@@ -74,15 +64,21 @@ def _find_wall_clock_diff_tests() -> set[str]:
 
 def test_no_new_raw_wall_clock_timing_tests():
     actual = _find_wall_clock_diff_tests()
-    unexpected = sorted(actual - WALL_CLOCK_OFFENDERS)
+    unexpected = sorted(actual - WALL_CLOCK_OFFENDERS - set(WALL_CLOCK_ALLOWED))
     if unexpected:
         raise AssertionError(
             "New test(s) take wall-clock time differences (use CPU time / shared helper instead, #8423):\n"
             + "\n".join(f"  - {p}" for p in unexpected)
         )
-    stale = sorted(WALL_CLOCK_OFFENDERS - actual)
+    stale = sorted((WALL_CLOCK_OFFENDERS | set(WALL_CLOCK_ALLOWED)) - actual)
     if stale:
         raise AssertionError(
             "Fixed/removed wall-clock offender(s) still listed in WALL_CLOCK_OFFENDERS (shrink the list, #8423):\n"
             + "\n".join(f"  - {p}" for p in stale)
         )
+
+
+def test_every_allowed_wall_clock_test_states_a_reason():
+    assert not set(WALL_CLOCK_ALLOWED) & WALL_CLOCK_OFFENDERS
+    for path, reason in WALL_CLOCK_ALLOWED.items():
+        assert len(reason.split()) >= 8, f"{path}: say why CPU time cannot measure this (#8423)"

@@ -127,6 +127,7 @@ DEFINITION: dict[str, Any] = {
     # #3784: record each callee's argument counts so the call resolver can choose among same-named
     # overloads (call_resolver.OVERLOAD_LANGS). A top-level helper flag, not a `rules` pattern.
     "calls_out_arities": True,
+    "calls_out_arg_types": True,
     # #8161 (P3): constructions the text does not write as a call (`T x;`, `T x{..}`, `T x = lit;`,
     # `make_unique<T>(..)`) become `ctor` edges (core/cpp_ctor_forms.py), never `call` ones.
     "calls_out_ctor_forms": True,
@@ -513,7 +514,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         "safety": re.compile(
             r"\b(try|catch|finally|std::unique_ptr|std::shared_ptr|std::weak_ptr|override|final|noexcept|static_assert|assert|std::optional|std::expected|std::span|std::variant|std::lock_guard|std::atomic)\b"
         ),

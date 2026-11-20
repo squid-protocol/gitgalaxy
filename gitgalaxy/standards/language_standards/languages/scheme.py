@@ -273,7 +273,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Continuations, exception guards, and dynamic-wind state protectors.
         "safety": re.compile(
             r"(?<![^ \t\n\r(\[])(guard|dynamic-wind|with-exception-handler|call-with-current-continuation|call/cc|assert|check)(?![^ \t)\]\n\r])"

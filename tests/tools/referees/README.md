@@ -132,6 +132,31 @@ the tree-sitter CLI by version) are env values at the top of that file, and the 
 that hashes the file, so bumping a ref reinstalls. The scorecard, JSON, disagreements and `run.json` are uploaded as a
 3-day artifact: nothing is published.
 
+### Round 2 (2026-11-19, #4438 item 1)
+
+Scored on main by the scheduled run 44570490691 (engine `ee5255635f76`, seven burned corpora, 264 key-covered
+members; the engine parsed all of them). Internal figures: only the engine and the unnamed majority, per the hold
+above. Che4z now runs over LSP and reads 104 members clean and 52 partial with none failed.
+
+Engine against the answer keys, pooled: precision and recall are 100.0% in every channel except `usage`
+(precision 99.4%), `value` (precision 99.1%) and `edges` (recall 92.3%).
+
+Engine against the referee majority:
+
+| channel | files with a majority | engine vs majority | engine-only (in key / not) | majority-only (in key / not) |
+|---|---|---|---|---|
+| program_ids | 154 | 92.8% | 12 / 0 | 0 / 0 |
+| units | 147 | 99.5% | 10 / 0 | 0 / 0 |
+| unit_extents | 147 | 97.6% | 46 / 0 | 0 / 0 |
+| call_targets | 146 | 72.4% | 48 / 0 | 0 / 0 |
+| copybooks | 154 | 100.0% | 0 / 0 | 0 / 0 |
+| data_items | 147 | 88.9% | 892 / 0 | 0 / 0 |
+| sql_access | 146 | 81.2% | 13 / 0 | 0 / 0 |
+| cics_files | 146 | 83.6% | 12 / 0 | 0 / 0 |
+
+In every channel the majority reports nothing the key lacks and nothing the engine lacks; each engine-only value is
+in the key. The disagreements are referee misses. The named per-tool scorecard stays on the owner hold.
+
 `disagreements.json` groups every engine / referee difference by pattern
 (`engine-only, in key`, `<referee>-only, not in key`, ...) with a seeded sample of each, for
 adjudication against the source: engine wrong, referee wrong, definitional, or key wrong.

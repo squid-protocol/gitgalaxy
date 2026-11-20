@@ -30,6 +30,30 @@
    "reason": "GOTO mask: UPDCUST uses GOTO | 5 to jump to UCV999, which is handled identically with modified mask bits"
   },
   {
+   "id": "6f939c3fca",
+   "op": "LIT",
+   "line": 41,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "4d41faa551",
+   "op": "LIT",
+   "line": 43,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
    "id": "600caa9ded",
    "op": "LIT",
    "line": 45,
@@ -1534,6 +1558,19 @@
    "after": "/* f5_WS_CICS_RESP2 = 0L; */",
    "verdict": "equivalent",
    "reason": "initialState(): all storage fields are either overwritten before read or unreferenced in the PROCEDURE DIVISION"
+  },
+  {
+   "id": "d021d88ac5",
+   "op": "CON",
+   "line": 346,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "the typed-DTO entry's EIBCALEN default (261 -> 262): UPDCUST never reads EIBCALEN (no EIBCALEN reference in the source; the value is only stored in the EIB field) and the area is its 261 bytes, so `calen < bytes.length` is false for both. A typed entry that states a length overrides it through task.eibcalen(). Tried: eibcalen-0 and eibcalen-260 re-entered under new names, equal to the COBOL",
+   "tried": [
+    "eibcalen-0-calen-try",
+    "eibcalen-260-calen-try"
+   ]
   },
   {
    "id": "a140d4b141",

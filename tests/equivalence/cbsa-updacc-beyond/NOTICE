@@ -1,0 +1,13 @@
+CICS Bank Sample Application (CBSA)
+https://github.com/cicsdev/cics-banking-sample-application-cbsa
+Copyright IBM Corp. 2023
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, src/base/cobol_src/UPDACC.cbl,
+its copybooks (UPDACC, ACCOUNT, ACCDB2, SORTCODE, ABNDINFO) and the table's
+DDL (etc/install/base/db2jcl/CRETB01.jcl, CREI101.jcl) are CBSA's, used
+unmodified from the corpus.
+
+seed.sql in this directory is synthetic test data written for this case in
+the layout of CBSA's ACCOUNT table; it is not CBSA data. The scenarios in
+case.json are written for this case.

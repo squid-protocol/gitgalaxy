@@ -89,7 +89,7 @@ DEFINITION: dict[str, Any] = {
         # class_start: no named-type declaration.
         "class_start": None,
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety: `ERROR DO` / `ATTN DO` / `ERROR ACTION` install the error and attention
+        # safety (Defensive Checks: ERROR/ATTN handlers, &LASTCC): `ERROR DO` / `ATTN DO` / `ERROR ACTION` install the error and attention
         # handlers (CLIST's try/catch) and `&LASTCC` / `&SYSOUTTRAP` read the response.
         "safety": re.compile(
             _L + r"(?:ERROR|ATTN)[ \t]+(?:DO|ACTION|[A-Z]+[ \t]*\()" + r"|&(?:LASTCC|MAXCC)" + _R,

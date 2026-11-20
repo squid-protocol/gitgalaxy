@@ -467,6 +467,32 @@
       "aid": "DFHCLEAR",
       "commarea_hex": "E2",
       "link_bytes": true
+    },
+    {
+      "name": "ca-bytes-entry-2-enter",
+      "why": "survivor attack (#7955): byte[] entry shorter than the 40-byte DFHCOMMAREA storage (EIBCALEN 2): the exact-area restore path",
+      "terminal": "HX01 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "E2C1",
+      "entry_only": true,
+      "receive": {
+        "HXM1": {
+          "NAMEI": "JONES"
+        }
+      }
+    },
+    {
+      "name": "ca-bytes-entry-39-enter",
+      "why": "survivor attack (#7955): byte[] entry shorter than the 40-byte DFHCOMMAREA storage (EIBCALEN 39): the exact-area restore path",
+      "terminal": "HX01 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "E2C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1",
+      "entry_only": true,
+      "receive": {
+        "HXM1": {
+          "NAMEI": "JONES"
+        }
+      }
     }
   ]
 }

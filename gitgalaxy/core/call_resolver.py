@@ -591,7 +591,46 @@ _BUILTIN_INSTANCE_METHODS_GO = frozenset(
     {"Close", "Error", "String", "Lock", "Unlock", "RLock", "RUnlock", "Load", "Store", "Next", "Err"}
 )
 _BUILTIN_INSTANCE_METHODS_RUST = frozenset({"len", "iter", "clone", "into", "unwrap", "as_ref", "fmt"})
-_BUILTIN_INSTANCE_METHODS_CPP = frozenset({"size", "data", "begin", "end", "push_back", "c_str"})
+_BUILTIN_INSTANCE_METHODS_CPP = frozenset(
+    {
+        "size",
+        "data",
+        "begin",
+        "end",
+        "cbegin",
+        "cend",
+        "rbegin",
+        "rend",
+        "empty",
+        "clear",
+        "push_back",
+        "pop_back",
+        "emplace_back",
+        "resize",
+        "reserve",
+        "capacity",
+        "front",
+        "back",
+        "find",
+        "count",
+        "substr",
+        "c_str",
+        "length",
+        "append",
+        "insert",
+        "erase",
+        "swap",
+        "get",
+        "reset",
+        "release",
+        "put",
+        "write",
+        "read",
+        "flush",
+        "str",
+        "at",
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "go": _BUILTIN_INSTANCE_METHODS_GO,
     "rust": _BUILTIN_INSTANCE_METHODS_RUST,
@@ -811,6 +850,7 @@ class _Definition:
         "path",
         "pkg",
         "prop",
+        "return_type",
         "shape",
         "stem",
     )
@@ -829,6 +869,7 @@ class _Definition:
         arity: int | None = None,
         pkg: str | None = None,
         params: list[str] | None = None,
+        return_type: str | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -848,6 +889,8 @@ class _Definition:
         self.params = params
         # #8161 (Y2): a Python `@property` / `@cached_property` getter: reading the attribute runs it
         self.prop = False
+        # Declared return class name on the function header (for cross-function receiver typing)
+        self.return_type = return_type
         # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
         self.min_arity: int | None = arity
         self.max_arity: int | None = arity
@@ -1025,6 +1068,7 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                 int(func.get("args", 0) or 0),
                 pkg=pkg,
                 params=func.get("param_types"),
+                return_type=func.get("return_type"),
             )
             definition.prop = bool(_PROPERTY_DECORATORS.intersection(func.get("decorated_by") or ()))
             rng = func.get("arity_range")
@@ -1811,6 +1855,13 @@ def _class_in_view(d: _Definition, owner_key: str, caller: _File) -> bool:
     return any(p == caller.path or p in caller.imported for p in caller.class_files.get(owner_key, ()))
 
 
+_TEST_DIRS = frozenset({"test", "tests", "__tests__"})
+
+
+def _in_test_dir(path: str) -> bool:
+    return any(seg in _TEST_DIRS for seg in path.lower().split("/")[:-1])
+
+
 def _resolve_one(
     bucket: _Bucket | None,
     caller: _File,
@@ -1863,6 +1914,8 @@ def _resolve_one(
         if not qualifier:
             step, d = _ladder(bucket.free, caller, True, cache)  # a global `::f()`: a visible free function only
             return (step, d) if step in ("file", "import") else ("none", None)
+        if caller.lang == "cpp" and (qualifier == "std" or qualifier.startswith("std.")):
+            return "none", None  # C++ standard library (`std::move`, `std::chrono::...`), never a repo function
 
     if caller.lang == "objective-c":
         # #5639: a send's receiver is recorded as its qualifier, but objc methods carry no owner here, so
@@ -1903,6 +1956,8 @@ def _resolve_one(
             and not (caller.lang in _PACKAGE_DIR_LANGS and d is not None and d.pkg == caller.pkg)
         ):
             return "unseen", d  # #3443: the only definition, but not one this caller can see
+        if step == "unique" and d is not None and _in_test_dir(d.path) and not _in_test_dir(caller.path):
+            return "unseen", d  # production code never links to a test-only definition
         return step, d
 
     if caller.lang in _PATH_QUALIFIED_LANGS and qualifier is not None and qualifier.startswith("::"):
@@ -2103,6 +2158,12 @@ def _choose_overloads(
         else:
             chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
         if not sites or any(k is None for k in chosen):
+            if lang == "cpp":
+                exact = _arity_matches(overloads, n)
+                if len(exact) == 1:
+                    if exact[0] not in picked:
+                        picked.append(exact[0])
+                    continue
             ambiguous = True  # a site no type decides: the count keeps its `overload` row
         for k in chosen:
             if k is not None and match[k] not in picked:
@@ -2327,6 +2388,83 @@ def _variants(cset: "_Set") -> list[dict[str, Any]]:
     ]
 
 
+def _resolve_call_return_type(
+    expr: str,
+    index: dict[tuple[str, str], _Bucket],
+    group: str,
+    lang: str,
+    caller: _File,
+    lineage: list[str],
+    cache: _Cache,
+    parents: dict[tuple[str, str], set[str]],
+    typed: dict[str, list[str]],
+    typed_scope: dict[str, set[str]],
+    static_memo: dict[tuple[int, str], _Bucket],
+) -> tuple[list[str], set[str] | None] | None:
+    """Resolve a call expression or chain (`get_store()`, `svc.get_store()`) to `(return_lineage, scope_files)`."""
+    if not expr or lang in _GUARD_ONLY_RECEIVER_TYPES:
+        return None
+    segments = [s for s in expr.split(".") if s]
+    if not segments or len(segments) > 4:
+        return None
+
+    def _step(
+        qual: str, callee_name: str, step_typed: dict[str, list[str]], step_scope: dict[str, set[str]]
+    ) -> tuple[list[str], set[str] | None] | None:
+        bkt = _visible_statics(index.get((group, _key(callee_name, lang))), caller, static_memo)
+        st, d = _resolve_one(bkt, caller, lineage, qual, cache, step_typed, step_scope)
+        if RESOLUTION_OF_STEP.get(st) not in CONFIDENT_RESOLUTIONS or d is None or not d.return_type:
+            return None
+        if not _is_class(index, group, d.return_type, lang):
+            return None
+        ret_lin = _lineage(d.return_type, group, lang, parents)
+        ret_key = _key(d.return_type, lang)
+        # If multiple files define `d.return_type` (e.g. Kotlin's nested `Builder`), scope to `d.path`
+        files = caller.class_files.get(ret_key, set())
+        scope = {d.path} if len(files) > 1 and d.path in files else None
+        return ret_lin, scope
+
+    if len(segments) == 1:
+        seg = segments[0]
+        fn_name = seg[:-2] if seg.endswith("()") else seg
+        return _step("", fn_name, typed, typed_scope)
+
+    cur_lineage: list[str] | None = None
+    cur_scope: set[str] | None = None
+    first = segments[0]
+    if first in _SELF_RECEIVERS and lineage:
+        cur_lineage = lineage
+    elif first in typed:
+        cur_lineage = typed[first]
+        cur_scope = typed_scope.get(first)
+    elif first.endswith("()"):
+        hit = _step("", first[:-2], typed, typed_scope)
+        if hit is None:
+            return None
+        cur_lineage, cur_scope = hit
+
+    for idx, seg in enumerate(segments[1:], start=1):
+        is_last = idx == len(segments) - 1
+        if not seg.endswith("()") and not is_last:
+            if idx == 1 and first in _SELF_RECEIVERS and f"{first}.{seg}" in typed:
+                cur_lineage = typed[f"{first}.{seg}"]
+                cur_scope = typed_scope.get(f"{first}.{seg}")
+                continue
+            return None
+        callee_name = seg[:-2] if seg.endswith("()") else seg
+        if cur_lineage is not None:
+            next_scope = {**typed_scope, "<chain>": cur_scope} if cur_scope is not None else typed_scope
+            hit = _step("<chain>", callee_name, {**typed, "<chain>": cur_lineage}, next_scope)
+        elif idx == 1:
+            hit = _step(first, callee_name, typed, typed_scope)
+        else:
+            return None
+        if hit is None:
+            return None
+        cur_lineage, cur_scope = hit
+    return (cur_lineage, cur_scope) if cur_lineage is not None else None
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: list[dict[str, Any]] | None = None,
@@ -2482,6 +2620,35 @@ def resolve_calls(
                     if files and _is_class(index, group, leaf, lang):
                         typed[q] = _lineage(leaf, group, lang, parents)
                         typed_scope[q] = files
+                elif c and q not in typed and not _is_class(index, group, str(c), lang):
+                    # Cross-function return type: `x = get_store()` where `get_store` has `return_type = "Store"`
+                    ret_hit = _resolve_call_return_type(
+                        str(c), index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                    )
+                    if ret_hit is not None:
+                        typed[q], ret_scope = ret_hit
+                        if ret_scope is not None:
+                            typed_scope[q] = ret_scope
+            for q, call_expr in (func.get("calls_out_call_assigns") or {}).items():
+                if q not in typed and call_expr:
+                    ret_hit = _resolve_call_return_type(
+                        str(call_expr),
+                        index,
+                        group,
+                        lang,
+                        caller,
+                        lineage,
+                        cache,
+                        parents,
+                        typed,
+                        typed_scope,
+                        static_memo,
+                    )
+                    if ret_hit is not None:
+                        typed[q], ret_scope = ret_hit
+                        if ret_scope is not None:
+                            typed_scope[q] = ret_scope
+            expr_chains: dict[str, list[str]] = func.get("calls_out_expr_chains") or {}
             recursive: list[str] = []
             renames = func.get("calls_out_renames") or {}
             for callee, kind in callees:
@@ -2499,12 +2666,63 @@ def resolve_calls(
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
                 init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
                 options = list(dict.fromkeys(None if q == INIT_LIST_QUALIFIER else q for q in options))
-                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed, typed_scope)
-                used = options[0]
+
+                def _resolve_option(
+                    q: str | None,
+                    *,
+                    _bucket: _Bucket | None = bucket,
+                    _caller: _File = caller,
+                    _lineage: list[str] = lineage,
+                    _typed: dict[str, list[str]] = typed,
+                    _typed_scope: dict[str, set[str]] = typed_scope,
+                    _expr_chains: dict[str, list[str]] = expr_chains,
+                    _callee: str = callee,
+                    _kind: str = kind,
+                    _group: str = group,
+                    _lang: str = lang,
+                ) -> tuple[str, _Definition | None, str | None]:
+                    if q == "<expr>" and _kind == "call" and _expr_chains.get(_callee):
+                        best: tuple[str, _Definition | None, str | None] = ("none", None, q)
+                        for ch in _expr_chains[_callee]:
+                            ch_hit = _resolve_call_return_type(
+                                ch,
+                                index,
+                                _group,
+                                _lang,
+                                _caller,
+                                _lineage,
+                                cache,
+                                parents,
+                                _typed,
+                                _typed_scope,
+                                static_memo,
+                            )
+                            if ch_hit is not None:
+                                ch_lineage, ch_scope = ch_hit
+                                next_scope = (
+                                    {**_typed_scope, "<chain>": ch_scope} if ch_scope is not None else _typed_scope
+                                )
+                                st, d = _resolve_one(
+                                    _bucket,
+                                    _caller,
+                                    _lineage,
+                                    "<chain>",
+                                    cache,
+                                    {**_typed, "<chain>": ch_lineage},
+                                    next_scope,
+                                )
+                                if best[1] is None or _RANK[st] < _RANK[best[0]]:
+                                    best = (st, d, "<expr>")
+                        if best[1] is not None:
+                            return best[0], best[1], best[2]
+                    st, d = _resolve_one(_bucket, _caller, _lineage, q, cache, _typed, _typed_scope)
+                    return st, d, q
+
+                step, dst, used = _resolve_option(options[0])
                 for q in options[1:]:
-                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
+                    alt_step, alt_dst, alt_used = _resolve_option(q)
                     if _RANK[alt_step] < _RANK[step]:
-                        step, dst, used = alt_step, alt_dst, q
+                        step, dst, used = alt_step, alt_dst, alt_used
                 if (
                     lang in ("csharp", "kotlin")
                     and kind == "call"
@@ -2513,7 +2731,11 @@ def resolve_calls(
                     and used
                     and (
                         used in _CS_KEYWORD_TYPES
-                        or (receiver_types.get(used) and not _is_class(index, group, str(receiver_types[used]), lang))
+                        or (
+                            used not in typed
+                            and receiver_types.get(used)
+                            and not _is_class(index, group, str(receiver_types[used]), lang)
+                        )
                     )
                 ):
                     # #8161 (PR 5): a receiver declared with a type the repo does not define (`BinaryReader _reader`,
@@ -2570,7 +2792,7 @@ def resolve_calls(
                     and dst.line == caller_line
                     and dst.name == caller_name
                     and bucket.free.defs
-                    and lang not in overload_types.LANGS
+                    and lang not in ("csharp", "kotlin")
                 ):
                     # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
                     # detector keeps it because a free `f` (this file or another) may be the callee.

@@ -205,7 +205,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # C2: error() raises. C1: sealed/Result type-level. C4: bare fold is an ordinary fold.
         "safety": re.compile(
             r"\?\.(?!.)|as\?|(?:\b(?:require|requireNotNull|check|checkNotNull|is|onSuccess|onFailure|runCatching)|(?<![\w-])!is)\b|\?:"

@@ -111,3 +111,30 @@ def test_ief285i_with_the_live_trailing_marker_is_parsed():
         ("SYS26323.T151707.RA000.CATDS.T", "PASSED"),
         ("SYS26323.T151707.RA000.CATDS.T", "DELETED"),
     ]
+
+
+PROC_LOG = """\
+IEF403I PJOB - STARTED - TIME=10.00.00
+IEF142I PJOB COMPILE STEP1 - STEP WAS EXECUTED - COND CODE 0004
+IEF142I PJOB LKED STEP1 - STEP WAS EXECUTED - COND CODE 0000
+IEF272I PJOB GO STEP1 - STEP WAS NOT EXECUTED.
+IEF450I PJOB STEP2 GO - ABEND S0C7 U0000 SYSTEM=0C7 USER=0000
+IEF142I PJOB STEP3 - STEP WAS EXECUTED - COND CODE 0000
+$HASP395 PJOB     ENDED
+"""
+
+
+def test_proc_steps_keep_the_step_and_procstep_names_apart():
+    """A PROC step line names the procedure step BEFORE the job step that called it (live, #8414): both are kept, and a plain step has procstep None."""
+    out = runner.parse_log(PROC_LOG)
+    job = out["jobs"][0]
+    assert [(s["step"], s["procstep"], s["executed"], s["cond_code"]) for s in job["steps"]] == [
+        ("STEP1", "COMPILE", True, 4),
+        ("STEP1", "LKED", True, 0),
+        ("STEP1", "GO", False, None),
+        ("STEP3", None, True, 0),
+    ]
+    assert job["abends"] == [{"step": "STEP2", "system": "S0C7", "user": "U0000"}]
+    assert [(s["job"], s["step"], s["procstep"]) for s in out["step_log"]] == [
+        ("PJOB", s["step"], s["procstep"]) for s in job["steps"]
+    ]

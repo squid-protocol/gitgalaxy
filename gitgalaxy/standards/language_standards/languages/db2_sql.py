@@ -224,7 +224,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety (#2869): the SQL PL condition handler (`DECLARE CONTINUE|EXIT|UNDO
+        # safety (Defensive Checks: condition handlers, guards, constraints) (#2869): the SQL PL condition handler (`DECLARE CONTINUE|EXIT|UNDO
         # HANDLER FOR ...` -- DB2's try/catch), transaction guards, BEGIN ATOMIC,
         # and the declared integrity constraints. SIGNAL raises (panics_and_aborts).
         "safety": re.compile(

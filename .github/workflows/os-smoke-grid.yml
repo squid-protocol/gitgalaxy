@@ -67,7 +67,7 @@ jobs:
         run: |
           tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
-          pip install --no-build-isolation -e .
+          tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e .
 
       - name: Smoke Test - Core Engine
         timeout-minutes: 3

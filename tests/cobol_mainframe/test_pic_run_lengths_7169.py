@@ -12,11 +12,11 @@ import json
 import os
 import subprocess
 import sys
-import time
 import tracemalloc
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import EngineDataItem, _elementary_bytes, _pic_runs
 
@@ -36,18 +36,20 @@ def _item(pic, usage=None, sign_separate=False, currency=None):
 
 
 def test_a_huge_picture_is_one_run_in_bounded_time_and_memory():
+    def work():
+        return _pic_runs(f"X({BIG})"), _elementary_bytes(_item(f"X({BIG})"))
+
+    # CPU time (#8423), measured before tracemalloc starts: tracing slows every allocation. An expanding
+    # regression costs seconds at BIG positions; the run list costs microseconds.
+    assert_cpu_below(work, 0.5, what="huge PICTURE runs")
     tracemalloc.start()
-    started = time.perf_counter()
-    runs = _pic_runs(f"X({BIG})")
-    width = _elementary_bytes(_item(f"X({BIG})"))
-    elapsed = time.perf_counter() - started
+    runs, width = work()
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     assert runs == [("X", BIG)]
     assert width == BIG
     # the old expansion allocated ~8 bytes a position here; a run list is a few hundred bytes
     assert peak < 64 * 1024, peak
-    assert elapsed < 0.5, elapsed
 
 
 def test_runs_keep_the_old_position_counts():
@@ -139,7 +141,6 @@ def test_a_gib_working_storage_and_linkage_buffer_scans_under_a_cap(tmp_path):
     (repo / "cbl" / "BIGBUF.cbl").write_text(PROGRAM, encoding="utf-8")
     out = tmp_path / "scan"
     env = {**os.environ, "GITGALAXY_DISABLE_GIT_HISTORY": "1"}
-    started = time.perf_counter()
     scan = subprocess.run(  # noqa: S603 -- this interpreter + fixed module
         [sys.executable, "-m", "gitgalaxy.galaxyscope", str(repo), "--db-only", "--output", str(out)],
         cwd=ROOT, env=env, capture_output=True, text=True, timeout=600, preexec_fn=_capped, check=False,
@@ -155,4 +156,3 @@ def test_a_gib_working_storage_and_linkage_buffer_scans_under_a_cap(tmp_path):
     assert read.returncode == 0, read.stderr[-2000:]
     got = json.loads(read.stdout.strip().splitlines()[-1])
     assert got["widths"] == {"WS-BUF": GIB, "WS-PGM": 8, "LK-BUF": GIB}
-    assert time.perf_counter() - started < 300

@@ -74,7 +74,7 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: range clamps and validity guards.
+        # 6. safety (Defensive Checks: assert/try/guards): range clamps and validity guards.
         "safety": re.compile(r"\b(?:clamp|isValid|isActorPlayer)[ \t]*\(", re.I),
         # 7. safety_bypasses: stepping out of the play/ui scope sandbox.
         "safety_bypasses": re.compile(r"\b(?:clearscope|virtualscope)\b", re.I),

@@ -49,3 +49,10 @@ jobs:
 
       - name: Build and Deploy Docs
         run: mkdocs gh-deploy --force
+
+      # Ping IndexNow (Bing, Yandex, Seznam, Naver) with the wiki pages this push changed.
+      # Best-effort: a failed ping must never fail the docs deploy. Google ignores IndexNow.
+      - name: Notify IndexNow
+        if: github.event_name == 'push'
+        continue-on-error: true
+        run: python scripts/indexnow_submit.py --base "${{ github.event.before }}" --head "${{ github.sha }}"

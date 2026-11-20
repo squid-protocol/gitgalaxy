@@ -7,10 +7,10 @@ LINKAGE buffer -- built a 1 GiB string per read. Each now counts from `pic_runs`
 the expansion's for every other picture (a differential run of 100,000 random pictures matched origin/main).
 """
 
-import time
 import tracemalloc
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_common as C
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_repository_forge as R
@@ -28,16 +28,14 @@ def _item(pic, **kw):
 
 def _bounded(fn):
     """fn() in under 0.5 s and 64 KiB of allocation (the expansion: GIB bytes, and more)."""
+    assert_cpu_below(fn, 0.5, what="bounded picture run")
     tracemalloc.start()
-    started = time.perf_counter()
     try:
         out = fn()
-    finally:
-        elapsed = time.perf_counter() - started
         _, peak = tracemalloc.get_traced_memory()
+    finally:
         tracemalloc.stop()
     assert peak < 64 * 1024, peak
-    assert elapsed < 0.5, elapsed
     return out
 
 

@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-194 rules: 93 MATCHED, 26 DIFFERS, 14 REFUSED, 61 ASSUMED; 0 measured on z/OS (#4702).
+194 rules: 94 MATCHED, 26 DIFFERS, 14 REFUSED, 60 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -283,7 +283,7 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-EXEC-CHANGE | EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS: the CBLTDLI REPL / DLET of the segment the previous get on this PCB held (DJ with none, DA for a changed key); SEGMENT must name the held segment's type; DIBSTAT the PCB's status | none: The command form has no SSA, so SEGMENT is checked against the held segment's type; the hold comes from the get-hold on an updating PROCOPT (register I5) | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-ISRT | ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found; with command code D, a path insert from the root (each D-coded level kept or created from its slice of the I/O area); on a load-mode PCB (PROCOPT L / LS) the segment is appended in sequence, LB / LC / LD / LE for a duplicate, out-of-sequence, parentless or type-order violation | `ims-apis` ISRT call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CHANGE | REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents | `ims-apis` REPL call; DLET call | - | I1 (ASSUMED); I3 (ASSUMED) | DIFFERS | uncalibrated |
-| RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | MATCHED | uncalibrated |
 | RT-DLI-GSAM | A GSAM PCB in load mode: ISRT appends one record of the DBD's length to the output file, any other function is AM, and the PCB mask's segment level is blank; an SSA or an I/O area shorter than the record is refused | `ims-codes` DL/I status codes | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-SCHD | EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused; a planned TC (#5233) schedules the PSB first | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-TERM | EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |

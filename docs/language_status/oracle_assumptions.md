@@ -6557,6 +6557,35 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     segment with an equal physical twin sequence field already exists for the parent." **Still ASSUMED:** the
     FIRST / LAST / HERE insert rules for a non-unique or absent key (IBM: the DBD's RULES parameter; whether the
     runtime reads it was not checked here), and load-mode statuses LB / LC / LD / LE (not in the text read).
+- **IBM trace, part 2 (#8700, 2026-11-20; IMS 15.4 Application Programming "Multiple qualification statements" and
+  "Data areas in GSAM databases"; Application Programming APIs "Command codes"; Messages and Codes Volume 4 "DL/I status
+  code explanations" AC, AD, AJ, AK, AM; 15.4, the register cites 15.3).** Rules `RT-DLI-SSA`, `RT-DLI-CALL`, `RT-DLI-STATE`.
+  - **RT-DLI-CALL, MATCHED.** AD (Volume 4): "Either the function parameter on the call is invalid or the function is
+    not supported for the type of PCB specified in the call"; its Table 17 lists AD under GU, GN, GNP, DLET, REPL and
+    ISRT. AM: "The call function is not compatible with the processing option in the PCB, the segment sensitivity, the
+    transaction-code definition, or the program type", with "The minimum processing options for these calls are D for
+    DLET, R for REPL, and I for ISRT". The refusal of every other call is a stated boundary (I5), not an IBM result.
+    Trap: the text copy's two-column dump puts "Only applies to full-function DEQ calls" inside AD's paragraph; Table 17
+    still lists AD for the other calls, which is what the runtime relies on.
+  - **RT-DLI-SSA, stays ASSUMED.** MATCHED parts: AC, "The call specifies two SSAs for the same hierarchic level" and
+    "the SSA specifying that segment name is not in its correct hierarchic sequence"; AK, "An SSA contains an invalid
+    field name"; AJ, "the format of one of the SSAs is invalid"; AND / OR, "Logical AND ... (coded * or &)", "Logical
+    OR ... (coded + or |)", "A set is a number of qualification statements that are joined by an AND ... Each OR starts a
+    new set", so AND binds tighter; the independent AND is "Use it only with secondary indexes" (refused here, I5). The
+    command-code table lists the null code: "Null. Use an SSA in command code format without specifying the command
+    code". **Not traced / differs by refusal:** (1) the runtime's limit of 16 qualification statements (`MAX_TERMS`) has no
+    IBM source: IBM says "You can use a maximum of 1024 qualification statements on a call" and "up to 15 SSAs" per call.
+    A statement count between 17 and 1024 is refused here where IBM answers. (2) The runtime refuses `L` except on the
+    last unqualified SSA of a GU, `P` except on a GU, and `C` except as the one SSA of a GU; IBM's Table 57 allows each
+    on every get, and `C` also on ISRT ("You can use the C command code for all Get calls and for the ISRT call"). These
+    are refusals, not wrong answers, so the rule stays ASSUMED with the choice named, not DIFFERS.
+  - **RT-DLI-STATE, stays ASSUMED.** IBM documents the stored order, not how a harness loads it: "When you use a
+    sequential access method, the segments in the database are stored in hierarchic sequence, one after another"
+    (Application Programming, "Sequential access"); a unique sequence field fixes the twin order (ISRT quote above, and
+    I2); for FIRST / LAST / HERE the DBD's insert rule applies only to a segment "with no sequence field or with a
+    nonunique sequence field" and "The value is ignored when specified for a segment type with a unique sequence field"
+    (Application Programming APIs, DBD AMBIGUOUS INSERT). Not IBM text: refusing an out-of-order seed, and the DBD / PSB
+    configuration reader. Those are the harness's, so they stay assumed (I6 for the unload).
 
 ### I2. Sequence-field order and SSA comparison — the stored bytes, in the data page
 - **Order.** Twins sit in the order of their sequence field's bytes, compared unsigned, on both sides. That is
@@ -6846,6 +6875,26 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - The open-position cases of I3 and the comparisons of I2.
 
   An unknown function code is AD, as IBM answers it.
+
+- **IBM trace (#8700, 2026-11-20; IMS 15.4 Application Programming APIs "SCHD command", "TERM command"; Application
+  Programming "PCB masks for GSAM databases"; Messages and Codes Volume 4 "DL/I status code explanations" TC, AM; 15.4,
+  the register cites 15.3).** Rules `RT-DLI-SCHD` and `RT-DLI-GSAM`, both stay ASSUMED.
+  - **RT-DLI-SCHD.** MATCHED parts: TC (Volume 4): "This status code applies to CICS online command-level programs only,
+    and it is returned following a scheduling request. It means that you have already scheduled a PSB", and "you
+    terminate a PSB before scheduling another". NODHABEND: "a CICS transaction does not fail with a DHxx abend ...
+    Following an unsuccessful SCHD command, the control, as well as the status code in the DIB are passed back to the
+    application program". EXEC DLI status codes not returned to the program abend: "all status codes, except those
+    identified as being returned to the application program, cause an abnormal termination", which fits refusing the
+    rest. **Not in the text:** that the databases load at the first SCHD and that the PCBs start with no position (IBM
+    only says "you must notify DL/I that your program will be accessing a database by scheduling a PSB"); those stay the
+    model's.
+  - **RT-DLI-GSAM.** MATCHED part: AM, "If the processing option is L and the program issued a call other than an ISRT
+    call. Load programs can issue only ISRT calls." The record is the I/O area: "When you use the ISRT call with GSAM,
+    the area named by the i/o area parameter contains the record you want to add. The area must be long enough to hold
+    these records" (APIs, ISRT), so a shorter area refused is the caller's error. **Open in IBM:** the PCB mask's
+    segment level: "Segment Level Number. Not used by GSAM, but you must code it. It is 2 bytes", with no value stated,
+    so blank is the model's choice. Also not in the text: the SSA refusal (IBM's GSAM ISRT parameters are the I/O area
+    and an optional RSA).
 
 ### I6. The corpus's HD unload read as a seed — its record layout observed, checked against its trailer
 - **What.** CardDemo ships its pending-authorization database as an HD reorganization unload

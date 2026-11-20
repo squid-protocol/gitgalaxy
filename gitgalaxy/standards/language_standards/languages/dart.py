@@ -397,7 +397,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Null safety boundaries, type assertions, and required parameters.
+        # 6. safety (Defensive Checks: assert/try/guards): Null safety boundaries, type assertions, and required parameters.
         # BUG FIX: `@immutable` and `@mustCallSuper` both start with `@`
         # (non-word), so the shared leading \b could only fire when a
         # word char immediately preceded the `@` -- never true for how

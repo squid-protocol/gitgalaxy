@@ -259,6 +259,15 @@ jobs:
             cics-crucible-m2-
             java-compile-m2-
 
+      # #8723: Central throttled the runner past the in-test -U retry (#8375) and a shard failed on the Spring Boot parent POM.
+      # Fetch it once, retried with backoff, before any test runs; a cache hit already holds it.
+      - name: Fetch the Spring Boot parent POM, retried (#8723)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
+
       # #7561: a restored cache can carry Maven's cached "not found" markers; one would fail a resolvable dependency
       - name: Drop cached Maven resolution misses
         run: find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
@@ -484,6 +493,15 @@ jobs:
             cics-crucible-m2-
             det-sweep-m2-
             java-compile-m2-
+
+      # #8723: Central throttled the runner past the in-test -U retry (#8375) and a shard failed on the Spring Boot parent POM.
+      # Fetch it once, retried with backoff, before any test runs; a cache hit already holds it.
+      - name: Fetch the Spring Boot parent POM, retried (#8723)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
 
       - name: Cache the GnuCOBOL oracle image
         id: image

@@ -1,5 +1,5 @@
 {
- "commit": "5312cc64b",
+ "commit": "f16e2a170",
  "components": {
   "capabilities": {
    "groups": [
@@ -428,13 +428,13 @@
     "scenarios": 309
    },
    "estate_crucible": {
-    "horrors": 108,
+    "horrors": 122,
     "levels": [
      {
       "about": "JCL and batch utilities",
       "app": "BDLD",
-      "built": 18,
-      "built_pct": 90.0,
+      "built": 20,
+      "built_pct": 100.0,
       "constructs": 20,
       "first_run": {
        "date": "2026-11-04",
@@ -460,51 +460,46 @@
         "whole": 1
        }
       },
-      "horrors": 21,
+      "horrors": 26,
       "issues": [
        4891,
        4890
       ],
-      "jobs": 17,
+      "jobs": 19,
       "name": "Batch Badlands",
-      "next": [
-       "BPXBATCH and IKJEFT01 DSNUTILB / BIND",
-       "ADRDSSU and IEBIMAGE"
-      ],
-      "pass": 21,
+      "next": [],
+      "pass": 25,
       "programs": 5,
       "region": 1
      },
      {
       "about": "VSAM AIX, ESDS, RRDS",
       "app": "AIXA",
-      "built": 10,
-      "built_pct": 76.9,
+      "built": 12,
+      "built_pct": 92.3,
       "constructs": 13,
       "first_run": null,
-      "horrors": 10,
+      "horrors": 12,
       "issues": [
        4894
       ],
-      "jobs": 4,
+      "jobs": 5,
       "name": "Alternate Index Archipelago",
       "next": [
-       "RBA / RRN access (CICS RIDFLD)",
-       "alternate-index upgrade-set behaviour",
-       "LINEAR and ZFS clusters"
+       "alternate-index upgrade-set behaviour"
       ],
-      "pass": 10,
-      "programs": 6,
+      "pass": 12,
+      "programs": 7,
       "region": 2
      },
      {
       "about": "IBM MQ, deeper",
       "app": "MQSA",
-      "built": 10,
-      "built_pct": 71.4,
+      "built": 11,
+      "built_pct": 78.6,
       "constructs": 14,
       "first_run": null,
-      "horrors": 10,
+      "horrors": 13,
       "issues": [
        4892
       ],
@@ -512,42 +507,38 @@
       "name": "Warlords of the Message Seas",
       "next": [
        "RRS stubs (CSQBRSTB, CSQBSTUB link-edit)",
-       "IMS and CICS-MQ bridge programs",
        "an MQ-only back-out fixture",
        "trigger monitor start-up (MQTMC2)"
       ],
-      "pass": 10,
+      "pass": 13,
       "programs": 14,
       "region": 3
      },
      {
       "about": "IMS DL/I and TM",
       "app": "HKEP",
-      "built": 3,
-      "built_pct": 33.3,
+      "built": 6,
+      "built_pct": 66.7,
       "constructs": 9,
       "first_run": null,
-      "horrors": 3,
+      "horrors": 7,
       "issues": [
        4893
       ],
       "jobs": 0,
       "name": "The Hierarchy Keep",
       "next": [
-       "PSBGEN and SENSEG",
-       "FIELD and LCHILD",
-       "qualified SSAs",
        "EXEC DLI",
        "a DFSRRC00 batch step",
        "IMS TM and MFS"
       ],
-      "pass": 2,
-      "programs": 1,
+      "pass": 3,
+      "programs": 2,
       "region": 4
      }
     ],
-    "pass": 105,
-    "ref": "v0.7.0"
+    "pass": 115,
+    "ref": "v0.8.0"
    }
   },
   "det_mutation": {
@@ -979,7 +970,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T22:00:53Z",
+  "as_of": "2026-11-20T22:04:28Z",
   "core": {
    "closed": 253,
    "open": 12,

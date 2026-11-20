@@ -1,6 +1,6 @@
 {
  "format": "estate-crucible-baseline/1",
- "pinned_ref": "v0.7.0",
+ "pinned_ref": "v0.8.0",
  "key_generator": {
   "version": "0.4.0",
   "seed": 1,
@@ -114,53 +114,67 @@
   "H-0105": "PASS",
   "H-0106": "PASS",
   "H-0107": "PASS",
-  "H-0108": "PASS"
+  "H-0108": "PASS",
+  "H-0109": "PASS",
+  "H-0110": "PASS",
+  "H-0114": "PASS",
+  "H-0115": "PASS",
+  "H-0116": "PASS",
+  "H-0117": "FAIL",
+  "H-0118": "FAIL",
+  "H-0119": "FAIL",
+  "H-0120": "PASS",
+  "H-0121": "PASS",
+  "H-0122": "PASS",
+  "H-0123": "PASS",
+  "H-0124": "FAIL",
+  "H-0125": "PASS"
  },
  "channels": {
   "programs": {
-   "pass": 67,
+   "pass": 72,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "units": {
-   "pass": 194,
+   "pass": 204,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "edges": {
-   "pass": 196,
+   "pass": 216,
    "fail": 0,
    "missing": 1,
    "phantom": 1,
    "unscored": 0
   },
   "call_sites": {
-   "pass": 148,
+   "pass": 173,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "copies": {
-   "pass": 90,
+   "pass": 98,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "data_items": {
-   "pass": 730,
+   "pass": 868,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "layouts": {
-   "pass": 323,
+   "pass": 362,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -181,14 +195,14 @@
    "unscored": 0
   },
   "jcl_steps": {
-   "pass": 79,
+   "pass": 89,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "jcl_dds": {
-   "pass": 249,
+   "pass": 282,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -202,14 +216,14 @@
    "unscored": 0
   },
   "jcl_utility_cards": {
-   "pass": 65,
-   "fail": 0,
+   "pass": 75,
+   "fail": 1,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "dli_calls": {
-   "pass": 2,
+   "pass": 5,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -218,7 +232,7 @@
   "ims_gen": {
    "pass": 0,
    "fail": 0,
-   "missing": 4,
+   "missing": 14,
    "phantom": 0,
    "unscored": 0
   },
@@ -230,28 +244,28 @@
    "unscored": 0
   },
   "csd_resources": {
-   "pass": 46,
+   "pass": 50,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "transactions": {
-   "pass": 7,
+   "pass": 8,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "cics_resources": {
-   "pass": 9,
+   "pass": 11,
    "fail": 2,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "jcl_datasets": {
-   "pass": 140,
+   "pass": 152,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -265,21 +279,21 @@
    "unscored": 0
   },
   "entry_points": {
-   "pass": 67,
+   "pass": 72,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "file_edges": {
-   "pass": 47,
+   "pass": 49,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
   },
   "data_moves": {
-   "pass": 234,
+   "pass": 257,
    "fail": 0,
    "missing": 0,
    "phantom": 5,
@@ -293,7 +307,7 @@
    "unscored": 0
   },
   "gaps": {
-   "pass": 64,
+   "pass": 75,
    "fail": 0,
    "missing": 0,
    "phantom": 0,
@@ -317,10 +331,21 @@
   "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> STK-AREA @33": "phantom",
   "edges|apps/AIXA/cobol/AIXARRS.cbl|2000-COPY.calls_out_to 2100-REPLACE": "phantom",
   "edges|apps/HKEP/cobol/HKEPWALK.cbl|1000-SCAN -perform-> 1000-SCAN @31": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPDB2.asm|DBD HKEPDB2 @2": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPDB2.asm|FIELD KEEPKEY @4": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPDB2.asm|FIELD WALLKEY @7": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPDB2.asm|LCHILD ENTRY @5": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPDB2.asm|SEGM KEEP @3": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPDB2.asm|SEGM WALL @6": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|DBD HKEPDB @2": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM GATE @5": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM KEEP @3": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM WALL @4": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPPSB.asm|PCB HKEPDB2 @2": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPPSB.asm|PSB HKEPPSB @5": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPPSB.asm|SENSEG KEEP @3": "missing",
+  "ims_gen|apps/HKEP/asm/HKEPPSB.asm|SENSEG WALL @4": "missing",
+  "jcl_utility_cards|apps/BDLD/jcl/BDLDUT5.jcl|RUN030.SYSIN RUNSTATS @25": "fail",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|ACCT-OUT-REC @32 overlays": "unscored",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-ACCOUNT @46 overlays": "unscored",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-DATE-AREA @44 overlays": "unscored",
@@ -329,5 +354,5 @@
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },
- "checks_total": 2843
+ "checks_total": 3215
 }

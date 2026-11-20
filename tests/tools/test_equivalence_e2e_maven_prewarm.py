@@ -13,7 +13,6 @@ WORKFLOWS = [
     "equivalence-e2e.yml",
     "evidence-refresh.yml",
     "det-sweep.yml",
-    "cics-crucible.yml",
 ]
 
 

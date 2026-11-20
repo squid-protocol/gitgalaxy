@@ -29,6 +29,7 @@ tests/tools/box/mvs38j/mvs38j.sh sysgen stage2    # stage1.output -> jcl/stage2.
 tests/tools/box/mvs38j/mvs38j.sh sysgen stage3    # sysgen02..06, USERMODS, FDZ1D02 on the starter, condcode check, starter shutdown (verified live 2026-11-19)
 tests/tools/box/mvs38j/mvs38j.sh sysgen starter   # START1 + SPOOL0: DASDI then DUMP/RESTORE per volume, driven over the console (~11 s)
 tests/tools/box/mvs38j/mvs38j.sh sysgen ipl [--probe DECK]   # first IPL of the generated system, optional probe job + live-log check (verified live 2026-11-19)
+tests/tools/box/mvs38j/mvs38j.sh sysgen custom   # PUB000/PUB001 init, user catalogs, TSO ids, TSO apps (MVS00..MVS03); needs `dasd user` first (not yet run live)
 tests/tools/box/mvs38j/mvs38j.sh status    # container and tape state
 tests/tools/box/mvs38j/mvs38j.sh start     # resident driver (sysgen.py serve): IPL (warm after the first), returns once JES2 is ready; needs the generated system
 tests/tools/box/mvs38j/mvs38j.sh run DECK  # submit a deck, wait for the job, print the parsed JES2 log as JSON
@@ -144,6 +145,24 @@ hung with no further prompt, 600 s). Then it shuts down (`$p jes2`, `z eod`, `qu
   printed live (`sysgen.live_steps`). The live console carries `IEFACTRT` step accounting, not the `IEF142I` of the printer
   listing, and the two agree. Run: two-step `IEFBR14` job, both CC 0, 115 log lines, exit 0. This is the one deck run so far: the
   runner's other patterns (`IEF272I`, `IEF450I`, `IEF285I`, the JCL error) are still fixture-tested only.
+
+### custom (read from Moseley's iCUSTv8 page 2026-11-20; not yet run live)
+
+`mvs38j.sh dasd user` first creates `pub000.3380` and `pub001.3390`. `mvs38j.sh sysgen custom` then IPLs the generated system
+(first or warm), sends the `attach` lines of `conf/mvs.script` (the two volumes are not initialized, so `mvs.cnf` has them
+commented out), and submits Moseley's MVS00 (ICKDSF init, then a CLASS S continuation that varies both online and imports the
+SYSCPK catalog), MVS01 (user catalogs and aliases; sets the master catalog update password SYSPROG), MVS02 (HMVS01 and
+HMVS02, 15 steps each) and MVS03 (RPF, QUEUE, REVIEW, DATE from `tape/tsoaps.het`, mounted at the unit the `IEC501A` names, plus
+the GREGQ job it submits). MVS00 and MVS03 end twice (`$HASP395` count 2). Every step must complete 0000, the code the page lists
+for MVS00 (4 steps), MVS01 (1) and MVS02 (30); this is stricter than the SMP stages (CC 4 allowed). On success `custom.done`
+makes `ipl_conf` uncomment the two `0180` / `0190` lines in `conf/mvs.conf` for every later IPL, as the page's "remove the hash".
+
+* **Unverified message ids.** The page shows the ICKDSF confirmation (`r 4,U`) and the master-catalog password prompt
+  (`r 6,sysprog`) only as screenshots, so `CUSTOM_REPLIES` matches them by text (`ICKnnnD ... REPLY`, a WTOR naming PASSWORD).
+  The first live run must confirm both against the console log and tighten the patterns.
+* **Out of reach here (page text read, not driven):** starting VTAM and TSO needs a tn3270 client on 3270 (`VTAM`, then
+  `HMVS01` logon); the box has only the 009 console, and batch jobs through the card reader are all tier 2 needs. TSO-only
+  features are not part of the JCL oracle.
 
 ## Job runner
 

@@ -1,0 +1,291 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-hc-ignore-error",
+ "survivors": [
+  {
+   "id": "0d70407ee5",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f11_EIBTASKN is only stored into: bytes 12..15 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "36c627df8b",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "58e6cbf348",
+   "op": "CON",
+   "line": 70,
+   "before": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4afba972f4",
+   "op": "LIT",
+   "line": 91,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "77a5607622",
+   "op": "DEL",
+   "line": 153,
+   "before": "System.arraycopy(IMAGE_s_WS_RESP_D, 0, s_WS_RESP_D.bytes, 0, IMAGE_s_WS_RESP_D.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_RESP_D, 0, s_WS_RESP_D.bytes, 0, IMAGE_s_WS_RESP_D.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_RESP_D's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "0e27bfffef",
+   "op": "DEL",
+   "line": 154,
+   "before": "System.arraycopy(IMAGE_s_WS_LEN_D, 0, s_WS_LEN_D.bytes, 0, IMAGE_s_WS_LEN_D.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_LEN_D, 0, s_WS_LEN_D.bytes, 0, IMAGE_s_WS_LEN_D.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_LEN_D's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "1318b05669",
+   "op": "AOR",
+   "line": 189,
+   "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f9_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d515cf0f67",
+   "op": "AOR",
+   "line": 189,
+   "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f9_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f9b97ab4d2",
+   "op": "AOR",
+   "line": 189,
+   "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f9_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "0f88a0a439",
+   "op": "AOR",
+   "line": 190,
+   "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "43febe6197",
+   "op": "AOR",
+   "line": 190,
+   "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9dd6892c7f",
+   "op": "AOR",
+   "line": 190,
+   "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c3c1aa62e6",
+   "op": "DEL",
+   "line": 190,
+   "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ee602c6b23",
+   "op": "AOR",
+   "line": 190,
+   "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2c14499ff0",
+   "op": "CON",
+   "line": 231,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen assigned at line 231 is never read in the rest of its method (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "7856f0e7e6",
+   "op": "DEL",
+   "line": 231,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen assigned at line 231 is never read in the rest of its method (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "279050b708",
+   "op": "CON",
+   "line": 239,
+   "before": "calen = cx(task, 8);",
+   "after": "calen = cx(task, 9);",
+   "verdict": "equivalent",
+   "reason": "local calen assigned at line 239 is never read in the rest of its method (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "6a21c28c67",
+   "op": "DEL",
+   "line": 241,
+   "before": "calen = cx(task, 8);",
+   "after": "/* calen = cx(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "local calen assigned at line 241 is never read in the rest of its method (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "67b06eb1ae",
+   "op": "CON",
+   "line": 411,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "61f3b03865",
+   "op": "DEL",
+   "line": 425,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 at line 425 is unconditionally overwritten by f37_EIBRESP2 at line 432 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "17e41e23f7",
+   "op": "DEL",
+   "line": 448,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "329dbc67a9",
+   "op": "CON",
+   "line": 448,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8236a6ab92",
+   "op": "DEL",
+   "line": 459,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  }
+ ]
+}

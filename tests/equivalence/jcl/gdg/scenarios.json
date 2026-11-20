@@ -55,7 +55,17 @@
     "//P1       EXEC PGM=MAKE",
     "//POUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
     "//P2       EXEC PGM=ADD",
-    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)"
+    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)",
+    "//*",
+    "//MODJOB   JOB (ACCT),'GDG MOD',CLASS=A,MSGCLASS=X",
+    "//M1       EXEC PGM=MAKE",
+    "//MOUT     DD DSN=PAY.GDG(+1),DISP=(MOD,CATLG)",
+    "//M2       EXEC PGM=ADD",
+    "//MADD     DD DSN=PAY.GDG(0),DISP=(MOD,CATLG)",
+    "//*",
+    "//MODABJOB JOB (ACCT),'GDG MOD ABEND',CLASS=A,MSGCLASS=X",
+    "//N1       EXEC PGM=MAKE",
+    "//NOUT     DD DSN=PAY.GDG(+1),DISP=(MOD,CATLG,DELETE)"
   ],
   "scenarios": [
     {
@@ -427,12 +437,88 @@
         }
       },
       "basis": "Generation data group LIMIT: the group holds at most LIMIT generations (3). Rolling 8 in makes the oldest, 5, drop out of the catalog; whether 5 is also scratched (deleted) depends on the group's SCRATCH / NOSCRATCH attribute and is not answered here. Relative numbers in the job are unchanged by the limit."
+    },
+    {
+      "id": "mod-plus-one-creates-a-generation",
+      "job": "MODJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "M1": {
+          "rc": 0
+        },
+        "M2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "M1.MOUT": 8,
+        "M2.MADD": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "DISP, generation data sets (User's Guide, Appendix A, 'DISP parameter'): if you code MOD for a generation data set and the specified relative generation does not exist in the catalog, the system changes the status to NEW. (+1) is not cataloged, so M1's MOUT is a NEW generation, 8, cataloged at job end. M2's MADD names (0), which exists (7), so it stays MOD: it names 7 and creates nothing, and the group's relative numbers are unchanged until job end."
+    },
+    {
+      "id": "mod-plus-one-abend-is-a-new-generation-deleted",
+      "job": "MODABJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "N1": {
+          "abend": "S0C7"
+        }
+      },
+      "expect": {
+        "N1.NOUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "assumed": "A3",
+      "basis": "DISP MOD on the absent (+1) is changed to NEW (see mod-plus-one-creates-a-generation), so the DD names generation 8; N1 abends and the abnormal disposition DELETE applies, so 8 is not cataloged."
     }
   ],
   "assumed": [
     {
       "id": "A2",
       "text": "A generation whose creating step abends under (NEW,CATLG,DELETE) is not cataloged, and under (NEW,CATLG) is, per the DISP text; the absolute number is still consumed by that job only (the next job reuses it)."
+    },
+    {
+      "id": "A3",
+      "text": "After the system changes MOD to NEW on a (+n) generation, the step-end disposition is read from the coded DISP as it is for a DISP=NEW dataset; the manual states the status change but not that the abnormal-termination subparameter then applies as for NEW."
     }
   ],
   "refused": [
@@ -449,8 +535,12 @@
       "why": "the manual's disposition of an unreceived passed dataset is not answered here"
     },
     {
-      "construct": "DISP=(NEW,KEEP) or UNCATLG generations, absolute names (G0007V00), roll-in of EMPTY / SCRATCH groups, DISP=MOD (+1)",
+      "construct": "DISP=(NEW,KEEP) or UNCATLG generations, absolute names (G0007V00), roll-in of EMPTY / SCRATCH groups",
       "why": "not covered by this slice"
+    },
+    {
+      "construct": "DISP=MOD of (0) / (-n) with that generation not cataloged, or MOD (+n) after the same (+n) was passed",
+      "why": "the manual says the status becomes NEW but gives no absolute number for (0) / (-n), and a MOD of a generation created earlier in the job is not stated"
     }
   ]
 }

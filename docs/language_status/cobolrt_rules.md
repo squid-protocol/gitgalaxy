@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-194 rules: 92 MATCHED, 24 DIFFERS, 14 REFUSED, 64 ASSUMED; 0 measured on z/OS (#4702).
+194 rules: 93 MATCHED, 24 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -193,7 +193,7 @@ What a det port does around a CICS command: the bytes it passes and receives. Th
 |---|---|---|---|---|---|---|
 | RT-CICS-POINTER-IN-COMMAREA | A POINTER in a COMMAREA DTO: NULL as all zero bytes; an address, which names storage the port does not have, stops the run by name | none: an address is not portable between the two sides | - | C9 (DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not)) | REFUSED | uncalibrated |
 | RT-CICS-FILE-KEY-ORDER | A keyed file's records in key order: READ by full key the first record whose key equals it; the keys ordered as the file is | `cics-apr` READ | - | - | MATCHED | uncalibrated |
-| RT-CICS-READ-GTEQ-GENERIC | READ GTEQ / GENERIC: in key order, the first record whose key's first LENGTH bytes equal the given ones, or with GTEQ are greater | `cics-apr` READ | - | X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)) | ASSUMED | uncalibrated |
+| RT-CICS-READ-GTEQ-GENERIC | READ GTEQ / GENERIC: in key order, the first record whose key's first LENGTH bytes equal the given ones, or with GTEQ are greater | `cics-apr` READ | - | X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)) | MATCHED | uncalibrated |
 | RT-CICS-FROM-LENGTH | A command's FROM(area) LENGTH(n): n bytes from the area's first byte, which may run past the area into what follows it in its record | `cics-apr` WRITEQ TS: FROM, LENGTH | - | - | MATCHED | uncalibrated |
 | RT-CICS-WRITEQ-PAST-FROM | A WRITEQ TS / TD whose LENGTH runs past its FROM item writes FROM's bytes then spaces to LENGTH (ASSUMED: IBM takes the storage that follows, undefined) | `cics-apr` WRITEQ TS: FROM, LENGTH | - | X6 (ASSUMED (a LENGTH over 32767 REFUSED)) | ASSUMED | uncalibrated |
 | RT-CICS-DOCUMENT | DOCUMENT CREATE TEXT / BINARY LENGTH(n): n bytes of the area (negative: LENGERR); DOCUMENT RETRIEVE INTO: at most MAXLENGTH bytes, the rest of INTO as it was; past the area refused | `cics-apr` DOCUMENT CREATE, DOCUMENT RETRIEVE | - | X33 (ASSUMED (REFUSED where IBM is silent)); X6 (ASSUMED (a LENGTH over 32767 REFUSED)) | ASSUMED | uncalibrated |

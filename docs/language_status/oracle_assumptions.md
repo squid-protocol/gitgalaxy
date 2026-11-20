@@ -2412,6 +2412,18 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Reached since (#4270, X23):** WRITE-ERROR-MESSAGE's `IF EIBCALEN < 91` true side in LGACDB02, LGDPDB01 and
   LGIPDB01, by scenarios that state a COMMAREA shorter than 91 bytes (`commarea_length`). LGACDB01's and LGUCDB01's
   need a failing statement whose host variables lie past EIBCALEN (X23).
+- **IBM trace (#8700, 2026-11-19; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary").** WRITEQ TS: FROM
+  "Specifies the data to be written to temporary storage"; LENGTH "Specifies the length, as a halfword binary value, of
+  the data to be written." The page says nothing of a LENGTH past FROM's own length, so `RT-CICS-WRITEQ-PAST-FROM` stays
+  **ASSUMED**: the "storage that follows FROM" reading above is ours, not IBM's text, and spaces are the owner's
+  choice (2026-10-21). READQ TD: LENGTH "If you specify the INTO option, LENGTH specifies the maximum length of data that
+  the program accepts. If the value specified is less than zero a LENGERR condition will be raised and the queue will
+  not be read. If the value specified is zero a LENGERR condition will be raised and the queue will be read. If the
+  length of the data exceeds the value specified, the data is truncated to that value and the LENGERR condition occurs.
+  On completion of the retrieval operation, the data area is set to the original length of the data record read from
+  the queue." The truncation matches `RT-CICS-READQ-TD-INTO`; INTO's remainder past a short record is not stated, so it
+  stays **ASSUMED** (left as it was). Unchecked here, for the READQ TD LENGTH path outside `readTd`: a negative LENGTH
+  (IBM: LENGERR, queue not read) and zero (LENGERR, queue read).
 
 ### X7. ASSIGN INVOKINGPROG / PROGRAM, and several programs in one task — MATCHED
 - ASSIGN PROGRAM is the running program, INVOKINGPROG the program that LINKed or XCTLed to it (blanks for a task's
@@ -2737,6 +2749,20 @@ stays at 28 unaccounted (fill_ DTO setters, two-argument `handleLink` facades, f
 - **Reached.** NORMAL only: GenApp LGUPVS01 (LINKed by LGUPDB01 with LENGTH 225: a 64-byte record into a 1024-byte
   area, LENGTH set back to 64) and LGUCVS01. LENGERR is not reached by a proven scenario: every non-NORMAL READ in
   GenApp goes to LGSTSQ (X6), and both GenApp READs are UPDATE.
+- **IBM trace (#8700, 2026-11-19; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary", READ, LENGTH
+  option and LENGERR condition).** "If the retrieved record is longer than the value specified in the LENGTH option, the
+  record is truncated to the specified value and the LENGERR condition occurs. In this case, the LENGTH data area is set
+  to the length of the record before truncation." LENGERR RESP2 11: "The length of a record read with the INTO option
+  specified exceeds the value specified in the LENGTH option; the record is truncated, and the data area supplied in
+  the LENGTH option is set to the actual length of the record." RESP2 13: "An incorrect length is specified for a file
+  with fixed-length records." The runtime's truncation, LENGERR 11 and length set back **match** the text. The rest of
+  `RT-CICS-READ-INTO-LENGTH` is **still ASSUMED**, IBM leaving it open: "When reading into a target data area that is
+  longer than the record being read, the contents of the target data area, from the end of the retrieved record to the
+  end of the target data area, are unpredictable" (the runtime leaves it as it was, the choice named), and "when
+  reading fixed-length records into an area longer than the record being accessed, the LENGERR condition is raised for
+  COBOL, C, PL/I, and assembler-language applications if the LENGTH option is specified" (not raised here: the
+  Assumed paragraph above; a possible DIFFERS for a fixed-length file, not settled by the text alone, since
+  the same page ties it to the file's record format, which the case files, VSAM KSDSs, do not declare).
 
 ### X15. Terminal RECEIVE and SEND CONTROL — ASSUMED, REFUSED where IBM is silent (#4413)
 - **What IBM documents** (CICS TS, EXEC CICS RECEIVE (3270 logical), ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-3270-logical,
@@ -3065,6 +3091,15 @@ stays at 28 unaccounted (fill_ DTO setters, two-argument `handleLink` facades, f
 - **#6967: a fault's `child` must be a transaction the case runs.** `equivalence_cics_faults.check_child_faults` (called where the COBOL run writes `faults.cfg`, and by `strengthen.validate`) refuses a fault whose `child` is no key of the case's `child_programs`: no child is dispatched for it, so the plan would never fire and nothing said so.
 - **#6967: FETCH ... COMPSTATUS SECERROR (ASSUMED).** IBM's FETCH page lists COMPSTATUS NORMAL, ABEND and SECERROR (the child failed a security check); no security manager is modelled, so a region's refusal is a fact the scenario states: a `{"cmd": "FETCH-STATUS", "resp": "SECERROR", "nth": N}` fault makes the Nth child a FETCH (ANY or CHILD) returns report CVDA 1214 (the plan line `FETCH-STATUS - N 1214 0`; the FETCH itself is NORMAL, the child ran as usual, the event reads `compstatus=SECERROR`). **Owner-stated (2026-10-29, #6967, CRECUST only): IBM says nothing about the reply of a child that failed its security check, so the reply to the parent is assumed EMPTY**: ABCODE is left alone (blank), and CHANNEL (when asked) is a new channel of the harness's own name (GGREPLY...) holding no container, not a copy of what the child left (so FETCH CHANNEL of such a child needs no current channel; a GET CONTAINER on it fails on both runtimes). Both runtimes (`GGCFETCH`, `CicsTask.fetch`) count only FETCHes that return a child. A child that abended is REFUSED (IBM does not say which status wins). CBSA CRECUST `fetch-any-first-child-secerror` and `fetch-any-third-child-secerror` (after two NORMAL children) take 853 `WHEN DFHVALUE(SECERROR)`. Unit-proven in `tests/cobol_mainframe/test_det_crecust_case.py`.
 - **#6967: an abend injected in a RUN child (X70 codes).** A fault `{"cmd": "LINK", "child": "OCR1", "program": "ABNDPROC", "resp": "ABEND", "abcode": "AFCR"}` is X70's planned abend, counted and fired in that child (plan line `@OCR1 LINK ABNDPROC 1 -1 0 AFCR`): the child ends with that code (no HANDLE ABEND in any CRDTAGYn), and FETCH reports COMPSTATUS ABEND (900) with ABCODE the code, on both runtimes. The code set is X70's; any other is REFUSED. CBSA CRECUST `fetch-any-first-child-abends-afcr` and `fetch-any-third-child-abends-afcs` (two children completed first) take 853 `WHEN DFHVALUE(ABEND)`.
+- **IBM trace of the RETRIEVE areas (#8700, 2026-11-19; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command
+  summary", RETRIEVE, Options).** "RTERMID(data-area) specifies a 4-character area that can be used in the TERMID option
+  of a START command that may be executed subsequently. RTRANSID(data-area) specifies a 4-character area ... QUEUE(data-area)
+  specifies the 8-character area for the temporary storage queue name"; INTO "specifies the user data area into which
+  retrieved data is to be written"; LENGTH: "If the value specified is less than zero, zero is assumed. If the length of
+  the data exceeds the value specified, the data is truncated to that value and the LENGERR condition occurs." The page
+  gives the areas' sizes, and says nothing of a START value shorter than its area (START allows 1 - 4 characters for
+  RTRANSID / RTERMID and 1 - 8 for QUEUE), so `RT-CICS-RETRIEVE-INTO` stays **ASSUMED**: padding with spaces is the
+  runtime's reading of "a 4-character area". Choice named; no IBM text confirms or contradicts it.
 
 ### X19. ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD — ASSUMED, REFUSED where the harness cannot decide (#4270 slice 3)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS ASSIGN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign).
@@ -3248,6 +3283,18 @@ stays at 28 unaccounted (fill_ DTO setters, two-argument `handleLink` facades, f
   no file control yet (its files.cfg is empty), so the READ semantics are pinned by the runtime tests below. Pinned
   by `tests/cobol_mainframe/test_det_translate.py` (`test_read_gteq_*`) and `test_equivalence_cics.py`
   (`test_a_read_gteq_generic_search_is_named_to_the_stub`).
+- **IBM trace (#8700, 2026-11-19; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary", READ, Options).**
+  GENERIC: "(VSAM KSDS, paths and data tables) specifies that the search key is a generic key whose length is specified
+  in the KEYLENGTH option. The search for a record is satisfied when a record is found that has the same starting
+  characters (generic key) as those specified." GTEQ: "specifies that, if the search for a record that has the same
+  key (complete or generic) as that specified in the RIDFLD option is unsuccessful, the first record that has a greater
+  key is retrieved." Verdict: **MATCHED** for `RT-CICS-READ-GTEQ-GENERIC` (the search itself: prefix equal, or with GTEQ
+  the first greater key). Still ASSUMED here, because IBM's text does not settle them: key order (D1) and RIDFLD left
+  unchanged by READ (the READ page documents no RIDFLD update). Also from the same page: "If KEYLENGTH(0) is used with
+  the object of reading the first record in the data set, the GTEQ option must also be specified. If EQUAL is specified
+  either explicitly or by default with KEYLENGTH(0), the results of the READ are unpredictable" -- so a zero GENERIC
+  KEYLENGTH is not undocumented as the refusal above says: IBM allows it with GTEQ; the refusal stays (a stated
+  boundary, not a difference).
 
 ### X23. A COMMAREA of a stated length — ASSUMED, a reference past EIBCALEN REFUSED (#4270)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS LINK, ibm.com/docs/en/cics-ts/6.x?topic=summary-link: "COMMAREA(data-area) specifies a communication area that is to be made

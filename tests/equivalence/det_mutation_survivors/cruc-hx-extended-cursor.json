@@ -36,19 +36,27 @@
    ]
   },
   {
-   "id": "fbd3c8e70e",
+   "id": "478d66b5e1",
    "op": "LIT",
-   "line": 40,
-   "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
-   "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
-   "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "line": 35,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "59c2b542d0",
+   "op": "LIT",
+   "line": 37,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
    ]
   },
   {
@@ -65,6 +73,27 @@
     "held-good-entry",
     "held-pf5-blink",
     "inert-image"
+   ]
+  },
+  {
+   "id": "fbd3c8e70e",
+   "op": "LIT",
+   "line": 43,
+   "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte 0 of HXM2I is the TIOA prefix: every path starts by LOW-VALUES over the whole record before any read, so the byte is overwritten unread.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -86,22 +115,6 @@
    ]
   },
   {
-   "id": "2b6ac12059",
-   "op": "LIT",
-   "line": 50,
-   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
-   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
-   "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
-   ]
-  },
-  {
    "id": "2f6c58921e",
    "op": "LIT",
    "line": 51,
@@ -120,6 +133,27 @@
    ]
   },
   {
+   "id": "2b6ac12059",
+   "op": "LIT",
+   "line": 53,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte 0 of DFHEIBLK is EIBTIME, which runTask stores explicitly from the task clock before the program runs; the image byte is overwritten.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
    "id": "00c7001f03",
    "op": "LIT",
    "line": 55,
@@ -135,21 +169,6 @@
     "long-acct",
     "pa1-f",
     "pf3-f"
-   ]
-  },
-  {
-   "id": "95eb7e1867",
-   "op": "CON",
-   "line": 62,
-   "before": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 0, true, false);",
-   "after": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
    ]
   },
   {
@@ -177,6 +196,27 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: map length AMOUNTL: its bytes and the mutant's hold only X'00', spaces or a typed length (under 255: no X'FF' byte), never the cursor's -1 (assumed: a protected BMS field without FSET is never keyed, IBM 3270 inbound data) (the line is `private final Field f9_AMOUNTL = Field.binary(s_HXM2I, 23, 4, 0, true, false);`)",
    "tried": [
     "solver-unobservable"
+   ]
+  },
+  {
+   "id": "95eb7e1867",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 0, true, false);",
+   "after": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "ACCTL scale 0 to 1: the field is stored and read through the same Field, so the scale cancels; it only narrows the range to 999, and ACCTL holds -1 or at most the 6-byte ACCTI length. Wide, short, empty and 1000-byte inputs survived on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -231,21 +271,6 @@
    ]
   },
   {
-   "id": "ba06bb0951",
-   "op": "CON",
-   "line": 72,
-   "before": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 1, false);",
-   "after": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
    "id": "04a365dcc8",
    "op": "CON",
    "line": 75,
@@ -267,6 +292,27 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: map attribute AMOUNTC: bytes 26 and 27 only ever hold X'00' or a space, which SEND MAP reads as not set either way (assumed: a protected BMS field without FSET is never keyed, IBM 3270 inbound data) (the line is `private final Field f28_AMOUNTC = Field.alphanumeric(s_HXM2I, 26, 1, false);`)",
    "tried": [
     "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ba06bb0951",
+   "op": "CON",
+   "line": 75,
+   "before": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 1, false);",
+   "after": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 2, false);",
+   "verdict": "equivalent",
+   "reason": "ACCTC length 1 to 2: the extra byte is ACCTH, which the only path that moves ACCTC (RED) overwrites with BLINK on the next statement.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -786,21 +832,6 @@
    ]
   },
   {
-   "id": "d85c893d8a",
-   "op": "CON",
-   "line": 101,
-   "before": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
-   "after": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
    "id": "693960fbe4",
    "op": "CON",
    "line": 102,
@@ -870,6 +901,27 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF9 at (19, 2) as without (EIBAID is compared only with DFHPF5) (the line is `private final Field f94_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 1, false);`)",
    "tried": [
     "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d85c893d8a",
+   "op": "CON",
+   "line": 104,
+   "before": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
+   "after": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);",
+   "verdict": "equivalent",
+   "reason": "DFHPF6 is read only by the AID switch, which MOVEs it into the 1-byte EIBAID, so a second byte is truncated away; a PF6 input survived on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -1233,21 +1285,6 @@
    ]
   },
   {
-   "id": "441b82f2fa",
-   "op": "CON",
-   "line": 120,
-   "before": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
-   "after": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
    "id": "1b37262a21",
    "op": "CON",
    "line": 121,
@@ -1332,6 +1369,27 @@
    ]
   },
   {
+   "id": "441b82f2fa",
+   "op": "CON",
+   "line": 123,
+   "before": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
+   "after": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
+   "verdict": "equivalent",
+   "reason": "WS-CA length 1 to 2: the DTO carries 1 byte and RETURN COMMAREA(WS-CA) LENGTH(1) passes 1 byte; the second byte is never read.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
    "id": "e8ffc6d42e",
    "op": "CON",
    "line": 123,
@@ -1401,51 +1459,6 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (the line is `private final Field f118_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false)`)",
    "tried": [
     "solver-unobservable"
-   ]
-  },
-  {
-   "id": "1737eba9ab",
-   "op": "CON",
-   "line": 126,
-   "before": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
-   "id": "73c03ed1cc",
-   "op": "CON",
-   "line": 127,
-   "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
-   "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
-   "id": "9f64c0e015",
-   "op": "CON",
-   "line": 127,
-   "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
-   "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
    ]
   },
   {
@@ -1521,18 +1534,45 @@
    ]
   },
   {
-   "id": "53fae86689",
+   "id": "73c03ed1cc",
    "op": "CON",
    "line": 130,
-   "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-   "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+   "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
+   "verdict": "equivalent",
+   "reason": "EIBAID is written by the AID switch and read in MAIN-PARA through the same Field, so a shifted or wider window gives the same compare (a 2-byte form pads with a space as the compare's blank pad does). ENTER, PF3, PF5, PF6 and CLEAR survived on the oracle.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
+   "id": "9f64c0e015",
+   "op": "CON",
+   "line": 130,
+   "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+   "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
+   "verdict": "equivalent",
+   "reason": "EIBAID is written by the AID switch and read in MAIN-PARA through the same Field, so a shifted or wider window gives the same compare (a 2-byte form pads with a space as the compare's blank pad does). ENTER, PF3, PF5, PF6 and CLEAR survived on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -1548,18 +1588,45 @@
    ]
   },
   {
+   "id": "53fae86689",
+   "op": "CON",
+   "line": 133,
+   "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "GG_RETURN_CODE is read only by runProgram (RETURN-CODE); the CICS task path never reads it and its image is 00 00.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
    "id": "dda5c16a92",
    "op": "CON",
-   "line": 130,
+   "line": 133,
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "GG_RETURN_CODE is read only by runProgram (RETURN-CODE); the CICS task path never reads it and its image is 00 00.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -1771,167 +1838,233 @@
   {
    "id": "9ea209bd0e",
    "op": "ROR",
-   "line": 199,
+   "line": 179,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "f3766d34e5",
    "op": "NEG",
-   "line": 199,
+   "line": 179,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "7837801c93",
    "op": "DEL",
-   "line": 200,
+   "line": 180,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "0ab971f37f",
    "op": "CON",
-   "line": 202,
+   "line": 182,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "60ace03199",
    "op": "AOR",
-   "line": 202,
+   "line": 182,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "c028a4f043",
    "op": "ROR",
-   "line": 202,
+   "line": 182,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "d5675c784d",
    "op": "CON",
-   "line": 202,
+   "line": 182,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "6942d3c75a",
    "op": "AOR",
-   "line": 206,
+   "line": 186,
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
    "id": "cec244bacc",
    "op": "DEL",
-   "line": 230,
+   "line": 202,
    "before": "System.arraycopy(IMAGE_s_HXM2I, 0, s_HXM2I.bytes, 0, IMAGE_s_HXM2I.length);",
    "after": "/* System.arraycopy(IMAGE_s_HXM2I, 0, s_HXM2I.bytes, 0, IMAGE_s_HXM2I.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the HXM2I image copy is overwritten in full by the LOW-VALUES move that opens every path (first display, CHECK-INPUT, BLINK-MISTAKE).",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
   },
   {
    "id": "82d5770615",
    "op": "DEL",
-   "line": 234,
+   "line": 206,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "DFHCOMMAREA is never referenced by the program, so its initial image is unread.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
   },
   {
    "id": "1bed4d0835",
    "op": "DEL",
-   "line": 235,
+   "line": 207,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "DFHEIBLK items are unreferenced except EIBCALEN, EIBRESP, EIBRESP2 and the TRNID/TRMID/TASKN/DATE/TIME fields (all stored explicitly) and EIBAID (an unset AID is a space or NUL, never equal to ENTER, PF3, PF5 or CLEAR).",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
   },
   {
    "id": "b76d70dad3",
@@ -2346,6 +2479,48 @@
    ]
   },
   {
+   "id": "36fb2b253f",
+   "op": "DEL",
+   "line": 282,
+   "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
+   "after": "/* in_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
+   "id": "5bfb999ba7",
+   "op": "CON",
+   "line": 282,
+   "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
+   "after": "in_HxextWsCa(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "DTO plumbing (in_/fill_ HxextWsCa) reads and writes only the DFHCOMMAREA storage, which the program never references: WS-CA is separate working storage returned by RETURN COMMAREA(WS-CA). A DTO entry carrying Q (image value E) with ENTER and PF5 gave the same answer on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
    "id": "983764b2f5",
    "op": "LIT",
    "line": 282,
@@ -2416,6 +2591,27 @@
     "x-dfhpa1",
     "x-dfhpen",
     "x-dfhpf3"
+   ]
+  },
+  {
+   "id": "5665347662",
+   "op": "DEL",
+   "line": 286,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "equivalent",
+   "reason": "beyond is read only by the link-area write-back, and loadCommarea resets it on every byte[] or link-area load; the DTO entry never reads it.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -2658,6 +2854,27 @@
    ]
   },
   {
+   "id": "a5bbdcebc3",
+   "op": "ROR",
+   "line": 300,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "exactCommarea/caWhole X23 truncation of DFHCOMMAREA: unobservable because the program never references DFHCOMMAREA; short byte[] entry and link scenarios survived on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
+   ]
+  },
+  {
    "id": "1f93456ded",
    "op": "LIT",
    "line": 301,
@@ -2670,6 +2887,27 @@
     "x-dfhpa1",
     "x-dfhpen",
     "x-dfhpf3"
+   ]
+  },
+  {
+   "id": "09be574f12",
+   "op": "DEL",
+   "line": 302,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "equivalent",
+   "reason": "exactCommarea/caWhole X23 truncation of DFHCOMMAREA: unobservable because the program never references DFHCOMMAREA; short byte[] entry and link scenarios survived on the oracle.",
+   "tried": [
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -2718,27 +2956,6 @@
    ]
   },
   {
-   "id": "36fb2b253f",
-   "op": "DEL",
-   "line": 310,
-   "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
-   "after": "/* in_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
-   "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
-   ]
-  },
-  {
    "id": "52588ea7a2",
    "op": "CON",
    "line": 310,
@@ -2757,45 +2974,45 @@
    ]
   },
   {
-   "id": "5bfb999ba7",
-   "op": "CON",
-   "line": 310,
-   "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
-   "after": "in_HxextWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "id": "10e5116790",
+   "op": "NEG",
+   "line": 315,
+   "before": "if (caWhole == null) {",
+   "after": "if (!(caWhole == null)) {",
+   "verdict": "unreachable",
+   "reason": "the catch of IndexOutOfBoundsException is reachable only if the program indexes DFHCOMMAREA past EIBCALEN; every access is a fixed in-range field, so no input raises it.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
-   "id": "5665347662",
-   "op": "DEL",
-   "line": 314,
-   "before": "s_DFHCOMMAREA.beyond = null;",
-   "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "id": "7dfe1a7100",
+   "op": "ROR",
+   "line": 315,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "unreachable",
+   "reason": "the catch of IndexOutOfBoundsException is reachable only if the program indexes DFHCOMMAREA past EIBCALEN; every access is a fixed in-range field, so no input raises it.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -2813,87 +3030,66 @@
    ]
   },
   {
-   "id": "a5bbdcebc3",
-   "op": "ROR",
-   "line": 332,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
-   "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
-   ]
-  },
-  {
-   "id": "09be574f12",
+   "id": "99851a316c",
    "op": "DEL",
-   "line": 334,
-   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
-   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "line": 329,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "swap restore: the next run swaps STD/NOPFD in at entry and one program is in the JVM, so the restored default is never read.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
-   "id": "10e5116790",
-   "op": "NEG",
-   "line": 347,
-   "before": "if (caWhole == null) {",
-   "after": "if (!(caWhole == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "id": "a0391ba5f6",
+   "op": "DEL",
+   "line": 330,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "swap restore: the next run swaps STD/NOPFD in at entry and one program is in the JVM, so the restored default is never read.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
-   "id": "7dfe1a7100",
-   "op": "ROR",
-   "line": 347,
-   "before": "if (caWhole == null) {",
-   "after": "if (caWhole != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "id": "2083bb7f2c",
+   "op": "LIT",
+   "line": 337,
+   "before": "region.run(task, \"HXEXT\", this::runTask);",
+   "after": "region.run(task, \"XXEXT\", this::runTask);",
+   "verdict": "equivalent",
+   "reason": "region name: HXEXT has no LINK, XCTL or ABEND naming itself.",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "t-ca0-enter",
+    "t-clear",
+    "t-dto-pf3",
+    "t-link-1000",
+    "t-link-1000-pf5",
+    "t-no-acct",
+    "t-pf3",
+    "t-pf6",
+    "t-short-acct",
+    "t-wide"
    ]
   },
   {
@@ -2919,33 +3115,6 @@
    "tried": [
     "refusal-text"
    ]
-  },
-  {
-   "id": "99851a316c",
-   "op": "DEL",
-   "line": 361,
-   "before": "Cobol.swapTruncBinary(truncBefore);",
-   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "a0391ba5f6",
-   "op": "DEL",
-   "line": 362,
-   "before": "Cobol.swapNumprocPfd(pfdBefore);",
-   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "2083bb7f2c",
-   "op": "LIT",
-   "line": 369,
-   "before": "region.run(task, \"HXEXT\", this::runTask);",
-   "after": "region.run(task, \"XXEXT\", this::runTask);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "f2009f3979",

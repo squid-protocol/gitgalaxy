@@ -191,3 +191,52 @@ def test_workflows_with_an_unretried_hash_pinned_pip_install_do_not_grow():
     )
     assert not set(PIP_RETRIED) & set(unwrapped)
     assert len(unwrapped) <= 28, f"a new workflow has an unretried pip install: {unwrapped}"
+
+
+DIGEST = "icr.io/x/db2@sha256:" + "a" * 64
+
+
+def _fake_docker(tmp_path, present):
+    """A `docker` that logs its calls; `image inspect` succeeds only when `present`."""
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    log = tmp_path / "docker.log"
+    exe = bindir / "docker"
+    exe.write_text(
+        f'#!/bin/sh\necho "$@" >> "{log}"\n[ "$1 $2" = "image inspect" ] && exit {0 if present else 1}\nexit 0\n'
+    )
+    exe.chmod(0o755)
+    return {"PATH": f"{bindir}:/usr/bin:/bin"}, log
+
+
+@needs_linux_bash
+@pytest.mark.parametrize("flags", [[], ["-q"]])
+def test_a_digest_pinned_docker_pull_is_skipped_when_the_image_is_local(tmp_path, flags):
+    env, log = _fake_docker(tmp_path, present=True)
+    proc, _, _ = _run(tmp_path, 3, 0, cmd=["docker", "pull", *flags, DIGEST], extra_env=env)
+    assert proc.returncode == 0 and "cache hit" in proc.stderr
+    assert log.read_text().splitlines() == [f"image inspect {DIGEST}"]
+
+
+@needs_linux_bash
+def test_a_digest_pinned_docker_pull_fetches_when_the_image_is_absent(tmp_path):
+    env, log = _fake_docker(tmp_path, present=False)
+    proc, _, _ = _run(tmp_path, 3, 0, cmd=["docker", "pull", "-q", DIGEST], extra_env=env)
+    assert proc.returncode == 0 and "cache hit" not in proc.stderr
+    assert log.read_text().splitlines() == [f"image inspect {DIGEST}", f"pull -q {DIGEST}"]
+
+
+@needs_linux_bash
+def test_a_tag_only_docker_pull_never_infers_a_probe(tmp_path):
+    env, log = _fake_docker(tmp_path, present=True)
+    proc, _, _ = _run(tmp_path, 3, 0, cmd=["docker", "pull", "alpine:3"], extra_env=env)
+    assert proc.returncode == 0 and "cache hit" not in proc.stderr
+    assert log.read_text().splitlines() == ["pull alpine:3"]
+
+
+@needs_linux_bash
+def test_an_explicit_probe_beats_the_inferred_one(tmp_path):
+    env, log = _fake_docker(tmp_path, present=True)
+    proc, _, _ = _run(tmp_path, 3, 0, cmd=["docker", "pull", DIGEST], extra_env={**env, "CI_RETRY_CACHED": "false"})
+    assert proc.returncode == 0 and "cache hit" not in proc.stderr
+    assert log.read_text().splitlines() == [f"pull {DIGEST}"]

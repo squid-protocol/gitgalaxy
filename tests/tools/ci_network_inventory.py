@@ -15,6 +15,7 @@ statement (after ``;``, ``&&``, ``|``, ``--``, ``sudo`` ...), so a word inside a
     python tests/tools/ci_network_inventory.py            # print the summary
     python tests/tools/ci_network_inventory.py --write    # regenerate docs/ci_network_inventory.md
     python tests/tools/ci_network_inventory.py --check    # exit 1 when the doc is stale
+    python tests/tools/ci_network_inventory.py --write-baseline  # shrink the bare-step / advisory-upload baseline
 """
 
 from __future__ import annotations
@@ -179,11 +180,90 @@ def render(rows: list[dict]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+BASELINE = REPO / "tests" / "ci_network_bare_baseline.json"
+# an upload whose step or artifact name says it is a record for people, not an input to a later job
+ADVISORY_UPLOAD = re.compile(r"times|durations|timing|logs?\b|preview|scorecard|summary|sarif", re.IGNORECASE)
+
+
+def bare_keys(rows: list[dict]) -> list[str]:
+    """``workflow|job|step|kind`` of every bare step: the lint's keys (content-based, no line numbers)."""
+    return sorted({f"{r['workflow']}|{r['job']}|{r['step']}|{r['kind']}" for r in rows if r["guard"] == "bare"})
+
+
+def _literal_prefix(name: str) -> str:
+    return name.split("${{")[0]
+
+
+def advisory_upload_offenders(workflows: Path = WORKFLOWS) -> list[str]:
+    """``workflow|job|step`` of every advisory-named upload that is not ``continue-on-error: true``.
+
+    An upload some ``download-artifact`` in the same workflow reads (by name, by pattern, or a download of every
+    artifact) is a hand-off between jobs, not advisory, and is skipped.
+    """
+    import yaml
+
+    out: list[str] = []
+    for path in sorted(workflows.glob("*.yml")):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        steps = [
+            (str(job), st)
+            for job, spec in sorted((data.get("jobs") or {}).items())
+            for st in (spec or {}).get("steps") or []
+            if isinstance(st, dict)
+        ]
+        downloads = [
+            st.get("with") or {} for _, st in steps if str(st.get("uses", "")).startswith("actions/download-artifact")
+        ]
+
+        def consumed(art: str, downloads: list[dict] = downloads) -> bool:
+            prefix = _literal_prefix(art)
+            for w in downloads:
+                want = str(w.get("name") or w.get("pattern") or "")
+                if not want or _literal_prefix(want) == prefix or prefix.startswith(want.rstrip("*")):
+                    return True
+            return False
+
+        for job, st in steps:
+            if not str(st.get("uses", "")).startswith("actions/upload-artifact"):
+                continue
+            art = str((st.get("with") or {}).get("name") or "")
+            if not ADVISORY_UPLOAD.search(f"{st.get('name', '')} {art}") or consumed(art):
+                continue
+            if str(st.get("continue-on-error")).lower() != "true":
+                out.append(f"{path.name}|{job}|{st.get('name') or art}")
+    return sorted(set(out))
+
+
+def current_baseline() -> dict:
+    return {"bare": bare_keys(inventory()), "advisory_uploads": advisory_upload_offenders()}
+
+
+def baseline_problems(base: dict, now: dict) -> list[str]:
+    """New offenders (not in the baseline) and stale entries (fixed but still listed): the list only shrinks."""
+    msgs: list[str] = []
+    for key in ("bare", "advisory_uploads"):
+        have, want = set(now[key]), set(base.get(key, []))
+        msgs += [f"NEW {key}: {k}" for k in sorted(have - want)]
+        msgs += [f"STALE {key} (fixed, delete the entry): {k}" for k in sorted(want - have)]
+    return msgs
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--write", action="store_true", help="regenerate docs/ci_network_inventory.md")
     ap.add_argument("--check", action="store_true", help="exit 1 when the doc is stale")
+    ap.add_argument("--write-baseline", action="store_true", help="shrink tests/ci_network_bare_baseline.json")
     args = ap.parse_args(argv)
+    if args.write_baseline:
+        import json
+
+        now = current_baseline()
+        old = json.loads(BASELINE.read_text(encoding="utf-8")) if BASELINE.exists() else {}
+        # shrink-only: never add an entry the baseline did not have
+        kept = {k: [e for e in now[k] if e in set(old.get(k, []))] for k in now}
+        BASELINE.write_text(json.dumps(kept, indent=1) + "\n", encoding="utf-8", newline="\n")
+        print(f"wrote {BASELINE.relative_to(REPO)}: " + ", ".join(f"{k} {len(v)}" for k, v in kept.items()))
+        return 0
     text = render(inventory())
     if args.write:
         DOC.write_text(text, encoding="utf-8", newline="\n")

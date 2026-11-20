@@ -238,12 +238,13 @@ def step_cases_live() -> dict[str, tuple[int, int]]:
     from gitgalaxy.core.jcl_dataflow import resolve_dataflow
     from gitgalaxy.core.jcl_flow import JclFlow
     from gitgalaxy.core.jcl_gdg import resolve_gdg
+    from gitgalaxy.core.jcl_proc import expand_flow_rows
     from gitgalaxy.core.jcl_restart import restart_flow
 
     out: dict[str, tuple[int, int]] = {}
     for case in ("gdg", "restart", "dataflow"):
         doc = json.loads((JCL_CASES / case / "scenarios.json").read_text(encoding="utf-8"))
-        rows = job_flow.jcl_job_flow("\n".join(doc["flow_jcl"]) + "\n")
+        all_rows = rows = job_flow.jcl_job_flow("\n".join(doc["flow_jcl"]) + "\n")
         by_id = {s["id"]: s for s in doc["scenarios"]}
         ok = 0
         for sc in doc["scenarios"]:
@@ -251,6 +252,8 @@ def step_cases_live() -> dict[str, tuple[int, int]]:
             if case == "restart":
                 ok += restart_flow(rows, job, sc["given"]) == sc["expect"]
                 continue
+            if case == "gdg":  # a procedure step's GDG DD is read from the expanded CALL.PROCSTEP rows
+                rows = expand_flow_rows(all_rows, job)
             flow = JclFlow(rows).run(job, sc["given"])
             if case == "gdg":
                 catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]

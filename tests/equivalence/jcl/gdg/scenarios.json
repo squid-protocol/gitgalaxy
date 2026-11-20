@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice.",
   "scenario_input": "catalog (or catalog_from: another scenario's catalog_after): per GDG base, limit and the cataloged absolute generations, oldest first. given: per step that starts, {rc: n} or {abend: code}.",
   "scenario_answer": "expect: per STEP.DDNAME of each step that runs, the absolute generation number the DD names. catalog_after: per base the cataloged generations, oldest first, after the job ends.",
   "flow_jcl": [
@@ -98,7 +98,63 @@
     "//ODEL     DD DSN=PAY.GDG(-2),DISP=(OLD,DELETE)",
     "//O2       EXEC PGM=RPT",
     "//OCUR     DD DSN=PAY.GDG(0),DISP=SHR",
-    "//OPRV     DD DSN=PAY.GDG(-1),DISP=SHR"
+    "//OPRV     DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//* #8413 slice 5: GDGBIAS=STEP, and GDG DDs inside procedure steps.",
+    "//STPJOB   JOB (ACCT),'GDG STEP',CLASS=A,MSGCLASS=X,GDGBIAS=STEP",
+    "//S1       EXEC PGM=MAKE",
+    "//A        DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//S2       EXEC PGM=USE",
+    "//B        DD DSN=PAY.GDG(0),DISP=OLD",
+    "//*",
+    "//JOBBJOB  JOB (ACCT),'GDG JOB BIAS',CLASS=A,MSGCLASS=X,GDGBIAS=JOB",
+    "//S1       EXEC PGM=MAKE",
+    "//A        DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//S2       EXEC PGM=USE",
+    "//B        DD DSN=PAY.GDG(0),DISP=OLD",
+    "//*",
+    "//STEP2JB  JOB (ACCT),'GDG STEP TWICE',CLASS=A,MSGCLASS=X,GDGBIAS=STEP",
+    "//T1       EXEC PGM=MAKE",
+    "//T1OUT    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//T2       EXEC PGM=MAKE",
+    "//T2OUT    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//T3       EXEC PGM=USE",
+    "//T3CUR    DD DSN=PAY.GDG(0),DISP=SHR",
+    "//T3PRV    DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//STPLIM   JOB (ACCT),'GDG STEP LIMIT',CLASS=A,MSGCLASS=X,GDGBIAS=STEP",
+    "//L1       EXEC PGM=MAKE",
+    "//LOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//L2       EXEC PGM=USE",
+    "//LCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//LOLD     DD DSN=PAY.GDG(-2),DISP=SHR",
+    "//*",
+    "//STPABN   JOB (ACCT),'GDG STEP ABEND',CLASS=A,MSGCLASS=X,GDGBIAS=STEP",
+    "//B1       EXEC PGM=MAKE",
+    "//BOUT1    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//B2       EXEC PGM=MAKE",
+    "//BOUT2    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG,DELETE)",
+    "//*",
+    "//PRCJOB   JOB (ACCT),'GDG PROC JOB',CLASS=A,MSGCLASS=X",
+    "//GP       PROC",
+    "//M1       EXEC PGM=MAKE",
+    "//OUT      DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//R1       EXEC PGM=USE",
+    "//IN       DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//         PEND",
+    "//C1       EXEC GP",
+    "//C2       EXEC PGM=USE2",
+    "//Z        DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//PRCSTP   JOB (ACCT),'GDG PROC STEP',CLASS=A,MSGCLASS=X,GDGBIAS=STEP",
+    "//GQ       PROC",
+    "//M1       EXEC PGM=MAKE",
+    "//OUT      DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//R1       EXEC PGM=USE",
+    "//IN       DD DSN=PAY.GDG(0),DISP=SHR",
+    "//         PEND",
+    "//C1       EXEC GQ",
+    "//C2       EXEC GQ"
   ],
   "scenarios": [
     {
@@ -845,6 +901,294 @@
       },
       "assumed": "A6",
       "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets': 'If a DD statement in a multiple-step job tries to delete or uncatalog any generation data set except the oldest in a GDG, catalog management can lose orientation within the data group', so deleting the oldest is the form the manual leaves safe. O1 names (-2) = 6 (the oldest of 6, 7, 8) and establishes the relationship, which 'the system maintains throughout the job' (the same text as the first worked example): O2 still reads (0) = 8 and (-1) = 7, and 6 is gone from the catalog at O1 termination. ASSUMED (A6): the manual works no example that deletes a single generation, so that the entry is removed and nothing else changes is read from the DISP text, not from an example."
+    },
+    {
+      "id": "step-bias-create-then-read-zero",
+      "job": "STPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S1": {
+          "rc": 0
+        },
+        "S2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1.A": 8,
+        "S2.B": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' p. 235: 'When you are using GDGBIAS=STEP, relative references to a generation data set are resolved on a job step basis. The system establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in each job step. Each job step that references the generation data set establishes a new relationship.' (the same text: z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, p. 404). 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237: 'At the end of the job step, the system updates the catalog with the relative generation numbers of all generations in the group to reflect the additions.' Example 7 p. 246 (GDGBIAS=STEP, STEP1 DD A DSNAME=GDG01(+1),DISP=(NEW,CATLG); STEP2 DD B DSNAME=GDG01(0)): 'DD statement A - create 1st generation (and catalog at end of step). DD statement B - reference 1st generation.' With 5, 6, 7 cataloged, A creates 8, rolled in at the end of S1; S2 first references the group, so its (0) is the newest generation then cataloged, 8 (under the job basis the same (0) is 7: see job-bias-named-is-the-default)."
+    },
+    {
+      "id": "job-bias-named-is-the-default",
+      "job": "JOBBJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S1": {
+          "rc": 0
+        },
+        "S2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1.A": 8,
+        "S2.B": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, pp. 403-404: JOB 'establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in the job. This relationship is consistent throughout the job.' 'If no GDGBIAS parameter is specified ... GDGBIAS=JOB is used' (when the job class names no default). The same JCL as step-bias-create-then-read-zero with GDGBIAS=JOB: A first references the group (0 = 7), so B's (0) is still 7, and 8 is added at the end of the job (UG p. 236). Naming JOB is the same as naming nothing."
+    },
+    {
+      "id": "step-bias-two-steps-each-create-a-plus-one",
+      "job": "STEP2JB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "T1": {
+          "rc": 0
+        },
+        "T2": {
+          "rc": 0
+        },
+        "T3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "T1.T1OUT": 8,
+        "T2.T2OUT": 9,
+        "T3.T3CUR": 9,
+        "T3.T3PRV": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' p. 235: 'When you are using GDGBIAS=STEP, relative references to a generation data set are resolved on a job step basis. The system establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in each job step. Each job step that references the generation data set establishes a new relationship.' (the same text: z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, p. 404). 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237: 'At the end of the job step, the system updates the catalog with the relative generation numbers of all generations in the group to reflect the additions.' 'Each job step that references the generation data set establishes a new relationship': T1's (+1) is 8 and 8 is rolled into the group at the end of T1; T2 establishes a new relationship against the catalog that now ends at 8, so its (+1) is 9 (under GDGBIAS=JOB the second (+1) would be the same generation as the first, UG p. 235, so the JOB basis must write (+2): the refused list names the job-basis twin). T3 sees 5, 6, 7, 8, 9: (0) = 9, (-1) = 8."
+    },
+    {
+      "id": "step-bias-limit-rolls-off-at-step-end",
+      "job": "STPLIM",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "L1": {
+          "rc": 0
+        },
+        "L2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "L1.LOUT": 8,
+        "L2.LCUR": 8,
+        "L2.LOLD": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' p. 235: 'When you are using GDGBIAS=STEP, relative references to a generation data set are resolved on a job step basis. The system establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in each job step. Each job step that references the generation data set establishes a new relationship.' (the same text: z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, p. 404). 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237: 'At the end of the job step, the system updates the catalog with the relative generation numbers of all generations in the group to reflect the additions.' The roll-in happens at step termination (UG 'Disposition of SMS-managed generation data sets' p. 237: 'At step termination, the deferred generation data set is rolled into the GDG base'), so with LIMIT 3 generation 5 is rolled off before L2 starts (the roll-off of the oldest at the limit is as in limit-rolls-off-oldest). L2's group is 6, 7, 8: (0) = 8 and (-2) = 6; under the job basis (-2) would still be 5."
+    },
+    {
+      "id": "step-bias-abend-in-step-two-keeps-the-step-one-generation",
+      "job": "STPABN",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "B1": {
+          "rc": 0
+        },
+        "B2": {
+          "abend": "S0C7"
+        }
+      },
+      "expect": {
+        "B1.BOUT1": 8,
+        "B2.BOUT2": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A2",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' p. 235: 'When you are using GDGBIAS=STEP, relative references to a generation data set are resolved on a job step basis. The system establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in each job step. Each job step that references the generation data set establishes a new relationship.' (the same text: z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, p. 404). 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237: 'At the end of the job step, the system updates the catalog with the relative generation numbers of all generations in the group to reflect the additions.' B1's 8 is rolled in when B1 ends, before B2 starts; B2's (+1) is a new relationship, 9. B2 abends under DISP=(NEW,CATLG,DELETE): the abnormal disposition applies (DISP, abnormal termination) so 9 is deleted, not cataloged. The job ends with 5, 6, 7, 8: under the job basis the roll-in waits for the job end and the same JCL is not asked."
+    },
+    {
+      "id": "proc-step-gdg-dds-are-job-steps",
+      "job": "PRCJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.R1.IN": 8,
+        "C2.Z": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A7",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, p. 235 (GDGBIAS=JOB, the default, REF p. 404): the relationship is fixed at the first reference in the job and 'any subsequent reference to (+1) throughout the job' is the same absolute generation. The first reference is the DD OUT of procedure step M1 (called as C1): (+1) = 8; R1's (+1) names the same generation; the job's later step C2 still reads (0) as 7 and 8 is added at the end of the job. ASSUMED (A7): the manual states GDGBIAS for 'a job step' and is silent on a procedure's steps; they are executed as steps of the job (JCL Reference, DD: 'a job step, in a cataloged procedure step, or in an in-stream procedure step')."
+    },
+    {
+      "id": "proc-called-twice-under-step-bias",
+      "job": "PRCSTP",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        },
+        "C2.M1": {
+          "rc": 0
+        },
+        "C2.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.R1.IN": 8,
+        "C2.M1.OUT": 9,
+        "C2.R1.IN": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "assumed": "A7",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' p. 235: 'When you are using GDGBIAS=STEP, relative references to a generation data set are resolved on a job step basis. The system establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in each job step. Each job step that references the generation data set establishes a new relationship.' (the same text: z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, p. 404). 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237: 'At the end of the job step, the system updates the catalog with the relative generation numbers of all generations in the group to reflect the additions.' Each procedure step is a job step for the new relationship (ASSUMED A7, as in proc-step-gdg-dds-are-job-steps): C1.M1 creates (+1) = 8 and 8 is rolled in at its end; C1.R1 first references the group and reads (0) = 8; the second call C2 runs the same procedure text: C2.M1's (+1) is 9 and C2.R1's (0) is 9. The procedure's JCL is the same for both calls; the answers differ because the catalog at each step differs."
     }
   ],
   "assumed": [
@@ -867,6 +1211,14 @@
     {
       "id": "A6",
       "text": "Deleting the oldest generation by relative number (DISP=(OLD,DELETE) of (-n) where it is the oldest) removes that one catalog entry at step end and leaves the other generations' absolute numbers unchanged; the manual states only the warning for any other generation."
+    },
+    {
+      "id": "A7",
+      "text": "A procedure's step counts as a job step for GDGBIAS: the relationship is established (STEP) at its first reference of a group, and the catalog is updated at its end. The manual states GDGBIAS for 'a job step' and is silent on a procedure step; the system executes a procedure's steps as steps of the job."
+    },
+    {
+      "id": "A8",
+      "text": "A JOB statement with no GDGBIAS= resolves on a job basis. The manual (JCL Reference p. 404) makes JOB the default only for a job class that names no default; the class default is installation-defined and is not in the repository."
     }
   ],
   "refused": [
@@ -909,6 +1261,22 @@
     {
       "construct": "a DISP=(OLD,DELETE) of the whole group in a job that also created a generation earlier",
       "why": "the manual does not say whether a generation created earlier in the job (rolled in only at job end) is part of the group deleted"
+    },
+    {
+      "construct": "two calls of a procedure whose step creates (+1), under GDGBIAS=JOB (or no GDGBIAS)",
+      "why": "UG p. 235 says each addition in the job takes the next number (+1, +2, ...): the second call's (+1) names the same generation; refused as two steps creating the same (+n)"
+    },
+    {
+      "construct": "GDGBIAS=STEP with a PASSed or KEEP-deferred generation of a group that a later step references",
+      "why": "the manual states the step-end catalog update for a cataloged generation only; a generation still passed or deferred is not part of the catalog the later step's relationship is built from"
+    },
+    {
+      "construct": "a GDGBIAS value other than JOB or STEP",
+      "why": "invalid; the JCL Reference lists only {JOB|STEP}"
+    },
+    {
+      "construct": "a GDG DD of a procedure step that the call overrides (stepname.ddname), a symbolic DSN, a procedure that is not in-stream, or a nested call",
+      "why": "this slice reads the in-stream procedure's own DD rows; the overridden or substituted DSN is not answered here"
     }
   ]
 }

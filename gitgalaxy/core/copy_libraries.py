@@ -35,6 +35,7 @@ import fnmatch
 import json
 import os
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -227,41 +228,90 @@ def _merged(*layers: dict[str, str]) -> dict[str, str]:
     return {k: v for k, v in out.items() if k not in clash}
 
 
-def _compile_steps(text: str, procs: frozenset[str] = frozenset()) -> list[dict[str, Any]]:
-    """#8412: each compile step of one JCL file as {step, proc, sysin, libs, raw, symbols, params}: `sysin` the literal
+def _spliced(
+    stmts: list[tuple[int, str, str, str]], order: list[str], libraries: Mapping[str, Mapping[str, str]]
+) -> list[tuple[int, str, str, str]]:
+    """The statements with each INCLUDE replaced by its group, found along the JCLLIB `order` (IBM z/OS MVS JCL
+    Reference, "Considerations for using INCLUDE groups"; the group's EXEC / SET / DD statements count as written in
+    place). A group found nowhere (or invalid) stays as its INCLUDE statement: what it holds is unknown."""
+    from gitgalaxy.core.jcl_proc import JclProcRefused, _include_statements, _keyword
+
+    out: list[tuple[int, str, str, str]] = []
+    for st in stmts:
+        if st[2] != "INCLUDE":
+            out.append(st)
+            continue
+        try:
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries)
+        except JclProcRefused:
+            out.append(st)
+    return out
+
+
+def _compile_steps(
+    text: str,
+    procs: frozenset[str] = frozenset(),
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
+    order: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """#8412: each compile step of one JCL file as {step, proc, inline, in_proc, sysin, libs, raw, symbols, params}: `sysin` the literal
     SYSIN member (or None), `libs` the SYSLIB DD concatenation (the DD and its unnamed continuation DDs) read as library
     names, a dataset's last qualifier (a library is the directory it is named after, as `COPY ... IN` reads it).
     A symbolic name (`&HLQ..COPYB`) is read from the `PROC` statement's defaults and the `SET` statements before the step
     (a name the two give different values is unresolved); a name still symbolic, or a member-qualified dataset, makes
     `libs` None. `raw` is the unexpanded dataset list, `params` the call's keyword symbols (they override the proc's
     defaults, IBM z/OS MVS JCL Reference, "Symbolic parameters"), `symbols` the file's own.
-    A compile step is `EXEC PGM=IGYCRCTL`, an `IGYW*` proc, or a call of a name in `procs` (`proc` holds that name)."""
+    A compile step is `EXEC PGM=IGYCRCTL`, an `IGYW*` proc, or a call of a name in `procs` or of an in-stream procedure
+    of this file (`PROC` .. `PEND`, searched before the libraries, p. 26); `proc` holds the called name. `in_proc` names
+    the in-stream procedure a step is written inside (empty at job level): its symbols are the PROC defaults and its own
+    SETs only, the job's reach it through the call. `libraries` ({library: {member: JCL text}}) and `order` (the JCLLIB
+    libraries) splice each INCLUDE group in place; a group found nowhere leaves `libs` None from there."""
     from gitgalaxy.core.jcl_proc import _dd_keys, _first_wins, _split
     from gitgalaxy.core.job_flow import _statements
 
+    stmts = _spliced(_statements(text), order or [], libraries or {})
+    closed = {n for _no, n, op, _o in stmts if op == "PEND" and n}  # an in-stream procedure ends with its PEND
+    inline = {n for _no, n, op, _o in stmts if op == "PROC" and n in closed}
     out: list[dict[str, Any]] = []
     cur: dict[str, Any] | None = None
     in_syslib = False
     defaults: dict[str, str] = {}
     sets: dict[str, str] = {}
-    for _no, name, op, operands in _statements(text):
-        if op in ("PROC", "SET"):
+    local: dict[str, str] = {}
+    in_proc = ""
+    poisoned = False
+    for _no, name, op, operands in stmts:
+        if op == "INCLUDE":
+            poisoned = True  # a group nothing resolved may hold a DD or a SET
+            if cur is not None:
+                cur["unknown"] = True
+        elif op == "PROC":
+            in_proc = name if name in inline else ""
+            defaults = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
+            local, cur, in_syslib = {}, None, False
+        elif op == "PEND":
+            in_proc, defaults, local, cur, in_syslib = "", {}, {}, None, False
+        elif op == "SET":
             vals = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
-            (defaults if op == "PROC" else sets).update(vals)
+            (local if in_proc else sets).update(vals)
         elif op == "EXEC":
             up = operands.upper().replace("PROC=", "").replace("PGM=", "")
             called = re.split(r"[,\s]", up, maxsplit=1)[0]
-            ok = up.startswith(_COMPILER_PGM) or up.startswith("IGYW") or called in procs
+            is_call = (called in procs or called in inline) and not up.startswith(_COMPILER_PGM)
+            ok = up.startswith(_COMPILER_PGM) or up.startswith("IGYW") or is_call
             cur = None
             if ok:
                 params = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
                 cur = {
                     "step": name,
-                    "proc": called if called in procs else "",
+                    "proc": called if is_call else "",
+                    "inline": is_call and called in inline,
+                    "in_proc": in_proc,
                     "sysin": None,
                     "raw": [],
                     "params": params,
-                    "symbols": _merged(defaults, sets),
+                    "symbols": _merged(defaults, local if in_proc else sets),
+                    "unknown": poisoned,
                 }
                 out.append(cur)
             in_syslib = False
@@ -281,7 +331,7 @@ def _compile_steps(text: str, procs: frozenset[str] = frozenset()) -> list[dict[
             elif in_syslib and dsn:
                 cur["raw"].append(dsn)
     for step in out:
-        step["libs"] = _libs_of(step["raw"], step["symbols"])
+        step["libs"] = None if step.pop("unknown") else _libs_of(step["raw"], step["symbols"])
     return out
 
 
@@ -334,21 +384,33 @@ def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
         found[key] = libs if found.get(key, libs) == libs else None
 
     members = {(lib, stem): text for lib, stem, text in texts}
+    groups: dict[str, dict[str, str]] = {}  # {library: {member: text}}, what a JCLLIB order searches (INCLUDE groups too)
+    for (lib, stem), mtext in members.items():
+        groups.setdefault(lib, {})[stem] = mtext
     for _lib, _stem, text in texts:
         order = _jcllib_order(text)
         # a name resolves along the JCLLIB order to the first library holding it, and only to a proc with a compile step
         resolved: dict[str, list[dict[str, Any]]] = {}
         for stem in {stem for (_d, stem) in members if any((lib, stem) in members for lib in order)}:
             first = next(lib for lib in order if (lib, stem) in members)
-            steps = [x for x in _compile_steps(members[(first, stem)]) if not x["proc"]]
+            steps = [x for x in _compile_steps(members[(first, stem)], libraries=groups, order=order) if not x["proc"]]
             if steps:
                 resolved[stem] = steps
-        for call in _compile_steps(text, frozenset(resolved)):
+        steps_here = _compile_steps(text, frozenset(resolved), groups, order)
+        # the job's in-stream procedures are searched before any library (p. 26); their compile steps run through a call
+        inline: dict[str, list[dict[str, Any]]] = {}
+        for x in steps_here:
+            if x["in_proc"] and not x["proc"]:
+                inline.setdefault(x["in_proc"], []).append(x)
+        called = {x["proc"] for x in steps_here if x["proc"] and not x["in_proc"]}
+        for call in steps_here:
+            if call["in_proc"] and (call["proc"] or call["in_proc"] in called):
+                continue  # a template step: only a call of its procedure compiles with it
             if not call["proc"]:
                 if call["sysin"] and call["libs"]:
                     declare(call["sysin"], call["libs"])
                 continue
-            proc_steps = resolved[call["proc"]]
+            proc_steps = inline.get(call["proc"], []) if call["inline"] else resolved[call["proc"]]
             if len(proc_steps) != 1:
                 continue  # which compile step a call's overrides address is not guessed
             if call["libs"] is None:

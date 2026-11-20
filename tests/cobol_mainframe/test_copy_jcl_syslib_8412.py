@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
-from gitgalaxy.core.copy_libraries import _jcl_compiles, jcl_syslib_orders
+from gitgalaxy.core.copy_libraries import _compile_steps, _jcl_compiles, jcl_syslib_orders
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
 
 ITEM_A = "           05  FAKE-A  PIC X(1).\n"
@@ -240,3 +240,129 @@ def test_a_symbol_nothing_assigns_stays_unresolved(tmp_path):
 def test_a_symbolic_library_in_a_direct_compile_step_reads_the_jobs_set():
     text = "//         SET HLQ=FAKE.PROD\n" + job(syslib("&HLQ..COPYB", "FAKE.PROD.COPYA"))
     assert _jcl_compiles(text.replace("//         SET", "//S1       SET")) == [("MAINPG", ["COPYB", "COPYA"])]
+
+
+# --- an in-stream PROC .. PEND (searched before the libraries) and INCLUDE groups spliced in place ---
+
+
+def instream_job(call: str = "//BUILD    EXEC FAKECOB\n", proc: str = PROC, pre: str = "", member: str = "MAINPG") -> str:
+    return (
+        "//FAKEJOB  JOB (ACCT),'FAKE'\n"
+        + pre
+        + proc
+        + call
+        + f"//COB.SYSIN DD DSN=FAKE.SRC.COBOL({member}),DISP=SHR\n"
+    )
+
+
+def test_an_instream_proc_call_reads_the_procs_syslib(tmp_path):
+    assert sym_orders(tmp_path, instream_job(), PROC) == {"MAINPG": ["COPYB", "COPYA"]}
+    # the job alone holds it: no proc library is needed
+    (tmp_path / "pl/PROCLIB1/FAKECOB.prc").unlink()
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_an_instream_proc_wins_over_a_library_member_of_the_same_name(tmp_path):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC.replace("COPYB", "COPYZ"))
+    write(tmp_path, "jcl/BUILD.jcl", instream_job(pre="//PROCS    JCLLIB ORDER=(FAKE.PROCLIB1)\n"))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_an_instream_proc_that_is_never_called_still_declares_nothing_twice(tmp_path):
+    # no call: the template's own literal SYSIN is read as a direct compile, as for a library member
+    proc = PROC.replace("//SYSLIB", "//SYSIN    DD DSN=FAKE.SRC.COBOL(OWNPG),DISP=SHR\n//SYSLIB")
+    write(tmp_path, "jcl/BUILD.jcl", "//FAKEJOB  JOB (ACCT),'FAKE'\n" + proc)
+    assert jcl_syslib_orders(str(tmp_path)) == {"OWNPG": ["COPYB", "COPYA"]}
+
+
+def test_a_called_instream_template_declares_through_its_call_only(tmp_path):
+    proc = PROC.replace("//SYSLIB", "//SYSIN    DD DSN=FAKE.SRC.COBOL(OWNPG),DISP=SHR\n//SYSLIB")
+    write(tmp_path, "jcl/BUILD.jcl", instream_job(proc=proc))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}  # the call's SYSIN names the program
+
+
+def test_an_instream_proc_default_does_not_leak_to_a_later_step():
+    text = instream_job(proc=SYMPROC) + "//S2       EXEC PGM=IGYCRCTL\n" + syslib("&HLQ..COPYQ") + "\n"
+    steps = _compile_steps(text)
+    assert [s["libs"] for s in steps] == [["COPYB", "COPYA"], [], None]
+
+
+def test_the_call_symbol_settles_an_instream_proc_with_a_job_set(tmp_path):
+    job_text = instream_job(
+        proc=SYMPROC, call="//BUILD    EXEC FAKECOB,HLQ=FAKE.TEST\n", pre="//         SET HLQ=FAKE.SET\n"
+    )
+    write(tmp_path, "jcl/BUILD.jcl", job_text)
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_a_job_set_beside_an_instream_default_is_unresolved(tmp_path):
+    write(tmp_path, "jcl/BUILD.jcl", instream_job(proc=SYMPROC, pre="//         SET HLQ=FAKE.SET\n"))
+    assert jcl_syslib_orders(str(tmp_path)) == {}
+
+
+def test_an_instream_proc_with_two_compile_steps_is_not_guessed(tmp_path):
+    proc = PROC.replace("//FAKECOB  PEND", "//COB2     EXEC PGM=IGYCRCTL\n//SYSLIB   DD DSN=FAKE.OTHER.COPYC,DISP=SHR\n//FAKECOB  PEND")
+    write(tmp_path, "jcl/BUILD.jcl", instream_job(proc=proc))
+    assert jcl_syslib_orders(str(tmp_path)) == {}
+
+
+GROUP = "//COPYSL   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n//         DD DSN=FAKE.PROD.COPYA,DISP=SHR\n"
+
+
+def include_job(order: str = "FAKE.INCLIB", include: str = "SYSLG") -> str:
+    return (
+        "//FAKEJOB  JOB (ACCT),'FAKE'\n"
+        f"//PROCS    JCLLIB ORDER=({order})\n"
+        "//COB      EXEC PGM=IGYCRCTL\n"
+        "//SYSIN    DD DSN=FAKE.SRC.COBOL(MAINPG),DISP=SHR\n"
+        f"//         INCLUDE MEMBER={include}\n"
+    )
+
+
+def test_an_include_group_supplies_the_syslib_dd(tmp_path):
+    write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n//         DD DSN=FAKE.PROD.COPYA\n")
+    write(tmp_path, "jcl/BUILD.jcl", include_job())
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_an_include_group_nests_and_follows_the_jcllib_order(tmp_path):
+    write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//         INCLUDE MEMBER=SYSLH\n")
+    write(tmp_path, "inc/INCLIB/SYSLH.jcl", "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n")
+    write(tmp_path, "inc/OTHER/SYSLH.jcl", "//SYSLIB   DD DSN=FAKE.PROD.COPYZ,DISP=SHR\n")
+    write(tmp_path, "jcl/BUILD.jcl", include_job(order="FAKE.INCLIB,FAKE.OTHER"))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB"]}
+
+
+def test_an_include_group_set_resolves_a_symbolic_library(tmp_path):
+    write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//         SET HLQ=FAKE.PROD\n")
+    text = include_job().replace("//COB      EXEC", "//         INCLUDE MEMBER=SYSLG\n//COB      EXEC", 1)
+    text = text.rsplit("//         INCLUDE", 1)[0] + syslib("&HLQ..COPYB")  # the group ahead of the step, SYSLIB after it
+    write(tmp_path, "jcl/BUILD.jcl", text)
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB"]}
+
+
+@pytest.mark.parametrize(
+    ("order", "files"),
+    [
+        ("FAKE.INCLIB", {}),  # the group is in no library
+        ("", {"inc/INCLIB/SYSLG.jcl": GROUP}),  # no JCLLIB: nothing says where to look
+        ("FAKE.INCLIB", {"inc/INCLIB/SYSLG.jcl": "//STEPN    EXEC PGM=IEWL\n//JOB2     JOB\n"}),  # a JOB inside a group
+    ],
+    ids=["missing", "no-jcllib", "invalid-group"],
+)
+def test_an_include_group_that_cannot_be_read_leaves_the_order_unknown(tmp_path, order, files):
+    for rel, body in files.items():
+        write(tmp_path, rel, body)
+    text = include_job(order=order) + syslib("FAKE.PROD.COPYB")
+    write(tmp_path, "jcl/BUILD.jcl", text)
+    assert jcl_syslib_orders(str(tmp_path)) == {}
+
+
+def test_an_include_inside_an_instream_proc_is_spliced_in_the_proc(tmp_path):
+    proc = (
+        "//FAKECOB  PROC\n//COB      EXEC PGM=IGYCRCTL\n//         INCLUDE MEMBER=SYSLG\n//FAKECOB  PEND\n"
+    )
+    write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n")
+    text = instream_job(proc=proc, pre="//PROCS    JCLLIB ORDER=(FAKE.INCLIB)\n")
+    write(tmp_path, "jcl/BUILD.jcl", text)
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB"]}

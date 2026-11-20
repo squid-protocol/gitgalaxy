@@ -1,2 +1,2 @@
-Generated output only, never edit by hand. Source: main @ 8b3f05faf7de78960bdf1a805a07a47ebcf27747
+Generated output only, never edit by hand. Source: main @ 121b206283dd56b3bd70885daec899b0abe7971b
 Writer: architecture-brief

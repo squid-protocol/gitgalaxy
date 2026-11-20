@@ -260,6 +260,7 @@ ai_agent_jobs/POSTIT_port_ticket.md	tests/cobol_mainframe
 ai_agent_jobs/RATES_port_ticket.md	tests/cobol_mainframe
 ai_agent_jobs/port_order.md	tests/cobol_mainframe
 ai_agent_jobs/ports/POSTIT/attempts/002_work/prompt.md	tests/cobol_mainframe
+alphafold_teardown.html	tests/core_engine
 answer.md	gitgalaxy
 b.md	tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
 blind1_run_b_causes.md	tests/cobol_mainframe
@@ -484,6 +485,7 @@ docs/wiki/05-19-proven-cobol-to-java-ports.md	tests/cobol_mainframe
 docs/wiki/05-20-equivalence-harness.md	tests/cobol_mainframe,tests/tools/test_generated_branch.py
 docs/wiki/08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
 docs/wiki/08-28	gitgalaxy
+docs/wiki/museum-of-code/alphafold_teardown.html	tests/core_engine
 docs/wrapper_aware_count_contract.md	gitgalaxy
 docs/x.md	tests/test_golden_db_snapshot.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_generated_docs.py
 docs/x.py	tests/tools/test_post_merge_dispatch.py

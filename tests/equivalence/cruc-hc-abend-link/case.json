@@ -60,6 +60,27 @@
       "terminal": "HC02",
       "ts": {"HCMODE": ["P"]},
       "why": "QIDERR while handlers are PUSHed: neither the QIDERR handler nor the HANDLE ABEND exit is in effect, so the task terminates with AEYH"
+    },
+    {
+      "name": "mode-item-too-long",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {"HCMODE": ["NQ"]},
+      "why": "HCMODE item 'NQ' is longer than the 1-byte READQ area: LENGERR, QIDERR handler not taken"
+    },
+    {
+      "name": "m81-ex",
+      "commarea": null,
+      "terminal": "HC02",
+      "ts": {
+        "HCMODE": [
+          "Q"
+        ],
+        "HCNONE": [
+          "JUNK"
+        ]
+      },
+      "why": "mode 'Q', HCNONE exists"
     }
   ]
 }

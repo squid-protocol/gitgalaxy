@@ -30,6 +30,18 @@
    "reason": "GOTO is OR-ed into a paragraph's return only by a GO TO; ACCTCTRL has none (every paragraph returns the next index or throws Goback), so no GOTO bit is ever set or tested differently"
   },
   {
+   "id": "e94b87d534",
+   "op": "LIT",
+   "line": 42,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
    "id": "5e4efad0d7",
    "op": "LIT",
    "line": 44,
@@ -37,6 +49,18 @@
    "after": "\"XA==\"));",
    "verdict": "equivalent",
    "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "ed30313b80",
+   "op": "LIT",
+   "line": 44,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.OPT, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.OPT, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
   },
   {
    "id": "54294298d3",
@@ -1449,24 +1473,6 @@
    "reason": "fill_ reads the success flag and, widened to 2, the FAIL-CODE byte after it, a space the program never sets; the comparison drops trailing spaces (_same_commarea), so 'Y ' and 'Y' are the same value"
   },
   {
-   "id": "46c2a36017",
-   "op": "CON",
-   "line": 254,
-   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "case-gap",
-   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER 9 wide, taking in the first digit of NUMBER-OF-ACCOUNTS: it shows only at a count of 10,000,000 or more ACCOUNT rows of the sort code, which a real region can hold and this case's seed does not. Not attacked: too costly to reseed per scenario."
-  },
-  {
-   "id": "db2802af42",
-   "op": "CON",
-   "line": 254,
-   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "case-gap",
-   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER one byte late (base + 21), so its last digit is NUMBER-OF-ACCOUNTS' first: it shows only at 10,000,000 or more ACCOUNT rows of the sort code, a count a real region can hold and this case's seed does not. Not attacked: too costly to reseed per scenario."
-  },
-  {
    "id": "8983b78223",
    "op": "DEL",
    "line": 260,
@@ -1735,6 +1741,19 @@
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
    "verdict": "equivalent",
    "reason": "ACCTCTRL never reads the EIB or RETURN-CODE and neither storage is compared"
+  },
+  {
+   "id": "c3eb2c6341",
+   "op": "CON",
+   "line": 334,
+   "before": "calen = DetCics.eibCalen(task, 98);",
+   "after": "calen = DetCics.eibCalen(task, 99);",
+   "verdict": "equivalent",
+   "reason": "calen = eibCalen(task, 98) is the default EIBCALEN of a typed COMMAREA (the layout is 98 bytes); ACCTCTRL.cbl never reads EIBCALEN, and 98 vs 99 both leave `calen < storage length` false (the exact-COMMAREA truncation and the PastFrom path need calen under 98), so no byte differs either way. An explicit commarea_length overrides the default. 2 typed-entry scenarios (filled COMMAREA, byte path and DTO path) tried on the oracle: none separates it; an explicit 97 or 99 is refused by the oracle (X23), and the main case's eibcalen-45/46/full scenarios cover the explicit lengths.",
+   "tried": [
+    "calen-default-dto-try",
+    "calen-default-filled-try"
+   ]
   },
   {
    "id": "202a212cf6",

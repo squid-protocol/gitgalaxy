@@ -72,6 +72,69 @@
       "terminal": "IE09 XYZ",
       "why": "HANDLE CONDITION ERROR, PUSH HANDLE: ERROR's label is suspended, LENGERR abends the task (AEIV)",
       "transid": "IE09"
+    },
+    {
+      "name": "ie01-exact",
+      "commarea": null,
+      "terminal": "IE01",
+      "transid": "IE01",
+      "why": "IE01 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie02-exact",
+      "commarea": null,
+      "terminal": "IE02",
+      "transid": "IE02",
+      "why": "IE02 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie03-exact",
+      "commarea": null,
+      "terminal": "IE03",
+      "transid": "IE03",
+      "why": "IE03 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie04-exact",
+      "commarea": null,
+      "terminal": "IE04",
+      "transid": "IE04",
+      "why": "IE04 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie05-exact",
+      "commarea": null,
+      "terminal": "IE05",
+      "transid": "IE05",
+      "why": "IE05 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie06-exact",
+      "commarea": null,
+      "terminal": "IE06",
+      "transid": "IE06",
+      "why": "IE06 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie07-exact",
+      "commarea": null,
+      "terminal": "IE07",
+      "transid": "IE07",
+      "why": "IE07 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie08-exact",
+      "commarea": null,
+      "terminal": "IE08",
+      "transid": "IE08",
+      "why": "IE08 with exact input against the 4-byte area"
+    },
+    {
+      "name": "ie09-exact",
+      "commarea": null,
+      "terminal": "IE09",
+      "transid": "IE09",
+      "why": "IE09 with exact input against the 4-byte area"
     }
   ]
 }

@@ -1571,6 +1571,16 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **Reached.** Not known to be: no proven scenario divides by zero or raises a size error from an exponent.
 - **To settle.** A z/OS run of the shapes in `test_det_size_error.py` without ON SIZE ERROR, above all the zero
   divisor, which the manual leaves unstated.
+- **IBM trace (#8700, 2026-11-20; Enterprise COBOL for z/OS 6.4 Language Reference, DIVIDE statement, REMAINDER phrase, local manual text).**
+  IBM: "The result of subtracting the product of the quotient and the divisor from the dividend is stored in identifier-4."
+  "For formats 4 and 5, the quotient used to calculate the remainder is in an intermediate field. The value of the
+  intermediate field is truncated rather than rounded." "if a size error occurs in the quotient, no remainder calculation is
+  meaningful. Therefore, the contents of the quotient field (identifier-3) and the remainder field (identifier-4) are
+  unchanged."
+  - **MATCHED:** the remainder formula, truncation not rounding, and both receivers unchanged on a quotient size error (the
+    zero divisor case included, as a size error).
+  - **Still ASSUMED (`RT-CBL-DIVIDE-REMAINDER`):** the number of decimal places of that intermediate field. IBM leaves it
+    open; the runtime follows cob_div_quotient and truncates to the first GIVING receiver's scale.
 
 ### C15. CALL identifier — the program is the item's content: MODELLED over the names the source fixes, REFUSED otherwise (#4736)
 - **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, CALL statement,
@@ -2064,6 +2074,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   slot inside the file's extent; past the extent it answers 23. The harness never loosens the expectation: a case that
   reaches this is out of scope on the COBOL side until the oracle is calibrated or wrapped. The det runtime has no
   relative-file model yet (`ORGANIZATION RELATIVE` is refused by name); its slice must print expected.txt, 23s included.
+- **IBM trace (#8700, 2026-11-20; Enterprise COBOL for z/OS 6.4 Language Reference, "File status key" and READ statement, local manual text).**
+  IBM: "a value is placed in the specified file status key ... during execution of any request on that file; the value
+  indicates the status of that request. The value is placed in the file status key before execution of any EXCEPTION/ERROR
+  declarative, INVALID KEY phrase, or AT END phrase associated with the request." For a keyed READ: "The KEY IS phrase can
+  be specified only for indexed files. data-name-1 must identify a record key associated with file-name-1."
+  - **MATCHED:** the status is set per request and before the phrase or declarative runs; each code's meaning (Table 34).
+  - **Still ASSUMED (`RT-FILE-FILE-STATUS`, `RT-FILE-KEYED-READ`):** IBM says nothing of the situations that raise a code on
+    the oracle's files versus VSAM, or of the check order; for a keyed READ it names the key, not the lookup, so the
+    repository lookup verified against the key bytes is the runtime's own mechanism.
 
 ### F2. Injected faults — MATCHED
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which

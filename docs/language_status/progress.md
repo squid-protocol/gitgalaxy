@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `d08a300de` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `df92f857d` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -73,7 +73,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 
 | Group | Capability | State | Count | What exists |
 |---|---|---|---|---|
-| COBOL language | Statements and data | Partial | 61 of 110 rules match IBM | statements, numerics, editing, functions, files |
+| COBOL language | Statements and data | Partial | 62 of 110 rules match IBM | statements, numerics, editing, functions, files |
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
 | COBOL language | Copybook search | Works | no denominator | 17 member layouts the engine and translator both resolve (extensionless and program-extension members, lowercase, nested COPY, OF library, deep directories) |
 | COBOL language | JSON GENERATE / PARSE | Partial | no denominator | translated from IBM's text; GnuCOBOL has no JSON, so no oracle backs it (register X77: ASSUMED) |
@@ -109,7 +109,7 @@ z/OS: 0 of 194 rules measured. Register of named limits: 148 entries, 74 refuse 
 |---|---|---|---|
 | Translator | 154 programs translated whole | 158 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
-| COBOL runtime rules | 94 MATCHED, 30 DIFFERS, 56 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
+| COBOL runtime rules | 95 MATCHED, 30 DIFFERS, 55 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 125 programs, 309 scenarios | pinned at `v0.19.0 (d0e7ebe9)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 105 of 108 horrors pass | pinned at `v0.7.0` | tests/estate_crucible/baseline.json |
@@ -133,7 +133,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-20T16:33:23Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-20T16:35:48Z.
 
 - `scope:core`: 12 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.

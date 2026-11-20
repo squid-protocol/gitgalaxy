@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-194 rules: 94 MATCHED, 30 DIFFERS, 14 REFUSED, 56 ASSUMED; 0 measured on z/OS (#4702).
+194 rules: 95 MATCHED, 30 DIFFERS, 14 REFUSED, 55 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -176,7 +176,7 @@ The intrinsic functions the translator calls.
 |---|---|---|---|---|---|---|
 | RT-FUNC-CASE | FUNCTION UPPER-CASE / LOWER-CASE of single-byte letters | `cobol-lr` Intrinsic functions: UPPER-CASE, LOWER-CASE | - | - | MATCHED | uncalibrated |
 | RT-FUNC-REVERSE | FUNCTION REVERSE | `cobol-lr` Intrinsic functions: REVERSE | - | - | MATCHED | uncalibrated |
-| RT-FUNC-TRIM | FUNCTION TRIM [LEADING / TRAILING]: spaces only removed (low-values stay); an all-space argument gives a zero-length result, as the oracle | `cobol-lr` Intrinsic functions: TRIM | - | - | ASSUMED | uncalibrated |
+| RT-FUNC-TRIM | FUNCTION TRIM [LEADING / TRAILING]: spaces only removed (low-values stay); an all-space argument gives a zero-length result, as the oracle | `cobol-lr` Intrinsic functions: TRIM | - | - | MATCHED | uncalibrated |
 | RT-FUNC-MOD-REM | FUNCTION MOD (a - b * FLOOR(a / b)) and REM (a - b * INTEGER-PART(a / b)); a zero b gives 0 with no size error, as the oracle | `cobol-lr` Intrinsic functions: MOD, REM | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | DIFFERS | uncalibrated |
 | RT-FUNC-INTEGER-ABS-MIN-MAX | FUNCTION INTEGER (floor), INTEGER-PART (toward zero), ABS, MIN, MAX | `cobol-lr` Intrinsic functions: INTEGER, INTEGER-PART, ABS, MIN, MAX | - | - | MATCHED | uncalibrated |
 | RT-FUNC-NUMVAL | FUNCTION NUMVAL / NUMVAL-C: the number in a text (spaces, one sign + - CR DB, a decimal point; NUMVAL-C a currency sign and commas) | `cobol-lr` Intrinsic functions: NUMVAL, NUMVAL-C | ARITH | - | MATCHED | uncalibrated |

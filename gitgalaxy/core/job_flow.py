@@ -19,7 +19,7 @@
 #         its condition as written, true when the step is in its ELSE clause]; jcl_flow evaluates a construct once
 #         #7065, presence-keyed: rd (EXEC RD=), parm_overrides / cond_overrides (EXEC PARM.procstep= /
 #         COND.procstep= on a procedure call, [{step, parm|cond}] in coded order); on a JOB row restart
-#         (the RESTART= step) and restart_checkid (its checkid)
+#         (the RESTART= step) and restart_checkid (its checkid); a JOB row also carries gdgbias (JOB / STEP) when coded
 #   SET   #7065: one row per `// SET NAME=value` operand: name (the symbol), parm (its value, quotes removed),
 #         in_proc, line. OUTPUT (#7065): name, step_name (the step above it, none at job level), in_proc, line,
 #         output_params (the keyword names it codes); a SYSOUT row also carries output_refs (its OUTPUT= references).
@@ -64,6 +64,7 @@ _OPS = frozenset({"JOB", "EXEC", "DD", "PROC", "PEND", "IF", "ELSE", "ENDIF", "S
 _STATEMENT_LIMIT = 4000
 # JCL operand names (not dict keys): named so the dead-key audit does not read them as payload keys
 _KW_RESTART = "RESTART"
+_KW_GDGBIAS = "GDGBIAS"
 _KW_RD = "RD"
 _KW_MEMBER = "MEMBER"
 _KW_OUTPUT = "OUTPUT"
@@ -472,6 +473,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     **({"restart": restart_step} if restart_step else {}),
                     **({"restart_checkid": restart_checkid} if restart_checkid else {}),
+                    **({"gdgbias": job_ops[_KW_GDGBIAS].upper()} if job_ops.get(_KW_GDGBIAS) else {}),
                 )
             )
             in_proc, ordinal, step = None, 0, None

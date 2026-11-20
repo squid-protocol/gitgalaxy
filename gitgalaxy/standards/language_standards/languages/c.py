@@ -220,7 +220,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         "safety": re.compile(
             # #8010: size_t dropped -- a type name, invisible under contract C1 (docs/safety_rule_contract.md);
             # it also double-counted with `pointers`.

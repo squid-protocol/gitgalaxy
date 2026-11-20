@@ -282,30 +282,18 @@
     0,
     0
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cobtupdt-generated": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
    "carddemo-codate01": [
     13,
     13,
@@ -324,78 +312,42 @@
     90,
     93
    ],
-   "carddemo-copaus1c": {
-    "coverage": [
-     15,
-     15,
-     50,
-     50
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-copaus2c-generated": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     59,
-     59,
-     218,
-     230
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cotrtlic-generated": {
-    "coverage": [
-     53,
-     59,
-     156,
-     230
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     63,
-     63,
-     140,
-     166
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "carddemo-copaus1c": [
+    15,
+    15,
+    50,
+    50
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-copaus2c-generated": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    59,
+    59,
+    218,
+    230
+   ],
+   "carddemo-cotrtlic-generated": [
+    53,
+    59,
+    156,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    63,
+    63,
+    140,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -624,234 +576,120 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c"
-   },
-   "cbsa-acctctrl-generated": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c"
-   },
-   "cbsa-bankdata": {
-    "coverage": [
-     24,
-     24,
-     47,
-     48
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     77,
-     97
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cac-generated": {
-    "coverage": [
-     25,
-     25,
-     59,
-     97
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cca": {
-    "coverage": [
-     25,
-     25,
-     35,
-     41
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cca-generated": {
-    "coverage": [
-     25,
-     25,
-     31,
-     41
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1ccs": {
-    "coverage": [
-     33,
-     33,
-     128,
-     143
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1ccs-generated": {
-    "coverage": [
-     33,
-     33,
-     88,
-     143
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     61,
-     67
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cra-generated": {
-    "coverage": [
-     28,
-     28,
-     43,
-     67
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     51,
-     60
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dac-generated": {
-    "coverage": [
-     31,
-     31,
-     42,
-     60
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dcs": {
-    "coverage": [
-     51,
-     51,
-     95,
-     102
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dcs-generated": {
-    "coverage": [
-     33,
-     51,
-     37,
-     102
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1tfn": {
-    "coverage": [
-     28,
-     28,
-     62,
-     72
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1tfn-generated": {
-    "coverage": [
-     28,
-     28,
-     56,
-     72
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1uac": {
-    "coverage": [
-     31,
-     31,
-     82,
-     88
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1uac-generated": {
-    "coverage": [
-     31,
-     31,
-     68,
-     88
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    47,
+    48
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    77,
+    97
+   ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    35,
+    41
+   ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    128,
+    143
+   ],
+   "cbsa-bnk1ccs-generated": [
+    33,
+    33,
+    88,
+    143
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    61,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    51,
+    60
+   ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    42,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    51,
+    51,
+    95,
+    102
+   ],
+   "cbsa-bnk1dcs-generated": [
+    33,
+    51,
+    37,
+    102
+   ],
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    62,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    82,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
    "cbsa-bnkmenu": [
     24,
     25,
@@ -888,138 +726,72 @@
     5,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     35,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-creacc-generated": {
-    "coverage": [
-     34,
-     34,
-     25,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-crecust": {
-    "coverage": [
-     37,
-     37,
-     57,
-     70
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-crecust-generated": {
-    "coverage": [
-     13,
-     37,
-     21,
-     70
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     21,
-     22,
-     34,
-     35
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-dbcrfun-generated": {
-    "coverage": [
-     16,
-     22,
-     23,
-     35
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delacc-generated": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delcus": {
-    "coverage": [
-     22,
-     22,
-     16,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delcus-generated": {
-    "coverage": [
-     22,
-     22,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    35,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
+    38
+   ],
+   "cbsa-crecust": [
+    37,
+    37,
+    57,
+    70
+   ],
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    21,
+    70
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    21,
+    22,
+    34,
+    35
+   ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delcus": [
+    22,
+    22,
+    16,
+    16
+   ],
+   "cbsa-delcus-generated": [
+    22,
+    22,
+    13,
+    16
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -1032,126 +804,78 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     24,
-     25,
-     24,
-     25
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-inqacc-generated": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     21,
-     22,
-     32,
-     33
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-inqacccu-generated": {
-    "coverage": [
-     18,
-     22,
-     24,
-     33
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-inqacc": [
+    24,
+    25,
+    24,
+    25
+   ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    21,
+    22,
+    32,
+    33
+   ],
+   "cbsa-inqacccu-generated": [
+    18,
+    22,
+    24,
+    33
+   ],
    "cbsa-inqcust": [
     24,
     25,
     44,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-updacc-faults": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-beyond": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-updacc-faults": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     78,
-     81
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-xfrfun-generated": {
-    "coverage": [
-     27,
-     28,
-     45,
-     81
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    78,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
+    81
+   ],
    "cruc-ca-address-commarea": [
     4,
     4,
@@ -1602,6 +1326,12 @@
     6,
     6
    ],
+   "cruc-hx-extended-linked": [
+    3,
+    3,
+    5,
+    6
+   ],
    "cruc-pc-aid-menu": [
     4,
     4,
@@ -1668,132 +1398,72 @@
     10,
     10
    ],
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacdb02-generated": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacus01-generated": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgacdb01": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb01-generated": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacus01-generated": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgapdb01-generated": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgapol01-generated": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgapdb01": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapdb01-generated": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapol01-generated": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     3,
     3,
@@ -1806,108 +1476,60 @@
     12,
     12
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgdpdb01-generated": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgdpol01-generated": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01-generated": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    9,
+    12
+   ],
+   "genapp-lgdpol01-generated": [
+    3,
+    3,
+    9,
+    12
+   ],
    "genapp-lgdpvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgicdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgicus01-generated": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgicdb01": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicus01-generated": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
@@ -1920,54 +1542,30 @@
     18,
     18
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     74,
-     74
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgipdb01-generated": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgipol01-generated": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    74,
+    74
+   ],
+   "genapp-lgipdb01-generated": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipol01-generated": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -1992,168 +1590,90 @@
     4,
     6
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     10,
-     10,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     9,
-     9,
-     22,
-     22
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucus01-generated": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgtestc1": [
+    10,
+    10,
+    20,
+    20
+   ],
+   "genapp-lgtestp1": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp2": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp3": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp4": [
+    9,
+    9,
+    22,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucus01-generated": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     3,
     3,
     7,
     8
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgupdb01-generated": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgupol01-generated": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupdb01-generated": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupol01-generated": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     3,
     3,
@@ -2166,54 +1686,30 @@
     2,
     2
    ],
-   "health-hcapdb01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcapdb02": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcatdb01": {
-    "coverage": [
-     3,
-     3,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcavdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcapdb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcapdb02": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcatdb01": [
+    3,
+    3,
+    5,
+    6
+   ],
+   "health-hcavdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
    "health-hcazerrs": [
     1,
     1,
@@ -2226,264 +1722,144 @@
     11,
     11
    ],
-   "health-hcimdb01": {
-    "coverage": [
-     6,
-     6,
-     12,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcipdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcitdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcivdb01": {
-    "coverage": [
-     5,
-     5,
-     14,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcm1bi01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     11
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcm1pl01": {
-    "coverage": [
-     10,
-     11,
-     3,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmaba01": {
-    "coverage": [
-     5,
-     5,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmadb01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmadb02": {
-    "coverage": [
-     7,
-     7,
-     11,
-     11
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmapl01": {
-    "coverage": [
-     10,
-     10,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcimdb01": [
+    6,
+    6,
+    12,
+    14
+   ],
+   "health-hcipdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcitdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcivdb01": [
+    5,
+    5,
+    14,
+    14
+   ],
+   "health-hcm1bi01": [
+    4,
+    4,
+    11,
+    11
+   ],
+   "health-hcm1pl01": [
+    10,
+    11,
+    3,
+    12
+   ],
+   "health-hcmaba01": [
+    5,
+    5,
+    6,
+    6
+   ],
+   "health-hcmadb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcmadb02": [
+    7,
+    7,
+    11,
+    11
+   ],
+   "health-hcmapl01": [
+    10,
+    10,
+    9,
+    10
+   ],
    "health-hcmrestw": [
     8,
     12,
     10,
     26
    ],
-   "health-hcp1ba01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcp1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcp1pl01": {
-    "coverage": [
-     11,
-     11,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcp1ba01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcp1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcp1pl01": [
+    11,
+    11,
+    18,
+    18
+   ],
    "health-hcprestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hct1ba01": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hct1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hct1pl01": {
-    "coverage": [
-     12,
-     12,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hct1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hct1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hct1pl01": [
+    12,
+    12,
+    18,
+    18
+   ],
    "health-hctrestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hcv1ba01": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcv1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcv1pl01": {
-    "coverage": [
-     12,
-     12,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "mortgage-cmort": {
-    "coverage": [
-     6,
-     6,
-     19,
-     21
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcv1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcv1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcv1pl01": [
+    12,
+    12,
+    20,
+    20
+   ],
+   "mortgage-cmort": [
+    6,
+    6,
+    19,
+    21
+   ],
    "mortgage-csmrt": [
     1,
     1,
@@ -3677,10 +3053,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
    "translator": {
     "files": 183,
-    "sha256": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
+    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
    }
   },
   "sweeps": {}
@@ -3880,1588 +3256,6 @@
   "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
  },
  "programs": [
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
-      "id": "X22",
-      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
-      "id": "X42",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
-      "id": "X46",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
-      "id": "X52",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": {
-     "case": "carddemo-billpay",
-     "commands_run": [
-      "ABEND",
-      "ENDBR",
-      "READ",
-      "READPREV",
-      "RECEIVE MAP",
-      "RETURN",
-      "REWRITE",
-      "SEND MAP",
-      "STARTBR",
-      "XCTL"
-     ],
-     "registers": [
-      "X14",
-      "X22",
-      "X27",
-      "X31",
-      "X42",
-      "X52"
-     ]
-    },
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 95.8,
-    "branches": {
-     "covered": 46,
-     "total": 48
-    },
-    "branches_net": {
-     "covered": 46,
-     "total": 46
-    },
-    "current": true,
-    "infeasible_netted": [
-     "RETURN-TO-PREV-SCREEN:275:true",
-     "UPDATE-ACCTDAT-FILE:387:WHEN@390"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "G",
-      "key": "RETURN-TO-PREV-SCREEN:275:true",
-      "kind": "IF",
-      "line": 275,
-      "outcome": "true",
-      "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between.",
-      "unit": "RETURN-TO-PREV-SCREEN"
-     },
-     {
-      "family": "R",
-      "key": "UPDATE-ACCTDAT-FILE:387:WHEN@390",
-      "kind": "EVALUATE",
-      "line": 387,
-      "outcome": "WHEN@390",
-      "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ).",
-      "unit": "UPDATE-ACCTDAT-FILE"
-     }
-    ],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 16,
-     "live": 16
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-billpay",
-      "case_scenarios": 35,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": {
-       "commands_run": [
-        "ABEND",
-        "ENDBR",
-        "READ",
-        "READPREV",
-        "RECEIVE-MAP",
-        "RETURN",
-        "REWRITE",
-        "SEND-MAP",
-        "STARTBR",
-        "XCTL"
-       ],
-       "coverage": {
-        "branches": {
-         "covered": 46,
-         "total": 48
-        },
-        "paragraphs": {
-         "covered": 16,
-         "live": 16
-        },
-        "uncovered_branches": [
-         "line 275 IF true (RETURN-TO-PREV-SCREEN)",
-         "line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)"
-        ]
-       },
-       "db2": false,
-       "facade": {
-        "passed": 35,
-        "runs": 35
-       },
-       "fault_runs": 13,
-       "java_failed": false,
-       "option_differences": [],
-       "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-       "oracle_matches_pin": true,
-       "records_compared": 119,
-       "records_equal": 119,
-       "runs": 35,
-       "scenarios": 35,
-       "scenarios_equal": 35,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
-       "verdict": "all equal"
-      },
-      "role": "program"
-     },
-     {
-      "case": "carddemo-billpay-generated",
-      "case_scenarios": 29,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": {
-       "coverage": {
-        "branches": {
-         "covered": 44,
-         "total": 48
-        },
-        "paragraphs": {
-         "covered": 16,
-         "live": 16
-        },
-        "uncovered_branches": [
-         "line 158 EVALUATE WHEN@159 (PROCESS-ENTER-KEY)",
-         "line 169 IF false (PROCESS-ENTER-KEY)",
-         "line 275 IF true (RETURN-TO-PREV-SCREEN)",
-         "line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)"
-        ]
-       },
-       "db2": false,
-       "facade": {
-        "passed": 59,
-        "runs": 59
-       },
-       "fault_runs": 14,
-       "java_failed": false,
-       "option_differences": [],
-       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
-       "oracle_matches_pin": true,
-       "records_compared": 176,
-       "records_equal": 176,
-       "runs": 59,
-       "scenarios": 59,
-       "scenarios_equal": 59,
-       "stale_inputs": [],
-       "status_at_build": "not measured",
-       "verdict": "all equal"
-      },
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-billpay",
-     "case_scenarios": 35,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": {
-      "commands_run": [
-       "ABEND",
-       "ENDBR",
-       "READ",
-       "READPREV",
-       "RECEIVE-MAP",
-       "RETURN",
-       "REWRITE",
-       "SEND-MAP",
-       "STARTBR",
-       "XCTL"
-      ],
-      "coverage": {
-       "branches": {
-        "covered": 46,
-        "total": 48
-       },
-       "paragraphs": {
-        "covered": 16,
-        "live": 16
-       },
-       "uncovered_branches": [
-        "line 275 IF true (RETURN-TO-PREV-SCREEN)",
-        "line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)"
-       ]
-      },
-      "db2": false,
-      "facade": {
-       "passed": 35,
-       "runs": 35
-      },
-      "fault_runs": 13,
-      "java_failed": false,
-      "option_differences": [],
-      "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-      "oracle_matches_pin": true,
-      "records_compared": 119,
-      "records_equal": 119,
-      "runs": 35,
-      "scenarios": 35,
-      "scenarios_equal": 35,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
-      "verdict": "all equal"
-     },
-     "role": "program"
-    }
-   },
-   "level": "L5",
-   "level_current": true,
-   "mutation": {
-    "accounted": 51,
-    "chosen": 151,
-    "current": true,
-    "det_port": "raw 66% (97/148 caught; 151 of 1676 mutants, seed 0); every survivor accounted for (51) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 97,
-    "l5": true,
-    "mutants": 1676,
-    "score": 0.6554,
-    "stale_inputs": [],
-    "survived": 51,
-    "unaccounted": 0
-   },
-   "next": [],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.CURRENTDATA",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:149",
-      "value": "YES"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:148",
-      "value": "CS"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.PARM",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:47",
-      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "samples/proc/BUILDONL.prc:40",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ENDBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X46"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14",
-      "X22"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READPREV",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X52"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27",
-      "X42"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "REWRITE",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X52"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "STARTBR",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "WRITE",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X42"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/cbl/COBIL00C.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14",
-     "X22",
-     "X27",
-     "X31",
-     "X42",
-     "X46",
-     "X52"
-    ],
-    "branch_outcomes_unrun": 2,
-    "commands": 12,
-    "commands_backed": 4,
-    "commands_not_backed": [
-     "ASKTIME",
-     "ENDBR",
-     "FORMATTIME",
-     "READ",
-     "READPREV",
-     "REWRITE",
-     "STARTBR",
-     "WRITE"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 190,
-    "translated": 190,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
-      "id": "X22",
-      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
-      "id": "X42",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
-      "id": "X67",
-      "status": "REFUSED"
-     }
-    ],
-    "reach": {
-     "case": "carddemo-cardview",
-     "commands_run": [
-      "ABEND",
-      "READ",
-      "RECEIVE MAP",
-      "RETURN",
-      "SEND MAP",
-      "SEND TEXT",
-      "XCTL"
-     ],
-     "registers": [
-      "X14",
-      "X20",
-      "X22",
-      "X27",
-      "X31",
-      "X42"
-     ]
-    },
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 92.0,
-    "branches": {
-     "covered": 69,
-     "total": 75
-    },
-    "branches_net": {
-     "covered": 69,
-     "total": 69
-    },
-    "current": true,
-    "infeasible_netted": [
-     "1300-SETUP-SCREEN-ATTRS:553:true",
-     "2210-EDIT-ACCOUNT:656:false",
-     "2210-EDIT-ACCOUNT:668:false",
-     "9100-GETCARD-BYACCTCARD:759:false",
-     "9100-GETCARD-BYACCTCARD:764:false",
-     "ABEND-ROUTINE:859:true"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "G",
-      "key": "1300-SETUP-SCREEN-ATTRS:553:true",
-      "kind": "IF",
-      "line": 553,
-      "outcome": "true",
-      "reason": "1300-SETUP-SCREEN-ATTRS is only PERFORMed by 1000-SEND-MAP (line 417), right after 1200-SETUP-SCREEN-VARS (line 415), which ends with `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (lines 490-492): WS-INFO-MSG leaves 1200 non-blank, and nothing at lines 494-552 writes it, so `IF WS-NO-INFO-MESSAGE` at line 553 is never true.",
-      "unit": "1300-SETUP-SCREEN-ATTRS"
-     },
-     {
-      "family": "G",
-      "key": "2210-EDIT-ACCOUNT:656:false",
-      "kind": "IF",
-      "line": 656,
-      "outcome": "false",
-      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is set to SPACES at line 264 and 2210-EDIT-ACCOUNT is the first edit (only PERFORMed at line 630, in 2200-EDIT-MAP-INPUTS after 2100-RECEIVE-MAP, neither of which writes it before), so the message is always still off here.",
-      "unit": "2210-EDIT-ACCOUNT"
-     },
-     {
-      "family": "G",
-      "key": "2210-EDIT-ACCOUNT:668:false",
-      "kind": "IF",
-      "line": 668,
-      "outcome": "false",
-      "reason": "`IF WS-RETURN-MSG-OFF` at line 668 is reached only when the blank test at line 651 failed (it GOes TO the exit at line 660), so no message was set in this paragraph either; as for line 656, WS-RETURN-MSG is still the SPACES set at line 264.",
-      "unit": "2210-EDIT-ACCOUNT"
-     },
-     {
-      "family": "G",
-      "key": "9100-GETCARD-BYACCTCARD:759:false",
-      "kind": "IF",
-      "line": 759,
-      "outcome": "false",
-      "reason": "9100 runs only through 9000-READ-DATA, PERFORMed at line 344 (entry from the card list: nothing sets WS-RETURN-MSG after line 264) and at line 365 (the ELSE of IF INPUT-ERROR at line 360). Every message 2200-EDIT-MAP-INPUTS sets (lines 657, 671, 697, 711, 639) comes with SET INPUT-ERROR, so at line 365 the message is still off: `IF WS-RETURN-MSG-OFF` (NOTFND) is always true.",
-      "unit": "9100-GETCARD-BYACCTCARD"
-     },
-     {
-      "family": "G",
-      "key": "9100-GETCARD-BYACCTCARD:764:false",
-      "kind": "IF",
-      "line": 764,
-      "outcome": "false",
-      "reason": "Same as line 759: in WHEN OTHER of the READ at line 742, WS-RETURN-MSG is still the SPACES set at line 264 on both paths into 9100 (lines 344 and 365), so `IF WS-RETURN-MSG-OFF` is always true.",
-      "unit": "9100-GETCARD-BYACCTCARD"
-     },
-     {
-      "family": "C",
-      "key": "ABEND-ROUTINE:859:true",
-      "kind": "IF",
-      "line": 859,
-      "outcome": "true",
-      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES.",
-      "unit": "ABEND-ROUTINE"
-     }
-    ],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 30,
-     "live": 30
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-cardview",
-      "case_scenarios": 25,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": {
-       "commands_run": [
-        "ABEND",
-        "READ",
-        "RECEIVE-MAP",
-        "RETURN",
-        "SEND-MAP",
-        "SEND-TEXT",
-        "XCTL"
-       ],
-       "coverage": {
-        "branches": {
-         "covered": 69,
-         "total": 75
-        },
-        "paragraphs": {
-         "covered": 30,
-         "live": 30
-        },
-        "uncovered_branches": [
-         "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
-         "line 656 IF false (2210-EDIT-ACCOUNT)",
-         "line 668 IF false (2210-EDIT-ACCOUNT)",
-         "line 759 IF false (9100-GETCARD-BYACCTCARD)",
-         "line 764 IF false (9100-GETCARD-BYACCTCARD)",
-         "line 859 IF true (ABEND-ROUTINE)"
-        ]
-       },
-       "db2": false,
-       "facade": {
-        "passed": 25,
-        "runs": 25
-       },
-       "fault_runs": 3,
-       "java_failed": false,
-       "option_differences": [],
-       "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-       "oracle_matches_pin": true,
-       "records_compared": 65,
-       "records_equal": 65,
-       "runs": 25,
-       "scenarios": 25,
-       "scenarios_equal": 25,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
-       "verdict": "all equal"
-      },
-      "role": "program"
-     },
-     {
-      "case": "carddemo-cardview-generated",
-      "case_scenarios": 5,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-cardview",
-     "case_scenarios": 25,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": {
-      "commands_run": [
-       "ABEND",
-       "READ",
-       "RECEIVE-MAP",
-       "RETURN",
-       "SEND-MAP",
-       "SEND-TEXT",
-       "XCTL"
-      ],
-      "coverage": {
-       "branches": {
-        "covered": 69,
-        "total": 75
-       },
-       "paragraphs": {
-        "covered": 30,
-        "live": 30
-       },
-       "uncovered_branches": [
-        "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
-        "line 656 IF false (2210-EDIT-ACCOUNT)",
-        "line 668 IF false (2210-EDIT-ACCOUNT)",
-        "line 759 IF false (9100-GETCARD-BYACCTCARD)",
-        "line 764 IF false (9100-GETCARD-BYACCTCARD)",
-        "line 859 IF true (ABEND-ROUTINE)"
-       ]
-      },
-      "db2": false,
-      "facade": {
-       "passed": 25,
-       "runs": 25
-      },
-      "fault_runs": 3,
-      "java_failed": false,
-      "option_differences": [],
-      "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-      "oracle_matches_pin": true,
-      "records_compared": 65,
-      "records_equal": 65,
-      "runs": 25,
-      "scenarios": 25,
-      "scenarios_equal": 25,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
-      "verdict": "all equal"
-     },
-     "role": "program"
-    }
-   },
-   "level": "L5",
-   "level_current": true,
-   "mutation": {
-    "accounted": 8,
-    "chosen": 151,
-    "current": true,
-    "det_port": "raw 95% (139/147 caught; 151 of 2226 mutants, seed 0); every survivor accounted for (8) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 139,
-    "l5": true,
-    "mutants": 2226,
-    "score": 0.9456,
-    "stale_inputs": [],
-    "survived": 8,
-    "unaccounted": 0
-   },
-   "next": [],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.CURRENTDATA",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:149",
-      "value": "YES"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:148",
-      "value": "CS"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.PARM",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:47",
-      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "samples/proc/BUILDONL.prc:40",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X67"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14",
-      "X22"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27",
-      "X42"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X42"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/cbl/COCRDSLC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14",
-     "X22",
-     "X27",
-     "X31",
-     "X42"
-    ],
-    "branch_outcomes_unrun": 6,
-    "commands": 8,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "READ"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 263,
-    "translated": 263,
-    "whole": true
-   }
-  },
   {
    "assumptions": {
     "facts_stated": [],
@@ -5715,20 +3509,16 @@
    "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 52,
-    "chosen": 157,
+    "accounted": 50,
+    "chosen": 154,
     "current": true,
-    "det_port": "raw 66% (103/155 caught; 157 of 2851 mutants, seed 0); every survivor accounted for (52) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 103,
+    "det_port": "raw 67% (102/152 caught; 154 of 2822 mutants, seed 0); every survivor accounted for (50)",
+    "killed": 102,
     "l5": true,
-    "mutants": 2851,
-    "score": 0.6645,
+    "mutants": 2822,
+    "score": 0.6711,
     "stale_inputs": [],
-    "survived": 52,
+    "survived": 50,
     "unaccounted": 0
    },
    "next": [],
@@ -6392,16 +4182,20 @@
    "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 37,
-    "chosen": 140,
+    "accounted": 40,
+    "chosen": 147,
     "current": true,
-    "det_port": "raw 73% (101/138 caught; 140 of 2428 mutants, seed 0); every survivor accounted for (37)",
-    "killed": 101,
+    "det_port": "raw 72% (105/145 caught; 147 of 2455 mutants, seed 0); every survivor accounted for (40) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 105,
     "l5": true,
-    "mutants": 2428,
-    "score": 0.7319,
+    "mutants": 2455,
+    "score": 0.7241,
     "stale_inputs": [],
-    "survived": 37,
+    "survived": 40,
     "unaccounted": 0
    },
    "next": [],
@@ -9186,7 +6980,7 @@
      "covered": 50,
      "total": 50
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9196,10 +6990,8 @@
      "live": 15
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9242,7 +7034,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
+       "oracle_image": "sha256:ef2b0358b259f0130a520a4dc0f438f1d588551546ba3c1751a499ce084f7691",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -9293,7 +7085,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
+      "oracle_image": "sha256:ef2b0358b259f0130a520a4dc0f438f1d588551546ba3c1751a499ce084f7691",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -9308,7 +7100,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9729,10 +7521,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9783,7 +7573,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9793,10 +7583,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9839,7 +7627,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
+       "oracle_image": "sha256:ef2b0358b259f0130a520a4dc0f438f1d588551546ba3c1751a499ce084f7691",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -9888,7 +7676,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10187,10 +7975,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10525,22 +8311,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 419,
+    "chosen": 421,
     "current": true,
-    "det_port": "raw 68% (271/397 caught; 419 of 419 mutants, seed 0); 126 of 126 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator"
-    ],
+    "det_port": "raw 68% (271/399 caught; 421 of 421 mutants, seed 0); 128 of 128 survivors unaccounted",
     "killed": 271,
     "l5": false,
-    "mutants": 419,
-    "score": 0.6826,
+    "mutants": 421,
+    "score": 0.6792,
     "stale_inputs": [],
-    "survived": 126,
-    "unaccounted": 126
+    "survived": 128,
+    "unaccounted": 128
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 68% (271/397 caught; 419 of 419 mutants, seed 0); 126 of 126 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 68% (271/399 caught; 421 of 421 mutants, seed 0); 128 of 128 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -10781,19 +8564,22 @@
    "level_current": true,
    "mutation": {
     "accounted": 1,
-    "chosen": 371,
+    "chosen": 369,
     "current": true,
-    "det_port": "raw 59% (210/355 caught; 371 of 371 mutants, seed 0); 144 of 145 survivors unaccounted",
+    "det_port": "raw 59% (210/353 caught; 369 of 369 mutants, seed 0); 142 of 143 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator"
+    ],
     "killed": 210,
     "l5": false,
-    "mutants": 371,
-    "score": 0.5915,
+    "mutants": 369,
+    "score": 0.5949,
     "stale_inputs": [],
-    "survived": 145,
-    "unaccounted": 144
+    "survived": 143,
+    "unaccounted": 142
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 59% (210/355 caught; 371 of 371 mutants, seed 0); 144 of 145 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 59% (210/353 caught; 369 of 369 mutants, seed 0); 142 of 143 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -10989,7 +8775,7 @@
      "covered": 16,
      "total": 16
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0001-OPEN-FILES:84:false",
      "10031-INSERT-DB:151:none",
@@ -11041,10 +8827,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11086,7 +8870,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11257,10 +9041,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11323,7 +9105,7 @@
      "covered": 218,
      "total": 218
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0000-MAIN:799:false",
      "0000-MAIN:843:false",
@@ -11455,10 +9237,8 @@
      "live": 59
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11500,7 +9280,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11969,10 +9749,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12041,7 +9819,7 @@
      "covered": 140,
      "total": 140
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0001-CHECK-PFKEYS:605:false",
      "1200-EDIT-MAP-INPUTS:701:true",
@@ -12313,10 +10091,8 @@
      "live": 63
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12347,7 +10123,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -12851,10 +10627,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13410,24 +11184,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 19,
-    "chosen": 150,
+    "accounted": 18,
+    "chosen": 143,
     "current": true,
-    "det_port": "raw 48% (69/144 caught; 150 of 864 mutants, seed 0); 56 of 75 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 50% (69/138 caught; 143 of 852 mutants, seed 0); 51 of 69 survivors unaccounted",
     "killed": 69,
     "l5": false,
-    "mutants": 864,
-    "score": 0.4792,
+    "mutants": 852,
+    "score": 0.5,
     "stale_inputs": [],
-    "survived": 75,
-    "unaccounted": 56
+    "survived": 69,
+    "unaccounted": 51
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (69/144 caught; 150 of 864 mutants, seed 0); 56 of 75 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 50% (69/138 caught; 143 of 852 mutants, seed 0); 51 of 69 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13902,20 +11672,17 @@
     "accounted": 11,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 76% (109/143 caught; 150 of 728 mutants, seed 0); 23 of 34 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator"
-    ],
+    "det_port": "raw 76% (109/143 caught; 150 of 730 mutants, seed 0); 23 of 34 survivors unaccounted",
     "killed": 109,
     "l5": false,
-    "mutants": 728,
+    "mutants": 730,
     "score": 0.7622,
     "stale_inputs": [],
     "survived": 34,
     "unaccounted": 23
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 76% (109/143 caught; 150 of 728 mutants, seed 0); 23 of 34 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 76% (109/143 caught; 150 of 730 mutants, seed 0); 23 of 34 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -14237,22 +12004,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 17,
-    "chosen": 150,
+    "chosen": 151,
     "current": true,
-    "det_port": "raw 66% (92/140 caught; 150 of 243 mutants, seed 0); 31 of 48 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator"
-    ],
+    "det_port": "raw 65% (92/141 caught; 151 of 245 mutants, seed 0); 32 of 49 survivors unaccounted",
     "killed": 92,
     "l5": false,
-    "mutants": 243,
-    "score": 0.6571,
+    "mutants": 245,
+    "score": 0.6525,
     "stale_inputs": [],
-    "survived": 48,
-    "unaccounted": 31
+    "survived": 49,
+    "unaccounted": 32
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 66% (92/140 caught; 150 of 243 mutants, seed 0); 31 of 48 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 65% (92/141 caught; 151 of 245 mutants, seed 0); 32 of 49 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -14576,20 +12340,17 @@
     "accounted": 18,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 66% (92/140 caught; 150 of 244 mutants, seed 0); 30 of 48 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator"
-    ],
+    "det_port": "raw 66% (92/140 caught; 150 of 246 mutants, seed 0); 30 of 48 survivors unaccounted",
     "killed": 92,
     "l5": false,
-    "mutants": 244,
+    "mutants": 246,
     "score": 0.6571,
     "stale_inputs": [],
     "survived": 48,
     "unaccounted": 30
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 66% (92/140 caught; 150 of 244 mutants, seed 0); 30 of 48 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 66% (92/140 caught; 150 of 246 mutants, seed 0); 30 of 48 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -15249,19 +13010,23 @@
    "level_current": true,
    "mutation": {
     "accounted": 17,
-    "chosen": 152,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 64% (91/142 caught; 152 of 249 mutants, seed 0); 34 of 51 survivors unaccounted",
+    "det_port": "raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 32 of 49 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 91,
     "l5": false,
-    "mutants": 249,
-    "score": 0.6408,
+    "mutants": 247,
+    "score": 0.65,
     "stale_inputs": [],
-    "survived": 51,
-    "unaccounted": 34
+    "survived": 49,
+    "unaccounted": 32
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 64% (91/142 caught; 152 of 249 mutants, seed 0); 34 of 51 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 32 of 49 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -15849,23 +13614,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 1,
-    "chosen": 394,
+    "chosen": 396,
     "current": true,
-    "det_port": "raw 61% (227/371 caught; 394 of 394 mutants, seed 0); 143 of 144 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 61% (227/373 caught; 396 of 396 mutants, seed 0); 145 of 146 survivors unaccounted",
     "killed": 227,
     "l5": false,
-    "mutants": 394,
-    "score": 0.6119,
+    "mutants": 396,
+    "score": 0.6086,
     "stale_inputs": [],
-    "survived": 144,
-    "unaccounted": 143
+    "survived": 146,
+    "unaccounted": 145
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 61% (227/371 caught; 394 of 394 mutants, seed 0); 143 of 144 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 61% (227/373 caught; 396 of 396 mutants, seed 0); 145 of 146 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -16178,20 +13939,17 @@
     "accounted": 12,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 71% (103/145 caught; 150 of 727 mutants, seed 0); 30 of 42 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator"
-    ],
+    "det_port": "raw 71% (103/145 caught; 150 of 729 mutants, seed 0); 30 of 42 survivors unaccounted",
     "killed": 103,
     "l5": false,
-    "mutants": 727,
+    "mutants": 729,
     "score": 0.7103,
     "stale_inputs": [],
     "survived": 42,
     "unaccounted": 30
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (103/145 caught; 150 of 727 mutants, seed 0); 30 of 42 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (103/145 caught; 150 of 729 mutants, seed 0); 30 of 42 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -19059,24 +16817,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 67,
-    "chosen": 155,
+    "accounted": 65,
+    "chosen": 149,
     "current": true,
-    "det_port": "raw 53% (80/150 caught; 155 of 1399 mutants, seed 0); 3 of 70 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 80,
+    "det_port": "raw 53% (77/144 caught; 149 of 1370 mutants, seed 0); 2 of 67 survivors unaccounted",
+    "killed": 77,
     "l5": false,
-    "mutants": 1399,
-    "score": 0.5333,
+    "mutants": 1370,
+    "score": 0.5347,
     "stale_inputs": [],
-    "survived": 70,
-    "unaccounted": 3
+    "survived": 67,
+    "unaccounted": 2
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 53% (80/150 caught; 155 of 1399 mutants, seed 0); 3 of 70 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 53% (77/144 caught; 149 of 1370 mutants, seed 0); 2 of 67 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -19496,6 +17250,768 @@
     "source_defects": [],
     "statements": 80,
     "translated": 80,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": {
+     "case": "carddemo-billpay",
+     "commands_run": [
+      "ABEND",
+      "ENDBR",
+      "READ",
+      "READPREV",
+      "RECEIVE MAP",
+      "RETURN",
+      "REWRITE",
+      "SEND MAP",
+      "STARTBR",
+      "XCTL"
+     ],
+     "registers": [
+      "X14",
+      "X22",
+      "X27",
+      "X31",
+      "X42",
+      "X52"
+     ]
+    },
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 95.8,
+    "branches": {
+     "covered": 46,
+     "total": 48
+    },
+    "branches_net": {
+     "covered": 46,
+     "total": 46
+    },
+    "current": true,
+    "infeasible_netted": [
+     "RETURN-TO-PREV-SCREEN:275:true",
+     "UPDATE-ACCTDAT-FILE:387:WHEN@390"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "RETURN-TO-PREV-SCREEN:275:true",
+      "kind": "IF",
+      "line": 275,
+      "outcome": "true",
+      "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between.",
+      "unit": "RETURN-TO-PREV-SCREEN"
+     },
+     {
+      "family": "R",
+      "key": "UPDATE-ACCTDAT-FILE:387:WHEN@390",
+      "kind": "EVALUATE",
+      "line": 387,
+      "outcome": "WHEN@390",
+      "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ).",
+      "unit": "UPDATE-ACCTDAT-FILE"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 16,
+     "live": 16
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-billpay",
+      "case_scenarios": 35,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "commands_run": [
+        "ABEND",
+        "ENDBR",
+        "READ",
+        "READPREV",
+        "RECEIVE-MAP",
+        "RETURN",
+        "REWRITE",
+        "SEND-MAP",
+        "STARTBR",
+        "XCTL"
+       ],
+       "coverage": {
+        "branches": {
+         "covered": 46,
+         "total": 48
+        },
+        "paragraphs": {
+         "covered": 16,
+         "live": 16
+        },
+        "uncovered_branches": [
+         "line 275 IF true (RETURN-TO-PREV-SCREEN)",
+         "line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)"
+        ]
+       },
+       "db2": false,
+       "facade": {
+        "passed": 35,
+        "runs": 35
+       },
+       "fault_runs": 13,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+       "oracle_matches_pin": true,
+       "records_compared": 119,
+       "records_equal": 119,
+       "runs": 35,
+       "scenarios": 35,
+       "scenarios_equal": 35,
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     },
+     {
+      "case": "carddemo-billpay-generated",
+      "case_scenarios": 29,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 44,
+         "total": 48
+        },
+        "paragraphs": {
+         "covered": 16,
+         "live": 16
+        },
+        "uncovered_branches": [
+         "line 158 EVALUATE WHEN@159 (PROCESS-ENTER-KEY)",
+         "line 169 IF false (PROCESS-ENTER-KEY)",
+         "line 275 IF true (RETURN-TO-PREV-SCREEN)",
+         "line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)"
+        ]
+       },
+       "db2": false,
+       "facade": {
+        "passed": 59,
+        "runs": 59
+       },
+       "fault_runs": 14,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+       "oracle_matches_pin": true,
+       "records_compared": 176,
+       "records_equal": 176,
+       "runs": 59,
+       "scenarios": 59,
+       "scenarios_equal": 59,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-billpay",
+     "case_scenarios": 35,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": {
+      "commands_run": [
+       "ABEND",
+       "ENDBR",
+       "READ",
+       "READPREV",
+       "RECEIVE-MAP",
+       "RETURN",
+       "REWRITE",
+       "SEND-MAP",
+       "STARTBR",
+       "XCTL"
+      ],
+      "coverage": {
+       "branches": {
+        "covered": 46,
+        "total": 48
+       },
+       "paragraphs": {
+        "covered": 16,
+        "live": 16
+       },
+       "uncovered_branches": [
+        "line 275 IF true (RETURN-TO-PREV-SCREEN)",
+        "line 387 EVALUATE WHEN@390 (UPDATE-ACCTDAT-FILE)"
+       ]
+      },
+      "db2": false,
+      "facade": {
+       "passed": 35,
+       "runs": 35
+      },
+      "fault_runs": 13,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+      "oracle_matches_pin": true,
+      "records_compared": 119,
+      "records_equal": 119,
+      "runs": 35,
+      "scenarios": 35,
+      "scenarios_equal": 35,
+      "stale_inputs": [],
+      "status_at_build": "shown equal, unapproved",
+      "verdict": "all equal"
+     },
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "accounted": 48,
+    "chosen": 144,
+    "current": true,
+    "det_port": "raw 65% (92/141 caught; 144 of 1647 mutants, seed 0); 1 of 49 survivors unaccounted",
+    "killed": 92,
+    "l5": false,
+    "mutants": 1647,
+    "score": 0.6525,
+    "stale_inputs": [],
+    "survived": 49,
+    "unaccounted": 1
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 65% (92/141 caught; 144 of 1647 mutants, seed 0); 1 of 49 survivors unaccounted)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:149",
+      "value": "YES"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:148",
+      "value": "CS"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.PARM",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:47",
+      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "samples/proc/BUILDONL.prc:40",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ENDBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X46"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READPREV",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X52"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27",
+      "X42"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X52"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "STARTBR",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X42"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/cbl/COBIL00C.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X31",
+     "X42",
+     "X46",
+     "X52"
+    ],
+    "branch_outcomes_unrun": 2,
+    "commands": 12,
+    "commands_backed": 4,
+    "commands_not_backed": [
+     "ASKTIME",
+     "ENDBR",
+     "FORMATTIME",
+     "READ",
+     "READPREV",
+     "REWRITE",
+     "STARTBR",
+     "WRITE"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 190,
+    "translated": 190,
     "whole": true
    }
   },
@@ -20487,6 +19003,822 @@
     "source_defects": [],
     "statements": 500,
     "translated": 500,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
+      "id": "X67",
+      "status": "REFUSED"
+     }
+    ],
+    "reach": {
+     "case": "carddemo-cardview",
+     "commands_run": [
+      "ABEND",
+      "READ",
+      "RECEIVE MAP",
+      "RETURN",
+      "SEND MAP",
+      "SEND TEXT",
+      "XCTL"
+     ],
+     "registers": [
+      "X14",
+      "X20",
+      "X22",
+      "X27",
+      "X31",
+      "X42"
+     ]
+    },
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 92.0,
+    "branches": {
+     "covered": 69,
+     "total": 75
+    },
+    "branches_net": {
+     "covered": 69,
+     "total": 69
+    },
+    "current": true,
+    "infeasible_netted": [
+     "1300-SETUP-SCREEN-ATTRS:553:true",
+     "2210-EDIT-ACCOUNT:656:false",
+     "2210-EDIT-ACCOUNT:668:false",
+     "9100-GETCARD-BYACCTCARD:759:false",
+     "9100-GETCARD-BYACCTCARD:764:false",
+     "ABEND-ROUTINE:859:true"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "1300-SETUP-SCREEN-ATTRS:553:true",
+      "kind": "IF",
+      "line": 553,
+      "outcome": "true",
+      "reason": "1300-SETUP-SCREEN-ATTRS is only PERFORMed by 1000-SEND-MAP (line 417), right after 1200-SETUP-SCREEN-VARS (line 415), which ends with `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (lines 490-492): WS-INFO-MSG leaves 1200 non-blank, and nothing at lines 494-552 writes it, so `IF WS-NO-INFO-MESSAGE` at line 553 is never true.",
+      "unit": "1300-SETUP-SCREEN-ATTRS"
+     },
+     {
+      "family": "G",
+      "key": "2210-EDIT-ACCOUNT:656:false",
+      "kind": "IF",
+      "line": 656,
+      "outcome": "false",
+      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is set to SPACES at line 264 and 2210-EDIT-ACCOUNT is the first edit (only PERFORMed at line 630, in 2200-EDIT-MAP-INPUTS after 2100-RECEIVE-MAP, neither of which writes it before), so the message is always still off here.",
+      "unit": "2210-EDIT-ACCOUNT"
+     },
+     {
+      "family": "G",
+      "key": "2210-EDIT-ACCOUNT:668:false",
+      "kind": "IF",
+      "line": 668,
+      "outcome": "false",
+      "reason": "`IF WS-RETURN-MSG-OFF` at line 668 is reached only when the blank test at line 651 failed (it GOes TO the exit at line 660), so no message was set in this paragraph either; as for line 656, WS-RETURN-MSG is still the SPACES set at line 264.",
+      "unit": "2210-EDIT-ACCOUNT"
+     },
+     {
+      "family": "G",
+      "key": "9100-GETCARD-BYACCTCARD:759:false",
+      "kind": "IF",
+      "line": 759,
+      "outcome": "false",
+      "reason": "9100 runs only through 9000-READ-DATA, PERFORMed at line 344 (entry from the card list: nothing sets WS-RETURN-MSG after line 264) and at line 365 (the ELSE of IF INPUT-ERROR at line 360). Every message 2200-EDIT-MAP-INPUTS sets (lines 657, 671, 697, 711, 639) comes with SET INPUT-ERROR, so at line 365 the message is still off: `IF WS-RETURN-MSG-OFF` (NOTFND) is always true.",
+      "unit": "9100-GETCARD-BYACCTCARD"
+     },
+     {
+      "family": "G",
+      "key": "9100-GETCARD-BYACCTCARD:764:false",
+      "kind": "IF",
+      "line": 764,
+      "outcome": "false",
+      "reason": "Same as line 759: in WHEN OTHER of the READ at line 742, WS-RETURN-MSG is still the SPACES set at line 264 on both paths into 9100 (lines 344 and 365), so `IF WS-RETURN-MSG-OFF` is always true.",
+      "unit": "9100-GETCARD-BYACCTCARD"
+     },
+     {
+      "family": "C",
+      "key": "ABEND-ROUTINE:859:true",
+      "kind": "IF",
+      "line": 859,
+      "outcome": "true",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES.",
+      "unit": "ABEND-ROUTINE"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 30,
+     "live": 30
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-cardview",
+      "case_scenarios": 25,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "commands_run": [
+        "ABEND",
+        "READ",
+        "RECEIVE-MAP",
+        "RETURN",
+        "SEND-MAP",
+        "SEND-TEXT",
+        "XCTL"
+       ],
+       "coverage": {
+        "branches": {
+         "covered": 69,
+         "total": 75
+        },
+        "paragraphs": {
+         "covered": 30,
+         "live": 30
+        },
+        "uncovered_branches": [
+         "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
+         "line 656 IF false (2210-EDIT-ACCOUNT)",
+         "line 668 IF false (2210-EDIT-ACCOUNT)",
+         "line 759 IF false (9100-GETCARD-BYACCTCARD)",
+         "line 764 IF false (9100-GETCARD-BYACCTCARD)",
+         "line 859 IF true (ABEND-ROUTINE)"
+        ]
+       },
+       "db2": false,
+       "facade": {
+        "passed": 25,
+        "runs": 25
+       },
+       "fault_runs": 3,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+       "oracle_matches_pin": true,
+       "records_compared": 65,
+       "records_equal": 65,
+       "runs": 25,
+       "scenarios": 25,
+       "scenarios_equal": 25,
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     },
+     {
+      "case": "carddemo-cardview-generated",
+      "case_scenarios": 5,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-cardview",
+     "case_scenarios": 25,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": {
+      "commands_run": [
+       "ABEND",
+       "READ",
+       "RECEIVE-MAP",
+       "RETURN",
+       "SEND-MAP",
+       "SEND-TEXT",
+       "XCTL"
+      ],
+      "coverage": {
+       "branches": {
+        "covered": 69,
+        "total": 75
+       },
+       "paragraphs": {
+        "covered": 30,
+        "live": 30
+       },
+       "uncovered_branches": [
+        "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
+        "line 656 IF false (2210-EDIT-ACCOUNT)",
+        "line 668 IF false (2210-EDIT-ACCOUNT)",
+        "line 759 IF false (9100-GETCARD-BYACCTCARD)",
+        "line 764 IF false (9100-GETCARD-BYACCTCARD)",
+        "line 859 IF true (ABEND-ROUTINE)"
+       ]
+      },
+      "db2": false,
+      "facade": {
+       "passed": 25,
+       "runs": 25
+      },
+      "fault_runs": 3,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+      "oracle_matches_pin": true,
+      "records_compared": 65,
+      "records_equal": 65,
+      "runs": 25,
+      "scenarios": 25,
+      "scenarios_equal": 25,
+      "stale_inputs": [],
+      "status_at_build": "shown equal, unapproved",
+      "verdict": "all equal"
+     },
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "accounted": 8,
+    "chosen": 148,
+    "current": true,
+    "det_port": "raw 94% (135/144 caught; 148 of 2197 mutants, seed 0); 1 of 9 survivors unaccounted",
+    "killed": 135,
+    "l5": false,
+    "mutants": 2197,
+    "score": 0.9375,
+    "stale_inputs": [],
+    "survived": 9,
+    "unaccounted": 1
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (135/144 caught; 148 of 2197 mutants, seed 0); 1 of 9 survivors unaccounted)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:149",
+      "value": "YES"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:148",
+      "value": "CS"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.PARM",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:47",
+      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "samples/proc/BUILDONL.prc:40",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X67"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27",
+      "X42"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X42"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/cbl/COCRDSLC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X31",
+     "X42"
+    ],
+    "branch_outcomes_unrun": 6,
+    "commands": 8,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "READ"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 263,
+    "translated": 263,
     "whole": true
    }
   },
@@ -22877,23 +22209,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 115,
-    "chosen": 1164,
+    "chosen": 1135,
     "current": true,
-    "det_port": "raw 37% (426/1145 caught; 1164 of 1164 mutants, seed 0); 604 of 719 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 426,
+    "det_port": "raw 37% (414/1117 caught; 1135 of 1135 mutants, seed 0); 588 of 703 survivors unaccounted",
+    "killed": 414,
     "l5": false,
-    "mutants": 1164,
-    "score": 0.3721,
+    "mutants": 1135,
+    "score": 0.3706,
     "stale_inputs": [],
-    "survived": 719,
-    "unaccounted": 604
+    "survived": 703,
+    "unaccounted": 588
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (426/1145 caught; 1164 of 1164 mutants, seed 0); 604 of 719 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (414/1117 caught; 1135 of 1135 mutants, seed 0); 588 of 703 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -24255,24 +23583,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 616,
-    "chosen": 1232,
+    "accounted": 593,
+    "chosen": 1203,
     "current": true,
-    "det_port": "raw 48% (586/1210 caught; 1232 of 1232 mutants, seed 0); 8 of 624 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 586,
+    "det_port": "raw 49% (574/1182 caught; 1203 of 1203 mutants, seed 0); 15 of 608 survivors unaccounted",
+    "killed": 574,
     "l5": false,
-    "mutants": 1232,
-    "score": 0.4843,
+    "mutants": 1203,
+    "score": 0.4856,
     "stale_inputs": [],
-    "survived": 624,
-    "unaccounted": 8
+    "survived": 608,
+    "unaccounted": 15
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (586/1210 caught; 1232 of 1232 mutants, seed 0); 8 of 624 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 49% (574/1182 caught; 1203 of 1203 mutants, seed 0); 15 of 608 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -26792,8 +26116,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha cd1ee267410dd98d35a12d2aee60ba800144cc81",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "python tests/tools/cics_census.py survey --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readacct carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -26811,21 +26135,21 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
-   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
+   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "sha256:ef2b0358b259f0130a520a4dc0f438f1d588551546ba3c1751a499ce084f7691"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
    "translator": {
     "files": 183,
-    "sha256": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
+    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
    }
   },
-  "translator_commit": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
+  "translator_commit": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -26836,15 +26160,15 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 37,
-   "L5": 5
+   "L4": 39,
+   "L5": 3
   },
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 5,
+   "L4": 0,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -26856,7 +26180,7 @@
    "L5": 0
   },
   "holes": 10,
-  "levels_stale": 5,
+  "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 44,
   "records_current": 29,
@@ -26868,6 +26192,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
+  "fingerprint": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
  }
 }

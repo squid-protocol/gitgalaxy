@@ -240,30 +240,18 @@
     0,
     0
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cobtupdt-generated": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
    "carddemo-codate01": [
     13,
     13,
@@ -282,78 +270,42 @@
     90,
     93
    ],
-   "carddemo-copaus1c": {
-    "coverage": [
-     15,
-     15,
-     50,
-     50
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-copaus2c-generated": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     59,
-     59,
-     218,
-     230
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cotrtlic-generated": {
-    "coverage": [
-     53,
-     59,
-     156,
-     230
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     63,
-     63,
-     140,
-     166
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "carddemo-copaus1c": [
+    15,
+    15,
+    50,
+    50
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-copaus2c-generated": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    59,
+    59,
+    218,
+    230
+   ],
+   "carddemo-cotrtlic-generated": [
+    53,
+    59,
+    156,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    63,
+    63,
+    140,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -582,234 +534,120 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c"
-   },
-   "cbsa-acctctrl-generated": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c"
-   },
-   "cbsa-bankdata": {
-    "coverage": [
-     24,
-     24,
-     47,
-     48
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     77,
-     97
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cac-generated": {
-    "coverage": [
-     25,
-     25,
-     59,
-     97
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cca": {
-    "coverage": [
-     25,
-     25,
-     35,
-     41
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cca-generated": {
-    "coverage": [
-     25,
-     25,
-     31,
-     41
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1ccs": {
-    "coverage": [
-     33,
-     33,
-     128,
-     143
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1ccs-generated": {
-    "coverage": [
-     33,
-     33,
-     88,
-     143
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     61,
-     67
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1cra-generated": {
-    "coverage": [
-     28,
-     28,
-     43,
-     67
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     51,
-     60
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dac-generated": {
-    "coverage": [
-     31,
-     31,
-     42,
-     60
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dcs": {
-    "coverage": [
-     51,
-     51,
-     95,
-     102
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1dcs-generated": {
-    "coverage": [
-     33,
-     51,
-     37,
-     102
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1tfn": {
-    "coverage": [
-     28,
-     28,
-     62,
-     72
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1tfn-generated": {
-    "coverage": [
-     28,
-     28,
-     56,
-     72
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1uac": {
-    "coverage": [
-     31,
-     31,
-     82,
-     88
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-bnk1uac-generated": {
-    "coverage": [
-     31,
-     31,
-     68,
-     88
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    47,
+    48
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    77,
+    97
+   ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    35,
+    41
+   ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    128,
+    143
+   ],
+   "cbsa-bnk1ccs-generated": [
+    33,
+    33,
+    88,
+    143
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    61,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    51,
+    60
+   ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    42,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    51,
+    51,
+    95,
+    102
+   ],
+   "cbsa-bnk1dcs-generated": [
+    33,
+    51,
+    37,
+    102
+   ],
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    62,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    82,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
    "cbsa-bnkmenu": [
     24,
     25,
@@ -846,138 +684,72 @@
     5,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     35,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-creacc-generated": {
-    "coverage": [
-     34,
-     34,
-     25,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-crecust": {
-    "coverage": [
-     37,
-     37,
-     57,
-     70
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-crecust-generated": {
-    "coverage": [
-     13,
-     37,
-     21,
-     70
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     21,
-     22,
-     34,
-     35
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-dbcrfun-generated": {
-    "coverage": [
-     16,
-     22,
-     23,
-     35
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delacc-generated": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delcus": {
-    "coverage": [
-     22,
-     22,
-     16,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-delcus-generated": {
-    "coverage": [
-     22,
-     22,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    35,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
+    38
+   ],
+   "cbsa-crecust": [
+    37,
+    37,
+    57,
+    70
+   ],
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    21,
+    70
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    21,
+    22,
+    34,
+    35
+   ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delcus": [
+    22,
+    22,
+    16,
+    16
+   ],
+   "cbsa-delcus-generated": [
+    22,
+    22,
+    13,
+    16
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -990,126 +762,78 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     24,
-     25,
-     24,
-     25
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-inqacc-generated": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     21,
-     22,
-     32,
-     33
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-inqacccu-generated": {
-    "coverage": [
-     18,
-     22,
-     24,
-     33
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-inqacc": [
+    24,
+    25,
+    24,
+    25
+   ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    21,
+    22,
+    32,
+    33
+   ],
+   "cbsa-inqacccu-generated": [
+    18,
+    22,
+    24,
+    33
+   ],
    "cbsa-inqcust": [
     24,
     25,
     44,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-updacc-faults": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-beyond": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-updacc-faults": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     78,
-     81
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "cbsa-xfrfun-generated": {
-    "coverage": [
-     27,
-     28,
-     45,
-     81
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    78,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
+    81
+   ],
    "cruc-ca-address-commarea": [
     4,
     4,
@@ -1560,6 +1284,12 @@
     6,
     6
    ],
+   "cruc-hx-extended-linked": [
+    3,
+    3,
+    5,
+    6
+   ],
    "cruc-pc-aid-menu": [
     4,
     4,
@@ -1626,132 +1356,72 @@
     10,
     10
    ],
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacdb02-generated": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgacus01-generated": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgacdb01": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb01-generated": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacus01-generated": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgapdb01-generated": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgapol01-generated": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgapdb01": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapdb01-generated": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapol01-generated": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     3,
     3,
@@ -1764,108 +1434,60 @@
     12,
     12
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgdpdb01-generated": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgdpol01-generated": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01-generated": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    9,
+    12
+   ],
+   "genapp-lgdpol01-generated": [
+    3,
+    3,
+    9,
+    12
+   ],
    "genapp-lgdpvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgicdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgicus01-generated": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgicdb01": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicus01-generated": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
@@ -1878,54 +1500,30 @@
     18,
     18
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     74,
-     74
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgipdb01-generated": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgipol01-generated": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    74,
+    74
+   ],
+   "genapp-lgipdb01-generated": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipol01-generated": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -1950,168 +1548,90 @@
     4,
     6
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     10,
-     10,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     9,
-     9,
-     22,
-     22
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgucus01-generated": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgtestc1": [
+    10,
+    10,
+    20,
+    20
+   ],
+   "genapp-lgtestp1": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp2": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp3": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp4": [
+    9,
+    9,
+    22,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucus01-generated": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     3,
     3,
     7,
     8
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgupdb01-generated": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "genapp-lgupol01-generated": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupdb01-generated": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupol01-generated": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     3,
     3,
@@ -2124,54 +1644,30 @@
     2,
     2
    ],
-   "health-hcapdb01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcapdb02": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcatdb01": {
-    "coverage": [
-     3,
-     3,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcavdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcapdb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcapdb02": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcatdb01": [
+    3,
+    3,
+    5,
+    6
+   ],
+   "health-hcavdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
    "health-hcazerrs": [
     1,
     1,
@@ -2184,264 +1680,144 @@
     11,
     11
    ],
-   "health-hcimdb01": {
-    "coverage": [
-     6,
-     6,
-     12,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcipdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcitdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcivdb01": {
-    "coverage": [
-     5,
-     5,
-     14,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcm1bi01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     11
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcm1pl01": {
-    "coverage": [
-     10,
-     11,
-     3,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmaba01": {
-    "coverage": [
-     5,
-     5,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmadb01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmadb02": {
-    "coverage": [
-     7,
-     7,
-     11,
-     11
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcmapl01": {
-    "coverage": [
-     10,
-     10,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcimdb01": [
+    6,
+    6,
+    12,
+    14
+   ],
+   "health-hcipdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcitdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcivdb01": [
+    5,
+    5,
+    14,
+    14
+   ],
+   "health-hcm1bi01": [
+    4,
+    4,
+    11,
+    11
+   ],
+   "health-hcm1pl01": [
+    10,
+    11,
+    3,
+    12
+   ],
+   "health-hcmaba01": [
+    5,
+    5,
+    6,
+    6
+   ],
+   "health-hcmadb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcmadb02": [
+    7,
+    7,
+    11,
+    11
+   ],
+   "health-hcmapl01": [
+    10,
+    10,
+    9,
+    10
+   ],
    "health-hcmrestw": [
     8,
     12,
     10,
     26
    ],
-   "health-hcp1ba01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcp1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcp1pl01": {
-    "coverage": [
-     11,
-     11,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcp1ba01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcp1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcp1pl01": [
+    11,
+    11,
+    18,
+    18
+   ],
    "health-hcprestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hct1ba01": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hct1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hct1pl01": {
-    "coverage": [
-     12,
-     12,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hct1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hct1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hct1pl01": [
+    12,
+    12,
+    18,
+    18
+   ],
    "health-hctrestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hcv1ba01": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcv1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "health-hcv1pl01": {
-    "coverage": [
-     12,
-     12,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
-   "mortgage-cmort": {
-    "coverage": [
-     6,
-     6,
-     19,
-     21
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
-   },
+   "health-hcv1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcv1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcv1pl01": [
+    12,
+    12,
+    20,
+    20
+   ],
+   "mortgage-cmort": [
+    6,
+    6,
+    19,
+    21
+   ],
    "mortgage-csmrt": [
     1,
     1,
@@ -3148,10 +2524,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
    "translator": {
     "files": 183,
-    "sha256": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
+    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
    }
   },
   "sweeps": {}
@@ -3422,24 +2798,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 83,
-    "chosen": 2148,
+    "accounted": 75,
+    "chosen": 2052,
     "current": true,
-    "det_port": "raw 94% (1970/2098 caught; 2148 of 2148 mutants, seed 0); 45 of 128 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 1970,
+    "det_port": "raw 87% (1754/2010 caught; 2052 of 2052 mutants, seed 0); 181 of 256 survivors unaccounted",
+    "killed": 1754,
     "l5": false,
-    "mutants": 2148,
-    "score": 0.939,
+    "mutants": 2052,
+    "score": 0.8726,
     "stale_inputs": [],
-    "survived": 128,
-    "unaccounted": 45
+    "survived": 256,
+    "unaccounted": 181
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (1970/2098 caught; 2148 of 2148 mutants, seed 0); 45 of 128 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 87% (1754/2010 caught; 2052 of 2052 mutants, seed 0); 181 of 256 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -4499,24 +3871,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 3,
-    "chosen": 254,
+    "accounted": 2,
+    "chosen": 242,
     "current": true,
-    "det_port": "raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 243,
+    "det_port": "raw 91% (216/237 caught; 242 of 242 mutants, seed 0); 19 of 21 survivors unaccounted",
+    "killed": 216,
     "l5": false,
-    "mutants": 254,
-    "score": 0.9798,
+    "mutants": 242,
+    "score": 0.9114,
     "stale_inputs": [],
-    "survived": 5,
-    "unaccounted": 2
+    "survived": 21,
+    "unaccounted": 19
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 91% (216/237 caught; 242 of 242 mutants, seed 0); 19 of 21 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -4933,24 +4301,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 17,
-    "chosen": 614,
+    "accounted": 14,
+    "chosen": 578,
     "current": true,
-    "det_port": "raw 94% (563/596 caught; 614 of 614 mutants, seed 0); 16 of 33 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 563,
+    "det_port": "raw 86% (482/563 caught; 578 of 578 mutants, seed 0); 67 of 81 survivors unaccounted",
+    "killed": 482,
     "l5": false,
-    "mutants": 614,
-    "score": 0.9446,
+    "mutants": 578,
+    "score": 0.8561,
     "stale_inputs": [],
-    "survived": 33,
-    "unaccounted": 16
+    "survived": 81,
+    "unaccounted": 67
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (563/596 caught; 614 of 614 mutants, seed 0); 16 of 33 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 86% (482/563 caught; 578 of 578 mutants, seed 0); 67 of 81 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -5828,24 +5192,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 3,
-    "chosen": 216,
+    "accounted": 2,
+    "chosen": 204,
     "current": true,
-    "det_port": "raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 205,
+    "det_port": "raw 89% (178/199 caught; 204 of 204 mutants, seed 0); 19 of 21 survivors unaccounted",
+    "killed": 178,
     "l5": false,
-    "mutants": 216,
-    "score": 0.9762,
+    "mutants": 204,
+    "score": 0.8945,
     "stale_inputs": [],
-    "survived": 5,
-    "unaccounted": 2
+    "survived": 21,
+    "unaccounted": 19
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 89% (178/199 caught; 204 of 204 mutants, seed 0); 19 of 21 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -6680,24 +6040,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 7,
-    "chosen": 183,
+    "accounted": 6,
+    "chosen": 171,
     "current": true,
-    "det_port": "raw 92% (163/177 caught; 183 of 183 mutants, seed 0); 7 of 14 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 163,
+    "det_port": "raw 82% (136/166 caught; 171 of 171 mutants, seed 0); 24 of 30 survivors unaccounted",
+    "killed": 136,
     "l5": false,
-    "mutants": 183,
-    "score": 0.9209,
+    "mutants": 171,
+    "score": 0.8193,
     "stale_inputs": [],
-    "survived": 14,
-    "unaccounted": 7
+    "survived": 30,
+    "unaccounted": 24
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (163/177 caught; 183 of 183 mutants, seed 0); 7 of 14 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 82% (136/166 caught; 171 of 171 mutants, seed 0); 24 of 30 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -7084,20 +6440,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 55,
-    "chosen": 1899,
+    "accounted": 63,
+    "chosen": 1995,
     "current": true,
-    "det_port": "raw 88% (1625/1857 caught; 1899 of 1899 mutants, seed 0); 177 of 232 survivors unaccounted",
-    "killed": 1625,
+    "det_port": "raw 95% (1841/1945 caught; 1995 of 1995 mutants, seed 0); 41 of 104 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 1841,
     "l5": false,
-    "mutants": 1899,
-    "score": 0.8751,
+    "mutants": 1995,
+    "score": 0.9465,
     "stale_inputs": [],
-    "survived": 232,
-    "unaccounted": 177
+    "survived": 104,
+    "unaccounted": 41
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 88% (1625/1857 caught; 1899 of 1899 mutants, seed 0); 177 of 232 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 95% (1841/1945 caught; 1995 of 1995 mutants, seed 0); 41 of 104 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 4,
@@ -7719,20 +7079,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 6,
-    "chosen": 192,
+    "accounted": 7,
+    "chosen": 204,
     "current": true,
-    "det_port": "raw 84% (157/187 caught; 192 of 192 mutants, seed 0); 24 of 30 survivors unaccounted",
-    "killed": 157,
+    "det_port": "raw 93% (184/198 caught; 204 of 204 mutants, seed 0); 7 of 14 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 184,
     "l5": false,
-    "mutants": 192,
-    "score": 0.8396,
+    "mutants": 204,
+    "score": 0.9293,
     "stale_inputs": [],
-    "survived": 30,
-    "unaccounted": 24
+    "survived": 14,
+    "unaccounted": 7
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 84% (157/187 caught; 192 of 192 mutants, seed 0); 24 of 30 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 93% (184/198 caught; 204 of 204 mutants, seed 0); 7 of 14 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 4,
@@ -8017,8 +7381,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha cd1ee267410dd98d35a12d2aee60ba800144cc81",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "python tests/tools/cics_census.py survey --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -8039,13 +7403,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
    "translator": {
     "files": 183,
-    "sha256": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
+    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
    }
   },
-  "translator_commit": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
+  "translator_commit": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8088,6 +7452,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
+  "fingerprint": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
  }
 }

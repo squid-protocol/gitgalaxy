@@ -1,5 +1,5 @@
 {
- "commit": "5693635ca",
+ "commit": "0f31eb905",
  "components": {
   "capabilities": {
    "groups": [
@@ -349,8 +349,8 @@
      "REFUSED": 3
     },
     "CICS": {
-     "ASSUMED": 17,
-     "DIFFERS": 1,
+     "ASSUMED": 15,
+     "DIFFERS": 3,
      "MATCHED": 8,
      "REFUSED": 1
     },
@@ -415,8 +415,8 @@
    "measured_on_zos": 0,
    "rules": 194,
    "status": {
-    "ASSUMED": 58,
-    "DIFFERS": 28,
+    "ASSUMED": 56,
+    "DIFFERS": 30,
     "MATCHED": 94,
     "REFUSED": 14
    }
@@ -979,7 +979,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T15:21:54Z",
+  "as_of": "2026-11-20T15:24:37Z",
   "core": {
    "closed": 253,
    "open": 12,

@@ -2342,6 +2342,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   FRSET resets the modified-data tags. The wording is paraphrased, not verbatim.
 - **Declared difference.** IBM's result is the 3270 data stream BMS builds; the oracle and the port are compared one
   step earlier, at the symbolic map, since BMS itself is not modelled.
+- **IBM trace (#8700, 2026-11-20; CICS TS 6 Application Programming, "Developing CICS Applications", SEND MAP, local manual text).**
+  IBM: "A value is present. ... For field attributes bytes, the value must not be null ( X'00' ) or one of the values that remain
+  from an input operation ( X'80' , X'02' , or X'82'). For extended attribute bytes, the value must not be null. ... For display
+  data, the first character of the data must not be null."
+  - **MATCHED:** a null (X'00') attribute, extended attribute or leading data byte is absent.
+  - **DIFFERS (declared here, `RT-CICS-BMS-SUBFIELDS`):** `DetCics.subfields` also drops a space, which IBM sends (a field attribute
+    of X'40' is present), and sets X'80' / X'02' / X'82', which IBM treats as absent. The receiving side's `<f>L` is the text without
+    trailing blanks; IBM does not say it counts the blanks keyed, so that half stays with X54's blank-field note.
+  - **Still ASSUMED:** the symbolic-map comparison itself (the paragraphs above).
 
 ### X3. Backout and recoverable files — MATCHED
 - **What.** SYNCPOINT ROLLBACK, or an abend that terminates the task, backs out the unit of work: the recoverable files'
@@ -3056,6 +3065,15 @@ unmeasured CBSA programs are open.
   says the option is ignored for an existing container, and never says what a DATATYPE equal to the existing type does. So the
   source is not decisive and the refusal stays: both the changed-type half (INVREQ 33 or ignored) and the same-type half are open.
   Pinned by `test_the_x17_note_quotes_the_ibm_wording` in `tests/cobol_mainframe/test_container_datatype_change_reach_5005.py`.
+- **IBM trace (#8700, 2026-11-20; CICS TS 6 API Reference, GET CONTAINER (CHANNEL), FLENGTH, local manual text).** IBM, INTO
+  specified: "On input, FLENGTH specifies the maximum length of the data that the program accepts. If the value specified is less
+  than zero, zero is assumed. If the length of the data exceeds the value specified, the data is truncated to that value and the
+  LENGERR condition occurs. If the length of the data is less than the specified value, the data is copied but no padding is
+  performed." On output FLENGTH is set to the actual length.
+  - **MATCHED:** truncation to FLENGTH with LENGERR, no padding below it, FLENGTH returning the actual length.
+  - **DIFFERS, not yet declared (sibling gap):** `DetCics.containerLimit` refuses a negative FLENGTH as "not documented"; IBM
+    documents it as zero. Left ASSUMED here until the runtime change and its register entry land in a runtime PR.
+  - **Still ASSUMED (`RT-CICS-CONTAINER-LENGTH`):** the rest of the rule's wording.
 
 ### X18. Interval control and the async API: START / RETRIEVE / CANCEL / RUN TRANSID / FETCH / FREE CHILD — ASSUMED, REFUSED where IBM is silent (#4270 slice 2, #4950)
 - **What IBM documents** (CICS TS, EXEC CICS START, RETRIEVE, CANCEL, RUN TRANSID, "Expiration times"). START: INTERVAL
@@ -3862,6 +3880,11 @@ unmeasured CBSA programs are open.
   (tests/cics_crucible/test_cics_runtimes.py: both answer alike); the translators' refusals are tested in
   tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py. All ten DOCUMENT statements of zECS's
   ZECS000 / ZECS001 / ZECS003 translate (no DOCUMENT hole is left in the det survey); those programs stay held by WEB.
+- **IBM trace (#8700, 2026-11-20; CICS TS 6 API Reference, DOCUMENT CREATE, local manual text).** IBM lists LENGERR RESP2 1 for
+  DOCUMENT CREATE as "The value specified for LENGTH is invalid. The value is negative."
+  - **MATCHED:** a negative LENGTH raises LENGERR (the runtime refuses it as LENGERR).
+  - **Still ASSUMED (`RT-CICS-DOCUMENT`):** every other behaviour listed above (templates, symbols, a LENGTH past the area, the
+    default MAXLENGTH). IBM does not state them; the rule stays ASSUMED, no DIFFERS is claimed.
 
 ### X34. INQUIRE URIMAP(name), the direct form, and INQUIRE PROGRAM STATUS — ASSUMED, REFUSED where IBM is silent (#4768, zECS)
 - **INQUIRE URIMAP, the direct form** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-urimap). The command
@@ -4957,6 +4980,17 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `tests/equivalence/infeasible_outcomes/cbsa-bnk1cra.json` / `cbsa-bnk1tfn.json` as unreachable under this assumption, not as
   impossible on a terminal. A length independent of the text would need a new input channel (oracle, DetCics, DetJustify,
   translator): not modelled.
+- **IBM trace (#8700, 2026-11-20; CICS TS 6 API Reference, DFHMDF, JUSTIFY, local manual text).** IBM's table pairs the halves
+  (`LEFT` / `BLANK`, `RIGHT` / `ZERO`, `BLANK` / `LEFT`, `ZERO` / `RIGHT`) and says: "If JUSTIFY is omitted, but the NUM attribute is
+  specified, RIGHT and ZERO are assumed. If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are
+  assumed." Also: "data that is typed as input overwrites only the equivalent length of the existing data; surplus existing data
+  remains in the field".
+  - **MATCHED:** the omitted-JUSTIFY defaults (`_justify`: RIGHT,ZERO for NUM, the written operand otherwise).
+  - **DIFFERS (declared here, `RT-CICS-BMS-JUSTIFY`):** a half-coded JUSTIFY. IBM supplies the other half from its table, so
+    `JUSTIFY=(RIGHT)` fills with zeros and `JUSTIFY=(,ZERO)` right-justifies. `DetJustify.place` fills with ZERO only when ZERO is
+    coded and places RIGHT only when RIGHT is coded: blank fill and left placement. The pins in
+    `test_det_receive_map_justify_5082.py` state the runtime's behaviour, not IBM's.
+  - **Still ASSUMED:** the surplus-data rule (the runtime starts each field from blanks, so no surplus survives).
 
 ### X55. Macro-level CICS and CICS Assembler programs: refused by name, not translated (#5121)
 - **IBM.** The macro-level interface is the pre-command-level CICS API (the "era 0" of #5121: DFHxx macro calls, no

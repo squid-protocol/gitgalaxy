@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 37 | 0 | 0 | 0 | 35 |
+| pip | 40 | 0 | 0 | 0 | 31 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 69 | 84 | 54 | 208 | 87 |
+| **total** | 72 | 84 | 54 | 208 | 83 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -54,10 +54,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### codeql.yml
 
 - `gh-api` - analyze / Report the results this PR adds
-
-### deploy-docs.yml
-
-- `pip` - deploy / Install Dependencies
 
 ### det-sweep.yml
 
@@ -143,10 +139,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - mypy-audit / Plan the audit
 
-### os-smoke-grid.yml
-
-- `pip` - smoke-test / Install dependencies
-
 ### ports-compile.yml
 
 - `pip` - ports-compile / Install GitGalaxy
@@ -187,7 +179,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tree-sitter-accuracy-audit.yml
 
 - `git-fetch` - plan / Plan the audit
-- `pip` - tree-sitter-accuracy-audit / Install GitGalaxy + tree-sitter-language-pack
 
 ### tree-sitter-accuracy-history.yml
 
@@ -196,7 +187,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tri-comparison-audit.yml
 
 - `git-fetch` - plan / Plan the audit
-- `pip` - tri-comparison-audit / Install GitGalaxy + tree-sitter-language-pack
 
 ### tri-comparison-history.yml
 

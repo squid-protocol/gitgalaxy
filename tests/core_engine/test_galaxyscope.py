@@ -690,6 +690,15 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         scope.filter = MagicMock()
         scope.filter.evaluate_path_integrity.return_value = (True, 1, None)
 
+        # #8774: the delta runs the full census over the tree; these paths are not on disk, so stand in
+        # the census a full scan of the changed tree would build (the deleted file is gone from it).
+        scope.guidestar = MagicMock()
+
+        def mock_census():
+            scope.stem_map = {p: p for p in ("src/main.py", "src/new_feature.py", "src/untouched.py")}
+
+        scope._build_file_census = mock_census
+
         # Baseline state
         old_ram_cache = {
             "src/main.py": {"coding_loc": 100},

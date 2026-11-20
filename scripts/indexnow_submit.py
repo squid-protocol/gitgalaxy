@@ -12,11 +12,13 @@ Google does not read IndexNow; it needs Search Console.
 stdlib only; exit 0 on every network failure so a ping never blocks a docs deploy.
 
     python scripts/indexnow_submit.py --base <sha> --head <sha> [--dry-run]
+    python scripts/indexnow_submit.py --all [--dry-run]   # one-time: every sitemap URL
 """
 
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 import subprocess
@@ -93,6 +95,19 @@ def changed_pages(base: str, head: str) -> list[str]:
     return sorted({u for p in out if (u := page_url(p))})
 
 
+def sitemap_pages() -> list[str]:
+    """Every URL in the live sitemap, for a one-time bulk submit (`--all`)."""
+    with urllib.request.urlopen(f"{SITE}sitemap.xml", timeout=30) as r:
+        xml = r.read().decode()
+    urls = set()
+    for loc in re.findall(r"<loc>([^<]+)</loc>", xml):
+        parts = urllib.parse.urlsplit(html.unescape(loc))
+        urls.add(
+            parts._replace(path=urllib.parse.quote(parts.path, safe="/%")).geturl()
+        )
+    return sorted(urls)
+
+
 def wait_for_key(key: str, timeout: int) -> bool:
     """The new site goes live a minute or two after gh-deploy; IndexNow fetches the key file."""
     url = f"{SITE}{key}.txt"
@@ -139,12 +154,17 @@ def main() -> int:
         default=300,
         help="seconds to wait for the key file to go live",
     )
+    ap.add_argument(
+        "--all",
+        action="store_true",
+        help="submit every URL in the live sitemap (one-time bulk)",
+    )
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
     key = find_key()
-    urls = changed_pages(a.base, a.head)
-    print(f"{len(urls)} changed wiki page(s)")
+    urls = sitemap_pages() if a.all else changed_pages(a.base, a.head)
+    print(f"{len(urls)} {'sitemap' if a.all else 'changed wiki'} page(s)")
     for u in urls[:20]:
         print(" ", u)
     if not urls or a.dry_run:

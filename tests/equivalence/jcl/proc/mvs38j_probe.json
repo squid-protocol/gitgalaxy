@@ -1,0 +1,674 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB)",
+ "results": [
+  {
+   "id": "sym-defaults",
+   "job": "SYMJOB",
+   "call": "S1",
+   "expect": {
+    "S1.P1": {
+     "dd": [
+      [
+       "IN",
+       "PROD.IN.DATA"
+      ]
+     ],
+     "parm": "ONE"
+    },
+    "S1.P2": {
+     "dd": [
+      [
+       "CTL",
+       "PROD.CTL"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "S1.P1": {
+     "dd": [
+      [
+       "IN",
+       "PROD.IN.DATA"
+      ]
+     ],
+     "parm": "ONE"
+    },
+    "S1.P2": {
+     "dd": [
+      [
+       "CTL",
+       "PROD.CTL"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "S1.P1": {
+     "dd": [
+      [
+       "IN",
+       "PROD.IN.DATA"
+      ]
+     ],
+     "parm": "ONE"
+    },
+    "S1.P2": {
+     "dd": [
+      [
+       "CTL",
+       "PROD.CTL"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "P1",
+     "step": "S1",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "P2",
+     "step": "S1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "sym-exec-overrides-default",
+   "job": "SYMJOB",
+   "call": "S2",
+   "expect": {
+    "S2.P1": {
+     "dd": [
+      [
+       "IN",
+       "TEST.IN.DATA"
+      ]
+     ],
+     "parm": "TWO"
+    },
+    "S2.P2": {
+     "dd": [
+      [
+       "CTL",
+       "TEST.CTL"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "S2.P1": {
+     "dd": [
+      [
+       "IN",
+       "TEST.IN.DATA"
+      ]
+     ],
+     "parm": "TWO"
+    },
+    "S2.P2": {
+     "dd": [
+      [
+       "CTL",
+       "TEST.CTL"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "S2.P1": {
+     "dd": [
+      [
+       "IN",
+       "TEST.IN.DATA"
+      ]
+     ],
+     "parm": "TWO"
+    },
+    "S2.P2": {
+     "dd": [
+      [
+       "CTL",
+       "TEST.CTL"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "P1",
+     "step": "S2",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "P2",
+     "step": "S2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "sym-one-of-three",
+   "job": "SYMJOB",
+   "call": "S3",
+   "expect": {
+    "S3.P1": {
+     "dd": [
+      [
+       "IN",
+       "PROD.IN.NEW"
+      ]
+     ],
+     "parm": "ONE"
+    },
+    "S3.P2": {
+     "dd": [
+      [
+       "CTL",
+       "PROD.CTL"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "S3.P1": {
+     "dd": [
+      [
+       "IN",
+       "PROD.IN.NEW"
+      ]
+     ],
+     "parm": "ONE"
+    },
+    "S3.P2": {
+     "dd": [
+      [
+       "CTL",
+       "PROD.CTL"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "S3.P1": {
+     "dd": [
+      [
+       "IN",
+       "PROD.IN.NEW"
+      ]
+     ],
+     "parm": "ONE"
+    },
+    "S3.P2": {
+     "dd": [
+      [
+       "CTL",
+       "PROD.CTL"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "P1",
+     "step": "S3",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "P2",
+     "step": "S3",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "proc-called-unchanged",
+   "job": "OVRJOB",
+   "call": "O1",
+   "expect": {
+    "O1.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O1.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "O1.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O1.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "O1.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O1.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "A1",
+     "step": "O1",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "A2",
+     "step": "O1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "exec-parm-cond-override",
+   "job": "OVRJOB",
+   "call": "O2",
+   "expect": {
+    "O2.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O2.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "O2.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O2.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "O2.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O2.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "A1",
+     "step": "O2",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "A2",
+     "step": "O2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-override-and-added-dd",
+   "job": "OVRJOB",
+   "call": "O3",
+   "expect": {
+    "O3.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "NEW.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O3.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ],
+      [
+       "EXTRA",
+       "EXTRA.DD"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "O3.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "NEW.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O3.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ],
+      [
+       "EXTRA",
+       "EXTRA.DD"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "O3.A1": {
+     "dd": [
+      [
+       "SYSUT1",
+       "NEW.IN"
+      ],
+      [
+       "SYSUT2",
+       "BASE.OUT"
+      ]
+     ]
+    },
+    "O3.A2": {
+     "dd": [
+      [
+       "SYSUT1",
+       "BASE.IN2"
+      ],
+      [
+       "EXTRA",
+       "EXTRA.DD"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "A1",
+     "step": "O3",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "A2",
+     "step": "O3",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "exec-parm-first-step-only",
+   "job": "PCJOB",
+   "call": "C1",
+   "expect": {
+    "C1.B1": {
+     "dd": []
+    },
+    "C1.B2": {
+     "dd": []
+    },
+    "C1.B3": {
+     "dd": []
+    }
+   },
+   "engine": {
+    "C1.B1": {
+     "dd": []
+    },
+    "C1.B2": {
+     "dd": []
+    },
+    "C1.B3": {
+     "dd": []
+    }
+   },
+   "box": {
+    "C1.B1": {
+     "dd": []
+    },
+    "C1.B2": {
+     "dd": []
+    },
+    "C1.B3": {
+     "dd": []
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "B1",
+     "step": "C1",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "B2",
+     "step": "C1",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "B3",
+     "step": "C1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "exec-cond-every-step",
+   "job": "PCJOB",
+   "call": "C2",
+   "expect": {
+    "C2.B1": {
+     "dd": []
+    },
+    "C2.B2": {
+     "dd": []
+    },
+    "C2.B3": {
+     "dd": []
+    }
+   },
+   "engine": {
+    "C2.B1": {
+     "dd": []
+    },
+    "C2.B2": {
+     "dd": []
+    },
+    "C2.B3": {
+     "dd": []
+    }
+   },
+   "box": {
+    "C2.B1": {
+     "dd": []
+    },
+    "C2.B2": {
+     "dd": []
+    },
+    "C2.B3": {
+     "dd": []
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "B1",
+     "step": "C2",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "B2",
+     "step": "C2",
+     "executed": true,
+     "cond_code": 0
+    },
+    {
+     "procstep": "B3",
+     "step": "C2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  }
+ ]
+}

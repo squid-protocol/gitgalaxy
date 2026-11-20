@@ -1,0 +1,1839 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-pc-wizard",
+ "survivors": [
+  {
+   "id": "80f1adacf0",
+   "op": "LIT",
+   "line": 35,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "3c0cc8fb88",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "f8fa1a8b64",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "9d317f0a7d",
+   "op": "LIT",
+   "line": 37,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "77b2a47704",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_PCM3I lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "46c24fbba7",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "5dabf3a5fb",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 14, 1, false);",
+   "after": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 14, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute NAMEA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "70021fa563",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 14, 1, false);",
+   "after": "private final Field f6_NAMEA = Field.alphanumeric(s_PCM1I, 15, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute NAMEA: bytes 14 and 15 only ever hold X'00' or a space, which SEND MAP reads as not set either way (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5ef362f754",
+   "op": "CON",
+   "line": 78,
+   "before": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 4, 0, true, false);",
+   "after": "private final Field f8_MSG1L = Field.binary(s_PCM1I, 30, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f8_MSG1L is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "01d970a0be",
+   "op": "CON",
+   "line": 79,
+   "before": "private final Field f11_MSG1A = Field.alphanumeric(s_PCM1I, 32, 1, false);",
+   "after": "private final Field f11_MSG1A = Field.alphanumeric(s_PCM1I, 32, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute MSG1A: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "997033bb78",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 4, 0, true, false);",
+   "after": "private final Field f21_NAMEOUTL = Field.binary(s_PCM2I, 12, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f21_NAMEOUTL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "22c94a7f3b",
+   "op": "CON",
+   "line": 85,
+   "before": "private final Field f24_NAMEOUTA = Field.alphanumeric(s_PCM2I, 14, 1, false);",
+   "after": "private final Field f24_NAMEOUTA = Field.alphanumeric(s_PCM2I, 14, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute NAMEOUTA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "646a846d98",
+   "op": "CON",
+   "line": 86,
+   "before": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 4, 0, true, false);",
+   "after": "private final Field f26_AMTL = Field.binary(s_PCM2I, 30, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f26_AMTL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "1e37263238",
+   "op": "CON",
+   "line": 87,
+   "before": "private final Field f29_AMTA = Field.alphanumeric(s_PCM2I, 32, 1, false);",
+   "after": "private final Field f29_AMTA = Field.alphanumeric(s_PCM2I, 32, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute AMTA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c07a70b065",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 4, 0, true, false);",
+   "after": "private final Field f31_MSG2L = Field.binary(s_PCM2I, 40, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f31_MSG2L is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "415844e5eb",
+   "op": "CON",
+   "line": 89,
+   "before": "private final Field f34_MSG2A = Field.alphanumeric(s_PCM2I, 42, 1, false);",
+   "after": "private final Field f34_MSG2A = Field.alphanumeric(s_PCM2I, 42, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute MSG2A: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "53eb161b6e",
+   "op": "CON",
+   "line": 94,
+   "before": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
+   "after": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHNULL at (0, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "df6578635d",
+   "op": "CON",
+   "line": 94,
+   "before": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
+   "after": "private final Field f70_DFHNULL = Field.alphanumeric(s_DFHAID, 1, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHNULL at (1, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "13c68d3fe0",
+   "op": "CON",
+   "line": 95,
+   "before": "private final Field f71_DFHENTER = Field.alphanumeric(s_DFHAID, 1, 1, false);",
+   "after": "private final Field f71_DFHENTER = Field.alphanumeric(s_DFHAID, 1, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHENTER at (1, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c51b6b60cb",
+   "op": "CON",
+   "line": 96,
+   "before": "private final Field f72_DFHCLEAR = Field.alphanumeric(s_DFHAID, 2, 1, false);",
+   "after": "private final Field f72_DFHCLEAR = Field.alphanumeric(s_DFHAID, 3, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHCLEAR at (3, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ae07a0354d",
+   "op": "CON",
+   "line": 97,
+   "before": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 3, 1, false);",
+   "after": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 4, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPEN at (4, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e95efd2b40",
+   "op": "CON",
+   "line": 97,
+   "before": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 3, 1, false);",
+   "after": "private final Field f73_DFHPEN = Field.alphanumeric(s_DFHAID, 3, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPEN at (3, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "0c289a80c2",
+   "op": "CON",
+   "line": 98,
+   "before": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 4, 1, false);",
+   "after": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 4, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHOPID at (4, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "95b9042bf8",
+   "op": "CON",
+   "line": 98,
+   "before": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 4, 1, false);",
+   "after": "private final Field f74_DFHOPID = Field.alphanumeric(s_DFHAID, 5, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHOPID at (5, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "62960877d4",
+   "op": "CON",
+   "line": 99,
+   "before": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 5, 1, false);",
+   "after": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 6, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHMSRE at (6, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "bb807ada7c",
+   "op": "CON",
+   "line": 99,
+   "before": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 5, 1, false);",
+   "after": "private final Field f75_DFHMSRE = Field.alphanumeric(s_DFHAID, 5, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHMSRE at (5, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "00208a8ec4",
+   "op": "CON",
+   "line": 100,
+   "before": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 6, 1, false);",
+   "after": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 6, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHSTRF at (6, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9b8e1a8610",
+   "op": "CON",
+   "line": 100,
+   "before": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 6, 1, false);",
+   "after": "private final Field f76_DFHSTRF = Field.alphanumeric(s_DFHAID, 7, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHSTRF at (7, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c8006786ab",
+   "op": "CON",
+   "line": 101,
+   "before": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 7, 1, false);",
+   "after": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 8, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHTRIG at (8, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d3dd41c971",
+   "op": "CON",
+   "line": 101,
+   "before": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 7, 1, false);",
+   "after": "private final Field f77_DFHTRIG = Field.alphanumeric(s_DFHAID, 7, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHTRIG at (7, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "24b890c7ab",
+   "op": "CON",
+   "line": 102,
+   "before": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 8, 1, false);",
+   "after": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 9, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPA1 at (9, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9653712544",
+   "op": "CON",
+   "line": 102,
+   "before": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 8, 1, false);",
+   "after": "private final Field f78_DFHPA1 = Field.alphanumeric(s_DFHAID, 8, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPA1 at (8, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1f171a4768",
+   "op": "CON",
+   "line": 103,
+   "before": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 9, 1, false);",
+   "after": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 9, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPA2 at (9, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "36240fb41a",
+   "op": "CON",
+   "line": 103,
+   "before": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 9, 1, false);",
+   "after": "private final Field f79_DFHPA2 = Field.alphanumeric(s_DFHAID, 10, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPA2 at (10, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "0006c1e8f3",
+   "op": "CON",
+   "line": 104,
+   "before": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 10, 1, false);",
+   "after": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 11, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPA3 at (11, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "12db5a47cf",
+   "op": "CON",
+   "line": 104,
+   "before": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 10, 1, false);",
+   "after": "private final Field f80_DFHPA3 = Field.alphanumeric(s_DFHAID, 10, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPA3 at (10, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "78b4b5eeed",
+   "op": "CON",
+   "line": 105,
+   "before": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 1, false);",
+   "after": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF1 at (11, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ec67ff8cfc",
+   "op": "CON",
+   "line": 105,
+   "before": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 1, false);",
+   "after": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF1 at (12, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "82a763c1a3",
+   "op": "CON",
+   "line": 106,
+   "before": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+   "after": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF2 at (13, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d494ba24c7",
+   "op": "CON",
+   "line": 106,
+   "before": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+   "after": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF2 at (12, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5d05a5600e",
+   "op": "CON",
+   "line": 107,
+   "before": "private final Field f83_DFHPF3 = Field.alphanumeric(s_DFHAID, 13, 1, false);",
+   "after": "private final Field f83_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF3 at (14, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "4f18b5b9ec",
+   "op": "CON",
+   "line": 108,
+   "before": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
+   "after": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF4 at (15, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e52440674b",
+   "op": "CON",
+   "line": 108,
+   "before": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
+   "after": "private final Field f84_DFHPF4 = Field.alphanumeric(s_DFHAID, 14, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF4 at (14, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f7038f06f4",
+   "op": "CON",
+   "line": 109,
+   "before": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
+   "after": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF5 at (16, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f90a6f6628",
+   "op": "CON",
+   "line": 109,
+   "before": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
+   "after": "private final Field f85_DFHPF5 = Field.alphanumeric(s_DFHAID, 15, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF5 at (15, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "23fa32a256",
+   "op": "CON",
+   "line": 110,
+   "before": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
+   "after": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF6 at (16, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5691cd195e",
+   "op": "CON",
+   "line": 110,
+   "before": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
+   "after": "private final Field f86_DFHPF6 = Field.alphanumeric(s_DFHAID, 17, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF6 at (17, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "419bd7c7e1",
+   "op": "CON",
+   "line": 111,
+   "before": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 17, 1, false);",
+   "after": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 17, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF7 at (17, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "694761cae8",
+   "op": "CON",
+   "line": 111,
+   "before": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 17, 1, false);",
+   "after": "private final Field f87_DFHPF7 = Field.alphanumeric(s_DFHAID, 18, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF7 at (18, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "52bbeddf1e",
+   "op": "CON",
+   "line": 112,
+   "before": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 18, 1, false);",
+   "after": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 19, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF8 at (19, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "76e2aaf015",
+   "op": "CON",
+   "line": 112,
+   "before": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 18, 1, false);",
+   "after": "private final Field f88_DFHPF8 = Field.alphanumeric(s_DFHAID, 18, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF8 at (18, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "16040f420c",
+   "op": "CON",
+   "line": 113,
+   "before": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 1, false);",
+   "after": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF9 at (19, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "718cfd1e7c",
+   "op": "CON",
+   "line": 113,
+   "before": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 19, 1, false);",
+   "after": "private final Field f89_DFHPF9 = Field.alphanumeric(s_DFHAID, 20, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF9 at (20, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "327ce1f0bc",
+   "op": "CON",
+   "line": 114,
+   "before": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 20, 1, false);",
+   "after": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 21, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF10 at (21, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "44c2120c22",
+   "op": "CON",
+   "line": 114,
+   "before": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 20, 1, false);",
+   "after": "private final Field f90_DFHPF10 = Field.alphanumeric(s_DFHAID, 20, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF10 at (20, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c4ab93fbe5",
+   "op": "CON",
+   "line": 115,
+   "before": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 21, 1, false);",
+   "after": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF11 at (22, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e37c4babfa",
+   "op": "CON",
+   "line": 115,
+   "before": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 21, 1, false);",
+   "after": "private final Field f91_DFHPF11 = Field.alphanumeric(s_DFHAID, 21, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF11 at (21, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "121efdf070",
+   "op": "CON",
+   "line": 116,
+   "before": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
+   "after": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF12 at (23, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "66c7e64edf",
+   "op": "CON",
+   "line": 116,
+   "before": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
+   "after": "private final Field f92_DFHPF12 = Field.alphanumeric(s_DFHAID, 22, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF12 at (22, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "2c721a9a00",
+   "op": "CON",
+   "line": 117,
+   "before": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+   "after": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 23, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF13 at (23, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5c3c023d33",
+   "op": "CON",
+   "line": 117,
+   "before": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+   "after": "private final Field f93_DFHPF13 = Field.alphanumeric(s_DFHAID, 24, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF13 at (24, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "7ad0cd3917",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 24, 1, false);",
+   "after": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 24, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF14 at (24, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b7caa1c9a3",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 24, 1, false);",
+   "after": "private final Field f94_DFHPF14 = Field.alphanumeric(s_DFHAID, 25, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF14 at (25, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "4572a931c2",
+   "op": "CON",
+   "line": 119,
+   "before": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 25, 1, false);",
+   "after": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 25, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF15 at (25, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "fe353ac756",
+   "op": "CON",
+   "line": 119,
+   "before": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 25, 1, false);",
+   "after": "private final Field f95_DFHPF15 = Field.alphanumeric(s_DFHAID, 26, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF15 at (26, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1189d13f9b",
+   "op": "CON",
+   "line": 120,
+   "before": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 26, 1, false);",
+   "after": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 27, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF16 at (27, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a77b3f891c",
+   "op": "CON",
+   "line": 120,
+   "before": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 26, 1, false);",
+   "after": "private final Field f96_DFHPF16 = Field.alphanumeric(s_DFHAID, 26, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF16 at (26, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3a4f1eb760",
+   "op": "CON",
+   "line": 121,
+   "before": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 27, 1, false);",
+   "after": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF17 at (28, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c28a26d330",
+   "op": "CON",
+   "line": 121,
+   "before": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 27, 1, false);",
+   "after": "private final Field f97_DFHPF17 = Field.alphanumeric(s_DFHAID, 27, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF17 at (27, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "2be9c30a82",
+   "op": "CON",
+   "line": 122,
+   "before": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+   "after": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF18 at (29, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "cdf89c6ed9",
+   "op": "CON",
+   "line": 122,
+   "before": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+   "after": "private final Field f98_DFHPF18 = Field.alphanumeric(s_DFHAID, 28, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF18 at (28, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d86b9169b1",
+   "op": "CON",
+   "line": 123,
+   "before": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+   "after": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 29, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF19 at (29, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e69751a777",
+   "op": "CON",
+   "line": 123,
+   "before": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+   "after": "private final Field f99_DFHPF19 = Field.alphanumeric(s_DFHAID, 30, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF19 at (30, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5121b801f0",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 30, 1, false);",
+   "after": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 30, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF20 at (30, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "84a1e802c9",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 30, 1, false);",
+   "after": "private final Field f100_DFHPF20 = Field.alphanumeric(s_DFHAID, 31, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF20 at (31, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3f70e91e10",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 31, 1, false);",
+   "after": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 32, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF21 at (32, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "ec925b7f17",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 31, 1, false);",
+   "after": "private final Field f101_DFHPF21 = Field.alphanumeric(s_DFHAID, 31, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF21 at (31, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "03fa20db8c",
+   "op": "CON",
+   "line": 126,
+   "before": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 32, 1, false);",
+   "after": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 33, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF22 at (33, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a6d4410660",
+   "op": "CON",
+   "line": 126,
+   "before": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 32, 1, false);",
+   "after": "private final Field f102_DFHPF22 = Field.alphanumeric(s_DFHAID, 32, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF22 at (32, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "60600e2067",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 33, 1, false);",
+   "after": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 34, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF23 at (34, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "896e025a11",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 33, 1, false);",
+   "after": "private final Field f103_DFHPF23 = Field.alphanumeric(s_DFHAID, 33, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF23 at (33, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5fdb820f0e",
+   "op": "CON",
+   "line": 128,
+   "before": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 1, false);",
+   "after": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF24 at (34, 2) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "7663b3f6ae",
+   "op": "CON",
+   "line": 128,
+   "before": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 1, false);",
+   "after": "private final Field f104_DFHPF24 = Field.alphanumeric(s_DFHAID, 35, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: DFHAID: every key press matches the same EIBAID comparisons with DFHPF24 at (35, 1) as without (EIBAID is compared only with nothing) (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "79c26875e4",
+   "op": "CON",
+   "line": 138,
+   "before": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into: bytes 0..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7e0b621fd1",
+   "op": "CON",
+   "line": 138,
+   "before": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into: bytes 0..3 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "cf84f77301",
+   "op": "CON",
+   "line": 138,
+   "before": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f118_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into: bytes 1..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1676948f24",
+   "op": "CON",
+   "line": 139,
+   "before": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f119_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "312c438217",
+   "op": "CON",
+   "line": 139,
+   "before": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "473f0ae4b9",
+   "op": "CON",
+   "line": 139,
+   "before": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f119_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "16980844ef",
+   "op": "CON",
+   "line": 140,
+   "before": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "81907d4687",
+   "op": "CON",
+   "line": 140,
+   "before": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f120_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "769fc4cb6d",
+   "op": "CON",
+   "line": 141,
+   "before": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d322e747bb",
+   "op": "CON",
+   "line": 141,
+   "before": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f121_EIBTASKN is only stored into: bytes 12..15 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "e8ce5ca940",
+   "op": "CON",
+   "line": 141,
+   "before": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f121_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "406be097d3",
+   "op": "CON",
+   "line": 142,
+   "before": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c6a5b5a996",
+   "op": "CON",
+   "line": 142,
+   "before": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f122_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "30830ebe9b",
+   "op": "CON",
+   "line": 144,
+   "before": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+   "after": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBAID or bytes 26-27 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5f21babf4f",
+   "op": "CON",
+   "line": 144,
+   "before": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+   "after": "private final Field f126_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBAID or bytes 26-27 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "21dcd4448a",
+   "op": "CON",
+   "line": 145,
+   "before": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "664efc0c81",
+   "op": "CON",
+   "line": 145,
+   "before": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into: bytes 77..80 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "88928c3ced",
+   "op": "CON",
+   "line": 145,
+   "before": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f146_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "310db5cd71",
+   "op": "CON",
+   "line": 146,
+   "before": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into: bytes 81..84 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "aa94e3b722",
+   "op": "CON",
+   "line": 146,
+   "before": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "e7cd6be82f",
+   "op": "CON",
+   "line": 146,
+   "before": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f147_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c7b41b03ea",
+   "op": "CON",
+   "line": 147,
+   "before": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f149_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f149_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "3ed0a4a67e",
+   "op": "ROR",
+   "line": 160,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "5d42ef5332",
+   "op": "CON",
+   "line": 160,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "6374be72d0",
+   "op": "ROR",
+   "line": 160,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "fc209c57c7",
+   "op": "NEG",
+   "line": 160,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "db44977224",
+   "op": "DEL",
+   "line": 161,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "62e0922b78",
+   "op": "LIT",
+   "line": 166,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "251f3c30b4",
+   "op": "NEG",
+   "line": 168,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "f59c8b2465",
+   "op": "COR",
+   "line": 168,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "3190337e2c",
+   "op": "LIT",
+   "line": 171,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "da7c06cd0e",
+   "op": "LIT",
+   "line": 171,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "57807bd3fa",
+   "op": "DEL",
+   "line": 231,
+   "before": "System.arraycopy(IMAGE_s_PCM3I, 0, s_PCM3I.bytes, 0, IMAGE_s_PCM3I.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PCM3I, 0, s_PCM3I.bytes, 0, IMAGE_s_PCM3I.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_PCM3I's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "a5283c3741",
+   "op": "DEL",
+   "line": 238,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "3909a4608c",
+   "op": "DEL",
+   "line": 239,
+   "before": "f112_WS_RESP = 0L;",
+   "after": "/* f112_WS_RESP = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f112_WS_RESP follows a top-level store of it in its own method; the initial value is never read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "3fb43c14a0",
+   "op": "DEL",
+   "line": 265,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "430ebdbd96",
+   "op": "AOR",
+   "line": 271,
+   "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f119_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "74eded9fe0",
+   "op": "AOR",
+   "line": 271,
+   "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f119_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "853cf6cc48",
+   "op": "CON",
+   "line": 271,
+   "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f119_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c43fd2192d",
+   "op": "AOR",
+   "line": 271,
+   "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f119_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "e9115a9b23",
+   "op": "DEL",
+   "line": 271,
+   "before": "Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f119_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f119_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2291691c22",
+   "op": "AOR",
+   "line": 272,
+   "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "484fa95a35",
+   "op": "AOR",
+   "line": 272,
+   "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "6aca195360",
+   "op": "AOR",
+   "line": 272,
+   "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a76df7170b",
+   "op": "AOR",
+   "line": 272,
+   "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ec9d970496",
+   "op": "DEL",
+   "line": 272,
+   "before": "Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f118_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f118_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4de712911d",
+   "op": "LIT",
+   "line": 350,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "a0142ed83a",
+   "op": "LIT",
+   "line": 350,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "01d6b3e20c",
+   "op": "DEL",
+   "line": 553,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(resp3), false, CS);",
+   "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(resp3), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "43950b7a27",
+   "op": "DEL",
+   "line": 554,
+   "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "80a5f3e804",
+   "op": "CON",
+   "line": 554,
+   "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d50a60e48b",
+   "op": "LIT",
+   "line": 589,
+   "before": "DetCics.subfields(sub8, \"MSG1\", f8_MSG1L, f11_MSG1A, null, null, CS);",
+   "after": "DetCics.subfields(sub8, \"XSG1\", f8_MSG1L, f11_MSG1A, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f8_MSG1L, f11_MSG1A: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "45fe54a356",
+   "op": "CON",
+   "line": 593,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+   "after": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9d5261e538",
+   "op": "DEL",
+   "line": 593,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+   "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "694f2d3743",
+   "op": "DEL",
+   "line": 594,
+   "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8f86892b1a",
+   "op": "CON",
+   "line": 601,
+   "before": "task.returnTransid(\"PC02\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 30).bytes);",
+   "after": "task.returnTransid(\"PC02\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 31).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(30) cuts the area to 30 bytes, so commarea size 30 vs 31 (both >= 30) carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
+   "id": "c3c2d72b94",
+   "op": "CON",
+   "line": 603,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "equivalent",
+   "reason": "line 603 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "01115b2c35",
+   "op": "LIT",
+   "line": 626,
+   "before": "DetCics.subfields(sub13, \"NAMEOUT\", f21_NAMEOUTL, f24_NAMEOUTA, null, null, CS);",
+   "after": "DetCics.subfields(sub13, \"XAMEOUT\", f21_NAMEOUTL, f24_NAMEOUTA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f21_NAMEOUTL, f24_NAMEOUTA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "23e1daa636",
+   "op": "LIT",
+   "line": 628,
+   "before": "DetCics.subfields(sub13, \"AMT\", f26_AMTL, f29_AMTA, null, null, CS);",
+   "after": "DetCics.subfields(sub13, \"XMT\", f26_AMTL, f29_AMTA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f26_AMTL, f29_AMTA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "61df94ba8a",
+   "op": "LIT",
+   "line": 630,
+   "before": "DetCics.subfields(sub13, \"MSG2\", f31_MSG2L, f34_MSG2A, null, null, CS);",
+   "after": "DetCics.subfields(sub13, \"XSG2\", f31_MSG2L, f34_MSG2A, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f31_MSG2L, f34_MSG2A: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "2dfa6eeaf9",
+   "op": "DEL",
+   "line": 634,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[0]), false, CS);",
+   "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dd3178ab59",
+   "op": "CON",
+   "line": 634,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[0]), false, CS);",
+   "after": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned15[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ff49858d96",
+   "op": "DEL",
+   "line": 635,
+   "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned15[1]), false, CS);",
+   "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned15[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "309c0725cd",
+   "op": "CON",
+   "line": 642,
+   "before": "task.returnTransid(\"PC03\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 30).bytes);",
+   "after": "task.returnTransid(\"PC03\".strip(), out_PcwizWsState(f105_WS_STATE.storage(), f105_WS_STATE.offset()), 30, Cobol.commarea(f105_WS_STATE, 31).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(30) cuts the area to 30 bytes, so commarea size 30 vs 31 (both >= 30) carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
+   "id": "12e242e98f",
+   "op": "CON",
+   "line": 644,
+   "before": "return 4;",
+   "after": "return 5;",
+   "verdict": "equivalent",
+   "reason": "line 644 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "4ef50fe57f",
+   "op": "DEL",
+   "line": 653,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[0]), false, CS);",
+   "after": "/* Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "71a2aaf358",
+   "op": "CON",
+   "line": 653,
+   "before": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[0]), false, CS);",
+   "after": "Cobol.store(f146_EIBRESP, BigDecimal.valueOf(planned17[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f146_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9eb7074539",
+   "op": "DEL",
+   "line": 654,
+   "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned17[1]), false, CS);",
+   "after": "/* Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned17[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9b5a3b150b",
+   "op": "CON",
+   "line": 663,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "equivalent",
+   "reason": "line 663 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  }
+ ]
+}

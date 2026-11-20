@@ -34,7 +34,7 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_libraries_hold_the_members_the_scenarios_search_for():
     assert {k: sorted(v) for k, v in LIBS.items()} == {
-        "LIB.A": ["OUTER", "PRC1", "PRC3", "PRC4", "STDDDS", "SYSOUT2"],
+        "LIB.A": ["GRPX", "GRPY", "OUTER", "PGRP", "PRC1", "PRC3", "PRC4", "STDDDS", "SYSOUT2"],
         "LIB.B": ["PRC1", "PRC2", "PRC4", "STDDDS"],
     }
 
@@ -65,6 +65,10 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "nested-",
         "dd-kind",
         "include-in-proc",
+        "proc-set-holds",
+        "proc-set-reaches",
+        "proc-set-does-not-outlive",
+        "proc-include-group-with-set",
     ):
         assert word in ids, word
 
@@ -76,7 +80,8 @@ def test_what_is_not_answered_is_refused_by_name():
         "SYSOUT",
         "backward reference",
         "IF flow",
-        "EXEC or SET statement",
+        "a SET inside a procedure for a symbol",
+        "a SET inside a procedure whose value",
         "after the EXEC",
     ):
         assert name in refused, name
@@ -178,11 +183,28 @@ def test_an_include_group_holding_a_statement_the_manual_forbids_is_invalid(stmt
     _refused(text, "cannot hold", {"LIB.A": {"BAD": "//D DD DSN=A\n" + stmt + "\n"}})
 
 
-def test_an_include_group_holding_an_exec_is_refused_and_one_holding_output_is_not():
+def test_a_group_holding_exec_and_set_is_spliced_at_job_level_and_inside_a_procedure():
     text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//C EXEC PGM=X\n// INCLUDE MEMBER=G\n"
-    _refused(text, "EXEC statement in an INCLUDE group", {"LIB.A": {"G": "//B EXEC PGM=Y\n"}})
-    ok = {"LIB.A": {"G": "//O OUTPUT DEST=X\n//D DD DSN=A\n"}}
-    assert resolve_job(text, ok, "J")["C"]["dd"] == {"D": "A"}
+    libs = {"LIB.A": {"G": "//S SET Z=ONE\n//B EXEC PGM=Y\n//D DD DSN=&Z\n//O OUTPUT DEST=X\n"}}
+    got = resolve_job(text, libs, "J")
+    assert list(got) == ["C", "B"] and got["B"]["dd"] == {"D": "ONE"}
+    proc = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//P PROC\n//A EXEC PGM=X\n// INCLUDE MEMBER=G\n// PEND\n//C EXEC P\n"
+    got = resolve_job(proc, libs, "J")
+    assert list(got) == ["C.A", "C.B"] and got["C.B"]["dd"] == {"D": "ONE"}
+
+
+def test_a_set_inside_a_procedure_scopes_to_the_statements_after_it_and_the_call():
+    body = "//A EXEC PGM=X\n//D1 DD DSN=&Z..ONE\n//S SET Z=IN\n//D2 DD DSN=&Z..TWO\n//B EXEC PGM=Y,PARM=&Z\n"
+    text = "//J JOB\n//T SET Z=OUT\n//P PROC\n" + body + "// PEND\n//C EXEC P\n//E EXEC PGM=Z\n//ED DD DSN=&Z\n"
+    got = resolve_job(text, {}, "J")
+    assert got["C.A"]["dd"] == {"D1": "OUT.ONE", "D2": "IN.TWO"}
+    assert got["C.B"]["parm"] == "IN" and got["E"]["dd"] == {"ED": "OUT"}
+
+
+def test_a_set_inside_a_procedure_that_the_call_assigns_or_that_holds_a_symbol_is_refused():
+    _refused("//J JOB\n//P PROC Z=D\n//S SET Z=IN\n//A EXEC PGM=X\n// PEND\n//C EXEC P\n", "assigns it")
+    _refused("//J JOB\n//P PROC\n//S SET Z=IN\n//A EXEC PGM=X\n// PEND\n//C EXEC P,Z=E\n", "assigns it")
+    _refused("//J JOB\n//P PROC\n//S SET Z=&Y\n//A EXEC PGM=X\n// PEND\n//C EXEC P,Y=1\n", "symbol in its value")
 
 
 def test_a_symbol_assigned_nowhere_is_invalid():

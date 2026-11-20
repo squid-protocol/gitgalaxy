@@ -10,9 +10,8 @@ Tensor product forms that used to read 0 (torch methods, module-qualified numpy/
 with near-miss controls (ordinary names that share a spelling) that must stay at zero, and a ReDoS control.
 """
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -64,6 +63,4 @@ def test_near_misses_stay_quiet(lang, text):
 def test_redos_immune():
     text = "a" + ".mm" * 4000 + " " * 5000 + "\nnp." + "linalg." * 3000 + "\n"
     for lang in ("python", "javascript"):
-        t = time.perf_counter()
-        _count(lang, text)
-        assert time.perf_counter() - t < 5
+        assert_cpu_below(lambda lang=lang: _count(lang, text), 5.0, what=f"{lang} vectorized-math probe")

@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), read by section (the unqualified PARM / COND and SET-versus-PROC scenarios cite V2R2 pages 29, 39-42, 51-52, 345 and 353 in their basis; the earlier ones cite sections only): the PROC statement and symbolic parameters (EXEC / PROC / SET value assignment), the SET statement, the EXEC statement's PARM.procstepname and COND.procstepname parameters, DD statement overrides and added DDs in a procedure call, the INCLUDE statement, the JCLLIB statement (ORDER), and the IF/THEN/ELSE/ENDIF relational expression (stepname.procstepname.RC / RUN / ABENDCC). Expected answers were written before any resolver ran on them. Added 2026-11-19 from the local text of SA23-1385 V3R1 (ieab600_v3r1.txt): duplicate symbols, procedure and INCLUDE search order, INCLUDE group contents, the 15-level limit.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), read by section (the unqualified PARM / COND and SET-versus-PROC scenarios cite V2R2 pages 29, 39-42, 51-52, 345 and 353 in their basis; the earlier ones cite sections only): the PROC statement and symbolic parameters (EXEC / PROC / SET value assignment), the SET statement, the EXEC statement's PARM.procstepname and COND.procstepname parameters, DD statement overrides and added DDs in a procedure call, the INCLUDE statement, the JCLLIB statement (ORDER), and the IF/THEN/ELSE/ENDIF relational expression (stepname.procstepname.RC / RUN / ABENDCC). Expected answers were written before any resolver ran on them. Added 2026-11-19 from the local text of SA23-1385 V3R1 (ieab600_v3r1.txt): duplicate symbols, procedure and INCLUDE search order, INCLUDE group contents, the 15-level limit. Added 2026-11-20: a job-level INCLUDE group holding EXEC and SET (p. 376), answers written before the resolver change. Added 2026-11-20 (second pass): a SET statement and an INCLUDE group holding EXEC, SET and a nested group inside a procedure (SET statement p. 559, 'Using symbols in nested procedures' rule 4 p. 48, Example 1 pp. 48-49, INCLUDE pp. 375-376, 'Cataloged procedures' p. 25), answers written before the resolver change.",
   "libraries": {
     "LIB.A": {
       "PRC1": [
@@ -29,6 +29,21 @@
         "//OUT1     OUTPUT DEST=POK,COPIES=3",
         "//OUT2     OUTPUT DEST=KINGSTON,COPIES=30",
         "//OUT3     OUTPUT DEST=MCL,COPIES=10"
+      ],
+      "GRPX": [
+        "//SETG     SET Z=FROMGRP",
+        "//X2       EXEC PGM=PGMX2",
+        "//X2D      DD DSN=&Z..DATA,DISP=SHR",
+        "// INCLUDE MEMBER=GRPY"
+      ],
+      "GRPY": [
+        "//XC       EXEC PRC4"
+      ],
+      "PGRP": [
+        "//GS       SET GT=FROMGRP",
+        "//G1       EXEC PGM=PGMG1",
+        "//G1D      DD DSN=&GT..G,DISP=SHR",
+        "// INCLUDE MEMBER=GRPY"
       ]
     },
     "LIB.B": {
@@ -256,7 +271,49 @@
     "//PROCLIB  JCLLIB ORDER=(LIB.A)",
     "//O1       EXEC PGM=PGMQ",
     "// INCLUDE MEMBER=SYSOUT2",
-    "//O1DD     DD DSN=O1.OWN,DISP=SHR"
+    "//O1DD     DD DSN=O1.OWN,DISP=SHR",
+    "//*",
+    "//INXJOB   JOB (ACCT),'INCLUDE EXEC SET',CLASS=A,MSGCLASS=X",
+    "//PROCLIB  JCLLIB ORDER=(LIB.A)",
+    "//SETA     SET Z=BEFORE",
+    "//X1       EXEC PGM=PGMX1",
+    "//X1D      DD DSN=&Z..DATA,DISP=SHR",
+    "// INCLUDE MEMBER=GRPX",
+    "//X3       EXEC PGM=PGMX3",
+    "//X3D      DD DSN=&Z..DATA,DISP=SHR",
+    "//*",
+    "//PSETJOB  JOB (ACCT),'SET IN PROC',CLASS=A,MSGCLASS=X",
+    "//SETO     SET TAG=OUTER",
+    "//PSP      PROC",
+    "//Q1       EXEC PGM=PGMQ1",
+    "//D1       DD DSN=&TAG..ONE,DISP=SHR",
+    "//SETI     SET TAG=INNER",
+    "//D2       DD DSN=&TAG..TWO,DISP=SHR",
+    "//Q2       EXEC PGM=PGMQ2",
+    "//D3       DD DSN=&TAG..THREE,DISP=SHR",
+    "//         PEND",
+    "//PSI      PROC",
+    "//R1       EXEC PGM=PGMR1",
+    "//R1D      DD DSN=&NEST..R,DISP=SHR",
+    "//         PEND",
+    "//PSO      PROC",
+    "//SETN     SET NEST=FROMOUT",
+    "//T1       EXEC PSI",
+    "//         PEND",
+    "//C1       EXEC PSP",
+    "//C2       EXEC PSO",
+    "//C3       EXEC PGM=PGMAFTER",
+    "//C3D      DD DSN=&TAG..FOUR,DISP=SHR",
+    "//*",
+    "//PINJOB   JOB (ACCT),'INCLUDE IN PROC',CLASS=A,MSGCLASS=X",
+    "//PROCLIB  JCLLIB ORDER=(LIB.A)",
+    "//PIG      PROC",
+    "//A1       EXEC PGM=PGMA1",
+    "// INCLUDE MEMBER=PGRP",
+    "//A2       EXEC PGM=PGMA2",
+    "//A2D      DD DSN=&GT..AFTER,DISP=SHR",
+    "//         PEND",
+    "//P1       EXEC PIG"
   ],
   "resolve_input": "resolve: the call step of a job, e.g. S1 of SYMJOB; libraries are the libraries object of this file.",
   "resolve_answer": "expect: per proc step (key CALLSTEP.PROCSTEP, or CALLSTEP for a plain step), pgm; parm and cond only where the scenario is about them; dd = every DD naming a DSN, in the order the step ends up with them, as {ddname: dsn}.",
@@ -809,6 +866,139 @@
         }
       },
       "basis": "INCLUDE statement (p. 376): a group may hold DD and OUTPUT JCL statements (the manual's own example 1, member SYSOUT2: a SYSOUT DD and three OUTPUT statements). The SYSOUT DD names no data set and OUTPUT statements are not DDs, so O1 ends with its own DD only."
+    },
+    {
+      "id": "include-group-with-set-and-exec-values-hold-after",
+      "job": "INXJOB",
+      "call": "X1",
+      "expect": {
+        "X1": {
+          "pgm": "PGMX1",
+          "dd": {
+            "X1D": "BEFORE.DATA"
+          }
+        }
+      },
+      "basis": "INCLUDE statement, 'Considerations for using INCLUDE groups' (p. 376): values assigned to symbolic parameters in an INCLUDE group (such as with SET) are valid for use on subsequent JCL statements, so a statement coded before the INCLUDE still sees the job's SET: BEFORE.DATA."
+    },
+    {
+      "id": "include-group-exec-runs-with-its-set",
+      "job": "INXJOB",
+      "call": "X2",
+      "expect": {
+        "X2": {
+          "pgm": "PGMX2",
+          "dd": {
+            "X2D": "FROMGRP.DATA"
+          }
+        }
+      },
+      "basis": "Same section (p. 376): the group replaces the INCLUDE statement, and 'You can put EXEC statements' in it; the SET on its first line holds for the statements after it, so X2's DD is FROMGRP.DATA."
+    },
+    {
+      "id": "include-group-nested-group-calls-a-procedure",
+      "job": "INXJOB",
+      "call": "XC",
+      "expect": {
+        "XC.M1": {
+          "pgm": "ONLYA",
+          "dd": {}
+        }
+      },
+      "basis": "Same section (p. 376): 'you can put EXEC statements that invoke procedures in an INCLUDE group', and an INCLUDE group can hold INCLUDE statements. GRPX includes GRPY, whose EXEC calls PRC4; PRC4 is found in LIB.A along ORDER and has the one step M1 (PGM=ONLYA)."
+    },
+    {
+      "id": "include-group-set-holds-after-the-group",
+      "job": "INXJOB",
+      "call": "X3",
+      "expect": {
+        "X3": {
+          "pgm": "PGMX3",
+          "dd": {
+            "X3D": "FROMGRP.DATA"
+          }
+        }
+      },
+      "basis": "Same section (p. 376): the SET inside the group is valid for subsequent JCL statements, so X3 after the INCLUDE reads Z as FROMGRP."
+    },
+    {
+      "id": "proc-set-holds-for-later-statements-of-the-procedure",
+      "job": "PSETJOB",
+      "call": "C1",
+      "expect": {
+        "C1.Q1": {
+          "pgm": "PGMQ1",
+          "dd": {
+            "D1": "OUTER.ONE",
+            "D2": "INNER.TWO"
+          }
+        },
+        "C1.Q2": {
+          "pgm": "PGMQ2",
+          "dd": {
+            "D3": "INNER.THREE"
+          }
+        }
+      },
+      "basis": "SET statement, Purpose (p. 559), and 'Using symbols in nested procedures' rule 4 (p. 48): a SET's value is used in all subsequent statements, and a cataloged procedure may contain SET ('Cataloged procedures', p. 25). TAG is assigned only once inside PSP, neither the PROC statement nor the EXEC assigns it, so D1 (before the SET) reads the outer value OUTER, and D2 and D3 (after it) read INNER."
+    },
+    {
+      "id": "proc-set-reaches-a-nested-procedure",
+      "job": "PSETJOB",
+      "call": "C2",
+      "expect": {
+        "C2.R1": {
+          "pgm": "PGMR1",
+          "dd": {
+            "R1D": "FROMOUT.R"
+          }
+        }
+      },
+      "assumed": "A4",
+      "basis": "'Using symbols in nested procedures' rule 4 (p. 48): the SET value is used in 'subsequent statements, procedures, and nested procedures'; rule 5: a symbol the inner procedure does not assign takes its value from the procedure it is nested in. PSO's SET gives NEST=FROMOUT, PSI assigns none, so R1D is FROMOUT.R."
+    },
+    {
+      "id": "proc-set-does-not-outlive-the-procedure",
+      "job": "PSETJOB",
+      "call": "C3",
+      "expect": {
+        "C3": {
+          "pgm": "PGMAFTER",
+          "dd": {
+            "C3D": "OUTER.FOUR"
+          }
+        }
+      },
+      "basis": "'Examples of coding symbols in nested procedures', Example 1 (pp. 48-49): when a procedure's expansion is complete the values return to those held before it, and at level 0 (BARNEY) the substitution texts are restored. PSP's SET TAG=INNER is gone by C3, which reads the level-0 SET, OUTER."
+    },
+    {
+      "id": "proc-include-group-with-set-exec-and-a-nested-group-is-spliced",
+      "job": "PINJOB",
+      "call": "P1",
+      "expect": {
+        "P1.A1": {
+          "pgm": "PGMA1",
+          "dd": {}
+        },
+        "P1.G1": {
+          "pgm": "PGMG1",
+          "dd": {
+            "G1D": "FROMGRP.G"
+          }
+        },
+        "P1.M1": {
+          "pgm": "ONLYA",
+          "dd": {}
+        },
+        "P1.A2": {
+          "pgm": "PGMA2",
+          "dd": {
+            "A2D": "FROMGRP.AFTER"
+          }
+        }
+      },
+      "assumed": "A4",
+      "basis": "INCLUDE statement (pp. 375-376): the group replaces the INCLUDE statement and its statements are processed as part of the JCL stream; a cataloged procedure may contain INCLUDE and SET (p. 25); a group may hold EXEC statements (also ones that invoke procedures) and nested INCLUDEs; a SET in a group is valid for subsequent statements. So PIG's steps are A1, then the group's G1 (GT=FROMGRP), then GRPY's call of PRC4 (member of LIB.A, one step M1, ONLYA), then A2 reading GT as FROMGRP."
     }
   ],
   "flow": [
@@ -1023,12 +1213,16 @@
       "why": "the manual defines stepname.procstepname for a step with PGM, not a path through nested levels"
     },
     {
-      "construct": "an INCLUDE group holding an EXEC or SET statement",
-      "why": "the manual allows EXEC statements that invoke procedures and SET values valid for later statements (p. 376) but this resolver carries an INCLUDE as the DDs of the step above"
-    },
-    {
       "construct": "an in-stream procedure coded after the EXEC that calls it",
       "why": "the manual says it must be placed before (p. 26) and does not say whether the library member is then used or the job fails"
+    },
+    {
+      "construct": "a SET inside a procedure for a symbol that the calling EXEC or the PROC statement also assigns",
+      "why": "'Using symbols in nested procedures' rule 4 (p. 48) says such a symbol applies 'only to subsequent statements within that PROC', while the SET statement chapter (p. 559) says values assigned by the calling EXEC or PROC statements override the SET values: the two readings differ and the manual does not reconcile them"
+    },
+    {
+      "construct": "a SET inside a procedure whose value holds a symbol (SET Z=&Y)",
+      "why": "the INCLUDE chapter (p. 376) says values current when a symbol is encountered are substituted, but the manual gives no example of a SET value that itself holds a symbol inside a procedure, so the resolver does not carry it"
     }
   ],
   "invalid": [

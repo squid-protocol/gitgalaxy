@@ -39,6 +39,10 @@ below therefore lists those cases.
    - `trivial` is a paragraph of EXIT / CONTINUE only.
 4. **Alignment.**
    - **det: exact.** The emitter writes each paragraph as one method under a `/** NAME. */` javadoc.
+     When a `<Service>.paragraph_methods.json` sidecar (the translator's `stats["paragraph_methods"]`, #8488) sits beside
+     the det service, `construct_map.py` takes the mapping from it instead of the javadoc, records any disagreement as
+     `provenance_drift`, and lists paragraphs the translator gives no method as `unmapped_paragraphs`. Without a
+     sidecar it falls back to the javadoc.
    - **model: by evidence.** The method's name is the paragraph's without its number (high); a comment before the
      method names it (medium); a comment inside it names it (low). A model method that merges several paragraphs is
      compared with their sum (a group). The tables use high and medium evidence only.

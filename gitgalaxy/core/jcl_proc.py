@@ -18,7 +18,8 @@
 # assigned nowhere, a SYSOUT / * / DATA override of a DD that names a DSN,
 # a backward reference procstep.procstep.ddname or a modifying statement for a step that is absent or itself a call,
 # EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels (invalid, pp. 32, 376), an INCLUDE
-# group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376) or an EXEC / SET statement (allowed, not modelled), a member found
+# group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376), a SET inside a procedure naming a symbol its EXEC / PROC assigns, or
+# holding a symbol in its value (a group, job-level or in a procedure, is spliced whole, EXEC and SET included, p. 376), a member found
 # in no library. An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
 from __future__ import annotations
 
@@ -97,22 +98,62 @@ def _dd_dsn(dk: Mapping[str, str], values: Mapping[str, str]) -> str | None:
 _MAX_LEVELS = 15
 
 
-def _include_dds(member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1):
-    """The DD statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
+def _include_statements(
+    member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1
+) -> list[tuple[int, str, str, str]]:
+    """The statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
     if depth > _MAX_LEVELS:
         raise JclProcRefused(f"INCLUDE nested past {_MAX_LEVELS} levels is invalid (p. 376)")
-    out: list[tuple[str, dict[str, str]]] = []
-    for _l, ddn, iop, ifield in _statements(_find(member, order, libraries)):
-        if iop == "INCLUDE":
-            out += _include_dds(_keyword(ifield, "MEMBER").upper(), order, libraries, depth + 1)
-        elif iop == "DD":
-            out.append((ddn.upper(), _dd_keys(ifield)))
-        elif iop == "OUTPUT":
-            continue
-        elif iop in ("JOB", "PROC", "PEND", "JCLLIB"):
-            raise JclProcRefused(f"an INCLUDE group cannot hold a {iop} statement (invalid, p. 376)")
+    out: list[tuple[int, str, str, str]] = []
+    for st in _statements(_find(member, order, libraries)):
+        if st[2] == "INCLUDE":
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries, depth + 1)
+        elif st[2] in ("JOB", "PROC", "PEND", "JCLLIB"):
+            raise JclProcRefused(f"an INCLUDE group cannot hold a {st[2]} statement (invalid, p. 376)")
         else:
-            raise JclProcRefused(f"a {iop} statement in an INCLUDE group is allowed but not carried here")
+            out.append(st)
+    return out
+
+
+def _splice_body(
+    body: list[tuple[int, str, str, str]], order: list[str], libraries: Mapping[str, Mapping[str, str]]
+) -> list[tuple[int, str, str, str]]:
+    """A procedure's statements with each INCLUDE replaced by its group (EXEC and SET included, p. 376)."""
+    out: list[tuple[int, str, str, str]] = []
+    for st in body:
+        if st[2] == "INCLUDE":
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries)
+        else:
+            out.append(st)
+    return out
+
+
+def _apply_sets(text: str | None, local: Mapping[str, str]) -> str | None:
+    """Substitute only the symbols a SET inside the procedure has assigned so far; any other symbol is left for the call."""
+    if text is None or not local:
+        return text
+    return _SYMBOLIC.sub(lambda m: local.get(m.group(1).upper(), m.group(0)), text)
+
+
+def _splice_includes(
+    stmts: list[tuple[int, str, str, str]], libraries: Mapping[str, Mapping[str, str]]
+) -> list[tuple[int, str, str, str]]:
+    """The job's statements with each job-level INCLUDE replaced by its group (EXEC and SET included, p. 376): symbol values
+    a group's SET assigns hold for the statements after it. An INCLUDE inside an in-stream PROC .. PEND is left for the proc."""
+    out: list[tuple[int, str, str, str]] = []
+    order: list[str] = []
+    in_proc = False
+    for st in stmts:
+        if st[2] == "JCLLIB":
+            order = [x.strip().upper() for x in _keyword(st[3], "ORDER").strip("()").split(",") if x.strip()]
+        elif st[2] == "PROC":
+            in_proc = True
+        elif st[2] == "PEND":
+            in_proc = False
+        if st[2] == "INCLUDE" and not in_proc:
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries)
+        else:
+            out.append(st)
     return out
 
 
@@ -141,12 +182,18 @@ def _job_statements(text: str, job: str) -> list[tuple[int, str, str, str]]:
     return out
 
 
-def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], libraries: Mapping[str, Mapping[str, str]]):
+def _step_dds(stmts: list[tuple[int, str, str, str]]):
     """Walk statements -> ordered steps [{name, pgm, proc, parm, cond, parm_over, cond_over, dd, dd_over}]."""
     steps: list[dict[str, Any]] = []
+    # SET statements inside a procedure are in force for the statements after them (rule 4, p. 48)
+    local: dict[str, str] = {}
     for _line, name, op, field in stmts:
-        if op == "EXEC":
-            ops = _split(field)
+        if op == "SET":
+            for k, v in _split(field):
+                if k:
+                    local[k.upper()] = _parm(v, sublist=False) or ""
+        elif op == "EXEC":
+            ops = [(k, _apply_sets(v, local) or "") for k, v in _split(field)]
             keyed = _first_wins(ops)
             bare = [v for k, v in ops if not k]
             proc = (keyed.get("PROC") or (bare[0] if bare else "")).upper() if "PGM" not in keyed else ""
@@ -158,12 +205,13 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
                     "parm": keyed.get("PARM"),
                     "cond": keyed.get("COND"),
                     "keyed": keyed,
+                    "sets": dict(local),
                     "dd": [],
                     "dd_over": [],
                 }
             )
         elif op == "DD" and steps:
-            keyed = _dd_keys(field)
+            keyed = {k: _apply_sets(v, local) or "" for k, v in _dd_keys(field).items()}
             ddname = name
             target = steps[-1]
             if "." in ddname:
@@ -173,8 +221,6 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
                 target["dd_over"].append((pstep.upper(), ddname.upper(), keyed))
             else:
                 target["dd"].append((ddname.upper(), keyed))
-        elif op == "INCLUDE" and steps:
-            steps[-1]["dd"] += _include_dds(_keyword(field, "MEMBER").upper(), order, libraries)
     return steps
 
 
@@ -208,7 +254,18 @@ def _expand_call(
         if call["proc"] and kw in keyed and any(k.startswith(f"{kw}.") for k in keyed):
             raise JclProcRefused(f"{kw}= together with {kw}.procstep= on one call: precedence is not answered")
     values = {**set_values, **defaults, **exec_values}
-    proc_steps = _step_dds(body, order, libraries)
+    body = _splice_body(body, order, libraries)
+    for _l, _n, bop, bfield in body:
+        if bop != "SET":
+            continue
+        for k, v in _split(bfield):
+            if k and (k.upper() in defaults or k.upper() in exec_values):
+                raise JclProcRefused(
+                    f"SET {k} inside a procedure whose call or PROC statement assigns it is not answered"
+                )
+            if k and "&" in v:
+                raise JclProcRefused(f"SET {k} inside a procedure with a symbol in its value is not answered")
+    proc_steps = _step_dds(body)
     by_name = {ps["name"].upper(): ps for ps in proc_steps}
     for pstep, ddn, _dk in call["dd_over"]:
         if pstep not in by_name or by_name[pstep]["proc"]:
@@ -228,7 +285,9 @@ def _expand_call(
                     "PARM.procstep= / COND.procstep= naming a step that calls a procedure is not answered"
                 )
             inner_defaults, inner_body = _load_proc(ps["proc"], instream, order, libraries)
-            inner = _expand_call(ps, inner_defaults, inner_body, values, order, libraries, instream, depth + 1)
+            inner = _expand_call(
+                ps, inner_defaults, inner_body, {**values, **ps["sets"]}, order, libraries, instream, depth + 1
+            )
             for ikey, ival in inner.items():  # A4: levels flattened under the outermost call step
                 out[f"{call['name']}.{ikey.partition('.')[2]}"] = ival
             continue
@@ -268,7 +327,7 @@ def _expand_call(
 
 def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str) -> dict[str, dict[str, Any]]:
     """Every EXEC of `job`, resolved. `libraries`: {library: {member: JCL text}}."""
-    stmts = _job_statements(text, job)
+    stmts = _splice_includes(_job_statements(text, job), libraries)
     order: list[str] = []
     instream: dict[str, tuple[dict[str, str], list[tuple[int, str, str, str]]]] = {}
     main: list[tuple[int, str, str, str]] = []
@@ -298,7 +357,7 @@ def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str)
         elif st[2] == "EXEC":
             pending_sets.append(dict(current))
         walk.append(st)
-    steps = _step_dds([s for s in walk if s[2] != "SET"], order, libraries)
+    steps = _step_dds([s for s in walk if s[2] != "SET"])
     for call, in_force in zip(steps, pending_sets, strict=True):
         if call["proc"]:
             defaults, body = _load_proc(call["proc"], instream, order, libraries)

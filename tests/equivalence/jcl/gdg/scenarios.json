@@ -55,7 +55,50 @@
     "//P1       EXEC PGM=MAKE",
     "//POUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
     "//P2       EXEC PGM=ADD",
-    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)"
+    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)",
+    "//*",
+    "//MODJOB   JOB (ACCT),'GDG MOD',CLASS=A,MSGCLASS=X",
+    "//M1       EXEC PGM=MAKE",
+    "//MOUT     DD DSN=PAY.GDG(+1),DISP=(MOD,CATLG)",
+    "//M2       EXEC PGM=ADD",
+    "//MADD     DD DSN=PAY.GDG(0),DISP=(MOD,CATLG)",
+    "//*",
+    "//MODABJOB JOB (ACCT),'GDG MOD ABEND',CLASS=A,MSGCLASS=X",
+    "//N1       EXEC PGM=MAKE",
+    "//NOUT     DD DSN=PAY.GDG(+1),DISP=(MOD,CATLG,DELETE)",
+    "//*",
+    "//SKIPJOB  JOB (ACCT),'GDG SKIP',CLASS=A,MSGCLASS=X",
+    "//S1       EXEC PGM=MAKE",
+    "//SOUT     DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//*",
+    "//KEEPJOB  JOB (ACCT),'GDG KEEP',CLASS=A,MSGCLASS=X",
+    "//K1       EXEC PGM=MAKE",
+    "//KOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,KEEP)",
+    "//K2       EXEC PGM=USE",
+    "//KIN      DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//*",
+    "//DELAFTER JOB (ACCT),'GDG DEL AFTER',CLASS=A,MSGCLASS=X",
+    "//Q1       EXEC PGM=RPT",
+    "//Q1IN     DD DSN=PAY.GDG(-1),DISP=OLD",
+    "//Q2       EXEC PGM=IEFBR14",
+    "//Q2DEL    DD DSN=PAY.GDG,DISP=(OLD,DELETE)",
+    "//Q3       EXEC PGM=MAKE",
+    "//Q3OUT    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//*",
+    "//DELFIRST JOB (ACCT),'GDG DEL FIRST',CLASS=A,MSGCLASS=X",
+    "//R1       EXEC PGM=IEFBR14",
+    "//R1DEL    DD DSN=PAY.GDG,DISP=(OLD,DELETE)",
+    "//R2       EXEC PGM=MAKE",
+    "//R2OUT    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//R3       EXEC PGM=MAKE",
+    "//R3OUT    DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//*",
+    "//DELOLDJB JOB (ACCT),'GDG DEL OLDEST',CLASS=A,MSGCLASS=X",
+    "//O1       EXEC PGM=PURGE",
+    "//ODEL     DD DSN=PAY.GDG(-2),DISP=(OLD,DELETE)",
+    "//O2       EXEC PGM=RPT",
+    "//OCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//OPRV     DD DSN=PAY.GDG(-1),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -427,12 +470,403 @@
         }
       },
       "basis": "Generation data group LIMIT: the group holds at most LIMIT generations (3). Rolling 8 in makes the oldest, 5, drop out of the catalog; whether 5 is also scratched (deleted) depends on the group's SCRATCH / NOSCRATCH attribute and is not answered here. Relative numbers in the job are unchanged by the limit."
+    },
+    {
+      "id": "mod-plus-one-creates-a-generation",
+      "job": "MODJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "M1": {
+          "rc": 0
+        },
+        "M2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "M1.MOUT": 8,
+        "M2.MADD": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "DISP, generation data sets (User's Guide, Appendix A, 'DISP parameter'): if you code MOD for a generation data set and the specified relative generation does not exist in the catalog, the system changes the status to NEW. (+1) is not cataloged, so M1's MOUT is a NEW generation, 8, cataloged at job end. M2's MADD names (0), which exists (7), so it stays MOD: it names 7 and creates nothing, and the group's relative numbers are unchanged until job end."
+    },
+    {
+      "id": "mod-plus-one-abend-is-a-new-generation-deleted",
+      "job": "MODABJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "N1": {
+          "abend": "S0C7"
+        }
+      },
+      "expect": {
+        "N1.NOUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "assumed": "A3",
+      "basis": "DISP MOD on the absent (+1) is changed to NEW (see mod-plus-one-creates-a-generation), so the DD names generation 8; N1 abends and the abnormal disposition DELETE applies, so 8 is not cataloged."
+    },
+    {
+      "id": "plus-two-alone-skips-a-number",
+      "job": "SKIPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1.SOUT": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Relative generation number': the absolute number assigned depends on the number last assigned (7) and the relative number (+2), and 'if you have a single step job, and the generation being cataloged is a +2, one generation number is skipped' (8). So S1.SOUT names 9 and 9 is cataloged at job end; 8 is never cataloged."
+    },
+    {
+      "id": "rel-read-after-skipped-number",
+      "job": "RDJOB",
+      "catalog_from": "plus-two-alone-skips-a-number",
+      "given": {
+        "R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R1.I0": 9,
+        "R1.I1": 7,
+        "R1.I2": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            9
+          ]
+        }
+      },
+      "assumed": "A4",
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Relative generation number': a relative number 'tells the system the location of an entry representing a previously cataloged generation'. The catalog holds 5, 6, 7, 9, so (0) = 9 and (-1) is the entry before it, 7, not the missing 8; (-2) = 6. ASSUMED (A4): the manual says 'location of an entry' but never works an example across a skipped number."
+    },
+    {
+      "id": "empty-rolls-off-every-generation-at-limit",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            8
+          ]
+        }
+      },
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': 'If a GDG is defined using DEFINE GENERATIONDATAGROUP EMPTY, and is at its limit, then, when a new generation data set is rolled in, all the currently active generation data sets are rolled off.' The group holds 3 of its limit 3, so the roll-in at the end-of-job step leaves only 8. The names in the job are resolved at job start, as in create-then-read-same-job."
+    },
+    {
+      "id": "empty-below-limit-rolls-off-nothing",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': EMPTY empties the group only when it 'is at its limit'. It holds 2 of 3, so 8 is rolled in and nothing rolls off."
+    },
+    {
+      "id": "new-keep-is-a-deferred-roll-in",
+      "job": "KEEPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "K1": {
+          "rc": 0
+        },
+        "K2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "K1.KOUT": 8,
+        "K2.KIN": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': 'Generation data sets can be in a deferred roll-in state if ... they are allocated with a DISP=(NEW,KEEP)', and 'Refer to generation data sets that are in a deferred roll-in state by their relative number, such as (+1), within the job that allocates it.' So K2 reads (+1) = 8, the generation K1 kept; 8 is not rolled into the active group at job end (the active generations stay 5, 6, 7) and waits, to be named by its absolute number in a later job. ASSUMED (A5): the group is system-managed, which is the case the manual's deferred roll-in text describes."
+    },
+    {
+      "id": "delete-whole-group-then-plus-one-keeps-the-anchor",
+      "job": "DELAFTER",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "Q1": {
+          "rc": 0
+        },
+        "Q2": {
+          "rc": 0
+        },
+        "Q3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "Q1.Q1IN": 7,
+        "Q3.Q3OUT": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets' (the manual's first worked example, GDGBIAS=JOB, generations G0006, G0007, G0008 exist): 'the absolute generation number that is referenced by relative generation number in STEP1 (DD1) is G0007V00. The system establishes the relative/absolute relationship that it maintains throughout the job. In STEP2, all generation data sets are to be deleted, which occurs at STEP2 termination. In STEP3, the system assigns the absolute generation number G0009V00 to the new generation data set'. So Q1IN names 7, Q2DEL (a DD of the base name) deletes 6, 7 and 8 at step end, Q3OUT names 9, and 9 is the only cataloged generation after the job."
+    },
+    {
+      "id": "delete-whole-group-before-any-relative-reference-restarts-at-one",
+      "job": "DELFIRST",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "R1": {
+          "rc": 0
+        },
+        "R2": {
+          "rc": 0
+        },
+        "R3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R2.R2OUT": 1,
+        "R3.R3OUT": 2
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets' (the manual's second worked example: 'the JCL is set up to delete all generation data sets at the beginning of the job'): 'the system establishes the relative/absolute relationship in STEP2, the first time that a relative generation number is used in the job. The system then assigns absolute generation number G0001V00 to the data set referenced in DD2 and absolute generation number G0002V00 to the data set referenced in DD3.' So R2OUT names 1, R3OUT names 2, and both are rolled in at job end."
+    },
+    {
+      "id": "delete-the-oldest-generation-keeps-the-anchor",
+      "job": "DELOLDJB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "O1": {
+          "rc": 0
+        },
+        "O2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "O1.ODEL": 6,
+        "O2.OCUR": 8,
+        "O2.OPRV": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A6",
+      "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets': 'If a DD statement in a multiple-step job tries to delete or uncatalog any generation data set except the oldest in a GDG, catalog management can lose orientation within the data group', so deleting the oldest is the form the manual leaves safe. O1 names (-2) = 6 (the oldest of 6, 7, 8) and establishes the relationship, which 'the system maintains throughout the job' (the same text as the first worked example): O2 still reads (0) = 8 and (-1) = 7, and 6 is gone from the catalog at O1 termination. ASSUMED (A6): the manual works no example that deletes a single generation, so that the entry is removed and nothing else changes is read from the DISP text, not from an example."
     }
   ],
   "assumed": [
     {
       "id": "A2",
       "text": "A generation whose creating step abends under (NEW,CATLG,DELETE) is not cataloged, and under (NEW,CATLG) is, per the DISP text; the absolute number is still consumed by that job only (the next job reuses it)."
+    },
+    {
+      "id": "A3",
+      "text": "After the system changes MOD to NEW on a (+n) generation, the step-end disposition is read from the coded DISP as it is for a DISP=NEW dataset; the manual states the status change but not that the abnormal-termination subparameter then applies as for NEW."
+    },
+    {
+      "id": "A4",
+      "text": "A negative relative number counts entries of the generation index, so a number skipped by a (+2) is not counted: with 5, 6, 7, 9 cataloged, (-1) is 7."
+    },
+    {
+      "id": "A5",
+      "text": "The GDG is system-managed; the manual states the deferred roll-in of NEW,KEEP only for that case."
+    },
+    {
+      "id": "A6",
+      "text": "Deleting the oldest generation by relative number (DISP=(OLD,DELETE) of (-n) where it is the oldest) removes that one catalog entry at step end and leaves the other generations' absolute numbers unchanged; the manual states only the warning for any other generation."
     }
   ],
   "refused": [
@@ -449,8 +883,32 @@
       "why": "the manual's disposition of an unreceived passed dataset is not answered here"
     },
     {
-      "construct": "DISP=(NEW,KEEP) or UNCATLG generations, absolute names (G0007V00), roll-in of EMPTY / SCRATCH groups, DISP=MOD (+1)",
+      "construct": "UNCATLG generations, absolute names (G0007V00), the SCRATCH / NOSCRATCH fate of a rolled-off generation",
       "why": "not covered by this slice"
+    },
+    {
+      "construct": "DISP=MOD of (0) / (-n) with that generation not cataloged, or MOD (+n) after the same (+n) was passed",
+      "why": "the manual says the status becomes NEW but gives no absolute number for (0) / (-n), and a MOD of a generation created earlier in the job is not stated"
+    },
+    {
+      "construct": "the (+1) number of a job that follows one that left a generation in deferred roll-in (NEW,KEEP)",
+      "why": "the manual says the number depends on 'the number last assigned' but not whether a deferred generation counts"
+    },
+    {
+      "construct": "a job that never reaches the end-of-job step (a CATLG generation left in deferred roll-in)",
+      "why": "the manual lists it as a deferred-roll-in cause; the step-flow model only ends jobs normally"
+    },
+    {
+      "construct": "DISP=(OLD,DELETE) of a generation other than the oldest",
+      "why": "the manual says catalog management can lose orientation within the data group: the outcome is not stated"
+    },
+    {
+      "construct": "a (0) / (-n) read of a generation deleted earlier in the job",
+      "why": "the generation is gone from the catalog; the manual warns not to refer to older generations after a delete and states no outcome"
+    },
+    {
+      "construct": "a DISP=(OLD,DELETE) of the whole group in a job that also created a generation earlier",
+      "why": "the manual does not say whether a generation created earlier in the job (rolled in only at job end) is part of the group deleted"
     }
   ]
 }

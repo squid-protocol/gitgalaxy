@@ -1,7 +1,7 @@
 """#8413 slice 3: IBM-written answers for GDG relative generations.
 
-`tests/equivalence/jcl/gdg/scenarios.json` holds the `flow_jcl` lines (six jobs: reading (0) / (-1) / (-2), a (+1)
-created and read in one job, (+1) and (+2), abnormal dispositions, a bypassed creator, a PASSed generation) and the
+`tests/equivalence/jcl/gdg/scenarios.json` holds the `flow_jcl` lines (nine jobs: deleting the group or its oldest generation, reading (0) / (-1) / (-2), a (+1)
+created and read in one job, (+1) and (+2), abnormal dispositions, a bypassed creator, a PASSed generation, a lone (+2), NEW,KEEP) and the
 answers: the absolute generation each DD names and the catalog after the job. The answers were written from IBM's
 z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets BEFORE `gitgalaxy.core.jcl_gdg` ran on them;
 ASSUMED entries are named in the file. The last tests reproduce every `expect` and `catalog_after`.
@@ -37,7 +37,18 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_scenarios_cover_every_construct_of_the_checklist_line():
     ids = " ".join(BY_ID)
-    for word in ("rel-read", "create-then-read", "plus-one-plus-two", "abend-", "bypassed", "pass-then", "limit-"):
+    for word in (
+        "rel-read",
+        "create-then-read",
+        "plus-one-plus-two",
+        "abend-",
+        "bypassed",
+        "pass-then",
+        "limit-",
+        "mod-plus-one",
+        "delete-whole-group",
+        "delete-the-oldest",
+    ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
     gens = {r["generation"] for r in ROWS if r["kind"] == "DD" and r.get("generation")}
@@ -56,6 +67,8 @@ def test_each_scenario_names_a_job_gives_a_basis_and_its_assumptions_exist():
 def test_what_is_not_answered_is_refused_by_name():
     refused = " ".join(r["construct"] for r in DOC["refused"])
     for name in ("same (+n)", "read before any step creates", "PASSed generation", "DISP=MOD"):
+        assert name in refused, name
+    for name in ("other than the oldest", "deleted earlier in the job", "whole group"):
         assert name in refused, name
 
 
@@ -101,13 +114,69 @@ def test_a_passed_generation_never_received_and_a_removing_disposition_are_refus
     passed = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,PASS)\n"
     with pytest.raises(JclGdgRefused, match="never received"):
         _run(passed, "J", CAT, {"A": {"rc": 0}})
-    scratch = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,DELETE)\n"
+    uncat = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,UNCATLG)\n"
     with pytest.raises(JclGdgRefused, match="removes an existing"):
-        _run(scratch, "J", CAT, {"A": {"rc": 0}})
+        _run(uncat, "J", CAT, {"A": {"rc": 0}})
+    group = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=(OLD,UNCATLG)\n"
+    with pytest.raises(JclGdgRefused, match="UNCATLG of a generation group"):
+        _run(group, "J", CAT, {"A": {"rc": 0}})
 
 
-def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_not_cataloged():
+def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_a_deferred_roll_in():
     dflt = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW)\n"
     assert _run(dflt, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
     keep = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,KEEP)\n"
-    assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
+    assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {
+        "G.B": {"limit": 5, "generations": [1, 2], "deferred_rollin": [3]}
+    }
+
+
+def test_a_group_with_no_generation_to_name_is_refused_and_empty_is_carried_to_the_next_job():
+    first = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match=r"no cataloged generation \(0\)"):
+        _run(first, "J", {"G.B": {"limit": 2, "generations": []}}, {"A": {"rc": 0}})
+    make = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n"
+    after = _run(make, "J", {"G.B": {"limit": 2, "empty": True, "generations": [1, 2]}}, {"A": {"rc": 0}})[1]
+    assert after == {"G.B": {"limit": 2, "empty": True, "generations": [3]}}
+    assert "empty" not in _run(make, "J", CAT, {"A": {"rc": 0}})[1]["G.B"]
+
+
+def test_mod_of_an_absent_plus_one_is_new_and_mod_of_an_absent_zero_or_minus_n_is_refused():
+    mod = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(MOD,CATLG)\n"
+    assert _run(mod, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2, 3]}}
+    gone = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-2),DISP=(MOD,CATLG)\n"
+    with pytest.raises(JclGdgRefused, match="no cataloged generation"):
+        _run(gone, "J", CAT, {"A": {"rc": 0}})
+
+
+def test_deleting_the_oldest_removes_it_and_any_other_generation_is_refused_by_name():
+    oldest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,DELETE)\n"
+    assert _run(oldest, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [2]}}
+    newest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,DELETE)\n"
+    with pytest.raises(JclGdgRefused, match="other than the oldest"):
+        _run(newest, "J", CAT, {"A": {"rc": 0}})
+    # an abended step applies the abnormal disposition: KEEP leaves the oldest cataloged
+    keep = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,DELETE,KEEP)\n"
+    assert _run(keep, "J", CAT, {"A": {"abend": "S0C7"}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
+    # a bypassed step deletes nothing
+    bypass = (
+        HEAD
+        + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=(OLD,DELETE)\n//B EXEC PGM=Y,COND=(0,LE)\n//P DD DSN=G.B(0),DISP=SHR\n"
+    )
+    assert _run(bypass, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": []}}
+
+
+def test_a_group_delete_ignores_a_dataset_that_is_not_a_group_and_refuses_a_deleted_read_or_a_mixed_job():
+    plain = HEAD + "//A EXEC PGM=X\n//O DD DSN=OTHER.DS,DISP=(OLD,DELETE)\n"
+    assert _run(plain, "J", CAT, {"A": {"rc": 0}})[1] == CAT
+    gone = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B(0),DISP=SHR\n//B EXEC PGM=X\n//D DD DSN=G.B,DISP=(OLD,DELETE)\n"
+    gone += "//C EXEC PGM=X\n//S DD DSN=G.B(0),DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="deleted earlier in the job"):
+        _run(gone, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}, "C": {"rc": 0}})
+    mixed = (
+        HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//D DD DSN=G.B,DISP=(OLD,DELETE)\n"
+    )
+    with pytest.raises(JclGdgRefused, match="created a generation"):
+        _run(mixed, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
+    shr = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=SHR\n"
+    assert _run(shr, "J", CAT, {"A": {"rc": 0}})[1] == CAT

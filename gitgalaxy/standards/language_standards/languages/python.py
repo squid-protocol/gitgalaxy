@@ -250,7 +250,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # C3: blanket except is safety_bypasses'; bare getattr is reflection_metaprogramming's. C1: dataclass/Field/TypeGuard/override are declaration/type-level.
         "safety": re.compile(
             r"\b(try|finally|assert|isinstance|issubclass|hasattr|BaseModel)\b|\bexcept\*?\s+(?!(?:Base)?Exception\b)["

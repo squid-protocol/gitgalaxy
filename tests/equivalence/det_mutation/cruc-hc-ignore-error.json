@@ -5,19 +5,19 @@
  "case": "cruc-hc-ignore-error",
  "entry": {
   "program": "HCIGN",
-  "commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
-  "date": "2026-11-14",
-  "mode": "fast",
+  "commit": "c3b09c7edad8a9723bac1ca0388c212e01a044f5+uncommitted",
+  "date": "2026-11-20",
+  "mode": "fast+one-jvm",
   "seed": 0,
-  "mutants": 448,
+  "mutants": 436,
   "out_of_scope": 6,
-  "chosen": 153,
-  "coverage": "proven on 9 scenarios, covering 5/5 paragraphs and 9/9 branches",
+  "chosen": 436,
+  "coverage": "proven on 18 scenarios, covering 5/5 paragraphs and 9/9 branches",
   "counts": {
-   "killed": 56,
+   "killed": 165,
    "timeout": 0,
-   "survived": 92,
-   "stillborn": 5,
+   "survived": 262,
+   "stillborn": 9,
    "error": 0,
    "pending": 0
   },
@@ -26,72 +26,233 @@
    "03b35c624d",
    "09dfd56b2d",
    "0a80f238f3",
+   "0de4988513",
+   "0e23cbd518",
    "0f99e87f55",
+   "0fa5205292",
+   "1019dc1680",
+   "11fde9d739",
    "1573b5fa96",
+   "15c2801459",
+   "17389a6e9b",
+   "1ae359a4a9",
    "1aec132f75",
    "1c0106176f",
+   "1cf57043f5",
    "1e1b376dcd",
+   "1e2b788eb7",
    "21592a922a",
    "21845b0aec",
+   "24526c7e4a",
+   "24ba46e864",
+   "250bc312b2",
+   "25937efbf1",
    "25a01ffe0d",
+   "269f9db3b1",
    "28d18bd3f1",
+   "296d20bba3",
+   "2a03e1fe61",
+   "2b711bba38",
    "2d5a227131",
+   "2d73d47dba",
    "2eceb0acbf",
+   "2edd5e0025",
+   "2fc7b10b0c",
    "3022a46f72",
    "365b47a742",
    "37969d87f5",
    "3e7ba210c2",
+   "401c6e671b",
+   "4283fcf184",
+   "432637da38",
    "4380717c92",
-   "4c95053090",
+   "4391dd6614",
+   "43d1be6dbc",
+   "4698b385dc",
+   "4a1bb0a889",
+   "4bf28a22da",
+   "4cfb6d0ae9",
+   "53c3351815",
+   "54d6d8df25",
+   "55e3c5d03a",
+   "561e771c51",
+   "56a63b29fa",
+   "574ab9bd06",
    "57643b2b35",
+   "577a9e6e05",
    "579973e478",
    "5c0c68ec1c",
+   "5d0c86b583",
    "5d942e5746",
-   "62e44e3ac1",
+   "5db42f63cd",
+   "623462bf70",
+   "623a83d666",
    "65d8811ad6",
    "6a9775117c",
-   "6bd2afee0b",
+   "6acde33b30",
+   "6b05835d43",
+   "6b73fd807c",
+   "6cd7622de7",
    "6d62e56ad6",
-   "6f70e0f342",
+   "6f1581d50d",
+   "706619afbf",
+   "73a90725c8",
+   "74ad1fa7ff",
    "7509607fe3",
+   "77cdb9d1af",
    "78c968d3f7",
    "79a13fddd2",
+   "7a0bedb028",
+   "7bdf7a64c7",
+   "7e782dcc5e",
    "7f2b057610",
+   "82334bf0b2",
+   "837fee925b",
    "83ef59617e",
    "858053bb60",
+   "8770671228",
+   "888a11a1f2",
+   "8b864fe606",
    "8ce9d58d05",
+   "8e63a328e0",
+   "8ef6889f69",
+   "913083c043",
+   "932527c834",
+   "93ca3f8c46",
+   "93fb576f77",
    "94f731ec18",
    "9799c8fc7e",
+   "9925ee6f00",
+   "9ae8dbffb8",
+   "9b72a6cdaf",
+   "9d0120e280",
    "9efef18d6f",
+   "a22d5a9a59",
+   "a5c58bdc33",
    "a6403413cc",
+   "a70a1178d5",
    "a89fd04f40",
+   "a9ee343d00",
+   "adc5004654",
+   "ae29d505db",
+   "af487deaba",
    "b0151a442e",
+   "b28421779d",
    "b6072b7884",
+   "b6fe46c032",
+   "b83a3e887b",
+   "bab14487c9",
    "bad6da997d",
+   "bbf3490b53",
+   "bff0b17a6a",
+   "c02e30e86e",
    "c106b43ae7",
+   "c1be8d40dc",
+   "c41d19adb2",
    "c599794503",
    "c6fb457c13",
    "c95383f706",
    "c9560286af",
+   "cbdeb60fc9",
    "ce4a7ce86e",
+   "d03329e1c9",
+   "d0c72a0f62",
+   "d2905e7398",
+   "d2eaba17b9",
+   "d45002662d",
+   "d521a7ff4f",
+   "d5d33f28a9",
+   "d5d8f8f9ff",
+   "d65ccf0986",
    "d6c4a238c2",
+   "d7b9c57b26",
+   "d7e8358fca",
+   "da98bcb7d0",
+   "dc3d7aee99",
+   "dec93f54ac",
+   "e046d0708a",
+   "e1c63f70cb",
+   "e1e8c2f3ae",
+   "e30c7a47eb",
+   "e4f63549cf",
+   "e791e17ae9",
+   "ea0631e2e5",
    "eb54e84a2c",
+   "ed49710f4c",
+   "ed5fc5851d",
+   "eeb580a521",
+   "ef5cb6c973",
+   "f195d30d4e",
+   "f3645e041b",
+   "f3dd0374e2",
    "f43a800acc",
    "f559a5efab"
   ],
   "stillborn": [
+   "03172bcae3",
+   "14153a74e8",
    "3c2a44da8c",
+   "6476409647",
    "992cec3348",
    "a9bbdc07e0",
-   "da38905624",
-   "faa5c66881"
+   "b6d7f25491",
+   "d873f7a8cb",
+   "da38905624"
   ],
   "survived": [
+   {
+    "id": "55a9145fd9",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 35,
+    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
+   },
+   {
+    "id": "b1f2c03f94",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 36,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "912d7f0ea1",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 36,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "c4908a0a50",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 37,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
+   },
+   {
+    "id": "c92aae8966",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 40,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "eeb0abbd8a",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 44,
+    "before": "\"ICAgIA==\"));",
+    "after": "\"XCAgIA==\"));"
+   },
    {
     "id": "7cfef09c8b",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 43,
+    "line": 46,
     "before": "\"MDA=\"));",
     "after": "\"XDA=\"));"
    },
@@ -99,7 +260,7 @@
     "id": "811ce1dbf5",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 45,
+    "line": 48,
     "before": "\"MDA=\"));",
     "after": "\"XDA=\"));"
    },
@@ -107,7 +268,7 @@
     "id": "68dc7a64d9",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 47,
+    "line": 50,
     "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
     "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
    },
@@ -115,15 +276,55 @@
     "id": "45dcaf6d8b",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 49,
+    "line": 52,
     "before": "\"AAA=\"));",
     "after": "\"XAA=\"));"
+   },
+   {
+    "id": "699c83656c",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 66,
+    "before": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "737eaf1b2e",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 66,
+    "before": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "92897084d6",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 66,
+    "before": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "2a02e7c7f7",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 67,
+    "before": "private final Field f9_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f9_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "58d557d57b",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 69,
+    "before": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
    },
    {
     "id": "36c627df8b",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 66,
+    "line": 69,
     "before": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
     "after": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
    },
@@ -131,31 +332,119 @@
     "id": "0d70407ee5",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 66,
+    "line": 69,
     "before": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
     "after": "private final Field f11_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "51f0ad30fb",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 70,
+    "before": "private final Field f12_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f12_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "cf00318cbe",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 70,
+    "before": "private final Field f12_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f12_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "81d94979a0",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 71,
+    "before": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "afa6c181ea",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 71,
+    "before": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "715599eb65",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 71,
+    "before": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "0936cfceeb",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 72,
+    "before": "private final Field f36_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f36_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "3ef6fc7b0f",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 72,
+    "before": "private final Field f36_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f36_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "f84b960c0f",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 73,
+    "before": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
    },
    {
     "id": "58e6cbf348",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 70,
+    "line": 73,
     "before": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
     "after": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "1ad8b00906",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 73,
+    "before": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
    },
    {
     "id": "c80e5e3f9d",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 71,
+    "line": 74,
     "before": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
     "after": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "5220a67e20",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 74,
+    "before": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "28fadfc5e0",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 74,
+    "before": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
    {
     "id": "ade9a9847e",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 85,
+    "line": 88,
     "before": "if (task.level() > 1) {",
     "after": "if (!(task.level() > 1)) {"
    },
@@ -163,71 +452,167 @@
     "id": "1abb0164fc",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 85,
+    "line": 88,
     "before": "if (task.level() > 1) {",
     "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "81ba7b68b1",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 88,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "dabd03a870",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 88,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "50118e7f35",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 89,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
    },
    {
     "id": "4afba972f4",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 91,
+    "line": 94,
     "before": "@SuppressWarnings(\"unchecked\")",
     "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "1d6a84e075",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 96,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
    },
    {
     "id": "c2e35ba5b0",
     "op": "COR",
     "file": "service/HcignService.java",
-    "line": 93,
+    "line": 96,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "4bb1e55759",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 99,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "259da9d1b6",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 99,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "884d17dd8e",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 103,
+    "before": "java.util.Map.entry(\"NOTE-INPUT\", 4),",
+    "after": "java.util.Map.entry(\"XOTE-INPUT\", 4),"
+   },
+   {
+    "id": "c3adfe61e8",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 103,
+    "before": "java.util.Map.entry(\"NOTE-INPUT\", 4),",
+    "after": "java.util.Map.entry(\"NOTE-INPUT\", 5),"
+   },
+   {
+    "id": "52ba60a3b7",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 104,
+    "before": "java.util.Map.entry(\"SEND-TRAIL\", 3),",
+    "after": "java.util.Map.entry(\"XEND-TRAIL\", 3),"
+   },
+   {
+    "id": "9b41f2917d",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 104,
+    "before": "java.util.Map.entry(\"SEND-TRAIL\", 3),",
+    "after": "java.util.Map.entry(\"SEND-TRAIL\", 4),"
    },
    {
     "id": "51b7be04f9",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 102,
+    "line": 105,
     "before": "java.util.Map.entry(\"GOT-ERROR\", 2),",
     "after": "java.util.Map.entry(\"XOT-ERROR\", 2),"
+   },
+   {
+    "id": "1b42c23ccb",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 105,
+    "before": "java.util.Map.entry(\"GOT-ERROR\", 2),",
+    "after": "java.util.Map.entry(\"GOT-ERROR\", 3),"
    },
    {
     "id": "0a544e5198",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 103,
+    "line": 106,
     "before": "java.util.Map.entry(\"GOT-LEN\", 1),",
     "after": "java.util.Map.entry(\"XOT-LEN\", 1),"
+   },
+   {
+    "id": "637a025c2c",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 106,
+    "before": "java.util.Map.entry(\"GOT-LEN\", 1),",
+    "after": "java.util.Map.entry(\"GOT-LEN\", 2),"
    },
    {
     "id": "7275c21d4b",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 104,
+    "line": 107,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
    },
    {
-    "id": "6dc2345d10",
-    "op": "NEG",
+    "id": "b05069496d",
+    "op": "CON",
     "file": "service/HcignService.java",
-    "line": 109,
-    "before": "if (i == null) {",
-    "after": "if (!(i == null)) {"
+    "line": 107,
+    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
    },
    {
-    "id": "2427f7f7e7",
-    "op": "ROR",
+    "id": "c7499eb8bb",
+    "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 140,
-    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
-    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+    "line": 132,
+    "before": "System.arraycopy(IMAGE_s_WS_INPUT, 0, s_WS_INPUT.bytes, 0, IMAGE_s_WS_INPUT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_INPUT, 0, s_WS_INPUT.bytes, 0, IMAGE_s_WS_INPUT.length); */"
    },
    {
     "id": "77a5607622",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 153,
+    "line": 133,
     "before": "System.arraycopy(IMAGE_s_WS_RESP_D, 0, s_WS_RESP_D.bytes, 0, IMAGE_s_WS_RESP_D.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_RESP_D, 0, s_WS_RESP_D.bytes, 0, IMAGE_s_WS_RESP_D.length); */"
    },
@@ -235,31 +620,95 @@
     "id": "0e27bfffef",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 154,
+    "line": 134,
     "before": "System.arraycopy(IMAGE_s_WS_LEN_D, 0, s_WS_LEN_D.bytes, 0, IMAGE_s_WS_LEN_D.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_LEN_D, 0, s_WS_LEN_D.bytes, 0, IMAGE_s_WS_LEN_D.length); */"
+   },
+   {
+    "id": "7a57fcfebb",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 135,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "89b7c1e86e",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 136,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "1ed77b877e",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 159,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "2417b3d6d3",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 161,
+    "before": "aids.clear();",
+    "after": "/* aids.clear(); */"
+   },
+   {
+    "id": "99e7d8746d",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 162,
+    "before": "pushed.clear();",
+    "after": "/* pushed.clear(); */"
+   },
+   {
+    "id": "a557e75864",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 163,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
    },
    {
     "id": "492319736f",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 187,
+    "line": 167,
     "before": "Cobol.store(f11_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f11_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "db188a0cc5",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 169,
+    "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
    {
     "id": "f9b97ab4d2",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 189,
+    "line": 169,
     "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "b6bcc1f202",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 169,
+    "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
    {
     "id": "1318b05669",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 189,
+    "line": 169,
     "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -267,7 +716,7 @@
     "id": "d515cf0f67",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 189,
+    "line": 169,
     "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -275,7 +724,7 @@
     "id": "c3c1aa62e6",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 190,
+    "line": 170,
     "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -283,7 +732,7 @@
     "id": "ee602c6b23",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 190,
+    "line": 170,
     "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -291,7 +740,7 @@
     "id": "43febe6197",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 190,
+    "line": 170,
     "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -299,7 +748,7 @@
     "id": "9dd6892c7f",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 190,
+    "line": 170,
     "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -307,7 +756,7 @@
     "id": "0f88a0a439",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 190,
+    "line": 170,
     "before": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f8_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
    },
@@ -315,175 +764,671 @@
     "id": "775698d198",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 191,
+    "line": 171,
     "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
     "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "4365f85cb1",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 175,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "80f2d42a18",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 176,
+    "before": "if (ca instanceof CaaddrWsArea) {",
+    "after": "if (!(ca instanceof CaaddrWsArea)) {"
+   },
+   {
+    "id": "e2722c030f",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 177,
+    "before": "calen = DetCics.eibCalen(task, 20);",
+    "after": "/* calen = DetCics.eibCalen(task, 20); */"
+   },
+   {
+    "id": "0b3f35229d",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 177,
+    "before": "calen = DetCics.eibCalen(task, 20);",
+    "after": "calen = DetCics.eibCalen(task, 21);"
    },
    {
     "id": "bb8467745a",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 198,
+    "line": 178,
     "before": "} else if (ca instanceof CabllDfhcommarea) {",
     "after": "} else if (!(ca instanceof CabllDfhcommarea)) {"
    },
    {
-    "id": "097847b3bd",
-    "op": "CON",
-    "file": "service/HcignService.java",
-    "line": 199,
-    "before": "calen = cx(task, 4);",
-    "after": "calen = cx(task, 5);"
-   },
-   {
-    "id": "e892ceb243",
+    "id": "34df1cb4f2",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 201,
-    "before": "calen = cx(task, 16);",
-    "after": "/* calen = cx(task, 16); */"
+    "line": 179,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
    },
    {
-    "id": "6b953125e8",
+    "id": "c233a2c030",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 203,
-    "before": "calen = cx(task, 2);",
-    "after": "calen = cx(task, 3);"
+    "line": 179,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
    },
    {
-    "id": "5ea625e3f1",
+    "id": "82597d228c",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 180,
+    "before": "} else if (ca instanceof CaboffWsOut) {",
+    "after": "} else if (!(ca instanceof CaboffWsOut)) {"
+   },
+   {
+    "id": "e74a4e8517",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 209,
-    "before": "calen = cx(task, 6);",
-    "after": "/* calen = cx(task, 6); */"
+    "line": 181,
+    "before": "calen = DetCics.eibCalen(task, 16);",
+    "after": "/* calen = DetCics.eibCalen(task, 16); */"
+   },
+   {
+    "id": "7dc7d6d4c0",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 181,
+    "before": "calen = DetCics.eibCalen(task, 16);",
+    "after": "calen = DetCics.eibCalen(task, 17);"
+   },
+   {
+    "id": "0b72176c53",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 182,
+    "before": "} else if (ca instanceof CaboffWsPre) {",
+    "after": "} else if (!(ca instanceof CaboffWsPre)) {"
+   },
+   {
+    "id": "8290e21dfd",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 183,
+    "before": "calen = DetCics.eibCalen(task, 2);",
+    "after": "/* calen = DetCics.eibCalen(task, 2); */"
+   },
+   {
+    "id": "fbfab15ec9",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 183,
+    "before": "calen = DetCics.eibCalen(task, 2);",
+    "after": "calen = DetCics.eibCalen(task, 3);"
+   },
+   {
+    "id": "99aee4f58c",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 184,
+    "before": "} else if (ca instanceof CaboffWsSrc) {",
+    "after": "} else if (!(ca instanceof CaboffWsSrc)) {"
+   },
+   {
+    "id": "291fc8aaba",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 185,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "0e733d6bd7",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 185,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "a8d42c9cb1",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 186,
+    "before": "} else if (ca instanceof CabrerrWsData) {",
+    "after": "} else if (!(ca instanceof CabrerrWsData)) {"
+   },
+   {
+    "id": "019f082d86",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 187,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "cb4988ecba",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 187,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "bd8a5327c4",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 188,
+    "before": "} else if (ca instanceof CaccsidWsAsc) {",
+    "after": "} else if (!(ca instanceof CaccsidWsAsc)) {"
+   },
+   {
+    "id": "000f0a544f",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 189,
+    "before": "calen = DetCics.eibCalen(task, 6);",
+    "after": "/* calen = DetCics.eibCalen(task, 6); */"
+   },
+   {
+    "id": "4074bb5374",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 189,
+    "before": "calen = DetCics.eibCalen(task, 6);",
+    "after": "calen = DetCics.eibCalen(task, 7);"
+   },
+   {
+    "id": "37369220c8",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 190,
+    "before": "} else if (ca instanceof CachanWsBin) {",
+    "after": "} else if (!(ca instanceof CachanWsBin)) {"
+   },
+   {
+    "id": "63e66b46b9",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 191,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
+   },
+   {
+    "id": "49cc61ea98",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 191,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
    },
    {
     "id": "0d61882d60",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 212,
+    "line": 192,
     "before": "} else if (ca instanceof CachanWsMore) {",
     "after": "} else if (!(ca instanceof CachanWsMore)) {"
    },
    {
-    "id": "9664de619e",
+    "id": "34eb744f22",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 193,
+    "before": "calen = DetCics.eibCalen(task, 3);",
+    "after": "/* calen = DetCics.eibCalen(task, 3); */"
+   },
+   {
+    "id": "2fe543797e",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 215,
-    "before": "calen = cx(task, 10);",
-    "after": "calen = cx(task, 11);"
+    "line": 193,
+    "before": "calen = DetCics.eibCalen(task, 3);",
+    "after": "calen = DetCics.eibCalen(task, 4);"
+   },
+   {
+    "id": "1fa8954194",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 194,
+    "before": "} else if (ca instanceof CachanWsReq) {",
+    "after": "} else if (!(ca instanceof CachanWsReq)) {"
+   },
+   {
+    "id": "7f9f8e529c",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 195,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "973f40b8b2",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 195,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
    },
    {
     "id": "221f65d99a",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 216,
+    "line": 196,
     "before": "} else if (ca instanceof CachsubWsReply) {",
     "after": "} else if (!(ca instanceof CachsubWsReply)) {"
+   },
+   {
+    "id": "37bb8db8ca",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 197,
+    "before": "calen = DetCics.eibCalen(task, 11);",
+    "after": "/* calen = DetCics.eibCalen(task, 11); */"
+   },
+   {
+    "id": "14aa16fcfd",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 197,
+    "before": "calen = DetCics.eibCalen(task, 11);",
+    "after": "calen = DetCics.eibCalen(task, 12);"
    },
    {
     "id": "b0a1fba928",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 218,
+    "line": 198,
     "before": "} else if (ca instanceof CachsubWsShort) {",
     "after": "} else if (!(ca instanceof CachsubWsShort)) {"
+   },
+   {
+    "id": "0f0af08468",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 199,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
+   },
+   {
+    "id": "8cd369b5bd",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 199,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
    },
    {
     "id": "62aa905c38",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 220,
+    "line": 200,
     "before": "} else if (ca instanceof CachxbWsOwn) {",
     "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
+   },
+   {
+    "id": "5bea6d4ffe",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 201,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "6a999c7fef",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 201,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "7e6808fbcf",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 202,
+    "before": "} else if (ca instanceof CagcstWsPtr) {",
+    "after": "} else if (!(ca instanceof CagcstWsPtr)) {"
+   },
+   {
+    "id": "f60b6803df",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 203,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "e0a59a3dba",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 203,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
    },
    {
     "id": "5041118363",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 224,
+    "line": 204,
     "before": "} else if (ca instanceof CagcstWsSrc2) {",
     "after": "} else if (!(ca instanceof CagcstWsSrc2)) {"
    },
    {
-    "id": "087fc5437c",
+    "id": "ad3c8a30a1",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 225,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
+    "line": 205,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
    {
-    "id": "9a70862aaa",
+    "id": "aba6443fc7",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 225,
-    "before": "calen = cx(task, 8);",
-    "after": "calen = cx(task, 9);"
+    "line": 205,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
    },
    {
     "id": "816f0ec81d",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 226,
+    "line": 206,
     "before": "} else if (ca instanceof GtasgnWsCa) {",
     "after": "} else if (!(ca instanceof GtasgnWsCa)) {"
    },
    {
-    "id": "9bf8404037",
-    "op": "CON",
-    "file": "service/HcignService.java",
-    "line": 229,
-    "before": "calen = cx(task, 30);",
-    "after": "calen = cx(task, 31);"
-   },
-   {
-    "id": "7856f0e7e6",
+    "id": "fd33157e70",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 231,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
+    "line": 207,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
    },
    {
-    "id": "279050b708",
+    "id": "00602aa06c",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 239,
-    "before": "calen = cx(task, 8);",
-    "after": "calen = cx(task, 9);"
+    "line": 207,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "13bf033258",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 208,
+    "before": "} else if (ca instanceof HcrparWsV1) {",
+    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+   },
+   {
+    "id": "6b4164d874",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 209,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "113c3b89ec",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 209,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "aef64df7e1",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 210,
+    "before": "} else if (ca instanceof HcrparWsV2) {",
+    "after": "} else if (!(ca instanceof HcrparWsV2)) {"
+   },
+   {
+    "id": "e3490ef5d9",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 211,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "64682b95a9",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 211,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "5ced4301ea",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 212,
+    "before": "} else if (ca instanceof PcconfWsState) {",
+    "after": "} else if (!(ca instanceof PcconfWsState)) {"
+   },
+   {
+    "id": "53ce4c5a88",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 213,
+    "before": "calen = DetCics.eibCalen(task, 30);",
+    "after": "/* calen = DetCics.eibCalen(task, 30); */"
+   },
+   {
+    "id": "ad8a2d549f",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 213,
+    "before": "calen = DetCics.eibCalen(task, 30);",
+    "after": "calen = DetCics.eibCalen(task, 31);"
+   },
+   {
+    "id": "129a592270",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 214,
+    "before": "} else if (ca instanceof PcrcaWsCarry) {",
+    "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
+   },
+   {
+    "id": "4be6d95f32",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 215,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "805ffc6e95",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 215,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "9d95f6b437",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 216,
+    "before": "} else if (ca instanceof PcrcaWsModify) {",
+    "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
+   },
+   {
+    "id": "b723550392",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 217,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "70c1268d6d",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 217,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "b085eb3276",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 218,
+    "before": "} else if (ca instanceof PcrcbWsExtra) {",
+    "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
+   },
+   {
+    "id": "1c4c29a756",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 219,
+    "before": "calen = DetCics.eibCalen(task, 5);",
+    "after": "/* calen = DetCics.eibCalen(task, 5); */"
+   },
+   {
+    "id": "a77ca41877",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 219,
+    "before": "calen = DetCics.eibCalen(task, 5);",
+    "after": "calen = DetCics.eibCalen(task, 6);"
+   },
+   {
+    "id": "909813e412",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 220,
+    "before": "} else if (ca instanceof PcrcbWsNew1) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
+   },
+   {
+    "id": "edb5a822d4",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 221,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "b9019d15c5",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 221,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "5f1dbfbb27",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 222,
+    "before": "} else if (ca instanceof PcrcbWsNew2) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
+   },
+   {
+    "id": "7fae2a5f3b",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 223,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "c46401a2b1",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 223,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
    },
    {
     "id": "c8dab693ae",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 240,
+    "line": 224,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
    },
    {
-    "id": "6a21c28c67",
+    "id": "6166711f54",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 241,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
+    "line": 225,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
    {
-    "id": "69458d5f0a",
+    "id": "e5668f4401",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 225,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "134326375d",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 227,
+    "before": "if (calen == 0 && task.linkArea() != null) {",
+    "after": "if (calen != 0 && task.linkArea() != null) {"
+   },
+   {
+    "id": "c294129c23",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 227,
+    "before": "if (calen == 0 && task.linkArea() != null) {",
+    "after": "if (calen == 1 && task.linkArea() != null) {"
+   },
+   {
+    "id": "6c30dbade0",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 244,
-    "before": "calen = cx(task, task.linkArea().length);",
-    "after": "/* calen = cx(task, task.linkArea().length); */"
+    "line": 228,
+    "before": "calen = DetCics.eibCalen(task, task.linkArea().length);",
+    "after": "/* calen = DetCics.eibCalen(task, task.linkArea().length); */"
+   },
+   {
+    "id": "51c7cb90a5",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 230,
+    "before": "Cobol.store(f15_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f15_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "305bc34e99",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 232,
+    "before": "perform(0, 4);",
+    "after": "perform(0, 5);"
+   },
+   {
+    "id": "ce09bb3d61",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 237,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
    },
    {
     "id": "dd4002bdb8",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 257,
+    "line": 241,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -491,23 +1436,71 @@
     "id": "e39ca6a2d1",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 258,
+    "line": 242,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "1443f1ce16",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 249,
+    "before": "region.run(task, \"HCIGN\", this::runTask);",
+    "after": "region.run(task, \"XCIGN\", this::runTask);"
+   },
+   {
+    "id": "bddd1bf377",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 256,
+    "before": "lastAnswerBytes = task.returnedBytes();",
+    "after": "/* lastAnswerBytes = task.returnedBytes(); */"
+   },
+   {
+    "id": "aa64621537",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 274,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "0636b5fbe6",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 279,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
    },
    {
     "id": "2bc486c920",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 296,
+    "line": 280,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "99ea2193e3",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 288,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "d947e6fae6",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 299,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
    {
     "id": "5c20a2e6ab",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 315,
+    "line": 299,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -515,7 +1508,7 @@
     "id": "866c36ada2",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 315,
+    "line": 299,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -523,79 +1516,327 @@
     "id": "66108a61a7",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 328,
+    "line": 312,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "88cf80731f",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 312,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "7413a16ea7",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 312,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "8f891e7379",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 312,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
    {
     "id": "ee5256f850",
     "op": "AOR",
     "file": "service/HcignService.java",
-    "line": 328,
+    "line": 312,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "3e9a398519",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 313,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "f9ee79a81b",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 313,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
    },
    {
     "id": "e12068fd03",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 334,
+    "line": 318,
     "before": "if (next >= 5) {",
     "after": "if (next > 5) {"
+   },
+   {
+    "id": "db2c0add24",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 318,
+    "before": "if (next >= 5) {",
+    "after": "if (next >= 6) {"
+   },
+   {
+    "id": "cf0b712657",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 324,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
    },
    {
     "id": "3d3e31e048",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 340,
+    "line": 324,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "fb732c2a4a",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 328,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
    },
    {
     "id": "b44e458e7e",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 355,
+    "line": 339,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "772c9c2ee9",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 348,
+    "before": "handlers.put(\"LENGERR\", -1);",
+    "after": "handlers.put(\"LENGERR\", -2);"
+   },
+   {
+    "id": "435a0430ef",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 354,
+    "before": "handlers.put(\"ERROR\", 2);",
+    "after": "handlers.put(\"XRROR\", 2);"
+   },
+   {
+    "id": "5d90d8833a",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 354,
+    "before": "handlers.put(\"ERROR\", 2);",
+    "after": "handlers.put(\"ERROR\", 3);"
+   },
+   {
+    "id": "1b34694658",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 358,
+    "before": "handlers.put(\"ERROR\", 2);",
+    "after": "handlers.put(\"XRROR\", 2);"
+   },
+   {
+    "id": "bba4e7c27a",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 358,
+    "before": "handlers.put(\"ERROR\", 2);",
+    "after": "handlers.put(\"ERROR\", 3);"
+   },
+   {
+    "id": "b8f01d42b1",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 360,
+    "before": "handlers.put(\"LENGERR\", -1);",
+    "after": "handlers.put(\"LENGERR\", -2);"
    },
    {
     "id": "43970c4a0b",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 377,
+    "line": 361,
     "before": "} else if ((Cobol.compare(f10_EIBTRNID, \"IE05\", CS) == 0)) {",
     "after": "} else if ((Cobol.compare(f10_EIBTRNID, \"XE05\", CS) == 0)) {"
+   },
+   {
+    "id": "9404bd5eb0",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 363,
+    "before": "handlers.put(\"LENGERR\", -1);",
+    "after": "handlers.put(\"XENGERR\", -1);"
+   },
+   {
+    "id": "0a3af495e4",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 363,
+    "before": "handlers.put(\"LENGERR\", -1);",
+    "after": "handlers.put(\"LENGERR\", -2);"
+   },
+   {
+    "id": "033645d8c1",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 365,
+    "before": "pushed.push(new DetCics.Handlers(handlers, aids));",
+    "after": "/* pushed.push(new DetCics.Handlers(handlers, aids)); */"
+   },
+   {
+    "id": "6afa709f9b",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 367,
+    "before": "aids.clear();",
+    "after": "/* aids.clear(); */"
+   },
+   {
+    "id": "04e33e7e30",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 369,
+    "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp1), false, CS);",
+    "after": "/* Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp1), false, CS); */"
+   },
+   {
+    "id": "31df7052ee",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 370,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "43b9888e1d",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 370,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
    {
     "id": "b820ef6c3f",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 389,
+    "line": 373,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "d3cac7e05e",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 373,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "d491242b7f",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 373,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "497b8da6ef",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 373,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "53a1d62cbc",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 377,
+    "before": "handlers.put(\"LENGERR\", -1);",
+    "after": "handlers.put(\"LENGERR\", -2);"
    },
    {
     "id": "295220418a",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 396,
+    "line": 380,
     "before": "handlers.clear();",
     "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "29bc27cfd5",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 381,
+    "before": "aids.clear();",
+    "after": "/* aids.clear(); */"
+   },
+   {
+    "id": "dd5fe5bb13",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 383,
+    "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp2), false, CS);",
+    "after": "/* Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp2), false, CS); */"
+   },
+   {
+    "id": "5c13ab951f",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 384,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "af74e4daf1",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 384,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
    {
     "id": "d31cf6aab1",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 403,
+    "line": 387,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "7fd4544c35",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 387,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "3457dfeae3",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 387,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
    },
    {
     "id": "f1c4f9320b",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 403,
+    "line": 387,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -603,39 +1844,71 @@
     "id": "4da63de036",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 410,
+    "line": 394,
     "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp3), false, CS);",
     "after": "/* Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp3), false, CS); */"
+   },
+   {
+    "id": "80472eb1e3",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 395,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
    {
     "id": "67b06eb1ae",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 411,
+    "line": 395,
     "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "c7422b4682",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 398,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
    },
    {
     "id": "63881fa445",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 414,
+    "line": 398,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "5f57558a8d",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 398,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
    },
    {
     "id": "04394ef0a0",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 414,
+    "line": 398,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "8245ffd5f5",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 405,
+    "before": "if (resp4 == 0) {",
+    "after": "if (resp4 == 1) {"
    },
    {
     "id": "f9699c8528",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 422,
+    "line": 406,
     "before": "pushed.pop().restore(handlers, aids);",
     "after": "/* pushed.pop().restore(handlers, aids); */"
    },
@@ -643,23 +1916,39 @@
     "id": "61f3b03865",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 425,
+    "line": 409,
     "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "ce2fd0e77b",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 409,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
    {
     "id": "b0f820cc23",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 426,
+    "line": 410,
     "before": "if (resp4 != 0) {",
     "after": "if (resp4 != 1) {"
+   },
+   {
+    "id": "bc46e03445",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 412,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
    },
    {
     "id": "063b2e8960",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 428,
+    "line": 412,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -667,15 +1956,55 @@
     "id": "a0cbd4ff31",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 431,
+    "line": 415,
     "before": "Cobol.string(f1_WS_TRAIL, f2_WS_PTR, CS, Cobol.StringPart.size(\"x\", CS));",
     "after": "Cobol.string(f1_WS_TRAIL, f2_WS_PTR, CS, Cobol.StringPart.size(\"X\", CS));"
+   },
+   {
+    "id": "5d3fbb548e",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 417,
+    "before": "if (true) return GOTO | 3;",
+    "after": "if (!(true)) return GOTO | 3;"
+   },
+   {
+    "id": "0c3d0b0778",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 417,
+    "before": "if (true) return GOTO | 3;",
+    "after": "if (true) return GOTO | 4;"
+   },
+   {
+    "id": "bddb5b11d1",
+    "op": "LIT",
+    "file": "service/HcignService.java",
+    "line": 420,
+    "before": "handlers.put(\"LENGERR\", 1);",
+    "after": "handlers.put(\"XENGERR\", 1);"
+   },
+   {
+    "id": "11687fcdd2",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 420,
+    "before": "handlers.put(\"LENGERR\", 1);",
+    "after": "handlers.put(\"LENGERR\", 2);"
+   },
+   {
+    "id": "65dc840a1e",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 422,
+    "before": "handlers.put(\"LENGERR\", -1);",
+    "after": "handlers.put(\"LENGERR\", -2);"
    },
    {
     "id": "c9c7b391a0",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 439,
+    "line": 423,
     "before": "} else if (true) {",
     "after": "} else if (!(true)) {"
    },
@@ -683,23 +2012,47 @@
     "id": "e12b572ba5",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 441,
+    "line": 425,
     "before": "handlers.put(\"ERROR\", 2);",
     "after": "handlers.put(\"XRROR\", 2);"
+   },
+   {
+    "id": "a0bf1f8528",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 425,
+    "before": "handlers.put(\"ERROR\", 2);",
+    "after": "handlers.put(\"ERROR\", 3);"
+   },
+   {
+    "id": "d6be553c1c",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 427,
+    "before": "pushed.push(new DetCics.Handlers(handlers, aids));",
+    "after": "/* pushed.push(new DetCics.Handlers(handlers, aids)); */"
    },
    {
     "id": "ebfb71a6b8",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 445,
+    "line": 429,
     "before": "aids.clear();",
     "after": "/* aids.clear(); */"
+   },
+   {
+    "id": "ba87ec82f3",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 431,
+    "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp5), false, CS);",
+    "after": "/* Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp5), false, CS); */"
    },
    {
     "id": "17e41e23f7",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 448,
+    "line": 432,
     "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -707,15 +2060,23 @@
     "id": "329dbc67a9",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 448,
+    "line": 432,
     "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "11f8d23696",
+    "op": "NEG",
+    "file": "service/HcignService.java",
+    "line": 435,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
    },
    {
     "id": "b352dba002",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 451,
+    "line": 435,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -723,31 +2084,79 @@
     "id": "19a089b8b2",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 451,
+    "line": 435,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "2aaca92652",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 435,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "d382ca9592",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 441,
+    "before": "f4_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received6.length()), 4, true, false, CS);",
+    "after": "f4_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received6.length()), 5, true, false, CS);"
    },
    {
     "id": "8236a6ab92",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 459,
+    "line": 443,
     "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
    {
-    "id": "da98bcb7d0",
+    "id": "6bfef558e4",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 460,
-    "before": "if (DetCics.resp(received6.resp()) != 0) {",
-    "after": "if (DetCics.resp(received6.resp()) != 1) {"
+    "line": 443,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "e4da534c88",
+    "op": "ROR",
+    "file": "service/HcignService.java",
+    "line": 446,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "581a842e48",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 446,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "043e9daf8a",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 456,
+    "before": "return 1;",
+    "after": "return 2;"
+   },
+   {
+    "id": "ecc3797f3c",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 467,
+    "before": "return 2;",
+    "after": "return 3;"
    },
    {
     "id": "6df132f57c",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 499,
+    "line": 483,
     "before": "int[] planned8 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned8 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -755,23 +2164,71 @@
     "id": "ec39afa398",
     "op": "LIT",
     "file": "service/HcignService.java",
-    "line": 499,
+    "line": 483,
     "before": "int[] planned8 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned8 = task.planned(\"SEND-TEXT\", \"X\");"
+   },
+   {
+    "id": "2d7dfe12ec",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 484,
+    "before": "if (planned8[0] == 0) task.sendText(text7.substring(0, Math.min(text7.length(), 40)), 40, \"ERASE\");",
+    "after": "if (planned8[1] == 0) task.sendText(text7.substring(0, Math.min(text7.length(), 40)), 40, \"ERASE\");"
+   },
+   {
+    "id": "a67b994177",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 484,
+    "before": "if (planned8[0] == 0) task.sendText(text7.substring(0, Math.min(text7.length(), 40)), 40, \"ERASE\");",
+    "after": "if (planned8[0] == 0) task.sendText(text7.substring(0, Math.min(text7.length(), 41)), 40, \"ERASE\");"
    },
    {
     "id": "e17b096edc",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 501,
+    "line": 485,
     "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(planned8[0]), false, CS);",
     "after": "/* Cobol.store(f36_EIBRESP, BigDecimal.valueOf(planned8[0]), false, CS); */"
+   },
+   {
+    "id": "685e1a30e7",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 485,
+    "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(planned8[0]), false, CS);",
+    "after": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(planned8[1]), false, CS);"
+   },
+   {
+    "id": "36804e6833",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 486,
+    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(planned8[1]), false, CS);",
+    "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(planned8[1]), false, CS); */"
+   },
+   {
+    "id": "b17df408c4",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 487,
+    "before": "if (planned8[0] != 0) {",
+    "after": "if (planned8[1] != 0) {"
+   },
+   {
+    "id": "567e93e191",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 488,
+    "before": "int to = condition(DetCics.condition(planned8[0]));",
+    "after": "int to = condition(DetCics.condition(planned8[1]));"
    },
    {
     "id": "a67eb7ab1b",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 505,
+    "line": 489,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -779,7 +2236,7 @@
     "id": "089a92942c",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 505,
+    "line": 489,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -787,58 +2244,74 @@
     "id": "1f117d06c8",
     "op": "ROR",
     "file": "service/HcignService.java",
-    "line": 505,
+    "line": 489,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "6bcf3d3bc1",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 489,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "2d407de341",
+    "op": "DEL",
+    "file": "service/HcignService.java",
+    "line": 492,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
    },
    {
     "id": "f3f0f9260f",
     "op": "DEL",
     "file": "service/HcignService.java",
-    "line": 509,
+    "line": 493,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
    {
-    "id": "129312b1b7",
-    "op": "CON",
-    "file": "service/HcignService.java",
-    "line": 229,
-    "before": "calen = cx(task, 10);",
-    "after": "calen = cx(task, 11);"
-   },
-   {
-    "id": "13bf033258",
+    "id": "56a2676695",
     "op": "NEG",
     "file": "service/HcignService.java",
-    "line": 228,
-    "before": "} else if (ca instanceof HcrparWsV1) {",
-    "after": "} else if (!(ca instanceof HcrparWsV1)) {"
+    "line": 494,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
    },
    {
-    "id": "2c14499ff0",
+    "id": "f84006843d",
     "op": "CON",
     "file": "service/HcignService.java",
-    "line": 231,
-    "before": "calen = cx(task, 10);",
-    "after": "calen = cx(task, 11);"
+    "line": 495,
+    "before": "return 4;",
+    "after": "return 5;"
+   },
+   {
+    "id": "c750794112",
+    "op": "CON",
+    "file": "service/HcignService.java",
+    "line": 504,
+    "before": "return 5;",
+    "after": "return 6;"
    }
   ],
   "inputs": {
-   "port": "c531cf00e0a1ecc4fe84a2e0d2f07e3bc64a56f43dca7c3b9ce737c7ab9e4177",
-   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
-   "generator": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
-   "case": "8b45e79b877ff5a60367742252d9d347e65aa32cfd3c748096def8059aed2184",
+   "port": "1a51cc912ca640452ef044a6d8dd3773ab3fe6b0ae8f101b3d2e63ea3ecdd94d",
+   "runtime": "66bda5999b70689e073b040600cbed86b0b3da96422152b516d140fcf62a4af5",
+   "generator": "2de0781ffb970c646b70df3964fd4d648450edd2869a314418024c4380cd5099",
+   "case": "51f12ee5a2db3d671bbbd0768f5b14b97b3a514c296ce2a092b9d90b7cb3b00f",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
+   "harness": "bbe0b5c69920ce5f946f96767c46abd8f31b7d548515293b0a29e880a06fa4f0",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+   "survivors": "987864d258c41dc8c5bf5b465497a95a5829d8ff408c1d91c5a67df166be3b84"
   },
   "components": {
    "generator": {
-    "generator:core": "14036b3dac86cb4bc53a23171455347ab95c84129749c8485ef13a3c90769d1a",
+    "generator:core": "5b5ee004f595a9311d1e894faf553f2d21972c109dc961fa998cb6efdb097309",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
@@ -856,11 +2329,11 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:cics": "7e00f67547797a34f2b15d5ae76f363d97c8896fdf5bef20550bebdda8e7de0d",
+    "harness:cics": "a087f5d0b585502485eec7ddf951b2c18be810732088641086f699ff3087848b",
     "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
    },
    "oracle": {
@@ -869,12 +2342,6 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "0193737d21 02349ae78b 03172bcae3 033645d8c1 03b35c624d 04394ef0a0 043e9daf8a 04e33e7e30 0636b5fbe6 063b2e8960 0836a2ed23 087fc5437c 089a92942c 0936cfceeb 097847b3bd 09dfd56b2d 0a3af495e4 0a544e5198 0a80f238f3 0b72176c53 0c3d0b0778 0d61882d60 0d70407ee5 0de4988513 0e23cbd518 0e27bfffef 0f88a0a439 0f99e87f55 0fa5205292 1019dc1680 11687fcdd2 11f8d23696 11fde9d739 129312b1b7 129a592270 1318b05669 134326375d 13bf033258 14153a74e8 1443f1ce16 1573b5fa96 15c2801459 17389a6e9b 17e41e23f7 19a089b8b2 1abb0164fc 1ad8b00906 1ae359a4a9 1aec132f75 1b34694658 1b42c23ccb 1c0106176f 1ca9de8927 1cf57043f5 1d6a84e075 1e1b376dcd 1e2b788eb7 1ed77b877e 1f117d06c8 1fa8954194 21592a922a 21845b0aec 221f65d99a 2417b3d6d3 2427f7f7e7 24526c7e4a 24ba46e864 250bc312b2 25937efbf1 259da9d1b6 25a01ffe0d 269f9db3b1 279050b708 28d18bd3f1 28fadfc5e0 295220418a 296d20bba3 29bc27cfd5 2a02e7c7f7 2a03e1fe61 2aaca92652 2ad0aca6fd 2b711bba38 2bc486c920 2c14499ff0 2d407de341 2d5a227131 2d6de5d411 2d73d47dba 2d7dfe12ec 2eceb0acbf 2edd5e0025 2fc7b10b0c 3022a46f72 305bc34e99 31df7052ee 329dbc67a9 33fd51d4d0 3457dfeae3 365b47a742 36804e6833 36c627df8b 37369220c8 37969d87f5 37d58426df 3c2a44da8c 3c956dc61e 3d3e31e048 3e7ba210c2 3e9a398519 3ef6fc7b0f 401c6e671b 407bb3e0fd 41f49d9a03 4283fcf184 432637da38 435a0430ef 4365f85cb1 4380717c92 4391dd6614 43970c4a0b 43b9888e1d 43d1be6dbc 43febe6197 45dcaf6d8b 4698b385dc 492319736f 497b8da6ef 49acaa38c0 4a1bb0a889 4afba972f4 4bb1e55759 4bf28a22da 4c95053090 4cfb6d0ae9 4da63de036 50118e7f35 5041118363 51b7be04f9 51c7cb90a5 51f0ad30fb 5220a67e20 52ba60a3b7 53a1d62cbc 53c3351815 54d6d8df25 55e3c5d03a 561e771c51 567e93e191 56a2676695 56a63b29fa 574ab9bd06 574b81d0fe 57643b2b35 577a9e6e05 579973e478 581a842e48 58d557d57b 58e6cbf348 5b17b800bc 5c0c68ec1c 5c13ab951f 5c20a2e6ab 5cdf7a3f2e 5ced4301ea 5d0c86b583 5d3fbb548e 5d90d8833a 5d942e5746 5db42f63cd 5ea625e3f1 5f1dbfbb27 5f57558a8d 61f3b03865 623462bf70 623a83d666 62aa905c38 62e44e3ac1 633ed967d3 637a025c2c 63881fa445 6476409647 65d8811ad6 65dc840a1e 66108a61a7 67b06eb1ae 680427b895 685e1a30e7 68dc7a64d9 69458d5f0a 699c83656c 6a21c28c67 6a9775117c 6acde33b30 6afa709f9b 6b05835d43 6b73fd807c 6b953125e8 6bcf3d3bc1 6bd2afee0b 6bfef558e4 6cd7622de7 6d4ed8d746 6d62e56ad6 6dc2345d10 6df132f57c 6e6b7e6154 6f1581d50d 6f70e0f342 706619afbf 715599eb65 7275c21d4b 737eaf1b2e 73a90725c8 7413a16ea7 74ad1fa7ff 7509607fe3 76374f54c0 772c9c2ee9 775698d198 77a5607622 77cdb9d1af 7856f0e7e6 78c968d3f7 79a13fddd2 7a0bedb028 7a57fcfebb 7bdf7a64c7 7beee711c2 7cfef09c8b 7e6808fbcf 7e782dcc5e 7f2b057610 7fd4544c35 80472eb1e3 80f2d42a18 811ce1dbf5 816f0ec81d 81ba7b68b1 81d94979a0 82334bf0b2 8236a6ab92 8245ffd5f5 82597d228c 837fee925b 83ef59617e 858053bb60 866c36ada2 8770671228 884d17dd8e 888a11a1f2 88cf80731f 89b7c1e86e 8b864fe606 8ce9d58d05 8e63a328e0 8ef6889f69 8f891e7379 901cce1775 909813e412 90de8d6ed5 912d7f0ea1 913083c043 92897084d6 932527c834 93ca3f8c46 93fb576f77 9404bd5eb0 94f731ec18 9664de619e 9799c8fc7e 98ee1762b3 9925ee6f00 992cec3348 99aee4f58c 99d74cea0f 99e7d8746d 99ea2193e3 9a70862aaa 9ae8dbffb8 9b41f2917d 9b72a6cdaf 9bf8404037 9d0120e280 9d95f6b437 9dd6892c7f 9efef18d6f a0bf1f8528 a0cbd4ff31 a22d5a9a59 a32a9edc0b a557e75864 a5c58bdc33 a6403413cc a67b994177 a67eb7ab1b a70a1178d5 a7ab6ded4f a89fd04f40 a8d42c9cb1 a9bbdc07e0 a9ee343d00 aa64621537 adc5004654 ade9a9847e adeea33609 ae29d505db aef64df7e1 af487deaba af74e4daf1 afa6c181ea b0149f4879 b0151a442e b05069496d b085eb3276 b0a1fba928 b0f820cc23 b17df408c4 b1f2c03f94 b28421779d b352dba002 b44e458e7e b6072b7884 b6bcc1f202 b6d7f25491 b6fe46c032 b820ef6c3f b83a3e887b b8f01d42b1 ba87ec82f3 bab14487c9 bad6da997d bb8467745a bba4e7c27a bbf3490b53 bc46e03445 bd8a5327c4 bddb5b11d1 bddd1bf377 be2b5093ac bff0b17a6a c02e30e86e c04c414a1f c106b43ae7 c1257a3044 c1be8d40dc c294129c23 c2e35ba5b0 c3adfe61e8 c3c1aa62e6 c41d19adb2 c599794503 c6fb457c13 c7422b4682 c7499eb8bb c750794112 c80e5e3f9d c8dab693ae c92aae8966 c95383f706 c9560286af c9c7b391a0 cae3494231 cbdeb60fc9 ce09bb3d61 ce2fd0e77b ce4a7ce86e cf00318cbe cf0b712657 d03329e1c9 d0b5bc80a9 d0c72a0f62 d20c3bfead d2905e7398 d2eaba17b9 d31cf6aab1 d382ca9592 d3cac7e05e d45002662d d491242b7f d515cf0f67 d521a7ff4f d5d33f28a9 d5d8f8f9ff d65ccf0986 d6be553c1c d6c4a238c2 d7b9c57b26 d7e8358fca d873f7a8cb d947e6fae6 da38905624 da98bcb7d0 dabd03a870 db188a0cc5 db2c0add24 dc3d7aee99 dd2bef2e67 dd4002bdb8 dd5fe5bb13 dec93f54ac df6c76c472 e046d0708a e12068fd03 e12b572ba5 e17b096edc e1c63f70cb e1e8c2f3ae e30c7a47eb e39ca6a2d1 e4da534c88 e4f63549cf e5d8a1b599 e791e17ae9 e892ceb243 ea0631e2e5 eac8db56b3 eb54e84a2c ebfb71a6b8 ec39afa398 ecc3797f3c ed49710f4c ed5fc5851d edc1555495 ee5256f850 ee602c6b23 eeb0abbd8a eeb580a521 ef5cb6c973 f195d30d4e f1c4f9320b f3235b9ef8 f3645e041b f3dd0374e2 f3f0f9260f f43a800acc f559a5efab f84006843d f84b960c0f f865c6e0a1 f9699c8528 f9b97ab4d2 f9ee79a81b faa5c66881 fb732c2a4a fc32eede86 fcb0a3c587 ff12f04f9d",
-  "refreshed": {
-   "from": "2026-11-13",
-   "survivors_rerun": 0,
-   "fresh": 3,
-   "stale": []
-  }
+  "every": "000f0a544f 00602aa06c 019f082d86 02349ae78b 03172bcae3 033645d8c1 03b35c624d 04394ef0a0 043e9daf8a 04e33e7e30 0636b5fbe6 063b2e8960 089a92942c 0936cfceeb 09dfd56b2d 0a3af495e4 0a544e5198 0a80f238f3 0b3f35229d 0b72176c53 0c3d0b0778 0d61882d60 0d70407ee5 0de4988513 0e23cbd518 0e27bfffef 0e733d6bd7 0f0af08468 0f88a0a439 0f99e87f55 0fa5205292 1019dc1680 113c3b89ec 11687fcdd2 11f8d23696 11fde9d739 129a592270 1318b05669 134326375d 13bf033258 14153a74e8 1443f1ce16 14aa16fcfd 1573b5fa96 15c2801459 17389a6e9b 17e41e23f7 19a089b8b2 1abb0164fc 1ad8b00906 1ae359a4a9 1aec132f75 1b34694658 1b42c23ccb 1c0106176f 1c4c29a756 1cf57043f5 1d6a84e075 1e1b376dcd 1e2b788eb7 1ed77b877e 1f117d06c8 1fa8954194 21592a922a 21845b0aec 221f65d99a 2417b3d6d3 24526c7e4a 24ba46e864 250bc312b2 25937efbf1 259da9d1b6 25a01ffe0d 269f9db3b1 28d18bd3f1 28fadfc5e0 291fc8aaba 295220418a 296d20bba3 29bc27cfd5 2a02e7c7f7 2a03e1fe61 2aaca92652 2b711bba38 2bc486c920 2d407de341 2d5a227131 2d73d47dba 2d7dfe12ec 2eceb0acbf 2edd5e0025 2fc7b10b0c 2fe543797e 3022a46f72 305bc34e99 31df7052ee 329dbc67a9 3457dfeae3 34df1cb4f2 34eb744f22 365b47a742 36804e6833 36c627df8b 37369220c8 37969d87f5 37bb8db8ca 3c2a44da8c 3d3e31e048 3e7ba210c2 3e9a398519 3ef6fc7b0f 401c6e671b 4074bb5374 4283fcf184 432637da38 435a0430ef 4365f85cb1 4380717c92 4391dd6614 43970c4a0b 43b9888e1d 43d1be6dbc 43febe6197 45dcaf6d8b 4698b385dc 492319736f 497b8da6ef 49cc61ea98 4a1bb0a889 4afba972f4 4bb1e55759 4be6d95f32 4bf28a22da 4cfb6d0ae9 4da63de036 50118e7f35 5041118363 51b7be04f9 51c7cb90a5 51f0ad30fb 5220a67e20 52ba60a3b7 53a1d62cbc 53c3351815 53ce4c5a88 54d6d8df25 55a9145fd9 55e3c5d03a 561e771c51 567e93e191 56a2676695 56a63b29fa 574ab9bd06 57643b2b35 577a9e6e05 579973e478 581a842e48 58d557d57b 58e6cbf348 5bea6d4ffe 5c0c68ec1c 5c13ab951f 5c20a2e6ab 5ced4301ea 5d0c86b583 5d3fbb548e 5d90d8833a 5d942e5746 5db42f63cd 5f1dbfbb27 5f57558a8d 6166711f54 61f3b03865 623462bf70 623a83d666 62aa905c38 637a025c2c 63881fa445 63e66b46b9 64682b95a9 6476409647 65d8811ad6 65dc840a1e 66108a61a7 67b06eb1ae 685e1a30e7 68dc7a64d9 699c83656c 6a9775117c 6a999c7fef 6acde33b30 6afa709f9b 6b05835d43 6b4164d874 6b73fd807c 6bcf3d3bc1 6bfef558e4 6c30dbade0 6cd7622de7 6d62e56ad6 6df132f57c 6f1581d50d 706619afbf 70c1268d6d 715599eb65 7275c21d4b 737eaf1b2e 73a90725c8 7413a16ea7 74ad1fa7ff 7509607fe3 772c9c2ee9 775698d198 77a5607622 77cdb9d1af 78c968d3f7 79a13fddd2 7a0bedb028 7a57fcfebb 7bdf7a64c7 7cfef09c8b 7dc7d6d4c0 7e6808fbcf 7e782dcc5e 7f2b057610 7f9f8e529c 7fae2a5f3b 7fd4544c35 80472eb1e3 805ffc6e95 80f2d42a18 811ce1dbf5 816f0ec81d 81ba7b68b1 81d94979a0 82334bf0b2 8236a6ab92 8245ffd5f5 82597d228c 8290e21dfd 837fee925b 83ef59617e 858053bb60 866c36ada2 8770671228 884d17dd8e 888a11a1f2 88cf80731f 89b7c1e86e 8b864fe606 8cd369b5bd 8ce9d58d05 8e63a328e0 8ef6889f69 8f891e7379 909813e412 912d7f0ea1 913083c043 92897084d6 932527c834 93ca3f8c46 93fb576f77 9404bd5eb0 94f731ec18 973f40b8b2 9799c8fc7e 9925ee6f00 992cec3348 99aee4f58c 99e7d8746d 99ea2193e3 9ae8dbffb8 9b41f2917d 9b72a6cdaf 9d0120e280 9d95f6b437 9dd6892c7f 9efef18d6f a0bf1f8528 a0cbd4ff31 a22d5a9a59 a557e75864 a5c58bdc33 a6403413cc a67b994177 a67eb7ab1b a70a1178d5 a77ca41877 a89fd04f40 a8d42c9cb1 a9bbdc07e0 a9ee343d00 aa64621537 aba6443fc7 ad3c8a30a1 ad8a2d549f adc5004654 ade9a9847e ae29d505db aef64df7e1 af487deaba af74e4daf1 afa6c181ea b0151a442e b05069496d b085eb3276 b0a1fba928 b0f820cc23 b17df408c4 b1f2c03f94 b28421779d b352dba002 b44e458e7e b6072b7884 b6bcc1f202 b6d7f25491 b6fe46c032 b723550392 b820ef6c3f b83a3e887b b8f01d42b1 b9019d15c5 ba87ec82f3 bab14487c9 bad6da997d bb8467745a bba4e7c27a bbf3490b53 bc46e03445 bd8a5327c4 bddb5b11d1 bddd1bf377 bff0b17a6a c02e30e86e c106b43ae7 c1be8d40dc c233a2c030 c294129c23 c2e35ba5b0 c3adfe61e8 c3c1aa62e6 c41d19adb2 c46401a2b1 c4908a0a50 c599794503 c6fb457c13 c7422b4682 c7499eb8bb c750794112 c80e5e3f9d c8dab693ae c92aae8966 c95383f706 c9560286af c9c7b391a0 cb4988ecba cbdeb60fc9 ce09bb3d61 ce2fd0e77b ce4a7ce86e cf00318cbe cf0b712657 d03329e1c9 d0c72a0f62 d2905e7398 d2eaba17b9 d31cf6aab1 d382ca9592 d3cac7e05e d45002662d d491242b7f d515cf0f67 d521a7ff4f d5d33f28a9 d5d8f8f9ff d65ccf0986 d6be553c1c d6c4a238c2 d7b9c57b26 d7e8358fca d873f7a8cb d947e6fae6 da38905624 da98bcb7d0 dabd03a870 db188a0cc5 db2c0add24 dc3d7aee99 dd4002bdb8 dd5fe5bb13 dec93f54ac e046d0708a e0a59a3dba e12068fd03 e12b572ba5 e17b096edc e1c63f70cb e1e8c2f3ae e2722c030f e30c7a47eb e3490ef5d9 e39ca6a2d1 e4da534c88 e4f63549cf e5668f4401 e74a4e8517 e791e17ae9 ea0631e2e5 eb54e84a2c ebfb71a6b8 ec39afa398 ecc3797f3c ed49710f4c ed5fc5851d edb5a822d4 ee5256f850 ee602c6b23 eeb0abbd8a eeb580a521 ef5cb6c973 f195d30d4e f1c4f9320b f3645e041b f3dd0374e2 f3f0f9260f f43a800acc f559a5efab f60b6803df f84006843d f84b960c0f f9699c8528 f9b97ab4d2 f9ee79a81b fb732c2a4a fbfab15ec9 fd33157e70"
  }
 }

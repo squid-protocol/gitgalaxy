@@ -141,7 +141,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety: per #76's explicit ask -- strict-typing range
+        # safety (Defensive Checks: range constraints, assert pragmas, exceptions): per #76's explicit ask -- strict-typing range
         # constraints (`type ... is range`, but also the equally common
         # `subtype X is Base range Lo .. Hi` form, where "is" and
         # "range" are NOT adjacent -- matching only "is range" verbatim

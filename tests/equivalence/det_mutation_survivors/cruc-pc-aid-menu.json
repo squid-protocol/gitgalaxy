@@ -1,0 +1,2223 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-pc-aid-menu",
+ "survivors": [
+  {
+   "id": "32c3671565",
+   "op": "LIT",
+   "line": 35,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "b23f860853",
+   "op": "LIT",
+   "line": 35,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "4652ddbb00",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "f5e89fc174",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "1c49bc5290",
+   "op": "LIT",
+   "line": 37,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "be00e7cf78",
+   "op": "LIT",
+   "line": 37,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "f364b926fc",
+   "op": "LIT",
+   "line": 41,
+   "before": "\"ICAgICAgICAgICAgAAAgIAAAICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgAAAgIAAAICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_PCMNI lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "c2d2e18ccc",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"ICAgICAgICAgICAgAAAgICAgIAAAICAgICAAACAgICAgAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgAAAgICAgIAAAICAgICAAACAgICAgAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_PCDTI lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "02c6ad005d",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"MDAwMCAgICAgIA==\"));",
+   "after": "\"XDAwMCAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_CA follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "ba6e4ea15d",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "89ecea333a",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "351bca91e6",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
+   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DVISITSL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "3c84fab151",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
+   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 13, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DVISITSL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "f29b12b429",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
+   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f28_DVISITSL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "07eb20d356",
+   "op": "CON",
+   "line": 63,
+   "before": "private final Field f31_DVISITSA = Field.alphanumeric(s_PCDTI, 14, 1, false);",
+   "after": "private final Field f31_DVISITSA = Field.alphanumeric(s_PCDTI, 15, 1, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DVISITSA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "d274d1a357",
+   "op": "CON",
+   "line": 63,
+   "before": "private final Field f31_DVISITSA = Field.alphanumeric(s_PCDTI, 14, 1, false);",
+   "after": "private final Field f31_DVISITSA = Field.alphanumeric(s_PCDTI, 14, 2, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DVISITSA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "4af548cfb6",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
+   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f33_DLASTL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "a816067c76",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
+   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DLASTL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "f743e4a6cb",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
+   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 20, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DLASTL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "2da43b1cc0",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f36_DLASTA = Field.alphanumeric(s_PCDTI, 21, 1, false);",
+   "after": "private final Field f36_DLASTA = Field.alphanumeric(s_PCDTI, 22, 1, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DLASTA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "629230f32c",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f36_DLASTA = Field.alphanumeric(s_PCDTI, 21, 1, false);",
+   "after": "private final Field f36_DLASTA = Field.alphanumeric(s_PCDTI, 21, 2, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DLASTA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "50a80ea607",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
+   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f38_DTRANL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "6bb00a1f62",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
+   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 27, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DTRANL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "f21397216e",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
+   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DTRANL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "19da0a703b",
+   "op": "CON",
+   "line": 67,
+   "before": "private final Field f41_DTRANA = Field.alphanumeric(s_PCDTI, 28, 1, false);",
+   "after": "private final Field f41_DTRANA = Field.alphanumeric(s_PCDTI, 29, 1, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DTRANA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "e8c9e65494",
+   "op": "CON",
+   "line": 67,
+   "before": "private final Field f41_DTRANA = Field.alphanumeric(s_PCDTI, 28, 1, false);",
+   "after": "private final Field f41_DTRANA = Field.alphanumeric(s_PCDTI, 28, 2, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DTRANA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "452128e3da",
+   "op": "CON",
+   "line": 68,
+   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
+   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f43_DMSGL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "8896bd908e",
+   "op": "CON",
+   "line": 68,
+   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
+   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DMSGL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "fd71cb6092",
+   "op": "CON",
+   "line": 68,
+   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
+   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 34, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DMSGL (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "2e4e2a13aa",
+   "op": "CON",
+   "line": 69,
+   "before": "private final Field f46_DMSGA = Field.alphanumeric(s_PCDTI, 35, 1, false);",
+   "after": "private final Field f46_DMSGA = Field.alphanumeric(s_PCDTI, 36, 1, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DMSGA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "3ee39795c0",
+   "op": "CON",
+   "line": 69,
+   "before": "private final Field f46_DMSGA = Field.alphanumeric(s_PCDTI, 35, 1, false);",
+   "after": "private final Field f46_DMSGA = Field.alphanumeric(s_PCDTI, 35, 2, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses DMSGA (PCDTI) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "0dcc7cd3f8",
+   "op": "CON",
+   "line": 70,
+   "before": "private final Field f3_OPTL = Field.binary(s_PCMNI, 12, 4, 0, true, false);",
+   "after": "private final Field f3_OPTL = Field.binary(s_PCMNI, 13, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map length OPTL: its bytes and the mutant's hold only X'00', spaces or a typed length (under 255: no X'FF' byte), never the cursor's -1 (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "8f3fd1c210",
+   "op": "CON",
+   "line": 70,
+   "before": "private final Field f3_OPTL = Field.binary(s_PCMNI, 12, 4, 0, true, false);",
+   "after": "private final Field f3_OPTL = Field.binary(s_PCMNI, 12, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f3_OPTL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "0e559e9499",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f51_DVISITSO = Field.alphanumeric(s_PCDTI, 15, 4, false);",
+   "after": "private final Field f51_DVISITSO = Field.alphanumeric(s_PCDTI, 16, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads DVISITSO or bytes 15-19 of PCDTI (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "2355100b5a",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f6_OPTA = Field.alphanumeric(s_PCMNI, 14, 1, false);",
+   "after": "private final Field f6_OPTA = Field.alphanumeric(s_PCMNI, 15, 1, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute OPTA: bytes 14 and 15 only ever hold X'00' or a space, which SEND MAP reads as not set either way (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "a89aae4221",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f51_DVISITSO = Field.alphanumeric(s_PCDTI, 15, 4, false);",
+   "after": "private final Field f51_DVISITSO = Field.alphanumeric(s_PCDTI, 15, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads DVISITSO or bytes 15-19 of PCDTI (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b2d3a3fc0a",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f6_OPTA = Field.alphanumeric(s_PCMNI, 14, 1, false);",
+   "after": "private final Field f6_OPTA = Field.alphanumeric(s_PCMNI, 14, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute OPTA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "53eb62db74",
+   "op": "CON",
+   "line": 72,
+   "before": "private final Field f53_DLASTO = Field.alphanumeric(s_PCDTI, 22, 4, false);",
+   "after": "private final Field f53_DLASTO = Field.alphanumeric(s_PCDTI, 23, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads DLASTO or bytes 22-26 of PCDTI (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9463d5d25f",
+   "op": "CON",
+   "line": 72,
+   "before": "private final Field f53_DLASTO = Field.alphanumeric(s_PCDTI, 22, 4, false);",
+   "after": "private final Field f53_DLASTO = Field.alphanumeric(s_PCDTI, 22, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads DLASTO or bytes 22-26 of PCDTI (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "367153c33b",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f55_DTRANO = Field.alphanumeric(s_PCDTI, 29, 4, false);",
+   "after": "private final Field f55_DTRANO = Field.alphanumeric(s_PCDTI, 29, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads DTRANO or bytes 29-33 of PCDTI (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "90e7c043d7",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f55_DTRANO = Field.alphanumeric(s_PCDTI, 29, 4, false);",
+   "after": "private final Field f55_DTRANO = Field.alphanumeric(s_PCDTI, 30, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads DTRANO or bytes 29-33 of PCDTI (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c8a2cef353",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f8_VISITSL = Field.binary(s_PCMNI, 16, 4, 0, true, false);",
+   "after": "private final Field f8_VISITSL = Field.binary(s_PCMNI, 16, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f8_VISITSL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "b48ad0e681",
+   "op": "CON",
+   "line": 74,
+   "before": "private final Field f11_VISITSA = Field.alphanumeric(s_PCMNI, 18, 1, false);",
+   "after": "private final Field f11_VISITSA = Field.alphanumeric(s_PCMNI, 18, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute VISITSA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "2e0fd687c5",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f13_MSGL = Field.binary(s_PCMNI, 23, 4, 0, true, false);",
+   "after": "private final Field f13_MSGL = Field.binary(s_PCMNI, 23, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f13_MSGL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
+   "tried": [
+    "map-length-scale"
+   ]
+  },
+  {
+   "id": "05adf74ee7",
+   "op": "CON",
+   "line": 77,
+   "before": "private final Field f16_MSGA = Field.alphanumeric(s_PCMNI, 25, 1, false);",
+   "after": "private final Field f16_MSGA = Field.alphanumeric(s_PCMNI, 25, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute MSGA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "40928d5716",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f65_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f65_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into: bytes 0..3 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4941db4ff8",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f65_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f65_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into: bytes 1..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "989618274a",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f65_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f65_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into: bytes 0..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7e10f9a784",
+   "op": "CON",
+   "line": 81,
+   "before": "private final Field f66_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f66_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "98b8208ba2",
+   "op": "CON",
+   "line": 81,
+   "before": "private final Field f66_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f66_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c3a2dfddcf",
+   "op": "CON",
+   "line": 81,
+   "before": "private final Field f66_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f66_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f66_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1618187085",
+   "op": "CON",
+   "line": 82,
+   "before": "private final Field f67_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f67_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "d0d88b1b07",
+   "op": "CON",
+   "line": 82,
+   "before": "private final Field f67_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f67_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "028a02c71d",
+   "op": "CON",
+   "line": 83,
+   "before": "private final Field f68_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f68_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "618236a2f2",
+   "op": "CON",
+   "line": 83,
+   "before": "private final Field f68_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f68_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "89608e896e",
+   "op": "CON",
+   "line": 83,
+   "before": "private final Field f68_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f68_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f68_EIBTASKN is only stored into: bytes 12..15 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "075cdbb8b0",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f69_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f69_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9ea3eafa16",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f69_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f69_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "18adcfac7f",
+   "op": "CON",
+   "line": 86,
+   "before": "private final Field f93_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f93_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into: bytes 77..80 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d75ff745d2",
+   "op": "CON",
+   "line": 86,
+   "before": "private final Field f93_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f93_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d7d64d2d52",
+   "op": "CON",
+   "line": 86,
+   "before": "private final Field f93_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f93_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "59dec2dd0b",
+   "op": "CON",
+   "line": 87,
+   "before": "private final Field f94_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f94_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 is only stored into: bytes 81..84 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9763dac08e",
+   "op": "CON",
+   "line": 87,
+   "before": "private final Field f94_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f94_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d1dd0987a7",
+   "op": "CON",
+   "line": 87,
+   "before": "private final Field f94_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f94_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "114e6936bb",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f96_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "54e7a51712",
+   "op": "CON",
+   "line": 99,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "9bf4aa1a3b",
+   "op": "ROR",
+   "line": 99,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "b380340d8f",
+   "op": "ROR",
+   "line": 99,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "dfb67fd5d1",
+   "op": "NEG",
+   "line": 99,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "58e9614718",
+   "op": "DEL",
+   "line": 100,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "fbd6166714",
+   "op": "LIT",
+   "line": 105,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "33a520c9f9",
+   "op": "NEG",
+   "line": 107,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "56891e7641",
+   "op": "COR",
+   "line": 107,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "272dac08db",
+   "op": "LIT",
+   "line": 110,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "9cc427a8b0",
+   "op": "LIT",
+   "line": 110,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "3660883b73",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f103_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f103_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into: bytes 1..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "96dab1b6b8",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f103_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f103_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into: bytes 0..3 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dec21457ea",
+   "op": "CON",
+   "line": 124,
+   "before": "private final Field f103_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f103_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into: bytes 0..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9e0c4a1398",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f104_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f104_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f104_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a6a34a585b",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f104_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f104_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "dc5f27e6c1",
+   "op": "CON",
+   "line": 125,
+   "before": "private final Field f104_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f104_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "e73cb02f4f",
+   "op": "CON",
+   "line": 126,
+   "before": "private final Field f105_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f105_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "f34aa61991",
+   "op": "CON",
+   "line": 126,
+   "before": "private final Field f105_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f105_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "0a78190977",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f106_EIBTASKN is only stored into: bytes 12..15 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a224799a08",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "c6ae23c688",
+   "op": "CON",
+   "line": 127,
+   "before": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1925304319",
+   "op": "CON",
+   "line": 128,
+   "before": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "4d2ab26872",
+   "op": "CON",
+   "line": 128,
+   "before": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "0920169c11",
+   "op": "CON",
+   "line": 131,
+   "before": "private final Field f131_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f131_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into: bytes 77..80 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1c9b7a3f50",
+   "op": "CON",
+   "line": 131,
+   "before": "private final Field f131_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f131_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2e6e52404f",
+   "op": "CON",
+   "line": 131,
+   "before": "private final Field f131_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f131_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7c214f296e",
+   "op": "CON",
+   "line": 132,
+   "before": "private final Field f132_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f132_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into: bytes 81..84 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9f98859b32",
+   "op": "CON",
+   "line": 132,
+   "before": "private final Field f132_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f132_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b15a0b7418",
+   "op": "CON",
+   "line": 132,
+   "before": "private final Field f132_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f132_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f881f88ebf",
+   "op": "CON",
+   "line": 133,
+   "before": "private final Field f134_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f134_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f134_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "aaf7f7f8aa",
+   "op": "DEL",
+   "line": 137,
+   "before": "System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_PCMNI's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "f8bdf01b37",
+   "op": "DEL",
+   "line": 139,
+   "before": "System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_CA's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "af02ebe55c",
+   "op": "DEL",
+   "line": 143,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "07608992f1",
+   "op": "ROR",
+   "line": 146,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "0e9b3a6901",
+   "op": "CON",
+   "line": 146,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "24624c7d49",
+   "op": "ROR",
+   "line": 146,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "cd3ffa23fa",
+   "op": "NEG",
+   "line": 146,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4aa470428a",
+   "op": "DEL",
+   "line": 147,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "c72de47b91",
+   "op": "LIT",
+   "line": 152,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "3187bf8328",
+   "op": "NEG",
+   "line": 154,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "e7cd0e9d08",
+   "op": "COR",
+   "line": 154,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "475f7e9c56",
+   "op": "LIT",
+   "line": 157,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4f27cd1377",
+   "op": "LIT",
+   "line": 157,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "caa4ce2c2a",
+   "op": "DEL",
+   "line": 167,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "79dd7fe87b",
+   "op": "DEL",
+   "line": 173,
+   "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f66_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8a37f9971e",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f66_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9f071884db",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f66_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a6d1621b4c",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f66_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b7db936f7b",
+   "op": "CON",
+   "line": 173,
+   "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f66_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2c99db56e7",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "668b8aeb29",
+   "op": "DEL",
+   "line": 174,
+   "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "6f0d9f5330",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8d327c4465",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c762fb3f28",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f65_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "0e1170daad",
+   "op": "NEG",
+   "line": 195,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "460f7269ce",
+   "op": "ROR",
+   "line": 195,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4cd52db0d0",
+   "op": "DEL",
+   "line": 196,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "20fd29d71e",
+   "op": "CON",
+   "line": 198,
+   "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 1, 4, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "692e744916",
+   "op": "ROR",
+   "line": 198,
+   "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getMnVisits() != null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "72ab44560b",
+   "op": "AOR",
+   "line": 198,
+   "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base - 0, 4, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "7d7e8a24e3",
+   "op": "CON",
+   "line": 198,
+   "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 1, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "c246ffb072",
+   "op": "CON",
+   "line": 198,
+   "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 5, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "fbd0596a66",
+   "op": "DEL",
+   "line": 198,
+   "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS); */",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "6a0e6b97e9",
+   "op": "CON",
+   "line": 199,
+   "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
+   "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 5, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "716b1bec17",
+   "op": "AOR",
+   "line": 199,
+   "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
+   "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base - 4, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "8401fb4590",
+   "op": "CON",
+   "line": 199,
+   "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
+   "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 5, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "e6a3ae15fb",
+   "op": "ROR",
+   "line": 199,
+   "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
+   "after": "Cobol.move(d.getMnLast() != null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4caed115f6",
+   "op": "CON",
+   "line": 200,
+   "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
+   "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 3, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "87c7410f85",
+   "op": "ROR",
+   "line": 200,
+   "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
+   "after": "Cobol.move(d.getMnFlag() != null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "a5f2de119b",
+   "op": "CON",
+   "line": 200,
+   "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
+   "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "d1631e3185",
+   "op": "AOR",
+   "line": 200,
+   "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
+   "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base - 8, 2, false), CS);",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "8ab028bca2",
+   "op": "LIT",
+   "line": 217,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "bf7fe90999",
+   "op": "LIT",
+   "line": 217,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "cada5c9521",
+   "op": "DEL",
+   "line": 244,
+   "before": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_PCDTI's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "da4c5c91e5",
+   "op": "DEL",
+   "line": 251,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "0300802658",
+   "op": "DEL",
+   "line": 277,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "0ae6244926",
+   "op": "AOR",
+   "line": 283,
+   "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f104_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7d68132b0a",
+   "op": "DEL",
+   "line": 283,
+   "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f104_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c70a62de4f",
+   "op": "AOR",
+   "line": 283,
+   "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f104_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d1ac1d64b6",
+   "op": "AOR",
+   "line": 283,
+   "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f104_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "e5356651e9",
+   "op": "CON",
+   "line": 283,
+   "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f104_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "026866c932",
+   "op": "DEL",
+   "line": 284,
+   "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "36239534d7",
+   "op": "AOR",
+   "line": 284,
+   "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "830188c08c",
+   "op": "AOR",
+   "line": 284,
+   "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8a07022bee",
+   "op": "AOR",
+   "line": 284,
+   "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "967c00cc2c",
+   "op": "AOR",
+   "line": 284,
+   "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f103_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "948756a830",
+   "op": "DEL",
+   "line": 291,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen (exception-ctor)",
+   "tried": [
+    "exception-ctor"
+   ]
+  },
+  {
+   "id": "1742c772f9",
+   "op": "LIT",
+   "line": 362,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "bff0b239d1",
+   "op": "LIT",
+   "line": 362,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "bcb27a94d6",
+   "op": "DEL",
+   "line": 364,
+   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "bdfa3383e8",
+   "op": "CON",
+   "line": 364,
+   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2d77208678",
+   "op": "DEL",
+   "line": 365,
+   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5d4951935b",
+   "op": "LIT",
+   "line": 391,
+   "before": "DetCics.subfields(sub4, \"DVISITS\", f28_DVISITSL, f31_DVISITSA, null, null, CS);",
+   "after": "DetCics.subfields(sub4, \"XVISITS\", f28_DVISITSL, f31_DVISITSA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f28_DVISITSL, f31_DVISITSA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "588d7893b2",
+   "op": "LIT",
+   "line": 393,
+   "before": "DetCics.subfields(sub4, \"DLAST\", f33_DLASTL, f36_DLASTA, null, null, CS);",
+   "after": "DetCics.subfields(sub4, \"XLAST\", f33_DLASTL, f36_DLASTA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f33_DLASTL, f36_DLASTA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "f3df5c67b8",
+   "op": "LIT",
+   "line": 395,
+   "before": "DetCics.subfields(sub4, \"DTRAN\", f38_DTRANL, f41_DTRANA, null, null, CS);",
+   "after": "DetCics.subfields(sub4, \"XTRAN\", f38_DTRANL, f41_DTRANA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f38_DTRANL, f41_DTRANA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "9933155c18",
+   "op": "LIT",
+   "line": 397,
+   "before": "DetCics.subfields(sub4, \"DMSG\", f43_DMSGL, f46_DMSGA, null, null, CS);",
+   "after": "DetCics.subfields(sub4, \"XMSG\", f43_DMSGL, f46_DMSGA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f43_DMSGL, f46_DMSGA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "ba9cc21f34",
+   "op": "DEL",
+   "line": 401,
+   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
+   "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dc4f7e9792",
+   "op": "CON",
+   "line": 401,
+   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
+   "after": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "3876939ed6",
+   "op": "DEL",
+   "line": 402,
+   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
+   "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "24b3c71406",
+   "op": "CON",
+   "line": 411,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "line 411 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "a347e7eb82",
+   "op": "DEL",
+   "line": 526,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(resp5), false, CS);",
+   "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(resp5), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b7fbd5adb9",
+   "op": "CON",
+   "line": 527,
+   "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dd858e5134",
+   "op": "DEL",
+   "line": 527,
+   "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d0d16b2cc2",
+   "op": "DEL",
+   "line": 561,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+   "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "efca40a5a1",
+   "op": "CON",
+   "line": 561,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
+   "after": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "148a7de410",
+   "op": "DEL",
+   "line": 562,
+   "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9fdd60d77f",
+   "op": "CON",
+   "line": 569,
+   "before": "task.returnTransid(\"PC12\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
+   "after": "task.returnTransid(\"PC12\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 11).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(10) cuts the area to 10 bytes, so commarea size 10 vs 11 (both >= 10) carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
+   "id": "6bc148d9c7",
+   "op": "CON",
+   "line": 586,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
+   "after": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "fd4f3fdc6e",
+   "op": "DEL",
+   "line": 586,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
+   "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7256b73299",
+   "op": "DEL",
+   "line": 587,
+   "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS);",
+   "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "55b885ee4d",
+   "op": "CON",
+   "line": 596,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "line 596 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "d43e93c8b6",
+   "op": "LIT",
+   "line": 618,
+   "before": "DetCics.subfields(sub14, \"OPT\", f3_OPTL, f6_OPTA, null, null, CS);",
+   "after": "DetCics.subfields(sub14, \"XPT\", f3_OPTL, f6_OPTA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f3_OPTL, f6_OPTA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "977ec6eddf",
+   "op": "LIT",
+   "line": 620,
+   "before": "DetCics.subfields(sub14, \"VISITS\", f8_VISITSL, f11_VISITSA, null, null, CS);",
+   "after": "DetCics.subfields(sub14, \"XISITS\", f8_VISITSL, f11_VISITSA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f8_VISITSL, f11_VISITSA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "91e3279c98",
+   "op": "LIT",
+   "line": 622,
+   "before": "DetCics.subfields(sub14, \"MSG\", f13_MSGL, f16_MSGA, null, null, CS);",
+   "after": "DetCics.subfields(sub14, \"XSG\", f13_MSGL, f16_MSGA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "f13_MSGL, f16_MSGA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (subfield-unset)",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "26ab06cfd3",
+   "op": "CON",
+   "line": 626,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
+   "after": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2c204f5e05",
+   "op": "DEL",
+   "line": 626,
+   "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
+   "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f131_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f7852b942d",
+   "op": "DEL",
+   "line": 627,
+   "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS);",
+   "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f132_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dcd229c4be",
+   "op": "CON",
+   "line": 634,
+   "before": "task.returnTransid(\"PC11\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
+   "after": "task.returnTransid(\"PC11\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 11).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(10) cuts the area to 10 bytes, so commarea size 10 vs 11 (both >= 10) carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
+   "id": "d1634d7d09",
+   "op": "CON",
+   "line": 636,
+   "before": "return 4;",
+   "after": "return 5;",
+   "verdict": "equivalent",
+   "reason": "line 636 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  }
+ ]
+}

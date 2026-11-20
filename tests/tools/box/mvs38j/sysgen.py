@@ -229,7 +229,7 @@ def with_target_volumes(work, conf, donor="conf/smp2.cnf"):
 def tape_unit(work, conf):
     """The first 3420 tape drive of a Hercules config (the unit a job's tape DD is pointed at when MVS asks for a device)."""
     for line in (Path(work) / conf).read_text(errors="backslashreplace").splitlines():
-        m = re.match(r"\s*([0-9A-Fa-f]{3,4})\s+3420\b", line)
+        m = re.match(r"\s*([0-9A-Fa-f]{3,4})(?:\.\d+)?\s+3420\b", line)
         if m:
             return m.group(1)[-3:].upper()
     raise SysgenError(f"no 3420 tape drive in {conf}")
@@ -246,11 +246,17 @@ DEFAULT_TAPES = {
 }
 
 
-def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None):
+def answer_mounts(herc_cmd, con, since, tapes, seen, unit=None, extra=()):
     """Answer each new IEC501A mount request on the console: `devinit` the tape for its volser (no reply).
-    An `IEF238D REPLY DEVICE NAME` ask is answered with `unit` (the config's tape drive); the mount request follows."""
+    An `IEF238D REPLY DEVICE NAME` ask is answered with `unit` (the config's tape drive); the mount request follows.
+    `extra` is ((regex with the reply id as group 1, reply text), ...): further WTORs a stage knows (the custom stage's)."""
     tapes = {**DEFAULT_TAPES, **tapes}
     for line in con.lines[since:]:
+        hit = next(((rx.search(line), reply) for rx, reply in extra if rx.search(line)), None)
+        if hit and hit[0].group(1) not in seen:
+            seen.add(hit[0].group(1))
+            con.send(f"r {hit[0].group(1)},{hit[1]}")
+            continue
         d = DEVICE_ASK_RE.search(line)
         if d and unit and d.group(1) not in seen:
             seen.add(d.group(1))
@@ -298,7 +304,7 @@ def ipl_starter(herc, con):
     return line
 
 
-def await_ended(herc, con, work, conf, label, since, tapes, timeout, ended=1):
+def await_ended(herc, con, work, conf, label, since, tapes, timeout, ended=1, extra=()):
     """Answer the console until `ended` `$HASP395 ... ENDED` lines have appeared after console mark `since` (JCL error and
     timeout raise SysgenError naming `label`)."""
     seen, end = set(), time.monotonic() + timeout
@@ -310,7 +316,7 @@ def await_ended(herc, con, work, conf, label, since, tapes, timeout, ended=1):
             tail = " | ".join(ln.strip() for ln in con.lines[-8:])
             why = jcl_err[0].strip() if jcl_err else f"{ended} x $HASP395 ENDED not seen within {timeout}s"
             raise SysgenError(f"{label}: {why}; console tail: {tail}")
-        answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf))
+        answer_mounts(herc.send, con, since, tapes, seen, tape_unit(work, conf), extra)
         time.sleep(2)
 
 
@@ -607,6 +613,7 @@ IPL_REPLIES = (  # (message pattern, reply)
 # Warm IPL (Moseley iNORMv8, read 2026-11-19): $HASP426 -> `r 1,noreq` keeps the JES2 queues as the last shutdown left them;
 # `format` is for the first IPL (it also draws the two checkpoint-reset prompts). A marker file records the first IPL.
 IPL_DONE_MARKER = "ipl.done"
+CUSTOM_MARKER = "custom.done"
 IPL_READY_RE = r"\$HASP099\s+ALL AVAILABLE FUNCTIONS COMPLETE"
 IPL_FATAL_RE = re.compile(r"IEA317A|IEA3\d\dI.*UNACCEPTABLE|IEA\d{3}W|\bWAIT STATE\b|HHC00828E")
 
@@ -624,6 +631,10 @@ def ipl_conf(work):
             line = "#" + line
         elif re.match(r"#0009\s+3215-C\s+/", line):
             line = line[1:]
+        elif (Path(work) / CUSTOM_MARKER).exists() and re.match(r"#(0180|0190)\s", line):
+            line = line[
+                1:
+            ]  # PUB000 / PUB001 are initialized: attached at every later IPL (Moseley's "remove the hash")
         out.append(
             re.sub(r"^(000C\s+3505\s+)localhost:3505\b", r"\g<1>3505", line)
         )  # bind every interface: docker's publish needs it
@@ -698,6 +709,87 @@ def ipl(work, image, name, probe=None, job_timeout=90):
         shutdown_system(herc)
     except SysgenError:
         print("ipl: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        herc.quit()
+
+
+# Moseley's "Customizing" page (iCUSTv8, read 2026-11-20): attach PUB000 (3380 at 180) and PUB001 (3390 at 190) with
+# conf/mvs.script, then submit MVS00 (ICKDSF init of both, then a CLASS S continuation job that varies them online and imports
+# the SYSCPK catalog), MVS01 (user catalogs), MVS02 (two TSO ids, 15 steps each) and MVS03 (four TSO apps from tape/tsoaps.het at
+# 100, plus Greg Price's GREGQ job it submits). Each prints its page's expected codes: every step 0000. The page does not
+# name the ICKDSF confirmation or the master-catalog password message ids (screenshots), so those WTORs are matched by
+# their text and the live run must confirm them. Job end counts: MVS00 and MVS03 each submit a second job.
+CUSTOM_DECKS = (("mvs00.jcl", 2), ("mvs01.jcl", 1), ("mvs02.jcl", 1), ("mvs03.jcl", 2))
+CUSTOM_VOLUMES = ("dasd/pub000.3380", "dasd/pub001.3390")
+CUSTOM_TAPES = {"TSOAPS": "tape/tsoaps.het"}
+CUSTOM_REPLIES = (  # (WTOR regex with the reply id first, reply): the password is Moseley's SYSPROG
+    # live 2026-11-20: MVS02 asks `*04 IEC301A S JOB MVS02 DSNAME SYS1.VSAM.MASTER.CATALOG` (no word PASSWORD in it)
+    (re.compile(r"\*(\d+)\s+(?:IEC301A\b.*MASTER\.CATALOG|.*\bPASSWORD\b)", re.IGNORECASE), "sysprog"),
+    (re.compile(r"\*(\d+)\s+ICK\d{3}D\b.*\bREPLY\b"), "u"),
+)
+
+
+class SlashConsole:
+    """The 009 console of the generated system seen the way `answer_mounts` reads a console: `lines` is the Hercules log,
+    `send` types `/r N,..` at the Hercules prompt."""
+
+    def __init__(self, herc):
+        self.herc = herc
+
+    @property
+    def lines(self):
+        return self.herc.lines
+
+    def send(self, text):
+        self.herc.send("/" + text)
+
+
+def custom_failed_steps(results):
+    """Steps of the customizing jobs not executed or not completing 0000 (the page's expected code for every step)."""
+    return [r for r in results if not r["executed"] or r["cond_code"] != 0]
+
+
+def custom(work, image, name, job_timeout=900):
+    """IPL the generated system, attach the two new volumes, run MVS00..MVS03 through the card reader answering the console
+    (ICKDSF confirm, master catalog password, the tsoaps tape), require every step 0000, then shut down. Writes
+    `custom.done`, after which `ipl_conf` attaches PUB000 / PUB001 at every IPL."""
+    work = Path(work)
+    for need in (*CUSTOM_VOLUMES, "dasd/mvsres.3350", "dasd/syscpk.3350", "conf/mvs.script", *CUSTOM_TAPES.values()):
+        if not (work / need).is_file():
+            raise SysgenError(f"{work}/{need} missing: run `mvs38j.sh dasd user` / the earlier stages first")
+    for deck, _ in CUSTOM_DECKS:
+        if not (work / "jcl" / deck).is_file():
+            raise SysgenError(f"{work}/jcl/{deck} missing: run mvs38j.sh stage first")
+    import runner
+
+    (work / CUSTOM_MARKER).unlink(missing_ok=True)  # the volumes are not initialized yet: IPL without them
+    conf = ipl_conf(work)
+    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    con = SlashConsole(herc)
+    try:
+        ipl_system(herc, warm=(work / IPL_DONE_MARKER).exists())
+        (work / IPL_DONE_MARKER).write_text("first IPL done; later IPLs are warm (JES2 reply noreq)\n")
+        for line in (work / "conf/mvs.script").read_text().splitlines():
+            if line.startswith("attach "):
+                herc.send(line)
+        printed = printer_file(work, conf)
+        printed_from = printed.stat().st_size if printed.exists() else 0
+        for deck, ended in CUSTOM_DECKS:
+            since = herc.mark()
+            runner.submit(str(work / "jcl" / deck))
+            await_ended(herc, con, work, conf, deck, since, CUSTOM_TAPES, job_timeout, ended, CUSTOM_REPLIES)
+            print(f"custom: {deck} ended")
+        time.sleep(5)  # the printer file lags the console
+        results = step_results(printed.read_bytes()[printed_from:].decode("latin-1"))
+        failed = custom_failed_steps(results)
+        if failed:
+            raise SysgenError(f"custom: {len(failed)} step(s) not executed or not 0000, first {failed[0]}")
+        print(f"custom: {len(results)} steps checked (condcode)")
+        (work / CUSTOM_MARKER).write_text("PUB000 / PUB001 initialized by MVS00; attach them at every IPL\n")
+        shutdown_system(herc)
+    except SysgenError:
+        print("custom: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
         raise
     finally:
         herc.quit()
@@ -852,6 +944,10 @@ def main(argv=None):
     ip.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
     ip.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
     ip.add_argument("--probe", metavar="DECK")
+    cu = sub.add_parser("custom")
+    cu.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
+    cu.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
+    cu.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
     sv = sub.add_parser("serve")
     sv.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
     sv.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
@@ -867,6 +963,9 @@ def main(argv=None):
             return 0
         if args.cmd == "serve":
             serve(args.work, args.image, args.name)
+            return 0
+        if args.cmd == "custom":
+            custom(args.work, args.image, args.name)
             return 0
         if args.cmd == "ipl":
             ipl(args.work, args.image, args.name, args.probe)

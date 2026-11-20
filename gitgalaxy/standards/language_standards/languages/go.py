@@ -128,7 +128,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards, validation)
         # BUG FIX: `recover\(\)` ends on `)` (non-word), so the shared
         # trailing \b could never fire -- the classic
         # `defer func() { recover() }()` idiom never matched.

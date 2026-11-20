@@ -198,7 +198,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety (#2869): an ON-unit installs a handler for a condition -- PL/I's
+        # safety (Defensive Checks: ON-unit handlers) (#2869): an ON-unit installs a handler for a condition -- PL/I's
         # try/catch -- except the null on-unit `ON cond;`, which swallows it
         # (safety_bypasses'). An enabling condition prefix `(SUBSCRIPTRANGE):` switches a
         # runtime check on for the statement. The CICS / SQL / DLI vocabulary is cobol's,

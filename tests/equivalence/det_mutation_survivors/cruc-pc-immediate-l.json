@@ -1,0 +1,807 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-pc-immediate-l",
+ "survivors": [
+  {
+   "id": "1aa1710a5b",
+   "op": "LIT",
+   "line": 35,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "287d670828",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "8a20aefa8f",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "099a7b3795",
+   "op": "LIT",
+   "line": 37,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "b14107a7fd",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "529b31406d",
+   "op": "CON",
+   "line": 53,
+   "before": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 13);",
+   "after": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 1, 13);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses WS-LLOG (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "fba8e07c08",
+   "op": "CON",
+   "line": 53,
+   "before": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 13);",
+   "after": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 14);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses WS-LLOG (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "ae2290b08c",
+   "op": "CON",
+   "line": 54,
+   "before": "private final Field f7_LLOG_RESP = Field.zoned(s_WS_LLOG, 6, 2, 0, false, false, false);",
+   "after": "private final Field f7_LLOG_RESP = Field.zoned(s_WS_LLOG, 6, 3, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses LLOG-RESP (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "b0596a820d",
+   "op": "CON",
+   "line": 54,
+   "before": "private final Field f7_LLOG_RESP = Field.zoned(s_WS_LLOG, 6, 2, 0, false, false, false);",
+   "after": "private final Field f7_LLOG_RESP = Field.zoned(s_WS_LLOG, 6, 2, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses LLOG-RESP (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "d0f499ea07",
+   "op": "CON",
+   "line": 54,
+   "before": "private final Field f7_LLOG_RESP = Field.zoned(s_WS_LLOG, 6, 2, 0, false, false, false);",
+   "after": "private final Field f7_LLOG_RESP = Field.zoned(s_WS_LLOG, 7, 2, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses LLOG-RESP (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "3ec39b2961",
+   "op": "CON",
+   "line": 55,
+   "before": "private final Field f9_LLOG_RESP2 = Field.zoned(s_WS_LLOG, 11, 2, 0, false, false, false);",
+   "after": "private final Field f9_LLOG_RESP2 = Field.zoned(s_WS_LLOG, 11, 3, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses LLOG-RESP2 (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "5e09a94d3a",
+   "op": "CON",
+   "line": 55,
+   "before": "private final Field f9_LLOG_RESP2 = Field.zoned(s_WS_LLOG, 11, 2, 0, false, false, false);",
+   "after": "private final Field f9_LLOG_RESP2 = Field.zoned(s_WS_LLOG, 11, 2, 1, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses LLOG-RESP2 (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "ce028725d2",
+   "op": "CON",
+   "line": 55,
+   "before": "private final Field f9_LLOG_RESP2 = Field.zoned(s_WS_LLOG, 11, 2, 0, false, false, false);",
+   "after": "private final Field f9_LLOG_RESP2 = Field.zoned(s_WS_LLOG, 12, 2, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses LLOG-RESP2 (WS-LLOG) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "2a9c721d9d",
+   "op": "CON",
+   "line": 57,
+   "before": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into: bytes 0..3 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4bd1437952",
+   "op": "CON",
+   "line": 57,
+   "before": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into: bytes 1..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b6e8d3eb90",
+   "op": "CON",
+   "line": 57,
+   "before": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into: bytes 0..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1ecdde8559",
+   "op": "CON",
+   "line": 58,
+   "before": "private final Field f15_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f15_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9d87e54902",
+   "op": "CON",
+   "line": 58,
+   "before": "private final Field f15_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f15_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-11 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b181b1deeb",
+   "op": "CON",
+   "line": 58,
+   "before": "private final Field f15_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f15_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "0d384b7021",
+   "op": "CON",
+   "line": 59,
+   "before": "private final Field f16_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f16_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "fc904a4caa",
+   "op": "CON",
+   "line": 59,
+   "before": "private final Field f16_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f16_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1a3cad458c",
+   "op": "CON",
+   "line": 60,
+   "before": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "2397ea5b09",
+   "op": "CON",
+   "line": 60,
+   "before": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f17_EIBTASKN is only stored into: bytes 12..15 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "89d279c01d",
+   "op": "CON",
+   "line": 60,
+   "before": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "cf4e259926",
+   "op": "CON",
+   "line": 61,
+   "before": "private final Field f18_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f18_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "dc94dc22a7",
+   "op": "CON",
+   "line": 61,
+   "before": "private final Field f18_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f18_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5668345cfe",
+   "op": "CON",
+   "line": 63,
+   "before": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f42_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9ecb819718",
+   "op": "CON",
+   "line": 63,
+   "before": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f42_EIBRESP is only stored into: bytes 77..80 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c1da03916a",
+   "op": "CON",
+   "line": 63,
+   "before": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f42_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2cb62565ec",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ae6879ddc4",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d460437257",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 is only stored into: bytes 81..84 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "35aab615c1",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f45_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "18fbda77ba",
+   "op": "ROR",
+   "line": 80,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "80c06abebd",
+   "op": "NEG",
+   "line": 80,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "8780b0fe20",
+   "op": "ROR",
+   "line": 80,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "bcd0837b16",
+   "op": "CON",
+   "line": 80,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "96b78f6125",
+   "op": "DEL",
+   "line": 81,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "54c540ea51",
+   "op": "LIT",
+   "line": 86,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "1dbc799f76",
+   "op": "NEG",
+   "line": 88,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "22ff718330",
+   "op": "COR",
+   "line": 88,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "235a8e8d28",
+   "op": "LIT",
+   "line": 91,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "861656771e",
+   "op": "LIT",
+   "line": 91,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "55215c0929",
+   "op": "DEL",
+   "line": 126,
+   "before": "fill_PcimmlDfhcommarea(d, s, base);",
+   "after": "/* fill_PcimmlDfhcommarea(d, s, base); */",
+   "verdict": "unreachable",
+   "reason": "out_PcimmlDfhcommarea() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "d6c4e17c43",
+   "op": "DEL",
+   "line": 140,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "494d7ec675",
+   "op": "DEL",
+   "line": 167,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "0297802139",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "14e75206a1",
+   "op": "DEL",
+   "line": 173,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1b8efc64e7",
+   "op": "CON",
+   "line": 173,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "aeb5a2bd2d",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f8931e1c6f",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1c7b4f9c40",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "20e3596201",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "435892fa38",
+   "op": "DEL",
+   "line": 174,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7fdecf480f",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f523ad7ad2",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1f9e9a504d",
+   "op": "LIT",
+   "line": 217,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "6985f280fe",
+   "op": "LIT",
+   "line": 217,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
+   "tried": [
+    "refusal-text"
+   ]
+  },
+  {
+   "id": "d26b56f116",
+   "op": "DEL",
+   "line": 264,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen (exception-ctor)",
+   "tried": [
+    "exception-ctor"
+   ]
+  },
+  {
+   "id": "33c1b3939b",
+   "op": "CON",
+   "line": 336,
+   "before": "Cobol.store(f42_EIBRESP, BigDecimal.valueOf(rr1[0]), false, CS);",
+   "after": "Cobol.store(f42_EIBRESP, BigDecimal.valueOf(rr1[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f42_EIBRESP at line 336 is unconditionally overwritten by f42_EIBRESP at line 346 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "91f6293a57",
+   "op": "DEL",
+   "line": 336,
+   "before": "Cobol.store(f42_EIBRESP, BigDecimal.valueOf(rr1[0]), false, CS);",
+   "after": "/* Cobol.store(f42_EIBRESP, BigDecimal.valueOf(rr1[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f42_EIBRESP at line 336 is unconditionally overwritten by f42_EIBRESP at line 346 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "48b295c1e2",
+   "op": "CON",
+   "line": 337,
+   "before": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(rr1[1]), false, CS);",
+   "after": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(rr1[2]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 at line 337 is unconditionally overwritten by f43_EIBRESP2 at line 347 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "bc3e3e636f",
+   "op": "DEL",
+   "line": 337,
+   "before": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(rr1[1]), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(rr1[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 at line 337 is unconditionally overwritten by f43_EIBRESP2 at line 347 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "0184becd8f",
+   "op": "CON",
+   "line": 347,
+   "before": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ce2e8d47a4",
+   "op": "DEL",
+   "line": 347,
+   "before": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f43_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8b1b949ea7",
+   "op": "CON",
+   "line": 360,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "equivalent",
+   "reason": "line 360 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
+  }
+ ]
+}

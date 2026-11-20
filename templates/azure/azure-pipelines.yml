@@ -76,7 +76,7 @@ stages:
       displayName: 'Run Import Policy Gate'
 
   - job: GalaxyScopeReport
-    displayName: 'GalaxyScope Reporting (SARIF + ML Malware Gate)'
+    displayName: 'GalaxyScope Reporting (SARIF Reporting)'
     pool:
       vmImage: 'ubuntu-latest'
     steps:
@@ -100,7 +100,7 @@ stages:
     - script: |
         # --config is fatal on a missing file: pass it only when the repository has one
         CONFIG_ARG=""; if [ -f .galaxyscope.yaml ]; then CONFIG_ARG="--config .galaxyscope.yaml"; fi
-        galaxyscope . $CONFIG_ARG --fail-on-malware --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json
+        galaxyscope . $CONFIG_ARG --sarif-only --output $(Build.ArtifactStagingDirectory)/gitgalaxy-results.json
       displayName: 'Execute Zero-Trust Spectral Audit'
     - task: PublishPipelineArtifact@1
       inputs:

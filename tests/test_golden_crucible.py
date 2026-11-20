@@ -21,7 +21,6 @@ from pathlib import Path
 import pytest
 
 from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
-from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 sys.path.insert(0, str(Path(__file__).parent))
 import golden_diff
@@ -42,7 +41,7 @@ GOLDEN_SCAN_TIMEOUT = int(os.environ.get("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "600")
 
 def _zero_dependency_mode() -> bool:
     # Same condition galaxyscope.py itself uses to decide which mode it ran in.
-    return not (HAS_TIKTOKEN and ML_AVAILABLE and HAS_PYYAML)
+    return not (HAS_TIKTOKEN and HAS_PYYAML)
 
 
 _requires_crucible = pytest.mark.skipif(

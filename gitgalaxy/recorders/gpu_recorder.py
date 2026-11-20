@@ -125,7 +125,6 @@ class GPURecorder:
             "tel_lt": [],
             "tel_pop": [],
             "tel_cfr": [],
-            "ai_threats": [],
             "satellite_data_flat": [],  # Output retains WebGL 'satellite' namespace for functions
             "satellite_offsets": [0],
             "imports": [],
@@ -251,15 +250,6 @@ class GPURecorder:
             repository_graph["tel_lt"].append(tel.get("identity_lock_tier", 4))
             repository_graph["tel_pop"].append(tel.get("popularity", 0))
             repository_graph["tel_cfr"].append(int(round(tel.get("control_flow_ratio", 0.0) * 1000)))
-
-            # 7. Threat Score Quantization
-            ai_score_str = domain_ctx.get("AI Threat Score", "0.0%")
-            try:
-                ai_score_val = float(ai_score_str.replace("%", ""))
-            except ValueError:
-                ai_score_val = 0.0
-
-            repository_graph["ai_threats"].append(int(round(ai_score_val * 1000)))
 
             # 8. Function Minification (Compressed Sparse Row Format)
             function_list = []

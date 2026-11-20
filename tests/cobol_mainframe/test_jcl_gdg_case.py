@@ -1,10 +1,10 @@
 """#8413 slice 3: IBM-written answers for GDG relative generations.
 
-`tests/equivalence/jcl/gdg/scenarios.json` holds the `flow_jcl` lines (nine jobs: deleting the group or its oldest generation, reading (0) / (-1) / (-2), a (+1)
+`tests/equivalence/jcl/gdg/scenarios.json` holds the `flow_jcl` lines (sixteen jobs: GDGBIAS=STEP, GDG DDs in procedure steps, deleting the group or its oldest generation, reading (0) / (-1) / (-2), a (+1)
 created and read in one job, (+1) and (+2), abnormal dispositions, a bypassed creator, a PASSed generation, a lone (+2), NEW,KEEP) and the
 answers: the absolute generation each DD names and the catalog after the job. The answers were written from IBM's
 z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets BEFORE `gitgalaxy.core.jcl_gdg` ran on them;
-ASSUMED entries are named in the file. The last tests reproduce every `expect` and `catalog_after`.
+GDGBIAS=STEP is from the User's Guide, Appendix A, pp. 235-237 and 246. ASSUMED entries are named in the file. The last tests reproduce every `expect` and `catalog_after`.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import pytest
 from gitgalaxy.core import job_flow
 from gitgalaxy.core.jcl_flow import JclFlow
 from gitgalaxy.core.jcl_gdg import JclGdgRefused, resolve_gdg
+from gitgalaxy.core.jcl_proc import expand_flow_rows
 
 ROOT = Path(__file__).resolve().parents[2]
 DOC = json.loads((ROOT / "tests" / "equivalence" / "jcl" / "gdg" / "scenarios.json").read_text(encoding="utf-8"))
@@ -26,7 +27,7 @@ BY_ID = {s["id"]: s for s in DOC["scenarios"]}
 
 
 def _run(text, job, catalog, given):
-    rows = job_flow.jcl_job_flow(text)
+    rows = expand_flow_rows(job_flow.jcl_job_flow(text), job)
     return resolve_gdg(rows, job, catalog, JclFlow(rows).run(job, given))
 
 
@@ -48,6 +49,10 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "mod-plus-one",
         "delete-whole-group",
         "delete-the-oldest",
+        "step-bias-",
+        "job-bias-",
+        "proc-step-gdg",
+        "proc-called-twice",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
@@ -70,13 +75,16 @@ def test_what_is_not_answered_is_refused_by_name():
         assert name in refused, name
     for name in ("other than the oldest", "deleted earlier in the job", "whole group"):
         assert name in refused, name
+    for name in ("GDGBIAS value other than", "two calls of a procedure", "PASSed or KEEP-deferred", "overrides"):
+        assert name in refused, name
 
 
 @pytest.mark.parametrize("sc", DOC["scenarios"], ids=lambda s: s["id"])
 def test_the_resolver_reproduces_every_generation_and_catalog_answer(sc):
     catalog = BY_ID[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
-    flow = JclFlow(ROWS).run(sc["job"], sc["given"])
-    names, after = resolve_gdg(ROWS, sc["job"], catalog, flow)
+    rows = expand_flow_rows(ROWS, sc["job"])
+    flow = JclFlow(rows).run(sc["job"], sc["given"])
+    names, after = resolve_gdg(rows, sc["job"], catalog, flow)
     assert names == sc["expect"], sc["id"]
     assert after == sc["catalog_after"], sc["id"]
 
@@ -180,3 +188,32 @@ def test_a_group_delete_ignores_a_dataset_that_is_not_a_group_and_refuses_a_dele
         _run(mixed, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
     shr = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=SHR\n"
     assert _run(shr, "J", CAT, {"A": {"rc": 0}})[1] == CAT
+
+
+STEP = "//J JOB GDGBIAS=STEP\n"
+
+
+def test_step_bias_rolls_in_at_step_end_and_job_bias_waits_for_the_job_end():
+    two = "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//P DD DSN=G.B(0),DISP=SHR\n"
+    given = {"A": {"rc": 0}, "B": {"rc": 0}}
+    assert _run(STEP + two, "J", CAT, given)[0] == {"A.O": 3, "B.P": 3}
+    assert _run(HEAD + two, "J", CAT, given)[0] == {"A.O": 3, "B.P": 2}
+    assert _run("//J JOB GDGBIAS=job\n" + two, "J", CAT, given)[0] == {"A.O": 3, "B.P": 2}
+
+
+def test_a_gdgbias_other_than_job_or_step_and_a_passed_generation_under_step_are_refused():
+    with pytest.raises(JclGdgRefused, match="is not JOB or STEP"):
+        _run("//J JOB GDGBIAS=BOTH\n//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=SHR\n", "J", CAT, {"A": {"rc": 0}})
+    passed = STEP + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,PASS)\n//B EXEC PGM=X\n//P DD DSN=G.B(0),DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="passed or deferred"):
+        _run(passed, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
+
+
+def test_a_procedure_step_override_of_a_gdg_dd_is_refused_by_name():
+    text = (
+        HEAD
+        + "//GP PROC\n//M1 EXEC PGM=X\n//OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//  PEND\n//C1 EXEC GP\n"
+        + "//M1.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n"
+    )
+    with pytest.raises(JclGdgRefused, match="overrides a procedure step"):
+        _run(text, "J", CAT, {"C1.M1": {"rc": 0}})

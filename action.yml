@@ -16,7 +16,7 @@ inputs:
     required: true
     default: '.'
   args:
-    description: 'Additional CLI arguments to pass to the tool (e.g., --sarif-only, --sbom-only, --fail-on-secrets, --fail-on-malware, --max-systemic-threat 150.0).'
+    description: 'Additional CLI arguments to pass to the tool (e.g., --sarif-only, --sbom-only, --fail-on-secrets, --max-systemic-threat 150.0).'
     required: false
     default: ''
   version:
@@ -24,7 +24,7 @@ inputs:
     required: false
     default: 'latest'
   full_precision:
-    description: 'Opt-in to install the optional engines (tiktoken, xgboost/pandas/numpy) for exact token mass. No malware model ships, so this does not enable ML threat inference (#8430). Graph metrics such as Blast Radius need none.'
+    description: 'Opt-in to install the optional engines (tiktoken) for exact token mass. No malware model ships (#8430). Graph metrics such as Blast Radius need none.'
     required: false
     default: 'false'
 
@@ -56,7 +56,7 @@ runs:
           pip install --require-hashes -r "${REQS}/${SET}.txt"
         else
           # NOTE: releases from before the `full` extra existed have no such extra, so pip warns and
-          # installs gitgalaxy WITHOUT tiktoken/xgboost/pandas/numpy: an explicit old version silently
+          # installs gitgalaxy WITHOUT tiktoken: an explicit old version silently
           # runs in Zero-Dependency Mode even with full_precision=true.
           echo "Installing GitGalaxy version ${GALAXY_ACT_VERSION} (exact pin, NOT hash-verified)..."
           pip install "gitgalaxy[${SET}]==${GALAXY_ACT_VERSION}"
@@ -65,7 +65,7 @@ runs:
         if [ "$SET" = "yaml" ]; then
           echo "Running in ultra-fast Zero-Dependency Mode."
         else
-          echo "Full Precision Mode: tiktoken, xgboost, pandas, numpy installed."
+          echo "Full Precision Mode: tiktoken installed."
         fi
 
     - name: Execute GitGalaxy Tool

@@ -57,8 +57,6 @@ def mock_pipeline_state():
                 "repo_z_score": 1.2,
                 "domain_context": {
                     "parent_entity": "AuthService",
-                    "AI Threat Score": "95.5%",
-                    "AI Threat Class": "Botnet / DDoS",
                 },
                 "network_metrics": {
                     "pagerank_score": 0.05,
@@ -73,7 +71,6 @@ def mock_pipeline_state():
                     "over_permissioned_agent": True,  # Maps to appsec_god_mode
                 },
             },
-            "is_ml_threat": True,
             "equations": {
                 # #368's sec_extension_mismatch deliberately omitted here -- the
                 # durable hit_vector slot below is what must drive binary_anomaly.
@@ -216,13 +213,10 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     # 2. Verify File Data & Security Extraction
     cursor.execute("SELECT * FROM file_data WHERE file_name='router.py'")
     file_row = cursor.fetchone()
-    assert file_row["ai_threat_class"] == "Botnet / DDoS"
-    assert file_row["ai_threat_score"] == 95.5
+    # #8430: the classifier columns are gone.
+    assert not {"ai_threat_class", "ai_threat_score", "is_malware"} & set(file_row.keys())
     assert file_row["agentic_isolation_risk"] == 1
     assert file_row["appsec_god_mode"] == 1
-    # #366: is_malware reads file_data["is_ml_threat"] (security_auditor.py's
-    # real output key), not the never-produced "is_malware".
-    assert file_row["is_malware"] == 1
     # #367: has_credentials reads the durable hit_vector["sec_hardcoded_secrets"] /
     # risk_vector["secrets_risk"] slots (the never-produced "has_credentials" key and
     # #381's non-durable equations["sec_hardcoded_secrets"] read were both always 0).

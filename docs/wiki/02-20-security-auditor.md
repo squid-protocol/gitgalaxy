@@ -11,7 +11,7 @@ description: "No trained model ships for the XGBoost malware classifier, so infe
 - both golden masters record `"Inference Ran": false` (`tests/golden_master_audit/` and `tests/golden_master_zero_dep_audit/`);
 - `--fail-on-malware` cannot fire.
 
-The tests run the inference code against mocks or a tiny synthetic stand-in model (`tests/security_auditing/test_ml_real_model_2986.py`). That shows the plumbing works; it says nothing about detecting malware. No detection rate has been measured. Whether to ship a measured model or remove the classifier is open: [#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430).
+The tests run the inference code against mocks or a tiny synthetic stand-in model (removed in #8430). That shows the plumbing works; it says nothing about detecting malware. No detection rate has been measured. Whether to ship a measured model or remove the classifier is open: [#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430).
 
 ## Engineering Summary
 This module holds the code for an XGBoost multiclass classifier over per-file feature vectors (structural metrics, complexity distributions, signature counts, dependency-graph reach). Its output classes are Safe Code, Botnet / DDoS, Stealer / Trojan, Dropper / Webshell and Native Infector. With no model shipped, the part that runs today is the dependency-graph step: exact transitive upstream/downstream counts for each file.

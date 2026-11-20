@@ -50,10 +50,6 @@ and structural magnitude.
 # Consumed by: galaxyscope.py, security_lens.py, security_auditor.py
 # ------------------------------------------------------------------------------
 
-# The confidence threshold required to flag an artifact as Confirmed Malware.
-# Tuned to 90.0% based on the 1.4M global probability distribution analysis.
-AI_THREAT_THRESHOLD = 90.0
-
 
 class ThreatPolicy:
     """Defines the threshold at which a structural anomaly becomes a critical threat."""

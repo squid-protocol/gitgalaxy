@@ -41,9 +41,8 @@ def mock_pipeline_state():
                 "ownership": "BackendTeam",
                 "popularity": 5,
                 "archetype": "API Controller",
-                "domain_context": {"purpose": "Routes external traffic", "AI Threat Score": "95.5%"},
+                "domain_context": {"purpose": "Routes external traffic"},
             },
-            "is_ml_threat": True,
             "risk_vector": [80.0, 60.0, 10.0],  # debt, cog_load, flux
             "hit_vector": [2, 5, 1],  # danger, io, tainted_injection
             "functions": [
@@ -68,7 +67,6 @@ def mock_pipeline_state():
             "file_impact": 10.0,
             "raw_imports": [],
             "telemetry": {"popularity": 1},
-            "is_ml_threat": False,
             "risk_vector": [10.0, 10.0, 5.0],
             "hit_vector": [0, 0, 0],
             "functions": [],
@@ -121,20 +119,6 @@ def mock_pipeline_state():
 
 
 # ==============================================================================
-# TEST 1: THREAT SCORE PARSING
-# ==============================================================================
-def test_parse_threat_score(recorder):
-    """Proves the string-to-float conversion for ML Threat Scores is fault-tolerant."""
-    valid_artifact = {"telemetry": {"domain_context": {"AI Threat Score": "85.5%"}}}
-    empty_artifact = {}
-    corrupted_artifact = {"telemetry": {"domain_context": {"AI Threat Score": "NotANumber%"}}}
-
-    assert recorder._parse_threat_score(valid_artifact) == (85.5, "85.5%")
-    assert recorder._parse_threat_score(empty_artifact) == (0.0, "0.0%")
-    assert recorder._parse_threat_score(corrupted_artifact) == (0.0, "NotANumber%")
-
-
-# ==============================================================================
 # TEST 2: MARKDOWN GENERATION & FORMATTING
 # ==============================================================================
 def test_build_markdown_generates_context(recorder, mock_pipeline_state):
@@ -147,9 +131,9 @@ def test_build_markdown_generates_context(recorder, mock_pipeline_state):
     # 1. Verify Zero-Dependency Warning Injection
     assert "ZERO-DEPENDENCY MODE ACTIVE" in md_text
 
-    # 2. Verify ML Threat Billboard
-    assert "ML_CONFIRMED_THREAT_DETECTED" in md_text
-    assert "XGBoost Structural Signatures model identified 1 malicious artifacts" in md_text
+    # 2. #8430: no classifier billboard
+    assert "ML_CONFIRMED_THREAT_DETECTED" not in md_text
+    assert "XGBoost" not in md_text
 
     # 3. Verify Risk Distributions
     assert "Tech Debt Exposure" in md_text
@@ -291,7 +275,7 @@ def test_llm_recorder_empty_state(recorder, tmp_path):
     # Verify Markdown handled empty lists gracefully
     with open(output_md, encoding="utf-8") as f:
         content = f.read()
-        assert "SECURE_NO_THREATS_DETECTED" in content
+        assert "XGBoost" not in content
         assert "*No complex functions detected.*" in content
 
 

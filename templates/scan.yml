@@ -11,7 +11,7 @@ spec:
       default: "."
     args:
       description: "Additional CLI arguments to pass to the tool."
-      default: "--config .galaxyscope.yaml --max-risk-exposure 120 --fail-on-malware --sarif-only --output gitgalaxy-results.json"
+      default: "--config .galaxyscope.yaml --max-risk-exposure 120 --sarif-only --output gitgalaxy-results.json"
     version:
       description: "GitGalaxy version to install. 'latest' (default) means the hash-pinned release (fetched from an immutable ref, sha256-verified); an explicit version is exact-pinned but not hash-verified."
       default: "latest"

@@ -100,7 +100,7 @@ RUFF_PIN = "0.16.0"
 STEPS = ("setup", "bless", "scope", "ledger", "estate", "audit", "evidence")
 
 # What each venv must look like. `flags` is what the engine itself reports (the same
-# HAS_PYYAML / HAS_TIKTOKEN / ML_AVAILABLE test_golden_crucible.py picks its fixture by).
+# HAS_PYYAML / HAS_TIKTOKEN test_golden_crucible.py picks its fixture by).
 VENV_SPECS: dict[str, dict[str, Any]] = {
     "ledger": {"workflow": "mainframe-ground-truth.yml", "python": "3.12", "packages": ["pytest"], "flags": {}},
     "audit": {
@@ -122,8 +122,7 @@ except Exception as exc:  # noqa: BLE001
 if "flags" in sys.argv:
     try:
         from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
-        from gitgalaxy.security.security_auditor import ML_AVAILABLE
-        out["flags"] = {"HAS_PYYAML": bool(HAS_PYYAML), "HAS_TIKTOKEN": bool(HAS_TIKTOKEN), "ML_AVAILABLE": bool(ML_AVAILABLE)}
+        out["flags"] = {"HAS_PYYAML": bool(HAS_PYYAML), "HAS_TIKTOKEN": bool(HAS_TIKTOKEN)}
     except Exception as exc:  # noqa: BLE001
         out["error"] = repr(exc)
 for mod in ("pytest", "mypy", "yaml"):

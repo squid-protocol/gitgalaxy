@@ -30,6 +30,44 @@
    "reason": "GOTO bitmask constant is never set or checked because ZECS003 contains no GO TO statements."
   },
   {
+   "id": "07cc70c93c",
+   "op": "LIT",
+   "line": 36,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused",
+    "lb-exact-adr",
+    "lb-exact13",
+    "lb-long20",
+    "lb-short3",
+    "lb-short3-expired",
+    "lb-tail-adr-replicate",
+    "no-commarea"
+   ]
+  },
+  {
+   "id": "596fe968d6",
+   "op": "LIT",
+   "line": 38,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.BIN, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.BIN, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused",
+    "lb-exact-adr",
+    "lb-exact13",
+    "lb-long20",
+    "lb-short3",
+    "lb-short3-expired",
+    "lb-tail-adr-replicate",
+    "no-commarea"
+   ]
+  },
+  {
    "id": "e1d2d7da14",
    "op": "LIT",
    "line": 39,
@@ -2100,114 +2138,6 @@
    "reason": "PARAGRAPHS map is only looked up by paragraph(name) for dynamic condition handling; dynamic condition dispatching is unused."
   },
   {
-   "id": "a64e6a1ebf",
-   "op": "NEG",
-   "line": 422,
-   "before": "if (i == null) {",
-   "after": "if (!(i == null)) {",
-   "verdict": "unreachable",
-   "reason": "paragraph(name) is only called by condition() for dynamic HANDLE CONDITION targets; condition handling is unused."
-  },
-  {
-   "id": "d260eaaf3c",
-   "op": "ROR",
-   "line": 422,
-   "before": "if (i == null) {",
-   "after": "if (i != null) {",
-   "verdict": "unreachable",
-   "reason": "paragraph(name) is only called by condition() for dynamic HANDLE CONDITION targets; condition handling is unused."
-  },
-  {
-   "id": "2cfd7068f6",
-   "op": "LIT",
-   "line": 423,
-   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "unreachable",
-   "reason": "paragraph(name) is only called by condition() for dynamic HANDLE CONDITION targets; condition handling is unused."
-  },
-  {
-   "id": "488e9b1ec1",
-   "op": "NEG",
-   "line": 435,
-   "before": "if (h != null) {",
-   "after": "if (!(h != null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "a4ebcf8bb3",
-   "op": "ROR",
-   "line": 435,
-   "before": "if (h != null) {",
-   "after": "if (h == null) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "e1fd8ad9d9",
-   "op": "NEG",
-   "line": 438,
-   "before": "if (DetCics.ignoredByDefault(cond)) {",
-   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "1228ca7ae1",
-   "op": "CON",
-   "line": 439,
-   "before": "return -1;",
-   "after": "return -2;",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "f95c0dd9ef",
-   "op": "LIT",
-   "line": 441,
-   "before": "Integer error = handlers.get(\"ERROR\");",
-   "after": "Integer error = handlers.get(\"XRROR\");",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "90ce6f9472",
-   "op": "NEG",
-   "line": 442,
-   "before": "if (error != null) {",
-   "after": "if (!(error != null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "c247a95e1c",
-   "op": "ROR",
-   "line": 442,
-   "before": "if (error != null) {",
-   "after": "if (error == null) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "6b87e655e8",
-   "op": "NEG",
-   "line": 446,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
-   "id": "fad546d3dd",
-   "op": "ROR",
-   "line": 446,
-   "before": "if (label == null) {",
-   "after": "if (label != null) {",
-   "verdict": "unreachable",
-   "reason": "condition() is only invoked during CICS condition handling; all CICS commands in ZECS003 specify NOHANDLE."
-  },
-  {
    "id": "ff9bea7e82",
    "op": "DEL",
    "line": 458,
@@ -2269,60 +2199,6 @@
    "after": "/* fill_Zecs003Dfhcommarea(d, s, base); */",
    "verdict": "harness-gap",
    "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
-  },
-  {
-   "id": "32277b0789",
-   "op": "ROR",
-   "line": 477,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (s_DFHCOMMAREA.bytes == whole) {",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
-  },
-  {
-   "id": "dcf2a8a00b",
-   "op": "NEG",
-   "line": 477,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
-  },
-  {
-   "id": "6542185844",
-   "op": "CON",
-   "line": 478,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
-  },
-  {
-   "id": "86451d4155",
-   "op": "CON",
-   "line": 478,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
-  },
-  {
-   "id": "dcba5cfbf5",
-   "op": "DEL",
-   "line": 478,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
-  },
-  {
-   "id": "9be4e06f76",
-   "op": "DEL",
-   "line": 479,
-   "before": "s_DFHCOMMAREA.bytes = whole;",
-   "after": "/* s_DFHCOMMAREA.bytes = whole; */",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
   },
   {
    "id": "c220b728a9",
@@ -2483,15 +2359,6 @@
    "line": 521,
    "before": "System.arraycopy(IMAGE_s_CONVERSE_RESPONSE, 0, s_CONVERSE_RESPONSE.bytes, 0, IMAGE_s_CONVERSE_RESPONSE.length);",
    "after": "/* System.arraycopy(IMAGE_s_CONVERSE_RESPONSE, 0, s_CONVERSE_RESPONSE.bytes, 0, IMAGE_s_CONVERSE_RESPONSE.length); */",
-   "verdict": "equivalent",
-   "reason": "Initial state arraycopy is overwritten or unreferenced before any read."
-  },
-  {
-   "id": "17b1e6e4b2",
-   "op": "DEL",
-   "line": 524,
-   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
-   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
    "verdict": "equivalent",
    "reason": "Initial state arraycopy is overwritten or unreferenced before any read."
   },
@@ -2766,15 +2633,6 @@
    "reason": "Initial working-storage field value in initialState() for an unreferenced variable or one overwritten before read."
   },
   {
-   "id": "be5f102446",
-   "op": "DEL",
-   "line": 595,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "Reset of task state collections/callbacks in runTask() where initial state is already clean."
-  },
-  {
    "id": "2a96cb27b5",
    "op": "DEL",
    "line": 596,
@@ -2919,24 +2777,6 @@
    "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
   },
   {
-   "id": "164ab28faa",
-   "op": "CON",
-   "line": 613,
-   "before": "calen = cx(task, 13);",
-   "after": "calen = cx(task, 14);",
-   "verdict": "equivalent",
-   "reason": "cx() COMMAREA length helper; eibcalen is unchanged across scenarios."
-  },
-  {
-   "id": "c25080e78f",
-   "op": "DEL",
-   "line": 613,
-   "before": "calen = cx(task, 13);",
-   "after": "/* calen = cx(task, 13); */",
-   "verdict": "equivalent",
-   "reason": "cx() COMMAREA length helper; eibcalen is unchanged across scenarios."
-  },
-  {
    "id": "0d4ffc7e22",
    "op": "DEL",
    "line": 615,
@@ -2946,94 +2786,13 @@
    "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
   },
   {
-   "id": "849252bfe6",
-   "op": "CON",
-   "line": 618,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "a5a1b4d1a1",
+   "id": "00789e24c0",
    "op": "DEL",
-   "line": 618,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "5c41a8a13b",
-   "op": "ROR",
-   "line": 619,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "a16e99b2c9",
-   "op": "NEG",
-   "line": 619,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "d48365f2b3",
-   "op": "ROR",
-   "line": 619,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "5cc27fe6f8",
-   "op": "DEL",
-   "line": 620,
-   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "64e32a3168",
-   "op": "DEL",
-   "line": 622,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "cx() COMMAREA length helper; eibcalen is unchanged across scenarios."
-  },
-  {
-   "id": "81a08b2eed",
-   "op": "ROR",
-   "line": 628,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "d931810256",
-   "op": "ROR",
-   "line": 628,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "1aba983a13",
-   "op": "ROR",
-   "line": 633,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "harness-gap",
+   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
   },
   {
    "id": "d3e59edea7",
@@ -3043,42 +2802,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "fcc7c038b2",
-   "op": "COR",
-   "line": 633,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "6ee2dfbc67",
-   "op": "DEL",
-   "line": 634,
-   "before": "caWhole = s_DFHCOMMAREA.bytes;",
-   "after": "/* caWhole = s_DFHCOMMAREA.bytes; */",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "31a47f229b",
-   "op": "DEL",
-   "line": 635,
-   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
-   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "f7e7f31d46",
-   "op": "DEL",
-   "line": 638,
-   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
   },
   {
    "id": "4d9c284ed9",
@@ -3099,24 +2822,6 @@
    "reason": "perform(0, 23) vs perform(0, 22); 9000-RETURN terminates execution via Goback() before paragraph 22 or 23."
   },
   {
-   "id": "24220439b0",
-   "op": "ROR",
-   "line": 648,
-   "before": "if (caWhole == null) {",
-   "after": "if (caWhole != null) {",
-   "verdict": "unreachable",
-   "reason": "IndexOutOfBoundsException handler and caWhole restoration; no out-of-bounds COMMAREA access occurs."
-  },
-  {
-   "id": "89f94c9f35",
-   "op": "NEG",
-   "line": 648,
-   "before": "if (caWhole == null) {",
-   "after": "if (!(caWhole == null)) {",
-   "verdict": "unreachable",
-   "reason": "IndexOutOfBoundsException handler and caWhole restoration; no out-of-bounds COMMAREA access occurs."
-  },
-  {
    "id": "47521fc0dc",
    "op": "LIT",
    "line": 651,
@@ -3133,15 +2838,6 @@
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "verdict": "unreachable",
    "reason": "IndexOutOfBoundsException handler and caWhole restoration; no out-of-bounds COMMAREA access occurs."
-  },
-  {
-   "id": "74d807d66a",
-   "op": "DEL",
-   "line": 654,
-   "before": "caWhole(caWhole);",
-   "after": "/* caWhole(caWhole); */",
-   "verdict": "equivalent",
-   "reason": "caWhole COMMAREA helper; exactCommarea is false in equivalence scenarios."
   },
   {
    "id": "5ac803cea4",
@@ -3169,60 +2865,6 @@
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
    "verdict": "equivalent",
    "reason": "Cleanup of thread-local compiler flags in finally block has no effect on task result."
-  },
-  {
-   "id": "fd4d1da818",
-   "op": "LIT",
-   "line": 676,
-   "before": "CicsTask task = region.linked(\"ZECS003\", request, area);",
-   "after": "CicsTask task = region.linked(\"XECS003\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "region.linked names XECS003 in the two-argument handleLink, a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
-  },
-  {
-   "id": "c3b236a0f7",
-   "op": "LIT",
-   "line": 677,
-   "before": "region.run(task, \"ZECS003\", this::runTask);",
-   "after": "region.run(task, \"XECS003\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "region.run names XECS003 in the two-argument handleLink, a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
-  },
-  {
-   "id": "0b9d6ab9b2",
-   "op": "ROR",
-   "line": 679,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes copies only when left == null, an NPE for a program that took its bytes: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
-  },
-  {
-   "id": "2b26e3d70d",
-   "op": "COR",
-   "line": 679,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes takes bytes when the program took none (|| for &&), an NPE when left is null: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
-  },
-  {
-   "id": "99b36e37b9",
-   "op": "DEL",
-   "line": 679,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes is never set by the two-argument handleLink, so lastLinkBytes() answers null: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
-  },
-  {
-   "id": "c15988a524",
-   "op": "ROR",
-   "line": 689,
-   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "lastLinkBytes() returns null for the bytes and an NPE for none: a facade the ledger's --no-facades proof leaves out, and the facade side calls only the one-argument handleLink"
   },
   {
    "id": "2c1ac6d43f",
@@ -4276,15 +3918,6 @@
    "after": "return 24;",
    "verdict": "unreachable",
    "reason": "9000-EXIT is never reached as 9000-RETURN terminates execution via Goback()."
-  },
-  {
-   "id": "00789e24c0",
-   "op": "DEL",
-   "line": 630,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "harness-gap",
-   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
   }
  ]
 }

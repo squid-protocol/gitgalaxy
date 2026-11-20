@@ -66,11 +66,9 @@
   "graph-comparison-history.yml|graph-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip",
   "graph-comparison-history.yml|plan|Plan the run|gh-api",
   "java-base-generation.yml|keep|Install GitGalaxy|pip",
-  "java-compile.yml|compile|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|ground-truth-part|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|ground-truth-warm|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|plan|Plan the check|git-fetch",
-  "mypy-audit.yml|mypy-audit|Install mypy and GitGalaxy|pip",
   "mypy-audit.yml|mypy-audit|Plan the audit|gh-api",
   "os-smoke-grid.yml|smoke-test|Install dependencies|pip",
   "ports-compile.yml|ports-compile|Assess clean-install check (burned estates, translator from a wheelhouse)|pip",
@@ -88,9 +86,7 @@
   "release-crucible-archive.yml|archive-crucible-output|Install GitGalaxy (full-precision)|pip",
   "rosetta-audit.yml|rosetta-audit|Install GitGalaxy PR build (full precision)|pip",
   "rosetta-audit.yml|rosetta-audit|Install GitGalaxy baseline build (full precision, separate venv)|pip",
-  "ruff-audit.yml|ruff-audit|Install ruff and GitGalaxy|pip",
   "ruff-audit.yml|ruff-audit|Plan the audit|gh-api",
-  "small-audits.yml|small-audits|Install GitGalaxy (for ast-accuracy-audit)|pip",
   "small-audits.yml|small-audits|Plan the audit|gh-api",
   "smoke-test.yml|evidence-deltas|Install dependencies|pip",
   "smoke-test.yml|full-suite-part|Install dependencies|pip",
@@ -104,8 +100,7 @@
   "tri-comparison-audit.yml|plan|Plan the audit|git-fetch",
   "tri-comparison-audit.yml|tri-comparison-audit|Install GitGalaxy + tree-sitter-language-pack|pip",
   "tri-comparison-history.yml|plan|Plan the run|gh-api",
-  "tri-comparison-history.yml|tri-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip",
-  "unicode-gauntlet.yml|gauntlet|Install GitGalaxy|pip"
+  "tri-comparison-history.yml|tri-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip"
  ],
  "advisory_uploads": [
   "blocker-baseline.yml|baseline|Keep the survey logs",

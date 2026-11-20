@@ -18,7 +18,8 @@
 # assigned nowhere, a SYSOUT / * / DATA override of a DD that names a DSN,
 # a backward reference procstep.procstep.ddname or a modifying statement for a step that is absent or itself a call,
 # EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels (invalid, pp. 32, 376), an INCLUDE
-# group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376) or an EXEC / SET statement (allowed, not modelled), a member found
+# group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376), an EXEC / SET statement in an INCLUDE group inside a procedure (a job-level
+# group is spliced into the job whole, EXEC and SET included, p. 376), a member found
 # in no library. An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
 from __future__ import annotations
 
@@ -97,22 +98,53 @@ def _dd_dsn(dk: Mapping[str, str], values: Mapping[str, str]) -> str | None:
 _MAX_LEVELS = 15
 
 
-def _include_dds(member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1):
-    """The DD statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
+def _include_statements(
+    member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1
+) -> list[tuple[int, str, str, str]]:
+    """The statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
     if depth > _MAX_LEVELS:
         raise JclProcRefused(f"INCLUDE nested past {_MAX_LEVELS} levels is invalid (p. 376)")
-    out: list[tuple[str, dict[str, str]]] = []
-    for _l, ddn, iop, ifield in _statements(_find(member, order, libraries)):
-        if iop == "INCLUDE":
-            out += _include_dds(_keyword(ifield, "MEMBER").upper(), order, libraries, depth + 1)
-        elif iop == "DD":
-            out.append((ddn.upper(), _dd_keys(ifield)))
-        elif iop == "OUTPUT":
-            continue
-        elif iop in ("JOB", "PROC", "PEND", "JCLLIB"):
-            raise JclProcRefused(f"an INCLUDE group cannot hold a {iop} statement (invalid, p. 376)")
+    out: list[tuple[int, str, str, str]] = []
+    for st in _statements(_find(member, order, libraries)):
+        if st[2] == "INCLUDE":
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries, depth + 1)
+        elif st[2] in ("JOB", "PROC", "PEND", "JCLLIB"):
+            raise JclProcRefused(f"an INCLUDE group cannot hold a {st[2]} statement (invalid, p. 376)")
         else:
-            raise JclProcRefused(f"a {iop} statement in an INCLUDE group is allowed but not carried here")
+            out.append(st)
+    return out
+
+
+def _include_dds(member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]]):
+    """The DD statements of INCLUDE group `member` inside a procedure (an EXEC / SET there is not carried)."""
+    out: list[tuple[str, dict[str, str]]] = []
+    for _l, ddn, iop, ifield in _include_statements(member, order, libraries):
+        if iop == "DD":
+            out.append((ddn.upper(), _dd_keys(ifield)))
+        elif iop != "OUTPUT":
+            raise JclProcRefused(f"a {iop} statement in an INCLUDE group inside a procedure is not carried here")
+    return out
+
+
+def _splice_includes(
+    stmts: list[tuple[int, str, str, str]], libraries: Mapping[str, Mapping[str, str]]
+) -> list[tuple[int, str, str, str]]:
+    """The job's statements with each job-level INCLUDE replaced by its group (EXEC and SET included, p. 376): symbol values
+    a group's SET assigns hold for the statements after it. An INCLUDE inside an in-stream PROC .. PEND is left for the proc."""
+    out: list[tuple[int, str, str, str]] = []
+    order: list[str] = []
+    in_proc = False
+    for st in stmts:
+        if st[2] == "JCLLIB":
+            order = [x.strip().upper() for x in _keyword(st[3], "ORDER").strip("()").split(",") if x.strip()]
+        elif st[2] == "PROC":
+            in_proc = True
+        elif st[2] == "PEND":
+            in_proc = False
+        if st[2] == "INCLUDE" and not in_proc:
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries)
+        else:
+            out.append(st)
     return out
 
 
@@ -268,7 +300,7 @@ def _expand_call(
 
 def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str) -> dict[str, dict[str, Any]]:
     """Every EXEC of `job`, resolved. `libraries`: {library: {member: JCL text}}."""
-    stmts = _job_statements(text, job)
+    stmts = _splice_includes(_job_statements(text, job), libraries)
     order: list[str] = []
     instream: dict[str, tuple[dict[str, str], list[tuple[int, str, str, str]]]] = {}
     main: list[tuple[int, str, str, str]] = []

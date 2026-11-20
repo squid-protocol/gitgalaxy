@@ -104,13 +104,5 @@
   "tri-comparison-history.yml|plan|Plan the run|gh-api",
   "tri-comparison-history.yml|tri-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip"
  ],
- "advisory_uploads": [
-  "blocker-baseline.yml|baseline|Keep the survey logs",
-  "evidence-pages.yml|pages|Keep the preview",
-  "evidence-refresh.yml|db2-part|Keep the Db2 proofs' logs",
-  "evidence-refresh.yml|publish-blockers|Keep the preview",
-  "evidence-refresh.yml|sweep|Keep the proofs' logs",
-  "muninn.yml|muninn|Keep SARIF (dispatch)",
-  "referee-panel.yml|panel|Upload the scorecard"
- ]
+ "advisory_uploads": []
 }

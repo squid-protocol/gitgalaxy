@@ -186,14 +186,29 @@ Live `IEF285I` (2026-11-19, a NEW,CATLG then OLD,DELETE deck): a disposition lin
 regex rejected (only the marker-less line parsed); `VOL SER NOS=` lines are not dispositions. Live findings (2026-11-19, four probe decks through `run`): the JCL-error line is `IEF452I NAME    JOB NOT RUN - JCL ERROR` with no
 ` - ` after the job name (the first regex needed it, so the job never read as ended); the abended step has an `IEF450I` and no
 `IEF142I` (its record is the abend, not a step with a code); the printer file also carries `IEF236I/237I/373I/374I/375I/376I/472I/643I`,
-now known informational lines (`unparsed_ief` is 0 on all four decks). PROC steps: a step line may carry a PROCSTEP name after the job step (`IEF142I JOB STEP PROCSTEP - STEP WAS EXECUTED ...`); the runner keeps both (`step`, `procstep`; `procstep` is null for a plain step), pinned offline on fixture text (`test_proc_steps_keep_the_step_and_procstep_names_apart`), not yet seen in a live log. The exact `IEF202I` wording is likewise unverified live. Trap: wrapping `stop` in `heavy-run.sh` queued it behind
+now known informational lines (`unparsed_ief` is 0 on all four decks). PROC steps: a step line may carry a PROCSTEP name after the job step (`IEF142I JOB STEP PROCSTEP - STEP WAS EXECUTED ...`); the runner keeps both (`step`, `procstep`; `procstep` is null for a plain step), pinned offline on fixture text (`test_proc_steps_keep_the_step_and_procstep_names_apart`), not yet seen in a live log. `IEF202I` (`STEP WAS NOT RUN BECAUSE OF CONDITION CODES`) is verified live too: every COND-bypassed step prints it followed by `IEF272I` (probe run below). Trap: wrapping `stop` in `heavy-run.sh` queued it behind
 another worker's slot and the box ran on.
 
 ### Remaining slices (#8414)
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run of the era-compatible IBM-written scenarios. (`sysgen.step_results` now reads through `runner.parse_log`'s `step_log`: one parser of the printer listing.)
+3. Probe run, remaining classes (the COND / EVEN / ONLY slice is done, below): PROC symbolics and overrides (`tests/equivalence/jcl/proc`, a PROC step's live `PROCSTEP` field), DD concatenation and `&&` temporaries (`dataflow`), GDG (`gdg`, needs a GDG base per scenario), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+
+## Probe run (#8414): COND / EVEN / ONLY
+
+`tests/tools/box/mvs38j/probe.py cond --printer FILE` (a started box) builds one deck per scenario of `tests/equivalence/jcl/fixture/`
+(`CONDJOB`, `EVNJOB`; 8 scenarios) from the fixture's own EXEC cards, COND kept as written. `{rc: n}` runs IDCAMS with `SET MAXCC=n`;
+`{abend: ...}` runs a program that is in no library (S806: COND, EVEN and ONLY read that a step abended, not its code); a step with no
+`given` runs IDCAMS with MAXCC 0, so a step the manual answer bypasses but the box starts is a disagreement. Each job log goes through
+`runner.parse_log` (step started = `IEF142I` or an `IEF450I` abend). `tests/equivalence/jcl/fixture/mvs38j_probe.json` holds, per scenario,
+three answers side by side: `expect` (IBM text, written before any evaluator), `engine` (`jcl_flow`) and `box` (MVS 3.8J), plus the
+box's step records. Run 2026-11-20: **8 of 8 agree on all three columns**, `unparsed_ief` 0. Any scenario where the columns differ is a
+register finding with its three answers and a cited rule, never an edit of `expect` or of the evaluator. Internal only (Q16): the file
+is not linked from any published page.
+
+Not covered by this deck shape (and so not claimed): a COND on a step that follows a step bypassed by an EVEN / ONLY chain deeper than
+the fixture's; an abend code other than S806 (a user abend would need a program 3.8J ships that issues one).
 
 ## What this tier cannot test
 

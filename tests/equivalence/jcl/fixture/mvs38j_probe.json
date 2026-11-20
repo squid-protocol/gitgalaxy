@@ -1,0 +1,591 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "FLOW.jcl / scenarios.json",
+ "results": [
+  {
+   "id": "cond-all-zero",
+   "job": "CONDJOB",
+   "expect": {
+    "S1": "run",
+    "S2": "run",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "engine": {
+    "S1": "run",
+    "S2": "run",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "box": {
+    "S1": "run",
+    "S2": "run",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "cond-s1-rc6",
+   "job": "CONDJOB",
+   "expect": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "engine": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "box": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 6,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "cond-s1-rc8",
+   "job": "CONDJOB",
+   "expect": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "bypass",
+    "S4": "run",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "engine": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "bypass",
+    "S4": "run",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "box": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "bypass",
+    "S4": "run",
+    "S5": "run",
+    "S6": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "cond-s1-abend",
+   "job": "CONDJOB",
+   "expect": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "bypass",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "run"
+   },
+   "engine": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "bypass",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "run"
+   },
+   "box": {
+    "S1": "run",
+    "S2": "bypass",
+    "S3": "bypass",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "S1",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "cond-s3-abend",
+   "job": "CONDJOB",
+   "expect": {
+    "S1": "run",
+    "S2": "run",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "run"
+   },
+   "engine": {
+    "S1": "run",
+    "S2": "run",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "run"
+   },
+   "box": {
+    "S1": "run",
+    "S2": "run",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "run",
+    "S6": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S6",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "S3",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "even-only-rc0",
+   "job": "EVNJOB",
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "bypass"
+   },
+   "engine": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "bypass"
+   },
+   "box": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "T1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "even-only-rc8",
+   "job": "EVNJOB",
+   "expect": {
+    "T1": "run",
+    "T2": "bypass",
+    "T3": "bypass"
+   },
+   "engine": {
+    "T1": "run",
+    "T2": "bypass",
+    "T3": "bypass"
+   },
+   "box": {
+    "T1": "run",
+    "T2": "bypass",
+    "T3": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "T1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "T2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "unparsed_ief": 0
+  },
+  {
+   "id": "even-only-abend",
+   "job": "EVNJOB",
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run"
+   },
+   "engine": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run"
+   },
+   "box": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "T2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "T1",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "unparsed_ief": 0
+  }
+ ]
+}

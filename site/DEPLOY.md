@@ -50,13 +50,22 @@ Rollback: restore `/etc/nginx/sites-available/gitgalaxy` from the tarball and re
 
 ## 4. Refreshed galaxy data
 
-The data is built by the engine on a workstation, not on the server (see the PR description for the run). To publish:
+Built on a workstation with the engine at a recorded commit, not on the server. A bundle contains, per galaxy,
+`<id>_galaxy.json`, `<id>_galaxy_llm.md`, an audit file when it is 100 MB or smaller, and a pre-compressed `.gz` twin of
+each (served by `gzip_static`). It also has `manifest.json`, `PROVENANCE.json` (source repo and commit, scan date and
+engine commit for every galaxy) and `SHA256SUMS`. Audits over 100 MB are left out on purpose and their manifest entry
+has an empty `auditUrl`, so the viewer shows the button as unavailable instead of linking to a 404.
 
-    rsync -a --info=progress2 <refresh-output>/ gitgalaxy-io:/var/www/gitgalaxy_data.new/
-    ssh gitgalaxy-io 'cd /var/www/gitgalaxy_data.new && for f in *_galaxy.json; do gzip -9 -k -f "$f"; done'   # for gzip_static
+**Ship the viewer first (or together).** Data from the current engine needs the constellation fix in this PR; the old
+April viewer throws when you click a star in constellation mode on it.
+
+    rsync -a --info=progress2 <bundle>/ gitgalaxy-io:/var/www/gitgalaxy_data.new/
+    ssh gitgalaxy-io 'cd /var/www/gitgalaxy_data.new && sha256sum -c SHA256SUMS --quiet && echo checksums ok'
     ssh gitgalaxy-io 'cd /var/www && mv gitgalaxy_data gitgalaxy_data.bak-$(date +%F) && mv gitgalaxy_data.new gitgalaxy_data'
 
 Rollback: swap the two directory names back. Delete the `.bak-*` directory only after the new data has been live a few days.
+Check afterwards: `curl -s https://gitgalaxy.io/data/manifest.json | head`, then open a galaxy and click a star in
+constellation mode.
 
 ## 5. Blog
 

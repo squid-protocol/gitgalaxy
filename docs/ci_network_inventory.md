@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 22 | 0 | 0 | 0 | 50 |
+| pip | 21 | 0 | 0 | 0 | 51 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 54 | 77 | 54 | 215 | 102 |
+| **total** | 53 | 77 | 54 | 215 | 103 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -98,6 +98,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - plan / Plan the shards
 - `pip` - shard / Install dependencies
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
+
+### estate-crucible.yml
+
+- `pip` - estate / Install GitGalaxy
 
 ### evidence-pages.yml
 

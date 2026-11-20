@@ -86,8 +86,8 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Score the estate against the baseline
         run: |

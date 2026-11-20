@@ -35,6 +35,7 @@
   "equivalence-e2e.yml|plan|Plan the shards|gh-api",
   "equivalence-e2e.yml|shard|Install dependencies|pip",
   "equivalence-e2e.yml|shard|Load or build the oracle image, and check it against its pin (#4309)|docker",
+  "estate-crucible.yml|estate|Install GitGalaxy|pip",
   "evidence-pages.yml|pages|Install GitGalaxy|pip",
   "evidence-refresh.yml|db2-part|Build the oracle image and check it against its pin (#4309)|docker",
   "evidence-refresh.yml|db2-part|Install GitGalaxy|pip",

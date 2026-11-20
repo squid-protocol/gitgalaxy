@@ -163,6 +163,14 @@ def test_safety_comments_use_the_display_name():
         "php",
         "perl",
         "powershell",
+        "ada",
+        "bms",
+        "clist",
+        "db2_sql",
+        "acs",
+        "zscript",
+        "fsharp",
+        "matlab",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety ({name}:" in text, stem

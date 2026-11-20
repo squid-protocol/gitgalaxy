@@ -170,7 +170,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # safety: try, the handled-absence arm (`None ->`) and the Option / Result / TryX combinators.
+        # safety (Defensive Checks: assert/try/guards): try, the handled-absence arm (`None ->`) and the Option / Result / TryX combinators.
         "safety": re.compile(
             r"\b(?:try|TryParse|TryGetValue|tryParse|tryFind|tryHead|tryItem|tryPick|"
             r"Option\.(?:defaultValue|defaultWith|bind|map|orElse|ofObj)|Result\.(?:bind|map|mapError))\b"

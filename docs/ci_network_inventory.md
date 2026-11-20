@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 28 | 0 | 0 | 0 | 44 |
+| pip | 37 | 0 | 0 | 0 | 35 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 68 | 84 | 54 | 208 | 96 |
+| **total** | 77 | 84 | 54 | 208 | 87 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -55,10 +55,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - analyze / Report the results this PR adds
 
-### crucible-path-independence.yml
-
-- `pip` - path-independence / Install GitGalaxy Environment
-
 ### deploy-docs.yml
 
 - `pip` - deploy / Install Dependencies
@@ -77,7 +73,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### detection-accuracy-audit.yml
 
-- `pip` - detection-accuracy-audit / Install GitGalaxy
 - `git-fetch` - plan / Plan the audit
 
 ### doom-rosetta.yml
@@ -129,10 +124,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - full-report / Install GitGalaxy & Full Precision Engines
 - `gh-api` - pre-gate / Plan the gates
 
-### golden-crucible.yml
-
-- `pip` - crucible-audit / Install GitGalaxy Environment
-
 ### graph-accuracy-audit.yml
 
 - `pip` - graph-accuracy-audit / Install GitGalaxy + tree-sitter-language-pack + pyan3 + libclang
@@ -140,7 +131,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### graph-comparison-history.yml
 
-- `pip` - graph-comparison-history / Install GitGalaxy + tree-sitter-language-pack
 - `gh-api` - plan / Plan the run
 
 ### mainframe-ground-truth.yml
@@ -178,15 +168,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-download` - panel / Install Che4z COBOL Language Support
 - `git-fetch` - panel / Install mapa
 
-### release-crucible-archive.yml
-
-- `pip` - archive-crucible-output / Install GitGalaxy (full-precision)
-
-### rosetta-audit.yml
-
-- `pip` - rosetta-audit / Install GitGalaxy PR build (full precision)
-- `pip` - rosetta-audit / Install GitGalaxy baseline build (full precision, separate venv)
-
 ### ruff-audit.yml
 
 - `gh-api` - ruff-audit / Plan the audit
@@ -211,7 +192,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tree-sitter-accuracy-history.yml
 
 - `gh-api` - plan / Plan the run
-- `pip` - tree-sitter-accuracy-history / Install GitGalaxy + tree-sitter-language-pack
 
 ### tri-comparison-audit.yml
 
@@ -221,4 +201,3 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tri-comparison-history.yml
 
 - `gh-api` - plan / Plan the run
-- `pip` - tri-comparison-history / Install GitGalaxy + tree-sitter-language-pack

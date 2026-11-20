@@ -2820,6 +2820,7 @@
     "doc": "cics-apr",
     "section": "BIF DEEDIT"
    },
+   "ibm_note": "IBM keeps the rightmost byte unaltered only when its zone is X'A'-X'F' AND its numeric portion is X'0'-X'9'; the runtime tests the zone alone, so a trailing '[' or ']' (X'BA' / X'BB' in CCSID 037) is kept where IBM removes it. Same on the stub (GGCDEED); declared in X26",
    "options": [],
    "features": [
     "cics_commands: BIF DEEDIT"
@@ -2827,7 +2828,7 @@
    "register": [
     "X26"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {

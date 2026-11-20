@@ -30,6 +30,30 @@
    "reason": "GOTO mask: ABNDPROC contains zero GO TO statements, so control flow never sets or tests the GOTO flag"
   },
   {
+   "id": "2bd6f9f209",
+   "op": "LIT",
+   "line": 41,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "c77bb5bbef",
+   "op": "LIT",
+   "line": 43,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
    "id": "02475cdb2b",
    "op": "LIT",
    "line": 44,
@@ -1212,6 +1236,20 @@
    "reason": "WS-ABND-KEY-LEN is never referenced in the PROCEDURE DIVISION (the WRITE specifies RIDFLD directly)"
   },
   {
+   "id": "48e74d3a17",
+   "op": "CON",
+   "line": 293,
+   "before": "calen = DetCics.eibCalen(task, 681);",
+   "after": "calen = DetCics.eibCalen(task, 682);",
+   "verdict": "equivalent",
+   "reason": "the typed-DTO entry's EIBCALEN default (681 -> 682): ABNDPROC never reads EIBCALEN (no EIBCALEN reference in the source; the value is only stored in the EIB field), and the only other use, `calen < s_DFHCOMMAREA.bytes.length`, is false for both 681 and 682 against the 681-byte area. A typed entry that states a length overrides it through task.eibcalen() and never reaches this default. Tried: dto-eibcalen-100 and dto-eibcalen-681 and write-new-record re-entered under new names, all equal to the COBOL",
+   "tried": [
+    "dto-eibcalen-100-calen-try",
+    "dto-eibcalen-681-calen-try",
+    "write-new-record-calen-try"
+   ]
+  },
+  {
    "id": "05db6f9d64",
    "op": "DEL",
    "line": 303,
@@ -1354,6 +1392,20 @@
    "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
    "verdict": "equivalent",
    "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
+  },
+  {
+   "id": "3ea55be942",
+   "op": "DEL",
+   "line": 314,
+   "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
+   "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "the exact-EIBCALEN wrapper `caBack = () -> { restoreCommarea(...); typed.run(); }` deleted: the finally block restores the full area from caWhole on every path before caBack runs, and ABNDPROC never writes DFHCOMMAREA (it MOVEs it to WS-ABND-AREA), so the typed copy-back rewrites the bytes the entry gave. Tried: dto-eibcalen-100 and dto-eibcalen-681 re-entered under new names, equal to the COBOL",
+   "tried": [
+    "dto-eibcalen-100-calen-try",
+    "dto-eibcalen-681-calen-try",
+    "write-new-record-calen-try"
+   ]
   },
   {
    "id": "fc18f42cd2",

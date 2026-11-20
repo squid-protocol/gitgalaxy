@@ -75,7 +75,30 @@
     "//K1       EXEC PGM=MAKE",
     "//KOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,KEEP)",
     "//K2       EXEC PGM=USE",
-    "//KIN      DD DSN=PAY.GDG(+1),DISP=SHR"
+    "//KIN      DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//*",
+    "//DELAFTER JOB (ACCT),'GDG DEL AFTER',CLASS=A,MSGCLASS=X",
+    "//Q1       EXEC PGM=RPT",
+    "//Q1IN     DD DSN=PAY.GDG(-1),DISP=OLD",
+    "//Q2       EXEC PGM=IEFBR14",
+    "//Q2DEL    DD DSN=PAY.GDG,DISP=(OLD,DELETE)",
+    "//Q3       EXEC PGM=MAKE",
+    "//Q3OUT    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//*",
+    "//DELFIRST JOB (ACCT),'GDG DEL FIRST',CLASS=A,MSGCLASS=X",
+    "//R1       EXEC PGM=IEFBR14",
+    "//R1DEL    DD DSN=PAY.GDG,DISP=(OLD,DELETE)",
+    "//R2       EXEC PGM=MAKE",
+    "//R2OUT    DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//R3       EXEC PGM=MAKE",
+    "//R3OUT    DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//*",
+    "//DELOLDJB JOB (ACCT),'GDG DEL OLDEST',CLASS=A,MSGCLASS=X",
+    "//O1       EXEC PGM=PURGE",
+    "//ODEL     DD DSN=PAY.GDG(-2),DISP=(OLD,DELETE)",
+    "//O2       EXEC PGM=RPT",
+    "//OCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//OPRV     DD DSN=PAY.GDG(-1),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -707,6 +730,121 @@
       },
       "assumed": "A5",
       "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': 'Generation data sets can be in a deferred roll-in state if ... they are allocated with a DISP=(NEW,KEEP)', and 'Refer to generation data sets that are in a deferred roll-in state by their relative number, such as (+1), within the job that allocates it.' So K2 reads (+1) = 8, the generation K1 kept; 8 is not rolled into the active group at job end (the active generations stay 5, 6, 7) and waits, to be named by its absolute number in a later job. ASSUMED (A5): the group is system-managed, which is the case the manual's deferred roll-in text describes."
+    },
+    {
+      "id": "delete-whole-group-then-plus-one-keeps-the-anchor",
+      "job": "DELAFTER",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "Q1": {
+          "rc": 0
+        },
+        "Q2": {
+          "rc": 0
+        },
+        "Q3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "Q1.Q1IN": 7,
+        "Q3.Q3OUT": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets' (the manual's first worked example, GDGBIAS=JOB, generations G0006, G0007, G0008 exist): 'the absolute generation number that is referenced by relative generation number in STEP1 (DD1) is G0007V00. The system establishes the relative/absolute relationship that it maintains throughout the job. In STEP2, all generation data sets are to be deleted, which occurs at STEP2 termination. In STEP3, the system assigns the absolute generation number G0009V00 to the new generation data set'. So Q1IN names 7, Q2DEL (a DD of the base name) deletes 6, 7 and 8 at step end, Q3OUT names 9, and 9 is the only cataloged generation after the job."
+    },
+    {
+      "id": "delete-whole-group-before-any-relative-reference-restarts-at-one",
+      "job": "DELFIRST",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "R1": {
+          "rc": 0
+        },
+        "R2": {
+          "rc": 0
+        },
+        "R3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R2.R2OUT": 1,
+        "R3.R3OUT": 2
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets' (the manual's second worked example: 'the JCL is set up to delete all generation data sets at the beginning of the job'): 'the system establishes the relative/absolute relationship in STEP2, the first time that a relative generation number is used in the job. The system then assigns absolute generation number G0001V00 to the data set referenced in DD2 and absolute generation number G0002V00 to the data set referenced in DD3.' So R2OUT names 1, R3OUT names 2, and both are rolled in at job end."
+    },
+    {
+      "id": "delete-the-oldest-generation-keeps-the-anchor",
+      "job": "DELOLDJB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "O1": {
+          "rc": 0
+        },
+        "O2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "O1.ODEL": 6,
+        "O2.OCUR": 8,
+        "O2.OPRV": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A6",
+      "basis": "z/OS MVS JCL User's Guide, Appendix A 'Generation data sets', 'Deleting and uncataloging generation data sets': 'If a DD statement in a multiple-step job tries to delete or uncatalog any generation data set except the oldest in a GDG, catalog management can lose orientation within the data group', so deleting the oldest is the form the manual leaves safe. O1 names (-2) = 6 (the oldest of 6, 7, 8) and establishes the relationship, which 'the system maintains throughout the job' (the same text as the first worked example): O2 still reads (0) = 8 and (-1) = 7, and 6 is gone from the catalog at O1 termination. ASSUMED (A6): the manual works no example that deletes a single generation, so that the entry is removed and nothing else changes is read from the DISP text, not from an example."
     }
   ],
   "assumed": [
@@ -725,6 +863,10 @@
     {
       "id": "A5",
       "text": "The GDG is system-managed; the manual states the deferred roll-in of NEW,KEEP only for that case."
+    },
+    {
+      "id": "A6",
+      "text": "Deleting the oldest generation by relative number (DISP=(OLD,DELETE) of (-n) where it is the oldest) removes that one catalog entry at step end and leaves the other generations' absolute numbers unchanged; the manual states only the warning for any other generation."
     }
   ],
   "refused": [
@@ -755,6 +897,18 @@
     {
       "construct": "a job that never reaches the end-of-job step (a CATLG generation left in deferred roll-in)",
       "why": "the manual lists it as a deferred-roll-in cause; the step-flow model only ends jobs normally"
+    },
+    {
+      "construct": "DISP=(OLD,DELETE) of a generation other than the oldest",
+      "why": "the manual says catalog management can lose orientation within the data group: the outcome is not stated"
+    },
+    {
+      "construct": "a (0) / (-n) read of a generation deleted earlier in the job",
+      "why": "the generation is gone from the catalog; the manual warns not to refer to older generations after a delete and states no outcome"
+    },
+    {
+      "construct": "a DISP=(OLD,DELETE) of the whole group in a job that also created a generation earlier",
+      "why": "the manual does not say whether a generation created earlier in the job (rolled in only at job end) is part of the group deleted"
     }
   ]
 }

@@ -69,20 +69,17 @@
   {
    "id": "b49f60ce8a",
    "op": "LIT",
-   "line": 43,
+   "line": 46,
    "before": "\"AH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
    "after": "\"XH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "f649c2dcac",
-   "op": "LIT",
-   "line": 49,
-   "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The mutated base64 character is the first byte of the DFHAID image: DFHNULL (X'00'). HXATTR.cbl names only DFHCLEAR from DFHAID (IF EIBAID = DFHCLEAR), so DFHNULL is never read; the other bytes are unchanged.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
   },
   {
    "id": "b908b7bd0a",
@@ -101,13 +98,34 @@
    ]
   },
   {
+   "id": "f649c2dcac",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "verdict": "equivalent",
+   "reason": "The mutated character changes byte 0 of the DFHCOMMAREA image. HXATTR never references DFHCOMMAREA (it works on WS-CA), a task with an area overlays byte 0 with the caller's first byte (EIBCALEN >= 1), and EIBCALEN 0 has no area to carry it back.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "f842b0c301",
    "op": "LIT",
-   "line": 53,
+   "line": 56,
    "before": "\"AAA=\"));",
    "after": "\"XAA=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The mutated character changes the initial image of the generated RETURN-CODE item (GG_RETURN_CODE). HXATTR.cbl never names RETURN-CODE, and only runProgram() reads it; a CICS program is entered through runTask(), which neither reads nor returns it.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
   },
   {
    "id": "12e07a03fa",
@@ -174,34 +192,6 @@
    ]
   },
   {
-   "id": "2e7a51eb0a",
-   "op": "CON",
-   "line": 66,
-   "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
-   "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 16, 12, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
-   ]
-  },
-  {
-   "id": "5020b522b3",
-   "op": "CON",
-   "line": 66,
-   "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
-   "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
-   ]
-  },
-  {
    "id": "cd1715e56a",
    "op": "CON",
    "line": 67,
@@ -238,17 +228,39 @@
    ]
   },
   {
-   "id": "a5f5c13ca5",
+   "id": "2e7a51eb0a",
    "op": "CON",
    "line": 69,
-   "before": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 12, false);",
-   "after": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
+   "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 16, 12, false);",
+   "verdict": "equivalent",
+   "reason": "STATI moved one byte up. Its 12 bytes are written only by RECEIVE's typed placement and are read only through STATO, which every path writes in full (or leaves blank) before a send; the byte past STATI is a length item's high byte (never -1).",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "5020b522b3",
+   "op": "CON",
+   "line": 69,
+   "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
+   "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 13, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -286,17 +298,21 @@
    ]
   },
   {
-   "id": "3f8f112907",
+   "id": "a5f5c13ca5",
    "op": "CON",
    "line": 72,
-   "before": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 10, false);",
-   "after": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 11, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 12, false);",
+   "after": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 13, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -336,17 +352,21 @@
    ]
   },
   {
-   "id": "86ffb4e57e",
+   "id": "3f8f112907",
    "op": "CON",
    "line": 75,
-   "before": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 8, false);",
-   "after": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 10, false);",
+   "after": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 11, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -386,17 +406,21 @@
    ]
   },
   {
-   "id": "364b0f8337",
+   "id": "86ffb4e57e",
    "op": "CON",
    "line": 78,
-   "before": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 8, false);",
-   "after": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 8, false);",
+   "after": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -436,17 +460,21 @@
    ]
   },
   {
-   "id": "191fdff866",
+   "id": "364b0f8337",
    "op": "CON",
    "line": 81,
-   "before": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 8, false);",
-   "after": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 8, false);",
+   "after": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -486,17 +514,21 @@
    ]
   },
   {
-   "id": "964935b739",
+   "id": "191fdff866",
    "op": "CON",
    "line": 84,
-   "before": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 8, false);",
-   "after": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 8, false);",
+   "after": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -536,17 +568,21 @@
    ]
   },
   {
-   "id": "369c802d81",
+   "id": "964935b739",
    "op": "CON",
    "line": 87,
-   "before": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 8, false);",
-   "after": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 8, false);",
+   "after": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -584,17 +620,21 @@
    ]
   },
   {
-   "id": "d1c80bb37e",
+   "id": "369c802d81",
    "op": "CON",
    "line": 90,
-   "before": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 8, false);",
-   "after": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "before": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 8, false);",
+   "after": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -632,143 +672,183 @@
    ]
   },
   {
+   "id": "d1c80bb37e",
+   "op": "CON",
+   "line": 93,
+   "before": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 8, false);",
+   "after": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Input field one byte too long. The extra byte is the high byte of the next field's two-byte length item; typed or placed text writes a pad or a character there, and its low byte is X'00' or a length of at most 12, so the item is never -1 (it needs both bytes X'FF'), and DetCics.subfields reads it only for -1. Nothing else reads a map length item in HXATTR.",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
    "id": "3b564eb68d",
    "op": "CON",
-   "line": 95,
+   "line": 98,
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 16, 12, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "STATO moved one byte up, and every statement that writes or reads it uses the same field, so the text sent is the same; the 12th byte lands on the next length item's high byte (never -1), and the untouched first byte is X'00' or a space.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "5b739c62c2",
    "op": "CON",
-   "line": 95,
+   "line": 98,
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "b173c53d8e",
    "op": "CON",
-   "line": 96,
+   "line": 99,
    "before": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "5b760e0076",
    "op": "CON",
-   "line": 97,
+   "line": 100,
    "before": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 11, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "599dca8b46",
    "op": "CON",
-   "line": 98,
+   "line": 101,
    "before": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "0868cfc1a2",
    "op": "CON",
-   "line": 99,
+   "line": 102,
    "before": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "a5a2ce5578",
    "op": "CON",
-   "line": 100,
+   "line": 103,
    "before": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "27d9c57ae1",
    "op": "CON",
-   "line": 101,
+   "line": 104,
    "before": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
    "id": "4154bc147c",
    "op": "CON",
-   "line": 102,
+   "line": 105,
    "before": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
-   ]
-  },
-  {
-   "id": "0e20717024",
-   "op": "CON",
-   "line": 103,
-   "before": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 8, false);",
-   "after": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -781,6 +861,24 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: truncated: DFHBMUNP is only ever moved whole into alphanumeric items of at most 1 bytes, so its 1 or 2 bytes give them the same leading bytes (the line is `private final Field f79_DFHBMUNP = Field.alphanumeric(s_DFHBMSCA, 3, 1, false);`)",
    "tried": [
     "solver-unobservable"
+   ]
+  },
+  {
+   "id": "0e20717024",
+   "op": "CON",
+   "line": 106,
+   "before": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 8, false);",
+   "after": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 9, false);",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -3448,6 +3546,21 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "dd8ac5d904",
+   "op": "CON",
+   "line": 338,
+   "before": "perform(0, 3);",
+   "after": "perform(0, 4);",
+   "verdict": "equivalent",
+   "reason": "perform(0, 4) in runTask: the thru bound is read only when paragraph 0 returns normally. p0 (MAIN-PARA) ends with EXEC CICS RETURN, port text `if (true) throw new Goback()`, so it never returns a next paragraph; HXATTR.cbl has no HANDLE CONDITION, so no GOTO|to return leaves it either.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "0ace941cd9",
    "op": "DEL",
    "line": 342,
@@ -3492,38 +3605,6 @@
    ]
   },
   {
-   "id": "5df852516e",
-   "op": "COR",
-   "line": 360,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
-   ]
-  },
-  {
-   "id": "e80e0747b8",
-   "op": "ROR",
-   "line": 360,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 12 (#7955) tried 5 entry inputs (CLEAR / PF5 / ENTER, 1-byte link and byte[] entries, no COMMAREA) on the base case and 5 SEND MAP INVMPSZ/TSIOERR fault inputs entered as LINK (--as cruc-hx-attr-linked) on the oracle: 0 killed. exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses.",
-   "tried": [
-    "ca-len0-clear",
-    "ca-len0-enter",
-    "ca-len1-entry-enter",
-    "ca-len1-link-enter",
-    "ca-len1-pf5"
-   ]
-  },
-  {
    "id": "bfc8948fa5",
    "op": "DEL",
    "line": 362,
@@ -3538,15 +3619,6 @@
     "ca-len1-link-enter",
     "ca-len1-pf5"
    ]
-  },
-  {
-   "id": "dd8ac5d904",
-   "op": "CON",
-   "line": 370,
-   "before": "perform(0, 3);",
-   "after": "perform(0, 4);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "603e4e0360",
@@ -3637,6 +3709,21 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "9e90a78b43",
+   "op": "CON",
+   "line": 398,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "performDepth starts at 1 instead of 0: it only moves the slot index of performThru. The slots below `mine` are scanned only when a paragraph falls off its end without being the PERFORM's thru; the PERFORMs are (1,1), (2,2), (3,3), which return at i == thru before the scan, and (0,3) from p0, which always ends in Goback.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "a32a312e7a",
    "op": "DEL",
    "line": 424,
@@ -3664,15 +3751,6 @@
    ]
   },
   {
-   "id": "9e90a78b43",
-   "op": "CON",
-   "line": 430,
-   "before": "private int performDepth = 0;",
-   "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "d386cad2bf",
    "op": "DEL",
    "line": 438,
@@ -3685,6 +3763,21 @@
     "held-all-fields",
     "held-echo-dataonly",
     "held-first-display"
+   ]
+  },
+  {
+   "id": "0879f2f530",
+   "op": "DEL",
+   "line": 446,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Dropping `performDepth = mine` in the finally leaves the depth higher after each PERFORM. Only the stale-slot scan reads the lower slots, and it runs only for a paragraph that falls off its end without being thru: p1..p3 are performed as (n,n) and return at i == thru first, and p0 ends in Goback. The array doubles at length 64: no effect on output.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
    ]
   },
   {
@@ -3927,15 +4020,6 @@
    ]
   },
   {
-   "id": "0879f2f530",
-   "op": "DEL",
-   "line": 478,
-   "before": "performDepth = mine;",
-   "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "567c9dee17",
    "op": "LIT",
    "line": 488,
@@ -3948,6 +4032,28 @@
     "held-all-fields",
     "held-echo-dataonly",
     "held-first-display"
+   ]
+  },
+  {
+   "id": "941560eae6",
+   "op": "LIT",
+   "line": 494,
+   "before": "Cobol.move(\"IGNORED\", f58_BRITEO, CS);",
+   "after": "Cobol.move(\"XGNORED\", f58_BRITEO, CS);",
+   "verdict": "equivalent",
+   "reason": "The next statement, MOVE LOW-VALUE TO BRITEO(1:1), overwrites the first byte of BRITEO, the only byte the mutated literal differs in (X for I).",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4012,13 +4118,58 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "941560eae6",
+   "id": "81606d71df",
    "op": "LIT",
-   "line": 526,
-   "before": "Cobol.move(\"IGNORED\", f58_BRITEO, CS);",
-   "after": "Cobol.move(\"XGNORED\", f58_BRITEO, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "line": 529,
+   "before": "values3.put(\"NAME\", Cobol.text(f60_NAMEO, CS));",
+   "after": "values3.put(\"XAME\", Cobol.text(f60_NAMEO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXATTR first screen: only STATO, BRITEO, SECRETO, RAWO, BLINKYO, TWIDDLEO and NULATRO are given text, this field is not one of them.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "4c88cd12f4",
+   "op": "LIT",
+   "line": 539,
+   "before": "values3.put(\"LEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
+   "after": "values3.put(\"XEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXATTR first screen: only STATO, BRITEO, SECRETO, RAWO, BLINKYO, TWIDDLEO and NULATRO are given text, this field is not one of them.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "90ef2d1ba2",
+   "op": "LIT",
+   "line": 543,
+   "before": "values3.put(\"FSETF\", Cobol.text(f74_FSETFO, CS));",
+   "after": "values3.put(\"XSETF\", Cobol.text(f74_FSETFO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXATTR first screen: only STATO, BRITEO, SECRETO, RAWO, BLINKYO, TWIDDLEO and NULATRO are given text, this field is not one of them.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
   },
   {
    "id": "4225c2b798",
@@ -4047,22 +4198,6 @@
    ]
   },
   {
-   "id": "81606d71df",
-   "op": "LIT",
-   "line": 561,
-   "before": "values3.put(\"NAME\", Cobol.text(f60_NAMEO, CS));",
-   "after": "values3.put(\"XAME\", Cobol.text(f60_NAMEO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
-   ]
-  },
-  {
    "id": "2f2fe95515",
    "op": "LIT",
    "line": 562,
@@ -4075,19 +4210,25 @@
    ]
   },
   {
-   "id": "4c88cd12f4",
+   "id": "3b20c3f8a8",
    "op": "LIT",
-   "line": 571,
-   "before": "values3.put(\"LEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
-   "after": "values3.put(\"XEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "line": 572,
+   "before": "if (typed8.get(\"STAT\") != null) {",
+   "after": "if (typed8.get(\"XTAT\") != null) {",
+   "verdict": "equivalent",
+   "reason": "RECEIVE's typed STAT placement is skipped. STATI shares its 12 bytes with STATO, which the next statements write in full ('RECEIVED' or 'NO INPUT', padded) before the send; STATL is only compared when it is -1 and the placement stores 0 or more.",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4103,22 +4244,6 @@
    ]
   },
   {
-   "id": "90ef2d1ba2",
-   "op": "LIT",
-   "line": 575,
-   "before": "values3.put(\"FSETF\", Cobol.text(f74_FSETFO, CS));",
-   "after": "values3.put(\"XSETF\", Cobol.text(f74_FSETFO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
-   ]
-  },
-  {
    "id": "bbce14fce2",
    "op": "LIT",
    "line": 576,
@@ -4128,6 +4253,28 @@
    "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "subfield-unset"
+   ]
+  },
+  {
+   "id": "e9db24ac32",
+   "op": "LIT",
+   "line": 579,
+   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f17_NAMEI, f13_NAMEL, typed8.get(\"NAME\"), CS, \"LEFT,BLANK\");",
+   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f17_NAMEI, f13_NAMEL, typed8.get(\"NAME\"), CS, \"XEFT,BLANK\");",
+   "verdict": "equivalent",
+   "reason": "DetJustify.place passes the justify string to `contains(\"RIGHT\")` and `contains(\"ZERO\")` only (DetJustify.java:18); the mutated string keeps neither word, so it places LEFT with a space fill exactly as `LEFT,BLANK` does. A rename of a keyword the method never matches on cannot change a byte.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4164,6 +4311,28 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9078dcafe0",
+   "op": "LIT",
+   "line": 582,
+   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f22_SECRETI, f18_SECRETL, typed8.get(\"SECRET\"), CS, \"LEFT,BLANK\");",
+   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f22_SECRETI, f18_SECRETL, typed8.get(\"SECRET\"), CS, \"XEFT,BLANK\");",
+   "verdict": "equivalent",
+   "reason": "DetJustify.place passes the justify string to `contains(\"RIGHT\")` and `contains(\"ZERO\")` only (DetJustify.java:18); the mutated string keeps neither word, so it places LEFT with a space fill exactly as `LEFT,BLANK` does. A rename of a keyword the method never matches on cannot change a byte.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4215,6 +4384,28 @@
    ]
   },
   {
+   "id": "6fe675a779",
+   "op": "LIT",
+   "line": 585,
+   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f27_RAWI, f23_RAWL, typed8.get(\"RAW\"), CS, \"LEFT,BLANK\");",
+   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f27_RAWI, f23_RAWL, typed8.get(\"RAW\"), CS, \"XEFT,BLANK\");",
+   "verdict": "equivalent",
+   "reason": "DetJustify.place passes the justify string to `contains(\"RIGHT\")` and `contains(\"ZERO\")` only (DetJustify.java:18); the mutated string keeps neither word, so it places LEFT with a space fill exactly as `LEFT,BLANK` does. A rename of a keyword the method never matches on cannot change a byte.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
    "id": "f0f1835023",
    "op": "CON",
    "line": 590,
@@ -4224,6 +4415,50 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: line 590 follows an unconditional `if (true) throw new Goback();`: it is never reached (survivor_attack.py facts: dead-after-throw)",
    "tried": [
     "dead-after-throw"
+   ]
+  },
+  {
+   "id": "718f6cfdf4",
+   "op": "LIT",
+   "line": 591,
+   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f37_TWIDDLEI, f33_TWIDDLEL, typed8.get(\"TWIDDLE\"), CS, \"LEFT,BLANK\");",
+   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f37_TWIDDLEI, f33_TWIDDLEL, typed8.get(\"TWIDDLE\"), CS, \"XEFT,BLANK\");",
+   "verdict": "equivalent",
+   "reason": "DetJustify.place passes the justify string to `contains(\"RIGHT\")` and `contains(\"ZERO\")` only (DetJustify.java:18); the mutated string keeps neither word, so it places LEFT with a space fill exactly as `LEFT,BLANK` does. A rename of a keyword the method never matches on cannot change a byte.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "a8e59a3b3f",
+   "op": "LIT",
+   "line": 594,
+   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f42_LEFTOVRI, f38_LEFTOVRL, typed8.get(\"LEFTOVR\"), CS, \"LEFT,BLANK\");",
+   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f42_LEFTOVRI, f38_LEFTOVRL, typed8.get(\"LEFTOVR\"), CS, \"XEFT,BLANK\");",
+   "verdict": "equivalent",
+   "reason": "DetJustify.place passes the justify string to `contains(\"RIGHT\")` and `contains(\"ZERO\")` only (DetJustify.java:18); the mutated string keeps neither word, so it places LEFT with a space fill exactly as `LEFT,BLANK` does. A rename of a keyword the method never matches on cannot change a byte.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter",
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4273,58 +4508,94 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "3b20c3f8a8",
+   "id": "f7bb0fc16a",
    "op": "LIT",
-   "line": 604,
-   "before": "if (typed8.get(\"STAT\") != null) {",
-   "after": "if (typed8.get(\"XTAT\") != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "line": 622,
+   "before": "DetCics.subfields(sub12, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
+   "after": "DetCics.subfields(sub12, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
   },
   {
-   "id": "e9db24ac32",
-   "op": "LIT",
-   "line": 611,
-   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f17_NAMEI, f13_NAMEL, typed8.get(\"NAME\"), CS, \"LEFT,BLANK\");",
-   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f17_NAMEI, f13_NAMEL, typed8.get(\"NAME\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "9078dcafe0",
-   "op": "LIT",
-   "line": 614,
-   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f22_SECRETI, f18_SECRETL, typed8.get(\"SECRET\"), CS, \"LEFT,BLANK\");",
-   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f22_SECRETI, f18_SECRETL, typed8.get(\"SECRET\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "6fe675a779",
-   "op": "LIT",
-   "line": 617,
-   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f27_RAWI, f23_RAWL, typed8.get(\"RAW\"), CS, \"LEFT,BLANK\");",
-   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f27_RAWI, f23_RAWL, typed8.get(\"RAW\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "718f6cfdf4",
-   "op": "LIT",
-   "line": 623,
-   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f37_TWIDDLEI, f33_TWIDDLEL, typed8.get(\"TWIDDLE\"), CS, \"LEFT,BLANK\");",
-   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f37_TWIDDLEI, f33_TWIDDLEL, typed8.get(\"TWIDDLE\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "a8e59a3b3f",
+   "id": "d1039e10b0",
    "op": "LIT",
    "line": 626,
-   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f42_LEFTOVRI, f38_LEFTOVRL, typed8.get(\"LEFTOVR\"), CS, \"LEFT,BLANK\");",
-   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f42_LEFTOVRI, f38_LEFTOVRL, typed8.get(\"LEFTOVR\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "before": "DetCics.subfields(sub12, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
+   "after": "DetCics.subfields(sub12, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "46e7c692be",
+   "op": "LIT",
+   "line": 628,
+   "before": "DetCics.subfields(sub12, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
+   "after": "DetCics.subfields(sub12, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "9f3f2e515a",
+   "op": "LIT",
+   "line": 630,
+   "before": "DetCics.subfields(sub12, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
+   "after": "DetCics.subfields(sub12, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
+   "id": "7f0d449603",
+   "op": "LIT",
+   "line": 632,
+   "before": "DetCics.subfields(sub12, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
+   "after": "DetCics.subfields(sub12, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
   },
   {
    "id": "7f696111c1",
@@ -4334,6 +4605,24 @@
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f52_FSETFI, f48_FSETFL, typed8.get(\"FSETF\"), CS, \"XEFT,BLANK\");",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+  },
+  {
+   "id": "90b50d531f",
+   "op": "LIT",
+   "line": 634,
+   "before": "DetCics.subfields(sub12, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
+   "after": "DetCics.subfields(sub12, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
   },
   {
    "id": "93d94010c1",
@@ -4381,19 +4670,18 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "f7bb0fc16a",
-   "op": "LIT",
-   "line": 654,
-   "before": "DetCics.subfields(sub12, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "id": "511d4cbb54",
+   "op": "CON",
+   "line": 648,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "equivalent",
+   "reason": "`return 3` is p2's (RESET-SCREEN) fall-through value. p2 is entered only as perform(2, 2), where perform() returns at i == thru before it reads `next`; HXATTR has no GO TO, so no other path reads it. Changing 3 to 4 is never read.",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
    ]
   },
   {
@@ -4409,83 +4697,93 @@
    ]
   },
   {
-   "id": "d1039e10b0",
+   "id": "a7ee0b8f66",
    "op": "LIT",
-   "line": 658,
-   "before": "DetCics.subfields(sub12, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "line": 657,
+   "before": "DetCics.subfields(sub16, \"STAT\", f3_STATL, f6_STATA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XTAT\", f3_STATL, f6_STATA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
-   "id": "46e7c692be",
+   "id": "86c65a62ff",
    "op": "LIT",
-   "line": 660,
-   "before": "DetCics.subfields(sub12, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "line": 659,
+   "before": "DetCics.subfields(sub16, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
-   "id": "9f3f2e515a",
+   "id": "843a3f2aca",
    "op": "LIT",
-   "line": 662,
-   "before": "DetCics.subfields(sub12, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "line": 663,
+   "before": "DetCics.subfields(sub16, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
-   "id": "7f0d449603",
+   "id": "0553e2d072",
    "op": "LIT",
-   "line": 664,
-   "before": "DetCics.subfields(sub12, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "line": 665,
+   "before": "DetCics.subfields(sub16, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
-   "id": "90b50d531f",
+   "id": "863dcb7fc0",
    "op": "LIT",
-   "line": 666,
-   "before": "DetCics.subfields(sub12, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "line": 667,
+   "before": "DetCics.subfields(sub16, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4501,6 +4799,24 @@
    ]
   },
   {
+   "id": "777669b767",
+   "op": "LIT",
+   "line": 669,
+   "before": "DetCics.subfields(sub16, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
+   ]
+  },
+  {
    "id": "f93ac0da00",
    "op": "LIT",
    "line": 670,
@@ -4510,6 +4826,24 @@
    "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "subfield-unset"
+   ]
+  },
+  {
+   "id": "46e640ed5d",
+   "op": "LIT",
+   "line": 671,
+   "before": "DetCics.subfields(sub16, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
+   "after": "DetCics.subfields(sub16, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (RESET-SCREEN: no statement sets an attribute byte before the MAPONLY send; the map storage is its initial image, X'00' or spaces.)",
+   "tried": [
+    "s2-attr-1byte-clear",
+    "s2-attr-1byte-entry",
+    "s2-attr-dto-first",
+    "s2-attr-dto-z",
+    "s2-attr-full-width",
+    "s2-attr-name-only-long",
+    "s2-attr-pf3"
    ]
   },
   {
@@ -4597,15 +4931,6 @@
    ]
   },
   {
-   "id": "511d4cbb54",
-   "op": "CON",
-   "line": 680,
-   "before": "return 3;",
-   "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "790be82dc5",
    "op": "DEL",
    "line": 686,
@@ -4644,22 +4969,6 @@
    ]
   },
   {
-   "id": "a7ee0b8f66",
-   "op": "LIT",
-   "line": 689,
-   "before": "DetCics.subfields(sub16, \"STAT\", f3_STATL, f6_STATA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XTAT\", f3_STATL, f6_STATA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
-   ]
-  },
-  {
    "id": "a9b4268aa4",
    "op": "LIT",
    "line": 690,
@@ -4669,22 +4978,6 @@
    "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "local-unread"
-   ]
-  },
-  {
-   "id": "86c65a62ff",
-   "op": "LIT",
-   "line": 691,
-   "before": "DetCics.subfields(sub16, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
    ]
   },
   {
@@ -4724,22 +5017,6 @@
    ]
   },
   {
-   "id": "843a3f2aca",
-   "op": "LIT",
-   "line": 695,
-   "before": "DetCics.subfields(sub16, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
-   ]
-  },
-  {
    "id": "b17243c4ff",
    "op": "LIT",
    "line": 696,
@@ -4749,22 +5026,6 @@
    "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "local-unread"
-   ]
-  },
-  {
-   "id": "0553e2d072",
-   "op": "LIT",
-   "line": 697,
-   "before": "DetCics.subfields(sub16, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
    ]
   },
   {
@@ -4780,22 +5041,6 @@
    ]
   },
   {
-   "id": "863dcb7fc0",
-   "op": "LIT",
-   "line": 699,
-   "before": "DetCics.subfields(sub16, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
-   ]
-  },
-  {
    "id": "bb0e561db5",
    "op": "LIT",
    "line": 700,
@@ -4808,22 +5053,6 @@
    ]
   },
   {
-   "id": "777669b767",
-   "op": "LIT",
-   "line": 701,
-   "before": "DetCics.subfields(sub16, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
-   ]
-  },
-  {
    "id": "a369c6a33d",
    "op": "LIT",
    "line": 702,
@@ -4833,22 +5062,6 @@
    "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "local-unread"
-   ]
-  },
-  {
-   "id": "46e640ed5d",
-   "op": "LIT",
-   "line": 703,
-   "before": "DetCics.subfields(sub16, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "after": "DetCics.subfields(sub16, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
-   "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
    ]
   },
   {

@@ -28,7 +28,6 @@ def mock_pipeline_state():
             "telemetry": {
                 "ownership": "BackendTeam",
                 "archetype_fingerprint": {"API Controller": 0.2, "Data Model": 0.5},
-                "domain_context": {"AI Threat Score": "95.5%"},
             },
             "functions": [
                 {
@@ -53,7 +52,6 @@ def mock_pipeline_state():
             "telemetry": {
                 "ownership": "BackendTeam",
                 "archetype_fingerprint": {"Data Model": 0.1},
-                "domain_context": {"AI Threat Score": "10.0%"},
             },
             "functions": [],
         },
@@ -151,23 +149,15 @@ def test_dependency_edge_mapping(recorder, mock_pipeline_state):
 
 
 # ==============================================================================
-# TEST 4: AI THREAT SCORE QUANTIZATION
+# TEST 4: NO AI THREAT ARRAY (#8430)
 # ==============================================================================
-def test_ai_threat_score_quantization(recorder, mock_pipeline_state):
-    """
-    Proves that XGBoost AI Threat Scores are safely stripped of their percentage
-    signs and quantized into integer arrays for WebGL processing.
-    """
+def test_galaxy_has_no_ai_threats_array(recorder, mock_pipeline_state):
+    """The XGBoost classifier is gone, so the GPU payload carries no ai_threats array."""
     artifacts, excluded, summary = mock_pipeline_state
 
     result = recorder.record_mission(artifacts, excluded, summary, "test")
-    galaxy = result["galaxy"]
 
-    # models.py (Idx 0) had "10.0%" -> Quantized to 10000
-    assert galaxy["ai_threats"][0] == 10000
-
-    # router.py (Idx 1) had "95.5%" -> Quantized to 95500
-    assert galaxy["ai_threats"][1] == 95500
+    assert "ai_threats" not in result["galaxy"]
 
 
 # ==============================================================================

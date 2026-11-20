@@ -318,7 +318,6 @@ class StateRehydrator:
                     "telemetry": {
                         "popularity": f["popularity"],
                         "ownership": f["author"],
-                        "ai_threat_score": f["ai_threat_score"],
                         "author_distribution": safe_silo_risk,
                     },
                     # Schema Drift Protection (same pattern as silo_risk/doc_loc above).

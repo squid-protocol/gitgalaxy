@@ -73,7 +73,7 @@ jobs:
           # PyYAML is installed in BOTH legs -- since #1104 it's an optional
           # `gitgalaxy[yaml]` extra, not a core dependency, so `pip install -e .`
           # no longer pulls it in for either leg. "Zero-Dependency Mode" here has
-          # only ever meant tiktoken/pandas/xgboost are absent (networkx is not used
+          # only ever meant tiktoken is absent (networkx is not used
           # at all since #3041); the
           # golden-master zero-dep fixture (tests/golden_master_zero_dep_audit/)
           # expects PyYAML present even on this leg.
@@ -81,7 +81,7 @@ jobs:
             echo "Installing heavy engines for Full-Precision Mode..."
             tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/engines.txt
           else
-            echo "Deliberately skipping tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
+            echo "Deliberately skipping tiktoken -- Zero-Dependency Mode leg."
             tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/yaml.txt
           fi
           tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e .

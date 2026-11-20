@@ -47,7 +47,6 @@ def mock_db(tmp_path):
             control_flow_ratio REAL,
             popularity INTEGER,
             author TEXT,
-            ai_threat_score REAL,
             silo_risk REAL
         )
     """)
@@ -64,7 +63,7 @@ def mock_db(tmp_path):
     cursor.execute("""
         INSERT INTO file_data VALUES (
             'test_repo', 'hash_new_456', 'src/main.py', 'python',
-            150, 100, 45.5, 0.35, 12, 'Joe Esquibel', 85.0, 12.5
+            150, 100, 45.5, 0.35, 12, 'Joe Esquibel', 12.5
         )
     """)
 
@@ -123,7 +122,6 @@ def test_rehydrator_successful_load(mock_db):
 
     # 3. Assert nested JSON/Dictionary reconstruction
     assert file_node["telemetry"]["ownership"] == "Joe Esquibel"
-    assert file_node["telemetry"]["ai_threat_score"] == 85.0
     # #3220: these columns are never persisted (real file_data has no such
     # columns), so the rehydrator defaults them to 0 instead of raising
     # IndexError. They are recomputed by the ripple during the incremental scan.
@@ -190,7 +188,7 @@ def test_rehydrator_legacy_schema_drift(tmp_path):
             repo_name TEXT, commit_hash TEXT, file_path TEXT, language TEXT,
             total_loc INTEGER, coding_loc INTEGER, structural_mass REAL,
             control_flow_ratio REAL, popularity INTEGER, author TEXT,
-            ai_threat_score REAL, total_downstream INTEGER, total_upstream INTEGER
+            total_downstream INTEGER, total_upstream INTEGER
         )
     """)
 
@@ -198,7 +196,7 @@ def test_rehydrator_legacy_schema_drift(tmp_path):
     cursor.execute("""
         INSERT INTO file_data VALUES (
             'test_repo', 'legacy_hash', 'src/legacy.py', 'python',
-            150, 100, 45.5, 0.35, 12, 'Joe Esquibel', 85.0, 4, 2
+            150, 100, 45.5, 0.35, 12, 'Joe Esquibel', 4, 2
         )
     """)
     conn.commit()
@@ -239,7 +237,7 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
             repo_name TEXT, commit_hash TEXT, file_path TEXT, language TEXT,
             total_loc INTEGER, coding_loc INTEGER, structural_mass REAL,
             control_flow_ratio REAL, popularity INTEGER, author TEXT,
-            ai_threat_score REAL, silo_risk REAL, total_downstream INTEGER, total_upstream INTEGER
+            silo_risk REAL, total_downstream INTEGER, total_upstream INTEGER
         )
     """)
 
@@ -249,7 +247,7 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
     cursor.execute("""
         INSERT INTO file_data VALUES (
             'test_repo', 'hash_1', 'src/hacked.py', 'python',
-            150, 100, 'HACKED_MASS', 'HACKED_CFR', 12, 'Attacker', 'HACKED_THREAT', 12.5, 4, 2
+            150, 100, 'HACKED_MASS', 'HACKED_CFR', 12, 'Attacker', 12.5, 4, 2
         )
     """)
     conn.commit()
@@ -284,13 +282,13 @@ def test_rehydrator_doc_loc_read_back_when_present(tmp_path):
             repo_name TEXT, commit_hash TEXT, file_path TEXT, language TEXT,
             total_loc INTEGER, coding_loc INTEGER, doc_loc INTEGER, structural_mass REAL,
             control_flow_ratio REAL, popularity INTEGER, author TEXT,
-            ai_threat_score REAL, silo_risk REAL, total_downstream INTEGER, total_upstream INTEGER
+            silo_risk REAL, total_downstream INTEGER, total_upstream INTEGER
         )"""
     )
     conn.execute("INSERT INTO repo_data VALUES ('test_repo', 'hash_1', 1700000000)")
     conn.execute(
         "INSERT INTO file_data VALUES ('test_repo', 'hash_1', 'src/main.py', 'python', "
-        "150, 100, 42, 45.5, 0.35, 12, 'Joe Esquibel', 85.0, 12.5, 4, 2)"
+        "150, 100, 42, 45.5, 0.35, 12, 'Joe Esquibel', 12.5, 4, 2)"
     )
     conn.commit()
     conn.close()
@@ -312,7 +310,7 @@ def test_explicit_baseline_selects_that_commit(mock_db):
     conn.execute("""
         INSERT INTO file_data VALUES (
             'test_repo', 'hash_old_123', 'src/legacy.py', 'python',
-            50, 40, 10.0, 0.2, 3, 'Joe Esquibel', 10.0, 1.0
+            50, 40, 10.0, 0.2, 3, 'Joe Esquibel', 1.0
         )
     """)
     conn.commit()

@@ -155,9 +155,6 @@ def _security(audit: dict, sbom: dict | None) -> list[str]:
         status = sec.get("Audit Status")
         if status:
             lines.append(f"- **Audit status:** `{_cell(status)}`")
-        infected = _get(sec, "ML Threat Intelligence (XGBoost)", "Infected Files Detected")
-        if infected is not None:
-            lines.append(f"- **ML threat model (XGBoost):** {infected} infected file(s) detected")
         secrets = sec.get("Exposed Secrets & Credentials (Quarantined Files)")
         if isinstance(secrets, list):
             lines.append(f"- **Quarantined files (exposed secrets):** {len(secrets)}")

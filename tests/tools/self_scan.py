@@ -63,16 +63,16 @@ DB_PATH = SELF_SCAN_DIR / "gitgalaxy_master.db"
 # the recorder (repo_name column) and StateRehydrator.load_latest_state() key on.
 PROJECT_NAME = REPO_ROOT.name
 
-# Mirrors missing_dependencies() in galaxyscope.py (HAS_TIKTOKEN / HAS_PYYAML, plus
-# security_auditor.py's HAS_NUMPY / HAS_PANDAS / HAS_XGBOOST) (networkx is not one: the engine never uses it, #3041). Without every
+# Mirrors missing_dependencies() in galaxyscope.py (HAS_TIKTOKEN / HAS_PYYAML)
+# (networkx is not one: the engine never uses it, #3041). Without every
 # one of these, galaxyscope silently drops into "Zero-Dependency Mode" --
-# pagerank_score and normalized_blast_radius (and other network/ML-derived
+# pagerank_score and normalized_blast_radius (and other network-derived
 # columns) get written as NULL instead of erroring, since zero-dependency mode
 # is a legitimate, intentional mode for scanning *other* repos where installing
-# the full ML stack isn't wanted. But for THIS repo's own self-scan, silently
+# the optional engines isn't wanted. But for THIS repo's own self-scan, silently
 # degraded output defeats the point -- callers query this DB assuming full
 # precision. Fail loudly before wasting a scan on a DB nobody wanted.
-FULL_PRECISION_PACKAGES = ("tiktoken", "numpy", "pandas", "xgboost", "yaml")
+FULL_PRECISION_PACKAGES = ("tiktoken", "yaml")
 
 
 def _check_full_precision_deps() -> None:

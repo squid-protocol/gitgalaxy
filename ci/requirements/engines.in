@@ -1,6 +1,2 @@
 PyYAML
 tiktoken
-numpy
-pandas>=3.1.1
-xgboost
-scikit-learn

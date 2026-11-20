@@ -68,7 +68,6 @@ Gates are off by default. A gate that trips makes the scan exit `1` after every 
 | Flag | Promise |
 | :--- | :--- |
 | `--fail-on-secrets` | Fails on a detected hardcoded secret that is not marked as mitigated. Detection is regex-based and does not see lines of 250 or more characters (`SecurityLens._armor` blanks them), so a secret on such a line does not trip the gate. |
-| `--fail-on-malware` | Fails if ML threat inference flags a file. Inference needs `numpy`, `pandas` and `xgboost` (the `full` extra) and a model file, `gitgalaxy_malware_xgb_multiclass.json`, in `gitgalaxy/security/` or `gitgalaxy/utilities/`. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits `0`. Because no model ships, the `--fail-on-malware` gate in the shipped pipeline templates (`templates/`, the "SARIF + ML Malware Gate" job) is a no-op: that job still writes SARIF, but its malware gate never trips. |
 | `--max-risk-exposure N` | Fails if any file's highest risk vector is at or above `N` percent. `0.0` disables it. |
 | `--max-systemic-threat N` | Fails if any file's structural magnitude times normalized blast radius is at or above `N`. `0.0` disables it. Limits set before #3112 must be re-tuned. |
 

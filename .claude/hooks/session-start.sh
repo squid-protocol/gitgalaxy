@@ -34,7 +34,7 @@ fi
 
 # --- python: the package, CI's test/ML/audit extras, the call-graph references
 python -m pip install -q --disable-pip-version-check -e ".[yaml]" \
-  networkx ${TIKTOKEN} numpy pandas xgboost \
+  networkx ${TIKTOKEN} \
   pytest pytest-xdist \
   mypy types-PyYAML "ruff==0.16.0" \
   "pyan3==2.9.0" "libclang==18.1.1" tree-sitter-language-pack 2>&1 | grep -v -i "warning: running pip as" || true

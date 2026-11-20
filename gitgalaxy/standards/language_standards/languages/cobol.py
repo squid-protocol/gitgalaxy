@@ -440,7 +440,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Defensive scope terminators and declarative blocks.
+        # 6. safety (Defensive Checks: assert/try/guards): defensive scope terminators and declarative blocks.
         # C2: END-* closers are structure. C4: hyphen guards (#2622 shape). ON ERROR/AT END/INVALID KEY stay branch's (verified owner, #2822 disposition).
         # #2990: the stated #2869 sentence names "an installed failure handler" and "a
         # value-level failure check". CICS installs handlers with HANDLE CONDITION / HANDLE

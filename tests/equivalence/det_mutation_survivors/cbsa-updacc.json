@@ -30,6 +30,57 @@
    "reason": "GOTO is only a marker bit OR-ed into a paragraph's return value and tested with `& GOTO` and cleared with `& ~GOTO`; 1<<20, 2<<20 and 1<<21 are all single bits above the paragraph numbers (0..11), so the paragraph the jump names and every test give the same results"
   },
   {
+   "id": "4537eb02d0",
+   "op": "LIT",
+   "line": 42,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is a string constant the port declares and nothing reads; changing its text changes no output, event or storage byte. 17 past-storage and short-EIBCALEN scenarios tried on the oracle: none separates it.",
+   "tried": [
+    "after-short-full-try",
+    "entry-only-1985-try",
+    "entry-only-1986-try",
+    "entry-only-2000-try",
+    "link-bytes-tail-past-storage-1-try",
+    "link-bytes-tail-past-storage-10-try",
+    "link-bytes-tail-past-storage-40-try",
+    "raw-entry-bytes-1985-try",
+    "raw-entry-bytes-1986-try",
+    "raw-entry-bytes-2000-try",
+    "raw-entry-direct-1985-try",
+    "raw-entry-direct-1986-try",
+    "raw-entry-direct-2000-try",
+    "short-calen-20-try",
+    "short-calen-4-try",
+    "short-calen-50-try",
+    "short-calen-98-try"
+   ]
+  },
+  {
+   "id": "5cc4071561",
+   "op": "LIT",
+   "line": 44,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "the profile's code page name (IBM037 changed to XBM037) is stored by CobolProfile and read by nothing: no .codepage() call exists in the runtime or the translator, so no output, event or storage byte depends on it. 12 past-storage scenarios tried on the oracle: none separates it.",
+   "tried": [
+    "entry-only-1985-try",
+    "entry-only-1986-try",
+    "entry-only-2000-try",
+    "link-bytes-tail-past-storage-1-try",
+    "link-bytes-tail-past-storage-10-try",
+    "link-bytes-tail-past-storage-40-try",
+    "raw-entry-bytes-1985-try",
+    "raw-entry-bytes-1986-try",
+    "raw-entry-bytes-2000-try",
+    "raw-entry-direct-1985-try",
+    "raw-entry-direct-1986-try",
+    "raw-entry-direct-2000-try"
+   ]
+  },
+  {
    "id": "e7f108fb0b",
    "op": "LIT",
    "line": 47,
@@ -990,114 +1041,6 @@
    "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
   },
   {
-   "id": "237fd3ef3a",
-   "op": "ROR",
-   "line": 220,
-   "before": "if (i == null) {",
-   "after": "if (i != null) {",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
-  },
-  {
-   "id": "642b8b4789",
-   "op": "NEG",
-   "line": 220,
-   "before": "if (i == null) {",
-   "after": "if (!(i == null)) {",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
-  },
-  {
-   "id": "64bf7e0a28",
-   "op": "LIT",
-   "line": 221,
-   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; UPDACC has no HANDLE and raises no condition"
-  },
-  {
-   "id": "399223b715",
-   "op": "NEG",
-   "line": 233,
-   "before": "if (h != null) {",
-   "after": "if (!(h != null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "cacbdb60d2",
-   "op": "ROR",
-   "line": 233,
-   "before": "if (h != null) {",
-   "after": "if (h == null) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "b0c738fdf5",
-   "op": "NEG",
-   "line": 236,
-   "before": "if (DetCics.ignoredByDefault(cond)) {",
-   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "b9ee9fdf77",
-   "op": "CON",
-   "line": 237,
-   "before": "return -1;",
-   "after": "return -2;",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "83a953dc2b",
-   "op": "LIT",
-   "line": 239,
-   "before": "Integer error = handlers.get(\"ERROR\");",
-   "after": "Integer error = handlers.get(\"XRROR\");",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "2a4b5b44f2",
-   "op": "NEG",
-   "line": 240,
-   "before": "if (error != null) {",
-   "after": "if (!(error != null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "39add1566d",
-   "op": "ROR",
-   "line": 240,
-   "before": "if (error != null) {",
-   "after": "if (error == null) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "c6a8dfa887",
-   "op": "ROR",
-   "line": 244,
-   "before": "if (label == null) {",
-   "after": "if (label != null) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
-   "id": "d5eafc0ff5",
-   "op": "NEG",
-   "line": 244,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "unreachable",
-   "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
-  },
-  {
    "id": "1d3dfb1917",
    "op": "DEL",
    "line": 256,
@@ -1350,15 +1293,6 @@
    "reason": "initialState's reset of a working-storage item to its VALUE image (or of WS-CICS-RESP/RESP2 to 0): the item is written before UPDACC reads it, or the program never references it (the DFHCOMMAREA reset at 340 is killed), so the initial bytes cannot show"
   },
   {
-   "id": "19faba012f",
-   "op": "DEL",
-   "line": 330,
-   "before": "System.arraycopy(IMAGE_s_WS_ACC_REC_LEN, 0, s_WS_ACC_REC_LEN.bytes, 0, IMAGE_s_WS_ACC_REC_LEN.length);",
-   "after": "/* System.arraycopy(IMAGE_s_WS_ACC_REC_LEN, 0, s_WS_ACC_REC_LEN.bytes, 0, IMAGE_s_WS_ACC_REC_LEN.length); */",
-   "verdict": "equivalent",
-   "reason": "initialState's reset of a working-storage item to its VALUE image (or of WS-CICS-RESP/RESP2 to 0): the item is written before UPDACC reads it, or the program never references it (the DFHCOMMAREA reset at 340 is killed), so the initial bytes cannot show"
-  },
-  {
    "id": "8267166697",
    "op": "DEL",
    "line": 331,
@@ -1485,13 +1419,32 @@
    "reason": "initialState's reset of a working-storage item to its VALUE image (or of WS-CICS-RESP/RESP2 to 0): the item is written before UPDACC reads it, or the program never references it (the DFHCOMMAREA reset at 340 is killed), so the initial bytes cannot show"
   },
   {
-   "id": "3d3e1d8517",
-   "op": "DEL",
-   "line": 368,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
+   "id": "a932c73683",
+   "op": "CON",
+   "line": 361,
+   "before": "calen = DetCics.eibCalen(task, 99);",
+   "after": "calen = DetCics.eibCalen(task, 100);",
    "verdict": "equivalent",
-   "reason": "caBack is reset per task; without the reset a task with no COMMAREA after one with refills that earlier task's DTO, which nothing reads"
+   "reason": "calen = eibCalen(task, 99) is the default EIBCALEN of a typed COMMAREA; UPDACC.cbl never reads EIBCALEN, and 99 vs 100 both leave `calen < storage length` false (the layout is 99 bytes), so no truncation either way. An explicit commarea_length overrides the default. 17 scenarios tried: none separates it.",
+   "tried": [
+    "after-short-full-try",
+    "entry-only-1985-try",
+    "entry-only-1986-try",
+    "entry-only-2000-try",
+    "link-bytes-tail-past-storage-1-try",
+    "link-bytes-tail-past-storage-10-try",
+    "link-bytes-tail-past-storage-40-try",
+    "raw-entry-bytes-1985-try",
+    "raw-entry-bytes-1986-try",
+    "raw-entry-bytes-2000-try",
+    "raw-entry-direct-1985-try",
+    "raw-entry-direct-1986-try",
+    "raw-entry-direct-2000-try",
+    "short-calen-20-try",
+    "short-calen-4-try",
+    "short-calen-50-try",
+    "short-calen-98-try"
+   ]
   },
   {
    "id": "d573be3a28",
@@ -1629,6 +1582,34 @@
    "reason": "the generated AID switch has only a default arm (no HANDLE AID, no DFHAID test), so either operand reaches the same arm"
   },
   {
+   "id": "34dffaa2b0",
+   "op": "DEL",
+   "line": 382,
+   "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
+   "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "the caBack wrapper restores the storage truncated for a short EIBCALEN, but the finally block at the run's end already restores it (DetCics.restoreCommarea is a no-op once st.bytes == whole), and the wrapper only chains the earlier copy-back, which reads the already-restored bytes. 17 scenarios tried, incl. short EIBCALEN 98/50/20/4 and a full area after them: none separates it.",
+   "tried": [
+    "after-short-full-try",
+    "entry-only-1985-try",
+    "entry-only-1986-try",
+    "entry-only-2000-try",
+    "link-bytes-tail-past-storage-1-try",
+    "link-bytes-tail-past-storage-10-try",
+    "link-bytes-tail-past-storage-40-try",
+    "raw-entry-bytes-1985-try",
+    "raw-entry-bytes-1986-try",
+    "raw-entry-bytes-2000-try",
+    "raw-entry-direct-1985-try",
+    "raw-entry-direct-1986-try",
+    "raw-entry-direct-2000-try",
+    "short-calen-20-try",
+    "short-calen-4-try",
+    "short-calen-50-try",
+    "short-calen-98-try"
+   ]
+  },
+  {
    "id": "9e1f7d9779",
    "op": "CON",
    "line": 382,
@@ -1638,130 +1619,32 @@
    "reason": "calen starts at 0 and only a scenario with no COMMAREA keeps it: EIBCALEN is never read, and a cut at 0 or at 1 byte (when exactCommarea holds) raises the same PastFrom refusal on the first COMMAREA access at byte 14 or later"
   },
   {
-   "id": "71d00e6cc5",
-   "op": "CON",
-   "line": 386,
-   "before": "calen = cx(task, 99);",
-   "after": "calen = cx(task, 100);",
-   "verdict": "equivalent",
-   "reason": "cx(task, 99): the default length applies only when no length is stated, and then exactCommarea is false (no cut) and EIBCALEN is unread, so 99 vs 100 cannot show"
-  },
-  {
    "id": "b7197a0ba1",
    "op": "DEL",
    "line": 391,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's bytes past the 99-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
-  },
-  {
-   "id": "2404a54455",
-   "op": "DEL",
-   "line": 394,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "9eac9b039f",
-   "op": "CON",
-   "line": 394,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "e1fc443066",
-   "op": "CON",
-   "line": 394,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "0d4b214460",
-   "op": "ROR",
-   "line": 395,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "5100dca141",
-   "op": "ROR",
-   "line": 395,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the UPDATE; what the mutant changes here is outside the proof."
-  },
-  {
-   "id": "c9cc381138",
-   "op": "NEG",
-   "line": 395,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "f421cf3c99",
-   "op": "DEL",
-   "line": 396,
-   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the UPDATE; what the mutant changes here is outside the proof."
-  },
-  {
-   "id": "6c52daae60",
-   "op": "DEL",
-   "line": 398,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-120, bytes-50, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "5839bbc797",
-   "op": "DEL",
-   "line": 402,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "deleted the link-area arraycopy: killed on the det port by raw-blank-type-spaces, low-values and spaces in numeric COMMAREA fields a DTO cannot carry, returned untouched on a failure path. The committed cbsa-updacc port reads them as 0 on its java-facade side, so the case cannot carry that input."
-  },
-  {
-   "id": "ac4ab15700",
-   "op": "DEL",
-   "line": 404,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's bytes past the 99-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
-  },
-  {
-   "id": "fb7b371828",
-   "op": "ROR",
-   "line": 404,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's bytes past the 99-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
-  },
-  {
-   "id": "1df5872081",
-   "op": "CON",
-   "line": 406,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's bytes past the 99-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
+   "verdict": "equivalent",
+   "reason": "UPDACC's `beyond = null` reset deleted: `beyond` is read only by the raw-link copy-back, which sets `beyond` itself first, and by the end-area compare, which cuts the area to the entered length, so a stale tail is never inside the compared bytes (as UPDCUST 53e201dfa1, GETCOMPY 02134c5f29, #8417). Ran the byte entry, the direct entry, the entry-only shape and the LINK bytes at 1985, 1986 and 2000 bytes (scenarios raw-entry-bytes-N, raw-entry-direct-N, entry-only-N, link-bytes-tail-past-storage-1/10/40: DFHCOMMAREA storage is 1985 bytes, so only an area over 1985 bytes reaches `beyond`; the earlier 100-byte attempts never did) and all equal (slice 19).",
+   "tried": [
+    "after-short-full-try",
+    "entry-only-1985-try",
+    "entry-only-1986-try",
+    "entry-only-2000-try",
+    "link-bytes-tail-past-storage-1-try",
+    "link-bytes-tail-past-storage-10-try",
+    "link-bytes-tail-past-storage-40-try",
+    "raw-entry-bytes-1985-try",
+    "raw-entry-bytes-1986-try",
+    "raw-entry-bytes-2000-try",
+    "raw-entry-direct-1985-try",
+    "raw-entry-direct-1986-try",
+    "raw-entry-direct-2000-try",
+    "short-calen-20-try",
+    "short-calen-4-try",
+    "short-calen-50-try",
+    "short-calen-98-try"
+   ]
   },
   {
    "id": "8aa227952a",
@@ -1771,67 +1654,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
-  },
-  {
-   "id": "bf394392da",
-   "op": "AOR",
-   "line": 406,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's bytes past the 99-byte record, `raw, keep, raw.length - keep); } typed.run(); };` -> `th + keep); } typed.run(); };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-120, bytes-50, bytes-98, bytes-99)."
-  },
-  {
-   "id": "2cc463f675",
-   "op": "NEG",
-   "line": 409,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "`!(exactCommarea() && calen < 99)`: never cuts a short area. Killed on the det port by eibcalen-0 and the other short inputs; the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
-  },
-  {
-   "id": "bee9666e07",
-   "op": "COR",
-   "line": 409,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "undefined-by-ibm",
-   "reason": "`exactCommarea() || calen < 99`: only a LINK with no COMMAREA (input no-commarea) kills it, and that run moves COMM-ACCNO's non-digit bytes into the numeric DISPLAY item DESIRED-ACC-NO PIC 9(8). IBM documents no result for that MOVE, so the kill says nothing about z/OS (owner ruling 2026-11-03, #7495; rule 7 extension).",
-   "undefined": {
-    "item": "DESIRED-ACC-NO PIC 9(8) (moved from COMM-ACCNO)",
-    "input": "no-commarea: a LINK with no COMMAREA, so COMM-ACCNO is non-digit bytes"
-   },
-   "tried": [
-    "no-commarea"
-   ]
-  },
-  {
-   "id": "efce3d4f32",
-   "op": "ROR",
-   "line": 409,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "`calen >= 99` for `calen < 99` in the cut test: a short area stays whole, a full one is cut. Killed on the det port by eibcalen-0 and the other short inputs; the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
-  },
-  {
-   "id": "1d45af47ed",
-   "op": "DEL",
-   "line": 411,
-   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
-   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "harness-gap",
-   "reason": "deleted `s_DFHCOMMAREA.bytes = copyOf(caWhole, calen)`: the area is not cut, so a short EIBCALEN reads past it unstopped. Killed on the det port by EIBCALEN 0 to 98 inputs (eibcalen-20, dto-eibcalen-20); the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
-  },
-  {
-   "id": "d6ba105603",
-   "op": "DEL",
-   "line": 411,
-   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
-   "verdict": "unreachable",
-   "reason": "the write-back wrapper runs only when the task completes on a COMMAREA cut below 99 bytes; every path writes COMM-SUCCESS (byte 99), so a shorter COMMAREA always raises PastFrom before any caBack runs"
   },
   {
    "id": "ff008f74f8",
@@ -1861,15 +1683,6 @@
    "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 or stopping at thru 12 runs the same paragraphs: p7's RETURN throws Goback before anything after it"
   },
   {
-   "id": "07c58a0930",
-   "op": "NEG",
-   "line": 424,
-   "before": "if (caWhole == null) {",
-   "after": "if (!(caWhole == null)) {",
-   "verdict": "harness-gap",
-   "reason": "`if (!(caWhole == null))` in the IndexOutOfBounds handler: a reference past a cut area rethrows instead of PastFrom. The det port's proof crashed on the short EIBCALEN inputs (eibcalen-20); the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
-  },
-  {
    "id": "32dbcab3ad",
    "op": "LIT",
    "line": 424,
@@ -1879,15 +1692,6 @@
    "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
   },
   {
-   "id": "8c4f66ad37",
-   "op": "ROR",
-   "line": 424,
-   "before": "if (caWhole == null) {",
-   "after": "if (caWhole != null) {",
-   "verdict": "harness-gap",
-   "reason": "`if (caWhole != null)` in the IndexOutOfBounds handler: a reference past a cut area rethrows instead of PastFrom. The det port's proof crashed on the short EIBCALEN inputs (eibcalen-20); the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
-  },
-  {
    "id": "945e2ed933",
    "op": "LIT",
    "line": 424,
@@ -1895,15 +1699,6 @@
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
    "verdict": "equivalent",
    "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
-  },
-  {
-   "id": "fd6244465a",
-   "op": "DEL",
-   "line": 430,
-   "before": "caWhole(caWhole);",
-   "after": "/* caWhole(caWhole); */",
-   "verdict": "harness-gap",
-   "reason": "deleted the finally's `caWhole(caWhole)`: storage stays cut after a stopped task, and the next task fails. Killed on the det port by the short EIBCALEN inputs; the committed cbsa-updacc port's java-facade side fails that input (evidence.py prove: it runs on where the COBOL stops at the reference), so the case cannot carry it."
   },
   {
    "id": "2ba797870e",
@@ -1931,15 +1726,6 @@
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
    "verdict": "equivalent",
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
-  },
-  {
-   "id": "7cd48aeaa6",
-   "op": "DEL",
-   "line": 455,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "UPDACC's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "2b0d6aa9ad",

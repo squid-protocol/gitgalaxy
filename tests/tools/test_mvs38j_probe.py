@@ -85,3 +85,58 @@ def test_the_committed_results_cover_every_cond_scenario_and_repeat_the_manual_a
         assert r["engine"] == flow.run(sc["job"], sc["given"]).actions, r["id"]
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]
         assert r["unparsed_ief"] == 0, r["id"]
+
+
+PROC_DOC = json.loads((probe.PROC_CASE / "scenarios.json").read_text(encoding="utf-8"))
+
+
+def test_the_proc_deck_keeps_one_call_its_overrides_and_makes_each_dd_a_named_new_dataset():
+    deck, sym = probe.proc_deck(PROC_DOC["flow_jcl"], "OVRJOB", "O3")
+    lines = deck.splitlines()
+    assert lines[0].startswith("//OVRJOB   JOB ") and "MSGLEVEL=(1,1)" in lines[0]
+    assert "//A1       EXEC PGM=IEFBR14,PARM='X1'" in lines
+    assert "//A2.EXTRA DD DSN=EXTRA.DD,UNIT=SYSDA,SPACE=(TRK,1)" in lines
+    assert not any(ln.startswith(("//O1", "//O2")) for ln in lines) and "//O3       EXEC BASE" in lines
+    assert sym == [] and all(len(ln) <= 72 for ln in lines)
+    deck, sym = probe.proc_deck(PROC_DOC["flow_jcl"], "SYMJOB", "S2")
+    assert sym == ["P1"] and deck.splitlines()[-1] == "//S2       EXEC CATP,HLQ=TEST,PRM=TWO"
+    assert "SET" not in deck
+
+
+PROC_LOG = """\
+IEF236I ALLOC. FOR J A1 O3
+IEF237I 251  ALLOCATED TO SYSUT1
+IEF285I   NEW.IN                                       DELETED       *--------0
+IEF285I   VOL SER NOS= WORK00.
+IEF236I ALLOC. FOR J A2 O3
+IEF237I 252  ALLOCATED TO SYSUT1
+IEF237I 251  ALLOCATED TO EXTRA
+IEF653I SUBSTITUTION JCL - PGM=IEFBR14,PARM='TWO'
+IEF285I   BASE.IN2                                     DELETED       *--------0
+IEF285I   EXTRA.DD                                     DELETED       *--------0
+IEF236I ALLOC. FOR OTHER X1 Y
+"""
+
+
+def test_the_proc_log_reader_pairs_each_steps_ddnames_with_its_dsns_in_order():
+    steps, subst = probe.observe_proc(PROC_LOG, "J")
+    assert steps == {
+        "O3.A1": {"dd": {"SYSUT1": "NEW.IN"}},
+        "O3.A2": {"dd": {"SYSUT1": "BASE.IN2", "EXTRA": "EXTRA.DD"}},
+    }
+    assert subst == ["TWO"]
+    shown = probe.proc_projection(steps, {"O3.A2"}, {"O3.A2": "TWO"})
+    assert shown["O3.A2"] == {"dd": [("SYSUT1", "BASE.IN2"), ("EXTRA", "EXTRA.DD")], "parm": "TWO"}
+    assert "parm" not in shown["O3.A1"]
+
+
+def test_the_committed_proc_results_repeat_the_manual_answers_and_the_engine_and_name_what_is_unobserved():
+    got = json.loads((probe.PROC_RESULTS).read_text(encoding="utf-8"))
+    assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
+    _, text, libs, scs = probe.proc_scenarios()
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 8
+    for r, sc in zip(got["results"], scs, strict=True):
+        assert list(r["expect"]) == list(sc["expect"]), r["id"]
+        assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]
+        assert r["unobserved"] == probe.PROC_UNOBSERVED and r["jcl_error"] is False, r["id"]
+        assert [s["procstep"] for s in r["box_steps"]] == [k.split(".")[1] for k in sc["expect"]], r["id"]

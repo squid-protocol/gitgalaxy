@@ -614,6 +614,7 @@ jobs:
 
       - name: Keep the proofs' logs
         if: always()
+        continue-on-error: true # advisory upload (#8424): a failed upload never fails the job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-db2-logs-${{ strategy.job-index }}
@@ -845,6 +846,7 @@ jobs:
 
       - name: Keep the proofs' logs
         if: always()
+        continue-on-error: true # advisory upload (#8424): a failed upload never fails the job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-logs-${{ strategy.job-index }}
@@ -1073,6 +1075,7 @@ jobs:
 
       - name: Keep the shard timings (#5882)
         if: always()
+        continue-on-error: true # advisory upload (#8424): a failed upload never fails the job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-timing

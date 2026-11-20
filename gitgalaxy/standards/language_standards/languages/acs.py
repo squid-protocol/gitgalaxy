@@ -58,7 +58,7 @@ DEFINITION: dict[str, Any] = {
         # 5. class_start: no classes (structs do not exist; scripts are the unit).
         "class_start": None,
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: range clamps and validity guards.
+        # 6. safety (Defensive Checks: assert/try/guards): range clamps and validity guards.
         "safety": re.compile(
             r"\b(?:Clamp|Min|Max|CheckActorClass|IsTIDUsed|PlayerIsSpectator|GetPlayerInfo)[ \t]*\(", re.I
         ),

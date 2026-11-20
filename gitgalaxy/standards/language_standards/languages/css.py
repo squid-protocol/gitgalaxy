@@ -140,7 +140,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Defensive fallbacks and mathematical clamps.
         "safety": re.compile(
             r"@supports\b|\bvar\([^,]+,\s*(?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*\)|\b(?:minmax|clamp)\s*\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*\)|\bcontain\s*:\s*(?:strict|content|paint|layout)\b",

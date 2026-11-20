@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen starter|smp1|smp2|stage1|stage2|start|run DECK|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
+# mvs38j.sh <image|tapes|stage|dasd STAGE|sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl|custom|start|run DECK|stop|status> -- the MVS 3.8J box for the JCL oracle tier 2 (#8414).
 # Internal use only until counsel answers Q16. Never z/OS; never TK4-/TK5: the system is built from IBM's
 # distribution tapes (Jay Moseley's sysgen). Nothing here is committed or run in CI; the work dir holds the
 # system image and stays outside the repo. Heavy steps take a slot:  tests/tools/box/heavy-run.sh mvs38j.sh image
@@ -14,6 +14,9 @@ TAPES=(
   "vs2StarterTapes.tar.gz 7c12c99c387193c8650f8ef78b4771c3"
   "vs2DistributionTapes.tar.gz ec9f1c8672bd406a4ff7bc00f139f5bc"
   "mvsInstallationResources.tar.gz 129898e0f0881078448358553bc6b4c1"
+  # Moseley's compiler/tools 3350 (SYSC.LINKLIB / SYSC.PROCLIB): the generated system will not IPL without it (iCUSTv8,
+  # which prints this md5 with one character too many; the file's own md5 is this, 2026-11-19)
+  "SYSCPK.tar.gz 5c3628517cac1df10b1a63d88ca3bb3f"
 )
 usage() { sed -n '2,6p' "$0" >&2; exit 2; }
 [ $# -ge 1 ] || usage
@@ -49,13 +52,24 @@ case "$1" in
   sysgen)
     # Jay Moseley's sysgen is a staged console procedure (starter system -> stage 1 -> stage 2 -> user mods), driven
     # by sysgen.py over Hercules' console. Only `starter` is automated so far (docs/jcl_oracle_mvs38j.md).
-    case "${2:-}" in starter | smp1 | smp2 | stage1 | stage2) ;; *) echo "mvs38j.sh sysgen: only 'sysgen starter|smp1|smp2|stage1|stage2' are automated so far; see docs/jcl_oracle_mvs38j.md" >&2; exit 3 ;; esac
+    case "${2:-}" in starter | smp1 | smp2 | stage1 | stage2 | stage3 | ipl | custom) ;; *) echo "mvs38j.sh sysgen: only 'sysgen starter|smp1|smp2|stage1|stage2|stage3|ipl|custom' are automated so far; see docs/jcl_oracle_mvs38j.md" >&2; exit 3 ;; esac
     stage=$2; shift 2
     MVS38J_WORK="$WORK" MVS38J_IMAGE="$IMAGE" MVS38J_NAME="$NAME" exec python3 -I "$HERE/sysgen.py" "$stage" "$@" ;;
   start)
-    [ -f "$WORK/conf/mvs.conf" ] || { echo "no $WORK/conf/mvs.conf: generate the system first" >&2; exit 1; }
-    # the card reader is a socket device on the loopback only; jobs are submitted through it
-    docker run -d --rm --name "$NAME" -p 127.0.0.1:3505:3505 -p 127.0.0.1:3270:3270 -v "$WORK:/mvs" "$IMAGE" ;;
+    # IPL the generated system (warm after the first IPL) in a resident driver, `sysgen.py serve`; returns once JES2 is ready.
+    # The card reader is a socket device on the loopback only (3505); jobs are submitted through it by `run`.
+    [ -f "$WORK/conf/mvs.cnf" ] || { echo "no $WORK/conf/mvs.cnf: generate the system first" >&2; exit 1; }
+    [ ! -f "$WORK/box.pid" ] || { echo "box already running (pid $(cat "$WORK/box.pid"))" >&2; exit 1; }
+    rm -f "$WORK/box.ready"
+    MVS38J_WORK="$WORK" MVS38J_IMAGE="$IMAGE" MVS38J_NAME="$NAME" nohup python3 -I "$HERE/sysgen.py" serve \
+      > "$WORK/box.log" 2>&1 < /dev/null &
+    drv=$!
+    for _ in $(seq 1 900); do
+      [ -f "$WORK/box.ready" ] && { echo "box ready (pid $(cat "$WORK/box.pid"))"; exit 0; }
+      kill -0 "$drv" 2>/dev/null || { echo "box failed to start:" >&2; tail -20 "$WORK/box.log" >&2; exit 1; }
+      sleep 1
+    done
+    echo "box not ready after 900 s: see $WORK/box.log" >&2; exit 1 ;;
   run)
     # submit one JCL deck through the card reader of a started box and print the parsed JES2 job log as JSON
     # (runner.py, provenance mvs38j-run). The printer file defaults to the first 1403 of conf/mvs.conf.
@@ -72,8 +86,13 @@ case "$1" in
     esac
     exec python3 -I "$HERE/runner.py" submit "$deck" "$@" ;;
   stop)
-    docker stop "$NAME" ;;
+    # SIGTERM the resident driver: it stops JES2, quiesces and quits Hercules (a clean shutdown keeps the next IPL warm)
+    [ -f "$WORK/box.pid" ] || { echo "box not running" >&2; exit 1; }
+    pid=$(cat "$WORK/box.pid"); kill "$pid"
+    for _ in $(seq 1 400); do kill -0 "$pid" 2>/dev/null || { echo "box stopped"; exit 0; }; sleep 1; done
+    echo "box still running after 400 s (pid $pid)" >&2; exit 1 ;;
   status)
+    [ -f "$WORK/box.ready" ] && echo "box ready (pid $(cat "$WORK/box.pid"))" || echo "box not ready"
     docker ps --filter "name=$NAME" --format '{{.Names}} {{.Status}}'
     for t in "${TAPES[@]}"; do read -r f _ <<<"$t"; [ -f "$WORK/dl/${f%.tar.gz}/$f" ] && echo "tape ok: $f" || echo "tape missing: $f"; done ;;
   *) usage ;;

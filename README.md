@@ -365,11 +365,18 @@ with `OfflineViolation`, in the main process and in spawn-start workers, and a t
 | The three supply-chain CLIs (`vault_sentinel`, `import_policy_gate`, `binary_anomaly_detector`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
 | The two log-scanner CLIs (`pii_leak_hunter`, `terabyte_log_scanner`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
 | The ETL unpacker and the microservice slicer (`cobol_etl_unpacker`, `cobol_microservice_slicer`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
-| Other report and audit tools | Not yet guarded: they make no network call, but nothing enforces it (tracked in #8624). |
+| The `gitgalaxy` sensor subcommands (`reach`, `libsurface`, `activity`, `change`) and the API network map (`full_api_network_map`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The four cobol_to_cobol forges (`cobol_schema_forge`, `cobol_jcl_forge`, `cobol_dag_architect`, `cobol_compiler_forge`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The cobol_to_java forges and guardrail (`cobol_to_java_api_contract_forge`, `cobol_to_java_spring_forge`, `cobol_to_java_service_forge`, `cobol_to_java_guardrail`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The test forge, the batch harness and proof reach (`cobol_to_java_test_forge`, `batch_test_harness`, `proof_reach`) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The two COBOL controllers (`cobol-refractor`, `cobol-to-java`; the `--scan` child of the first inherits the guard) | Guaranteed under the guard with `--offline` (or `GITGALAXY_OFFLINE=1`); a test pins it (#8624). |
+| The spec browsers (`python -m gitgalaxy.standards.cics`, `python -m gitgalaxy.standards.cobol`: `emit`, `check`, `regen`) | Exception, no guard: they read no repository and import no network module; they only print or rewrite the committed spec tables. |
+| Maintainer scripts under `tests/tools/` (gates, evidence, crucible runners, publishers) | Exception, no guard: development tooling, not an estate scan or report command; some fetch corpora or call GitHub by design. |
 
 Exceptions, refused by name when offline: the tiktoken `cl100k_base` download (token mass is left NULL; point
 `TIKTOKEN_CACHE_DIR` at a cache holding the encoding to keep it) and the opt-in LLM port runner (it calls a model
-API by design; `port_runner --offline` or `GITGALAXY_OFFLINE=1` exits naming it, #8624).
+API by design; `port_runner --offline` or `GITGALAXY_OFFLINE=1` exits naming it, and so do the porting loop's `run` and `run-many`, which
+drive it; its `report`, `adopt` and `tidy` run under the guard. `strengthen run` and `det_refine run` refuse the same way; `strengthen report` runs under the guard. `trial.py run`, which launches it, refuses too, #8624).
 
 ## Installation
 

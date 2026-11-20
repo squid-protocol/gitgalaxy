@@ -72,6 +72,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from gitgalaxy.tools.readiness import offline  # noqa: E402
+
 LEDGER = REPO_ROOT / "tests" / "cobol_mainframe" / "trials.json"
 PAGE = REPO_ROOT / "docs" / "language_status" / "fresh_estate_trials.md"
 CHART = REPO_ROOT / "docs" / "language_status" / "fresh_estate_trials.svg"
@@ -1902,7 +1904,16 @@ def main(argv: list[str] | None = None) -> int:
     rn.add_argument("--backend", choices=("det", "anthropic"), default="det",
                     help="det (default) or the registered model leg, det-then-model: needs the key and spend")  # fmt: skip
     rn.add_argument("--api-key-env", default="ANTHROPIC_API_KEY", help="the NAME of the variable holding the key")
-    opts = ap.parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    wants_offline = offline.requested(raw)
+    opts = ap.parse_args([a for a in raw if a != "--offline"])
+    if wants_offline:
+        # #8624: `run` launches `port_runner run` (det or a model backend), which refuses offline by name: refuse here too.
+        if opts.cmd == "run":
+            raise SystemExit(
+                "trial run refuses --offline / GITGALAXY_OFFLINE=1: it launches port_runner run (model API, network)"
+            )
+        offline.enable_if_requested(raw)
     if opts.cmd == "run":
         return cmd_run(opts)
     if opts.cmd == "start":

@@ -76,6 +76,56 @@
      "FSETFI": "V9"
     }
    }
+  },
+  {
+   "name": "link-tail-echo",
+   "commarea": {
+    "WS-CA": "S"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "41424344454647",
+   "aid": "DFHENTER",
+   "receive": {
+    "HXM1": {
+     "NAMEI": "JONES"
+    }
+   },
+   "why": "#7955: a LINK whose COMMAREA is longer than HXATTR's one-byte DFHCOMMAREA (8 bytes, EIBCALEN 8): the bytes past the record are kept (Storage.beyond) and go back to the caller after the first byte, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
+  },
+  {
+   "name": "link-tail-clear",
+   "commarea": {
+    "WS-CA": "S"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "C1C2C3C4C5C6C7C8C9D1D2D3",
+   "aid": "DFHCLEAR",
+   "why": "#7955: a LINK whose COMMAREA is longer than HXATTR's one-byte DFHCOMMAREA (13 bytes, EIBCALEN 13): the bytes past the record are kept (Storage.beyond) and go back to the caller after the first byte, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
+  },
+  {
+   "name": "link-long-echo",
+   "commarea": {
+    "WS-CA": "S"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F606162636465666768",
+   "aid": "DFHENTER",
+   "receive": {
+    "HXM1": {
+     "NAMEI": "JONES"
+    }
+   },
+   "why": "#7955: a LINK whose COMMAREA (41 bytes, EIBCALEN 41) is longer than HXATTR's DFHCOMMAREA storage (30 bytes): the bytes past it are kept (Storage.beyond) and go back to the caller after the first 30, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
+  },
+  {
+   "name": "link-long-clear",
+   "commarea": {
+    "WS-CA": "S"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "C1C2C3C4C5C6C7C8C9CACBCCCDCECFD0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3",
+   "aid": "DFHCLEAR",
+   "why": "#7955: a LINK whose COMMAREA (36 bytes, EIBCALEN 36) is longer than HXATTR's DFHCOMMAREA storage (30 bytes): the bytes past it are kept (Storage.beyond) and go back to the caller after the first 30, each distinct; the area each side left is compared whole (caller_bytes_diff, #7954 X10)"
   }
  ],
  "linked": true,

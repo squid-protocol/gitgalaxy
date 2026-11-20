@@ -191,6 +191,23 @@ def test_a_cancelled_leg_says_how_long_it_ran():
     assert mw.legs(jobs) == ([], ["mac 3 after 45 min", "old"])
 
 
+def test_a_cancelled_leg_with_no_steps_never_got_a_runner_8673():
+    jobs = [
+        {"name": "mac", "conclusion": "cancelled", "started_at": "2026-11-19T14:11:06Z",
+         "completed_at": "2026-11-19T14:26:07Z", "steps": []},
+        {"name": "hung", "conclusion": "cancelled", "started_at": "2026-11-19T14:11:06Z",
+         "completed_at": "2026-11-19T14:26:07Z", "steps": [{"name": "x", "conclusion": "cancelled"}]},
+        {"name": "old", "conclusion": "cancelled"},  # no steps key: unknown, not claimed
+    ]  # fmt: skip
+    _, cancelled = mw.legs(jobs)
+    assert cancelled == ["mac after 15 min" + mw.NO_RUNNER, "hung after 15 min", "old"]
+    only = mw.legs_note([], cancelled[:1])
+    assert "never got a runner" in only and "rerun" in only and "hang:" not in only
+    assert "a hang: compare" in mw.legs_note([], cancelled)  # mixed: the hang caveat stays
+    assert "a hang: compare" in mw.legs_note([], cancelled[1:2])
+    assert "never got a runner" in mw.legs_note(["f"], cancelled[:1])  # failed + starved: names the leg
+
+
 def test_main_watch_may_rerun_and_dispatch():
     """The rerun (event path) and the dispatch (reconcile) both need actions: write; the rerun reads the attempt."""
     wf = read("main-watch.yml")
@@ -230,3 +247,26 @@ def test_every_watched_workflow_exists_and_runs_on_main():
         fname, doc = by_name[name]
         assert _runs_on_main(_on(doc)), f"{fname} ({name!r}) never runs on main (no main push, schedule or dispatch)"
         assert "workflow_run" not in _on(doc), f"{fname} is itself a workflow_run consumer: Main Watch would loop"
+
+
+def test_a_never_acquired_cancelled_leg_is_a_runner_loss_8673(monkeypatch):
+    notacq = "The job was not acquired by Runner of type hosted even after multiple attempts"
+    assert mw.infra_loss([notacq])
+    jobs = [
+        {"id": 1, "name": "mac 3.11", "conclusion": "cancelled"},
+        {"id": 2, "name": "hang", "conclusion": "cancelled"},
+        {"id": 3, "name": "ok", "conclusion": "success"},
+        {"id": 4, "name": "real", "conclusion": "failure"},
+    ]
+    notes = {
+        1: [notacq],
+        2: ["The job exceeded the maximum execution time"],
+        4: ["Process completed with exit code 1."],
+    }
+    monkeypatch.setattr(mw, "paged", lambda *a, **k: jobs)
+    monkeypatch.setattr(mw, "gh", lambda *a: [{"message": m} for m in notes[int(a[1].split("/")[4])]])
+    got = mw.failed_jobs("x/y", 5)
+    assert [n for n, _ in got] == ["mac 3.11", "real"]  # the hang is not a runner loss
+    assert not mw.rerun_wanted(1, got)  # a real failure beside it: a person looks
+    assert mw.rerun_wanted(1, got[:1])
+    assert not mw.rerun_wanted(1, [])

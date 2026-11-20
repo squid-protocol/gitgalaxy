@@ -420,18 +420,6 @@
    ]
   },
   {
-   "id": "2ba3a53405",
-   "op": "CON",
-   "line": 153,
-   "before": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
-   "after": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 1, true);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses WS-U-TIME (WS-U-TIME) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
    "id": "4efde39d6b",
    "op": "CON",
    "line": 153,
@@ -1135,18 +1123,6 @@
    "after": "/* System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length); */",
    "verdict": "equivalent",
    "reason": "every read of s_ABNDINFO_REC's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
-   "tried": [
-    "inert-image"
-   ]
-  },
-  {
-   "id": "3a232c6fd9",
-   "op": "DEL",
-   "line": 338,
-   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
-   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
-   "verdict": "equivalent",
-   "reason": "every read of s_DFHEIBLK's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
    "tried": [
     "inert-image"
    ]

@@ -4,10 +4,10 @@ CICS, the macro TABLES (resource definitions) or BMS map macros. Every macro fam
 from __future__ import annotations
 
 import re
-import time
 from pathlib import Path
 
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.core import cics_macro_level as ML
 
@@ -137,10 +137,11 @@ def test_the_families_and_refusal_text():
 
 @pytest.mark.parametrize("unit", ["DFHPC TYPE=" + "A" * 50000, " " * 60000 + "DFHFC", "EXEC CICS ADDRESS " * 5000])
 def test_pathological_input_is_linear(unit):
-    t0 = time.perf_counter()
-    ML.cobol_hits([unit])
-    ML.assembler_hits(["LBL      " + unit])
-    assert time.perf_counter() - t0 < 2.0
+    def scan():
+        ML.cobol_hits([unit])
+        ML.assembler_hits(["LBL      " + unit])
+
+    assert_cpu_below(scan, 2.0, what="macro-level scan of a pathological unit")
 
 
 def test_the_register_entry_lists_every_macro_family_as_assumed():

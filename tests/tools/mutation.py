@@ -609,9 +609,19 @@ def killers(report: dict[str, Any]) -> list[str]:
             if (o["equal"] != o["records"] or o.get("diffs") or (fired and fired["cobol"] != fired["java"])
                     or o.get("files") or sql.get("equal") != sql.get("statements")):  # fmt: skip
                 out.append(name)
+        fc = report.get("facade")
+        if fc and not fc.get("proven", True):  # #8599: seen only through the deployed entry points
+            out += facade_killers(fc)
         return out
     out = ["main"] if not all(e.get("ok") for e in report.get("environments", [{"ok": True}])) else []
     return out + [f["name"] for f in report.get("faults", []) if not f.get("ok")]
+
+
+def facade_killers(facade: dict[str, Any]) -> list[str]:
+    """#8599: the scenarios a judged java-facade side failed (`<scenario> [java-facade]`); the run itself failing is
+    `java-facade`."""
+    failed = [f"{n} [java-facade]" for n, o in (facade.get("outputs") or {}).items() if not o.get("pass")]
+    return failed or ["java-facade"]
 
 
 _ORIGINAL_PROVE = prove
@@ -685,8 +695,9 @@ class _DirectContext:
                  cobol_batch: dict[str, bytes] | None = None, cobol_faults: dict[str, dict[str, bytes]] | None = None,
                  fault_props: dict[str, str] | None = None, cics_in: Path | None = None, cics_cobol_work: Path | None = None,
                  cics_files: list[dict[str, Any]] | None = None, cics_cobol: dict[str, Any] | None = None,
-                 cics_shape: Any = None, cics_ret_read: Any = None) -> None:  # fmt: skip
+                 cics_shape: Any = None, cics_ret_read: Any = None, cics_facade: bool = False) -> None:  # fmt: skip
         self.kind = kind
+        self.cics_facade = cics_facade  # #8599: the baseline was proven through the deployed entry points too
         self.case = case
         self.corpus = corpus
         self.project = project
@@ -785,7 +796,7 @@ class _DirectContext:
                 kind="cics", case=case, corpus=corpus, project=project, base_classes=base_classes,
                 env_default=env0, base_jvm_flags=base_flags, shell=shell, inputs=cics_in,
                 cics_in=cics_in, cics_cobol_work=cobol_work, cics_files=files, cics_cobol=cobol,
-                cics_shape=shape, cics_ret_read=ret_read,
+                cics_shape=shape, cics_ret_read=ret_read, cics_facade=report.get("facade") is not None,
             )
 
         inputs = baseline_work / "cobol"
@@ -862,6 +873,41 @@ class _DirectContext:
                 read[extra] = read[extra].strip()
         return 0, read
 
+    def _run_facade(self, session: Any, worker: _MutantWorker, m_id: str, area: Path,
+                    timeout: float) -> dict[str, Any] | str | None:  # fmt: skip
+        """#8599: every scenario once more through the program's deployed entry points (`-Dequivalence.facades=true`,
+        equivalence_cics._run_facade's run), judged by `judge_facade` as `run_case` judges the baseline. Without it a
+        mutant in facade-only code (handleLink, handleTransaction, lastLinkBytes) survived in process where a separate
+        run kills it (ABNDPROC `661ba858a8`). Its own epoch: a fresh class loader, as a separate JVM would be.
+        The judged facade, `"timeout"`, or None when the session JVM failed."""
+        import equivalence_cics as ec
+
+        out, datasets = area / "out", area / "datasets"
+        out.mkdir(parents=True, exist_ok=True)
+        datasets.mkdir(parents=True, exist_ok=True)
+        argline = (f"{self.base_jvm_flags} -Dequivalence.in={self.cics_in} -Dequivalence.out={out} "
+                   f"-Dequivalence.datasets={datasets} -Dequivalence.facades=true")  # fmt: skip
+        proc = session.run(argline, timeout, epoch=f"{m_id}:facade", cp=worker.cp)
+        if proc.returncode == 124:
+            return "timeout"
+        if "the session JVM" in proc.stderr:
+            return None
+        facade: dict[str, Any] = {}
+        if proc.returncode != 0:  # (run_maven raises: _run_facade records it as the facade run's error)
+            facade["error"] = (proc.stderr or proc.stdout or f"exit {proc.returncode}")[-3000:]
+        else:
+            facade["out"] = out
+            facade["events"] = ec._java_events(self.case, out, self.cics_shape, self.cics_ret_read)
+            facade["entries"], facade["refused"] = {}, {}
+            for sc in self.case["scenarios"]:
+                ent, why = out / f"{sc['name']}.entries.json", out / f"{sc['name']}.refused"
+                facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
+                if why.is_file():
+                    facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
+        assert self.cics_cobol_work is not None
+        return ec.judge_facade(self.case, self.corpus, self.cics_files, self.cics_cobol, facade, {},
+                               self.cics_cobol_work, quiet=True)  # fmt: skip
+
     def run_mutant(self, worker: _MutantWorker, m: Mutant, mw: Path, limit: float, keep: bool,
                    fault_ranks: dict[str, int]) -> dict[str, Any] | None:  # fmt: skip
         classes = mw / "classes"
@@ -908,8 +954,24 @@ class _DirectContext:
                     self.case, self.corpus, self.cics_cobol_work, out, self.cics_files,
                     self.cics_cobol, java, quiet=True,
                 )
-                kb = [] if ok else killers({"kind": "cics", "outputs": outs})
-                return {"verdict": "survived" if ok else "killed", "seconds": secs, "killed_by": kb}
+                if not ok:
+                    return {"verdict": "killed", "seconds": secs,
+                            "killed_by": killers({"kind": "cics", "outputs": outs})}  # fmt: skip
+                if self.cics_facade:  # #8599: the java-facade side, as the baseline was proven (run_case facades)
+                    left = max(1.0, deadline - time.monotonic())
+                    judged = self._run_facade(session, worker, m.id, proof / "facade", left)
+                    secs = round(time.time() - started)
+                    if judged == "timeout":
+                        poisoned = True
+                        worker.reset()
+                        return {"verdict": "timeout", "seconds": secs}
+                    if judged is None:  # the session JVM failed: the separate-run fallback judges this mutant
+                        poisoned = True
+                        worker.reset()
+                        return None
+                    if not judged["proven"]:
+                        return {"verdict": "killed", "seconds": secs, "killed_by": facade_killers(judged)}
+                return {"verdict": "survived", "seconds": secs, "killed_by": []}
 
             import equivalence as eq
 

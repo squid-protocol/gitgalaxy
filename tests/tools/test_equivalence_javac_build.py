@@ -26,7 +26,9 @@ def _project(tmp: Path, body: str = "public int one() { return 1; }") -> Path:
     (main / "Svc.java").write_text(f"package {ej.PKG};\npublic class Svc {{ {body} }}\n", encoding="utf-8")
     test = p / ej.TEST_FILE
     test.parent.mkdir(parents=True)
-    test.write_text(f"package {ej.PKG};\npublic class EquivalenceRunTest {{ int x = new Svc().one(); }}\n", encoding="utf-8")
+    test.write_text(
+        f"package {ej.PKG};\npublic class EquivalenceRunTest {{ int x = new Svc().one(); }}\n", encoding="utf-8"
+    )
     (p / "src/main/resources").mkdir(parents=True)
     (p / "src/main/resources/application.yml").write_text("spring:\n  main:\n    banner-mode: off\n", encoding="utf-8")
     (p / "pom.xml").write_text("<project/>\n", encoding="utf-8")
@@ -66,7 +68,10 @@ def test_the_record_keeps_only_the_dependencies_not_the_projects_own_classes(tmp
 
 @pytest.mark.parametrize("why", ["no record", "jar gone", "filtered resource", "compile error", "maven only"])
 def test_anything_unsure_is_left_to_maven_with_nothing_built(tmp_path, cache, monkeypatch, why):
-    p = _project(tmp_path, body="public int one() { return nope; }" if why == "compile error" else "public int one() { return 1; }")
+    p = _project(
+        tmp_path,
+        body="public int one() { return nope; }" if why == "compile error" else "public int one() { return 1; }",
+    )
     if why != "no record":
         ej._save_classpath(p, [str(tmp_path / "gone.jar")] if why == "jar gone" else [])
     if why == "filtered resource":
@@ -79,8 +84,10 @@ def test_anything_unsure_is_left_to_maven_with_nothing_built(tmp_path, cache, mo
 
 def test_two_corpora_share_a_record_their_names_aside(tmp_path, cache):
     a, b = _project(tmp_path / "a"), _project(tmp_path / "b")
-    pom = "<project><parent><artifactId>spring-boot-starter-parent</artifactId></parent><artifactId>{}</artifactId>" \
-          "<name>{}</name><dependencies><dependency><artifactId>x</artifactId></dependency></dependencies></project>"
+    pom = (
+        "<project><parent><artifactId>spring-boot-starter-parent</artifactId></parent><artifactId>{}</artifactId>"
+        "<name>{}</name><dependencies><dependency><artifactId>x</artifactId></dependency></dependencies></project>"
+    )
     (a / "pom.xml").write_text(pom.format("cics-genapp", "cics-genapp"), encoding="utf-8")
     (b / "pom.xml").write_text(pom.format("cics-cbsa", "cics-cbsa"), encoding="utf-8")
     assert ej._pom_key(a) == ej._pom_key(b)
@@ -110,6 +117,22 @@ def test_reuse_takes_the_classpath_a_javac_built_baseline_recorded_when_it_has_n
     assert (mutant / ej.PRECOMPILED).is_file()
     assert (mutant / "target/classes" / ej.PKG_DIR / "Svc.class").stat().st_mtime >= (
         base / "target/classes" / ej.PKG_DIR / "Svc.class").stat().st_mtime  # fmt: skip
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="needs a symlink")
+def test_reuse_maps_the_recorded_classpath_when_earlier_is_the_resolved_spelling_of_a_symlink(tmp_path, cache):
+    real = tmp_path / "real"
+    real.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(real)
+    base = _project(link / "earlier")  # recorded through the symlink spelling
+    ej._save_classpath(base, [str(base / "target/test-classes"), str(base / "target/classes")])
+    assert ej._javac_build(base, _shell())
+    mutant = _project(tmp_path / "mutant", body="public int one() { return 2; }")
+    shutil.copytree(base / "target", mutant / "target")
+    ej._compile_overlay(mutant, (link / "earlier").resolve(), ["Svc.java"], tmp_path / "work")
+    recorded = (mutant / ej.TEST_CLASSPATH).read_text(encoding="utf-8").split(os.pathsep)
+    assert recorded[:2] == [str(mutant / "target/test-classes"), str(mutant / "target/classes")]
 
 
 def test_reuse_with_neither_a_report_nor_a_record_says_so(tmp_path):

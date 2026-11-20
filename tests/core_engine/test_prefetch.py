@@ -119,9 +119,10 @@ def test_lead_window_waits_for_the_pool_and_stop_is_prompt(tmp_path, monkeypatch
     h = pf.start_prefetch(str(tmp_path), entries, environ={pf.PREFETCH_ENV: "1"})
     time.sleep(0.3)
     assert h.files == 1  # parked: the pool has consumed nothing
-    t0 = time.monotonic()
-    h.stop()
-    assert time.monotonic() - t0 < 2
+    thread = h._thread
+    h.stop()  # prompt: stop() joins its thread with a bounded timeout, so a thread still alive here is the failure
+    assert thread is not None
+    assert not thread.is_alive()
     assert not any(t.name == "gg-prefetch" and t.is_alive() for t in __import__("threading").enumerate())
     h2 = pf.start_prefetch(str(tmp_path), entries, environ={pf.PREFETCH_ENV: "1"})
     for _ in range(3):

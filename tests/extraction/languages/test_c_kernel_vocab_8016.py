@@ -1,8 +1,7 @@
 """#8016: kernel / BSD / Windows C vocabulary in the C sync_locks, io, alloc, cleanup rules."""
 
-import time
-
 import pytest
+from _timing import REDOS_LIMIT_S, assert_cpu_below
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -84,9 +83,7 @@ def test_existing_vocabulary_still_matches():
 
 def test_kernel_vocab_redos_immune():
     for sig in ("sync_locks", "io", "memory_alloc", "cleanup"):
-        t = time.perf_counter()
-        R[sig].search("spin_lock_" * 5000 + "readl" * 5000)
-        assert time.perf_counter() - t < 1.0
+        assert_cpu_below(lambda: R[sig].search("spin_lock_" * 5000 + "readl" * 5000), REDOS_LIMIT_S, what=sig)
 
 
 def test_apmu_enable_shape_reads_lock_and_io():

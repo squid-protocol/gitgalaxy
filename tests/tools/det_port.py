@@ -77,6 +77,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     import equivalence as eq
 
     from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.port_runner import write_paragraph_methods
 
     case = eq.load_case(name)
     stub = _service_stub(project, case["program"], case["program_source"])
@@ -105,8 +106,10 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     translated.append(r)
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    write_paragraph_methods(port / "service" / f"{r.service}.java", r.stats.get("paragraph_methods"))
     for x in r.extra:  # #5106: the sibling programs of the same source the program CALLs, each its own service
         (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
+        write_paragraph_methods(port / "service" / f"{x.service}.java", x.stats.get("paragraph_methods"))
         r.stats["statements"] += x.stats["statements"]
         r.stats["translated"] += x.stats["translated"]
         r.stats["holes"] = [*r.stats["holes"], *x.stats["holes"]]
@@ -123,6 +126,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out
         (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
+        write_paragraph_methods(port / "service" / f"{x.service}.java", x.stats.get("paragraph_methods"))
         r.stats["statements"] += x.stats["statements"]
         r.stats["translated"] += x.stats["translated"]
         r.stats["holes"] += x.stats["holes"]

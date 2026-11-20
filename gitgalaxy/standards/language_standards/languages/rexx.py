@@ -204,7 +204,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety (#2869): SIGNAL ON / CALL ON install a condition handler --
+        # safety (Defensive Checks: SIGNAL ON / CALL ON handlers, IF RC tests) (#2869): SIGNAL ON / CALL ON install a condition handler --
         # REXX's try/catch -- and the z/OS return-code test `IF RC` / `WHEN
         # RC` is the response check every host-command exec writes (PL/I's
         # `IF SQLCODE` precedent). `¬` and `\` are REXX's negation characters.

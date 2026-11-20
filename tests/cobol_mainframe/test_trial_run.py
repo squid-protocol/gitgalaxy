@@ -124,3 +124,26 @@ def test_run_defaults_to_the_det_backend_and_names_the_model_leg():
     assert "--backend anthropic" in doc and "run_summary_anthropic.json" in doc
     src = (Path(trial.__file__)).read_text(encoding="utf-8")
     assert 'choices=("det", "anthropic"), default="det"' in src
+
+
+def test_offline_refuses_trial_run_by_name(monkeypatch):
+    """#8624: `trial run` launches `port_runner run`, so --offline and GITGALAXY_OFFLINE=1 stop it by name."""
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    args = ["run", "t", "--estate-path", "e", "--work", "w"]
+    with pytest.raises(SystemExit, match="trial run refuses --offline"):
+        trial.main([*args, "--offline"])
+    monkeypatch.setenv("GITGALAXY_OFFLINE", "1")
+    with pytest.raises(SystemExit, match="trial run refuses --offline"):
+        trial.main(args)
+
+
+def test_offline_runs_other_trial_subcommands_under_the_guard(monkeypatch):
+    """#8624: `verify` etc. need no model: with --offline they run and the guard is installed."""
+    from gitgalaxy.tools.readiness import offline
+
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    seen = []
+    monkeypatch.setattr(offline, "enable_if_requested", lambda argv=None: seen.append(argv) or True)
+    monkeypatch.setattr(trial, "cmd_verify", lambda opts: 0)
+    assert trial.main(["verify", "t", "--offline"]) == 0
+    assert seen

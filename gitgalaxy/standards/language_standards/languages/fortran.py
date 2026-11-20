@@ -251,7 +251,7 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Fortification markers establishing strict boundaries: explicit typing (`IMPLICIT NONE`),
         # explicit intent (`INTENT(IN)`), bounds safety (`ALLOCATABLE`), and fatal assertions (`ERROR STOP`).
         # BUG FIX: the shared trailing `\b` broke the INTENT(...) alternative,

@@ -253,7 +253,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards, validation)
         # C1: Optional is a type name; @Immutable/@Transactional are not runtime validation.
         "safety": re.compile(
             r"\b(try|catch|finally|assert|Objects\.requireNonNull|instanceof)\b|@(Valid|Validated|NotNull|NonNull|NotBlank)\b"

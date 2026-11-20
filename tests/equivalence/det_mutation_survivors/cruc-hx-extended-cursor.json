@@ -246,21 +246,6 @@
    ]
   },
   {
-   "id": "71297bb4fe",
-   "op": "CON",
-   "line": 74,
-   "before": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 6, false);",
-   "after": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 7, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
    "id": "04a365dcc8",
    "op": "CON",
    "line": 75,
@@ -297,18 +282,21 @@
    ]
   },
   {
-   "id": "4e41ee0b76",
+   "id": "71297bb4fe",
    "op": "CON",
    "line": 77,
-   "before": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 7, false);",
-   "after": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 8, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "before": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 6, false);",
+   "after": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 7, false);",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..6 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). ACCTO is followed by AMOUNTL.",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -345,6 +333,24 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: map attribute MSGH: SEND MAP reads its first byte only, and the mutant keeps it (the line is `private final Field f33_MSGH = Field.alphanumeric(s_HXM2I, 39, 1, false);`)",
    "tried": [
     "solver-unobservable"
+   ]
+  },
+  {
+   "id": "4e41ee0b76",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 7, false);",
+   "after": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 8, false);",
+   "verdict": "equivalent",
+   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..7 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). AMOUNTO is followed by MSGL.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3214,6 +3220,24 @@
    ]
   },
   {
+   "id": "dca3283b82",
+   "op": "LIT",
+   "line": 442,
+   "before": "values1.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
+   "after": "values1.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
+   ]
+  },
+  {
    "id": "63063d90d0",
    "op": "DEL",
    "line": 443,
@@ -3223,6 +3247,42 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "80e4b86df4",
+   "op": "LIT",
+   "line": 443,
+   "before": "DetCics.subfields(sub2, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
+   "after": "DetCics.subfields(sub2, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
+   ]
+  },
+  {
+   "id": "eed786b475",
+   "op": "LIT",
+   "line": 444,
+   "before": "values1.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
+   "after": "values1.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3247,6 +3307,24 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "fbcf71a72b",
+   "op": "LIT",
+   "line": 447,
+   "before": "DetCics.subfields(sub2, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
+   "after": "DetCics.subfields(sub2, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3301,54 +3379,6 @@
    ]
   },
   {
-   "id": "dca3283b82",
-   "op": "LIT",
-   "line": 474,
-   "before": "values1.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
-   "after": "values1.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
-   ]
-  },
-  {
-   "id": "80e4b86df4",
-   "op": "LIT",
-   "line": 475,
-   "before": "DetCics.subfields(sub2, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "after": "DetCics.subfields(sub2, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
-   ]
-  },
-  {
-   "id": "eed786b475",
-   "op": "LIT",
-   "line": 476,
-   "before": "values1.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "after": "values1.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
-   ]
-  },
-  {
    "id": "5af3fd2106",
    "op": "LIT",
    "line": 477,
@@ -3358,22 +3388,6 @@
    "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "subfield-unset"
-   ]
-  },
-  {
-   "id": "fbcf71a72b",
-   "op": "LIT",
-   "line": 479,
-   "before": "DetCics.subfields(sub2, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "after": "DetCics.subfields(sub2, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
    ]
   },
   {
@@ -3410,6 +3424,24 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "afc3aae14e",
+   "op": "LIT",
+   "line": 486,
+   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f8_ACCTI, f3_ACCTL, typed6.get(\"ACCT\"), CS, \"LEFT,BLANK\");",
+   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f8_ACCTI, f3_ACCTL, typed6.get(\"ACCT\"), CS, \"XEFT,BLANK\");",
+   "verdict": "equivalent",
+   "reason": "DetJustify.place passes the justify string to `contains(\"RIGHT\")` and `contains(\"ZERO\")` only (DetJustify.java:18); the mutated string keeps neither word, so it places LEFT with a space fill exactly as `LEFT,BLANK` does. A rename of a keyword the method never matches on cannot change a byte.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3458,6 +3490,24 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "907e48a4f6",
+   "op": "LIT",
+   "line": 491,
+   "before": "if (typed6.get(\"MSG\") != null) {",
+   "after": "if (typed6.get(\"XSG\") != null) {",
+   "verdict": "equivalent",
+   "reason": "RECEIVE's typed MSG placement is skipped (the key is renamed so `typed6.get` is always null). MSGI shares its 30 bytes with MSGO and every send after it writes MSGO in full first (a MOVE of a literal, which pads the whole field, or SPACES then STRING), so the placed text is never read; MSGL is only compared when it is -1, and the placement stores 0 or more.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3563,22 +3613,22 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "afc3aae14e",
+   "id": "8f0044f63a",
    "op": "LIT",
    "line": 518,
-   "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f8_ACCTI, f3_ACCTL, typed6.get(\"ACCT\"), CS, \"LEFT,BLANK\");",
-   "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f8_ACCTI, f3_ACCTL, typed6.get(\"ACCT\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "907e48a4f6",
-   "op": "LIT",
-   "line": 523,
-   "before": "if (typed6.get(\"MSG\") != null) {",
-   "after": "if (typed6.get(\"XSG\") != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "before": "DetCics.subfields(sub10, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
+   "after": "DetCics.subfields(sub10, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
+   ]
   },
   {
    "id": "104999b42f",
@@ -3641,6 +3691,42 @@
    ]
   },
   {
+   "id": "2def5febb4",
+   "op": "LIT",
+   "line": 537,
+   "before": "DetCics.subfields(sub14, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
+   "after": "DetCics.subfields(sub14, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
+   ]
+  },
+  {
+   "id": "2d68f6c698",
+   "op": "LIT",
+   "line": 541,
+   "before": "DetCics.subfields(sub14, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
+   "after": "DetCics.subfields(sub14, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
+   "tried": [
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
+   ]
+  },
+  {
    "id": "c0f11888a3",
    "op": "LIT",
    "line": 548,
@@ -3650,22 +3736,6 @@
    "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "subfield-unset"
-   ]
-  },
-  {
-   "id": "8f0044f63a",
-   "op": "LIT",
-   "line": 550,
-   "before": "DetCics.subfields(sub10, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "after": "DetCics.subfields(sub10, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
    ]
   },
   {
@@ -3780,19 +3850,21 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "2def5febb4",
+   "id": "28c31429c3",
    "op": "LIT",
-   "line": 569,
-   "before": "DetCics.subfields(sub14, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "after": "DetCics.subfields(sub14, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "line": 570,
+   "before": "values17.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
+   "after": "values17.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3808,19 +3880,21 @@
    ]
   },
   {
-   "id": "2d68f6c698",
+   "id": "143f9caa95",
    "op": "LIT",
-   "line": 573,
-   "before": "DetCics.subfields(sub14, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "after": "DetCics.subfields(sub14, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "line": 572,
+   "before": "values17.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
+   "after": "values17.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
+   "verdict": "equivalent",
+   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "s2-ext-bad-short-acct",
+    "s2-ext-dto-first",
+    "s2-ext-dto-z",
+    "s2-ext-dto-z-pf5",
+    "s2-ext-good-1byte-entry",
+    "s2-ext-pf5-1byte-entry",
+    "s2-ext-typed-all"
    ]
   },
   {
@@ -3942,38 +4016,6 @@
    "after": "/* Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS); */",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "28c31429c3",
-   "op": "LIT",
-   "line": 602,
-   "before": "values17.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
-   "after": "values17.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
-   ]
-  },
-  {
-   "id": "143f9caa95",
-   "op": "LIT",
-   "line": 604,
-   "before": "values17.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "after": "values17.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
-   "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
-   ]
   },
   {
    "id": "ed0122b913",

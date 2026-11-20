@@ -92,3 +92,80 @@ def test_the_inventory_doc_is_current():
     # a workflow change that adds, wraps or removes a network step regenerates the doc:
     #   python tests/tools/ci_network_inventory.py --write
     assert inv.DOC.read_text(encoding="utf-8") == inv.render(inv.inventory())
+
+
+# --- the shrink-only lint (#8424, checklist c:2a39ee9b and c:2f8322e8) ---------------------------------------------
+
+_FETCHES = [
+    "pip install foo",
+    "sudo apt-get install -y x",
+    "npm install x",
+    "rustup toolchain install 1.90.0",
+    "docker pull x:1",
+    "mvn -q package",
+    "git clone https://example.invalid/r.git",
+    "curl -fsSL https://example.invalid/x",
+    "gh release download v1 -R o/r",
+    "gh api repos/o/r/issues/1",
+]
+
+
+def _keys(script, **extra):
+    rows = [
+        {"workflow": "w.yml", "job": "j", "step": "s", "kind": k, "guard": g}
+        for k, g in inv.classify_step({"run": script, **extra})
+    ]
+    return inv.bare_keys(rows)
+
+
+@pytest.mark.parametrize("script", _FETCHES)
+def test_a_bare_fetch_of_every_kind_is_a_lint_key_and_a_wrapped_or_advisory_one_is_not(script):
+    assert _keys(script)
+    assert not _keys(RETRY + script)
+    assert not _keys(script, **{"continue-on-error": True})
+
+
+def test_every_bare_step_and_advisory_upload_is_in_the_baseline_and_the_baseline_only_shrinks():
+    import json
+
+    base = json.loads(inv.BASELINE.read_text(encoding="utf-8"))
+    # NEW: wrap the step in tests/tools/ci_retry.sh (or mark an advisory upload continue-on-error: true).
+    # STALE: delete the entry (python tests/tools/ci_network_inventory.py --write-baseline).
+    assert inv.baseline_problems(base, inv.current_baseline()) == []
+
+
+def test_baseline_problems_names_new_and_stale_entries():
+    now = {"bare": ["a|j|s|pip"], "advisory_uploads": []}
+    assert inv.baseline_problems({"bare": ["a|j|s|pip"], "advisory_uploads": []}, now) == []
+    assert inv.baseline_problems({"bare": [], "advisory_uploads": []}, now) == ["NEW bare: a|j|s|pip"]
+    stale = inv.baseline_problems({"bare": ["a|j|s|pip"], "advisory_uploads": ["w|j|s"]}, now)
+    assert stale == ["STALE advisory_uploads (fixed, delete the entry): w|j|s"]
+
+
+def _wf(tmp_path, steps, name="w.yml"):
+    import yaml
+
+    (tmp_path / name).write_text(yaml.safe_dump({"jobs": {"j": {"steps": steps}}}), encoding="utf-8")
+    return tmp_path
+
+
+def _up(name, art, **extra):
+    return {"name": name, "uses": "actions/upload-artifact@x", "with": {"name": art}, **extra}
+
+
+def test_an_advisory_named_upload_must_be_non_fatal(tmp_path):
+    wf = _wf(tmp_path, [_up("Keep the logs", "logs"), _up("Upload test times", "t", **{"continue-on-error": True})])
+    assert inv.advisory_upload_offenders(wf) == ["w.yml|j|Keep the logs"]
+
+
+def test_an_upload_a_later_job_downloads_is_a_hand_off_not_advisory(tmp_path):
+    handoff = {"uses": "actions/download-artifact@x", "with": {"name": "det-durations"}}
+    wf = _wf(tmp_path, [_up("Hand the durations on", "det-durations"), handoff])
+    assert inv.advisory_upload_offenders(wf) == []
+    pattern = {"uses": "actions/download-artifact@x", "with": {"pattern": "shard-*"}}
+    wf = _wf(tmp_path, [_up("Keep this shard's results", "shard-${{ i }}"), pattern], name="p.yml")
+    assert inv.advisory_upload_offenders(wf) == []
+
+
+def test_an_upload_that_is_not_advisory_by_name_is_left_alone(tmp_path):
+    assert inv.advisory_upload_offenders(_wf(tmp_path, [_up("Upload the SBOM", "sbom")])) == []

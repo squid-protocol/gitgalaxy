@@ -49,6 +49,12 @@
   },
   "mvs-da": {
    "title": "IBM z/OS MVS Data Areas (PSA, TCB, TIOT)"
+  },
+  "mq-refdev": {
+   "title": "IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)"
+  },
+  "mq-dev": {
+   "title": "IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)"
   }
  },
  "options": {
@@ -4543,8 +4549,11 @@
     "qm",
     "qname"
    ],
-   "ibm": null,
-   "ibm_note": "the queues are the case's facts, not a z/OS queue manager's",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQOPEN: reason code MQRC_UNKNOWN_OBJECT_NAME (2085)"
+   },
+   "ibm_note": "IBM documents 2085 for a name the queue manager cannot find; which queues exist, their CCSID and messages are the case's facts, not a z/OS queue manager's",
    "options": [],
    "register": [
     "W1",
@@ -4579,8 +4588,11 @@
     "resolveOd",
     "handle"
    ],
-   "ibm": null,
-   "ibm_note": "the handle value is opaque in IBM's; the runtime's numbering is the oracle's",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQOPEN: Hobj (MQHOBJ) - output"
+   },
+   "ibm_note": "IBM: the handle \"ceases to be valid when the MQCLOSE call is issued\" and is passed to later calls; its value is not defined, so the runtime's 1, 2, 3 numbering is the oracle's",
    "options": [],
    "register": [
     "W3",
@@ -4596,8 +4608,11 @@
    "methods": [
     "mqclose"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents the handle's reset; the options handled are those the model gives meaning to",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQCLOSE: Hobj (MQHOBJ) - input/output"
+   },
+   "ibm_note": "IBM sets Hobj to MQHO_UNUSABLE_HOBJ, but adds \"On z/OS, Hobj is set to a value that is undefined\"; the runtime's -1 is a choice where IBM leaves the z/OS value open (W4)",
    "options": [],
    "register": [
     "W4"
@@ -4614,8 +4629,11 @@
     "before",
     "add"
    ],
-   "ibm": null,
-   "ibm_note": "no concurrent producer is assumed; conversion beyond the identity is refused",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQGET: MQGMO_WAIT / WaitInterval, MQGMO_CONVERT; queue attribute MsgDeliverySequence"
+   },
+   "ibm_note": "priority-then-FIFO order matches MQMDS_PRIORITY; whether a queue is PRIORITY or FIFO by default is not in the text read (W3 contradicts itself); IBM waits the interval before 2033, the models answer at once on the no-producer assumption (W2)",
    "options": [],
    "register": [
     "W2",
@@ -4636,15 +4654,18 @@
     "put",
     "putEvent"
    ],
-   "ibm": null,
-   "ibm_note": "the MsgId form and identity-context placeholders are the oracle's",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQMD: MsgId (MQBYTE24); MQPMO: context options (Table 529)"
+   },
+   "ibm_note": "IBM: a generated MsgId starts with a 4-byte product identifier (CSQ + blank on z/OS); the runtime's GGMQ + counter is the oracle's, declared in W4. The put-context fields match Table 529 (identity fields placeholders, W4)",
    "options": [],
    "register": [
     "W3",
     "W4",
     "W8"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -4655,8 +4676,11 @@
     "uowEnd",
     "end"
    ],
-   "ibm": null,
-   "ibm_note": "IBM's rule is modelled; the oracle's joint syncpoint with ggcics.c is assumed",
+   "ibm": {
+    "doc": "mq-dev",
+    "section": "Syncpoints in CICS Transaction Server for z/OS applications"
+   },
+   "ibm_note": "SYNCPOINT, SYNCPOINT ROLLBACK, the normal-end commit, the abnormal-end backout and BackoutCount are as IBM says; the z/OS cap of 255 on BackoutCount is not applied, and the joint syncpoint with ggcics.c is the oracle's (W5)",
    "options": [],
    "register": [
     "W5"

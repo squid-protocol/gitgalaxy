@@ -1,7 +1,7 @@
 """#8413 slice 3: IBM-written answers for GDG relative generations.
 
 `tests/equivalence/jcl/gdg/scenarios.json` holds the `flow_jcl` lines (six jobs: reading (0) / (-1) / (-2), a (+1)
-created and read in one job, (+1) and (+2), abnormal dispositions, a bypassed creator, a PASSed generation) and the
+created and read in one job, (+1) and (+2), abnormal dispositions, a bypassed creator, a PASSed generation, a lone (+2), NEW,KEEP) and the
 answers: the absolute generation each DD names and the catalog after the job. The answers were written from IBM's
 z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets BEFORE `gitgalaxy.core.jcl_gdg` ran on them;
 ASSUMED entries are named in the file. The last tests reproduce every `expect` and `catalog_after`.
@@ -106,8 +106,18 @@ def test_a_passed_generation_never_received_and_a_removing_disposition_are_refus
         _run(scratch, "J", CAT, {"A": {"rc": 0}})
 
 
-def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_not_cataloged():
+def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_a_deferred_roll_in():
     dflt = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW)\n"
     assert _run(dflt, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
     keep = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,KEEP)\n"
-    assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
+    assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2], "deferred_rollin": [3]}}
+
+
+def test_a_group_with_no_generation_to_name_is_refused_and_empty_is_carried_to_the_next_job():
+    first = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match=r"no cataloged generation \(0\)"):
+        _run(first, "J", {"G.B": {"limit": 2, "generations": []}}, {"A": {"rc": 0}})
+    make = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n"
+    after = _run(make, "J", {"G.B": {"limit": 2, "empty": True, "generations": [1, 2]}}, {"A": {"rc": 0}})[1]
+    assert after == {"G.B": {"limit": 2, "empty": True, "generations": [3]}}
+    assert "empty" not in _run(make, "J", CAT, {"A": {"rc": 0}})[1]["G.B"]

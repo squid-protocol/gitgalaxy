@@ -55,7 +55,17 @@
     "//P1       EXEC PGM=MAKE",
     "//POUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
     "//P2       EXEC PGM=ADD",
-    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)"
+    "//PIN      DD DSN=PAY.GDG(+1),DISP=(OLD,CATLG)",
+    "//*",
+    "//SKIPJOB  JOB (ACCT),'GDG SKIP',CLASS=A,MSGCLASS=X",
+    "//S1       EXEC PGM=MAKE",
+    "//SOUT     DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//*",
+    "//KEEPJOB  JOB (ACCT),'GDG KEEP',CLASS=A,MSGCLASS=X",
+    "//K1       EXEC PGM=MAKE",
+    "//KOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,KEEP)",
+    "//K2       EXEC PGM=USE",
+    "//KIN      DD DSN=PAY.GDG(+1),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -427,12 +437,208 @@
         }
       },
       "basis": "Generation data group LIMIT: the group holds at most LIMIT generations (3). Rolling 8 in makes the oldest, 5, drop out of the catalog; whether 5 is also scratched (deleted) depends on the group's SCRATCH / NOSCRATCH attribute and is not answered here. Relative numbers in the job are unchanged by the limit."
+    },
+    {
+      "id": "plus-two-alone-skips-a-number",
+      "job": "SKIPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "S1.SOUT": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Relative generation number': the absolute number assigned depends on the number last assigned (7) and the relative number (+2), and 'if you have a single step job, and the generation being cataloged is a +2, one generation number is skipped' (8). So S1.SOUT names 9 and 9 is cataloged at job end; 8 is never cataloged."
+    },
+    {
+      "id": "rel-read-after-skipped-number",
+      "job": "RDJOB",
+      "catalog_from": "plus-two-alone-skips-a-number",
+      "given": {
+        "R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R1.I0": 9,
+        "R1.I1": 7,
+        "R1.I2": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            9
+          ]
+        }
+      },
+      "assumed": "A4",
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Relative generation number': a relative number 'tells the system the location of an entry representing a previously cataloged generation'. The catalog holds 5, 6, 7, 9, so (0) = 9 and (-1) is the entry before it, 7, not the missing 8; (-2) = 6. ASSUMED (A4): the manual says 'location of an entry' but never works an example across a skipped number."
+    },
+    {
+      "id": "empty-rolls-off-every-generation-at-limit",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            8
+          ]
+        }
+      },
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': 'If a GDG is defined using DEFINE GENERATIONDATAGROUP EMPTY, and is at its limit, then, when a new generation data set is rolled in, all the currently active generation data sets are rolled off.' The group holds 3 of its limit 3, so the roll-in at the end-of-job step leaves only 8. The names in the job are resolved at job start, as in create-then-read-same-job."
+    },
+    {
+      "id": "empty-below-limit-rolls-off-nothing",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': EMPTY empties the group only when it 'is at its limit'. It holds 2 of 3, so 8 is rolled in and nothing rolls off."
+    },
+    {
+      "id": "new-keep-is-a-deferred-roll-in",
+      "job": "KEEPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "K1": {
+          "rc": 0
+        },
+        "K2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "K1.KOUT": 8,
+        "K2.KIN": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "z/OS DFSMS Using Data Sets, chapter 29 'Processing generation data groups', 'Rolling In a Generation Data Set': 'Generation data sets can be in a deferred roll-in state if ... they are allocated with a DISP=(NEW,KEEP)', and 'Refer to generation data sets that are in a deferred roll-in state by their relative number, such as (+1), within the job that allocates it.' So K2 reads (+1) = 8, the generation K1 kept; 8 is not rolled into the active group at job end (the active generations stay 5, 6, 7) and waits, to be named by its absolute number in a later job. ASSUMED (A5): the group is system-managed, which is the case the manual's deferred roll-in text describes."
     }
   ],
   "assumed": [
     {
       "id": "A2",
       "text": "A generation whose creating step abends under (NEW,CATLG,DELETE) is not cataloged, and under (NEW,CATLG) is, per the DISP text; the absolute number is still consumed by that job only (the next job reuses it)."
+    },
+    {
+      "id": "A4",
+      "text": "A negative relative number counts entries of the generation index, so a number skipped by a (+2) is not counted: with 5, 6, 7, 9 cataloged, (-1) is 7."
+    },
+    {
+      "id": "A5",
+      "text": "The GDG is system-managed; the manual states the deferred roll-in of NEW,KEEP only for that case."
     }
   ],
   "refused": [
@@ -449,8 +655,16 @@
       "why": "the manual's disposition of an unreceived passed dataset is not answered here"
     },
     {
-      "construct": "DISP=(NEW,KEEP) or UNCATLG generations, absolute names (G0007V00), roll-in of EMPTY / SCRATCH groups, DISP=MOD (+1)",
+      "construct": "UNCATLG generations, absolute names (G0007V00), the SCRATCH / NOSCRATCH fate of a rolled-off generation, DISP=MOD (+1)",
       "why": "not covered by this slice"
+    },
+    {
+      "construct": "the (+1) number of a job that follows one that left a generation in deferred roll-in (NEW,KEEP)",
+      "why": "the manual says the number depends on 'the number last assigned' but not whether a deferred generation counts"
+    },
+    {
+      "construct": "a job that never reaches the end-of-job step (a CATLG generation left in deferred roll-in)",
+      "why": "the manual lists it as a deferred-roll-in cause; the step-flow model only ends jobs normally"
     }
   ]
 }

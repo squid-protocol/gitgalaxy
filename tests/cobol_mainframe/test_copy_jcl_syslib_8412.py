@@ -245,13 +245,11 @@ def test_a_symbolic_library_in_a_direct_compile_step_reads_the_jobs_set():
 # --- an in-stream PROC .. PEND (searched before the libraries) and INCLUDE groups spliced in place ---
 
 
-def instream_job(call: str = "//BUILD    EXEC FAKECOB\n", proc: str = PROC, pre: str = "", member: str = "MAINPG") -> str:
+def instream_job(
+    call: str = "//BUILD    EXEC FAKECOB\n", proc: str = PROC, pre: str = "", member: str = "MAINPG"
+) -> str:
     return (
-        "//FAKEJOB  JOB (ACCT),'FAKE'\n"
-        + pre
-        + proc
-        + call
-        + f"//COB.SYSIN DD DSN=FAKE.SRC.COBOL({member}),DISP=SHR\n"
+        "//FAKEJOB  JOB (ACCT),'FAKE'\n" + pre + proc + call + f"//COB.SYSIN DD DSN=FAKE.SRC.COBOL({member}),DISP=SHR\n"
     )
 
 
@@ -301,7 +299,9 @@ def test_a_job_set_beside_an_instream_default_is_unresolved(tmp_path):
 
 
 def test_an_instream_proc_with_two_compile_steps_is_not_guessed(tmp_path):
-    proc = PROC.replace("//FAKECOB  PEND", "//COB2     EXEC PGM=IGYCRCTL\n//SYSLIB   DD DSN=FAKE.OTHER.COPYC,DISP=SHR\n//FAKECOB  PEND")
+    proc = PROC.replace(
+        "//FAKECOB  PEND", "//COB2     EXEC PGM=IGYCRCTL\n//SYSLIB   DD DSN=FAKE.OTHER.COPYC,DISP=SHR\n//FAKECOB  PEND"
+    )
     write(tmp_path, "jcl/BUILD.jcl", instream_job(proc=proc))
     assert jcl_syslib_orders(str(tmp_path)) == {}
 
@@ -320,7 +320,11 @@ def include_job(order: str = "FAKE.INCLIB", include: str = "SYSLG") -> str:
 
 
 def test_an_include_group_supplies_the_syslib_dd(tmp_path):
-    write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n//         DD DSN=FAKE.PROD.COPYA\n")
+    write(
+        tmp_path,
+        "inc/INCLIB/SYSLG.jcl",
+        "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n//         DD DSN=FAKE.PROD.COPYA\n",
+    )
     write(tmp_path, "jcl/BUILD.jcl", include_job())
     assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
 
@@ -336,7 +340,9 @@ def test_an_include_group_nests_and_follows_the_jcllib_order(tmp_path):
 def test_an_include_group_set_resolves_a_symbolic_library(tmp_path):
     write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//         SET HLQ=FAKE.PROD\n")
     text = include_job().replace("//COB      EXEC", "//         INCLUDE MEMBER=SYSLG\n//COB      EXEC", 1)
-    text = text.rsplit("//         INCLUDE", 1)[0] + syslib("&HLQ..COPYB")  # the group ahead of the step, SYSLIB after it
+    text = text.rsplit("//         INCLUDE", 1)[0] + syslib(
+        "&HLQ..COPYB"
+    )  # the group ahead of the step, SYSLIB after it
     write(tmp_path, "jcl/BUILD.jcl", text)
     assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB"]}
 
@@ -359,9 +365,7 @@ def test_an_include_group_that_cannot_be_read_leaves_the_order_unknown(tmp_path,
 
 
 def test_an_include_inside_an_instream_proc_is_spliced_in_the_proc(tmp_path):
-    proc = (
-        "//FAKECOB  PROC\n//COB      EXEC PGM=IGYCRCTL\n//         INCLUDE MEMBER=SYSLG\n//FAKECOB  PEND\n"
-    )
+    proc = "//FAKECOB  PROC\n//COB      EXEC PGM=IGYCRCTL\n//         INCLUDE MEMBER=SYSLG\n//FAKECOB  PEND\n"
     write(tmp_path, "inc/INCLIB/SYSLG.jcl", "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n")
     text = instream_job(proc=proc, pre="//PROCS    JCLLIB ORDER=(FAKE.INCLIB)\n")
     write(tmp_path, "jcl/BUILD.jcl", text)

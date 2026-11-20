@@ -384,7 +384,9 @@ def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
         found[key] = libs if found.get(key, libs) == libs else None
 
     members = {(lib, stem): text for lib, stem, text in texts}
-    groups: dict[str, dict[str, str]] = {}  # {library: {member: text}}, what a JCLLIB order searches (INCLUDE groups too)
+    groups: dict[
+        str, dict[str, str]
+    ] = {}  # {library: {member: text}}, what a JCLLIB order searches (INCLUDE groups too)
     for (lib, stem), mtext in members.items():
         groups.setdefault(lib, {})[stem] = mtext
     for _lib, _stem, text in texts:

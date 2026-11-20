@@ -300,18 +300,30 @@
     0,
     0
    ],
-   "carddemo-cobtupdt": [
-    9,
-    9,
-    16,
-    20
-   ],
-   "carddemo-cobtupdt-generated": [
-    9,
-    9,
-    16,
-    20
-   ],
+   "carddemo-cobtupdt": {
+    "coverage": [
+     9,
+     9,
+     16,
+     20
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "carddemo-cobtupdt-generated": {
+    "coverage": [
+     9,
+     9,
+     16,
+     20
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "carddemo-codate01": [
     13,
     13,
@@ -330,42 +342,78 @@
     90,
     93
    ],
-   "carddemo-copaus1c": [
-    15,
-    15,
-    50,
-    50
-   ],
-   "carddemo-copaus2c": [
-    2,
-    2,
-    6,
-    6
-   ],
-   "carddemo-copaus2c-generated": [
-    2,
-    2,
-    6,
-    6
-   ],
-   "carddemo-cotrtlic": [
-    59,
-    59,
-    218,
-    230
-   ],
-   "carddemo-cotrtlic-generated": [
-    53,
-    59,
-    156,
-    230
-   ],
-   "carddemo-cotrtupc": [
-    63,
-    63,
-    140,
-    166
-   ],
+   "carddemo-copaus1c": {
+    "coverage": [
+     15,
+     15,
+     50,
+     50
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "carddemo-copaus2c": {
+    "coverage": [
+     2,
+     2,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "carddemo-copaus2c-generated": {
+    "coverage": [
+     2,
+     2,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "carddemo-cotrtlic": {
+    "coverage": [
+     59,
+     59,
+     218,
+     230
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "carddemo-cotrtlic-generated": {
+    "coverage": [
+     53,
+     59,
+     156,
+     230
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "carddemo-cotrtupc": {
+    "coverage": [
+     63,
+     63,
+     140,
+     166
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "carddemo-dailyval": [
     18,
     18,
@@ -594,120 +642,234 @@
     2,
     2
    ],
-   "cbsa-acctctrl": [
-    7,
-    7,
-    2,
-    2
-   ],
-   "cbsa-acctctrl-generated": [
-    7,
-    7,
-    2,
-    2
-   ],
-   "cbsa-bankdata": [
-    24,
-    24,
-    47,
-    48
-   ],
-   "cbsa-bnk1cac": [
-    25,
-    25,
-    77,
-    97
-   ],
-   "cbsa-bnk1cac-generated": [
-    25,
-    25,
-    59,
-    97
-   ],
-   "cbsa-bnk1cca": [
-    25,
-    25,
-    35,
-    41
-   ],
-   "cbsa-bnk1cca-generated": [
-    25,
-    25,
-    31,
-    41
-   ],
-   "cbsa-bnk1ccs": [
-    33,
-    33,
-    128,
-    143
-   ],
-   "cbsa-bnk1ccs-generated": [
-    33,
-    33,
-    88,
-    143
-   ],
-   "cbsa-bnk1cra": [
-    28,
-    28,
-    61,
-    67
-   ],
-   "cbsa-bnk1cra-generated": [
-    28,
-    28,
-    43,
-    67
-   ],
-   "cbsa-bnk1dac": [
-    31,
-    31,
-    51,
-    60
-   ],
-   "cbsa-bnk1dac-generated": [
-    31,
-    31,
-    42,
-    60
-   ],
-   "cbsa-bnk1dcs": [
-    51,
-    51,
-    95,
-    102
-   ],
-   "cbsa-bnk1dcs-generated": [
-    33,
-    51,
-    37,
-    102
-   ],
-   "cbsa-bnk1tfn": [
-    28,
-    28,
-    62,
-    72
-   ],
-   "cbsa-bnk1tfn-generated": [
-    28,
-    28,
-    56,
-    72
-   ],
-   "cbsa-bnk1uac": [
-    31,
-    31,
-    82,
-    88
-   ],
-   "cbsa-bnk1uac-generated": [
-    31,
-    31,
-    68,
-    88
-   ],
+   "cbsa-acctctrl": {
+    "coverage": [
+     7,
+     7,
+     2,
+     2
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c"
+   },
+   "cbsa-acctctrl-generated": {
+    "coverage": [
+     7,
+     7,
+     2,
+     2
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c"
+   },
+   "cbsa-bankdata": {
+    "coverage": [
+     24,
+     24,
+     47,
+     48
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1cac": {
+    "coverage": [
+     25,
+     25,
+     77,
+     97
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1cac-generated": {
+    "coverage": [
+     25,
+     25,
+     59,
+     97
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1cca": {
+    "coverage": [
+     25,
+     25,
+     35,
+     41
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1cca-generated": {
+    "coverage": [
+     25,
+     25,
+     31,
+     41
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1ccs": {
+    "coverage": [
+     33,
+     33,
+     128,
+     143
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1ccs-generated": {
+    "coverage": [
+     33,
+     33,
+     88,
+     143
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1cra": {
+    "coverage": [
+     28,
+     28,
+     61,
+     67
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1cra-generated": {
+    "coverage": [
+     28,
+     28,
+     43,
+     67
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1dac": {
+    "coverage": [
+     31,
+     31,
+     51,
+     60
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1dac-generated": {
+    "coverage": [
+     31,
+     31,
+     42,
+     60
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1dcs": {
+    "coverage": [
+     51,
+     51,
+     95,
+     102
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1dcs-generated": {
+    "coverage": [
+     33,
+     51,
+     37,
+     102
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1tfn": {
+    "coverage": [
+     28,
+     28,
+     62,
+     72
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1tfn-generated": {
+    "coverage": [
+     28,
+     28,
+     56,
+     72
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1uac": {
+    "coverage": [
+     31,
+     31,
+     82,
+     88
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-bnk1uac-generated": {
+    "coverage": [
+     31,
+     31,
+     68,
+     88
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "cbsa-bnkmenu": [
     24,
     25,
@@ -744,72 +906,138 @@
     5,
     6
    ],
-   "cbsa-creacc": [
-    34,
-    34,
-    35,
-    38
-   ],
-   "cbsa-creacc-generated": [
-    34,
-    34,
-    25,
-    38
-   ],
-   "cbsa-crecust": [
-    37,
-    37,
-    57,
-    70
-   ],
-   "cbsa-crecust-generated": [
-    13,
-    37,
-    21,
-    70
-   ],
-   "cbsa-custctrl": [
-    7,
-    7,
-    4,
-    4
-   ],
-   "cbsa-dbcrfun": [
-    21,
-    22,
-    34,
-    35
-   ],
-   "cbsa-dbcrfun-generated": [
-    16,
-    22,
-    23,
-    35
-   ],
-   "cbsa-delacc": [
-    19,
-    19,
-    13,
-    14
-   ],
-   "cbsa-delacc-generated": [
-    19,
-    19,
-    13,
-    14
-   ],
-   "cbsa-delcus": [
-    22,
-    22,
-    16,
-    16
-   ],
-   "cbsa-delcus-generated": [
-    22,
-    22,
-    13,
-    16
-   ],
+   "cbsa-creacc": {
+    "coverage": [
+     34,
+     34,
+     35,
+     38
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-creacc-generated": {
+    "coverage": [
+     34,
+     34,
+     25,
+     38
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-crecust": {
+    "coverage": [
+     37,
+     37,
+     57,
+     70
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-crecust-generated": {
+    "coverage": [
+     13,
+     37,
+     21,
+     70
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-custctrl": {
+    "coverage": [
+     7,
+     7,
+     4,
+     4
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-dbcrfun": {
+    "coverage": [
+     21,
+     22,
+     34,
+     35
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-dbcrfun-generated": {
+    "coverage": [
+     16,
+     22,
+     23,
+     35
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-delacc": {
+    "coverage": [
+     19,
+     19,
+     13,
+     14
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-delacc-generated": {
+    "coverage": [
+     19,
+     19,
+     13,
+     14
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-delcus": {
+    "coverage": [
+     22,
+     22,
+     16,
+     16
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-delcus-generated": {
+    "coverage": [
+     22,
+     22,
+     13,
+     16
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "cbsa-getcompy": [
     2,
     2,
@@ -822,72 +1050,126 @@
     0,
     0
    ],
-   "cbsa-inqacc": [
-    24,
-    25,
-    24,
-    25
-   ],
-   "cbsa-inqacc-generated": [
-    22,
-    25,
-    15,
-    25
-   ],
-   "cbsa-inqacccu": [
-    21,
-    22,
-    32,
-    33
-   ],
-   "cbsa-inqacccu-generated": [
-    18,
-    22,
-    24,
-    33
-   ],
+   "cbsa-inqacc": {
+    "coverage": [
+     24,
+     25,
+     24,
+     25
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-inqacc-generated": {
+    "coverage": [
+     22,
+     25,
+     15,
+     25
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-inqacccu": {
+    "coverage": [
+     21,
+     22,
+     32,
+     33
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-inqacccu-generated": {
+    "coverage": [
+     18,
+     22,
+     24,
+     33
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "cbsa-inqcust": [
     24,
     25,
     44,
     46
    ],
-   "cbsa-updacc": [
-    7,
-    7,
-    6,
-    6
-   ],
-   "cbsa-updacc-faults": [
-    7,
-    7,
-    6,
-    6
-   ],
-   "cbsa-updacc-generated": [
-    7,
-    7,
-    6,
-    6
-   ],
+   "cbsa-updacc": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-updacc-faults": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-updacc-generated": {
+    "coverage": [
+     7,
+     7,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": [
-    27,
-    28,
-    78,
-    81
-   ],
-   "cbsa-xfrfun-generated": [
-    27,
-    28,
-    45,
-    81
-   ],
+   "cbsa-xfrfun": {
+    "coverage": [
+     27,
+     28,
+     78,
+     81
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "cbsa-xfrfun-generated": {
+    "coverage": [
+     27,
+     28,
+     45,
+     81
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "cruc-ca-address-commarea": [
     4,
     4,
@@ -1404,72 +1686,132 @@
     10,
     10
    ],
-   "genapp-lgacdb01": [
-    4,
-    4,
-    15,
-    16
-   ],
-   "genapp-lgacdb01-generated": [
-    4,
-    4,
-    15,
-    16
-   ],
-   "genapp-lgacdb02": [
-    3,
-    3,
-    10,
-    10
-   ],
-   "genapp-lgacdb02-generated": [
-    3,
-    3,
-    10,
-    10
-   ],
-   "genapp-lgacus01": [
-    3,
-    3,
-    4,
-    8
-   ],
-   "genapp-lgacus01-generated": [
-    3,
-    3,
-    4,
-    8
-   ],
+   "genapp-lgacdb01": {
+    "coverage": [
+     4,
+     4,
+     15,
+     16
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgacdb01-generated": {
+    "coverage": [
+     4,
+     4,
+     15,
+     16
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgacdb02": {
+    "coverage": [
+     3,
+     3,
+     10,
+     10
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgacdb02-generated": {
+    "coverage": [
+     3,
+     3,
+     10,
+     10
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgacus01": {
+    "coverage": [
+     3,
+     3,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgacus01-generated": {
+    "coverage": [
+     3,
+     3,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgacvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgapdb01": [
-    7,
-    7,
-    29,
-    31
-   ],
-   "genapp-lgapdb01-generated": [
-    7,
-    7,
-    29,
-    31
-   ],
-   "genapp-lgapol01": [
-    2,
-    2,
-    5,
-    8
-   ],
-   "genapp-lgapol01-generated": [
-    2,
-    2,
-    5,
-    8
-   ],
+   "genapp-lgapdb01": {
+    "coverage": [
+     7,
+     7,
+     29,
+     31
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgapdb01-generated": {
+    "coverage": [
+     7,
+     7,
+     29,
+     31
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgapol01": {
+    "coverage": [
+     2,
+     2,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgapol01-generated": {
+    "coverage": [
+     2,
+     2,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgapvs01": [
     3,
     3,
@@ -1482,60 +1824,108 @@
     12,
     12
    ],
-   "genapp-lgdpdb01": [
-    3,
-    3,
-    12,
-    12
-   ],
-   "genapp-lgdpdb01-generated": [
-    3,
-    3,
-    12,
-    12
-   ],
-   "genapp-lgdpol01": [
-    3,
-    3,
-    9,
-    12
-   ],
-   "genapp-lgdpol01-generated": [
-    3,
-    3,
-    9,
-    12
-   ],
+   "genapp-lgdpdb01": {
+    "coverage": [
+     3,
+     3,
+     12,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgdpdb01-generated": {
+    "coverage": [
+     3,
+     3,
+     12,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgdpol01": {
+    "coverage": [
+     3,
+     3,
+     9,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgdpol01-generated": {
+    "coverage": [
+     3,
+     3,
+     9,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgdpvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgicdb01": [
-    4,
-    4,
-    11,
-    12
-   ],
-   "genapp-lgicdb01-generated": [
-    4,
-    4,
-    11,
-    12
-   ],
-   "genapp-lgicus01": [
-    4,
-    4,
-    4,
-    8
-   ],
-   "genapp-lgicus01-generated": [
-    4,
-    4,
-    4,
-    8
-   ],
+   "genapp-lgicdb01": {
+    "coverage": [
+     4,
+     4,
+     11,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgicdb01-generated": {
+    "coverage": [
+     4,
+     4,
+     11,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgicus01": {
+    "coverage": [
+     4,
+     4,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgicus01-generated": {
+    "coverage": [
+     4,
+     4,
+     4,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgicvs01": [
     1,
     1,
@@ -1548,30 +1938,54 @@
     18,
     18
    ],
-   "genapp-lgipdb01": [
-    12,
-    12,
-    74,
-    74
-   ],
-   "genapp-lgipdb01-generated": [
-    12,
-    12,
-    73,
-    74
-   ],
-   "genapp-lgipol01": [
-    2,
-    2,
-    3,
-    6
-   ],
-   "genapp-lgipol01-generated": [
-    2,
-    2,
-    3,
-    6
-   ],
+   "genapp-lgipdb01": {
+    "coverage": [
+     12,
+     12,
+     74,
+     74
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgipdb01-generated": {
+    "coverage": [
+     12,
+     12,
+     73,
+     74
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgipol01": {
+    "coverage": [
+     2,
+     2,
+     3,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgipol01-generated": {
+    "coverage": [
+     2,
+     2,
+     3,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgipvs01": [
     1,
     1,
@@ -1596,90 +2010,168 @@
     4,
     6
    ],
-   "genapp-lgtestc1": [
-    10,
-    10,
-    20,
-    20
-   ],
-   "genapp-lgtestp1": [
-    10,
-    10,
-    19,
-    19
-   ],
-   "genapp-lgtestp2": [
-    10,
-    10,
-    19,
-    19
-   ],
-   "genapp-lgtestp3": [
-    10,
-    10,
-    19,
-    19
-   ],
-   "genapp-lgtestp4": [
-    9,
-    9,
-    22,
-    22
-   ],
-   "genapp-lgucdb01": [
-    4,
-    4,
-    9,
-    10
-   ],
-   "genapp-lgucdb01-generated": [
-    4,
-    4,
-    9,
-    10
-   ],
-   "genapp-lgucus01": [
-    4,
-    4,
-    5,
-    8
-   ],
-   "genapp-lgucus01-generated": [
-    4,
-    4,
-    5,
-    8
-   ],
+   "genapp-lgtestc1": {
+    "coverage": [
+     10,
+     10,
+     20,
+     20
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgtestp1": {
+    "coverage": [
+     10,
+     10,
+     19,
+     19
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgtestp2": {
+    "coverage": [
+     10,
+     10,
+     19,
+     19
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgtestp3": {
+    "coverage": [
+     10,
+     10,
+     19,
+     19
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgtestp4": {
+    "coverage": [
+     9,
+     9,
+     22,
+     22
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgucdb01": {
+    "coverage": [
+     4,
+     4,
+     9,
+     10
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgucdb01-generated": {
+    "coverage": [
+     4,
+     4,
+     9,
+     10
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgucus01": {
+    "coverage": [
+     4,
+     4,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgucus01-generated": {
+    "coverage": [
+     4,
+     4,
+     5,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgucvs01": [
     3,
     3,
     7,
     8
    ],
-   "genapp-lgupdb01": [
-    9,
-    9,
-    38,
-    38
-   ],
-   "genapp-lgupdb01-generated": [
-    9,
-    9,
-    38,
-    38
-   ],
-   "genapp-lgupol01": [
-    4,
-    4,
-    13,
-    16
-   ],
-   "genapp-lgupol01-generated": [
-    4,
-    4,
-    13,
-    16
-   ],
+   "genapp-lgupdb01": {
+    "coverage": [
+     9,
+     9,
+     38,
+     38
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgupdb01-generated": {
+    "coverage": [
+     9,
+     9,
+     38,
+     38
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgupol01": {
+    "coverage": [
+     4,
+     4,
+     13,
+     16
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "genapp-lgupol01-generated": {
+    "coverage": [
+     4,
+     4,
+     13,
+     16
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "genapp-lgupvs01": [
     3,
     3,
@@ -1692,30 +2184,54 @@
     2,
     2
    ],
-   "health-hcapdb01": [
-    4,
-    4,
-    6,
-    6
-   ],
-   "health-hcapdb02": [
-    3,
-    3,
-    6,
-    6
-   ],
-   "health-hcatdb01": [
-    3,
-    3,
-    5,
-    6
-   ],
-   "health-hcavdb01": [
-    4,
-    4,
-    8,
-    8
-   ],
+   "health-hcapdb01": {
+    "coverage": [
+     4,
+     4,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcapdb02": {
+    "coverage": [
+     3,
+     3,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcatdb01": {
+    "coverage": [
+     3,
+     3,
+     5,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcavdb01": {
+    "coverage": [
+     4,
+     4,
+     8,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "health-hcazerrs": [
     1,
     1,
@@ -1728,144 +2244,264 @@
     11,
     11
    ],
-   "health-hcimdb01": [
-    6,
-    6,
-    12,
-    14
-   ],
-   "health-hcipdb01": [
-    4,
-    4,
-    8,
-    8
-   ],
-   "health-hcitdb01": [
-    4,
-    4,
-    8,
-    8
-   ],
-   "health-hcivdb01": [
-    5,
-    5,
-    14,
-    14
-   ],
-   "health-hcm1bi01": [
-    4,
-    4,
-    11,
-    11
-   ],
-   "health-hcm1pl01": [
-    10,
-    11,
-    3,
-    12
-   ],
-   "health-hcmaba01": [
-    5,
-    5,
-    6,
-    6
-   ],
-   "health-hcmadb01": [
-    4,
-    4,
-    6,
-    6
-   ],
-   "health-hcmadb02": [
-    7,
-    7,
-    11,
-    11
-   ],
-   "health-hcmapl01": [
-    10,
-    10,
-    9,
-    10
-   ],
+   "health-hcimdb01": {
+    "coverage": [
+     6,
+     6,
+     12,
+     14
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcipdb01": {
+    "coverage": [
+     4,
+     4,
+     8,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcitdb01": {
+    "coverage": [
+     4,
+     4,
+     8,
+     8
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcivdb01": {
+    "coverage": [
+     5,
+     5,
+     14,
+     14
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcm1bi01": {
+    "coverage": [
+     4,
+     4,
+     11,
+     11
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcm1pl01": {
+    "coverage": [
+     10,
+     11,
+     3,
+     12
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcmaba01": {
+    "coverage": [
+     5,
+     5,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcmadb01": {
+    "coverage": [
+     4,
+     4,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcmadb02": {
+    "coverage": [
+     7,
+     7,
+     11,
+     11
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcmapl01": {
+    "coverage": [
+     10,
+     10,
+     9,
+     10
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "health-hcmrestw": [
     8,
     12,
     10,
     26
    ],
-   "health-hcp1ba01": [
-    4,
-    4,
-    6,
-    6
-   ],
-   "health-hcp1bi01": [
-    4,
-    4,
-    4,
-    4
-   ],
-   "health-hcp1pl01": [
-    11,
-    11,
-    18,
-    18
-   ],
+   "health-hcp1ba01": {
+    "coverage": [
+     4,
+     4,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcp1bi01": {
+    "coverage": [
+     4,
+     4,
+     4,
+     4
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcp1pl01": {
+    "coverage": [
+     11,
+     11,
+     18,
+     18
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "health-hcprestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hct1ba01": [
-    3,
-    3,
-    6,
-    6
-   ],
-   "health-hct1bi01": [
-    4,
-    4,
-    4,
-    4
-   ],
-   "health-hct1pl01": [
-    12,
-    12,
-    18,
-    18
-   ],
+   "health-hct1ba01": {
+    "coverage": [
+     3,
+     3,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hct1bi01": {
+    "coverage": [
+     4,
+     4,
+     4,
+     4
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hct1pl01": {
+    "coverage": [
+     12,
+     12,
+     18,
+     18
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "health-hctrestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hcv1ba01": [
-    3,
-    3,
-    6,
-    6
-   ],
-   "health-hcv1bi01": [
-    4,
-    4,
-    4,
-    4
-   ],
-   "health-hcv1pl01": [
-    12,
-    12,
-    20,
-    20
-   ],
-   "mortgage-cmort": [
-    6,
-    6,
-    19,
-    21
-   ],
+   "health-hcv1ba01": {
+    "coverage": [
+     3,
+     3,
+     6,
+     6
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcv1bi01": {
+    "coverage": [
+     4,
+     4,
+     4,
+     4
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "health-hcv1pl01": {
+    "coverage": [
+     12,
+     12,
+     20,
+     20
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
+   "mortgage-cmort": {
+    "coverage": [
+     6,
+     6,
+     19,
+     21
+    ],
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f"
+   },
    "mortgage-csmrt": [
     1,
     1,
@@ -3616,10 +4252,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4c9de07839043cb96cae6e3424e64ab391c94789",
+   "sha": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
    "translator": {
     "files": 183,
-    "sha256": "7442dee65f46b849531451a7a4eb79d4a5b475e2c903ee0bcb0b8bd03709ec3e"
+    "sha256": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
    }
   },
   "sweeps": {}
@@ -4264,7 +4900,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3e15d5c39eb46cb53c176599f5106bae3732ca41e539b28fca04eab07e5e7d57",
+       "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -4356,24 +4992,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 187,
+    "accounted": 191,
     "chosen": 427,
     "current": true,
-    "det_port": "raw 51% (210/409 caught; 427 of 427 mutants, seed 0); 12 of 199 survivors unaccounted",
-    "killed": 210,
-    "l5": false,
+    "det_port": "raw 53% (218/409 caught; 427 of 427 mutants, seed 0); every survivor accounted for (191)",
+    "killed": 218,
+    "l5": true,
     "mutants": 427,
-    "score": 0.5134,
+    "score": 0.533,
     "stale_inputs": [],
-    "survived": 199,
-    "unaccounted": 12
+    "survived": 191,
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 51% (210/409 caught; 427 of 427 mutants, seed 0); 12 of 199 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -4702,6 +5336,886 @@
       "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
       "id": "X42",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": null,
+    "branches": {
+     "covered": 0,
+     "total": 0
+    },
+    "branches_net": {
+     "covered": 0,
+     "total": 0
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 2,
+     "live": 2
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-getcompy",
+      "case_scenarios": 34,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-getcompy",
+     "case_scenarios": 34,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L5",
+   "level_current": true,
+   "mutation": {
+    "accounted": 128,
+    "chosen": 222,
+    "current": true,
+    "det_port": "raw 38% (80/208 caught; 222 of 222 mutants, seed 0); every survivor accounted for (128) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 80,
+    "l5": true,
+    "mutants": 222,
+    "score": 0.3846,
+    "stale_inputs": [],
+    "survived": 128,
+    "unaccounted": 0
+   },
+   "next": [],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ACTION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
+      "value": "REPLACE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
+      "value": "UR"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.CONCURRENCY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "THREADSAFE"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.EXECKEY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "USER"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
+      "value": "CICS('SP,EDF') via the program's CBL card"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27",
+      "X42"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/GETCOMPY.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27",
+     "X42"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 1,
+    "commands_backed": 1,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 3,
+    "translated": 3,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
+      "id": "X52",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 28,
+     "total": 28
+    },
+    "branches_net": {
+     "covered": 28,
+     "total": 28
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 7
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-bnk1dcs",
+      "case_scenarios": 49,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1dcs-generated",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-updcust",
+      "case_scenarios": 59,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-updcust",
+     "case_scenarios": 59,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L5",
+   "level_current": true,
+   "mutation": {
+    "accounted": 268,
+    "chosen": 690,
+    "current": true,
+    "det_port": "raw 60% (398/666 caught; 690 of 690 mutants, seed 0); every survivor accounted for (268), of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`)",
+    "killed": 398,
+    "l5": true,
+    "mutants": 690,
+    "score": 0.5976,
+    "stale_inputs": [],
+    "survived": 268,
+    "unaccounted": 0
+   },
+   "next": [],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 2,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ACTION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
+      "value": "REPLACE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
+      "value": "UR"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.CONCURRENCY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "THREADSAFE"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.EXECKEY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "USER"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
+      "value": "CICS('SP,EDF') via the program's CBL card"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "src/base/cobol_src/UPDCUST.cbl:1",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "src/base/cobol_src/UPDCUST.cbl:1",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X46"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27",
+      "X42"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "REWRITE",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X52"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/UPDCUST.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X42",
+     "X46",
+     "X52"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 5,
+    "commands_backed": 1,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME",
+     "READ",
+     "REWRITE"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 64,
+    "translated": 64,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
      },
      {
       "area": "CICS",
@@ -4724,7 +6238,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -4734,8 +6248,10 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4777,22 +6293,26 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
-    "accounted": 256,
-    "chosen": 490,
+    "accounted": 271,
+    "chosen": 519,
     "current": true,
-    "det_port": "raw 44% (205/466 caught; 490 of 490 mutants, seed 0); 5 of 261 survivors unaccounted",
-    "killed": 205,
+    "det_port": "raw 45% (221/494 caught; 519 of 519 mutants, seed 0); 2 of 273 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 221,
     "l5": false,
-    "mutants": 490,
-    "score": 0.4399,
+    "mutants": 519,
+    "score": 0.4474,
     "stale_inputs": [],
-    "survived": 261,
-    "unaccounted": 5
+    "survived": 273,
+    "unaccounted": 2
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (205/466 caught; 490 of 490 mutants, seed 0); 5 of 261 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (221/494 caught; 519 of 519 mutants, seed 0); 2 of 273 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 5,
@@ -5104,8 +6624,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "b2d2b48bd1e2d43f026e159d54a929e9ab00ca9c",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5137,7 +6659,7 @@
      "covered": 47,
      "total": 47
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5161,8 +6683,10 @@
      }
     ],
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5193,7 +6717,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -5385,8 +6909,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5472,7 +6998,7 @@
      "covered": 77,
      "total": 77
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:256:false",
      "ED010:472:false",
@@ -5644,8 +7170,10 @@
      "live": 25
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded",
     "undefined_by_ibm": [
@@ -5731,7 +7259,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -6308,8 +7836,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6389,7 +7919,7 @@
      "covered": 35,
      "total": 35
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:233:false",
      "GCD010:534:true",
@@ -6461,8 +7991,10 @@
      "live": 25
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6504,7 +8036,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7069,8 +8601,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7157,7 +8691,7 @@
      "covered": 128,
      "total": 128
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:284:false",
      "ED010:604:false",
@@ -7319,8 +8853,10 @@
      "live": 33
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7362,7 +8898,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7950,8 +9486,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8044,7 +9582,7 @@
      "covered": 61,
      "total": 61
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:271:false",
      "SM010:722:true",
@@ -8116,8 +9654,10 @@
      "live": 28
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8159,7 +9699,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -8750,8 +10290,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8837,7 +10379,7 @@
      "covered": 51,
      "total": 51
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:303:false",
      "DAD010:745:true",
@@ -8939,8 +10481,10 @@
      "live": 31
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8982,7 +10526,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9559,8 +11103,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9653,7 +11199,7 @@
      "covered": 95,
      "total": 95
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:334:false",
      "DCD010:1067:true",
@@ -9735,8 +11281,10 @@
      "live": 51
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9778,7 +11326,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10395,8 +11943,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10482,7 +12032,7 @@
      "covered": 62,
      "total": 62
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:255:false",
      "GCD010:586:OTHER",
@@ -10594,8 +12144,10 @@
      "live": 28
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10637,7 +12189,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11214,8 +12766,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11295,7 +12849,7 @@
      "covered": 82,
      "total": 82
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "A010:303:false",
      "VD010:625:false",
@@ -11367,8 +12921,10 @@
      "live": 31
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11410,7 +12966,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11975,8 +13531,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12994,20 +14552,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 111,
-    "chosen": 1033,
+    "accounted": 148,
+    "chosen": 1074,
     "current": true,
-    "det_port": "raw 31% (307/999 caught; 1033 of 1033 mutants, seed 0); 581 of 692 survivors unaccounted",
-    "killed": 307,
+    "det_port": "raw 30% (310/1038 caught; 1074 of 1074 mutants, seed 0); 580 of 728 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 310,
     "l5": false,
-    "mutants": 1033,
-    "score": 0.3073,
+    "mutants": 1074,
+    "score": 0.2987,
     "stale_inputs": [],
-    "survived": 692,
-    "unaccounted": 581
+    "survived": 728,
+    "unaccounted": 580
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 31% (307/999 caught; 1033 of 1033 mutants, seed 0); 581 of 692 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 30% (310/1038 caught; 1074 of 1074 mutants, seed 0); 580 of 728 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 5,
@@ -15990,7 +17552,7 @@
      "covered": 35,
      "total": 35
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "ENC010:397:true",
      "DNC010:419:true",
@@ -16032,8 +17594,10 @@
      "live": 34
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16097,7 +17661,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -16516,8 +18080,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -16615,7 +18181,7 @@
      "covered": 57,
      "total": 57
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "ENC010:453:true",
      "DNC010:478:true",
@@ -16757,8 +18323,10 @@
      "live": 37
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16822,7 +18390,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -17344,8 +18912,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -17414,7 +18984,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -17424,8 +18994,10 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17456,22 +19028,26 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
-    "accounted": 112,
-    "chosen": 570,
+    "accounted": 113,
+    "chosen": 599,
     "current": true,
-    "det_port": "raw 36% (194/546 caught; 570 of 570 mutants, seed 0); 240 of 352 survivors unaccounted",
-    "killed": 194,
+    "det_port": "raw 36% (206/574 caught; 599 of 599 mutants, seed 0); 255 of 368 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 206,
     "l5": false,
-    "mutants": 570,
-    "score": 0.3553,
+    "mutants": 599,
+    "score": 0.3589,
     "stale_inputs": [],
-    "survived": 352,
-    "unaccounted": 240
+    "survived": 368,
+    "unaccounted": 255
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (194/546 caught; 570 of 570 mutants, seed 0); 240 of 352 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (206/574 caught; 599 of 599 mutants, seed 0); 255 of 368 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 5,
@@ -17809,8 +19385,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -17884,7 +19462,7 @@
      "covered": 34,
      "total": 34
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "AH999:paragraph",
      "AH010:833:false"
@@ -17920,8 +19498,10 @@
      "live": 21
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17985,7 +19565,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -18410,8 +19990,10 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -18473,7 +20055,7 @@
      "covered": 13,
      "total": 13
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "RAD010:363:false"
     ],
@@ -18495,8 +20077,10 @@
      "live": 19
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -18604,7 +20188,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -18900,8 +20484,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -18981,7 +20567,7 @@
      "covered": 16,
      "total": 16
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -18991,8 +20577,10 @@
      "live": 22
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -19056,7 +20644,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -19491,8 +21079,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -19502,399 +21092,6 @@
     "source_defects": [],
     "statements": 140,
     "translated": 140,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
-      "id": "X42",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": null,
-    "branches": {
-     "covered": 0,
-     "total": 0
-    },
-    "branches_net": {
-     "covered": 0,
-     "total": 0
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 2,
-     "live": 2
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cbsa-getcompy",
-      "case_scenarios": 34,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cbsa-getcompy",
-     "case_scenarios": 34,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L4",
-   "level_current": true,
-   "mutation": {
-    "accounted": 112,
-    "chosen": 193,
-    "current": true,
-    "det_port": "raw 36% (64/180 caught; 193 of 193 mutants, seed 0); 4 of 116 survivors unaccounted",
-    "killed": 64,
-    "l5": false,
-    "mutants": 193,
-    "score": 0.3556,
-    "stale_inputs": [],
-    "survived": 116,
-    "unaccounted": 4
-   },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (64/180 caught; 193 of 193 mutants, seed 0); 4 of 116 survivors unaccounted)"
-   ],
-   "options": {
-    "assumed": 5,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 1,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ACTION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
-      "value": "REPLACE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
-      "value": "UR"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.CONCURRENCY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "THREADSAFE"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.EXECKEY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "USER"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
-      "value": "CICS('SP,EDF') via the program's CBL card"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "OPT"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27",
-      "X42"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/GETCOMPY.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27",
-     "X42"
-    ],
-    "branch_outcomes_unrun": 0,
-    "commands": 1,
-    "commands_backed": 1,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 3,
-    "translated": 3,
     "whole": true
    }
   },
@@ -20365,7 +21562,7 @@
      "covered": 24,
      "total": 24
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "AH999:paragraph",
      "AH010:763:false"
@@ -20401,8 +21598,10 @@
      "live": 24
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -20488,7 +21687,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3e15d5c39eb46cb53c176599f5106bae3732ca41e539b28fca04eab07e5e7d57",
+       "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -20549,7 +21748,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:3e15d5c39eb46cb53c176599f5106bae3732ca41e539b28fca04eab07e5e7d57",
+      "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -20564,7 +21763,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -20989,8 +22188,10 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -21064,7 +22265,7 @@
      "covered": 32,
      "total": 32
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "AH999:paragraph",
      "AH010:817:false"
@@ -21100,8 +22301,10 @@
      "live": 21
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -21253,7 +22456,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -21678,8 +22881,10 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -22529,7 +23734,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -22539,8 +23744,10 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -22601,7 +23808,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3e15d5c39eb46cb53c176599f5106bae3732ca41e539b28fca04eab07e5e7d57",
+       "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -22702,7 +23909,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:3e15d5c39eb46cb53c176599f5106bae3732ca41e539b28fca04eab07e5e7d57",
+      "oracle_image": "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -22717,7 +23924,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "accounted": 256,
     "chosen": 686,
@@ -23044,8 +24251,10 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -23055,493 +24264,6 @@
     "source_defects": [],
     "statements": 58,
     "translated": 58,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
-      "id": "X22",
-      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
-      "id": "X42",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
-      "id": "X46",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
-      "id": "X52",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 100.0,
-    "branches": {
-     "covered": 28,
-     "total": 28
-    },
-    "branches_net": {
-     "covered": 28,
-     "total": 28
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 7,
-     "live": 7
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cbsa-bnk1dcs",
-      "case_scenarios": 49,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "cbsa-bnk1dcs-generated",
-      "case_scenarios": 5,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "cbsa-updcust",
-      "case_scenarios": 59,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cbsa-updcust",
-     "case_scenarios": 59,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L4",
-   "level_current": true,
-   "mutation": {
-    "accounted": 265,
-    "chosen": 690,
-    "current": true,
-    "det_port": "raw 59% (390/666 caught; 690 of 690 mutants, seed 0); 11 of 276 survivors unaccounted, of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`)",
-    "killed": 390,
-    "l5": false,
-    "mutants": 690,
-    "score": 0.5856,
-    "stale_inputs": [],
-    "survived": 276,
-    "unaccounted": 11
-   },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 59% (390/666 caught; 690 of 690 mutants, seed 0); 11 of 276 survivors unaccounted, of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`))"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 2,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ACTION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
-      "value": "REPLACE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
-      "value": "UR"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.CONCURRENCY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "THREADSAFE"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.EXECKEY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "USER"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
-      "value": "CICS('SP,EDF') via the program's CBL card"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "src/base/cobol_src/UPDCUST.cbl:1",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "src/base/cobol_src/UPDCUST.cbl:1",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X46"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14",
-      "X22"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27",
-      "X42"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "REWRITE",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X52"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/UPDCUST.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14",
-     "X22",
-     "X27",
-     "X42",
-     "X46",
-     "X52"
-    ],
-    "branch_outcomes_unrun": 0,
-    "commands": 5,
-    "commands_backed": 1,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME",
-     "READ",
-     "REWRITE"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 64,
-    "translated": 64,
     "whole": true
    }
   },
@@ -23612,7 +24334,7 @@
      "covered": 78,
      "total": 78
     },
-    "current": true,
+    "current": false,
     "infeasible_netted": [
      "AH999:paragraph",
      "UAD010:406:false",
@@ -23668,8 +24390,10 @@
      "live": 27
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
+    "stale_inputs": [
+     "harness"
+    ],
+    "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -23733,7 +24457,7 @@
     }
    },
    "level": "L4",
-   "level_current": true,
+   "level_current": false,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -24170,8 +24894,10 @@
     "paragraphs_unrun": 1,
     "refused": null
    },
-   "stale_inputs": [],
-   "stale_since": null,
+   "stale_inputs": [
+    "harness"
+   ],
+   "stale_since": "3a8bd5887bf04c10875b22cfa44840b9ba20e23f",
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -24187,8 +24913,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4c9de07839043cb96cae6e3424e64ab391c94789",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 4c9de07839043cb96cae6e3424e64ab391c94789",
+   "python tests/tools/cics_census.py survey --baseline --sha cd1ee267410dd98d35a12d2aee60ba800144cc81",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha cd1ee267410dd98d35a12d2aee60ba800144cc81",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -24206,20 +24932,20 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:3e15d5c39eb46cb53c176599f5106bae3732ca41e539b28fca04eab07e5e7d57"
+   "sha256:9fb71b572b6da29af082e7e025e3e7d5d59942fc8f6beed2dd10102432ae6b4a"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4c9de07839043cb96cae6e3424e64ab391c94789",
+   "sha": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
    "translator": {
     "files": 183,
-    "sha256": "7442dee65f46b849531451a7a4eb79d4a5b475e2c903ee0bcb0b8bd03709ec3e"
+    "sha256": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
    }
   },
-  "translator_commit": "4c9de07839043cb96cae6e3424e64ab391c94789",
+  "translator_commit": "cd1ee267410dd98d35a12d2aee60ba800144cc81",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24230,15 +24956,15 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 31,
-   "L5": 0
+   "L4": 28,
+   "L5": 3
   },
   "histogram_stale": {
    "L0": 0,
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 0,
+   "L4": 20,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -24250,7 +24976,7 @@
    "L5": 0
   },
   "holes": 0,
-  "levels_stale": 0,
+  "levels_stale": 20,
   "levels_stale_survey": 0,
   "programs": 31,
   "records_current": 2,
@@ -24262,6 +24988,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7442dee65f46b849531451a7a4eb79d4a5b475e2c903ee0bcb0b8bd03709ec3e"
+  "fingerprint": "5008e2455db31f7c4fd42ef558139c162e7632cd55bcb1d215f2e9bca59b1817"
  }
 }

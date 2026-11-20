@@ -37,7 +37,16 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_scenarios_cover_every_construct_of_the_checklist_line():
     ids = " ".join(BY_ID)
-    for word in ("rel-read", "create-then-read", "plus-one-plus-two", "abend-", "bypassed", "pass-then", "limit-"):
+    for word in (
+        "rel-read",
+        "create-then-read",
+        "plus-one-plus-two",
+        "abend-",
+        "bypassed",
+        "pass-then",
+        "limit-",
+        "mod-plus-one",
+    ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
     gens = {r["generation"] for r in ROWS if r["kind"] == "DD" and r.get("generation")}
@@ -111,3 +120,11 @@ def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_not_catalog
     assert _run(dflt, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
     keep = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,KEEP)\n"
     assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
+
+
+def test_mod_of_an_absent_plus_one_is_new_and_mod_of_an_absent_zero_or_minus_n_is_refused():
+    mod = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(MOD,CATLG)\n"
+    assert _run(mod, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2, 3]}}
+    gone = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-2),DISP=(MOD,CATLG)\n"
+    with pytest.raises(JclGdgRefused, match="no cataloged generation"):
+        _run(gone, "J", CAT, {"A": {"rc": 0}})

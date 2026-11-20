@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1244" height="1418"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 34, callee names 23, call resolution 11, hubs 34 of 73 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 34, callee names 25, call resolution 11, hubs 34 of 73 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -721,7 +721,18 @@
 <text class="n" x="324" y="767">n=2,767 imports</text>
 <text class="n" x="324" y="779">repos 2 · files 1,105</text>
 </g>
-<text class="none" x="426" y="772.0">not measured</text>
+<g><title>objective-c callee names: precision 97.8% of 322, recall 98.1% of 321 (raw 97.8% / 98.1%; 6 shapes without a verdict)</title>
+<text class="pr" x="426" y="766.5">Precision</text>
+<rect class="track" x="472" y="759" width="110" height="8" rx="2"/>
+<rect x="472" y="759" width="107.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="767">97.8%*</text>
+<text class="pr" x="426" y="778.5">Recall</text>
+<rect class="track" x="472" y="771" width="110" height="8" rx="2"/>
+<rect x="472" y="771" width="107.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="779">98.1%*</text>
+<text class="n" x="630" y="767">n=321 calls</text>
+<text class="n" x="630" y="779">functions 153</text>
+</g>
 <text class="none" x="732" y="772.0">not measured</text>
 <g><title>objective-c hubs: 100% / 0.99 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="766.5">overlap@10</text>
@@ -1092,7 +1103,18 @@
 <text class="n" x="324" y="1107">n=100 imports</text>
 <text class="n" x="324" y="1119">repos 4 · files 938</text>
 </g>
-<text class="none" x="426" y="1112.0">not measured</text>
+<g><title>shell callee names: precision 84.0% of 1,949, recall 93.9% of 1,743 (raw 84.0% / 93.9%; 37 shapes without a verdict)</title>
+<text class="pr" x="426" y="1106.5">Precision</text>
+<rect class="track" x="472" y="1099" width="110" height="8" rx="2"/>
+<rect x="472" y="1099" width="92.4" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="1107">84.0%*</text>
+<text class="pr" x="426" y="1118.5">Recall</text>
+<rect class="track" x="472" y="1111" width="110" height="8" rx="2"/>
+<rect x="472" y="1111" width="103.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="1119">93.9%*</text>
+<text class="n" x="630" y="1107">n=1,743 calls</text>
+<text class="n" x="630" y="1119">functions 819</text>
+</g>
 <text class="none" x="732" y="1112.0">not measured</text>
 <g><title>shell hubs: 100% / 1.00 (repos=4) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="1106.5">overlap@10</text>

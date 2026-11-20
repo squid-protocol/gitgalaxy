@@ -260,7 +260,7 @@ DEFINITION: dict[str, Any] = {
         # sits on a `//` continuation line, not the EXEC line itself (the same
         # real-corpus shape the args rule's #2482 note documents). The negative
         # lookahead keeps the plain bypass forms (COND=EVEN / COND=ONLY) out of
-        # safety: those are the *absence* of a return-code test and belong to
+        # safety (Defensive Checks: RC tests, COND= steps): those are the *absence* of a return-code test and belong to
         # safety_bypasses below. A combined form like COND=((4,LT),EVEN)
         # deliberately counts BOTH -- it carries a real RC test and a run-even-
         # after-abend bypass at once.

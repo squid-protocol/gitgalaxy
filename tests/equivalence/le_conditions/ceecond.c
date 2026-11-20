@@ -4,8 +4,9 @@
  * oracle a port's handler behaviour can be compared against. It is ASSUMED (IBM-documented), never z/OS-observed.
  *
  * Not yet linked into any program: tests/equivalence/le/ is linked into every batch, call and CICS program, this
- * directory is not. It is wired in only once a frame source for GnuCOBOL exists (L8, "Remaining slices"); until a
- * frame source is installed every entry point refuses (exit 98), so a stray link proves nothing.
+ * directory is not. The GnuCOBOL frame source is ggframes.c (same directory); the harness link line is the next slice
+ * (L8, "Remaining slices"). Until a frame source is installed every entry point refuses (exit 98), so a stray link
+ * proves nothing.
  *
  * IBM references (z/OS 2.5):
  *   Programming Reference SA38-0683-50: "CEEHDLR--Register user-written condition handler", "CEEHDLU--Unregister
@@ -55,7 +56,12 @@ static struct reg {
 } regs[GG_LE_MAX];
 static int nregs, dispatching;
 
+/* Called with 4 (c_ctok, token, result_code, new_condition) just before a handler is entered: a runtime whose entry
+ * reached through a pointer reads its argument count from global state (GnuCOBOL's cob_call_params) sets it here. */
+static void (*handler_hook)(int nparams);
+
 void gg_le_set_frames(gg_le_frames_fn fn) { frames_fn = fn; nregs = 0; dispatching = 0; }
+void gg_le_set_handler_hook(void (*hook)(int nparams)) { handler_hook = hook; }
 
 static void refuse(const char *service, const char *what) {
     fprintf(stderr, "%s: %s is not modelled\n", service, what);
@@ -154,6 +160,7 @@ int CEESGL(unsigned char *cond, unsigned char *qdata, unsigned char *fc) {
             memset(newc, 0, sizeof newc);
             memcpy(rc, &result, 4);
             dispatching = 1;
+            if (handler_hook) handler_hook(4);
             regs[i].fn(ctok, tok, rc, newc);
             dispatching = 0;
             memcpy(&result, rc, 4);

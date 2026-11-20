@@ -32,4 +32,4 @@
 # Timing assertions (#8423)
 
 * **A test that asserts "this is fast" uses `tests/_timing.py`** (`cpu_best_of`, `assert_cpu_below`, `assert_scales_linearly`: CPU time, fastest of three, limit stated once), never a raw `time.time()` / `perf_counter()` / `monotonic()` difference: a loaded runner stretches wall time.
-  `tests/tools/test_no_raw_wall_clock_timing_8423.py` fails a new offender (any import spelling) and a fixed one still listed in `WALL_CLOCK_OFFENDERS`; the list only shrinks. Convert an offender by deleting its entry.
+  `tests/tools/test_no_raw_wall_clock_timing_8423.py` fails a new offender (any import spelling) and a fixed one still listed in `WALL_CLOCK_OFFENDERS`; the list only shrinks. Convert an offender by deleting its entry. A wall clock that really is the instrument (a supervisor watching other processes) goes in `WALL_CLOCK_ALLOWED` in that test, with its reason: not a backlog.

@@ -273,8 +273,18 @@ def load_ticket(project: Path, key: str) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def write_paragraph_methods(java_path: Path, pmap: dict[str, str] | None) -> Path | None:
+    """#8488: the translator's paragraph -> method map, as `<Service>.paragraph_methods.json` beside the service
+    (what `construct_map.read_provenance` reads). Paragraph order is kept; an empty map writes nothing."""
+    if not pmap:
+        return None
+    side = java_path.with_name(java_path.stem + ".paragraph_methods.json")
+    side.write_text(json.dumps(dict(pmap), indent=2) + "\n", encoding="utf-8")
+    return side
+
+
 def _store(project: Path, ticket: dict[str, Any], java: str, attempt: int,
-           extra: dict[str, str] | None = None) -> Path:  # fmt: skip
+           extra: dict[str, str] | None = None, pmap: dict[str, str] | None = None) -> Path:  # fmt: skip
     """The proposed port as an overlay: ports/<KEY>/overlay/service/<Service>.java -- the tree a proof lays over
     the generated project, nothing else in it but `extra` (a deterministic port's runtime, {relative path: text})
     -- and a copy per attempt under ports/<KEY>/attempts/. The overlay holds only the latest attempt."""
@@ -287,7 +297,10 @@ def _store(project: Path, ticket: dict[str, Any], java: str, attempt: int,
         (overlay / rel).parent.mkdir(parents=True, exist_ok=True)
         (overlay / rel).write_text(text, encoding="utf-8")
     (base / "attempts").mkdir(parents=True, exist_ok=True)
-    (base / "attempts" / f"{attempt:03d}_{ticket['target']['service']}.java").write_text(java, encoding="utf-8")
+    attempt_java = base / "attempts" / f"{attempt:03d}_{ticket['target']['service']}.java"
+    attempt_java.write_text(java, encoding="utf-8")
+    write_paragraph_methods(dest, pmap)
+    write_paragraph_methods(attempt_java, pmap)
     return dest
 
 
@@ -369,7 +382,7 @@ def cmd_run(opts: argparse.Namespace) -> int:
         port_java, runtime, stats = det_port(
             project, ticket, opts.source_root.resolve(), work, opts.style, opts.typed, opts.groups, opts.strict_copy
         )
-        dest = _store(project, ticket, port_java, attempt, runtime)
+        dest = _store(project, ticket, port_java, attempt, runtime, stats.get("paragraph_methods"))
         log_event(project, {"event": "proposed", "ticket": opts.ticket, "attempt": attempt, "backend": "det",
                             "model": _translator_version(), "started": started, "port": str(dest.relative_to(project)),
                             "notes": "", "translation": stats})  # fmt: skip

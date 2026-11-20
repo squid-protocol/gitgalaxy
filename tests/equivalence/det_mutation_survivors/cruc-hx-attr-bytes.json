@@ -69,20 +69,17 @@
   {
    "id": "b49f60ce8a",
    "op": "LIT",
-   "line": 43,
+   "line": 46,
    "before": "\"AH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
    "after": "\"XH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "f649c2dcac",
-   "op": "LIT",
-   "line": 49,
-   "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The mutated base64 character is the first byte of the DFHAID image: DFHNULL (X'00'). HXATTR.cbl names only DFHCLEAR from DFHAID (IF EIBAID = DFHCLEAR), so DFHNULL is never read; the other bytes are unchanged.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
   },
   {
    "id": "b908b7bd0a",
@@ -101,13 +98,34 @@
    ]
   },
   {
+   "id": "f649c2dcac",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "verdict": "equivalent",
+   "reason": "The mutated character changes byte 0 of the DFHCOMMAREA image. HXATTR never references DFHCOMMAREA (it works on WS-CA), a task with an area overlays byte 0 with the caller's first byte (EIBCALEN >= 1), and EIBCALEN 0 has no area to carry it back.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "f842b0c301",
    "op": "LIT",
-   "line": 53,
+   "line": 56,
    "before": "\"AAA=\"));",
    "after": "\"XAA=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The mutated character changes the initial image of the generated RETURN-CODE item (GG_RETURN_CODE). HXATTR.cbl never names RETURN-CODE, and only runProgram() reads it; a CICS program is entered through runTask(), which neither reads nor returns it.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
   },
   {
    "id": "12e07a03fa",
@@ -3448,6 +3466,21 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "dd8ac5d904",
+   "op": "CON",
+   "line": 338,
+   "before": "perform(0, 3);",
+   "after": "perform(0, 4);",
+   "verdict": "equivalent",
+   "reason": "perform(0, 4) in runTask: the thru bound is read only when paragraph 0 returns normally. p0 (MAIN-PARA) ends with EXEC CICS RETURN, port text `if (true) throw new Goback()`, so it never returns a next paragraph; HXATTR.cbl has no HANDLE CONDITION, so no GOTO|to return leaves it either.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "0ace941cd9",
    "op": "DEL",
    "line": 342,
@@ -3540,15 +3573,6 @@
    ]
   },
   {
-   "id": "dd8ac5d904",
-   "op": "CON",
-   "line": 370,
-   "before": "perform(0, 3);",
-   "after": "perform(0, 4);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "603e4e0360",
    "op": "NEG",
    "line": 375,
@@ -3637,6 +3661,21 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "9e90a78b43",
+   "op": "CON",
+   "line": 398,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "performDepth starts at 1 instead of 0: it only moves the slot index of performThru. The slots below `mine` are scanned only when a paragraph falls off its end without being the PERFORM's thru; the PERFORMs are (1,1), (2,2), (3,3), which return at i == thru before the scan, and (0,3) from p0, which always ends in Goback.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "a32a312e7a",
    "op": "DEL",
    "line": 424,
@@ -3664,15 +3703,6 @@
    ]
   },
   {
-   "id": "9e90a78b43",
-   "op": "CON",
-   "line": 430,
-   "before": "private int performDepth = 0;",
-   "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "d386cad2bf",
    "op": "DEL",
    "line": 438,
@@ -3685,6 +3715,21 @@
     "held-all-fields",
     "held-echo-dataonly",
     "held-first-display"
+   ]
+  },
+  {
+   "id": "0879f2f530",
+   "op": "DEL",
+   "line": 446,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Dropping `performDepth = mine` in the finally leaves the depth higher after each PERFORM. Only the stale-slot scan reads the lower slots, and it runs only for a paragraph that falls off its end without being thru: p1..p3 are performed as (n,n) and return at i == thru first, and p0 ends in Goback. The array doubles at length 64: no effect on output.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
    ]
   },
   {
@@ -3925,15 +3970,6 @@
     "x-empty",
     "x-lower"
    ]
-  },
-  {
-   "id": "0879f2f530",
-   "op": "DEL",
-   "line": 478,
-   "before": "performDepth = mine;",
-   "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "567c9dee17",
@@ -4381,6 +4417,21 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "511d4cbb54",
+   "op": "CON",
+   "line": 648,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "equivalent",
+   "reason": "`return 3` is p2's (RESET-SCREEN) fall-through value. p2 is entered only as perform(2, 2), where perform() returns at i == thru before it reads `next`; HXATTR has no GO TO, so no other path reads it. Changing 3 to 4 is never read.",
+   "tried": [
+    "ent-2-clear",
+    "ent-40-enter",
+    "link-2-pf3",
+    "link-41-enter"
+   ]
+  },
+  {
    "id": "f7bb0fc16a",
    "op": "LIT",
    "line": 654,
@@ -4595,15 +4646,6 @@
    "tried": [
     "flow-plumbing"
    ]
-  },
-  {
-   "id": "511d4cbb54",
-   "op": "CON",
-   "line": 680,
-   "before": "return 3;",
-   "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "790be82dc5",

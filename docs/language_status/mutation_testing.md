@@ -187,6 +187,22 @@ on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed 
 scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
 unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
 
+**The in-process CICS path judges the java-facade side too (2026-11-18, #8599).** A CICS baseline is proven twice:
+through `runTask`, and once more through the program's deployed entry points (`run_case(facades=True)`, #4449). A
+separate-run mutant proof does both. The in-process worker (`_DirectContext`, fast+one-jvm, non-Db2 / non-IMS) ran
+only the `runTask` side, so a mutant in facade-only code (`handleLink`, `handleTransaction`, `lastLinkBytes`) survived
+in process where a separate run killed it (ABNDPROC `661ba858a8`, COR on `lastLinkBytes`). When the baseline has a facade
+side, the worker now runs it after a passing `runTask` side, in the same session JVM under its own class loader
+(`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
+named `<scenario> [java-facade]`; `killers` names those for a separate run too.
+
+cbsa-abndproc's 212 recorded survivors (fast+one-jvm, seed 0; 195 still in the port), re-judged in process: **8 now
+die**, 187 survive (2.2 s a survivor, the facade side included). The 8 and 6 random survivors, re-judged with
+`--no-one-jvm`: **14 of 14 agree**, with the same scenarios in `killed_by` (2 s in process, 31-54 s as separate runs).
+None of the 8 was a stated `equivalent` / `unreachable` claim. The ledgers' harness fingerprint is information, not
+staleness, so a recorded false survivor stays until its case is re-run: 112 CICS ledgers can use the in-process path, with
+30,800 survivors between them.
+
 **The 17 crucible ports get a fast mode (2026-10-21, #4047).** `mutation_crucible.py` already ran every scenario of a
 side in one JVM (`mvn test`, one JVM per side); what each mutant repeated was the refactor and cobol-to-java generate.
 Fast mode (the default; `--full` opts out) generates the case's Java project once, in the baseline proof, and each mutant
@@ -260,6 +276,72 @@ LIT, NEG, RET, ROR; menu: AOR, CON, COR, DEL, LIT, NEG, ROR). A survivor costs a
 **Entry runs have nothing burned to be validated on.** No committed `tests/equivalence/*/case.json` has `entries`;
 `test_mutation_one_jvm_scope_4047.py` fails the day one does, so that case is compared against `--full` (and recorded
 here) before the default covers it. Entry runs stay covered by unit tests. Db2 and IMS cases always use a JVM per run.
+
+**Where a run's time goes, and two cuts (2026-11-18, #8599).** `det_mutation.py run`, fast+one-jvm, `--jobs 2`, on nyx
+(a laptop, load ~2), with `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER` as CI sets it. Without it every tool start sleeps
+5 s, three times a case: 175 s instead of 141 s for UPDCUST's first row. Phase times come from the run's log:
+
+| run | translate | baseline proof | javac check | prove | total |
+|---|---|---|---|---|---|
+| cbsa-updcust `--sample 60 --seed 1`, origin/main | 20 s | 39 s | 41 s (60 mutants) | 40 s (57) | 141 s |
+| the same, with both cuts | 5 s (warm cache) | 30 s | 14 s | 44 s | 94 s |
+| carddemo-readcust `--sample 80 --seed 3`, origin/main | 34 s | 77 s | 53 s (80) | 436 s (75) | 600 s |
+| the same, with both cuts | 6 s (warm cache) | 63 s | 15 s | 200 s | 312 s |
+
+Translation is already cached (`equivalence_cache`, by engine, corpus and `GITGALAXY_*` environment): a warm one is ~5 s,
+so re-translating an unchanged port costs little. The two cuts:
+
+- **The javac check compiles the program, not the runtime** (`mutation.mutant_sources`). A mutant used to compile every
+  `.java` file of the port, the cobolrt copy too (UPDCUST: 52 files, 13,776 lines, for a 752-line program). Mutants are
+  cut from `service/*.java`; the runtime never refers to the program, and the baseline's compiled runtime is on the
+  classpath, so the program's files are compiled against it. All of them, not only the mutated one: a mutated
+  `static final` constant is inlined into its callers. The overlay manifest lists only what was compiled, since
+  overlay adoption drops the baseline classes of every source it lists (the separate-run fallback's single-file compile
+  listed every source, which would have dropped the runtime's classes).
+- **An in-process proof's time limit comes from the unmutated port** (`mutation.direct_limit`). Each in-process worker
+  first runs the unmutated port (an empty overlay); it must survive, or the worker proves its mutants as separate runs.
+  Its time T0 sets the limit: 5 x the slowest worker's T0, at least 30 s, at most the separate-run limit
+  (`max(300, 3 x baseline)`). A mutant that loops for ever held its worker for 300 s or more; the committed ledgers
+  hold 201 such timeouts in 60,576 mutants. readcust's one timeout now ends at 61 s. A timeout is caught, like a kill,
+  so a mutant only changes verdict if it would survive but runs over 5 x T0. The warm-up also moves the first
+  mutant's JIT cost out of its proof.
+
+Validation: each cut against origin/main in the same mode (fast+one-jvm), same seed: **140 of 140 verdicts identical**
+(UPDCUST 60, CICS; readcust 80, batch, with faults and a timeout), killed, survived, stillborn and timeout alike. Not
+compared against `--full`: neither cut changes how a mutant is judged, only what is compiled and how long a looping
+mutant may run. Still open on #8599: the baseline proof (30-60 s a case, half of it the Java CICS run), the CICS
+in-process path running every scenario before it judges, and the java-facade false survivors.
+
+**The same split on a full enumeration and on a loaded box (2026-11-19, #8599).** `det_mutation.py run`, fast+one-jvm,
+`--jobs 2`, `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`, on nyx at origin/main with the two cuts above (a70f86d74), each
+row one run (n=1). Seconds from the run's log, each line stamped with its time since the start; "load" is the 1-minute
+load average over the run (12 cores):
+
+| run | load | translate | baseline proof | javac check | warm-up | prove | total |
+|---|---|---|---|---|---|---|---|
+| cbsa-updcust `--sample 60 --seed 1`, quiet | 2-3 | 2.7 | 13.1 | 7.2 (60) | 4.4 | 11.2 (57) | 39.4 |
+| the same, 12 busy loops beside it | 7-12 | 4.6 | 28.8 | 14.3 (60) | 8.6 | 25.1 (57) | 82.6 |
+| cbsa-updcust `--sample 0` (690 mutants) | 2-3 | 2.8 | 13.0 | 68.9 (690) | 4.3 | 145.0 (666) | 234.8 |
+| carddemo-readcust `--sample 0` (249 mutants, 8 timeouts) | 2-3 | 15.8 (cold) | 26.0 | 20.6 (249) | 13.4 | 288.3 (237) | 364.1 |
+
+"Warm-up" is the time from the stillborn line to the first verdict: the in-process workers' unmutated calibration run.
+What it says:
+
+- **The fixed cost per case is translate + baseline proof + warm-up: about 20 s for UPDCUST (13 of it the baseline) and
+  55 s for readcust (39 once the translation is cached).** It is half of a 60-mutant run (51%, quiet and loaded alike)
+  and 9% of a full UPDCUST enumeration (20 s of 235) and 15% of readcust's (11% warm). The issue's "three quarters of a
+  run is fixed overhead" holds for a `--sample 60` run only; a full enumeration is dominated by the per-mutant part.
+- **The per-mutant cost is the javac check (0.1 s a mutant) plus the proof (0.22 s on UPDCUST, 1.2 s on readcust, which also holds 8 timeouts and whose
+  batch port runs many fault scenarios per mutant).** At full enumeration the proof is 62% (UPDCUST) and 79% (readcust)
+  of the run, so per-mutant work (early exit, ordering kills first, cheaper contexts: #8643) now matters more than the
+  baseline.
+- **A loaded box stretches every phase about 2x (82.6 s against 39.4 s at load 7-12), not one phase**: the baseline
+  proof 2.2x, the javac check 2.0x, the proof 2.2x. The split is stable, so the quiet-box numbers can be compared
+  across changes; wall time on a busy box cannot (compare phases, not totals).
+- **Re-translating an unchanged case is already skipped**: `equivalence_cache` hits, a warm translate is 2.7-2.8 s on
+  UPDCUST (the 15.8 s on readcust is its first translate in this checkout), so a fingerprint skip in `refresh` would save
+  about 3 s a case. The checklist item is closed by this finding, not by new code. Still open: sharing the baseline proof
+  across cases (13-26 s a case), early exit in the CICS in-process path, and the other items in the #8599 checklist.
 
 ## Scores
 

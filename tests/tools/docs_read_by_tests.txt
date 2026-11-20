@@ -56,6 +56,7 @@
 /MAIN.cbl	tests/cobol_mainframe
 /MAINLN.cbl	tests/cobol_mainframe
 /MAPSET.bms	tests/cobol_mainframe
+/MATTOY.cbl	tests/cobol_mainframe
 /MYDATA.cpy	tests/cobol_mainframe
 /MYREC.cpy	tests/cobol_mainframe
 /Main.java	tests/cobol_mainframe
@@ -96,6 +97,7 @@
 /ZZREPO	tests/tools/test_cics_census_listing_8112.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
+/a.c	tests/core_engine
 /a.py	tests/core_engine
 /action.yml	tests/core_engine
 /api_v1	tests/security_auditing
@@ -107,6 +109,7 @@
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
+/b.c	tests/core_engine
 /bad.forbidden	tests/security_auditing
 /baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine
@@ -169,11 +172,13 @@
 /ord	tests/cobol_mainframe
 /other	tests/cobol_mainframe
 /other.py	tests/core_engine
+/package.json	tests/security_auditing
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe
 /pgm.cbl	tests/tools/test_cics_census_listing_8112.py,tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
+/port	tests/tools/test_l5_speedups.py
 /private.key	tests/security_auditing
 /procs	tests/cobol_mainframe
 /production.pem	tests/security_auditing
@@ -246,7 +251,7 @@ _galaxy_llm.md	gitgalaxy
 _layout.json	tests/golden_store.py,tests/tools/bugfix_kit.py,tests/tools/register.py
 _llm.md	tests/golden_outputs_snapshot.py
 _port_ticket.md	gitgalaxy
-a.md	tests/core_engine,tests/extraction,tests/tools/test_doc_drift_issues.py
+a.md	tests/core_engine,tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
 a/b.md	tests/tools/test_post_merge_dispatch.py
 a/b/c.md	tests/tools/test_post_merge_dispatch.py
 agent_guardrail.md	gitgalaxy,tests/cobol_mainframe
@@ -515,7 +520,6 @@ gitgalaxy/standards/cics/README.md	tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py
 gitgalaxy/tools/cobol_to_java/det/NOTES.md	tests/cobol_mainframe
-gitgalaxy/tools/supply_chain_security/README.md	tests/tools/test_readme_hand_counts.py
 github-action-readme.md	tests/tools/test_cli_contract.py
 github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md	tests/tools/test_progress_slide.py
 github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md	gitgalaxy
@@ -538,7 +542,7 @@ libraries/ZVulkan/LICENSE.md	tests/core_engine
 lineage.md	tests/tools/doom_speedrun,tests/tools/test_doom_lineage.py
 list.md	tests/core_engine
 llm.md	tests/tools/test_cli_contract.py
-loop.md	tests/tools/porting_loop.py
+loop.md	tests/cobol_mainframe,tests/tools/porting_loop.py
 mainframe-evidence-policy.md	tests/tools/infeasible_outcomes.py,tests/tools/ladder_refresh.py
 manual_verification.json	tests/tools/tri_comparison_chart.py
 migration_worklist.md	gitgalaxy,tests/cobol_mainframe,tests/tools/publish_examples.py
@@ -567,7 +571,7 @@ register/probe_a.md	tests/tools/test_pr_runner_cost.py
 register/probe_b.md	tests/tools/test_pr_runner_cost.py
 repo/b.md	tests/security_auditing
 repo_galaxy_llm.md	tests/tools/test_cli_contract.py
-report.md	tests/cultural_gauntlet,tests/tools/cics_crucible.py,tests/tools/cultural_gauntlet.py,tests/tools/equivalence.py,tests/tools/equivalence_cics.py,tests/tools/estate_evidence.py,tests/tools/evidence_report.py,tests/tools/publish_examples.py,tests/tools/test_estate_evidence.py,tests/tools/test_evidence_report.py,tests/tools/test_generated_branch.py,tests/tools/test_unicode_gauntlet_vs_treesitter.py,tests/tools/unicode_gauntlet.py,tests/tools/unicode_gauntlet_vs_treesitter.py
+report.md	tests/core_engine,tests/cultural_gauntlet,tests/tools/cics_crucible.py,tests/tools/cultural_gauntlet.py,tests/tools/equivalence.py,tests/tools/equivalence_cics.py,tests/tools/estate_evidence.py,tests/tools/evidence_report.py,tests/tools/publish_examples.py,tests/tools/test_estate_evidence.py,tests/tools/test_evidence_report.py,tests/tools/test_generated_branch.py,tests/tools/test_unicode_gauntlet_vs_treesitter.py,tests/tools/unicode_gauntlet.py,tests/tools/unicode_gauntlet_vs_treesitter.py
 report_generated.md	tests/tools/publish_examples.py
 report_ported.md	tests/tools/publish_examples.py
 response.md	tests/tools/strengthen.py

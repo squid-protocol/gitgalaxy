@@ -121,3 +121,28 @@ def test_reflection_metaprogramming_comments_use_the_display_name():
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"reflection_metaprogramming ({name}:" in text, stem
         assert "Metaprogramming & Reflection" not in text, stem
+
+
+def test_safety_comments_use_the_display_name():
+    name = SIGNAL_DISPLAY_NAMES["safety"][1].split(" (")[0]
+    for stem in (
+        "zig",
+        "ruby",
+        "dockerfile",
+        "livecode",
+        "abap",
+        "agc_assembly",
+        "apex",
+        "assembly",
+        "kotlin",
+        "rust",
+        "scala",
+        "groovy",
+        "cpp",
+        "embedded_python",
+        "m4",
+        "dart",
+    ):
+        text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
+        assert f"safety ({name}:" in text, stem
+        assert "Defensive Programming" not in text, stem

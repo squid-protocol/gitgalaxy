@@ -103,7 +103,7 @@ DEFINITION: dict[str, Any] = {
         # 5. class_start (Object / Entity Declarations)
         "class_start": None,  # M4 is a macro processor, lacking objects.
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Autoconf environment checks and M4 assertions.
         "safety": re.compile(
             r"\b(?:m4_assert|AS_VERSION_COMPARE|AC_CHECK_PROGS?|AC_CHECK_LIB|AC_CHECK_HEADERS?|AC_CHECK_FUNCS?|m4_warn)\b"

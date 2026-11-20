@@ -160,7 +160,7 @@ def test_network_readiness_and_supply_chain_dirs_are_hashed_exactly_when_the_sca
         "gitgalaxy/tools/readiness/__init__.py",
         "gitgalaxy/tools/readiness/offline.py",
         "gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py",
-        "gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py",
+        "gitgalaxy/tools/supply_chain_security/import_policy_gate.py",
     }
     assert all(_hashed(f, patterns) for f in kept)
     assert not _hashed("gitgalaxy/tools/supply_chain_security/vault_sentinel.py", patterns)

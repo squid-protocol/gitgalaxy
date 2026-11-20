@@ -90,6 +90,9 @@ def scan(det_root: Path, model_roots: list[Path], work: Path) -> None:
         det = service_file(c["case"], c["program"], det_root)
         if det:
             _put(work / "det" / c["estate"], det)
+            side = det.with_name(det.stem + PROVENANCE_SUFFIX)
+            if side.is_file():
+                _put(work / "det" / c["estate"], side)
         model = next((m for r in model_roots if (m := service_file(c["case"], c["program"], r))), None)
         if model:
             _put(work / "model" / c["estate"], model)
@@ -263,9 +266,34 @@ DET_PARA = re.compile(
 )
 
 
-def det_methods(java: str) -> dict[str, str]:
-    """paragraph name -> det method name, from the emitter's `/** NAME. */` javadoc on each paragraph method."""
+def det_methods(java: str, provenance: dict[str, str] | None = None) -> dict[str, str]:
+    """paragraph name -> det method name. The translator's own `stats["paragraph_methods"]` (#8488), when a sidecar
+    carries it, is the truth; otherwise the emitter's `/** NAME. */` javadoc on each paragraph method."""
+    if provenance:
+        return dict(provenance)
     return {m["name"]: m["method"] for m in DET_PARA.finditer(java)}
+
+
+PROVENANCE_SUFFIX = ".paragraph_methods.json"
+
+
+def read_provenance(java_path: Path) -> dict[str, str]:
+    """The sidecar `<Service>.paragraph_methods.json` beside a det service, or {} when absent or malformed."""
+    side = java_path.with_name(java_path.stem + PROVENANCE_SUFFIX)
+    try:
+        data = json.loads(side.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {str(k): v for k, v in data.items() if isinstance(v, str) and v}
+
+
+def provenance_drift(provenance: dict[str, str], javadoc: dict[str, str]) -> list[str]:
+    """Paragraphs the stats and the javadoc place differently (or only one of them knows), sorted."""
+    if not provenance:
+        return []
+    return sorted(k for k in provenance.keys() | javadoc.keys() if provenance.get(k) != javadoc.get(k))
 
 
 def method_span(lines: list[str], start: int) -> tuple[int, int]:
@@ -382,17 +410,22 @@ def analyze(work: Path) -> dict[str, Any]:
             continue
         det_java = det_java_path.read_text(encoding="utf-8")
         det_rows = {r["func_name"]: r for r in rows["det"].get(det_java_path.name, [])}
-        dmap = det_methods(det_java)
+        prov = read_provenance(det_java_path)
+        dmap = det_methods(det_java, prov)
+        drift = provenance_drift(prov, det_methods(det_java))
         plist = paragraphs(c, work)
         names = [p["name"] for p in plist]
         model_path = next((work / "model" / c["estate"]).glob(f"{_svc(c)}.java"), None)
         model_java = model_path.read_text(encoding="utf-8") if model_path else ""
         model_rows = rows["model"].get(model_path.name, []) if model_path else []
         malign = model_alignment(model_java, model_rows, names) if model_path else {}
+        unmapped = []
         for p in plist:
             cob = cob_rows.get(p["name"])
             det = det_rows.get(dmap.get(p["name"], ""))
             if cob is None or det is None:
+                if prov and p["name"] not in dmap:
+                    unmapped.append(p["name"])  # the translator names no method for it: merged or dropped
                 continue
             rec = {"case": c["case"], "estate": c["estate"], "program": c["program"], **p,
                    "cobol": {m: float(cob[m] or 0) for m in METRICS}, "det": {m: float(det[m] or 0) for m in METRICS},
@@ -419,6 +452,10 @@ def analyze(work: Path) -> dict[str, Any]:
                            "model": {m: float(mr[m] or 0) for m in METRICS}, "model_span": span,
                            "idioms": sorted(idioms(text))})  # fmt: skip
         programs.append(_program_totals(c, rows, det_java_path.name, model_path, paras))
+        if drift:
+            programs[-1]["provenance_drift"] = drift
+        if unmapped:
+            programs[-1]["unmapped_paragraphs"] = unmapped
     return {"paragraphs": paras, "groups": groups, "programs": programs,
             "constructs": _construct_tables(paras, groups), "candidates": _candidates(groups),
             "todo": _todo_origins(work)}  # fmt: skip

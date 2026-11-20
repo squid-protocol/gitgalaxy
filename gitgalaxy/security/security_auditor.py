@@ -125,6 +125,21 @@ class SecurityAuditor:
                 "⚠️ numpy, pandas or xgboost not installed in this environment. Running graph resolution only."
             )
 
+    MANUAL_SHADOW_PATCH_ALERT = (
+        "SHADOW PATCH (manually asserted via --shadow-patch-detected; no hash or version was compared)"
+    )
+
+    def _apply_manual_shadow_patch_hint(self, artifacts):
+        """
+        Annotates structurally heavy files when the caller asserted a shadow patch.
+        The flag is a human claim: nothing is hashed or compared, so this assigns
+        no threat class and no score, and runs with or without a model (#8431).
+        """
+        for artifact in artifacts:
+            if artifact.get("file_impact", 0.0) > 0.5:
+                ctx = artifact.setdefault("telemetry", {}).setdefault("domain_context", {})
+                ctx["alert"] = self.MANUAL_SHADOW_PATCH_ALERT
+
     def audit_repository(self, artifacts, is_shadow_patch=False):
         """
         Orchestrates the resolution of transitive dependency graphs and
@@ -142,6 +157,9 @@ class SecurityAuditor:
                 f"❌ Catastrophic failure during dependency graph resolution: {e}",
                 exc_info=True,
             )
+
+        if is_shadow_patch:
+            self._apply_manual_shadow_patch_hint(artifacts)
 
         if not self.model:
             self.logger.warning("Skipping ML Threat Inference (Model not loaded).")
@@ -183,19 +201,6 @@ class SecurityAuditor:
                 # Find the index (0-4) with the highest probability
                 predicted_class = int(np.argmax(probs_row))
                 ml_score = round(float(probs_row[predicted_class]) * 100.0, 2)
-
-                # ---> THE SHADOW PATCH OVERRIDE <---
-                # If a file's hash mutated without a version bump (detected by the Pipeline Orchestrator),
-                # and the file has actual structural mass (not just a 1-line whitespace change),
-                # we forcefully override the ML model to flag it as a Trojan.
-                if is_shadow_patch and artifact.get("file_impact", 0.0) > 0.5:
-                    predicted_class = 2  # Force it to "Stealer / Trojan"
-                    ml_score = 100.0
-                    if "domain_context" not in artifact["telemetry"]:
-                        artifact["telemetry"]["domain_context"] = {}
-                    artifact["telemetry"]["domain_context"]["alert"] = (
-                        "SHADOW PATCH: Hash mutated without version bump!"
-                    )
 
                 # ---> NEW: The Machine Learning Assembly & Static Asset Shield <---
                 # XGBoost falsely flags raw Assembly, inert static files (Markdown/JSON),

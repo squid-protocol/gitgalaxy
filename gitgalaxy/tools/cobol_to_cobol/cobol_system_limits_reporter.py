@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 # ==============================================================================
 # DEFENSIVE DESIGN (STRUCTURAL ANOMALY SIGNATURES):
@@ -90,7 +91,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="GitGalaxy Architectural Anomaly Detector")
     parser.add_argument("target", help="Path to a .cbl file OR a directory to scan")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():

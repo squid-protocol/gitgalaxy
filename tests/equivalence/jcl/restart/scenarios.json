@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), the JOB statement's RESTART parameter (stepname, stepname.procstepname, *, checkid, the SYSCHK DD) and the EXEC statement's RD parameter, plus the COND / IF rules of slice 1. Written before any restart code ran on it. The manual's text was read by section through IBM's published z/OS 2.1 library (page numbers are not cited); the 2.1 wording was not re-read against the current release.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385), the JOB statement's RESTART parameter (stepname, stepname.procstepname, *, checkid, the SYSCHK DD) and the EXEC statement's RD parameter, plus the COND / IF rules of slice 1. Written before any restart code ran on it. Second pass (2026-11-19) read the z/OS 3.1 JCL Reference (ieab600, JOB: RESTART 'Cautions when coding the RESTART parameter' and EXEC: COND 'When the JOB statement contains a RESTART parameter'): the COND and IF referback shapes that the first pass refused are answered there.",
   "scenario_input": "given: per step that starts in the restarted run, {rc: n}. Steps before the restart step have no entry (they do not execute).",
   "scenario_answer": "expect: per step, skipped (not executed because of the restart), run, or bypass (the COND / IF of the restart step or a later step kept it from starting).",
   "flow_jcl": [
@@ -49,10 +49,47 @@
     "//W4       EXEC PGM=PGMD",
     "//         ENDIF",
     "//*",
-    "//BADJOB1  JOB (ACCT),'COND REFERBACK',CLASS=A,RESTART=Z2",
+    "//RSTJOB6  JOB (ACCT),'COND REFERBACK',CLASS=A,RESTART=Z2",
     "//Z1       EXEC PGM=PGMA",
     "//Z2       EXEC PGM=PGMB",
     "//Z3       EXEC PGM=PGMC,COND=(0,NE,Z1)",
+    "//*",
+    "//RSTJOB7  JOB (ACCT),'COND MIXED',CLASS=A,RESTART=M2",
+    "//M1       EXEC PGM=PGMA",
+    "//M2       EXEC PGM=PGMB",
+    "//M3       EXEC PGM=PGMC,COND=((0,NE,M1),(4,LT,M2))",
+    "//*",
+    "//RSTJOB8  JOB (ACCT),'ONLY ON RESTART',CLASS=A,RESTART=G2",
+    "//G1       EXEC PGM=PGMA",
+    "//G2       EXEC PGM=PGMB,COND=ONLY",
+    "//G3       EXEC PGM=PGMC",
+    "//*",
+    "//RSTJOB10 JOB (ACCT),'IF ELSE REFERBACK',CLASS=A,RESTART=E2",
+    "//E1       EXEC PGM=PGMA",
+    "//E2       EXEC PGM=PGMB",
+    "//         IF (E1.RC = 0) THEN",
+    "//E3       EXEC PGM=PGMC",
+    "//         ELSE",
+    "//E4       EXEC PGM=PGMD",
+    "//         ENDIF",
+    "//*",
+    "//RSTJOB11 JOB (ACCT),'STAR CHECKPOINT',CLASS=A,RESTART=(*,CKPT2)",
+    "//SYSCHK   DD DSN=CHKPT,DISP=OLD",
+    "//K1       EXEC PGM=PGMA",
+    "//K2       EXEC PGM=PGMB",
+    "//*",
+    "//RSTJOB12 JOB (ACCT),'PROC CKPT',RESTART=(PAY.WEEKLY,CHECK8)",
+    "//SYSCHK   DD DSN=CHKPT,DISP=OLD",
+    "//PAYPR    PROC",
+    "//DAILY    EXEC PGM=PGMA",
+    "//WEEKLY   EXEC PGM=PGMB",
+    "//         PEND",
+    "//PAY      EXEC PAYPR",
+    "//AFTER    EXEC PGM=PGMC",
+    "//*",
+    "//BADJOB6  JOB (ACCT),'DUPLICATE STEP',CLASS=A,RESTART=D1",
+    "//D1       EXEC PGM=PGMA",
+    "//D1       EXEC PGM=PGMB",
     "//*",
     "//BADJOB2  JOB (ACCT),'NO SYSCHK',CLASS=A,RESTART=(Y2,CK9)",
     "//Y1       EXEC PGM=PGMA",
@@ -61,7 +98,7 @@
     "//BADJOB3  JOB (ACCT),'NO SUCH STEP',CLASS=A,RESTART=NOSUCH",
     "//X1       EXEC PGM=PGMA",
     "//*",
-    "//BADJOB4  JOB (ACCT),'IF REFERBACK',CLASS=A,RESTART=R2",
+    "//RSTJOB9  JOB (ACCT),'IF REFERBACK',CLASS=A,RESTART=R2",
     "//R1       EXEC PGM=PGMA",
     "//R2       EXEC PGM=PGMB",
     "//         IF (R1.RC = 0) THEN",
@@ -297,25 +334,156 @@
         "W4": "run"
       },
       "basis": "W2.RC = 8 makes the IF false: the ELSE clause (W4) runs."
+    },
+    {
+      "id": "restart-cond-referback-ignored",
+      "job": "RSTJOB6",
+      "given": {
+        "Z2": {
+          "rc": 8
+        },
+        "Z3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "Z1": "skipped",
+        "Z2": "run",
+        "Z3": "run"
+      },
+      "basis": "JOB RESTART, COND caution: a COND naming a step before the restart step has its return code test ignored (evaluated false); with every other test false the step runs. Z3's only test names Z1, so Z3 runs although Z2 ended 8."
+    },
+    {
+      "id": "restart-cond-mixed-tests",
+      "job": "RSTJOB7",
+      "given": {
+        "M2": {
+          "rc": 8
+        }
+      },
+      "expect": {
+        "M1": "skipped",
+        "M2": "run",
+        "M3": "bypass"
+      },
+      "basis": "EXEC COND, when the JOB has RESTART: a test naming the skipped M1 is false, but the other test (4,LT,M2) is evaluated normally; M2 ended 8, so it is true and M3 is bypassed."
+    },
+    {
+      "id": "restart-cond-mixed-tests-run",
+      "job": "RSTJOB7",
+      "given": {
+        "M2": {
+          "rc": 0
+        },
+        "M3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "M1": "skipped",
+        "M2": "run",
+        "M3": "run"
+      },
+      "basis": "As above with M2 at 0: both tests are false, so M3 runs."
+    },
+    {
+      "id": "restart-step-cond-only-is-false",
+      "job": "RSTJOB8",
+      "given": {
+        "G2": {
+          "rc": 0
+        },
+        "G3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "G1": "skipped",
+        "G2": "run",
+        "G3": "run"
+      },
+      "basis": "EXEC COND, when the JOB has RESTART: the restart step becomes the first step of the job and the system evaluates any COND parameter on it as false and executes it. COND=ONLY on G2 would otherwise bypass it (no earlier step abended)."
+    },
+    {
+      "id": "restart-if-referback-false",
+      "job": "RSTJOB9",
+      "given": {
+        "R2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "R1": "skipped",
+        "R2": "run",
+        "R3": "bypass"
+      },
+      "basis": "JOB RESTART, IF caution: a relational expression that references a step bypassed by RESTART is evaluated false. R1.RC = 0 is false, so the THEN step R3 is bypassed."
+    },
+    {
+      "id": "restart-if-referback-else",
+      "job": "RSTJOB10",
+      "given": {
+        "E2": {
+          "rc": 0
+        },
+        "E4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E1": "skipped",
+        "E2": "run",
+        "E3": "bypass",
+        "E4": "run"
+      },
+      "basis": "As above: E1.RC = 0 is false because E1 was bypassed by RESTART, so the ELSE clause (E4) runs."
+    },
+    {
+      "id": "restart-star-checkpoint",
+      "job": "RSTJOB11",
+      "given": {
+        "K1": {
+          "rc": 0
+        },
+        "K2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "K1": "run",
+        "K2": "run"
+      },
+      "basis": "JOB RESTART Example 3: RESTART=(*,CKPT2) restarts at checkpoint CKPT2 in the first job step; the SYSCHK DD follows the JOB statement. K1 still starts, no step is skipped."
+    },
+    {
+      "id": "procstep-checkpoint-restart",
+      "job": "RSTJOB12",
+      "given": {
+        "PAY.WEEKLY": {
+          "rc": 0
+        },
+        "AFTER": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "PAY.DAILY": "skipped",
+        "PAY.WEEKLY": "run",
+        "AFTER": "run"
+      },
+      "basis": "JOB RESTART Example 4: RESTART=(PAY.WEEKLY,CHECK8): PAY is the EXEC that calls the procedure, WEEKLY the procedure step holding checkpoint CHECK8. The steps before WEEKLY are skipped, WEEKLY and AFTER run."
     }
   ],
   "assumed": [
     {
       "id": "A1",
-      "text": "A step skipped by the restart has no return code in the restarted run, so a bare COND=(code,op) and a bare IF RC read only the steps that executed in it. IBM states the step-name referback restriction but not this; no real system's catalog of previous-run codes is consulted."
+      "text": "A step skipped by the restart has no return code in the restarted run, so a bare COND=(code,op) (no stepname) reads only the steps that executed in it. IBM states the rule for a COND or IF that NAMES a skipped step (ignored / false), not for the bare form."
     }
   ],
   "not_modelled": [
     "Automatic restart after a failure of the running job (RD=R / RNC, system restart): an action during a run, not a resubmission; the resolver reads JOB RESTART= only and does not read RD."
   ],
   "refused": [
-    {
-      "id": "ref-cond-referback",
-      "job": "BADJOB1",
-      "match": "precedes the restart step",
-      "construct": "COND=(code,op,stepname) in the restart step or a later step naming a step before the restart step",
-      "reason": "IBM: the EXEC COND and PGM and the DD VOL=REF values naming a step that precedes the restart step must not be used in the restart step or later steps"
-    },
     {
       "id": "ref-checkid-without-syschk",
       "job": "BADJOB2",
@@ -331,18 +499,18 @@
       "reason": "IBM: the system cannot restart at a step that is not in the job"
     },
     {
-      "id": "ref-if-referback",
-      "job": "BADJOB4",
-      "match": "precedes the restart step",
-      "construct": "an IF relational expression naming a step before the restart step",
-      "reason": "IBM's RESTART text lists COND, PGM and VOL=REF referbacks only; what an IF does with a skipped step is not stated, so it is refused rather than guessed"
-    },
-    {
       "id": "ref-calling-step",
       "job": "BADJOB5",
       "match": "procstepname",
       "construct": "RESTART= naming the calling step of a procedure without a procstepname",
       "reason": "IBM's syntax restarts at stepname.procstepname; the bare calling step is not stated"
+    },
+    {
+      "id": "ref-duplicate-step",
+      "job": "BADJOB6",
+      "match": "not unique",
+      "construct": "RESTART= naming a step name that appears twice in the job",
+      "reason": "IBM: the stepname and procstepname that identify the restart step must be unique within the job; otherwise the system cannot determine the restart step and results are unpredictable"
     }
   ]
 }

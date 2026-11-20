@@ -438,7 +438,11 @@ def main():
         help="With --scan: the estate's code page (cp277, or GLOB=CODEC,...), as galaxyscope's own flag; "
         "a --galaxy-db already records the page each file was decoded with",
     )
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce  # #8624
+
+    add_flag(parser)
     args = parser.parse_args()
+    enforce(args)  # the --scan galaxyscope child inherits GITGALAXY_ASSESS_OFFLINE
     if args.source_encoding and not args.scan:  # #3909: the DB is the declaration; a second one could disagree
         parser.error("--source-encoding declares the page for --scan")
 

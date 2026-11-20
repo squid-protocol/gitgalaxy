@@ -143,6 +143,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         cobol_store_dominated,
         map_length_scale,
         goto_flag_bit,
+        return_area_cut,
         eib_resp_unread,
         refusal_text,
         exception_ctor,
@@ -984,6 +985,24 @@ def map_length_scale(
     if img is None or 0xFF in img[off : off + size]:
         return None
     return {"result": "map-length-scale", "fact": f"{name} is only stored as a text length and read as == -1, which no scale makes true"}  # fmt: skip
+
+
+_RETURN_AREA = re.compile(r"^(\s*\w+\.returnTransid\(.*, )(\d+)(, Cobol\.commarea\(\w+, )(\d+)(\)\.bytes\);\s*)$")
+
+
+def return_area_cut(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """The size of `Cobol.commarea(F, N).bytes` passed as a RETURN's raw area: the forge's `areaOf` cuts the area to the
+    RETURN's LENGTH literal L (the next task's EIBCALEN), so a size N that stays >= L on both sides gives the same
+    first L bytes (a record's own bytes, then the same opaque tail) and nothing past L is carried."""
+    b, a = _RETURN_AREA.match(mutant.get("before") or ""), _RETURN_AREA.match(mutant.get("after") or "")
+    if not b or not a or b.group(1) != a.group(1) or b.group(3) != a.group(3) or b.group(5) != a.group(5):
+        return None
+    length, was, now = int(b.group(2)), int(b.group(4)), int(a.group(4))
+    if was == now or was < length or now < length or b.group(2) != a.group(2):
+        return None
+    return {"result": "return-area-cut", "fact": f"RETURN LENGTH({length}) cuts the area to {length} bytes, so commarea size {was} vs {now} (both >= {length}) carries the same bytes"}  # fmt: skip
 
 
 _GOTO_DECL = re.compile(r"^\s*private static final int GOTO = (\d+) << (\d+);\s*$")

@@ -1206,3 +1206,20 @@ def test_exception_ctor_negatives():
     assert (
         _exc(_EXC.replace("        }\n    }\n    void", "        }\n        int z;\n    }\n    void")) is None
     )  # shape
+
+
+# ---- RETURN raw area: cut to LENGTH, so a bigger or smaller area at or above LENGTH is the same bytes
+
+_RET = (
+    '        task.returnTransid("HX01".strip(), out_WsCa(f_WS_CA.storage(), f_WS_CA.offset()), 1,'
+    " Cobol.commarea(f_WS_CA, 1).bytes);"
+)
+
+
+def test_return_area_cut_is_settled_only_while_both_sizes_cover_the_length():
+    text = "class P {\n" + _RET + "\n}\n"
+    got = _plumb(text, _RET, _RET.replace("commarea(f_WS_CA, 1)", "commarea(f_WS_CA, 2)"))
+    assert got and got["result"] == "return-area-cut"
+    assert _plumb(text, _RET, _RET.replace("commarea(f_WS_CA, 1)", "commarea(f_WS_CA, 0)")) is None  # under LENGTH
+    assert _plumb(text, _RET, _RET.replace(", 1, Cobol", ", 2, Cobol")) is None  # the LENGTH itself moved
+    assert _plumb(text, _RET, _RET.replace("commarea(f_WS_CA", "commarea(f_OTHER")) is None

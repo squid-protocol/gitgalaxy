@@ -26,6 +26,7 @@ import sys
 
 def main(argv: list[str] | None = None) -> int:
     from gitgalaxy.tools.readiness import assess
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce
     from gitgalaxy.tools.sensors import activity, change, libsurface, reach
 
     p = argparse.ArgumentParser(prog="gitgalaxy")
@@ -44,7 +45,11 @@ def main(argv: list[str] | None = None) -> int:
     change.add_arguments(c)
     ac = sub.add_parser("activity", help="how active each file is and who looks after it, from git history (read-only)")
     activity.add_arguments(ac)
+    for sensor in (r, ls, c, ac):
+        add_flag(sensor)  # #8624
     args = p.parse_args(argv)
+    if args.command != "assess":
+        enforce(args)  # #8624: assess is always offline already
     if args.command == "reach":
         return reach.run(args)
     if args.command == "activity":

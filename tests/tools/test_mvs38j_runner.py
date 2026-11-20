@@ -86,3 +86,55 @@ def test_wait_ignores_an_earlier_run_of_the_same_job_name(tmp_path):
     f.write_text(LOG)
     assert not runner.wait_for_job(f, "TESTJOB", 0.2, since=f.stat().st_size, interval=0.05)
     assert runner.wait_for_job(f, "TESTJOB", 0.2, since=0, interval=0.05)
+
+
+LIVE_285 = """\
+IEF403I CATDS - STARTED - TIME=15.16.56
+IEF142I CATDS S1 - STEP WAS EXECUTED - COND CODE 0000
+IEF285I   GG.TEST.CATD                                 CATALOGED     *--------0
+IEF285I   VOL SER NOS= MVSRES.
+IEF142I CATDS S2 - STEP WAS EXECUTED - COND CODE 0000
+IEF285I   GG.TEST.CATD                                 UNCATALOGED   *--------0
+IEF285I   VOL SER NOS= MVSRES.
+IEF285I   SYS26323.T151707.RA000.CATDS.T               PASSED        *--------0
+IEF285I   SYS26323.T151707.RA000.CATDS.T               DELETED
+$HASP395 CATDS    ENDED
+"""
+
+
+def test_ief285i_with_the_live_trailing_marker_is_parsed():
+    """A live 3.8J log (2026-11-19) ends a disposition line in a `*--------0` marker; VOL SER lines are not dispositions."""
+    job = runner.parse_log(LIVE_285)["jobs"][0]
+    assert [(d["dsn"], d["disposition"]) for d in job["dispositions"]] == [
+        ("GG.TEST.CATD", "CATALOGED"),
+        ("GG.TEST.CATD", "UNCATALOGED"),
+        ("SYS26323.T151707.RA000.CATDS.T", "PASSED"),
+        ("SYS26323.T151707.RA000.CATDS.T", "DELETED"),
+    ]
+
+
+PROC_LOG = """\
+IEF403I PJOB - STARTED - TIME=10.00.00
+IEF142I PJOB STEP1 COMPILE - STEP WAS EXECUTED - COND CODE 0004
+IEF142I PJOB STEP1 LKED - STEP WAS EXECUTED - COND CODE 0000
+IEF272I PJOB STEP1 GO - STEP WAS NOT EXECUTED.
+IEF450I PJOB STEP2 GO - ABEND S0C7 U0000 SYSTEM=0C7 USER=0000
+IEF142I PJOB STEP3 - STEP WAS EXECUTED - COND CODE 0000
+$HASP395 PJOB     ENDED
+"""
+
+
+def test_proc_steps_keep_the_step_and_procstep_names_apart():
+    """A PROC step line has a PROCSTEP name after the job step: both are kept, and a plain step has procstep None."""
+    out = runner.parse_log(PROC_LOG)
+    job = out["jobs"][0]
+    assert [(s["step"], s["procstep"], s["executed"], s["cond_code"]) for s in job["steps"]] == [
+        ("STEP1", "COMPILE", True, 4),
+        ("STEP1", "LKED", True, 0),
+        ("STEP1", "GO", False, None),
+        ("STEP3", None, True, 0),
+    ]
+    assert job["abends"] == [{"step": "STEP2", "system": "S0C7", "user": "U0000"}]
+    assert [(s["job"], s["step"], s["procstep"]) for s in out["step_log"]] == [
+        ("PJOB", s["step"], s["procstep"]) for s in job["steps"]
+    ]

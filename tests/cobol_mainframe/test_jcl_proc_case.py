@@ -34,7 +34,7 @@ def test_every_jcl_line_fits_columns_1_to_72():
 
 def test_the_libraries_hold_the_members_the_scenarios_search_for():
     assert {k: sorted(v) for k, v in LIBS.items()} == {
-        "LIB.A": ["OUTER", "PRC1", "PRC3", "PRC4", "STDDDS"],
+        "LIB.A": ["GRPX", "GRPY", "OUTER", "PRC1", "PRC3", "PRC4", "STDDDS", "SYSOUT2"],
         "LIB.B": ["PRC1", "PRC2", "PRC4", "STDDDS"],
     }
 
@@ -73,14 +73,16 @@ def test_what_is_not_answered_is_refused_by_name():
     refused = " ".join(r["construct"] for r in DOC["refused"])
     for name in (
         "together with",
-        "duplicate symbols",
-        "assigned nowhere",
         "SYSOUT",
         "backward reference",
         "IF flow",
-        "15 levels",
+        "inside a procedure holding an EXEC or SET",
+        "after the EXEC",
     ):
         assert name in refused, name
+    invalid = " ".join(r["construct"] for r in DOC["invalid"])
+    for name in ("15 levels", "JOB, PROC, PEND or JCLLIB", "assigned nowhere"):
+        assert name in invalid, name
 
 
 @pytest.mark.parametrize("sc", DOC["resolve"], ids=lambda s: s["id"])
@@ -149,11 +151,44 @@ def test_a_sysout_over_a_dsn_dd_and_a_call_parm_through_nesting_are_refused():
     _refused(nest + "//C EXEC PO,PARM=Q\n", "calls procedures")
 
 
-def test_an_include_group_holding_a_non_dd_statement_and_nesting_past_15_levels_are_refused():
-    text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//PR PROC\n//A EXEC PGM=X\n// INCLUDE MEMBER=BAD\n// PEND\n//C EXEC PR\n"
-    _refused(text, "anything but DD", {"LIB.A": {"BAD": "//B EXEC PGM=Y\n"}})
-    procs = "".join(f"//P{i} PROC\n//S EXEC P{i + 1}\n// PEND\n" for i in range(1, 17))
-    _refused("//J JOB\n" + procs + "//P17 PROC\n//Z EXEC PGM=X\n// PEND\n//C EXEC P1\n", "15 levels")
+def _chain(depth):
+    """P1 calls P2 ... and the last procedure holds the PGM step: `depth` procedure levels under the call C."""
+    procs = "".join(f"//P{i} PROC\n//S EXEC P{i + 1}\n// PEND\n" for i in range(1, depth))
+    return "//J JOB\n" + procs + f"//P{depth} PROC\n//Z EXEC PGM=X\n// PEND\n//C EXEC P1\n"
+
+
+def test_nesting_to_15_levels_resolves_and_a_16th_level_is_invalid():
+    assert list(resolve_job(_chain(15), {}, "J")) == ["C.Z"]
+    _refused(_chain(16), "15 levels")
+
+
+def test_include_nesting_to_15_levels_resolves_and_a_16th_level_is_invalid():
+    def libs(depth):
+        members = {f"G{i}": f"// INCLUDE MEMBER=G{i + 1}\n" for i in range(1, depth)}
+        return {"LIB.A": members | {f"G{depth}": "//D DD DSN=A\n"}}
+
+    text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//C EXEC PGM=X\n// INCLUDE MEMBER=G1\n"
+    assert resolve_job(text, libs(15), "J")["C"]["dd"] == {"D": "A"}
+    _refused(text, "15 levels", libs(16))
+
+
+@pytest.mark.parametrize("stmt", ["//X JOB", "//X PROC", "// PEND", "//X JCLLIB ORDER=(LIB.A)"])
+def test_an_include_group_holding_a_statement_the_manual_forbids_is_invalid(stmt):
+    text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//C EXEC PGM=X\n// INCLUDE MEMBER=BAD\n"
+    _refused(text, "cannot hold", {"LIB.A": {"BAD": "//D DD DSN=A\n" + stmt + "\n"}})
+
+
+def test_a_job_level_group_holding_exec_and_set_is_spliced_and_one_inside_a_procedure_is_refused():
+    text = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//C EXEC PGM=X\n// INCLUDE MEMBER=G\n"
+    libs = {"LIB.A": {"G": "//S SET Z=ONE\n//B EXEC PGM=Y\n//D DD DSN=&Z\n//O OUTPUT DEST=X\n"}}
+    got = resolve_job(text, libs, "J")
+    assert list(got) == ["C", "B"] and got["B"]["dd"] == {"D": "ONE"}
+    proc = "//J JOB\n//L JCLLIB ORDER=(LIB.A)\n//P PROC\n//A EXEC PGM=X\n// INCLUDE MEMBER=G\n// PEND\n//C EXEC P\n"
+    _refused(proc, "EXEC statement in an INCLUDE group inside a procedure", libs | {"LIB.A": {"G": "//B EXEC PGM=Y\n"}})
+
+
+def test_a_symbol_assigned_nowhere_is_invalid():
+    _refused("//J JOB\n//C EXEC PGM=X\n//D DD DSN=&NOPE\n", "assigned nowhere")
 
 
 def test_nested_calls_are_refused_in_if_flow():

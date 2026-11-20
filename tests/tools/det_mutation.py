@@ -86,6 +86,29 @@ LEDGER_DIRS = {"det_mutation", "det_mutation_survivors"}  # under CASES but not 
 LEDGER = CASES / "det_mutation"  # one <CASE>.json per case (like det_sweep_coverage/, #4789: PRs do not collide)
 SURVIVORS = CASES / "det_mutation_survivors"  # one <CASE>.json per case
 FORMAT = "det-mutation/1"
+
+# A judging run that kills EVERY mutant it judged is a broken judge, not a strong proof (#7954, 2026-11-18): the one-JVM
+# runner lost the X23 stop mark and reported all of UPDCUST's and ABNDPROC's mutants killed with no killer, and it also
+# turned 456 stated verdicts into "the claim is wrong". Over the 131 committed ledgers no case with 20 or more judged
+# mutants has fewer than 2 survivors (the highest kill rate is 98%), so 30 judged and none surviving is refused.
+ALL_KILLED_MIN = 30
+ALLOW_ALL_KILLED_ENV = "GITGALAXY_DETMUT_ALLOW_ALL_KILLED"
+
+
+def all_killed_reason(results: list[dict[str, Any]]) -> str | None:
+    """Why a judging run is not written as a ledger entry, or None: ALL_KILLED_MIN or more mutants judged (killed or
+    survived) and not one survived. Set GITGALAXY_DETMUT_ALLOW_ALL_KILLED=1 once a person has checked the run."""
+    if os.environ.get(ALLOW_ALL_KILLED_ENV):
+        return None
+    judged = [r for r in results if r["verdict"] in ("killed", "survived")]
+    if len(judged) < ALL_KILLED_MIN or any(r["verdict"] == "survived" for r in judged):
+        return None
+    return (f"all {len(judged)} judged mutants were killed and none survived: no committed ledger of {ALL_KILLED_MIN} or "
+            f"more judged mutants looks like that, so the judge is suspect (a scenario only the port refuses counted as a "
+            f"failure, a run the harness cannot judge). Compare a sample with `mutation.py run --no-one-jvm` first; "
+            f"set {ALLOW_ALL_KILLED_ENV}=1 to write it anyway")  # fmt: skip
+
+
 SURVIVORS_FORMAT = "det-mutation-survivors/1"
 INPUTS = ("port", "generator", "case", "corpus", "harness", "oracle", "survivors")
 # what decides a recorded score: a moved one makes the entry stale. The generator / harness / oracle fingerprints are
@@ -118,6 +141,7 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # no handler label) (#7955)
 # map-length-scale: a map length item only stored as a text length and read as == -1 (#7955)
 # goto-flag-bit: the dispatcher's GO TO flag moved to another single bit; it is only ORed on, tested and cleared (#7955)
+# return-area-cut: a RETURN's raw COMMAREA area sized differently but still >= its LENGTH, which cuts it (#7955)
 # eib-resp-unread: a store into a DFHEIBLK item the program never reads (EIBRESP / EIBRESP2), its response local and its
 # declaration moved onto bytes no read EIB item covers (#7955)
 # annotation-text / inert-image: a @SuppressWarnings value (javac lint only); an initial storage image nothing observes
@@ -141,6 +165,7 @@ ATTACK_SETTLED = (
     "inert-image",
     "map-length-scale",
     "goto-flag-bit",
+    "return-area-cut",
     "eib-resp-unread",
     "refusal-text",
     "exception-ctor",
@@ -551,6 +576,9 @@ def record(case: str, run_dir: Path, port: Path) -> int:
     import mutation as mu
 
     run = json.loads((run_dir / "mutation.json").read_text(encoding="utf-8"))
+    if why := all_killed_reason(run["results"]):
+        print(f"{case}: not recorded: {why}")
+        return 1
     every = mu.all_mutants(port, set(mu.OPERATORS), FILES)
     in_scope = scope_filter(case_kind(case), port)(every)
     entry = {
@@ -917,6 +945,9 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
                              one_jvm=entry.get("mode") != "full")  # fmt: skip
             except SystemExit as e:  # the det port is not proven now: nothing to carry
                 print(f"{case}: {e}")
+                return 1, False, None
+            if why := all_killed_reason(res["results"]):
+                print(f"{case}: not renewed: the re-run of {len(again) + len(fresh)} mutant(s): {why}")
                 return 1, False, None
             merged = merge_survivors(entry, res["results"]) if again else entry
             merged = merged and add_fresh(merged, res["results"], fresh)

@@ -205,7 +205,11 @@ def main():
     )
     parser.add_argument("--config", type=Path, help="A YAML / JSON target config: Java kind, build tool, database, ...")
     parser.add_argument("--init-config", type=Path, metavar="PATH", help="Write an annotated default config and exit")
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce  # #8624
+
+    add_flag(parser)
     args = parser.parse_args()
+    enforce(args)
 
     # #3613: the target config -- explicit CLI flags, then the config file, then the defaults.
     if args.init_config:

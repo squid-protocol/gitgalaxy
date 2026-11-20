@@ -120,7 +120,10 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
 3. **Port (`port_runner run` / `refine` / `submit`).** Sends a ticket to a backend:
    - **The deterministic translator** (`--backend det --source-root ESTATE [--style structured] [--typed]`):
      no model; translates the statements of the burned estates into calls against `cobolrt`, preserving
-     `/** <PARAGRAPH>. */` Javadoc provenance and `translation.paragraph_methods` in the event log.
+     `/** <PARAGRAPH>. */` Javadoc provenance and `translation.paragraph_methods` in the event log. det never inlines
+     or drops a paragraph (a `*-EXIT` stub keeps its method), in `dispatch` and `structured` style alike
+     (`tests/cobol_mainframe/test_det_paragraph_provenance_8488.py`); a merged method in a downstream port comes from
+     a model rewrite or a hand port, and `refine --min-fidelity` guards the former.
    - **Model-assisted readability refinement** (`port_runner refine [--min-fidelity ...]`): rewrites
      a proven det port one method at a time, enforcing `structural_fidelity_guard` (preserving Javadoc
      provenance and branch structure) and running the equivalence proof after each method, reverting any

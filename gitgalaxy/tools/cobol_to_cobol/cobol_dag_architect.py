@@ -175,12 +175,15 @@ def extract_lineage(filepath: Path, dead_paras: set | None = None, declared: str
 
 def main():
     from gitgalaxy.licensing import enforce_licensing_guard
+    from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
     enforce_licensing_guard("DAG Architect (Data Lineage)")
 
     parser = argparse.ArgumentParser(description="GitGalaxy DAG Architect v3")
     parser.add_argument("target", help="Directory containing legacy COBOL payloads")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():

@@ -84,11 +84,17 @@ def test_static_asset_shield_overrides_a_real_threat_class(model_path, lang):
     assert audited[0]["is_ml_threat"] is False
 
 
-def test_shadow_patch_forces_trojan_over_a_safe_prediction(model_path):
-    _, audited = _scored(model_path, 0.6, is_shadow_patch=True)
-    ctx = audited[0]["telemetry"]["domain_context"]
-    assert ctx["AI Threat Class"] == SecurityAuditor.CLASS_NAMES[2]
-    assert ctx["AI Threat Score"] == "100.0%"
+def test_shadow_patch_flag_alerts_but_assigns_no_class(model_path):
+    # The model itself may class mass 0.6 as a threat; the flag must add only the alert, never a class or score.
+    _, plain = _scored(model_path, 0.6)
+    _, flagged = _scored(model_path, 0.6, is_shadow_patch=True)
+    plain_ctx = plain[0]["telemetry"]["domain_context"]
+    ctx = flagged[0]["telemetry"]["domain_context"]
+    assert "manually asserted" in ctx["alert"]
+    assert "alert" not in plain_ctx
+    assert flagged[0]["is_ml_threat"] == plain[0]["is_ml_threat"]
+    assert ctx.get("AI Threat Class") == plain_ctx.get("AI Threat Class")
+    assert ctx.get("AI Threat Score") == plain_ctx.get("AI Threat Score")
 
 
 def test_scored_values_reach_the_db_columns(model_path, tmp_path):

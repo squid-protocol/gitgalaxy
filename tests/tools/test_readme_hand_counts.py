@@ -9,7 +9,7 @@ from gitgalaxy.tools.readiness import era_tags
 
 REPO = Path(__file__).resolve().parents[2]
 READINESS = REPO / "gitgalaxy" / "tools" / "readiness" / "README.md"
-TIMING_PAGES = ("gitgalaxy/README.md", "gitgalaxy/tools/supply_chain_security/README.md")
+TIMING_PAGES = ("gitgalaxy/README.md",)  # the supply-chain page dropped its timings (#8428)
 TIMING = re.compile(r"\d[\d,.]*\s*(?:seconds|files per second|files/sec|LOC/s)", re.IGNORECASE)
 LABEL = re.compile(r"Single run, measured \d{4}-\d{2}-\d{2}")
 TELL_COUNT = re.compile(r"\b(\d+)\s+(?:syntactic\s+)?(?:tells|constructs)\b")

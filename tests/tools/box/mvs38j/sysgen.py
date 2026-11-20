@@ -5,16 +5,20 @@ Internal use only until counsel answers Q16. Stdlib only; runs on the host and s
 (`docker run -i`), feeding it commands on stdin and reading its log (which carries the integrated 1052-C console) on
 stdout. Stages are small functions over `Hercules`; each one checks the messages and PSW the guide documents and raises
 `SysgenError` rather than carry on. Implemented: `starter` (the two stand-alone programs per volume) and `smp1` / `smp2` (starter-system
-IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). Not yet: sysgen02..06, user mods: see docs/jcl_oracle_mvs38j.md "Remaining slices".
+IPL over the telnet 3215 console, jobs through the card reader at 00C, tape mounts, condcode per job). `stage1` (sysgen00/01 to `stage1.output`) and `stage2` (the converted deck, SYSGEN1..6 released one by one). `stage3` (sysgen02..06, the user mods, FDZ1D02, shutdown of the starter). `ipl` (the first IPL of the generated system over the 009 console, with an optional probe deck). Not yet: Moseley's "Customizing MVS" page: see docs/jcl_oracle_mvs38j.md "Remaining slices".
 
     sysgen.py starter [--work DIR] [--image IMG] [--name NAME]
-    sysgen.py smp1|smp2|stage1|stage2 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
+    sysgen.py smp1|smp2|stage1|stage2|stage3 [--work DIR] [--image IMG] [--name NAME] [--port N] [--tape VOLSER=FILE ...]
+    sysgen.py ipl [--work DIR] [--image IMG] [--name NAME] [--probe DECK]
+    sysgen.py serve [--work DIR] [--image IMG] [--name NAME]   # resident box for mvs38j.sh start/stop
     sysgen.py condcode PRINTER_FILE JOB|ALL [--expect STEP=CC ...]
 """
 
 import argparse
+import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -22,7 +26,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # run as `python3 -I`: the script dir is not on the path
-import console as telnet_console  # noqa: E402
+import console as telnet_console
 
 DEFAULT_WORK = "/srv/storage_16tb/projects/gitgalaxy/mvs38j"
 PSW_RE = re.compile(r"HHC02278I Processor CP\d+ PSW: ([0-9A-F]{8}) ([0-9A-F]{8})")
@@ -40,8 +44,9 @@ class SysgenError(RuntimeError):
 class Hercules:
     """One Hercules process in the box image, with its log collected on a thread."""
 
-    def __init__(self, work, conf, image, name, user=None, console_port=None):
+    def __init__(self, work, conf, image, name, user=None, console_port=None, publish=()):
         self.work, self.conf, self.image, self.name = Path(work), conf, image, name
+        self.publish = tuple(publish)  # more loopback-only ports to publish (the card reader socket, 3505)
         self.console_port = console_port  # publish the telnet 3215 console (loopback only) when set
         self.user = user or f"{os.getuid()}:{os.getgid()}"
         self.lines = []
@@ -52,6 +57,8 @@ class Hercules:
         cmd = ["docker", "run", "--rm", "-i", "--name", self.name, "--user", self.user, "-v", f"{self.work}:/mvs"]
         if self.console_port:
             cmd[3:3] = ["-p", f"127.0.0.1:{self.console_port}:3270"]
+        for port in self.publish:
+            cmd[3:3] = ["-p", f"127.0.0.1:{port}:{port}"]
         cmd += ["-w", "/mvs", "--entrypoint", "hercules", self.image, "-f", self.conf, "--daemon"]
         self.proc = subprocess.Popen(  # noqa: S603
             cmd,
@@ -447,6 +454,14 @@ def convert_stage1(text):
     return "\n".join([*out, "//"]) + "\n"
 
 
+TARGET_UNITS = ("149", "14A", "14B", "14C")  # the `attach` lines of conf/sysgen.script
+# Steps of SYSGEN1..6 allowed above CC 4 (live 2026-11-19, fresh volumes: 130 steps; nine `LK` link-edit steps in SYSGEN1/2 end CC 4, within bound).
+STAGE2_EXPECTED = {
+    ("SYSGEN6", "STEPZ1"): (
+        8,
+        "IEHPROGM SCRATCH of SYS1.NUCLEUS(SYSCATLG): IEH207I DATA SET OR MEMBER NOT FOUND on a fresh build",
+    ),
+}
 STAGE2_JOBS = tuple(f"SYSGEN{n}" for n in range(1, 7))
 
 
@@ -465,12 +480,20 @@ def stage2(work, image, name, tapes, port=3270, job_timeout=3600):
     try:
         ipl_starter(herc, con)
         attach_targets(herc, work)
+        for unit in TARGET_UNITS:  # SYSGEN1 allocates MVSRES on 3350: an attached volume is offline (`IEF247I ... 149 OFFLINE`, live 2026-11-19)
+            con.send(f"v {unit},online")
+            time.sleep(
+                3
+            )  # back-to-back lines overrun the 3215 input buffer (`HHC02913E COMM: Buffer overrun` drops the console); VARY echoes nothing
         printed = printer_file(work, conf)
         printed_from = printed.stat().st_size if printed.exists() else 0
+        deck_since = con.mark()
         herc.send(f"devinit {SMP_READER} {deck.relative_to(work)}")
         for job in STAGE2_JOBS:
             since = con.mark()
-            con.wait(rf"\$HASP\d+\s+{job}\s+.*(ON READER|HELD)|{job}.*HELD|\$HASP100\s+{job}", 600)
+            # `$A` before `$HASP101 <job> HELD` answers `$HASP000 NOT HELD` and the job then waits forever (live 2026-11-19)
+            # the reader queues the next job while the last runs, so look from the deck's start, not this job's mark
+            con.wait(rf"\$HASP101\s+{job}\s+HELD", 600, deck_since)
             con.send(f"$A'{job}'")
             await_ended(herc, con, work, conf, job, since, tapes, job_timeout)
             bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
@@ -478,12 +501,291 @@ def stage2(work, image, name, tapes, port=3270, job_timeout=3600):
                 raise SysgenError(f"{job}: {bad[0].strip()}")
             print(f"stage2: {job} ended")
         results = step_results(printed.read_bytes()[printed_from:].decode("latin-1"))
-        print(
-            f"stage2: {len(results)} steps ran; condcodes over 4: {[r for r in results if (r['cond_code'] or 0) > 4]}"
-        )
+        failed = smp_failed_steps(results, STAGE2_EXPECTED)
+        if failed:
+            raise SysgenError(f"stage2: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")
+        print(f"stage2: {len(results)} steps checked (condcode)")
+    except (SysgenError, telnet_console.ConsoleError):
+        print("stage2: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
     finally:
         con.close()
         herc.quit()
+
+
+# Moseley's "after stage 2" order (iSYSGENv8.htm, fetched 2026-11-19), all on the still-running STARTER system: sysgen02..06, the
+# seven USERMODS jobs, FDZ1D02. Value = `$HASP395 ENDED` lines the deck makes: sysgen04 and FDZ1D02 submit a second job of the
+# same name, USERMODS is seven jobs in one file. Tapes the decks ask for, by volser (read from the decks' VOL=SER, not guessed):
+# sysgen03 PVTMAC, usermods SMPPTF, fdz1d02 MVS38J (which DEFAULT_TAPES maps to zdlib1, so it is overridden here).
+STAGE3_DECKS = (
+    ("sysgen02.jcl", 1),
+    ("sysgen03.jcl", 1),
+    ("sysgen04.jcl", 2),
+    ("sysgen05.jcl", 1),
+    ("sysgen06.jcl", 1),
+    ("usermods.jcl", 7),
+    ("fdz1d02.jcl", 2),
+)
+STAGE3_TAPES = {"PVTMAC": "tape/apvtmacs.het", "SMPPTF": "tape/usermods.het", "MVS38J": "tape/dz1d02.het"}
+# Steps above CC 4 allowed: none (Moseley's expected codes are 0, with CC 4 for sysgen06's HMASMP and four USERMODS link-edit warnings).
+STAGE3_EXPECTED: dict = {}
+
+
+# Seen live (2026-11-19, a second starter IPL over the finished volumes): `$p jes2` prints `$HASP395 INIT ENDED` and, when JES2
+# is down, `IEF142I JES2 JES2 - STEP WAS EXECUTED - COND CODE 0000`; `z eod` prints `IEE334I HALT     EOD SUCCESSFUL`. A
+# first guess at `$HASP085 ... TERMINATION COMPLETE` never appeared (the stage timed out after the decks had all passed).
+JES2_STOPPED_RE = r"IEF142I JES2 JES2 - STEP WAS EXECUTED"
+EOD_DONE_RE = r"IEE334I\s+HALT\s+EOD SUCCESSFUL"
+
+
+def shutdown_starter(herc, con):
+    """Moseley's "Shut Down the Starter System": `$p jes2`, `z eod`, `quiesce`, then Hercules `quit`."""
+    con.send("$p jes2")
+    con.wait(JES2_STOPPED_RE, 300)
+    con.send("z eod")
+    con.wait(EOD_DONE_RE, 300)
+    con.send("quiesce")
+    time.sleep(10)
+
+
+def stage3(work, image, name, tapes, port=3270, job_timeout=3600):
+    """IPL the starter system with `conf/sysgen.cnf` over the stage 2 volumes, attach the target volumes, run sysgen02..06,
+    the user mods and FDZ1D02 through the reader (tapes answered by volser), check every step's completion code, then shut
+    down JES2 and MVS the way Moseley does. The first IPL of the generated system is the next page of his guide, not here."""
+    conf = "conf/sysgen.cnf"
+    for need in (conf, "conf/sysgen.script", *(f"jcl/{d}" for d, _ in STAGE3_DECKS), *STAGE3_TAPES.values()):
+        if not (Path(work) / need).is_file():
+            raise SysgenError(f"{work}/{need} missing: run mvs38j.sh stage first")
+    stage2_deck = Path(work) / "jcl/stage2.jcl"
+    if not stage2_deck.is_file():
+        raise SysgenError(f"{stage2_deck} missing: run `sysgen stage2` first")
+    tapes = {**STAGE3_TAPES, **tapes}
+    herc = Hercules(work, conf, image, name, console_port=port).start()
+    herc.wait(r"HHC01024I", 60)
+    con = telnet_console.Console(port=port).connect()
+    try:
+        ipl_starter(herc, con)
+        attach_targets(herc, work)
+        for unit in TARGET_UNITS:
+            con.send(f"v {unit},online")
+            time.sleep(3)  # paced: back-to-back lines overrun the 3215 input buffer (see stage2)
+        printed = printer_file(work, conf)
+        printed_from = printed.stat().st_size if printed.exists() else 0
+        for deck, ended in STAGE3_DECKS:
+            since = run_deck(herc, con, work, conf, Path(work) / "jcl" / deck, tapes, job_timeout, ended)
+            bad = [ln for ln in con.lines[since:] if SMP_CONSOLE_ERRORS.search(ln)]
+            if bad:
+                raise SysgenError(f"{deck}: {bad[0].strip()}")
+            print(f"stage3: {deck} ended")
+        results = step_results(printed.read_bytes()[printed_from:].decode("latin-1"))
+        failed = smp_failed_steps(results, STAGE3_EXPECTED)
+        if failed:
+            raise SysgenError(f"stage3: {len(failed)} step(s) not executed or over CC 4, first {failed[0]}")
+        print(f"stage3: {len(results)} steps checked (condcode)")
+        shutdown_starter(herc, con)
+    except (SysgenError, telnet_console.ConsoleError):
+        print("stage3: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        con.close()
+        herc.quit()
+
+
+# Moseley's "IPL the MVS System" page (iCUSTv8, read 2026-11-19) and what this box printed live the same day: `ipl 150`;
+# IEA101A -> `r 0,clpa`; IFB010D -> `r 0,u`; $HASP426 -> `r 1,format,noreq`; $HASP479 -> `r 2,y`; $HASP436 -> `r 3,y`; the IPL is
+# done at `$HASP099 ALL AVAILABLE FUNCTIONS COMPLETE`. SYSC.LINKLIB / SYSC.PROCLIB live on SYSCPK: without it the IPL stops at
+# IEA317A (a blank 3350 of that volser is refused as an unacceptable unit), so the real volume is needed (a 3350 image).
+SYSCPK_ARCHIVE = "dl/SYSCPK/SYSCPK.tar.gz"
+SYSCPK_IMAGE = "dl/SYSCPK/x/dasd/syscpk.3350"
+IPL_REPLIES = (  # (message pattern, reply)
+    (r"IEA101A", "r 0,clpa"),
+    (r"\*(\d+)\s+IFB010D", "r {id},u"),
+    (r"\*(\d+)\s+\$HASP426", "r {id},format,noreq"),
+    (r"\*(\d+)\s+\$HASP479", "r {id},y"),
+    (r"\*(\d+)\s+\$HASP436", "r {id},y"),
+)
+# Warm IPL (Moseley iNORMv8, read 2026-11-19): $HASP426 -> `r 1,noreq` keeps the JES2 queues as the last shutdown left them;
+# `format` is for the first IPL (it also draws the two checkpoint-reset prompts). A marker file records the first IPL.
+IPL_DONE_MARKER = "ipl.done"
+IPL_READY_RE = r"\$HASP099\s+ALL AVAILABLE FUNCTIONS COMPLETE"
+IPL_FATAL_RE = re.compile(r"IEA317A|IEA3\d\dI.*UNACCEPTABLE|IEA\d{3}W|\bWAIT STATE\b|HHC00828E")
+
+
+def ipl_conf(work):
+    """Write `conf/mvs.conf` (the file `mvs38j.sh start` and the image's CMD read) from Moseley's `conf/mvs.cnf`: the 1052-C
+    at 009 takes `/` commands from the Hercules console (no tn3270 client), so the 3270 master console at 010 is commented
+    out. Idempotent; returns the conf path relative to `work`."""
+    src, dst = Path(work) / "conf/mvs.cnf", Path(work) / "conf/mvs.conf"
+    if not src.is_file():
+        raise SysgenError(f"{src} missing: run mvs38j.sh stage first")
+    out = []
+    for line in src.read_text().splitlines():
+        if re.match(r"0010\s+3270\s+console", line):
+            line = "#" + line
+        elif re.match(r"#0009\s+3215-C\s+/", line):
+            line = line[1:]
+        out.append(
+            re.sub(r"^(000C\s+3505\s+)localhost:3505\b", r"\g<1>3505", line)
+        )  # bind every interface: docker's publish needs it
+    dst.write_text("\n".join(out) + "\n")
+    return "conf/mvs.conf"
+
+
+def ipl_replies(warm):
+    """IPL_REPLIES, with the JES2 start reply `noreq` (warm) instead of `format,noreq` (first IPL)."""
+    return tuple((p, r.replace(",format,noreq", ",noreq") if warm else r) for p, r in IPL_REPLIES)
+
+
+def ipl_system(herc, timeout=600, warm=False):
+    """Drive the first IPL of the generated system: `ipl 150`, the console replies in IPL_REPLIES as each message appears,
+    until the JES2-ready line. Returns the log mark taken before the IPL. A fatal wait or IEA317A raises."""
+    since = herc.mark()
+    herc.send("ipl 150")
+    replies = ipl_replies(warm)
+    patterns = [re.compile(p) for p, _ in replies]
+    done, end, i = set(), time.monotonic() + timeout, since
+    ready = re.compile(IPL_READY_RE)
+    while time.monotonic() < end:
+        with herc._cv:
+            lines = herc.lines[i:]
+            i = len(herc.lines)
+        for ln in lines:
+            if ready.search(ln):
+                return since
+            if IPL_FATAL_RE.search(ln):
+                raise SysgenError(f"ipl: {ln.strip()}")
+            for k, (rx, (_, reply)) in enumerate(zip(patterns, replies, strict=True)):
+                m = rx.search(ln)
+                if m and k not in done:
+                    done.add(k)
+                    herc.send("/" + reply.format(id=m.group(1) if m.groups() else ""))
+        time.sleep(0.5)
+    raise SysgenError(f"ipl: no {IPL_READY_RE} within {timeout}s; replies given: {sorted(done)}")
+
+
+def shutdown_system(herc):
+    """`$p jes2`, `z eod`, `quiesce` on the 009 console, then Hercules `quit` (the generated system's JES2 stop message)."""
+    since = herc.mark()
+    herc.send("/$p jes2")
+    herc.wait(JES2_STOPPED_RE + r"|\$HASP085|\$HASP099", 300, since)
+    herc.send("/z eod")
+    herc.wait(EOD_DONE_RE, 300, since)
+    herc.send("/quiesce")
+    time.sleep(10)
+
+
+def ipl(work, image, name, probe=None, job_timeout=90):
+    """The first IPL of the generated system (needs the stage 3 volumes and SYSCPK in `dasd/`), reaching the JES2-ready line.
+    With `probe` (a JCL deck), submit it through the card reader socket (3505, published on the loopback) with the
+    runner and print its parsed log, and check the runner's patterns against the live console log. Then shut down."""
+    if not (Path(work) / "dasd/mvsres.3350").is_file():
+        raise SysgenError(f"{work}/dasd/mvsres.3350 missing: run the sysgen stages first")
+    syscpk = Path(work) / "dasd/syscpk.3350"
+    if not syscpk.is_file():
+        src = Path(work) / SYSCPK_IMAGE
+        if not src.is_file():
+            raise SysgenError(f"{syscpk} missing: run `mvs38j.sh tapes` (downloads SYSCPK) first")
+        shutil.copyfile(src, syscpk)
+    conf = ipl_conf(work)
+    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    try:
+        marker = Path(work) / IPL_DONE_MARKER
+        since = ipl_system(herc, warm=marker.exists())
+        marker.write_text("first IPL done; later IPLs are warm (JES2 reply noreq)\n")
+        print(f"ipl: JES2 ready ({len(herc.lines) - since} log lines)")
+        if probe:
+            probe_deck(herc, work, conf, probe, job_timeout)
+        shutdown_system(herc)
+    except SysgenError:
+        print("ipl: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        herc.quit()
+
+
+SERVE_READY, SERVE_PID = "box.ready", "box.pid"
+
+
+def serve(work, image, name, ready_timeout=900):
+    """The resident box behind `mvs38j.sh start`: IPL the generated system (warm after the first IPL), write `box.ready`,
+    keep Hercules running (the card reader socket on 127.0.0.1:3505) until SIGTERM/SIGINT, then shut the system down
+    cleanly. The host process stays because Hercules' console is its stdin pipe."""
+    import signal
+
+    work = Path(work)
+    for f in (SERVE_READY, SERVE_PID):
+        (work / f).unlink(missing_ok=True)
+    if not (work / "dasd/mvsres.3350").is_file() or not (work / "dasd/syscpk.3350").is_file():
+        raise SysgenError(f"{work}/dasd lacks the generated system: run `mvs38j.sh sysgen ipl` first")
+    conf = ipl_conf(work)
+    stop = threading.Event()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, lambda *_: stop.set())
+    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    try:
+        marker = work / IPL_DONE_MARKER
+        ipl_system(herc, timeout=ready_timeout, warm=marker.exists())
+        marker.write_text("first IPL done; later IPLs are warm (JES2 reply noreq)\n")
+        (work / SERVE_PID).write_text(f"{os.getpid()}\n")
+        (work / SERVE_READY).write_text("JES2 ready\n")
+        print("serve: JES2 ready; card reader on 127.0.0.1:3505", flush=True)
+        while not stop.is_set() and herc.proc.poll() is None:
+            stop.wait(1.0)
+        if herc.proc.poll() is None:
+            shutdown_system(herc)
+    except SysgenError:
+        print("serve: Hercules log tail:\n" + "\n".join(ln.rstrip() for ln in herc.lines[-15:]), file=sys.stderr)
+        raise
+    finally:
+        herc.quit()
+        for f in (SERVE_READY, SERVE_PID):
+            (work / f).unlink(missing_ok=True)
+
+
+ACCT_RE = re.compile(r"IEFACTRT\s+(\S+)\s+/[^/]*/[^/]*/[^/]*/(\d{5})/(\S+)")
+
+
+def live_steps(lines, job):
+    """(step, condition code) of every `IEFACTRT` step-accounting line the console printed for `job`: the live log carries
+    these, not the IEF142I the printer listing has."""
+    out = set()
+    for ln in lines:
+        m = ACCT_RE.search(ln)
+        if m and m.group(3) == job:
+            out.add((m.group(1), int(m.group(2))))
+    return out
+
+
+def probe_deck(herc, work, conf, deck, timeout):
+    """Submit `deck` through the socket reader and compare the runner's reading of the printer file with the live console."""
+    import runner
+
+    first = Path(deck).read_text().splitlines()[0]
+    m = re.match(r"//(\S+)\s+JOB\b", first)
+    if not m:
+        raise SysgenError(f"{deck}: the first card must be '//NAME JOB ...'")
+    job, printed = m.group(1), printer_file(work, conf)
+    before = printed.stat().st_size if printed.exists() else 0
+    since = herc.mark()
+    runner.submit(deck)
+    try:
+        herc.wait(rf"\$HASP395\s+{re.escape(job)}\s+ENDED", timeout, since)
+    except SysgenError:
+        herc.send("devlist 00c")  # what the reader and JES2 say, for the failure tail
+        herc.send("/$d rdr1")
+        time.sleep(5)
+        raise
+    if not runner.wait_for_job(printed, job, 60, before):
+        raise SysgenError(f"probe: {job} ended on the console but never in {printed}")
+    text = printed.read_bytes()[before:].decode("utf-8", "backslashreplace")
+    parsed = runner.parse_log(text, job)
+    mine = {(s["step"], s["cond_code"]) for j in parsed["jobs"] for s in j["steps"]}
+    seen = live_steps(herc.lines[since:], job)
+    print(json.dumps({"printer": parsed, "live_steps": sorted(map(list, seen))}, indent=1, default=str))
+    if mine != seen:
+        raise SysgenError(
+            f"probe: runner read steps {sorted(mine)} from the printer, the live log shows {sorted(seen)}"
+        )
 
 
 def hetget(work, image, name, het, out, fileno):
@@ -494,13 +796,6 @@ def hetget(work, image, name, het, out, fileno):
     if r.returncode != 0 or not (Path(work) / out).stat().st_size:
         raise SysgenError(f"hetget {het} -> {out} failed (rc {r.returncode}): {r.stdout.strip()[-300:]}")
     print(f"stage1: {out} extracted from {het} ({(Path(work) / out).stat().st_size} bytes)")
-
-
-# IEF142I: step executed with its completion code; IEF272I: step not executed (COND bypass / flushed).
-# Layout of the part after the message id: JOB STEP [PROCSTEP] - STEP WAS (NOT) EXECUTED ... [COND CODE nnnn]
-STEP_RE = re.compile(
-    r"(IEF142I|IEF272I)\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+STEP WAS (NOT )?EXECUTED(?:.*?COND CODE (\d{4}))?"
-)
 
 
 def smp_failed_steps(results, expected):
@@ -520,23 +815,16 @@ def smp_failed_steps(results, expected):
 
 
 def step_results(printer_text, job="ALL"):
-    """Step results from a Hercules printer file: [{job, step, procstep, executed, cond_code}], in log order."""
-    out = []
-    for line in printer_text.splitlines():
-        m = STEP_RE.search(line)
-        if not m or (job.upper() != "ALL" and m.group(2) != job.upper()):
-            continue
-        executed = m.group(5) is None
-        out.append(
-            {
-                "job": m.group(2),
-                "step": m.group(3),
-                "procstep": m.group(4),
-                "executed": executed,
-                "cond_code": int(m.group(6)) if executed and m.group(6) else None,
-            }
-        )
-    return out
+    """Step results from a Hercules printer file: [{job, step, procstep, executed, cond_code}], in log order.
+
+    Read by `runner.parse_log` (the one parser of the printer listing); `step_log` keeps the order across jobs."""
+    import runner
+
+    return [
+        {k: r[k] for k in ("job", "step", "procstep", "executed", "cond_code")}
+        for r in runner.parse_log(printer_text)["step_log"]
+        if job.upper() == "ALL" or r["job"] == job.upper()
+    ]
 
 
 def check_expected(results, expected):
@@ -552,13 +840,22 @@ def main(argv=None):
     st.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
     st.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
     st.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
-    for stage in ("smp1", "smp2", "stage1", "stage2"):
+    for stage in ("smp1", "smp2", "stage1", "stage2", "stage3"):
         sp = sub.add_parser(stage)
         sp.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
         sp.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
         sp.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
         sp.add_argument("--port", type=int, default=3270)
         sp.add_argument("--tape", action="append", default=[], metavar="VOLSER=FILE")
+    ip = sub.add_parser("ipl")
+    ip.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
+    ip.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
+    ip.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j") + "-sysgen")
+    ip.add_argument("--probe", metavar="DECK")
+    sv = sub.add_parser("serve")
+    sv.add_argument("--work", default=os.environ.get("MVS38J_WORK", DEFAULT_WORK))
+    sv.add_argument("--image", default=os.environ.get("MVS38J_IMAGE", "gitgalaxy-mvs38j-hyperion"))
+    sv.add_argument("--name", default=os.environ.get("MVS38J_NAME", "gg-mvs38j"))
     cc = sub.add_parser("condcode")
     cc.add_argument("printer_file")
     cc.add_argument("job")
@@ -568,10 +865,18 @@ def main(argv=None):
         if args.cmd == "starter":
             starter(args.work, args.image, args.name)
             return 0
-        if args.cmd in ("smp1", "smp2", "stage1", "stage2"):
+        if args.cmd == "serve":
+            serve(args.work, args.image, args.name)
+            return 0
+        if args.cmd == "ipl":
+            ipl(args.work, args.image, args.name, args.probe)
+            return 0
+        if args.cmd in ("smp1", "smp2", "stage1", "stage2", "stage3"):
             tapes = dict(t.split("=", 1) for t in args.tape)
-            if args.cmd in ("stage1", "stage2"):
-                (stage1 if args.cmd == "stage1" else stage2)(args.work, args.image, args.name, tapes, args.port)
+            if args.cmd in ("stage1", "stage2", "stage3"):
+                {"stage1": stage1, "stage2": stage2, "stage3": stage3}[args.cmd](
+                    args.work, args.image, args.name, tapes, args.port
+                )
                 return 0
             smp_stage(args.work, args.image, args.name, args.cmd, tapes, args.port)
             return 0

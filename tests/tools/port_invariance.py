@@ -56,6 +56,15 @@ CONTRACT: dict[str, tuple[str, float, float]] = {
     "arch_ipc": ("ipc_rpc_bridges", 0.70, 0.60),
 }
 # readings a port legitimately changes (size, its runtime's overhead, per-scan normalised risk), never asserted
+# Structural invariants checked per pair (#8487): a port keeps its program's resource and state footprint even where
+# its control flow is lowered differently (struct_args, struct_branch stay report-only in DIFFERS). Bounds are the
+# 12 committed pairs (7 CardDemo, 4 CBSA, 1 GenApp, 2026-11-19) with a margin:
+#   arch_io      Java/COBOL io count 0.40 - 1.00 (never more than COBOL), so a port may not read more than
+#                IO_GAIN * COBOL + IO_SLACK, nor, from IO_FLOOR_MIN COBOL io sites up, fall under IO_KEEP of them
+#   arch_globals the runtime's statics put every port at 16 - 53 per 1000 code lines (COBOL: 0): the ceiling is
+#                GLOBALS_PER_KLOC, the 53 plus a margin; a port that spreads mutable state past it is flagged
+IO_GAIN, IO_SLACK, IO_FLOOR_MIN, IO_KEEP = 1.5, 2, 4, 0.25
+GLOBALS_PER_KLOC = 80.0
 DIFFERS = ("coding_loc", "token_mass", "max_func_complexity", "risk_*", "file_archetype")
 
 # The det translator documents each paragraph method with `/** PARAGRAPH-NAME. */` (program.py: "/** {p.name}. */"),
@@ -102,8 +111,11 @@ def readings(text: str, lang: str) -> dict[str, int]:
     funcs = r.get("functions", [])
     if lang == "java":  # paragraph methods only, not the helpers the translator generates
         funcs = [f for f in funcs if PARAGRAPH_DOC.match((f.get("docstring") or "").strip())]
-    return {col: (len(funcs) if key == "functions" else int(eq.get(key, 0) or 0))
-            for col, (key, _, _) in CONTRACT.items()}  # fmt: skip
+    out = {col: (len(funcs) if key == "functions" else int(eq.get(key, 0) or 0))
+           for col, (key, _, _) in CONTRACT.items()}  # fmt: skip
+    out["arch_globals"] = int(eq.get("globals", 0) or 0)
+    out["code_loc"] = sum(1 for ln in streams["code_stream"].splitlines() if ln.strip())
+    return out
 
 
 def _ranks(xs: list[float]) -> list[float]:
@@ -167,7 +179,24 @@ def evaluate(measured: list[dict[str, Any]], floor: str = "full") -> tuple[dict[
             problems.append(f"{m['program']}: {j['function_count']} methods < {c['function_count']} paragraphs")
         if (c["arch_io"] > 0) != (j["arch_io"] > 0):
             problems.append(f"{m['program']}: file I/O in one form only (COBOL {c['arch_io']}, Java {j['arch_io']})")
+    problems += drift_problems(measured)
     return report, problems
+
+
+def drift_problems(measured: list[dict[str, Any]]) -> list[str]:
+    """Per-pair arch_io / arch_globals drift between a COBOL program and its Java port (see IO_GAIN above)."""
+    out: list[str] = []
+    for m in measured:
+        c, j = m["cobol_r"], m["java_r"]
+        if j["arch_io"] > c["arch_io"] * IO_GAIN + IO_SLACK:
+            out.append(f"{m['program']}: arch_io drift, port has {j['arch_io']} I/O sites, COBOL {c['arch_io']}")
+        elif c["arch_io"] >= IO_FLOOR_MIN and j["arch_io"] < c["arch_io"] * IO_KEEP:
+            out.append(f"{m['program']}: arch_io drift, port kept {j['arch_io']} of COBOL's {c['arch_io']} I/O sites")
+        per_k = 1000.0 * j["arch_globals"] / max(j["code_loc"], 1)
+        if per_k > GLOBALS_PER_KLOC:
+            out.append(f"{m['program']}: arch_globals drift, port has {per_k:.0f} globals per 1000 code lines "
+                        f"(ceiling {GLOBALS_PER_KLOC:.0f})")  # fmt: skip
+    return out
 
 
 def fixture_pairs(root: Path = FIXTURE_DIR) -> list[dict[str, Any]]:

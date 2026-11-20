@@ -1,8 +1,7 @@
 """#6239: .NET accept-any certificate callbacks, PowerShell -SkipCertificateCheck and wget --no-check-certificate count as safety bypasses; near-misses stay silent."""
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.security.security_lens import SecurityLens
 
@@ -77,6 +76,4 @@ def test_tls_bypass_near_miss_is_silent(text):
     ids=["callback", "delegate", "wget", "skip", "psblock", "policy", "cvr"],
 )
 def test_tls_bypass_patterns_are_not_redos(text):
-    start = time.perf_counter()
-    _count(text)
-    assert time.perf_counter() - start < 2
+    assert_cpu_below(lambda: _count(text), 2, what="TLS bypass patterns")

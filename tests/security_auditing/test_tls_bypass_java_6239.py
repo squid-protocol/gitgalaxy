@@ -1,8 +1,7 @@
 """#6239: Java trust-all HostnameVerifier / TrustManager forms count as safety bypasses; near-misses stay silent."""
 
-import time
-
 import pytest
+from _timing import assert_cpu_below
 
 from gitgalaxy.security.security_lens import SecurityLens
 
@@ -61,6 +60,4 @@ def test_java_trust_all_near_miss_is_silent(text):
     ids=["trusted", "verify", "lambda", "throws"],
 )
 def test_java_trust_all_patterns_are_not_redos(text):
-    start = time.perf_counter()
-    _count(text)
-    assert time.perf_counter() - start < 2
+    assert_cpu_below(lambda: _count(text), 2, what="Java trust-all patterns")

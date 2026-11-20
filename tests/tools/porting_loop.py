@@ -45,6 +45,8 @@ TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.tools.readiness import offline  # noqa: E402
+
 # Claude Code headless as a text-only model: no tools, no MCP, no slash commands, nothing persisted, run in the
 # attempt's own directory (so no CLAUDE.md of this repository is discovered). The prompt arrives on stdin.
 CLAUDE = (
@@ -430,7 +432,17 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("work", type=Path)
     t = sub.add_parser("tidy", help="tidy a committed port's stale scaffold TODOs (comment-only, verified; #4179)")
     t.add_argument("cases", nargs="+")
-    args = ap.parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    wants_offline = offline.requested(raw)
+    args = ap.parse_args([a for a in raw if a != "--offline"])
+    if wants_offline:
+        # #8624: `run` / `run-many` call a model (port_runner, or a --backend-command): refuse by name. The local
+        # subcommands (report, adopt, tidy) run under the network guard instead.
+        if args.cmd in ("run", "run-many"):
+            raise SystemExit(
+                f"porting_loop {args.cmd} refuses --offline / GITGALAXY_OFFLINE=1: it calls a model API (network)"
+            )
+        offline.enable_if_requested(raw)
     if args.cmd == "tidy":
         import equivalence as eq
 

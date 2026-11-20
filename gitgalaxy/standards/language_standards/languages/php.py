@@ -335,10 +335,10 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (PHP) ]
-            # PURPOSE: Extracts external dependencies for the Network Graph and Supply Chain Firewall.
+            # PURPOSE: Extracts external dependencies for the Network Graph and Import Policy Gate.
             #
             # HISTORICAL BUG: Originally, this regex was anchored to the start of the
-            # line `^[ \t]*`. This blinded the firewall to PHP's dynamic execution
+            # line `^[ \t]*`. This blinded the import policy gate to PHP's dynamic execution
             # patterns. PHP applications (especially legacy frameworks) frequently
             # lazy-load files inside controllers, `if` statements, or assign the result
             # of a file inclusion directly to a variable (e.g., `$config = require 'cfg.php';`).

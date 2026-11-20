@@ -43,28 +43,11 @@ WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
     {
         "tests/cobol_mainframe/test_pic_run_lengths_7169.py",
         "tests/cobol_mainframe/test_translator_pic_runs_7169.py",
-        "tests/core_engine/test_api_db_sink_probe_4108.py",
         "tests/core_engine/test_cics_macro_level.py",
-        "tests/core_engine/test_dense_source_7501.py",
-        "tests/core_engine/test_dense_source_7504.py",
-        "tests/core_engine/test_embedded_credentials_probe_4108.py",
-        "tests/core_engine/test_global_env_mutation_probe_4108.py",
         "tests/core_engine/test_prefetch.py",
-        "tests/core_engine/test_stego_imports_probe_4108.py",
         "tests/core_engine/test_vectorized_math_probe_4108.py",
-        "tests/extraction/languages/test_c_kernel_vocab_8016.py",
-        "tests/extraction/languages/test_calls_out_haskell_juxtaposition_6454.py",
-        "tests/extraction/languages/test_calls_out_rust_matches_depth_6454.py",
-        "tests/extraction/languages/test_calls_out_rust_select_arms_6454.py",
-        "tests/extraction/languages/test_elixir_heredoc_imports_6572.py",
-        "tests/extraction/languages/test_elixir_sigil_imports_6572.py",
-        "tests/extraction/languages/test_elixir_string_imports_6572.py",
-        "tests/extraction/languages/test_go_raw_string_imports_6572.py",
-        "tests/extraction/languages/test_go_semicolon_imports_6572.py",
         "tests/security_auditing/test_redos_poison.py",
         "tests/security_auditing/test_secrets_shunt_4987.py",
-        "tests/security_auditing/test_tls_bypass_dotnet_ps_wget_6239.py",
-        "tests/security_auditing/test_tls_bypass_java_6239.py",
     }
 )
 

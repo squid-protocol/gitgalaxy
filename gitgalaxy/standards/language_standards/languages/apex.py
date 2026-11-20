@@ -178,7 +178,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Sharing rules, FLS checks, and null-safe navigation.
+        # 6. safety (Defensive Checks: assert/try/guards). Sharing rules, FLS checks, and null-safe navigation.
         "safety": re.compile(
             r"\b(with\s+sharing|inherited\s+sharing|isAccessible|isCreateable|isUpdateable|isDeletable|StripInaccessible|try|catch|finally|LIMIT\s+\d+|Security\.stripInaccessible)\b|\?\.",
             re.I,

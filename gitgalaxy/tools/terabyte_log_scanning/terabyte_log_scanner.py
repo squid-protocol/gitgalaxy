@@ -15,6 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from gitgalaxy.core.source_text import decode_bytes
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
 
 def draw_ascii_histogram(time_buckets: dict, keyword: str):
@@ -92,7 +93,9 @@ Expected JSON Schema:
         help="Path to GitGalaxy ir_state.json to auto-extract targets",
     )
     parser.add_argument("--out", type=str, help="Optional: Custom directory to save the results log")
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     # Validate target log file exists before initializing the stream
     target_path = Path(args.target).resolve()

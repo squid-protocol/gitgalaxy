@@ -920,6 +920,32 @@ def test_archive_files_are_counted_by_name_and_never_opened(tmp_path):
     assert gp.archive_files(_clone(tmp_path / "plain", "OTHER.cpy")) == 0
 
 
+def test_archives_with_no_archive_name_are_counted_by_their_leading_bytes(tmp_path):
+    import io
+    import tarfile
+    import zipfile
+
+    clone = _clone(tmp_path, "OTHER.cpy")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:  # authored
+        z.writestr("PAYREC.cpy", "       01 X PIC X.\n")
+    (clone / "MEMBERS.dat").write_bytes(buf.getvalue())
+    tbuf = io.BytesIO()
+    with tarfile.open(fileobj=tbuf, mode="w") as t:
+        info = tarfile.TarInfo("PAYREC.cpy")
+        info.size = 4
+        t.addfile(info, io.BytesIO(b"abcd"))
+    (clone / "BUNDLE").write_bytes(tbuf.getvalue())
+    xmit = bytes([0x1A, 0xE0]) + "INMR01".encode("cp037") + b"\x00" * 20  # TRANSMIT control record, authored
+    (clone / "STAGE.bin").write_bytes(xmit)
+    (clone / "LIB.bin").write_bytes(b"\x00\xca\x6d\x0f" + b"\x00" * 40)  # IEBCOPY unload COPYR1 id
+    (clone / "plain.txt").write_text("PK is just text, ustar too\n", encoding="utf-8")
+    assert gp.archive_files(clone) == 4
+    named = clone / "again.zip"
+    named.write_bytes(buf.getvalue())
+    assert gp.archive_files(clone) == 5  # a file settled by name and by bytes counts once
+
+
 def test_a_clone_holding_an_archive_never_earns_the_clone_defect_label(tmp_path):
     clone = _zipped_clone(tmp_path)
     index = gp.clone_member_index(clone)

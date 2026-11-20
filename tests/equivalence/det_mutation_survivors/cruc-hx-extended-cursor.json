@@ -3266,6 +3266,18 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
+   "id": "1a11dc62a4",
+   "op": "CON",
+   "line": 469,
+   "before": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 1).bytes);",
+   "after": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 2).bytes);",
+   "verdict": "equivalent",
+   "reason": "RETURN LENGTH(1) cuts the raw COMMAREA area to 1 byte (areaOf), so commarea size 2 instead of 1 carries the same bytes (return-area-cut)",
+   "tried": [
+    "return-area-cut"
+   ]
+  },
+  {
    "id": "dca3283b82",
    "op": "LIT",
    "line": 474,
@@ -3433,15 +3445,6 @@
    "after": "/* caBack.run(); */",
    "verdict": "harness-gap",
    "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "1a11dc62a4",
-   "op": "CON",
-   "line": 501,
-   "before": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 1).bytes);",
-   "after": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 2).bytes);",
-   "verdict": "harness-gap",
-   "reason": "The RETURN event the proof compares is {transid, commarea decoded by the case's COMMAREA layout} (equivalence_cics_compare.py RETURN arm): the LENGTH and any byte past the 1-byte WS-CA layout are not compared, so this edit to the RETURN's length / area size changes behaviour the proof runs and does not compare; survivor_attack try with raw-hex, tail-bytes and CLEAR/ENTER/first-display inputs all survived (open: the harness must compare RETURN LENGTH and bytes)"
   },
   {
    "id": "0534bd64da",

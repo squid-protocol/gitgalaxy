@@ -66,7 +66,7 @@ Enterprise repositories often suffer from "Bus Factor" risks, where massive file
 For a core banking platform, the security perimeter is paramount. GitGalaxy's rule-based lenses and XGBoost models revealed a mixed security posture:
 
 * **Autonomous AI Threats & Malware:** **0 detected**. The codebase is secure against recognized structural malware and Agentic RCE.
-* **Supply Chain Firewall:** **0 Blacklisted / 0 Unknown Dependencies**. The dependency tree is immaculate, relying strictly on known, trusted packages.
+* **Import Policy Gate:** **0 Blacklisted / 0 Unknown Dependencies**. The dependency tree is immaculate, relying strictly on known, trusted packages.
 * **Binary Anomalies (X-Ray):** **8 hits**. Flagged for high entropy, likely tied to compressed test payloads or keystores.
 * **Weaponizable Surface Exposures:** * `LocalContentStorageUtil.java` and `ReportsTest.java` both triggered **100.0% Weaponizable Injection Vectors**, indicating external I/O flows directly into dynamic execution contexts without sufficient static safety nets.
   * `keystore.jks` triggered **100.0% Hardcoded Payload Artifacts**, confirming the presence of embedded cryptographic material in the repository source.
@@ -81,7 +81,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

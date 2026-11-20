@@ -38,7 +38,8 @@ reason). Two rules, both narrow because the legs are expensive:
   chmods, with no platform guard in the added lines, or creates files under names differing only by case or reads path case.
 
 Nothing unreadable selects (no file list, 300 or more files). Replay over merged PRs: `python tests/tools/matrix_plan.py
---replay 50`. A fork head still waits for a maintainer's by-hand run.
+--replay 50`. Measured 2026-11-18 (`--replay 450`, 11.5 days): 33 of 450 merged PRs selected (7.3%, about 20 a week;
+24 by the red-main rule, 9 by the test rule, #8425). A fork head still waits for a maintainer's by-hand run.
 
 **Worker rule:** a test that shells out to a platform tool (rsync, sed, find, cp, chmod, ...) carries a platform guard
 (`pytest.mark.skipif(sys.platform ...)` or `shutil.which`), and a fixture that creates files never relies on two names

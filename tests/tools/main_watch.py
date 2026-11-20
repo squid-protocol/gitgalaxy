@@ -15,7 +15,15 @@ Rules, all in decide() (pure: a snapshot in, actions out):
     the issue's body or comments means it was already reported, so the event path and reconcile never double-post);
   * success with an open issue -> comment and close, but only for a run that finished after the issue was opened;
   * a failure with cancelled legs says so, and one with NO failed leg (only cancelled ones) says that it is not a
-    verdict on the code.
+    verdict on the code;
+  * (event path) a first-attempt failure whose every failed job lost its runner ("The hosted runner lost communication
+    with the server", or "not acquired by Runner", where the job ends `cancelled` with no steps, #8673: infra, not
+    code) gets its failed jobs rerun ONCE, and the issue says so. A runner lost in
+    det-mutation kept Evidence Refresh red for 38 h in Nov 2026: the next scheduled run was the only retry;
+  * (reconcile path) a red that has stood REVERIFY_AFTER_H with newer commits on main, no run of that workflow queued or
+    running, and no re-verify in REVERIFY_EVERY_H, gets the workflow dispatched on main (a fix that merged hours
+    after the nightly failed waited a day for the next nightly to close its issue: Full Suite Gate, 22 h). Runs made
+    with the repo GITHUB_TOKEN raise no `workflow_run` (#4859); the next hourly reconcile reads their verdict.
 Nothing here checks out or runs pull-request code: it reads run metadata through the GitHub API.
 """
 
@@ -24,25 +32,44 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 LABEL = "ci-red-main"
 PREFIX = "main is red: "
 EVENTS = ("push", "schedule", "workflow_dispatch")
 FAILED_JOB = ("failure", "timed_out")
+# GitHub's annotation text when the runner dies under a job (not the job's own failure)
+INFRA_MARKS = (
+    "lost communication with the server",
+    "received a shutdown signal",
+    "was not acquired by runner",  # a hosted runner that never came (macOS capacity, #8673): the job ends `cancelled`
+)
+REVERIFY_AFTER_H = 4  # a red must have stood this long before a re-verify (the fix needs time to land)
+REVERIFY_EVERY_H = 12  # at most one re-verify dispatch per issue per this many hours
+REVERIFY_MARK = "<!-- main-watch reverify at="
 
 
 def title_of(wf: str) -> str:
     return f"{PREFIX}{wf}"
 
 
+NO_RUNNER = " (no steps ran: never got a runner)"
+
+
 def legs_note(failed: list[str], cancelled: list[str]) -> str:
     """Words for a failure's legs ('' when no leg was cancelled or none are known)."""
     if not cancelled:
         return ""
+    if not failed and all(c.endswith(NO_RUNNER) for c in cancelled):
+        return (
+            f"\n\nNo job failed on its own: {len(cancelled)} were cancelled with no steps run "
+            f"({', '.join(cancelled[:8])}). No runner took them (runner capacity, not a hang or a test result): "
+            "rerun the cancelled legs."
+        )
     if not failed:
         return (
             f"\n\nNo job failed on its own: {len(cancelled)} were cancelled ({', '.join(cancelled[:8])}), "
@@ -55,6 +82,40 @@ def legs_note(failed: list[str], cancelled: list[str]) -> str:
     )
 
 
+def infra_loss(annotations: list[str]) -> bool:
+    """True when any annotation says the runner itself died under the job."""
+    return any(m in a.lower() for a in annotations for m in INFRA_MARKS)
+
+
+def rerun_wanted(attempt: int, failed_jobs: list[tuple[str, list[str]]]) -> bool:
+    """Rerun the failed jobs only on a first attempt where EVERY failed job lost its runner: one real failure among
+    them means a person must look (a rerun would hide it behind a green leg), and a second attempt is never retried."""
+    return attempt == 1 and bool(failed_jobs) and all(infra_loss(a) for _, a in failed_jobs)
+
+
+def _hours(a: str, b: str) -> float:
+    return (
+        datetime.fromisoformat(a.replace("Z", "+00:00")) - datetime.fromisoformat(b.replace("Z", "+00:00"))
+    ).total_seconds() / 3600
+
+
+def reverify_due(now: str, run: dict[str, Any], ahead_by: int, active: bool, issue_text: str) -> str | None:
+    """None when a re-verify is due, else the reason it is not. run: the red verdict (updated_at); ahead_by: commits on
+    main past the failing run's commit; active: a run of the workflow is queued or running; issue_text: body + comments."""
+    if run["conclusion"] != "failure":
+        return "latest verdict is green"
+    if _hours(now, run["updated_at"]) < REVERIFY_AFTER_H:
+        return f"red for under {REVERIFY_AFTER_H} h"
+    if ahead_by <= 0:
+        return "no new commit on main since the failing run (a rerun could not differ)"
+    if active:
+        return "a run of it is already queued or running"
+    for stamp in re.findall(re.escape(REVERIFY_MARK) + r"(\S+?) ?-->", issue_text):
+        if _hours(now, stamp) < REVERIFY_EVERY_H:
+            return f"re-verified within {REVERIFY_EVERY_H} h"
+    return None
+
+
 def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     """snapshot -> actions. s: wf, conclusion, event, sha, run_url, via ('event'|'reconcile'), failed, cancelled,
     issue (None | {number, text}), after_issue (the run finished after the issue was opened)."""
@@ -65,6 +126,11 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     via = " (found by reconcile)" if s.get("via") == "reconcile" else ""
     if s["conclusion"] == "failure":
         note = legs_note(s.get("failed", []), s.get("cancelled", []))
+        if s.get("retry"):
+            note += (
+                "\n\nEvery failed job lost its runner (infra, not the code): its failed jobs were rerun once "
+                "automatically. This issue closes when that rerun, or the next run, is green on main."
+            )
         if issue:
             return [
                 {
@@ -115,7 +181,10 @@ def legs(jobs: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
     for j in jobs:
         if j.get("conclusion") == "cancelled":
             m = _minutes(j)
-            cancelled.append(j["name"] if m is None else f"{j['name']} after {m} min")
+            label = j["name"] if m is None else f"{j['name']} after {m} min"
+            if j.get("steps") == []:  # the API lists steps: none means no runner ever took the job (#8673)
+                label += NO_RUNNER
+            cancelled.append(label)
     return failed, cancelled
 
 
@@ -195,6 +264,19 @@ def run_legs(repo: str, run_id: int) -> tuple[list[str], list[str]]:
     return legs(paged(f"repos/{repo}/actions/runs/{run_id}/jobs?filter=latest", "jobs", limit=2))
 
 
+def failed_jobs(repo: str, run_id: int) -> list[tuple[str, list[str]]]:
+    """(name, annotation messages) of the failed jobs of the run's latest attempt."""
+    out = []
+    for j in paged(f"repos/{repo}/actions/runs/{run_id}/jobs?filter=latest", "jobs", limit=2):
+        if j.get("conclusion") in FAILED_JOB or j.get("conclusion") == "cancelled":
+            notes = gh("api", f"repos/{repo}/check-runs/{j['id']}/annotations") or []
+            msgs = [n.get("message") or "" for n in notes]
+            # a cancelled job counts only when it lost its runner: a superseded run or a timeout hang says nothing
+            if j.get("conclusion") in FAILED_JOB or infra_loss(msgs):
+                out.append((j["name"], msgs))
+    return out
+
+
 def cmd_event(repo: str, dry: bool) -> None:
     env = os.environ
     issues = open_issues(repo)
@@ -203,11 +285,18 @@ def cmd_event(repo: str, dry: bool) -> None:
         "wf": wf, "conclusion": env["CONCLUSION"], "event": env["EVENT"], "sha": env["SHA"], "run_url": env["RUN_URL"],
         "via": "event", "failed": [], "cancelled": [], "after_issue": True, "issue": None,
     }  # fmt: skip
+    rerun = False
     if env["CONCLUSION"] == "failure" and env.get("RUN_ID"):
         snap["failed"], snap["cancelled"] = run_legs(repo, int(env["RUN_ID"]))
+        rerun = rerun_wanted(int(env.get("RUN_ATTEMPT") or 1), failed_jobs(repo, int(env["RUN_ID"])))
+        snap["retry"] = rerun
     if title_of(wf) in issues:
         snap["issue"] = issue_text(repo, issues[title_of(wf)])
-    apply(repo, decide(snap), dry)
+    apply(repo, decide(snap), dry)  # the issue first: a rerun that dies again must not leave the red unrecorded
+    if rerun:
+        print(f"{wf}: every failed job lost its runner; rerunning the failed jobs once")
+        if not dry:
+            gh("api", "-X", "POST", f"repos/{repo}/actions/runs/{env['RUN_ID']}/rerun-failed-jobs")
 
 
 def cmd_reconcile(repo: str, dry: bool) -> None:
@@ -215,12 +304,19 @@ def cmd_reconcile(repo: str, dry: bool) -> None:
     if not issues:
         print("no open ci-red-main issue")
         return
-    runs = paged(f"repos/{repo}/actions/runs?branch=main&status=completed&exclude_pull_requests=true", "workflow_runs")
-    verdicts = latest_verdicts(runs)
+    ids = {w["name"]: w["id"] for w in paged(f"repos/{repo}/actions/workflows", "workflows", limit=5)}
     for title, issue in issues.items():
-        run = verdicts.get(title[len(PREFIX) :])
+        name = title[len(PREFIX) :]
+        # per workflow, not one list of main's newest runs: push suites finish hundreds of runs a day, so a nightly's
+        # verdict fell out of a 300-run window within a day and its green run could never close the issue (#8572)
+        runs = (
+            paged(f"repos/{repo}/actions/workflows/{ids[name]}/runs?branch=main&status=completed", "workflow_runs", 1)
+            if name in ids
+            else []
+        )
+        run = latest_verdicts(runs).get(name)
         if not run:
-            print(f"{title}: no completed non-cancelled main run in the last {len(runs)} runs")
+            print(f"{title}: no completed non-cancelled main run in the last {len(runs)} runs of it")
             continue
         snap: dict[str, Any] = {
             "wf": run["name"], "conclusion": run["conclusion"], "event": run["event"], "sha": run["head_sha"],
@@ -230,6 +326,42 @@ def cmd_reconcile(repo: str, dry: bool) -> None:
         if run["conclusion"] == "failure":
             snap["failed"], snap["cancelled"] = run_legs(repo, run["id"])
         apply(repo, decide(snap), dry)
+        if run["conclusion"] == "failure":
+            reverify(repo, issue, run, snap["issue"]["text"], dry)
+
+
+def active_workflows(repo: str) -> set[str]:
+    """Names of the workflows with a run queued or in progress on main."""
+    names: set[str] = set()
+    for st in ("queued", "in_progress"):
+        names |= {r["name"] for r in paged(f"repos/{repo}/actions/runs?branch=main&status={st}", "workflow_runs", 1)}
+    return names
+
+
+def reverify(repo: str, issue: dict[str, Any], run: dict[str, Any], text: str, dry: bool) -> None:
+    now = datetime.now(UTC).isoformat()
+    ahead = gh("api", f"repos/{repo}/compare/{run['head_sha']}...main", "--jq", ".ahead_by")
+    why = reverify_due(now, run, int(ahead or 0), run["name"] in active_workflows(repo), text)
+    if why:
+        print(f"{run['name']}: no re-verify ({why})")
+        return
+    print(f"{run['name']}: red {_hours(now, run['updated_at']):.0f} h, {ahead} newer commit(s) on main: dispatching it")
+    if dry:
+        return
+    res = subprocess.run(  # noqa: S603
+        ["gh", "workflow", "run", run["name"], "--repo", repo, "--ref", "main"],  # noqa: S607
+        capture_output=True, text=True, check=False,
+    )  # fmt: skip
+    if res.returncode:
+        print(f"{run['name']}: dispatch refused: {res.stderr.strip()[:200]}")  # e.g. no workflow_dispatch trigger
+        return
+    gh(
+        "api", f"repos/{repo}/issues/{issue['number']}/comments", "-f",
+        f"body=Re-verifying: this stood red for {_hours(now, run['updated_at']):.0f} h and {ahead} commit(s) have landed "
+        f"on main since the failing run, so {run['name']} was dispatched on main now instead of waiting for its next "
+        f"scheduled run. The issue closes when that run is green (found by the next hourly reconcile).\n"
+        f"{REVERIFY_MARK}{now} -->",
+    )  # fmt: skip
 
 
 def main() -> int:

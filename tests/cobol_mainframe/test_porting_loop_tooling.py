@@ -289,3 +289,28 @@ def test_a_baseline_whose_java_did_not_build_is_not_reused(tmp_path):
     assert not pl._baseline_built(tmp_path)
     (tmp_path / "report.json").write_text(json.dumps({"java_failed": False, "proven": False}))
     assert pl._baseline_built(tmp_path)  # it built and ran (the stub is not proven): reusable
+
+
+@pytest.mark.parametrize("argv", [["run", "x", "--work", "w"], ["run-many", "x", "--work-root", "w"]])
+def test_offline_refuses_the_model_subcommands_by_name(argv, monkeypatch):
+    """#8624: `run` / `run-many` call a model, so --offline (anywhere) and GITGALAXY_OFFLINE=1 stop them by name."""
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    with pytest.raises(SystemExit, match="porting_loop .* refuses --offline"):
+        pl.main([*argv, "--offline"])
+    monkeypatch.setenv("GITGALAXY_OFFLINE", "1")
+    with pytest.raises(SystemExit, match="porting_loop .* refuses --offline"):
+        pl.main(argv)
+
+
+def test_offline_runs_the_local_subcommand_under_the_network_guard(tmp_path, monkeypatch):
+    """#8624: `report` needs no network: it runs with --offline, and the guard is then installed."""
+    from gitgalaxy.tools.readiness import offline
+
+    monkeypatch.delenv("GITGALAXY_OFFLINE", raising=False)
+    monkeypatch.delenv(offline.OFFLINE_ENV, raising=False)
+    monkeypatch.setattr(pl, "loop_md", lambda record: "ok")
+    (tmp_path / "loop.json").write_text("{}", encoding="utf-8")
+    seen = []
+    monkeypatch.setattr(offline, "enable_if_requested", lambda argv=None: seen.append(argv) or True)
+    assert pl.main(["report", str(tmp_path), "--offline"]) == 0
+    assert seen and (tmp_path / "loop.md").read_text(encoding="utf-8") == "ok"

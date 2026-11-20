@@ -29,6 +29,7 @@ Fix the gap, not the example (owner, 2026-10-11). The issue should carry a class
 - **Never edit `tests/equivalence/det_sweep_durations.json`** (#8422): the nightly owns it, and every PR adding a det case that adds its line conflicts with its siblings. A case with no entry is weighed at the median by `proof_sweep.py --shard`; a missing entry only unbalances shards and no test or gate fails on it.
 - Members that share your mechanism (same handler, table or rule; a few lines plus a test each) go in THIS PR, each with its own test or proof case, named in the PR body's class table.
 - Members that need a different mechanism or would break the 5-file limit: do NOT do them or file issues; list them under **Sibling gaps** (member, status, why not here, source).
+- **A test that shells out to a platform tool (rsync, sed, find, cp, chmod) carries a platform guard** (`skipif` on `sys.platform`, or `shutil.which`), and a fixture never relies on two names differing only by case (#8425): PRs run Linux only, and an unguarded one turns main red on macOS / Windows and selects the PR for the implied all-OS matrix (`docs/agents/full-suite-matrix.md`).
 - Tests cover the whole input class the fix touches (e.g. single-byte AND DBCS text), not one example.
 
 ## Box tools (`tests/tools/box/`)

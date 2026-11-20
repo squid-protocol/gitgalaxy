@@ -172,8 +172,9 @@ def test_archive_files_are_counted_and_a_finding(census, tmp_path, capsys):
     with zipfile.ZipFile(census / SECRET / "members.zip", "w") as z:  # authored fixture, never opened by the check
         z.writestr("ZZOTHER.cpy", DATA_ONLY)
     (census / SECRET / "stage.xmit").write_bytes(b"\x00")
+    (census / SECRET / "renamed.dat").write_bytes(b"PK\x03\x04" + b"\x00" * 30)  # an archive with no archive name
     rc, out = run(census, tmp_path, capsys)
-    assert rc == 1 and "FAIL archive files 2" in out
+    assert rc == 1 and "FAIL archive files 3" in out
     assert SECRET not in out and "members.zip" not in out
 
 

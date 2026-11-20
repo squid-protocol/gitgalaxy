@@ -70,7 +70,7 @@ Satoshi was a brilliant cryptographer, but the implementation relies on massive,
 How secure is the original cryptocurrency implementation against modern static threat models? 
 
 * **Autonomous AI Threats:** **0 detected**. The codebase is completely secure against modern agentic vulnerabilities.
-* **Supply Chain Firewall:** **0 Blacklisted / 0 Unknown Dependencies**. The system relies on pure C++ standards and built-in logic, avoiding third-party supply chain attacks entirely.
+* **Import Policy Gate:** **0 Blacklisted / 0 Unknown Dependencies**. The system relies on pure C++ standards and built-in logic, avoiding third-party supply chain attacks entirely.
 * **Binary Anomalies (X-Ray):** **3 hits**. The X-Ray Inspector flagged high entropy in packed payloads, likely tied to early cryptographic constants and genesis block hardcoding.
 * **Weaponizable Surface Exposures:** Files like `src/bignum.h`, `src/db.cpp`, and `src/main.cpp` hit **20.0% Exploit Generation Surface**. This is due to the raw memory manipulation inherent to early C++ (e.g., `src/main.cpp` contains **0.85%** Raw Memory Manipulation density), creating theoretical buffer overflow risks that modern safe languages avoid.
 
@@ -84,7 +84,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGPU Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

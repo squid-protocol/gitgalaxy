@@ -16,7 +16,9 @@ Made before any target was drawn or opened, so it amends this registration rathe
 - **The draw runs only at T0**: after the census preflight passes and main is frozen with its SHA recorded. The drand
   round below is already public, so running `estate4_draw.py draw` earlier would reveal the target.
 - Calibration, stated in advance: the 39-program census mock trial (#7709) reached about 20% whole at first contact and
-  about 30% whole / 90% accounted after about two days of fleet work.
+  about 30% whole / 90% accounted after about two days of fleet work. This is **calibration, not the forecast** (#8321):
+  it was stated before any target existed, over no eligible set. A trial's forecast is the one recorded in
+  `tests/cobol_mainframe/trials.json`, see Amendment 4.
 
 ## Amendment 2 (owner, 2026-11-08): correction of the first blind estate's program count
 
@@ -30,6 +32,21 @@ numbers stay published:
 
 The class fix is #8112: listings, expanded copies and duplicates are not programs. The method for corrections is in
 [estate_trial_methodology.md](estate_trial_methodology.md).
+
+## Amendment 4 (owner, 2026-11-19, #8321): one forecast per trial, in the ledger
+
+Blind 1 (#8073) had two live forecasts that disagreed (the calibration line above, about 20% whole at first contact,
+and a "frozen forecast" of 35-45 of 58 whole in the T0 comment, written over the uncorrected basis of 58 programs,
+Amendment 2). Either could be quoted after the data was in. From 2026-11-19:
+- **The forecast is the `forecast` entry of the trial in `tests/cobol_mainframe/trials.json`, and nowhere else.** A second
+  number in an issue or comment is a mid-trial note and is labelled as one; it is never reported as the forecast.
+  The #8073 T0 number is such a note. Blind 1 keeps its history (grandfathered); the first-contact result is judged
+  against the calibration line above, as registered before the draw.
+- **Order: draw, scan, apply the eligibility rules, declare the eligible set, then forecast over that set.** Never before.
+- **Each reported figure is forecast separately, as a program-count range:** whole at first contact, whole at close-out,
+  accounted at close-out, and the first-try proof rate.
+- **Enforced:** `trial.py start` refuses without `--forecast FIGURE=LOW-HIGH` for all four figures; `trial.py check`
+  fails a trial with no forecast, with two, or with one not made over its declared eligible set.
 
 ## Amendment 3 (owner, 2026-11-08): the proof phase on the first blind estate
 

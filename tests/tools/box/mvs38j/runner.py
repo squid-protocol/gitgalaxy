@@ -26,13 +26,15 @@ _STEP = re.compile(
     r"(IEF142I|IEF272I|IEF202I)\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+STEP WAS (NOT )?(?:EXECUTED|RUN)"
     r"(?:.*?COND CODE (\d{4}))?"
 )
-_DISP = re.compile(r"IEF285I\s+(\S.*?)\s+(KEPT|DELETED|PASSED|CATALOGED|UNCATALOGED|SYSOUT)\s*$")
+_DISP = re.compile(r"IEF285I\s+(\S.*?)\s+(KEPT|DELETED|PASSED|CATALOGED|UNCATALOGED|SYSOUT)(?:\s+\*-+\d*)?\s*$")
 _ABEND = re.compile(r"IEF450I\s+(\S+)\s+(\S+)\s+(?:(\S+)\s+)?-\s+ABEND\s+(S[0-9A-F]{3})\s+(U\d{4})")
-_JCLERR = re.compile(r"IEF452I\s+(\S+)\s+-\s+JOB NOT RUN - JCL ERROR")
+_JCLERR = re.compile(r"IEF452I\s+(\S+)\s+(?:-\s+)?JOB NOT RUN - JCL ERROR")
 _ANY_IEF = re.compile(r"\bIEF\d{3}[A-Z]\b")
 _KNOWN_IEF = {"IEF142I", "IEF272I", "IEF202I", "IEF285I", "IEF450I", "IEF452I", "IEF403I", "IEF404I"}
+# informational messages seen live in a 3.8J job log (allocation, step and job timing, completion code): read, not parsed
+_KNOWN_IEF |= {f"IEF{n}I" for n in (236, 237, 373, 374, 375, 376, 472, 643)}
 _STARTED = re.compile(r"IEF403I\s+(\S+)\s+-\s+STARTED")
-_JOBEND = re.compile(r"\$HASP395\s+(\S+)\s+ENDED")
+_JOBEND = re.compile(r"\$HASP39[56]\s+(\S+)\s+(?:ENDED|TERMINATED)")
 
 
 def parse_log(text, job=None):
@@ -46,6 +48,7 @@ def parse_log(text, job=None):
         )
 
     unparsed = 0
+    step_log = []  # every step line in log order, across jobs, each with its job name
     current = None  # IEF285I names no job: it belongs to the job last seen starting or reporting a step
     for line in text.splitlines():
         if m := _STARTED.search(line):
@@ -53,15 +56,15 @@ def parse_log(text, job=None):
         elif m := _STEP.search(line):
             current = rec(m.group(2))
             executed = m.group(5) is None
-            current["steps"].append(
-                {
-                    "step": m.group(3),
-                    "procstep": m.group(4),
-                    "executed": executed,
-                    "cond_code": int(m.group(6)) if executed and m.group(6) else None,
-                    "message": m.group(1),
-                }
-            )
+            step = {
+                "step": m.group(3),
+                "procstep": m.group(4),
+                "executed": executed,
+                "cond_code": int(m.group(6)) if executed and m.group(6) else None,
+                "message": m.group(1),
+            }
+            current["steps"].append(step)
+            step_log.append({"job": m.group(2), **step})
         elif m := _ABEND.search(line):
             rec(m.group(1))["abends"].append({"step": m.group(2), "system": m.group(4), "user": m.group(5)})
         elif m := _JCLERR.search(line):
@@ -76,7 +79,13 @@ def parse_log(text, job=None):
             if ief and ief.group(0) not in _KNOWN_IEF:
                 unparsed += 1
     chosen = [j for j in jobs.values() if job is None or j["job"] == job.upper()]
-    return {"provenance": PROVENANCE, "jobs": chosen, "unparsed_ief": unparsed, "sysout_lines": len(text.splitlines())}
+    return {
+        "provenance": PROVENANCE,
+        "jobs": chosen,
+        "step_log": step_log,
+        "unparsed_ief": unparsed,
+        "sysout_lines": len(text.splitlines()),
+    }
 
 
 def submit(deck, host="127.0.0.1", port=3505):

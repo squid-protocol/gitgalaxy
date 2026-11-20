@@ -17,6 +17,8 @@ from typing import Any
 
 from gitgalaxy.core.rule_prefilter import derive_literal_gate, fold_haystack
 from gitgalaxy.security.credential_lexicon import COBOL_CREDENTIAL_ALTERNATION, CODE_CREDENTIAL_ALTERNATION
+from gitgalaxy.security.long_lines import CHUNK, OVERLAP
+from gitgalaxy.security.mainframe_secrets import MAINFRAME_SECRET_LANGUAGES, mainframe_secret_sites
 from gitgalaxy.standards.language_standards.identifiers import VIRAMA
 
 logger = logging.getLogger("security_lens")
@@ -260,9 +262,10 @@ class SecurityLens:
     """
     Static Application Security Testing (SAST) Engine.
 
-    Identifies raw structural vulnerabilities (Regex Signatures, Shannon Entropy,
-    and Data Flow Taint) and evaluates them against dynamically injected Policy Thresholds
-    augmented by Network Centrality metrics.
+    Identifies raw structural vulnerabilities (Regex Signatures and Shannon Entropy)
+    and evaluates them against dynamically injected Policy Thresholds. Data-flow taint
+    tracking was removed (#3101), and this lens does not read network centrality: it
+    works file-by-file, and graph metrics are applied downstream of it.
     """
 
     def __init__(self):
@@ -384,6 +387,23 @@ class SecurityLens:
                 r"child_process\.(?:exec|spawn|fork)|"
                 r'(?:window|global|this|globalThis)\[[ \t]*(?:["\'][a-zA-Z]["\'][ \t]*\+[ \t]*){1,15}["\'][a-zA-Z]["\'][ \t]*\][ \t]*\(|'
                 r"\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(\s*\$_(?:POST|GET|COOKIE|REQUEST|HEADERS)|"
+                # #8433: Python malware idioms, scoped to python in HIGH_RISK_EXECUTION_SCOPE. `exec(` of a decoded
+                # or built string (a plain literal or a bare name is not matched), a base64 payload written to
+                # a file (decode-and-drop stagers), and `marshal.loads(` (the code-object loader of obfuscated droppers).
+                r"(?<![\w.])exec[ \t]*\([ \t]*(?:(?:base64\.)?b64decode|(?:zlib\.)?decompress|codecs\.decode|marshal\.loads|bytes\.fromhex|f[\"'\x60]|[\"'][^\"'\n]{0,80}[\"'][ \t]*(?:%|\+|\.format|\.join)|[A-Za-z_][\w.]{0,40}\.decode[ \t]*\()|"
+                r"\.write[ \t]*\([ \t]*(?:base64\.)?b64decode[ \t]*\(|"
+                r"\bmarshal\.loads[ \t]*\(|"
+                # #8433 slice 2: javascript-obfuscator identifiers (`_0x` + 4-6 LOWERCASE hex, used as a call, an index or a
+                # string-array / wrapper assignment; `0x1f`, `my_0x1a2b`, `_0xFFFF` and a bare mention stay silent).
+                r"(?-i:(?<![\w$])_0x[0-9a-f]{4,6})(?![\w$])[ \t]*(?:[(\[]|=[ \t]*(?:\[|function\b))|"
+                # #8433 slice 2: a `pull_request_target` workflow (runs with secrets on a fork's PR) that checks out or runs
+                # the PR head: a `ref:` / `repository:` / `run:` line, or a script-body line, that expands github.head_ref or
+                # github.event.pull_request.head.*. An env-var assignment (`BRANCH: ${{ github.head_ref }}`) is the safe form.
+                r"\bpull_request_target\b(?:[^\n]*\n){0,150}?(?:(?:-[ \t]*)?(?:ref|repository|run)[ \t]*:|(?![\w.-]+[ \t]*:))[^\n]*"
+                r"\$\{\{[ \t]*github\.(?:head_ref|event\.pull_request\.head\.(?:ref|sha|repo\.full_name))[ \t]*\}\}|"
+                # #8433 slice 2: the whole secrets context serialised (`toJSON(secrets)`), the exfiltration idiom; one named
+                # secret (`toJSON(secrets.X)`) and other contexts (`toJSON(github)`) are not it.
+                r"\$\{\{[^}\n]{0,80}?\btoJSON[ \t]*\([ \t]*secrets[ \t]*\)|"
                 r"getattr\s*\(\s*__import__\s*\(|importlib\.import_module\s*\(|\brequire\s*\(\s*(?!['\"])[a-zA-Z_$]|__builtins__\[|Assembly\.Load\s*\(|"
                 r"\$\{\{\s*github\.event\.(?:issue|pull_request|comment|review|push\.commits).*?\}\}",
                 re.I | re.X,
@@ -740,6 +760,7 @@ class SecurityLens:
     # import line in a comment imports nothing: these read the code stream too (hidden text is the
     # exception, see HIDDEN_TEXT_SIGNATURES). Prose files still scan them -- no code stream there.
     CODE_STREAM_SIGNALS = CODE_STREAM_SIGNALS | {"safety_bypasses", "reflection_metaprogramming", "homoglyphs"}
+    LONG_LINE_SKIPPED = frozenset({"dead_code", "homoglyphs"})  # #8429: not re-read on lines of 250+ chars
     PROSE_SKIPPED_SIGNALS = (CODE_STREAM_SIGNALS - {"reflection_metaprogramming", "homoglyphs"}) | {"dead_code"}
 
     # #5463: each high_risk_execution alternative is only an execution vector in the languages that have
@@ -767,7 +788,7 @@ class SecurityLens:
         "apex",
         "yaml",
     }
-    _MAINFRAME = frozenset({"cobol", "jcl", "rexx", "pli", "hlasm", "bms", "easytrieve", "db2_sql", "csd"})
+    _MAINFRAME = frozenset({"cobol", "jcl", "rexx", "pli", "hlasm", "bms", "easytrieve", "db2_sql", "csd", "clist"})
     HIGH_RISK_EXECUTION_SCOPE: tuple[tuple[re.Pattern[str], frozenset[str]], ...] = tuple(
         (re.compile(pat, re.I), langs)
         for pat, langs in (
@@ -786,9 +807,12 @@ class SecurityLens:
             (r"assert\b", frozenset({"php"})),
             (r"child_process\b", _JS_FAMILY),
             (r"(?:window|global|this|globalThis)\[", _JS_FAMILY),
+            (r"pull_request_target\b", frozenset({"yaml"})),
+            (r"_0x", _JS_FAMILY),
             (r"\$\{\{", frozenset({"yaml", "markdown"})),
             (r"\$", frozenset({"php"})),
             (r"(?:getattr|importlib|__builtins__)\b", frozenset({"python", "embedded_python"})),
+            (r"(?:exec\b|marshal\.loads\b|\.write\b)", frozenset({"python", "embedded_python"})),
             (r"require\b", _JS_FAMILY | {"php", "ruby", "perl"}),
             (r"Assembly\.Load\b", frozenset({"csharp", "powershell"})),
         )
@@ -813,11 +837,31 @@ class SecurityLens:
         indents = [len(line) - len(line.lstrip()) if len(line) < 250 else 0 for line in lines]
         return "\n".join(line.strip() if len(line) < 250 else "" for line in lines), indents
 
+    @staticmethod
+    def _long_line_secret_hits(text: str, regex: re.Pattern[str]) -> list[tuple[int, int, str]]:
+        """(line, column, text) of each `regex` match on a line of 250+ chars, both 1-indexed in the ORIGINAL file.
+        A line is read in overlapping pieces (`long_lines.CHUNK` / `OVERLAP`); a match seen in two pieces counts once."""
+        step = CHUNK - OVERLAP
+        hits: list[tuple[int, int, str]] = []
+        for line_no, line in enumerate(text.splitlines(), 1):
+            if len(line) < 250:
+                continue
+            spans: list[tuple[int, int]] = []
+            for start in range(0, len(line), step):
+                for m in regex.finditer(line[start : start + CHUNK]):
+                    lo, hi = start + m.start(), start + m.end()
+                    # the overlap shows one value to two pieces (the later one possibly without the name's head)
+                    if any(lo < e and hi > b for b, e in spans):
+                        continue
+                    spans.append((lo, hi))
+                    hits.append((line_no, lo + 1, m.group(0).strip()))
+        return hits
+
     def scan_content(
         self, content: str, code_stream: str | None = None, prose: bool = False, language: str | None = None
     ) -> dict:
         """
-        Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
+        Executes primary regex scanning and entropy calculation. Data-flow taint tracking was removed (#3101).
 
         `code_stream` is the comment-blanked, line-preserving payload from prism (CODE_STREAM_SIGNALS
         read it; omitted -> they read `content`). `prose=True` marks a file with no executable
@@ -954,6 +998,50 @@ class SecurityLens:
 
             counts[key] = counts.get(key, 0) + new_hits
 
+        # ---> MAINFRAME CREDENTIAL SHAPES (#8625) <---
+        # A JCL `PASSWORD=` is 8 characters and unquoted, so the `hardcoded_secrets` signature above (16+ quoted
+        # characters) cannot see it. Counted onto the same signal for the languages that carry these shapes.
+        if language in MAINFRAME_SECRET_LANGUAGES:
+            mf_sites = mainframe_secret_sites(content)
+            if mf_sites:
+                key = "hardcoded_secrets"
+                counts[key] = counts.get(key, 0) + len(mf_sites)
+                snips = snippets.setdefault(key, [])
+                site_list = sites.setdefault(key, [])
+                site_list.extend([None] * (len(snips) - len(site_list)))
+                for line_no, col, label in mf_sites:
+                    if len(snips) < 3 and label not in snips:
+                        snips.append(label)
+                        site_list.append(None if is_auto_gen else [line_no, col])
+                    if not is_auto_gen:
+                        positions[key].append(line_no)
+
+        # ---> LONG-LINE SIGNATURES (#8429) <---
+        # `_armor` emptied every line of 250+ chars, so a hit on one was never seen. Re-read only those lines, in
+        # overlapping short pieces, for every main signature that is one-line by nature (each piece is under the
+        # armor limit, so each regex stays bounded). Not re-read: dead_code (reads comment text the code stream
+        # blanks) and homoglyphs (needs its whole line). See docs/known_blind_spots.md.
+        has_long_line = any(len(line) >= 250 for line in content.splitlines())
+        for key, regex, raw_only in self._scan_plan if has_long_line else ():
+            if raw_only or key in self.LONG_LINE_SKIPPED or (prose and key in self.PROSE_SKIPPED_SIGNALS):
+                continue
+            src = code_stream if (code_stream is not None and key in self.CODE_STREAM_SIGNALS) else content
+            long_hits = self._long_line_secret_hits(src, regex)
+            if key == "high_risk_execution":
+                long_hits = [h for h in long_hits if self._high_risk_applies(h[2], language)]
+            if not long_hits:
+                continue
+            counts[key] = counts.get(key, 0) + len(long_hits)
+            snips = snippets.setdefault(key, [])
+            site_list = sites.setdefault(key, [])
+            site_list.extend([None] * (len(snips) - len(site_list)))
+            for line_no, col, snip in long_hits:
+                if len(snips) < 3 and snip not in snips:
+                    snips.append(snip)
+                    site_list.append(None if is_auto_gen else [line_no, col])
+                if not is_auto_gen:
+                    positions[key].append(line_no)
+
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0
         entropy_snippets: list[str] = []
@@ -970,6 +1058,20 @@ class SecurityLens:
                     if entropy > 4.8:
                         entropy_hits += 1
                         positions["entropy"].append(bisect.bisect_right(line_starts, match.start()))
+                        if len(entropy_snippets) < 3:
+                            entropy_snippets.append(extracted_string[:60] + "...")
+
+            # #8429: `_armor` emptied every line of 250+ chars, so a literal on one was never measured. The
+            # extractor already bounds a literal at 1024 chars, so it reads the raw long line (not 200-char pieces,
+            # which would cut a 300-char literal in two); a pass over a line is linear in its quote count.
+            for line_no, line in enumerate(content.splitlines(), 1):
+                if len(line) < 250:
+                    continue
+                for match in self.string_extractor.finditer(line):
+                    extracted_string = match.group(2)
+                    if extracted_string.count(" ") < 3 and self._calculate_shannon_entropy(extracted_string) > 4.8:
+                        entropy_hits += 1
+                        positions["entropy"].append(line_no)
                         if len(entropy_snippets) < 3:
                             entropy_snippets.append(extracted_string[:60] + "...")
 

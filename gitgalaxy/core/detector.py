@@ -72,6 +72,11 @@ from gitgalaxy.standards.language_standards._shared_patterns import (
 )
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START, WIDE_HYPHENS
 
+# #8624: `--offline` / GITGALAXY_OFFLINE=1 installs the network guard here, before tiktoken may download an encoding.
+from gitgalaxy.tools.readiness.offline import enable_if_requested, requested
+
+enable_if_requested()
+
 HAS_TIKTOKEN = False
 try:
     import tiktoken
@@ -85,6 +90,10 @@ except Exception as _encoding_error:  # #3791: installed, but its encoding canno
     # get_encoding downloads cl100k_base on first use: offline (an air-gapped site, a proxy, a sandbox) it
     # raises a network error, not an ImportError. That must not take the engine down: token mass is NULL and
     # the run is labelled Zero-Dependency Mode, as when tiktoken is not installed (docs/zero_dependency_mode.md).
+    if requested():
+        _encoding_error = RuntimeError(  # #8624: named, not an obscure socket refusal
+            "offline mode refuses the tiktoken cl100k_base download"
+        )
     logging.getLogger(__name__).warning(
         "tiktoken is installed but its cl100k_base encoding could not be loaded (%s: %s); token mass is not "
         "computed (set TIKTOKEN_CACHE_DIR to a cache holding it to enable)",
@@ -5794,7 +5803,9 @@ class StructuralExtractor:
 
             # galaxyscope:ignore sec_high_risk_execution
 
-            # 1. Taint Tracking (RCE Weaponization), 2. The Silencer Region,
+            # 1. RCE Weaponization (proximity correlation of a source and a sink
+            # signal, not value-level taint tracking; see spatial_correlation.py's
+            # NAMING NOTE), 2. The Silencer Region,
             # 3. The Race Condition Radar, 5. The Memory Leak / UAF Tracker, and
             # 6. The OOM Bomb have all been RELOCATED (#346 phase 1, #348 phase 2)
             # to apply_dampener_correlations()/apply_amplifier_correlations() in
@@ -6474,6 +6485,10 @@ class StructuralExtractor:
                         # never a brace. Routines don't nest, so Mode A's greedy
                         # label-to-label body is the real boundary.
                         "rexx",
+                        # #8625: clist is rexx's shape -- a `label:` runs to its RETURN/EXIT or the next
+                        # label, no braces; without this the labels fell through to Mode_B_Braces and
+                        # 0 of a member's raw func_start matches reached function_data.
+                        "clist",
                         # #3211-followup: csd is bms's shape again -- a CSD deck has
                         # no braces (a `{` can only appear inside an INITIAL='...'/
                         # DESCRIPTION(...) literal) and no ScopeParsingRegistry entry,

@@ -86,8 +86,8 @@ from gitgalaxy.standards.stdlib_modules import is_no_registry_language, is_stdli
 from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
-from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
-    run_firewall_audit,
+from gitgalaxy.tools.supply_chain_security.import_policy_gate import (
+    run_import_gate_audit,
 )
 
 HAS_PYYAML = importlib.util.find_spec("yaml") is not None
@@ -1063,7 +1063,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
                 # can independently corroborate some of these same "sec_" keys (e.g.
                 # sec_tainted_injection, sec_hardcoded_secrets) via its in-segment
-                # spatial correlation. A plain assignment here would silently discard
+                # proximity correlation (two regex hit classes close together, not
+                # value-level taint tracking). A plain assignment here would silently discard
                 # that contribution the moment security_lens's own scan ran second.
                 for sec_key, hit_count in sec_results["counts"].items():
                     mapped_key = f"sec_{sec_key}"
@@ -1078,8 +1079,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # persisted ledger detector.py's rules already populate (#348).
                 # security_lens.py tracks a handful of signals (e.g. db_hooks) that
                 # have no detector.py-side equivalent at all -- without this, that
-                # position data was computed (for security_lens's own internal
-                # taint check) and then simply discarded, leaving post-hoc tools
+                # position data was computed (security_lens's data-flow taint check
+                # was removed, #3101; its positions still feed this ledger) and then
+                # simply discarded, leaving post-hoc tools
                 # outside detector.py (dev_agent_firewall.py, ai_appsec_sensor.py,
                 # #105's future db_hooks correlation) with nothing to correlate
                 # against for these signals.
@@ -1501,7 +1503,7 @@ class Orchestrator:
        DAGs (Directed Acyclic Graphs) and converts token frequencies into actionable metrics. Note:
        risk exposures are calculated metrics from the raw Structural Signatures, not the hits themselves.
     4. Threat Inference (Phases 5-10): Executes ML pipelines (XGBoost) and zero-trust policies
-       (AppSec/Supply Chain Firewalls) to hunt behavioral anomalies.
+       (AppSec/Import Policy Gate) to hunt behavioral anomalies.
     5. Output Routing (Phases 11-12): Transforms the global RAM state into columnar
        JSON payloads, native SQLite bases, and LLM-ready markdown artifacts.
     """
@@ -1947,7 +1949,10 @@ class Orchestrator:
         Workers (Phase 1) must run before Relational Analysis (Phase 3) so that
         we have exact code tokens in RAM before mapping the API Downstream Exposure.
         Likewise, Network Topology (Phase 4) is required before XGBoost Inference
-        (Phase 9) since a file's centrality influences its logic bomb threat weighting.
+        (Phase 9) since the model's feature matrix reads each file's direct
+        upstream/downstream dependency counts (SecurityAuditor._construct_feature_matrix:
+        popularity, import_count and their log forms). PageRank/betweenness are not
+        model features.
         """
         start_time = time.time()
         logger.info(f"--- PIPELINE_START: {self.root.name} (v{self.version}) ---")
@@ -2103,12 +2108,27 @@ class Orchestrator:
                     repository_graph, is_shadow_patch=is_shadow_patch
                 )
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 9 - ML Threat Inference]: {time.time() - t_phase:.2f}s")
+            # #8431: real shadow-patch detection, model-independent: content changed since the base ref while
+            # the governing manifest's version did not. Its own per-file telemetry field; assigns no class.
+            shadow_base = self.config.get("SHADOW_PATCH_BASE")
+            if shadow_base and repository_graph:
+                from gitgalaxy.security.shadow_patch import detect_against_ref
+
+                hits = {h["path"]: h for h in detect_against_ref(str(self.root), shadow_base)}
+                for file_data in repository_graph:
+                    hit = hits.get(file_data.get("path", "").replace("\\", "/"))
+                    if hit:
+                        file_data.setdefault("telemetry", {})["shadow_patch"] = {
+                            "base_ref": shadow_base,
+                            "version": hit["version"],
+                            "manifest_dir": hit["manifest_dir"],
+                        }
 
             # ==========================================================
             # PHASE 10: ECOSYSTEM SECURITY AUDITS
             # Evaluates structural boundaries (Ghost APIs, Supply Chain spoofing).
             # ==========================================================
-            logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Firewall, API Mapper)...")
+            logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Import Policy Gate, API Mapper)...")
 
             # NEW:
             # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
@@ -2141,8 +2161,8 @@ class Orchestrator:
             ecosystem_audits = {
                 "api_mapper": run_api_audit(self.root),
                 "xray": run_xray_audit(self.root, config=self.config),
-                # 3. Pass the RAM graph and the alias map to the Firewall
-                "firewall": run_firewall_audit(repository_graph, alias_map=alias_map, config=self.config),
+                # 3. Pass the RAM graph and the alias map to the Import Policy Gate
+                "import_policy_gate": run_import_gate_audit(repository_graph, alias_map=alias_map, config=self.config),
             }
 
             # Attach it to the summary payload
@@ -4312,10 +4332,15 @@ def main():
     parser.add_argument("--output", default=None, help="Optional output filename override")
     parser.add_argument("--debug", action="store_true", default=None, help="Turn on verbose Analytical logging")
     parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Refuse every network call (also GITGALAXY_OFFLINE=1); the tiktoken download is refused by name.",
+    )
+    parser.add_argument(
         "--paranoid",
         action="store_true",
         default=None,
-        help="Lower security thresholds to flag more potential threats.",
+        help="Use the stricter credential-exposure thresholds (paranoid_threshold, paranoid_slope); other Security Lens thresholds are unchanged.",
     )
 
     # ---> NEW: THE SHADOW PATCH OVERRIDE <---
@@ -4323,7 +4348,15 @@ def main():
         "--shadow-patch-detected",
         action="store_true",
         default=None,
-        help="Indicates the payload hash mutated without a version bump.",
+        help="Manual assertion that a shadow patch happened (no hash or version is compared). Adds an alert to files with file_impact > 0.5; assigns no threat class.",
+    )
+
+    parser.add_argument(
+        "--shadow-patch-base",
+        metavar="REF",
+        default=None,
+        help="Git ref to compare against: flags a file whose content changed since REF while its nearest "
+        "package.json / pyproject.toml / Cargo.toml version did not (telemetry field `shadow_patch`; no threat class).",
     )
 
     # --- EXCLUSIVE RECORDER FLAGS ---
@@ -4462,6 +4495,7 @@ def main():
         "debug": False,
         "paranoid": False,
         "shadow_patch_detected": False,
+        "shadow_patch_base": None,
         "llm_only": False,
         "gpu_only": False,
         "audit_only": False,
@@ -4628,7 +4662,7 @@ def main():
         # --- THE SMART THREAT SWITCH ---
         if args.paranoid:
             logging.getLogger("GalaxyScope").info(
-                "🔒 ZERO-TRUST MODE: Security Lens thresholds set to maximum sensitivity."
+                "🔒 PARANOID MODE: stricter credential-exposure thresholds only; other Security Lens thresholds unchanged."
             )
         # -------------------------------
 
@@ -4653,6 +4687,7 @@ def main():
             "DOCUMENTATION_LANGUAGES": ASSET_MASKS.get("DOCUMENTATION_LANGUAGES", set()),
             "PARANOID_MODE": args.paranoid,
             "SHADOW_PATCH_DETECTED": args.shadow_patch_detected,
+            "SHADOW_PATCH_BASE": args.shadow_patch_base,
             "LLM_ONLY": args.llm_only,
             "GPU_ONLY": args.gpu_only,
             "AUDIT_ONLY": args.audit_only,

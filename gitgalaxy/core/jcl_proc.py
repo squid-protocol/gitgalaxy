@@ -7,17 +7,20 @@
 # `expand_flow_rows(rows, job, text, libraries)` splices a call's procedure steps (in-stream or library member) into `jcl_job_flow` rows as `CALLSTEP.PROCSTEP` so
 # `jcl_flow.JclFlow` can answer `IF (CALLSTEP.PROCSTEP.RC = 0)`.
 #
-# ASSUMED (scenarios.json): A1 an in-stream procedure is used before a library member of the same name; A2 INCLUDE
-# searches the JCLLIB ORDER libraries first-wins, as EXEC does.
+# Procedure search (JCL Reference, "Using a procedure", p. 26): the job's in-stream procedure first, then the JCLLIB ORDER
+# libraries in the order coded ("JCLLIB", ORDER=); an INCLUDE group is searched the same way ("Considerations for using
+# INCLUDE groups", p. 376). Duplicate symbols (p. 36-37): the first on an EXEC or a PROC statement wins, the last on a SET.
 # Unqualified EXEC PARM= goes to the first procedure step only (the others' PARM are nullified); unqualified COND= to every step.
 # A4: a nested procedure's steps are keyed CALLSTEP.PROCSTEP naming the PGM step itself (levels flattened, as the manual's
 # "equivalent statements" do). Nested calls (15 levels), INCLUDE groups inside a procedure (and inside an INCLUDE group),
 # and DD kind overrides (DUMMY / DSN=NULLFILE nullify a DSN, a DSN other than NULLFILE nullifies a DUMMY) are resolved.
 # Refused by name (JclProcRefused): an unqualified PARM= / COND= together with the .procstep form on one call, a symbolic
-# assigned nowhere (undefined, JCL Reference "might cause errors"), a SYSOUT / * / DATA override of a DD that names a DSN,
+# assigned nowhere, a SYSOUT / * / DATA override of a DD that names a DSN,
 # a backward reference procstep.procstep.ddname or a modifying statement for a step that is absent or itself a call,
-# EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels, an INCLUDE group holding
-# anything but DD and INCLUDE statements, a member found in no library.
+# EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels (invalid, pp. 32, 376), an INCLUDE
+# group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376), an EXEC / SET statement in an INCLUDE group inside a procedure (a job-level
+# group is spliced into the job whole, EXEC and SET included, p. 376), a member found
+# in no library. An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
 from __future__ import annotations
 
 import re
@@ -35,6 +38,15 @@ _SYMBOLIC = re.compile(r"&([A-Z@#$][A-Z0-9@#$]{0,7})\.?", re.I)
 _COND_STEP = re.compile(r"(\(\s*\d+\s*,\s*[A-Z]{2}\s*,\s*)([A-Z@#$][A-Z0-9@#$]*)(\s*\))", re.I)
 
 
+def _first_wins(ops: list[tuple[str | None, str]]) -> dict[str, str]:
+    """Keyword operands with the first of a duplicated key kept (duplicate JCL symbols on EXEC / PROC, p. 36-37)."""
+    out: dict[str, str] = {}
+    for k, v in ops:
+        if k and k not in out:
+            out[k] = v
+    return out
+
+
 def _keyword(field: str, key: str) -> str:
     """The value of a keyword operand (`ORDER=(...)`, `MEMBER=X`) on a statement, empty when it is not coded."""
     return dict(_split(field)).get(key, "")
@@ -48,7 +60,9 @@ def _substitute(text: str | None, values: Mapping[str, str]) -> str | None:
     def sub(m: re.Match[str]) -> str:
         name = m.group(1).upper()
         if name not in values:
-            raise JclProcRefused(f"symbolic parameter &{name} is assigned nowhere: the null-value rule is not answered")
+            raise JclProcRefused(
+                f"symbolic parameter &{name} is assigned nowhere: invalid, every JCL symbol coded must have a value (p. 37)"
+            )
         return values[name]
 
     return _SYMBOLIC.sub(sub, text)
@@ -84,19 +98,53 @@ def _dd_dsn(dk: Mapping[str, str], values: Mapping[str, str]) -> str | None:
 _MAX_LEVELS = 15
 
 
-def _include_dds(member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1):
-    """The DD statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
+def _include_statements(
+    member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]], depth: int = 1
+) -> list[tuple[int, str, str, str]]:
+    """The statements of INCLUDE group `member`, nested INCLUDEs spliced in place (the group replaces the statement)."""
     if depth > _MAX_LEVELS:
-        raise JclProcRefused(f"INCLUDE nested past {_MAX_LEVELS} levels is not answered")
-    out: list[tuple[str, dict[str, str]]] = []
-    _defaults, group = _proc_body(_statements(_find(member, order, libraries)))
-    for _l, ddn, iop, ifield in group:
-        if iop == "INCLUDE":
-            out += _include_dds(_keyword(ifield, "MEMBER").upper(), order, libraries, depth + 1)
-        elif iop == "DD":
-            out.append((ddn.upper(), _dd_keys(ifield)))
+        raise JclProcRefused(f"INCLUDE nested past {_MAX_LEVELS} levels is invalid (p. 376)")
+    out: list[tuple[int, str, str, str]] = []
+    for st in _statements(_find(member, order, libraries)):
+        if st[2] == "INCLUDE":
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries, depth + 1)
+        elif st[2] in ("JOB", "PROC", "PEND", "JCLLIB"):
+            raise JclProcRefused(f"an INCLUDE group cannot hold a {st[2]} statement (invalid, p. 376)")
         else:
-            raise JclProcRefused("INCLUDE of anything but DD and INCLUDE statements is not answered")
+            out.append(st)
+    return out
+
+
+def _include_dds(member: str, order: list[str], libraries: Mapping[str, Mapping[str, str]]):
+    """The DD statements of INCLUDE group `member` inside a procedure (an EXEC / SET there is not carried)."""
+    out: list[tuple[str, dict[str, str]]] = []
+    for _l, ddn, iop, ifield in _include_statements(member, order, libraries):
+        if iop == "DD":
+            out.append((ddn.upper(), _dd_keys(ifield)))
+        elif iop != "OUTPUT":
+            raise JclProcRefused(f"a {iop} statement in an INCLUDE group inside a procedure is not carried here")
+    return out
+
+
+def _splice_includes(
+    stmts: list[tuple[int, str, str, str]], libraries: Mapping[str, Mapping[str, str]]
+) -> list[tuple[int, str, str, str]]:
+    """The job's statements with each job-level INCLUDE replaced by its group (EXEC and SET included, p. 376): symbol values
+    a group's SET assigns hold for the statements after it. An INCLUDE inside an in-stream PROC .. PEND is left for the proc."""
+    out: list[tuple[int, str, str, str]] = []
+    order: list[str] = []
+    in_proc = False
+    for st in stmts:
+        if st[2] == "JCLLIB":
+            order = [x.strip().upper() for x in _keyword(st[3], "ORDER").strip("()").split(",") if x.strip()]
+        elif st[2] == "PROC":
+            in_proc = True
+        elif st[2] == "PEND":
+            in_proc = False
+        if st[2] == "INCLUDE" and not in_proc:
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries)
+        else:
+            out.append(st)
     return out
 
 
@@ -106,7 +154,7 @@ def _proc_body(stmts: list[tuple[int, str, str, str]]) -> tuple[dict[str, str], 
     body: list[tuple[int, str, str, str]] = []
     for _line, _name, op, field in stmts:
         if op == "PROC":
-            defaults = {k: _parm(v, sublist=False) or "" for k, v in _split(field) if k}
+            defaults = {k: _parm(v, sublist=False) or "" for k, v in _first_wins(_split(field)).items()}
         elif op == "PEND":
             break
         else:
@@ -131,7 +179,7 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
     for _line, name, op, field in stmts:
         if op == "EXEC":
             ops = _split(field)
-            keyed = {k: v for k, v in ops if k}
+            keyed = _first_wins(ops)
             bare = [v for k, v in ops if not k]
             proc = (keyed.get("PROC") or (bare[0] if bare else "")).upper() if "PGM" not in keyed else ""
             steps.append(
@@ -164,7 +212,7 @@ def _step_dds(stmts: list[tuple[int, str, str, str]], order: list[str], librarie
 
 def _load_proc(name: str, instream: Mapping[str, Any], order: list[str], libraries: Mapping[str, Mapping[str, str]]):
     if name in instream:
-        return instream[name]  # A1
+        return instream[name]  # p. 26
     return _proc_body(_statements(_find(name, order, libraries)))
 
 
@@ -206,7 +254,7 @@ def _expand_call(
     for index, ps in enumerate(proc_steps):
         if ps["proc"]:
             if depth >= _MAX_LEVELS:
-                raise JclProcRefused(f"procedure nesting past {_MAX_LEVELS} levels is not answered")
+                raise JclProcRefused(f"procedure nesting past {_MAX_LEVELS} levels is invalid (p. 32)")
             if any(k in keyed for k in (f"PARM.{ps['name']}", f"COND.{ps['name']}")):
                 raise JclProcRefused(
                     "PARM.procstep= / COND.procstep= naming a step that calls a procedure is not answered"
@@ -252,7 +300,7 @@ def _expand_call(
 
 def resolve_job(text: str, libraries: Mapping[str, Mapping[str, str]], job: str) -> dict[str, dict[str, Any]]:
     """Every EXEC of `job`, resolved. `libraries`: {library: {member: JCL text}}."""
-    stmts = _job_statements(text, job)
+    stmts = _splice_includes(_job_statements(text, job), libraries)
     order: list[str] = []
     instream: dict[str, tuple[dict[str, str], list[tuple[int, str, str, str]]]] = {}
     main: list[tuple[int, str, str, str]] = []
@@ -313,8 +361,8 @@ def expand_flow_rows(
 ) -> list[dict[str, Any]]:
     """The rows of `job` (JOB row first) with each procedure call replaced by its steps `CALLSTEP.PROCSTEP` (the call's
     IF condition kept, COND tests inside the procedure re-pointed at the qualified names, `COND.procstep=` applied).
-    An in-stream procedure is used first (A1); otherwise, given the job's `text` and the `libraries`, the member is
-    searched along the job's JCLLIB ORDER (first library wins, A2) and its steps are read as the in-stream ones are."""
+    An in-stream procedure is used first (p. 26); otherwise, given the job's `text` and the `libraries`, the member is
+    searched along the job's JCLLIB ORDER (first library wins, JCLLIB ORDER) and its steps are read as the in-stream ones are."""
     mine: list[dict[str, Any]] = []
     inside = False
     for r in rows:

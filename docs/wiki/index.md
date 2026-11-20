@@ -22,7 +22,7 @@ If you are looking to secure supply chains, audit AI agents, and generate compli
 * 📜 [The SHBOM Standard (Structural Health Bill of Materials)](01-07-the-shbom-standard.md)
 * 🤖 [Autonomous AI Guardrails (Dev Agent Firewall)](01-08-autonomous-ai-guardrails.md)
 * ⏱️ [The Continuous Delta Paradigm (CI/CD Integration)](01-09-the-continuous-delta-paradigm.md)
-* 🗄️ [Cookbook: Enforce a Supply Chain Firewall](cookbook/enforce-supply-chain-firewall.md)
+* 🗄️ [Cookbook: Enforce a Import Policy Gate](cookbook/enforce-import-policy-gate.md)
 
 ### 🏦 For Legacy Modernization Teams
 If you are tasked with breaking apart 40-year-old IBM monoliths without using an emulator:
@@ -48,7 +48,7 @@ A hyper-scale, language-agnostic static analysis CLI. Bypassing traditional ASTs
 ### 2. The Spokes: Enterprise Operations
 The core engine powers a massive ecosystem of specialized tools:
 * **Legacy Modernization:** Automated pipelines to map, slice, and refactor legacy COBOL into modern Java microservices.
-* **Security & Auditing:** a secrets scanner (Vault Sentinel), an SBOM recorder that samples installed packages for anomalies, a Shadow API mapper that compares source routes with the OpenAPI spec, Binary X-Ray, and a dependency firewall. These are tested on planted inputs; none has a measured real-world recall. The firewall gates imports (blacklist or strict allowlist) and `secrets_risk` when it runs inside a `galaxyscope` scan; its standalone CLI currently never blocks on real scan output ([#8428](https://github.com/squid-protocol/gitgalaxy/issues/8428)), and [#8432](https://github.com/squid-protocol/gitgalaxy/issues/8432) tracks its enforcement gaps.
+* **Security & Auditing:** a secrets scanner (Vault Sentinel), an SBOM recorder that samples installed packages for anomalies, a Shadow API mapper that compares source routes with the OpenAPI spec, Binary X-Ray, and a dependency firewall. These are tested on planted inputs; none has a measured real-world recall. The firewall gates imports (blacklist or strict allowlist) and `secrets_risk` when it runs inside a `galaxyscope` scan; the standalone CLI applies the same gates to the audit JSON of a scan and exits 1 on a counted threat, and [#8432](https://github.com/squid-protocol/gitgalaxy/issues/8432) tracks its enforcement gaps.
 * **AI Governance:** heuristics that flag an agent framework import alongside disk or network I/O and few safety checks (over-permissioned agents), and files whose token mass exceeds 8,000 (too large for an agent's context). No classifier or data-flow analysis is involved.
 
 ### 3. The Presentation: The Observatory
@@ -159,6 +159,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [08-26: Change Report](08-26-change-report.md)
 * [08-27: Activity Sensor](08-27-activity-sensor.md)
 * [08-28: Blast Radius of a Change](08-28-blast-radius.md)
+* [08-29: Repair Radius](08-29-repair-radius.md)
 
 ### 🗄️ The Cookbook (Applied Use Cases)
 * [Audit Local AI Models](cookbook/audit-local-ai-models.md)
@@ -167,7 +168,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [Deploy Vault Sentinel](cookbook/deploy-vault-sentinel.md)
 * [Detect Architectural Drift](cookbook/detect-architectural-drift.md)
 * [Detect Binary Anomalies](cookbook/detect-binary-anomalies.md)
-* [Enforce Supply Chain Firewall](cookbook/enforce-supply-chain-firewall.md)
+* [Enforce Import Policy Gate](cookbook/enforce-import-policy-gate.md)
 * [Generate LLM Architecture Briefs](cookbook/generate-llm-architecture-briefs.md)
 * [Generate Zero-Trust SBOM](cookbook/generate-zero-trust-sbom.md)
 * [Hunt PII Leaks](cookbook/hunt-pii-leaks.md)

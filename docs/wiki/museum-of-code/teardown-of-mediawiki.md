@@ -66,14 +66,14 @@ Perhaps the most dangerous form of technical debt is isolated human knowledge. B
 
 ### The Security Perimeter: Zero-Trust & X-Ray Audits
 
-A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as **SECURE (No Malware Detected)**. However, the rule-based X-Ray and Supply Chain Firewall identified several perimeter exposures:
+A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as **SECURE (No Malware Detected)**. However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:
 
 * **Hardcoded Secrets:** `4` instances found. The Vault Sentinel caught `key1.pem` and `key2.pem` (and their public counterparts) exposed in the `tests/phpunit/integration/includes/Json/` directory.
 * **Binary Anomalies (X-Ray):** `42` anomalies detected. These represent high-entropy strings, packed payloads, or magic byte mismatches that warrant deeper forensic review.
 * **Unknown Dependencies:** `374` packages imported that bypass the Zero-Trust whitelist.
 * **Typosquatting & Malicious Imports:** `0` explicitly banned packages imported, validating a clean external supply chain.
 
-By running the X-Ray Inspector and Supply Chain Firewall entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.
+By running the X-Ray Inspector and Import Policy Gate entirely offline, we mapped these vulnerabilities mathematically without ever needing to compile the code or sniff live network traffic.
 
 ### Conclusion
 
@@ -85,7 +85,7 @@ This architectural teardown was generated using **GitGalaxy**, an AST-free struc
 
 * 🌌 **Explore the 3D WebGL Galaxy:** Upload your own repo's JSON payload securely in your browser at [gitgalaxy.io](https://gitgalaxy.io/).
 * ⚙️ **View the Source:** GitGalaxy is open-source. Check out the blAST engine at [github.com/squid-protocol/gitgalaxy](https://github.com/squid-protocol/gitgalaxy).
-* 🚀 **Automate your Security:** Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
+* 🚀 **Automate your Security:** Deploy the GitGalaxy Import Policy Gate and X-Ray Inspector directly into your CI/CD pipeline using our [GitHub Actions](#).
 
 ---
 

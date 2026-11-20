@@ -131,7 +131,7 @@ def test_package_lock_registry_spoofing(parser, tmp_path):
     # Standard registries should be ignored (trusted baseline)
     assert "clean-pkg" not in resolution_map
 
-    # Suspicious registries must be mapped so the supply chain firewall can block them
+    # Suspicious registries must be mapped so the import policy gate can block them
     assert "dirty-pkg" in resolution_map
     assert resolution_map["dirty-pkg"] == "https://evil-registry.com/dirty-pkg.tgz"
 
@@ -159,7 +159,7 @@ def test_requirements_txt_direct_uri_references(parser, tmp_path):
     assert resolution_map["requests"] == "requests"
     assert resolution_map["flask"] == "flask"
 
-    # Direct URI references map the full string to ensure the firewall catches the untrusted URL
+    # Direct URI references map the full string to ensure the import policy gate catches the untrusted URL
     assert resolution_map["git+https://github.com/hacker/malware.git"] == "git+https://github.com/hacker/malware.git"
     assert resolution_map["file:///etc/passwd"] == "file:///etc/passwd"
 

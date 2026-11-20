@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # ==============================================================================
-# GitGalaxy Tool: Supply Chain Firewall
+# GitGalaxy Tool: Import Policy Gate
 #
 # PURPOSE:
 # Zero-Trust Dependency Verification and Behavioral Policy Enforcement.
 #
 # ARCHITECTURAL DECISION:
-# Operating as a RAM-Exclusive Logic Gate, this firewall consumes the Phase 1
+# Operating as a RAM-Exclusive Logic Gate, this import policy gate consumes the Phase 1
 # Dependency Graph. By completely divesting from redundant O(N) disk parsing,
 # it achieves near-instant policy enforcement. It mitigates Namespace Hijacking
 # and Dependency Confusion attacks by comparing raw codebase imports against
@@ -26,26 +26,70 @@ from typing import Any
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.standards.config_resolver import ResolvedConfig, path_allowlisted, resolve_config
+from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
-# The behavioral category this firewall gates on, mapped to its name in
-# SignalProcessor.RISK_SCHEMA -- Phase 3 computes it once; the firewall
+# The behavioral category this import policy gate gates on, mapped to its name in
+# SignalProcessor.RISK_SCHEMA -- Phase 3 computes it once; the import policy gate
 # reads it back instead of recomputing risk from raw hit counts.
-_FIREWALL_RISK_MAP = {
+_IMPORT_GATE_RISK_MAP = {
     "Secrets Leak Risk": "secrets_risk",
 }
-_FIREWALL_RISK_INDEXES = {
+_IMPORT_GATE_RISK_INDEXES = {
     label: SignalProcessor.RISK_SCHEMA.index(key)
-    for label, key in _FIREWALL_RISK_MAP.items()
+    for label, key in _IMPORT_GATE_RISK_MAP.items()
     if key in SignalProcessor.RISK_SCHEMA
 }
 
 # risk_vector entries are 0-100 sigmoid outputs from SignalProcessor; 50.0 is
 # the sigmoid's own midpoint, so using it as the block cutoff defers entirely
 # to SignalProcessor's judgment instead of maintaining a second threshold.
-_FIREWALL_BLOCK_THRESHOLD = 50.0
+_IMPORT_GATE_BLOCK_THRESHOLD = 50.0
+
+# Manifest flags the ManifestParser writes into the resolution map (#8432).
+_INSECURE_REGISTRY_PREFIX = "INSECURE_REGISTRY_"
+_INSTALL_HOOK_PREFIX = "INSTALL_HOOK_"
+# A resolved value that bypasses the registry (direct URI / VCS / file reference).
+_DIRECT_REF_PREFIXES = ("file:", "github:", "git+", "http:", "hg+", "svn+", "bzr+")
+_TUNNEL_HOSTS = ("ngrok", "localtunnel", "loca.lt")
 
 
-def run_firewall_audit(
+def manifest_flag_findings(alias_map: dict) -> list[tuple[str, str, str]]:
+    """Every manifest flag the parser raised, as (directory, kind, detail).
+
+    The parser records these in the resolution map but nothing read them as
+    findings; the import policy gate now does (#8432). Kinds: insecure_registry
+    (http:// registry, ngrok / localtunnel host), install_hook (a lifecycle
+    script that fetches or evals), direct_reference (alias or requirement
+    resolved to a file / git / http source that skips registry integrity).
+    """
+    found: list[tuple[str, str, str]] = []
+    for dir_key, local in alias_map.items():
+        if not isinstance(local, dict):
+            continue
+        for key, value in local.items():
+            if not isinstance(value, str):
+                continue
+            if key.startswith(_INSECURE_REGISTRY_PREFIX):
+                found.append((dir_key, "insecure_registry", value))
+            elif key.startswith(_INSTALL_HOOK_PREFIX):
+                found.append((dir_key, "install_hook", value))
+            elif value.lower().startswith(_DIRECT_REF_PREFIXES):
+                kind = "insecure_registry" if any(h in value.lower() for h in _TUNNEL_HOSTS) else "direct_reference"
+                found.append((dir_key, kind, value))
+    return found
+
+
+def _is_test_path(rel_path: str) -> bool:
+    """True only when a path has a directory component named `test` or `tests`.
+
+    Anchored on whole path components, never a substring and never the filename:
+    `src/helper_test.py` or `src/test_x.py` is judged like any other file, so a
+    payload cannot hide by being named like a test (#8432)."""
+    parts = rel_path.lower().replace("\\", "/").split("/")
+    return any(d in ("test", "tests") for d in parts[:-1])
+
+
+def run_import_gate_audit(
     parsed_files: list,
     alias_map: dict | None = None,
     config: ResolvedConfig | dict[str, Any] | None = None,
@@ -56,11 +100,11 @@ def run_firewall_audit(
 
     `config` was previously a module-level `gitgalaxy_config.py` import
     (#332/#335) -- that meant no YAML/CLI override could ever reach this
-    firewall, regardless of what a user put in .galaxyscope.yaml. Defaults
+    import policy gate, regardless of what a user put in .galaxyscope.yaml. Defaults
     to an unconfigured resolve_config() only when the caller doesn't
     already have a resolved config to hand over (e.g. direct/test use).
     """
-    logger = logging.getLogger("GalaxyScope.firewall")
+    logger = logging.getLogger("GalaxyScope.import_policy_gate")
     safe_alias_map = alias_map or {}
     # .get() rather than attribute access: the caller may hand over either
     # a ResolvedConfig or Orchestrator's plain full_config dict, and only
@@ -70,7 +114,7 @@ def run_firewall_audit(
     strict_import_mode = resolved_config.get("STRICT_IMPORT_MODE", False)
     approved_imports = resolved_config.get("APPROVED_IMPORTS", [])
     blacklisted_imports = resolved_config.get("BLACKLISTED_IMPORTS", [])
-    firewall_network_weighting = resolved_config.get("FIREWALL_NETWORK_WEIGHTING", False)
+    import_gate_network_weighting = resolved_config.get("IMPORT_GATE_NETWORK_WEIGHTING", False)
 
     imports_whitelisted = 0
     imports_blacklisted = 0
@@ -86,6 +130,16 @@ def run_firewall_audit(
             "threats_found": len(threats_found_files),
             "threats_allowed": threats_allowed,
         }
+
+    # Manifest flags (insecure registry, direct refs, install hooks) are threats in
+    # their own right; the allowlist can excuse them like any other threat.
+    for flag_dir, flag_kind, flag_detail in manifest_flag_findings(safe_alias_map):
+        flag_path = f"{flag_dir}/<manifest:{flag_kind}>"
+        if path_allowlisted(flag_dir, allowlist_paths):
+            threats_allowed += 1
+            continue
+        logger.warning(f"🚨 [MANIFEST {flag_kind.upper()}] {flag_detail} (manifest dir: {flag_dir})")
+        threats_found_files.add(flag_path)
 
     for file_node in parsed_files:
         rel_path_str = file_node.get("path", "unknown")
@@ -180,37 +234,38 @@ def run_firewall_audit(
         ext = Path(rel_path_str).suffix.lower()
 
         # .d.ts files are TypeScript declarations. They contain no executable logic.
-        if ext in {
-            ".svg",
-            ".xml",
-            ".jelly",
-            ".html",
-            ".css",
-            ".md",
-            ".json",
-            ".yaml",
-            ".yml",
-            ".txt",
-            ".properties",
-        } or safe_path_lower.endswith(".d.ts"):
+        # package.json is the exception: it carries npm lifecycle hooks, so the build-time
+        # multiplier below must see it (#8432).
+        is_package_json = Path(rel_path_str).name == "package.json"
+        if not is_package_json and (
+            ext
+            in {
+                ".svg",
+                ".xml",
+                ".jelly",
+                ".html",
+                ".css",
+                ".md",
+                ".json",
+                ".yaml",
+                ".yml",
+                ".txt",
+                ".properties",
+            }
+            or safe_path_lower.endswith(".d.ts")
+        ):
             continue
 
         # Shield test environments. Unit tests intentionally mock attacks, use hardcoded dummy data,
         # and contain high-entropy strings which trigger massive false positives in behavioral heuristics.
-        safe_path = rel_path_str.lower()
-        if (
-            "/test/" in safe_path
-            or "/tests/" in safe_path
-            or "test_" in Path(safe_path).name
-            or "_test" in Path(safe_path).name
-        ):
+        if _is_test_path(rel_path_str):
             continue
 
         # DEFENSIVE DESIGN (BUILD-TIME EXECUTION MULTIPLIER):
         # Configuration scripts (like setup.py or package.json) are executed by CI/CD
         # runners at build time. RCE here compromises the host before the app even runs.
         # We amplify SignalProcessor's already-computed risk scores for these files so
-        # any I/O or Danger signal instantly trips the firewall's block threshold.
+        # any I/O or Danger signal instantly trips the import policy gate's block threshold.
         build_time_multiplier = 1.0
         filename = Path(rel_path_str).name
         if filename in [
@@ -228,7 +283,7 @@ def run_firewall_audit(
         # signal than a peripheral file. Only ever amplifies -- a low-centrality file
         # is still judged on its own merits, never given a discount for being obscure.
         network_multiplier = 1.0
-        if firewall_network_weighting:
+        if import_gate_network_weighting:
             network_metrics = file_node.get("telemetry", {}).get("network_metrics", {})
             # #3027: None = not computed (e.g. betweenness past its work budget) -- no
             # amplification from a metric nobody measured.
@@ -243,14 +298,14 @@ def run_firewall_audit(
         # Phase 3, rather than recomputing risk from raw hit counts (single source of truth).
         risk_vector = file_node.get("risk_vector", [])
         exposures = {}
-        for risk_label, schema_idx in _FIREWALL_RISK_INDEXES.items():
+        for risk_label, schema_idx in _IMPORT_GATE_RISK_INDEXES.items():
             if schema_idx >= len(risk_vector):
                 continue
             raw_score = risk_vector[schema_idx]
             if not isinstance(raw_score, (int, float)) or raw_score <= 0.0:
                 continue
             scaled_score = min(raw_score * build_time_multiplier * network_multiplier, 100.0)
-            if scaled_score >= _FIREWALL_BLOCK_THRESHOLD:
+            if scaled_score >= _IMPORT_GATE_BLOCK_THRESHOLD:
                 exposures[risk_label] = scaled_score
 
         if exposures:
@@ -271,17 +326,56 @@ def run_firewall_audit(
     }
 
 
+def _risk_labels() -> list[str]:
+    """The display label AuditRecorder gives each RISK_SCHEMA slot (same derivation as its
+    "4. Vulnerability & Risk Exposures" block), so the CLI reads back what the recorder wrote."""
+    from gitgalaxy.recorders.audit_recorder import AuditRecorder
+    from gitgalaxy.standards import gitgalaxy_config as config
+
+    recorder = AuditRecorder()
+    exposure_labels = getattr(config, "RECORDING_SCHEMAS", {}).get("EXPOSURE_LABELS", {})
+    return [exposure_labels.get(k, recorder.format_label(k)) for k in SignalProcessor.RISK_SCHEMA]
+
+
+def _audit_file_to_node(path: str, entry: dict, labels: list[str]) -> dict:
+    """Translate one audit-JSON file entry (AuditRecorder's shape) into the
+    in-memory node shape run_import_gate_audit reads (#8428).
+
+    The audit JSON has no ``raw_imports`` / ``risk_vector``: imports live under
+    "9. Extracted Dependencies" and risk scores under "4. Vulnerability & Risk
+    Exposures" as ``{display label: "12.5%"}`` (or "[UNSCANNED - NO DATA]").
+    """
+    exposures = entry.get("4. Vulnerability & Risk Exposures") or {}
+    vector = []
+    for label in labels:
+        try:
+            vector.append(float(str(exposures.get(label, 0.0)).rstrip("%")))
+        except ValueError:
+            vector.append(0.0)  # "[UNSCANNED - NO DATA]"
+    return {"path": path, "raw_imports": entry.get("9. Extracted Dependencies") or [], "risk_vector": vector}
+
+
+def _parsed_files_from_audit(data: dict) -> list:
+    labels = _risk_labels()
+    groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
+    return [
+        _audit_file_to_node(path, file_info, labels)
+        for folder_data in groups.values()
+        for path, file_info in folder_data.get("Files", {}).items()
+    ]
+
+
 def main():
     """
     Standalone Execution Mode.
-    Because the firewall is decoupled from redundant O(N) disk parsing,
+    Because the import policy gate is decoupled from redundant O(N) disk parsing,
     it must be fed the compiled JSON Dependency Graph generated by the GalaxyScope orchestrator.
     """
     from gitgalaxy.licensing import enforce_licensing_guard
 
-    enforce_licensing_guard("Supply Chain Firewall")
+    enforce_licensing_guard("Import Policy Gate")
 
-    parser = argparse.ArgumentParser(description="Supply Chain Firewall (RAM-Exclusive Mode)")
+    parser = argparse.ArgumentParser(description="Import Policy Gate (RAM-Exclusive Mode)")
     parser.add_argument("target", help="Path to the compiled GalaxyScope RAM graph (e.g., results.json)")
     parser.add_argument(
         "--config",
@@ -291,7 +385,9 @@ def main():
         "same resolver galaxyscope.py uses, so standalone runs honor the same "
         "STRICT_IMPORT_MODE / BLACKLISTED_IMPORTS / etc. overrides (#335).",
     )
+    add_flag(parser)  # #8624
     args = parser.parse_args()
+    enforce(args)
 
     resolved_config = resolve_config(yaml_path=args.config)
 
@@ -300,7 +396,7 @@ def main():
         print(f"Error: Target '{target_path}' does not exist.")
         sys.exit(1)
 
-    print(f"🧱 Initializing Supply Chain Firewall against {target_path.name}...")
+    print(f"🧱 Initializing Import Policy Gate against {target_path.name}...")
 
     parsed_files = []
 
@@ -312,7 +408,7 @@ def main():
 
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Run the orchestrator to generate the JSON graph in a temp directory
-                target_out_file = str(Path(tmpdir) / "firewall_temp.json")
+                target_out_file = str(Path(tmpdir) / "import_gate_temp.json")
                 # sys.executable, not a bare "python" PATH lookup -- guarantees
                 # the exact same interpreter/venv GitGalaxy itself is running
                 # under, not whatever "python" happens to resolve to (#472).
@@ -339,23 +435,12 @@ def main():
 
                 with open(audit_files[0], encoding="utf-8") as f:
                     data = json.load(f)
-                    # Extract files from the structured audit directory groups
-                    parsed_files = []
-                    groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
-                    for folder_data in groups.values():
-                        for path, file_info in folder_data.get("Files", {}).items():
-                            file_info["path"] = path  # Ensure path remains attached
-                            parsed_files.append(file_info)
+                    parsed_files = _parsed_files_from_audit(data)
         else:
             # Standard file-based load
             with open(target_path, encoding="utf-8") as f:
                 data = json.load(f)
-                parsed_files = []
-                groups = data.get("6. Parsed Files (Scanned Artifacts)", {})
-                for folder_data in groups.values():
-                    for path, file_info in folder_data.get("Files", {}).items():
-                        file_info["path"] = path
-                        parsed_files.append(file_info)
+                parsed_files = _parsed_files_from_audit(data)
 
     except Exception as e:
         print(f"❌ Failed to parse RAM graph: {e}")
@@ -363,7 +448,7 @@ def main():
 
     # In standalone CLI mode, we bypass the dynamic manifest parsing for speed,
     # relying purely on strict exact-match dependencies and behavioral structural signatures.
-    results = run_firewall_audit(parsed_files, alias_map={}, config=resolved_config)
+    results = run_import_gate_audit(parsed_files, alias_map={}, config=resolved_config)
 
     mode_str = (
         "Strict (Exclude Blacklist and Unknown)"
@@ -372,7 +457,7 @@ def main():
     )
 
     print("\n" + "=" * 75)
-    print(" 🧱 SUPPLY CHAIN FIREWALL: SCAN SUMMARY")
+    print(" 🧱 IMPORT POLICY GATE: SCAN SUMMARY")
     print("=" * 75)
     print(f" Mode                 : {mode_str}")
     print(f" Files Evaluated      : {len(parsed_files):,}")

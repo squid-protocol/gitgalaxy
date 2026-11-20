@@ -64,11 +64,6 @@ class ThreatPolicy:
             "secrets_risk_threshold": 0.001,  # 0.1% density
             "hidden_malware_threshold": 0.60,  # 60% density
         },
-        # The Hazmat Suit: For scanning unknown PyPI/npm packages in a quarantine sandbox.
-        "paranoid": {
-            "secrets_risk_threshold": 0.0001,  # Any trace is critical
-            "hidden_malware_threshold": 0.15,  # 15% density trips the wire
-        },
     }
 
     @staticmethod
@@ -220,6 +215,9 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     # memory model of its own; a routine without PROCEDURE shares the caller's
     # whole variable pool -- implicit globals by default.
     "rexx": (False, False, True, False),
+    # #8625: CLIST -- untyped (every value is a string), no memory model, errors are ignored
+    # unless `ERROR DO` installs a handler, variables are global to the nested CLISTs.
+    "clist": (False, False, True, False),
     "ruby": (False, False, True, True),
     "crystal": (True, True, True, True),  # #5623: compiler-checked types and nil; GC; no implicit globals
     # #6572: dynamically typed (Dialyzer is opt-in); GC per process; immutable data, no implicit globals
@@ -1038,6 +1036,7 @@ LANGUAGE_SECURITY_PROFILES = {
             # #2504: z/OS automation scripting -- ADDRESS TSO/ISPEXEC host
             # commands are the language's purpose, shell's own profile.
             "rexx",
+            "clist",
             "dockerfile",
             "yaml",
             "makefile",
@@ -1590,7 +1589,7 @@ def inactive_vectors(scan_config: dict[str, Any] | None = None) -> set[str]:
 # The measurement-tier model is ADDITIVE: the frozen legacy risk_* columns
 # (RISK_SCHEMA above), their sigmoid formulas, and every mp/multiplier stay
 # byte-identical -- golden masters, bless baselines, and the
-# supply_chain_firewall 50.0-cutoff are unaffected. Tiers surface only in
+# import_policy_gate 50.0-cutoff are unaffected. Tiers surface only in
 # new telemetry keys / DB columns / the LLM brief. See docs/vectors.md
 # "The tier model" for the full design writeup.
 #
@@ -1900,8 +1899,8 @@ FUNCTION_LEVEL_ABSENT_SIGNALS: dict[str, str] = {
     "sec_self_propagation": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
     "sec_db_hooks": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
     "sec_amplified_sql_injection": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
-    "sec_extension_mismatch": "never set: zero in every file and function row of the v2.12.0 population",
-    "sec_tainted_injection": "never set: zero in every file and function row of the v2.12.0 population",
+    "sec_extension_mismatch": "file-level only: set by the disguised-executable check (#4126) in galaxyscope.py",
+    "sec_tainted_injection": "never set: the data-flow taint tracker was removed (#3101), positional placeholder only",
     "prompt_injection": "never set: detector removed (#1020), positional placeholder only",
     "agentic_rce": "never set: detector removed (#1020), positional placeholder only",
 }

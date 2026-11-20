@@ -152,7 +152,7 @@ def test_shell_signature_positive_and_negative(signature, positive, negative):
 def test_shell_dependency_capture_extracts_sourced_path():
     """
     `_dependency_capture` is the capture-group sibling of `import`, used by
-    the Network Graph / Supply Chain Firewall to extract the exact sourced
+    the Network Graph / Import Policy Gate to extract the exact sourced
     path rather than just detecting presence.
     """
     pattern = SHELL_RULES["_dependency_capture"]

@@ -145,7 +145,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Hardware watchdogs and standard Python safety checks.
         # C3 twin-parity with python (#2852 lesson). Fixes b.py: bare except x2 → 0.
         "safety": re.compile(

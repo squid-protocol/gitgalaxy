@@ -160,7 +160,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # BUG FIX: `try\?`/`as\?` both end on `?` (non-word), so the
         # shared trailing \b could never fire -- whatever follows
         # these operators (a space, then the expression) is never a

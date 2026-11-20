@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 19 | 0 | 0 | 0 | 54 |
+| pip | 21 | 0 | 0 | 0 | 51 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 51 | 77 | 54 | 215 | 106 |
+| **total** | 53 | 77 | 54 | 215 | 103 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -159,14 +159,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - graph-comparison-history / Install GitGalaxy + tree-sitter-language-pack
 - `gh-api` - plan / Plan the run
 
-### java-base-generation.yml
-
-- `pip` - keep / Install GitGalaxy
-
-### java-compile.yml
-
-- `pip` - compile / Install GitGalaxy
-
 ### mainframe-ground-truth.yml
 
 - `pip` - ground-truth-part / Install GitGalaxy
@@ -249,7 +241,3 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - plan / Plan the run
 - `pip` - tri-comparison-history / Install GitGalaxy + tree-sitter-language-pack
-
-### unicode-gauntlet.yml
-
-- `pip` - gauntlet / Install GitGalaxy

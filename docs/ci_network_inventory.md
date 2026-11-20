@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 47 | 0 | 0 | 0 | 22 |
+| pip | 52 | 0 | 0 | 0 | 16 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 79 | 84 | 54 | 208 | 74 |
+| **total** | 84 | 84 | 54 | 208 | 68 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -106,13 +106,8 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - sweep / Install GitGalaxy
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)
 
-### full-suite-gate.yml
-
-- `pip` - full-suite-matrix / Install dependencies
-
 ### gitgalaxy.yml
 
-- `pip` - full-report / Install GitGalaxy & Full Precision Engines
 - `gh-api` - pre-gate / Plan the gates
 
 ### graph-accuracy-audit.yml
@@ -134,15 +129,11 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### ports-compile.yml
 
-- `pip` - ports-compile / Install GitGalaxy
 - `gh-api` - ports-compile / Plan the clean-install check
-- `pip` - ports-compile / Assess clean-install check (burned estates, translator from a wheelhouse)
 
 ### publish.yml
 
-- `pip` - evidence-report-current / Install GitGalaxy
 - `git-fetch` - pypi-publish / Enforce Main Branch Tagging
-- `pip` - pypi-publish / Install build tools
 
 ### referee-panel.yml
 

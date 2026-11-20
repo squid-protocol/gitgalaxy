@@ -70,7 +70,9 @@ RESOLUTION RULES (the language's, never the engine's)
               extension, a `.js` spelling of a `.ts` file, or its index file.
               A bare specifier naming the file's own package (`zod/v4` in zod) is the
               file its nearest package.json `exports` declares (Node self-reference,
-              #3789); any other bare specifier is a package (or tsconfig alias), not scored.
+              #3789), as is a sibling workspace package's name when the root package.json
+              declares `workspaces` (#4254); any other bare specifier is a package (or
+              tsconfig alias), not scored.
   lua         `require "a.b"` -> a/b.lua, a/b/init.lua (suffix); dofile/loadfile
               string paths by suffix.
   php         include/require of a string literal (a leading __DIR__ . "/x"
@@ -641,13 +643,26 @@ def _self_reference(spec: str, rel: str, group: Group) -> set[str] | None:
         if not here:
             return None
         here = posixpath.dirname(here)
-    name, exports = pkg.get("name"), pkg.get("exports")
-    if not isinstance(name, str) or not isinstance(exports, dict) or not (spec == name or spec.startswith(name + "/")):
+    name = pkg.get("name")
+    if not isinstance(name, str) or not (spec == name or spec.startswith(name + "/")):
         return None
-    sub = "." + spec[len(name) :]
-    targets = _exports_leaves(exports.get(sub)) if sub in exports else []
-    for target in targets:
-        base = posixpath.normpath(posixpath.join(here, target))
+    return _declared_export(pkg, here, spec[len(name) :], group)
+
+
+def _declared_export(pkg: dict, pkg_dir: str, tail: str, group: Group) -> set[str] | None:
+    """The file `pkg`'s `exports["." + tail]` names, or None."""
+    exports = pkg.get("exports")
+    sub = "." + tail
+    if not isinstance(exports, dict):
+        return None
+    leaves = _exports_leaves(exports[sub]) if sub in exports else []
+    if not leaves:  # a `"./dir/*": "./src/dir/*"` pattern: the `*` stands for the rest of the specifier
+        for key, value in exports.items():
+            if key.endswith("*") and sub.startswith(key[:-1]) and "*" not in key[:-1]:
+                leaves = [t.replace("*", sub[len(key) - 1 :]) for t in _exports_leaves(value)]
+                break
+    for target in leaves:
+        base = posixpath.normpath(posixpath.join(pkg_dir, target))
         stem, ext = posixpath.splitext(base)
         found = {c for c in [base, *(stem + e for e in (".ts", ".tsx", ".mts", ".cts"))] if c in group.files}
         if found:
@@ -655,10 +670,36 @@ def _self_reference(spec: str, rel: str, group: Group) -> set[str] | None:
     return None
 
 
+def _workspace_sibling(spec: str, group: Group) -> set[str] | None:
+    """#4254: in a repo whose root package.json declares `workspaces`, a bare `name/sub` naming another
+    package.json's `name` is the file that package's `exports` declares for `./sub`."""
+    if group.root is None:
+        return None
+    try:
+        root_pkg = json.loads((group.root / "package.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(root_pkg, dict) or not root_pkg.get("workspaces"):
+        return None
+    parts = spec.split("/")
+    name = "/".join(parts[: 2 if spec.startswith("@") else 1])
+    for manifest in sorted(group.root.rglob("package.json")):
+        rel_dir = posixpath.dirname(manifest.relative_to(group.root).as_posix())
+        if "node_modules" in rel_dir.split("/"):
+            continue
+        try:
+            pkg = json.loads(manifest.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(pkg, dict) and pkg.get("name") == name:
+            return _declared_export(pkg, rel_dir, spec[len(name) :], group)
+    return None
+
+
 def js_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
     def resolve(spec: str, rel: str, group: Group) -> set[str] | None:
         if not spec.startswith(("./", "../")):
-            return _self_reference(spec, rel, group)  # else a package or alias: not scored
+            return _self_reference(spec, rel, group) or _workspace_sibling(spec, group)  # else not scored
         base = posixpath.normpath(posixpath.join(posixpath.dirname(rel), spec))
         cands = [base] + [base + e for e in _JS_EXTS] + [posixpath.join(base, "index" + e) for e in _JS_EXTS]
         stem, ext = posixpath.splitext(base)

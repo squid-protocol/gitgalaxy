@@ -128,3 +128,64 @@ def test_unreadable_manifest_is_ignored(tmp_path):
     sensor = NetworkRiskSensor()
     sensor.root = str(tmp_path)
     assert not [e for e in sensor.resolve_import_edges(parsed) if e[0] == _TEST]
+
+
+def test_workspace_sibling_imports_resolve(tmp_path):
+    (tmp_path / "package.json").write_text(
+        json.dumps({"private": True, "workspaces": ["packages/*", "!packages/ignored"]})
+    )
+    (tmp_path / "packages" / "core").mkdir(parents=True)
+    (tmp_path / "packages" / "core" / "package.json").write_text(
+        json.dumps({"name": "@scope/core", "main": "src/index.ts", "exports": {"./utils": "./src/utils.ts"}})
+    )
+    (tmp_path / "packages" / "app").mkdir(parents=True)
+    (tmp_path / "packages" / "app" / "package.json").write_text(json.dumps({"name": "@scope/app"}))
+    (tmp_path / "packages" / "ignored").mkdir(parents=True)
+    (tmp_path / "packages" / "ignored" / "package.json").write_text(
+        json.dumps({"name": "@scope/ignored", "main": "index.ts"})
+    )
+
+    core_idx = "packages/core/src/index.ts"
+    core_utils = "packages/core/src/utils.ts"
+    app_main = "packages/app/src/main.ts"
+    ignored_idx = "packages/ignored/index.ts"
+    files = {
+        core_idx: [],
+        core_utils: [],
+        ignored_idx: [],
+        app_main: ["@scope/core/utils", "@scope/ignored"],
+    }
+    parsed = []
+    for rel, imports in files.items():
+        full = tmp_path / rel
+        full.parent.mkdir(parents=True, exist_ok=True)
+        full.write_text("")
+        parsed.append({"path": rel, "lang_id": "typescript", "raw_imports": imports, "classes": [], "functions": []})
+
+    sensor = NetworkRiskSensor()
+    sensor.root = str(tmp_path)
+    edges = set(sensor.resolve_import_edges(parsed))
+    assert (app_main, core_utils) in edges
+    assert (app_main, ignored_idx) not in edges
+
+
+def test_workspace_sibling_main_without_exports(tmp_path):
+    (tmp_path / "package.json").write_text(json.dumps({"workspaces": {"packages": ["pkgs/*"]}}))
+    (tmp_path / "pkgs" / "lib").mkdir(parents=True)
+    (tmp_path / "pkgs" / "lib" / "package.json").write_text(json.dumps({"name": "@acme/lib", "main": "src/entry.ts"}))
+    (tmp_path / "pkgs" / "web").mkdir(parents=True)
+    (tmp_path / "pkgs" / "web" / "package.json").write_text(json.dumps({"name": "@acme/web"}))
+
+    lib_entry = "pkgs/lib/src/entry.ts"
+    web_app = "pkgs/web/src/app.ts"
+    parsed = []
+    for rel, imports in ((lib_entry, []), (web_app, ["@acme/lib"])):
+        full = tmp_path / rel
+        full.parent.mkdir(parents=True, exist_ok=True)
+        full.write_text("")
+        parsed.append({"path": rel, "lang_id": "typescript", "raw_imports": imports, "classes": [], "functions": []})
+
+    sensor = NetworkRiskSensor()
+    sensor.root = str(tmp_path)
+    edges = set(sensor.resolve_import_edges(parsed))
+    assert (web_app, lib_entry) in edges

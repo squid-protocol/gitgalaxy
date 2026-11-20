@@ -1985,7 +1985,7 @@
     "cmp2"
    ],
    "ibm": null,
-   "ibm_note": "IBM documents no IEEE converter for COMP-1 / COMP-2; the model's choice (det/hfp.py from_ieee / to_ieee)",
+   "ibm_note": "IBM documents no IEEE converter for a COMP-1 / COMP-2 item; the model's choice (det/hfp.py from_ieee / to_ieee). The one documented HFP-IEEE conversion is the Java interop's (Language Reference, the note on COMP-1 / COMP-2 against Java float / double: LE __fp_htob / __fp_btoh, biased round to nearest = ties away from 0): from_ieee agrees with it, to_ieee rounds ties to even and does not (register C6, #8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2009,7 +2009,7 @@
     "cmpScaled"
    ],
    "ibm": null,
-   "ibm_note": "IBM does not document the generated conversion; truncation is the model's choice",
+   "ibm_note": "IBM says only that a fixed-point number is converted to the internal floating-point numbering system, and that up to 15 digits survive a COMP-2 round trip (Programming Guide, 'Conversions and precision'); it does not say truncated or rounded: truncation is the model's choice, consistent with the round trip (register C6, #8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2029,7 +2029,7 @@
     "power"
    ],
    "ibm": null,
-   "ibm_note": "IBM documents no result for a floating-point exponentiation; the capture kit's reference power() is the model until captured z/OS output agrees",
+   "ibm_note": "IBM documents long floating-point arithmetic for a floating-point exponentiation and an undefined negative base to a fractional power (Programming Guide, Appendix A, 'Exponentiations evaluated in floating-point arithmetic'), no result digits; the capture kit's reference power() is the model until captured z/OS output agrees",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2095,8 +2095,8 @@
     "fixedStore"
    ],
    "ibm": {
-    "doc": "cobol-pg",
-    "section": "Conversions and precision"
+    "doc": "cobol-lr",
+    "section": "ROUNDED phrase"
    },
    "options": [],
    "features": [
@@ -2106,7 +2106,7 @@
    "register": [
     "C6"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {

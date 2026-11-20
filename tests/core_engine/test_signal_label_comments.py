@@ -136,6 +136,10 @@ def test_safety_comments_use_the_display_name():
         "sqlite",
         "python",
         "solidity",
+        "kotlin",
+        "rust",
+        "scala",
+        "groovy",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety ({name}:" in text, stem

@@ -159,6 +159,10 @@ def test_safety_comments_use_the_display_name():
         "objectivec",
         "tcl",
         "lua",
+        "typescript",
+        "php",
+        "perl",
+        "powershell",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety ({name}:" in text, stem

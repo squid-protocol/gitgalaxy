@@ -195,25 +195,74 @@ _COMPILER_PGM = "IGYCRCTL"  # Enterprise COBOL; the IGYW* cataloged procs run it
 _SYSIN_MEMBER = re.compile(r"\(([A-Z0-9@#$]{1,8})\)$", re.I)
 
 
+def _symbol_value(v: str) -> str:
+    return v.strip().strip("'").upper()
+
+
+def _libs_of(raw: list[str], symbols: dict[str, str]) -> list[str] | None:
+    """The SYSLIB dataset names `raw` as library names (last qualifiers, in order, each once) after `&NAME.` substitution
+    from `symbols`. None when a name stays symbolic or is member-qualified: the order is unknown, never half an order."""
+    from gitgalaxy.core.jcl_proc import _SYMBOLIC
+
+    out: list[str] = []
+    for dsn in raw:
+        dsn = _SYMBOLIC.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), dsn)
+        last = dsn.rpartition(".")[2]
+        if "&" in dsn or "(" in dsn or not last:
+            return None
+        if last not in out:
+            out.append(last)
+    return out
+
+
+def _merged(*layers: dict[str, str]) -> dict[str, str]:
+    """Symbol layers of equal rank: a name two layers give different values is dropped (unresolved), never picked."""
+    out: dict[str, str] = {}
+    clash: set[str] = set()
+    for layer in layers:
+        for k, v in layer.items():
+            if k in out and out[k] != v:
+                clash.add(k)
+            out[k] = v
+    return {k: v for k, v in out.items() if k not in clash}
+
+
 def _compile_steps(text: str, procs: frozenset[str] = frozenset()) -> list[dict[str, Any]]:
-    """#8412: each compile step of one JCL file as {step, proc, sysin, libs}: `sysin` the literal SYSIN member (or
-    None), `libs` the SYSLIB DD concatenation (the DD and its unnamed continuation DDs) read as library names, a
-    dataset's last qualifier (a library is the directory it is named after, as `COPY ... IN` reads it). A step whose
-    SYSLIB holds a symbolic or member-qualified dataset has `libs` None: the order is unknown, never half an order.
+    """#8412: each compile step of one JCL file as {step, proc, sysin, libs, raw, symbols, params}: `sysin` the literal
+    SYSIN member (or None), `libs` the SYSLIB DD concatenation (the DD and its unnamed continuation DDs) read as library
+    names, a dataset's last qualifier (a library is the directory it is named after, as `COPY ... IN` reads it).
+    A symbolic name (`&HLQ..COPYB`) is read from the `PROC` statement's defaults and the `SET` statements before the step
+    (a name the two give different values is unresolved); a name still symbolic, or a member-qualified dataset, makes
+    `libs` None. `raw` is the unexpanded dataset list, `params` the call's keyword symbols (they override the proc's
+    defaults, IBM z/OS MVS JCL Reference, "Symbolic parameters"), `symbols` the file's own.
     A compile step is `EXEC PGM=IGYCRCTL`, an `IGYW*` proc, or a call of a name in `procs` (`proc` holds that name)."""
-    from gitgalaxy.core.jcl_proc import _dd_keys
+    from gitgalaxy.core.jcl_proc import _dd_keys, _first_wins, _split
     from gitgalaxy.core.job_flow import _statements
 
     out: list[dict[str, Any]] = []
     cur: dict[str, Any] | None = None
     in_syslib = False
+    defaults: dict[str, str] = {}
+    sets: dict[str, str] = {}
     for _no, name, op, operands in _statements(text):
-        if op == "EXEC":
+        if op in ("PROC", "SET"):
+            vals = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
+            (defaults if op == "PROC" else sets).update(vals)
+        elif op == "EXEC":
             up = operands.upper().replace("PROC=", "").replace("PGM=", "")
             called = re.split(r"[,\s]", up, maxsplit=1)[0]
             ok = up.startswith(_COMPILER_PGM) or up.startswith("IGYW") or called in procs
-            cur = {"step": name, "proc": called if called in procs else "", "sysin": None, "libs": []} if ok else None
-            if cur is not None:
+            cur = None
+            if ok:
+                params = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
+                cur = {
+                    "step": name,
+                    "proc": called if called in procs else "",
+                    "sysin": None,
+                    "raw": [],
+                    "params": params,
+                    "symbols": _merged(defaults, sets),
+                }
                 out.append(cur)
             in_syslib = False
         elif op == "DD" and cur is not None:
@@ -229,12 +278,10 @@ def _compile_steps(text: str, procs: frozenset[str] = frozenset()) -> list[dict[
             if dd == "SYSIN":
                 m = _SYSIN_MEMBER.search(dsn)
                 cur["sysin"] = m.group(1) if m else None
-            elif in_syslib and dsn and cur["libs"] is not None:
-                last = dsn.split("(")[0].rpartition(".")[2]
-                if "&" in dsn or "(" in dsn or not last:
-                    cur["libs"] = None
-                elif last not in cur["libs"]:
-                    cur["libs"].append(last)
+            elif in_syslib and dsn:
+                cur["raw"].append(dsn)
+    for step in out:
+        step["libs"] = _libs_of(step["raw"], step["symbols"])
     return out
 
 
@@ -304,11 +351,20 @@ def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
             proc_steps = resolved[call["proc"]]
             if len(proc_steps) != 1:
                 continue  # which compile step a call's overrides address is not guessed
-            libs = call["libs"] or proc_steps[0]["libs"]
-            sysin = call["sysin"] or proc_steps[0]["sysin"]
-            if call["libs"] is None or not (sysin and libs):
+            if call["libs"] is None:
                 continue
-            declare(sysin, libs)
+            step = proc_steps[0]
+            if call["libs"]:
+                libs: list[str] | None = call["libs"]
+            else:
+                # the proc's own defaults, the call's keyword symbols over them; a job SET that names a proc symbol the
+                # call does not set is a clash (unresolved), a SET naming a symbol the proc does not default fills it
+                clash = {k for k in call["symbols"] if k in step["symbols"] and k not in call["params"]}
+                symbols = {**call["symbols"], **step["symbols"], **call["params"]}
+                libs = _libs_of(step["raw"], {k: v for k, v in symbols.items() if k not in clash})
+            sysin = call["sysin"] or step["sysin"]
+            if libs and sysin:
+                declare(sysin, libs)
     return {k: v for k, v in found.items() if v}
 
 

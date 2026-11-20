@@ -95,7 +95,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # safety: Defensive programming, modern argument validation (`arguments` block), and type/shape checks.
+        # safety (Defensive Checks: assert/try/guards): modern argument validation (`arguments` block), and type/shape checks.
         "safety": re.compile(
             r"\b(?:try|catch|narginchk|nargoutchk|validateattributes|validatestring|mustBe[A-Za-z_]\w*|assert|isa|isempty|isnumeric|ischar|isstruct|isfield|iscell|islogical|arguments)\b"
         ),

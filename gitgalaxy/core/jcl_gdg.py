@@ -9,7 +9,9 @@
 # later step is the generation an earlier step created, and (0) is still the old current one); a created generation is
 # rolled into the catalog at the end of the job (User's Guide, Appendix A, GDGBIAS=JOB) and the group's LIMIT drops the oldest; a step that did not
 # run allocates nothing; a created generation's step-end disposition is its abnormal DISP when the step abended (else its
-# normal DISP; NEW with none is DELETE) -- CATLG catalogs it, DELETE removes it, PASS hands it to a later step.
+# normal DISP; NEW with none is DELETE) -- CATLG catalogs it, DELETE removes it, PASS hands it to a later step, KEEP leaves
+# it in deferred roll-in (not in the active group; DFSMS Using Data Sets, "Rolling In a Generation Data Set"). A (0) / (-n)
+# is a position in the group's index; an EMPTY group at its LIMIT rolls off every generation when one is rolled in.
 # Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
 from __future__ import annotations
 
@@ -22,7 +24,7 @@ class JclGdgRefused(ValueError):
     """A GDG construct IBM's text does not settle here, or a JCL / catalog error: refused by name, never guessed."""
 
 
-_STATE = {"CATLG": "cataloged", "DELETE": "deleted", "PASS": "passed", "KEEP": "kept", "UNCATLG": "kept"}
+_STATE = {"CATLG": "cataloged", "DELETE": "deleted", "PASS": "passed", "KEEP": "deferred", "UNCATLG": "kept"}
 
 
 def _int_generation(text: str) -> int:
@@ -55,9 +57,13 @@ def resolve_gdg(
             base, n = dd["dsn"], _int_generation(dd["generation"])
             if base not in start:
                 raise JclGdgRefused(f"GDG base {base} has no catalog entry given")
-            current_gen = start[base][-1] if start[base] else 0
-            absolute = current_gen + n
             key = f"{step}.{dd['dd_name']}"
+            if n > 0:
+                absolute = (start[base][-1] if start[base] else 0) + n
+            elif len(start[base]) + n > 0:
+                absolute = start[base][n - 1]  # (0) / (-n) is a position in the index: a skipped number is not counted
+            else:
+                raise JclGdgRefused(f"{key}: no cataloged generation ({n}) of {base}")
             names[key] = absolute
             if n > 0:
                 state = created.get((base, absolute))
@@ -69,8 +75,6 @@ def resolve_gdg(
                     created[(base, absolute)] = "pending"  # MOD of an absent generation is changed to NEW (DISP)
                 elif state is None:
                     raise JclGdgRefused(f"{key}: (+{n}) read before any step creates it")
-            elif absolute not in start[base]:
-                raise JclGdgRefused(f"{key}: no cataloged generation {absolute} of {base}")
             end = _step_end(dd, res.abend is not None)
             if end is None:
                 continue
@@ -79,13 +83,20 @@ def resolve_gdg(
             elif end in ("DELETE", "UNCATLG"):
                 raise JclGdgRefused(f"{key}: a disposition that removes an existing generation is not answered here")
     after = {b: {"limit": catalogs[b]["limit"], "generations": list(start[b])} for b in start}
+    for b in start:
+        if catalogs[b].get("empty"):
+            after[b]["empty"] = True
     for (base, absolute), state in sorted(created.items(), key=lambda kv: kv[0][1]):
         if state == "passed":
             raise JclGdgRefused(f"{base} generation {absolute} is passed and never received")
         if state == "cataloged":
             gens = after[base]["generations"]
+            if after[base].get("empty") and len(gens) >= after[base]["limit"]:
+                gens.clear()  # EMPTY: a roll-in at the limit rolls off every active generation
             gens.append(absolute)
             del gens[: max(0, len(gens) - after[base]["limit"])]  # LIMIT: the oldest rolls off
+        elif state == "deferred":
+            after[base].setdefault("deferred_rollin", []).append(absolute)
     return names, after
 
 

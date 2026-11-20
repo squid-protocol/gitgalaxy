@@ -2391,10 +2391,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "sha": "36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
    "translator": {
     "files": 183,
-    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
+    "sha256": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
    }
   },
   "sweeps": {}
@@ -8499,8 +8499,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
-   "python tests/tools/evidence_report.py zecs --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "python tests/tools/cics_census.py survey --baseline --sha 36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8522,13 +8522,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "sha": "36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
    "translator": {
     "files": 183,
-    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
+    "sha256": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
    }
   },
-  "translator_commit": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
+  "translator_commit": "36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8571,6 +8571,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
+  "fingerprint": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
  }
 }

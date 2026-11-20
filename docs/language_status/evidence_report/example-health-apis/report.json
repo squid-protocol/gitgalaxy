@@ -2750,10 +2750,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "sha": "36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
    "translator": {
     "files": 183,
-    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
+    "sha256": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
    }
   },
   "sweeps": {}
@@ -15608,8 +15608,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
-   "python tests/tools/evidence_report.py example-health-apis --baseline --sha d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "python tests/tools/cics_census.py survey --baseline --sha 36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
+   "python tests/tools/evidence_report.py example-health-apis --baseline --sha 36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -15630,13 +15630,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
+   "sha": "36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
    "translator": {
     "files": 183,
-    "sha256": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
+    "sha256": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
    }
   },
-  "translator_commit": "d8877770a4a14b78fd7fce3e0552682d02d376ed",
+  "translator_commit": "36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -15679,6 +15679,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "05d7f10074029622220e61f1f0d474235bfd4a3c0791427d23240e0b6dba9e81"
+  "fingerprint": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
  }
 }

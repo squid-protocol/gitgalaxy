@@ -10,11 +10,11 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 19 | 0 | 0 | 0 | 54 |
+| pip | 24 | 0 | 0 | 0 | 49 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
-| maven-gradle | 0 | 0 | 0 | 0 | 1 |
+| maven-gradle | 2 | 0 | 0 | 0 | 1 |
 | git-fetch | 13 | 0 | 0 | 0 | 13 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
 | gh-api | 0 | 0 | 0 | 0 | 27 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 49 | 77 | 54 | 215 | 106 |
+| **total** | 56 | 77 | 54 | 215 | 101 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -163,10 +163,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `pip` - keep / Install GitGalaxy
 
-### java-compile.yml
-
-- `pip` - compile / Install GitGalaxy
-
 ### mainframe-ground-truth.yml
 
 - `pip` - ground-truth-part / Install GitGalaxy
@@ -176,7 +172,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### mypy-audit.yml
 
 - `gh-api` - mypy-audit / Plan the audit
-- `pip` - mypy-audit / Install mypy and GitGalaxy
 
 ### os-smoke-grid.yml
 
@@ -215,12 +210,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### ruff-audit.yml
 
 - `gh-api` - ruff-audit / Plan the audit
-- `pip` - ruff-audit / Install ruff and GitGalaxy
 
 ### small-audits.yml
 
 - `gh-api` - small-audits / Plan the audit
-- `pip` - small-audits / Install GitGalaxy (for ast-accuracy-audit)
 
 ### smoke-test.yml
 
@@ -249,7 +242,3 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - plan / Plan the run
 - `pip` - tri-comparison-history / Install GitGalaxy + tree-sitter-language-pack
-
-### unicode-gauntlet.yml
-
-- `pip` - gauntlet / Install GitGalaxy

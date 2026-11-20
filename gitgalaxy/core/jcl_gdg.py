@@ -42,7 +42,9 @@ def resolve_gdg(
 ) -> tuple[dict[str, int], dict[str, dict[str, Any]]]:
     """-> ({"STEP.DDNAME": absolute generation} for each GDG DD of a step that ran, the catalog after the job)."""
     start = {b: list(c["generations"]) for b, c in catalogs.items()}
-    live = {b: list(g) for b, g in start.items()}  # the catalog as the steps so far left it (deletes happen at step end)
+    live = {
+        b: list(g) for b, g in start.items()
+    }  # the catalog as the steps so far left it (deletes happen at step end)
     anchor: dict[str, list[int]] = {}  # base -> the catalog at the job's first relative reference (GDGBIAS=JOB)
     deleted: set[tuple[str, int]] = set()
     created: dict[
@@ -54,9 +56,13 @@ def resolve_gdg(
     for row in rows:
         if row["kind"] == "JOB":
             current = row["name"]
-        elif current == job and row["kind"] == "DD" and not row.get("in_proc"):
-            if row.get("generation") is not None or row.get("dsn") in start:
-                dds.setdefault(row["step_name"], []).append(row)
+        elif (
+            current == job
+            and row["kind"] == "DD"
+            and not row.get("in_proc")
+            and (row.get("generation") is not None or row.get("dsn") in start)
+        ):
+            dds.setdefault(row["step_name"], []).append(row)
     for step, res in flow.steps.items():
         if res.action != "run":
             continue  # a bypassed step allocates none of its DDs
@@ -109,7 +115,9 @@ def resolve_gdg(
                 raise JclGdgRefused(f"{key}: a disposition that removes an existing generation is not answered here")
         for base in wipe:
             if any(b == base for b, _ in created):
-                raise JclGdgRefused(f"{step}: deleting all of {base} in a job that created a generation is not answered")
+                raise JclGdgRefused(
+                    f"{step}: deleting all of {base} in a job that created a generation is not answered"
+                )
             deleted.update((base, g) for g in live[base])
             live[base].clear()
         for base, absolute in drop:

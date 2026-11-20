@@ -126,7 +126,9 @@ def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_a_deferred_
     dflt = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW)\n"
     assert _run(dflt, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
     keep = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,KEEP)\n"
-    assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [1, 2], "deferred_rollin": [3]}}
+    assert _run(keep, "J", CAT, {"A": {"rc": 0}})[1] == {
+        "G.B": {"limit": 5, "generations": [1, 2], "deferred_rollin": [3]}
+    }
 
 
 def test_a_group_with_no_generation_to_name_is_refused_and_empty_is_carried_to_the_next_job():
@@ -157,7 +159,10 @@ def test_deleting_the_oldest_removes_it_and_any_other_generation_is_refused_by_n
     keep = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,DELETE,KEEP)\n"
     assert _run(keep, "J", CAT, {"A": {"abend": "S0C7"}})[1] == {"G.B": {"limit": 5, "generations": [1, 2]}}
     # a bypassed step deletes nothing
-    bypass = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=(OLD,DELETE)\n//B EXEC PGM=Y,COND=(0,LE)\n//P DD DSN=G.B(0),DISP=SHR\n"
+    bypass = (
+        HEAD
+        + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=(OLD,DELETE)\n//B EXEC PGM=Y,COND=(0,LE)\n//P DD DSN=G.B(0),DISP=SHR\n"
+    )
     assert _run(bypass, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": []}}
 
 
@@ -168,7 +173,9 @@ def test_a_group_delete_ignores_a_dataset_that_is_not_a_group_and_refuses_a_dele
     gone += "//C EXEC PGM=X\n//S DD DSN=G.B(0),DISP=SHR\n"
     with pytest.raises(JclGdgRefused, match="deleted earlier in the job"):
         _run(gone, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}, "C": {"rc": 0}})
-    mixed = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//D DD DSN=G.B,DISP=(OLD,DELETE)\n"
+    mixed = (
+        HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//D DD DSN=G.B,DISP=(OLD,DELETE)\n"
+    )
     with pytest.raises(JclGdgRefused, match="created a generation"):
         _run(mixed, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
     shr = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=SHR\n"

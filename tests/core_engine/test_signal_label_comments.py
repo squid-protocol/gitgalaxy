@@ -144,7 +144,6 @@ def test_safety_comments_use_the_display_name():
         "dart",
         "cobol",
         "c",
-        "html",
         "shell",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")

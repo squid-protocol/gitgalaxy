@@ -125,7 +125,7 @@ DEFINITION: dict[str, Any] = {
             re.IGNORECASE,
         ),
         # --- PHASE 2: RISK ENGINE (Structural Integrity & Debt) ---
-        # 6. safety (Defensive Checks: assert/try/guards)
+        # 6. safety (Defensive Programming / Validation)
         # Browser security and validation constraints.
         # BUG FIX: `pattern="..."`/`sandbox="..."`/`rel="noopener..."`/
         # `integrity="..."` were inside the shared `\b(...)\b` group.

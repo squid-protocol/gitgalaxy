@@ -2230,8 +2230,9 @@ def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_file
 
 # #8161 (PR 5): C#'s keyword type names, a call qualifier that is always a library type (`char.IsWhiteSpace(c)`)
 _CS_KEYWORD_TYPES = frozenset(overload_types.CS_PRIMITIVES | {"string", "object"})
-# #8161 (PR 5): languages whose receiver types only keep a library-typed receiver off repo methods (the guard above)
-_GUARD_ONLY_RECEIVER_TYPES: frozenset[str] = frozenset()
+# #8161 (PR 5): languages whose receiver types only keep a library-typed receiver off repo methods (the guard above);
+# Kotlin's do not answer the `typed` step yet (its nested same-named `Builder` classes cost precision)
+_GUARD_ONLY_RECEIVER_TYPES = frozenset({"kotlin"})
 
 
 def _java_subtype(
@@ -2606,10 +2607,7 @@ def resolve_calls(
             typed = {
                 q: _lineage(c, group, lang, parents)
                 for q, c in receiver_types.items()
-                if c
-                and _is_class(index, group, str(c), lang)
-                and lang not in _GUARD_ONLY_RECEIVER_TYPES
-                and not (lang == "kotlin" and len(class_files.get(_key(str(c), lang), ())) > 1)
+                if c and _is_class(index, group, str(c), lang) and lang not in _GUARD_ONLY_RECEIVER_TYPES
             }
             typed_scope: dict[str, set[str]] = {}
             for q, c in receiver_types.items():

@@ -268,40 +268,38 @@ def test_cpp_std_namespace_and_test_dir_isolation():
     assert tm_site["resolution"] not in CONFIDENT_RESOLUTIONS
 
 
-def test_kotlin_builder_chain_disambiguated_by_file_scope():
+def test_java_builder_chain_disambiguated_by_file_scope():
     files = {
-        "FunSpec.kt": (
-            "class FunSpec {\n"
-            "  class Builder {\n"
-            "    fun addCode(s: String): Builder { return this }\n"
-            "    fun build(): FunSpec { return FunSpec() }\n"
+        "FunSpec.java": (
+            "public class FunSpec {\n"
+            "  public static class Builder {\n"
+            "    public Builder addCode(String s) { return this; }\n"
+            "    public FunSpec build() { return new FunSpec(); }\n"
             "  }\n"
-            "  companion object {\n"
-            "    @JvmStatic fun builder(name: String): Builder { return Builder() }\n"
-            "  }\n"
+            "  public static Builder builder(String name) { return new Builder(); }\n"
             "}\n"
         ),
-        "TypeSpec.kt": (
-            "class TypeSpec {\n"
-            "  class Builder {\n"
-            "    fun addCode(s: String): Builder { return this }\n"
-            "    fun build(): TypeSpec { return TypeSpec() }\n"
+        "TypeSpec.java": (
+            "public class TypeSpec {\n"
+            "  public static class Builder {\n"
+            "    public Builder addCode(String s) { return this; }\n"
+            "    public TypeSpec build() { return new TypeSpec(); }\n"
             "  }\n"
-            "  companion object {\n"
-            "    @JvmStatic fun builder(name: String): Builder { return Builder() }\n"
-            "  }\n"
+            "  public static Builder builder(String name) { return new Builder(); }\n"
             "}\n"
         ),
-        "App.kt": ('fun run() {\n  FunSpec.builder("f").addCode("x").build()\n}\n'),
+        "App.java": (
+            'public class App {\n  public void run() {\n    FunSpec.builder("f").addCode("x").build();\n  }\n}\n'
+        ),
     }
-    deps = [{"src": "App.kt", "dst": "FunSpec.kt"}, {"src": "App.kt", "dst": "TypeSpec.kt"}]
-    sites, _ = resolve_calls(_scan("kotlin", files), deps)
+    deps = [{"src": "App.java", "dst": "FunSpec.java"}, {"src": "App.java", "dst": "TypeSpec.java"}]
+    sites, _ = resolve_calls(_scan("java", files), deps)
     add_site = _site(sites, "run", "addCode")
     assert add_site["step"] == "typed"
     assert add_site["resolution"] in CONFIDENT_RESOLUTIONS
-    assert add_site["dst_path"] == "FunSpec.kt"
+    assert add_site["dst_path"] == "FunSpec.java"
 
     build_site = _site(sites, "run", "build")
     assert build_site["step"] == "typed"
     assert build_site["resolution"] in CONFIDENT_RESOLUTIONS
-    assert build_site["dst_path"] == "FunSpec.kt"
+    assert build_site["dst_path"] == "FunSpec.java"

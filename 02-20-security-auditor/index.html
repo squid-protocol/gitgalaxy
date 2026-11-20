@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="No trained model ships for the XGBoost malware classifier, so inference never runs in any install (#8430). What the module does today: exact upstream/downstream reach counts.">
+        <meta name="description" content="The XGBoost malware classifier was removed on 2026-11-19 (research pending, #8430). What the module does today: exact upstream/downstream reach counts and a manual shadow-patch alert.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -9668,10 +9668,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#status-the-classifier-never-runs" class="md-nav__link">
+  <a href="#status-removed-2026-11-19-research-pending" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Status: the classifier never runs
+        Status: Removed (2026-11-19): research pending
       
     </span>
   </a>
@@ -9679,41 +9679,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#engineering-summary" class="md-nav__link">
+  <a href="#what-the-module-does-today" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Engineering Summary
+        What the module does today
       
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Design">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#current-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current Behavior
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -9729,32 +9701,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tradeoffs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tradeoffs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
         Limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#performance-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Performance Notes
       
     </span>
   </a>
@@ -12827,51 +12777,31 @@
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_auditor.py"><code>gitgalaxy/security/security_auditor.py</code></a></p>
 </blockquote>
-<h2 id="status-the-classifier-never-runs">Status: the classifier never runs</h2>
-<p><strong>No trained model ships.</strong> <code>SecurityAuditor</code> loads <code>gitgalaxy_malware_xgb_multiclass.json</code> by default (<code>security_auditor.py</code>), and that file is not in this repository or in the package. Without it, <code>audit_repository</code> logs "Skipping ML Threat Inference (Model not loaded)" and returns. So in every install, <code>[full]</code> or not:
-- no file is classified, and the AI threat columns are NULL;
-- both golden masters record <code>"Inference Ran": false</code> (<code>tests/golden_master_audit/</code> and <code>tests/golden_master_zero_dep_audit/</code>);
-- <code>--fail-on-malware</code> cannot fire.</p>
-<p>The tests run the inference code against mocks or a tiny synthetic stand-in model (removed in #8430). That shows the plumbing works; it says nothing about detecting malware. No detection rate has been measured. Whether to ship a measured model or remove the classifier is open: <a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>.</p>
-<h2 id="engineering-summary">Engineering Summary</h2>
-<p>This module holds the code for an XGBoost multiclass classifier over per-file feature vectors (structural metrics, complexity distributions, signature counts, dependency-graph reach). Its output classes are Safe Code, Botnet / DDoS, Stealer / Trojan, Dropper / Webshell and Native Infector. With no model shipped, the part that runs today is the dependency-graph step: exact transitive upstream/downstream counts for each file.</p>
-<h2 id="design">Design</h2>
-<h3 id="current-behavior">Current Behavior</h3>
+<h2 id="status-removed-2026-11-19-research-pending">Status: Removed (2026-11-19): research pending</h2>
+<p>The XGBoost malware classifier and the <code>--fail-on-malware</code> flag are removed. No trained model ever shipped, so the classifier never ran in any install and no detection rate was ever measured (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>). A model comes back only with a labelled, measured evaluation: see <a href="https://github.com/squid-protocol/gitgalaxy/issues/96">#96</a>. Until then GitGalaxy makes no malware-classification claim, and the AI threat columns are not produced.</p>
+<h2 id="what-the-module-does-today">What the module does today</h2>
 <ul>
-<li><strong>Dependency Graph Features (runs on every scan):</strong> Counts every file each file transitively depends on (<code>total_upstream</code>) and every file that transitively depends on it (<code>total_downstream</code>), with their ratios. The counts are exact: #3040 replaced the 500-file-capped networkx/BFS pair with one native computation (<code>graph_engine.reach_counts</code>: cycle condensation plus reachability bitsets). It is bounded by a deterministic work budget, past which the totals are <code>None</code>.</li>
-<li><strong>Model loading:</strong> Without a model file the auditor stops after the graph step. It also skips inference when <code>xgboost</code>, <code>scikit-learn</code>, <code>pandas</code> or <code>numpy</code> is missing; the AI columns are then NULL, not "Safe".</li>
-<li><strong>Feature vector (code path only):</strong> Applies logarithmic scaling to structural counts and adds Gini coefficients and signature counts. The "global architectural distance" features (<code>assigned_macro_species</code>, <code>primary_z_score</code>, <code>dist_to_*</code>) are frozen constants, the same for every file, since the repo clustering model was retired (<a href="https://github.com/squid-protocol/gitgalaxy/issues/1159">#1159</a>).</li>
-<li><strong>Shadow patch (manual hint, runs with or without a model):</strong> <code>--shadow-patch-detected</code> is a manual flag. No hash or version is compared; when the flag is set, every file with <code>file_impact &gt; 0.5</code> gets the alert "SHADOW PATCH (manually asserted via --shadow-patch-detected; no hash or version was compared)". It assigns no AI Threat Class, no score and no <code>is_ml_threat</code> (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8431">#8431</a>, <a href="https://github.com/squid-protocol/gitgalaxy/pull/8611">#8611</a>).</li>
+<li><strong>Dependency graph reach (every scan):</strong> counts every file each file transitively depends on (<code>total_upstream</code>) and every file that transitively depends on it (<code>total_downstream</code>), with their ratios. The counts are exact: one native computation (<code>graph_engine.reach_counts</code>: cycle condensation plus reachability bitsets, #3040). It is bounded by a deterministic work budget (<code>PATH_METRICS_WORK_BUDGET = 50_000_000</code> edge scans per search, <code>gitgalaxy/core/network_risk_sensor.py</code>), which counts work, not time; past it the totals are <code>None</code>.</li>
+<li><strong>Shadow patch (manual hint):</strong> <code>--shadow-patch-detected</code> is a manual flag. No hash or version is compared; when it is set, every file with <code>file_impact &gt; 0.5</code> gets the alert "SHADOW PATCH (manually asserted via --shadow-patch-detected; no hash or version was compared)". It assigns no class and no score (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8431">#8431</a>).</li>
 </ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
-<li><strong>Inputs Received:</strong> The repository graph with per-file metrics, signature counts and resolved dependencies; the <code>--shadow-patch-detected</code> flag.</li>
-<li><strong>Outputs Produced:</strong> Upstream/downstream reach counts on every scan. The AI Threat Class, AI Threat Confidence and <code>is_ml_threat</code> fields would be written only if inference ran; today they are absent.</li>
-<li><strong>Dependencies:</strong> Pre-computed structural metrics, signature counts and dependency edges.</li>
+<li><strong>Inputs:</strong> the repository graph with per-file metrics and resolved dependencies; the <code>--shadow-patch-detected</code> flag.</li>
+<li><strong>Outputs:</strong> upstream/downstream reach counts on every scan.</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Repository graph] --&gt; B[Security Auditor]
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; C[Upstream / downstream reach]
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B -.-&gt;|no model ships: skipped| D[XGBoost inference]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Manual shadow-patch alert]
 </code></pre></div>
-<h2 id="tradeoffs">Tradeoffs</h2>
-<ul>
-<li><strong>Probabilistic scores:</strong> If a model were supplied, its scores would be probabilities from <code>predict_proba</code> (deterministic for a given model and input) with an unmeasured error rate.</li>
-<li><strong>Dependency footprint:</strong> The <code>[full]</code> extra installs <code>xgboost</code>, <code>scikit-learn</code>, <code>pandas</code> and <code>numpy</code> for a classifier that does not run without a model.</li>
-</ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li><strong>No model, no evaluation:</strong> No model ships and no labelled real-world evaluation exists, so there is no recall, precision or false-positive rate to report.</li>
-<li><strong>Frozen features:</strong> The architectural-distance features carry no per-file information (#1159).</li>
-<li><strong>Shadow patch:</strong> A manual hint with no hash or version comparison; it marks files by <code>file_impact</code>, not by change, and assigns no class (#8431).</li>
-</ul>
-<h2 id="performance-notes">Performance Notes</h2>
-<ul>
-<li>The reach counts and the path metrics in the network risk sensor are bounded by a deterministic work budget (<code>PATH_METRICS_WORK_BUDGET = 50_000_000</code> edge scans per search, <code>gitgalaxy/core/network_risk_sensor.py</code>), which counts work, not time. Past it, the metric is <code>None</code>.</li>
+<li>The shadow patch is a manual hint, not a detection (#8431).</li>
+<li>There is no malware classifier. Structural counts describe code; they do not identify malicious code.</li>
 </ul>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li>Decide between shipping a model with a measured detection rate and removing the classifier and <code>--fail-on-malware</code> (#8430).</li>
+<li>A classifier returns only with a labelled, date-locked held-out evaluation against a baseline (#96).</li>
 <li>Replace the shadow-patch hint with real detection: a hash against the previous scan plus the manifest version (#8431).</li>
 </ul>
 <h2 id="related-components">Related Components</h2>

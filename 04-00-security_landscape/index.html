@@ -10404,10 +10404,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#graph-metrics-and-the-ml-classifier-that-does-not-run" class="md-nav__link">
+  <a href="#graph-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Graph metrics, and the ML classifier that does not run
+        Graph metrics
       
     </span>
   </a>
@@ -12869,8 +12869,8 @@
 <h2 id="design">Design</h2>
 <h3 id="compilation-free-lexical-analysis">Compilation-Free Lexical Analysis</h3>
 <p>Instead of building ASTs or requiring binary packaging, the system parses raw source code directly. Security rules are defined using standardized regular expression patterns and keyword permutations. Because core language constructs follow predictable structural patterns, a unified rule set can analyze multiple languages efficiently in a single pass.</p>
-<h3 id="graph-metrics-and-the-ml-classifier-that-does-not-run">Graph metrics, and the ML classifier that does not run</h3>
-<p>The system computes structural mass, cyclomatic complexity, ownership entropy and dependency topology for every file. The code also contains an XGBoost malware classifier, but no trained model ships, so it never runs in any install (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>; see <a href="../02-20-security-auditor/">Security Auditor</a>).</p>
+<h3 id="graph-metrics">Graph metrics</h3>
+<p>The system computes structural mass, cyclomatic complexity, ownership entropy and dependency topology for every file. It has no malware classifier: the XGBoost classifier was removed on 2026-11-19 because no model ever shipped (research pending, <a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>, <a href="https://github.com/squid-protocol/gitgalaxy/issues/96">#96</a>; see <a href="../02-20-security-auditor/">Security Auditor</a>).</p>
 <h3 id="architectural-comparison">Architectural Comparison</h3>
 <ul>
 <li><strong>Black Duck, npm audit, Snyk:</strong> Traditionally rely on exact signature matching and proprietary cloud databases for known CVEs. The system operates fully offline, scanning actual source files directly alongside manifests. It uses configurable regular expression patterns and heuristic signature vectors to flag security risks.</li>
@@ -12906,7 +12906,7 @@
 <h2 id="future-work">Future Work</h2>
 <ul>
 <li><strong>Planned Improvements:</strong> Enhancing the precision of reachability graphs without sacrificing compilation-free speed.</li>
-<li><strong>Open decision:</strong> ship a measured model for the XGBoost classifier, or remove it (<a href="https://github.com/squid-protocol/gitgalaxy/issues/8430">#8430</a>).</li>
+<li><strong>Research pending:</strong> a malware classifier returns only with a labelled, measured evaluation (<a href="https://github.com/squid-protocol/gitgalaxy/issues/96">#96</a>).</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>

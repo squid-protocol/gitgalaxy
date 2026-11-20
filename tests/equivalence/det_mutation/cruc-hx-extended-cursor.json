@@ -14,9 +14,9 @@
   "chosen": 549,
   "coverage": "proven on 30 scenarios, covering 3/3 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 220,
+   "killed": 224,
    "timeout": 0,
-   "survived": 318,
+   "survived": 314,
    "stillborn": 11,
    "error": 0,
    "pending": 0
@@ -36,6 +36,7 @@
    "1286ac53bd",
    "12e13f7b12",
    "137b72f69e",
+   "149c03eaa6",
    "14be3bcd8c",
    "14f8b8bccc",
    "1525a1eca4",
@@ -78,6 +79,7 @@
    "373d4e85ad",
    "374c52fc65",
    "385ec6c198",
+   "398a5a1d9a",
    "39ec5955a1",
    "3b7cce98c3",
    "3bed87d88f",
@@ -182,6 +184,7 @@
    "a86068e744",
    "a998e1bb41",
    "aade2a8264",
+   "ab2d1772cc",
    "ac064f2830",
    "ac1443e142",
    "ace3cc1996",
@@ -213,6 +216,7 @@
    "cc409ebda5",
    "ce34e2432a",
    "d619c3130b",
+   "d962a015dd",
    "d9f27b7507",
    "dcd2307bde",
    "ddd94ad8eb",
@@ -1490,14 +1494,6 @@
     "after": "/* f111_WS_RESP = 0L; */"
    },
    {
-    "id": "d962a015dd",
-    "op": "DEL",
-    "file": "service/HxextService.java",
-    "line": 231,
-    "before": "caBack = () -> { };",
-    "after": "/* caBack = () -> { }; */"
-   },
-   {
     "id": "9adfd30951",
     "op": "DEL",
     "file": "service/HxextService.java",
@@ -1936,30 +1932,6 @@
     "line": 297,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */"
-   },
-   {
-    "id": "149c03eaa6",
-    "op": "CON",
-    "file": "service/HxextService.java",
-    "line": 297,
-    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
-   },
-   {
-    "id": "ab2d1772cc",
-    "op": "AOR",
-    "file": "service/HxextService.java",
-    "line": 297,
-    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
-   },
-   {
-    "id": "398a5a1d9a",
-    "op": "NEG",
-    "file": "service/HxextService.java",
-    "line": 300,
-    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
    },
    {
     "id": "b1e3e417f7",
@@ -2810,7 +2782,7 @@
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "4563c3ca6e92735b280c868c1bbed70ea6b2280b888dd7e51e6bc4406c276641",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "27c946947af9fb138285fc469c90b3bfa6dd598e24626c06fa7324be7ffb839f"
+   "survivors": "d24f18bcb87fe48e8c1e1565b3a8552be5dec59ac245cd9c193952e1e9673e1d"
   },
   "components": {
    "generator": {
@@ -2855,6 +2827,19 @@
    "stale": [
     "survivors"
    ]
+  },
+  "siblings": {
+   "cruc-hx-extended-linked": {
+    "case": "618fe9a15db23e956d590c350a330f843573a48f61a194ad772d04240c3c5329",
+    "ran": 318,
+    "killed": [
+     "149c03eaa6",
+     "398a5a1d9a",
+     "ab2d1772cc",
+     "d962a015dd"
+    ],
+    "date": "2026-11-20"
+   }
   }
  }
 }

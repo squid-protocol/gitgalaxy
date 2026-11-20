@@ -168,7 +168,7 @@ jobs:
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e .
+          tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

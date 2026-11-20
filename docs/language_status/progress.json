@@ -1,5 +1,5 @@
 {
- "commit": "35458390d",
+ "commit": "b34549840",
  "components": {
   "capabilities": {
    "groups": [
@@ -11,7 +11,7 @@
     "Other languages"
    ],
    "register": {
-    "entries": 147,
+    "entries": 148,
     "refused": 74
    },
    "rows": [
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T05:36:57Z",
+  "as_of": "2026-11-20T05:48:41Z",
   "core": {
    "closed": 253,
    "open": 12,

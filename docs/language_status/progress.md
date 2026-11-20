@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `35458390d` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `b34549840` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -101,7 +101,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Other languages | BMS maps | Works | no denominator | SEND MAP, RECEIVE MAP |
 | Other languages | PL/I | Nothing | no denominator | scanned, never translated (no translator code) |
 
-z/OS: 0 of 194 rules measured. Register of named limits: 147 entries, 74 refuse by name.
+z/OS: 0 of 194 rules measured. Register of named limits: 148 entries, 74 refuse by name.
 
 ## 2. Components
 
@@ -133,7 +133,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-20T05:36:57Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-20T05:48:41Z.
 
 - `scope:core`: 12 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.

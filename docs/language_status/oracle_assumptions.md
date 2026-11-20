@@ -197,6 +197,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust, #4952) |
 | L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
 | L7 | LE | CEELOCT's one IBM-listed failure, CEE2F3 (severity 3, message 2531), can be planned in a scenario's fault plan: the 12-byte token is written, the three outputs are left untouched; what IBM leaves in the outputs and the exact token bytes are assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust scenario ceeloct-local-time-unavailable, #6882) |
+| L8 | LE | tests/equivalence/le_conditions/ceecond.c models user-written condition handlers (register, unregister, signal, result codes 10 / 20 / 21, the unhandled defaults) from the LE Programming Reference and Guide; it refuses everything else by name and, with no GnuCOBOL frame source yet, refuses every call, so no proof rests on it | ASSUMED | no (not linked; DBB epscsmrd, the one burned caller, stays refused by design, ladder rule 8) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | A2 | z/OS control blocks | a batch program's PSA -> TCB -> TIOT walk reads stand-in blocks built from the stated step; no step stated is refused | ASSUMED | yes (CardDemo CBSTM03A; det and oracle modelled, equivalence case pending) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
@@ -6089,6 +6090,50 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   lists none). Without a plan the call never fails (L5).
 - **Not calibrated on z/OS.** No run on z/OS has compared the token or the outputs; the oracle is GnuCOBOL plus our stub.
 
+### L8. CEEHDLR / CEEHDLU / CEESGL — a condition-handling model written from IBM's manuals, not yet linked into any program
+- **What IBM documents** (z/OS 2.5 Language Environment Programming Reference, SA38-0683-50, "CEEHDLR--Register
+  user-written condition handler", "CEEHDLU--Unregister user-written condition handler", "CEESGL--Signal a condition",
+  "Invoking callable services", "ERRCOUNT"; Programming Guide, SA38-0682-50, "Handle cursor", "Resume cursor", Table 34
+  "Default responses to unhandled conditions", "User-written condition handler interface" with Table 40 "Valid result
+  codes", Figure 74 "Language Environment condition token". Read from
+  https://web.archive.org/web/2023/https://www.ibm.com/docs/en/SSLTBW_2.5.0/pdf/ceea300_v2r5.pdf and
+  https://web.archive.org/web/2023/https://www.ibm.com/docs/en/SSLTBW_2.5.0/pdf/ceea200_v2r5.pdf.)
+  Handlers are queued per stack frame, driven last-registered first, and unregistered when their frame leaves the stack.
+  CEEHDLR returns CEE000, CEE080 (severity 1, message 256: already registered for this stack frame, registered again)
+  or CEE081 (severity 3, message 257: an invalid entry variable). CEEHDLU returns CEE000 or CEE07S (severity 1, message
+  252: unable to find the handler). A handler is called with (condition token, the registered 4-byte token, result_code,
+  new_condition); result code 10 resumes at the resume cursor (initially after the call that signalled), 20 percolates
+  to the next handler and is the default when none is set, 21 percolates to the first user handler of the previous
+  stack frame. Unhandled, a CEESGL with a feedback code returns CEE069 (severity 0, message 201) for severity 0 to 3
+  and resumes after the call (Table 34); severity 0 and 1 are ignored without a feedback code ("safe conditions");
+  severity 4, or 2 and 3 without a feedback code, are promoted to T_I_U and the thread ends. An omitted fc means the
+  service's own condition is signalled when it does not succeed.
+- **Modelled** (#8062): exactly the above, in `tests/equivalence/le_conditions/ceecond.c`, driven through a frame
+  source the runtime installs (`gg_le_set_frames`: the live activations, innermost first). Pinned byte for byte by
+  `tests/cobol_mainframe/test_le_condition_oracle_8062.py` from a C driver; the symbolic names are the message numbers
+  in base 32 (CEE080 = 256), the same layout as CEELOCT's CEE2F3 (L7).
+- **Assumed.** (1) The token bytes (case 1, control 1, facility "CEE" in EBCDIC, ISI zero; CEE000 all zero), as L7.
+  (2) A CEESGL whose condition a handler resumed returns CEE000 in its fc: IBM states the unhandled CEE069 only.
+  (3) COBOL's own condition handler, between two frames' user handlers, percolates a condition CEESGL raised.
+  (4) ERRCOUNT is its default 0 (unlimited), so counting severity 2+ conditions never ends the enclave. (5) Of two
+  registrations of one routine in one frame, CEEHDLU removes the later. (6) "An invalid entry variable" is read as a
+  null entry; IBM does not list what else is invalid.
+- **Conflict recorded.** The ERRCOUNT usage note says any unhandled condition of severity 2, 3 or 4 ends the enclave;
+  Table 34's column for a CEESGL with a feedback code says severity 2 and 3 return CEE069 and resume. The model follows
+  Table 34, the more specific statement, and this is the first assumption a z/OS run would test.
+- **Refused by name** (exit 98, "... is not modelled"): no frame source (every call, today); an omitted fc on a service
+  that does not succeed; result codes 30 / 31 / 32 (promote), 60 (fix-up and resume) and any other value; a condition
+  signalled, or a handler registered or unregistered, inside a handler; T_I_U; a case-1 token whose two severities
+  differ; CEEGQDT (the q_data_token is not stored). Conditions LE itself raises (a program check, a CICS abend) never
+  reach the model: the det port and GnuCOBOL do not signal them.
+- **Remaining slices.** A GnuCOBOL frame source (one identity per activation, refusing recursion) and the harness
+  link line (a new evidence component, so `oracle:le` records stay current); the Java twin `cobolrt/le/Ceecond.java`;
+  det translator support for the three services and `SET ... TO ENTRY` (now refused, `le-condition-handling` in
+  `det/dyncall.py`); CEEMRCE / CEE3SRP (moving the resume cursor), CEENCOD / CEEMGET, promote and fix-up, nested
+  conditions and ERRCOUNT.
+- **Not calibrated on z/OS.** No z/OS run has compared any outcome; a proof that rested on this model would be
+  labelled assumed (IBM-documented), never proven (mainframe evidence policy rule 8).
+
 ## Assembler routines
 
 ### A1. COBDATFT — MATCHED where the source decides, REFUSED otherwise
@@ -6971,4 +7016,4 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
   render` writes a local copy to read.
 
 ### z/OS calibration
-0 of 147 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).
+0 of 148 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).

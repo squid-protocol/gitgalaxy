@@ -14,7 +14,6 @@ WORKFLOWS = [
     "evidence-refresh.yml",
     "det-sweep.yml",
     "cics-crucible.yml",
-    "ports-compile.yml",
 ]
 
 

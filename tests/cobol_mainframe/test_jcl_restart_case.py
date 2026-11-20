@@ -33,11 +33,21 @@ def test_the_reader_sees_each_restart_and_checkid():
     assert got["RSTJOB2"] == ("*", None)
     assert got["RSTJOB3"] == ("CALL1.P2", None)
     assert got["RSTJOB4"] == ("V3", "CK1")
+    assert got["RSTJOB11"] == ("*", "CKPT2")
+    assert got["RSTJOB12"] == ("PAY.WEEKLY", "CHECK8")
 
 
 def test_the_scenarios_cover_every_construct_of_the_checklist_line():
     ids = " ".join(s["id"] for s in DOC["scenarios"])
-    for word in ("step-restart", "restart-star", "procstep-restart", "checkpoint-restart", "rd-"):
+    for word in (
+        "step-restart",
+        "restart-star",
+        "procstep-restart",
+        "checkpoint-restart",
+        "rd-",
+        "cond-referback",
+        "if-referback",
+    ):
         assert word in ids, word
     assert len(ids.split()) == len(set(ids.split()))
     assumed = {a["id"] for a in DOC["assumed"]}

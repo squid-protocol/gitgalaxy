@@ -219,7 +219,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Defensive constructs (strict, warnings, safe exceptions).
+        # 6. safety (Defensive Checks: assert/try/guards): strict, warnings, safe exceptions.
         # BUG FIX: `eval[ \t]*\{` was inside the shared \b(...)\b wrapper.
         # It ends on the literal `{` (non-word), so the trailing \b only
         # matched when a word character immediately followed the brace

@@ -98,6 +98,15 @@
     "recall_pct": 98.2,
     "tp": 1331
   },
+  "objective-c": {
+    "fn": 6,
+    "fp": 7,
+    "matched_functions": 153,
+    "parse_failures": 0,
+    "precision_pct": 97.8,
+    "recall_pct": 98.1,
+    "tp": 315
+  },
   "perl": {
     "fn": 166,
     "fp": 286,
@@ -160,6 +169,15 @@
     "precision_pct": 97.9,
     "recall_pct": 89.3,
     "tp": 3022
+  },
+  "shell": {
+    "fn": 106,
+    "fp": 312,
+    "matched_functions": 819,
+    "parse_failures": 0,
+    "precision_pct": 84.0,
+    "recall_pct": 93.9,
+    "tp": 1637
   },
   "solidity": {
     "fn": 3,

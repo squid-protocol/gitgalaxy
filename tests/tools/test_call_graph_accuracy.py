@@ -45,7 +45,7 @@ def test_powershell_cmdlets_methods_and_static_calls():
 def test_tcl_commands_substitutions_and_namespaced_commands():
     """a command, a `[subst]` inside `set`, and `ns::k` (rightmost segment) are calls; `set` is no call;
     a command after an ERROR node (`puts "x $a"`) is still seen."""
-    src = "proc foo {a} {\n  set x [bar $a]\n  ns::k 1\n  puts \"x $a\"\n  baz\n}\n"
+    src = 'proc foo {a} {\n  set x [bar $a]\n  ns::k 1\n  puts "x $a"\n  baz\n}\n'
     assert _calls("tcl", src) == {"foo": {"bar", "k", "puts", "baz"}}
 
 
@@ -278,3 +278,25 @@ def test_haskell_constructor_patterns_are_not_calls_but_constructor_applications
     assert got["run"] == {"fail", "keep", "Box"}
     assert got["lam"] == {"mk"}
     assert got["dobind"] == {"return", "Some"}
+
+
+def test_objective_c_messages_and_c_calls():
+    src = (
+        "@implementation Foo\n"
+        "- (void)run:(id)obj {\n"
+        "    [obj save:1 withFlag:YES];\n"
+        "    [self helper];\n"
+        "    c_func(42);\n"
+        "}\n"
+        "@end\n"
+    )
+    assert _calls("objective-c", src) == {"run": {"save", "helper", "c_func"}}
+
+
+def test_shell_commands_substitutions_and_contract_non_calls():
+    src = 'run() {\n    echo "hi"\n    my_helper "$1"\n    local x=$(compute 1 2)\n    return 0\n}\n'
+    assert _calls("shell", src) == {"run": {"my_helper", "compute"}}
+
+
+def test_objective_c_and_shell_are_measured():
+    assert {"objective-c", "shell"} <= set(cga.LANGS)

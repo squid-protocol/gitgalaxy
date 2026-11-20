@@ -157,12 +157,12 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt
           # the COBOL side parses a BLL program's records (det/bll.py lower_text): without the parser ca-bll-cells
           # raises ImportError and the shard writes no results.json (#5119)
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e ./gitgalaxy
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Cache tree-sitter language pack
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -280,11 +280,11 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt
           # test_bll_crucible_case_5119.py lowers CABLL through det/bll.py, which needs the COBOL parser (#5119)
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e ./gitgalaxy
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Cache tree-sitter language pack
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -428,8 +428,8 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Download every shard's results
         if: always()

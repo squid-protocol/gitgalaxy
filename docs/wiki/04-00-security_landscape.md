@@ -18,8 +18,8 @@ Standard enterprise static analysis engines require successful compilation befor
 ### Compilation-Free Lexical Analysis
 Instead of building ASTs or requiring binary packaging, the system parses raw source code directly. Security rules are defined using standardized regular expression patterns and keyword permutations. Because core language constructs follow predictable structural patterns, a unified rule set can analyze multiple languages efficiently in a single pass.
 
-### Graph metrics, and the ML classifier that does not run
-The system computes structural mass, cyclomatic complexity, ownership entropy and dependency topology for every file. The code also contains an XGBoost malware classifier, but no trained model ships, so it never runs in any install ([#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430); see [Security Auditor](02-20-security-auditor.md)).
+### Graph metrics
+The system computes structural mass, cyclomatic complexity, ownership entropy and dependency topology for every file. It has no malware classifier: the XGBoost classifier was removed on 2026-11-19 because no model ever shipped (research pending, [#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430), [#96](https://github.com/squid-protocol/gitgalaxy/issues/96); see [Security Auditor](02-20-security-auditor.md)).
 
 ### Architectural Comparison
 * **Black Duck, npm audit, Snyk:** Traditionally rely on exact signature matching and proprietary cloud databases for known CVEs. The system operates fully offline, scanning actual source files directly alongside manifests. It uses configurable regular expression patterns and heuristic signature vectors to flag security risks.
@@ -56,7 +56,7 @@ The analysis completes rapidly and enables low-latency scanning per repository m
 
 ## Future Work
 * **Planned Improvements:** Enhancing the precision of reachability graphs without sacrificing compilation-free speed.
-* **Open decision:** ship a measured model for the XGBoost classifier, or remove it ([#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430)).
+* **Research pending:** a malware classifier returns only with a labelled, measured evaluation ([#96](https://github.com/squid-protocol/gitgalaxy/issues/96)).
 
 ## Related Components
 * [GitGalaxy Documentation Master Index](index.md)

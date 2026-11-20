@@ -187,16 +187,18 @@ def looks_like_ebcdic(data: bytes) -> bool:
 _RDW_SAMPLE = 65536
 
 
-def _rdw_chain(data: bytes, pos: int, end: int, cut_ok: bool) -> int:
+def _rdw_chain(data: bytes, pos: int, end: int, cut_ok: bool, spanned: bool = False) -> int:
     """#8412: how many RDWs (2-byte big-endian length that counts its own 4 bytes, then two zero bytes) chain
     from `pos` to exactly `end`; 0 when the chain breaks. `cut_ok`: the last record may run past `end` (the
-    sample is a prefix), but only as a record whose header was valid."""
+    sample is a prefix), but only as a record whose header was valid. `spanned`: a RECFM=VS segment
+    descriptor, whose first reserved byte is the segment code 0-3, is accepted as well as 0."""
     n = 0
     while pos < end:
         if pos + 4 > end:
             return n if cut_ok and n else 0
         length = int.from_bytes(data[pos : pos + 2], "big")
-        if length < 4 or data[pos + 2 : pos + 4] != b"\x00\x00":
+        code = data[pos + 2]
+        if length < 4 or data[pos + 3] != 0 or code > (3 if spanned else 0):
             return 0
         n += 1
         pos += length
@@ -211,15 +213,19 @@ def rdw_framing(data: bytes) -> str | None:
     descriptor looks like one long record's. Which code page the records are in is the estate's to say."""
     sample = data[:_RDW_SAMPLE]
     cut = len(data) > len(sample)
-    if len(sample) < 8 or sample[2:4] != b"\x00\x00":
+    if len(sample) < 8 or sample[2] > 3 or sample[3] != 0:
         return None
     block = int.from_bytes(sample[:2], "big")
+    if sample[2] != 0:  # a block descriptor's reserved bytes are zero: only a spanned RDW chain is left
+        block = 0
     # one block alone is a file too; else the next block must start with a descriptor
     block_ok = 8 <= block <= len(sample) and _rdw_chain(sample, 4, block, False) >= 1
     if block_ok and (block == len(sample) or _rdw_chain(sample, block, len(sample), cut) >= 1):
         return "bdw+rdw"
     if _rdw_chain(sample, 0, len(sample), cut) >= 3:
         return "rdw"
+    if _rdw_chain(sample, 0, len(sample), cut, spanned=True) >= 3:
+        return "rdw-spanned"  # RECFM=VS: a segment code 1-3 somewhere (all-zero chains returned above)
     return None
 
 

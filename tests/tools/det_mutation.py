@@ -780,6 +780,20 @@ def rebase_entry(entry: dict[str, Any], every: set[str]) -> dict[str, Any]:
     return out
 
 
+def resync_lines(entry: dict[str, Any], port: Path) -> dict[str, Any]:
+    """The entry's survivors with the Java line the moved port has now. An id is a hash of the change, not of its line:
+    a carried survivor kept the line of the port it was recorded on, and every tool reading it by line (survivor_attack
+    `facts`) then read the wrong text, or past the file's end."""
+    import mutation as mu
+
+    now = {m.id: m for m in mu.all_mutants(port, set(mu.OPERATORS), FILES)}
+    for s in entry.get("survived", []):
+        m = now.get(s["id"])
+        if m is not None and (m.before.strip(), m.after.strip()) == (s["before"].strip(), s["after"].strip()):
+            s["line"], s["file"] = m.line, m.file
+    return entry
+
+
 def add_fresh(entry: dict[str, Any], rerun: list[dict[str, Any]], fresh: list[str]) -> dict[str, Any] | None:
     """The entry with the verdicts of the new mutants; None when one has no verdict to record (the entry stays stale).
     A new survivor is listed like any other, so L5 is withheld until it is accounted for."""
@@ -966,6 +980,7 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
             print(f"{case}: sibling kill {i} no longer dies on the moved sibling case: re-run `sibling {case} ...`")
         case_rc = 1 if lost else 0
         entry.pop("port_moved", None)  # (the entry speaks for this port again)
+        resync_lines(entry, port)
         entry["every"], entry["inputs"]["port"] = " ".join(sorted(every)), port_sha(port)
         entry["inputs"]["runtime"] = runtime_sha(port)
         for n, v in now.items():

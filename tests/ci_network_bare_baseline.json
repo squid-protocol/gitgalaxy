@@ -65,8 +65,6 @@
   "graph-accuracy-audit.yml|plan|Plan the gates|git-fetch",
   "graph-comparison-history.yml|graph-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip",
   "graph-comparison-history.yml|plan|Plan the run|gh-api",
-  "java-base-generation.yml|keep|Install GitGalaxy|pip",
-  "java-compile.yml|compile|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|ground-truth-part|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|ground-truth-warm|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|plan|Plan the check|git-fetch",
@@ -104,8 +102,7 @@
   "tri-comparison-audit.yml|plan|Plan the audit|git-fetch",
   "tri-comparison-audit.yml|tri-comparison-audit|Install GitGalaxy + tree-sitter-language-pack|pip",
   "tri-comparison-history.yml|plan|Plan the run|gh-api",
-  "tri-comparison-history.yml|tri-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip",
-  "unicode-gauntlet.yml|gauntlet|Install GitGalaxy|pip"
+  "tri-comparison-history.yml|tri-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip"
  ],
  "advisory_uploads": []
 }

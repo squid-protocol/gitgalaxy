@@ -1,5 +1,5 @@
 {
- "commit": "baed52d9c",
+ "commit": "a88127227",
  "components": {
   "capabilities": {
    "groups": [
@@ -979,7 +979,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T20:08:08Z",
+  "as_of": "2026-11-20T20:51:49Z",
   "core": {
    "closed": 253,
    "open": 12,
@@ -987,8 +987,8 @@
   },
   "core_last_window": {
    "closed": 6,
-   "net_closed": 4,
-   "opened": 2
+   "net_closed": 5,
+   "opened": 1
   },
   "core_milestone": {
    "closed": 136,
@@ -1003,7 +1003,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "21 days",
+  "eta": "17 days",
   "frontier": {
    "closed": 131,
    "found_last_window": 5,

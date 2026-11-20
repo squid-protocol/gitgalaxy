@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 21 | 0 | 0 | 0 | 51 |
+| pip | 25 | 0 | 0 | 0 | 47 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 53 | 84 | 54 | 208 | 103 |
+| **total** | 57 | 84 | 54 | 208 | 99 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -99,14 +99,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - shard / Install dependencies
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
-### estate-crucible.yml
-
-- `pip` - estate / Install GitGalaxy
-
-### evidence-pages.yml
-
-- `pip` - pages / Install GitGalaxy
-
 ### evidence-refresh.yml
 
 - `pip` - db2 / Install GitGalaxy
@@ -128,17 +120,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - sweep / Install GitGalaxy
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)
 
-### fact-crosscheck.yml
-
-- `pip` - crosscheck / Install GitGalaxy with the translator extra
-
 ### full-suite-gate.yml
 
 - `pip` - full-suite-matrix / Install dependencies
-
-### generated-docs.yml
-
-- `pip` - render / Install GitGalaxy (+ the translator's parser, read by cics_spec_status)
 
 ### gitgalaxy.yml
 

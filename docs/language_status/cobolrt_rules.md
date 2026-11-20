@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-194 rules: 94 MATCHED, 27 DIFFERS, 14 REFUSED, 59 ASSUMED; 0 measured on z/OS (#4702).
+194 rules: 94 MATCHED, 28 DIFFERS, 14 REFUSED, 58 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -206,7 +206,7 @@ What a det port does around a CICS command: the bytes it passes and receives. Th
 | RT-CICS-RETRIEVE-INTO | RETRIEVE RTRANSID / RTERMID / QUEUE: the value MOVEd into the program's area, padded with spaces or truncated; RETRIEVE INTO the bytes | `cics-apr` RETRIEVE | - | X18 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-READ-INTO-LENGTH | READ INTO LENGTH(max): the record truncated to max, LENGERR (RESP2 11) when longer, the rest of INTO as it was; a negative LENGTH or a record past INTO refused | `cics-apr` READ: INTO, LENGTH | - | X14 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-CICS-READQ-TD-INTO | READQ TD INTO: the record (cut to LENGTH) goes INTO, the rest of INTO as it was; a record moved past INTO refused | `cics-apr` READQ TD: INTO, LENGTH | - | X6 (ASSUMED (a LENGTH over 32767 REFUSED)); X57 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
-| RT-CICS-BIF-DEEDIT | BIF DEEDIT: the characters other than the digits removed, the digits right-aligned and zero-padded, a trailing sign kept as the last digit's zone | `cics-apr` BIF DEEDIT | - | X26 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
+| RT-CICS-BIF-DEEDIT | BIF DEEDIT: the characters other than the digits removed, the digits right-aligned and zero-padded, a trailing sign kept as the last digit's zone | `cics-apr` BIF DEEDIT | - | X26 (ASSUMED (REFUSED where IBM is silent)) | DIFFERS | uncalibrated |
 | RT-CICS-REGION-CODE-PAGE | TS items are in the region's code page (the estate's EBCDIC page, else CCSID 037): the program's bytes moved byte for byte, a byte with no character in both pages stops the run by name | none: the region's code page is a deployment fact IBM leaves to the installation | REGION-CODE-PAGE | - | ASSUMED | uncalibrated |
 | RT-CICS-ASSIGN-TEXT | ASSIGN of a short value (SYSID: 4 bytes) into a longer area: the first bytes, the rest as it was | `cics-apr` ASSIGN | - | X19 (ASSUMED (REFUSED where the harness cannot decide)) | ASSUMED | uncalibrated |
 | RT-CICS-BMS-SUBFIELDS | A symbolic map field's subfields: attribute, colour and highlight bytes (X'00' and a space not set), length -1 the cursor; RECEIVE MAP's input text padded and its length without trailing blanks | `cics-apr` SEND MAP, RECEIVE MAP | - | X2 (ASSUMED) | ASSUMED | uncalibrated |

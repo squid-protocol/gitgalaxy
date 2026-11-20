@@ -2835,6 +2835,29 @@ on record. ZECS003 is not L5.
 - **Reached.** cics-crucible hc-terminal-receive (7 scenarios: LENGERR by RESP, by HANDLE CONDITION and by default,
   NOTRUNCATE pieces, SET, SEND CONTROL with CURSOR) and hc-terminal-eoc (3: EOC by RESP, HANDLE CONDITION, ignored by
   default), cobol-stub and the det port both passing the hand-written logs.
+- **IBM trace (#8700, 2026-11-20; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary", RECEIVE (3270 logical)
+  and RECEIVE (LUTYPE2/LUTYPE3); the two pages carry the same option and condition text).** Rule `RT-CICS-TERMINAL-RECEIVE`
+  stays **ASSUMED**: the quotes below match its LENGTH / MAXLENGTH / NOTRUNCATE / SET length behaviour, and leave open
+  what it names as the choice.
+  - **MATCHED.** LENGTH: "If you specify the INTO option, but omit the MAXLENGTH option, the argument must be a data area
+    that specifies the maximum length that the program accepts. If the value specified is less than zero, zero is assumed."
+    MAXLENGTH: "If the length of data exceeds the value specified and the NOTRUNCATE option is not present, the data is
+    truncated to that value and the LENGERR condition occurs. The data area specified in the LENGTH option is set to the
+    original length of data"; with NOTRUNCATE "CICS retains the remaining data and uses it to satisfy subsequent RECEIVE
+    commands. The data area specified in the LENGTH option is set to the length of data returned"; "If this option is
+    omitted, the value indicated in the LENGTH option is assumed." LENGERR: "Occurs if data is discarded by CICS because its
+    length exceeds the maximum the program accepts and the NOTRUNCATE option is not specified." The SET ruling (#5079)
+    is IBM's: "If you specify the SET option, the argument must be a data area. When the data has been received, the data
+    area is set to the length of the data." EOC: "Occurs when a request/response unit (RU) is received with
+    end-of-chain-indicator set. Field EIBEOC also indicates this condition. Default action: ignore the condition."
+  - **Still ASSUMED, INTO's tail and SET's tail.** The page says only that INTO is "the receiving field for the data read";
+    it does not say what the bytes of INTO past the data hold (the runtime leaves them as they were), nor what lies past the
+    data a SET pointer addresses (the runtime's X'00'). SET: "The pointer reference is valid until the next receive command
+    or the end of task" (the port's copy lives for the record's own scope: no program of the cases reads it later).
+  - **Still ASSUMED, EOC on a 3270 logical unit.** The 3270 logical page lists EOC among its conditions in the same words as
+    LUTYPE2's, so "the 3270 logical unit's RECEIVE has no EOC", stated in the Assumed paragraph above, is not IBM's: the page does not say when a
+    3270 logical unit's RU carries end-of-chain. The runtime raises EOC only for the case's stated LUTYPE2 device; the
+    default 3270 never does. Open, not a DIFFERS: IBM names no input that raises it on a 3270.
 
 ### X16. HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE, HANDLE CONDITION ERROR — MATCHED, REFUSED where IBM is silent (#4414, #4502)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS HANDLE AID, IGNORE CONDITION, HANDLE CONDITION, PUSH HANDLE, POP
@@ -3188,6 +3211,29 @@ on record. ZECS003 is not L5.
   empty `$GGCICS_FACILITY`) is INVREQ RESP2 5 on both, as IBM documents. The equivalence harness states a terminal only
   for a non-empty `"termid"` (`withTermidIfStated`). `ASSIGN FACILITY` on a stated none cannot write a data area (the
   translator guards it by `TERMCHK`'s outcome), so `assignFacility` refuses rather than print "null".
+- **IBM trace (#8700, 2026-11-20; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary", ASSIGN).** Rule
+  `RT-CICS-ASSIGN-TEXT` stays **ASSUMED**; the trace finds one **DIFFERS** in the translator that no `RT-` rule owns (below).
+  - **MATCHED (the options' values).** SYSID: "This option returns the 4-character name that is given to the local CICS
+    system." STARTCODE: "S: START command that did not pass data in the FROM option. It might or might not have passed a
+    channel." and "SD: START command that passed data in the FROM option" (so the "Assumed" S for a START with RTRANSID /
+    RTERMID / QUEUE and no FROM is IBM's own wording, not an assumption); "TD: Terminal input or permanent transid". FACILITY:
+    "If this option is specified, and no facility is allocated, INVREQ occurs"; INVREQ RESP2 5: "The task is not
+    associated with a terminal; or the task has no principal facility; or the principal facility is not an MRO, LU6.1, or
+    APPC session"; PRINSYSID applies "only when the principal facility is one of the following: An MRO session to another CICS
+    system, An LU6.1 session to another CICS or IMS system" (the region has neither: INVREQ RESP2 5, as the PRINSYSID
+    paragraph above does it). Default action of INVREQ: "terminate the task abnormally."
+  - **DIFFERS, the data areas after an INVREQ.** The "Assumed" paragraph above says an ASSIGN that raises INVREQ writes none
+    of its data areas, IBM not saying. IBM does say, in the Description: "When you specify multiple options on the ASSIGN
+    command, if any of the specified options fails with the exception condition INVREQ, the other specified options are
+    still populated with the requested information." `Cics_conditions.assign` (the translator) writes nothing when the
+    terminal options' RESP is not zero, so `ASSIGN USERID(u) FACILITY(f)` in a task with no terminal leaves `u` unset
+    where IBM fills it; the stub's GGCASGN does the same, so no proven case sees it (no burned program issues ASSIGN with
+    two options one of which fails: checked in the register text above, not re-surveyed). The PRINSYSID path (INVREQ, no
+    data area) is the same difference. No rule ID owns this code (it is translator lowering, not cobolrt); fixing it
+    moves the translator, the stub and the cases that plan an INVREQ: a sibling slice.
+  - **Still ASSUMED (the rule itself).** A 4-byte SYSID MOVEd into a longer area: the page says what the value is, not how
+    it lands in a longer data area (the translator's `putText` leaves the rest as it was, as a COBOL alphanumeric
+    receiving item would not: it would blank-pad; see the open item in the PR for #8700).
 
 ### X20. SEND TEXT: TERMINAL, the default disposition — MATCHED, REFUSED where the region cannot decide (#4270 slice 4)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS SEND TEXT, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-text;
@@ -3366,6 +3412,24 @@ on record. ZECS003 is not L5.
   CA-ERROR-MSG and is judged up to X6. Pinned by
   `tests/cobol_mainframe/test_equivalence_cics_commarea.py` (the guard page, the driver, the length's checks) and
   `tests/cobol_mainframe/test_det_translate.py` (the det port's cut storage).
+- **IBM trace (#8700, 2026-11-20; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary", XCTL; Developing CICS
+  Applications, "Passing data to other programs by using COMMAREA").** Rule `RT-CICS-XCTL-COMMAREA-LENGTH` stays
+  **ASSUMED**: IBM matches the length, not the byte representation.
+  - **MATCHED (n bytes travel, EIBCALEN = n).** XCTL: "COMMAREA(data-area) Specifies a communication area to be made
+    available to the invoked program. In this option the contents of the data-area are passed. In COBOL, you must give this
+    data area the name DFHCOMMAREA in the receiving program"; "LENGTH(data-value) Specifies the length (halfword binary data
+    value) in bytes of the communication area." LENGERR RESP2 11: "LENGTH is less than 0 or greater than 32763." The
+    Programming guide: "EIBCALEN always contains the value specified in the LENGTH option of a LINK, XCTL, or RETURN
+    command, regardless of the size of the data area in the invoked program"; "The receiving data area can the same length
+    as, or shorter than, the original communication area, but must not be longer ... If the receiving data area is longer than the
+    original communication area, your transaction might attempt to read data outside the area that has been passed. It might
+    also overwrite data outside the area, which might cause CICS to abend." The last sentence is X23's refusal: IBM calls a
+    reference past EIBCALEN undefined, the harness refuses it, and says so.
+  - **Still ASSUMED (the part the rule is about).** A LENGTH past the target's DFHCOMMAREA is IBM-sanctioned ("regardless
+    of the size of the data area in the invoked program"), and n bytes travel; but how a Java DTO that cannot hold n bytes is
+    sent as the region's EBCDIC bytes, or another program's DTO as its layout's bytes, is the harness's representation, not
+    an IBM rule: nothing in the text says it. Also open, the XCTL options the runtime does not model (CHANNEL,
+    INPUTMSG: refused).
 
 ### X24. A task started with a channel; the containers it leaves compared — ASSUMED (#4270)
 - **What IBM documents** (CICS TS 6.x, "Scope of a channel"; EXEC CICS RUN TRANSID, ibm.com/docs/en/cics-ts/6.x?topic=summary-run;
@@ -3468,6 +3532,27 @@ on record. ZECS003 is not L5.
   name. Burned use: CBSA BNK1CCS RM010 / STD010 and BNK1DCS RM010 / STORE-TERM-DEF reach their SET-failure arms; no burned
   program INQUIREs a terminal, so INQ-TERMINAL is unit-proven only.
   Pinned by `tests/cobol_mainframe/test_set_terminal_fault_scenarios_6882.py`: BNK1CCS and BNK1DCS each plan both INVREQ and TERMIDERR.
+- **IBM trace (#8700, 2026-11-20; CICS TS for z/OS 6, API Reference, Chapter 2 "CICS command summary", BIF DEEDIT).**
+  Rule `RT-CICS-BIF-DEEDIT`, now **DIFFERS** (a narrow case, below). The page: "It specifies that alphabetic and special
+  characters are removed from an EBCDIC data field, and the remaining digits right-aligned and padded to the left with
+  zeros as necessary. If the field ends with a minus sign or a carriage-return (CR), a negative zone (X'D') is placed in
+  the rightmost (low-order) byte. If the zone portion of the rightmost byte contains one of the characters X'A' through
+  X'F', and the numeric portion contains one of the hexadecimal digits X'0' through X'9', the rightmost byte is returned
+  unaltered (see the example). ... A 1-byte field is returned unaltered, no matter what the field contains." LENGERR
+  (condition 22): "This condition occurs if the LENGTH value is less than 1." The two examples (`14-6704/B` to
+  `00146704B`, `$25.68` to `000002568`) and "A decimal point is an EBCDIC special character and as such is removed" are
+  what the first paragraph above quotes.
+  - **MATCHED:** the removal of non-digits, the right-alignment and zero padding, the negative zone on a trailing minus or
+    CR, the 1-byte field, LENGERR below 1.
+  - **DIFFERS, the zoned-byte test.** IBM keeps the rightmost byte only when its zone is X'A'-X'F' **and** its numeric
+    portion is X'0'-X'9'. The "Assumed" paragraph above, and the code (`DetCics.deeditEbcdic`, `GGCDEED`), test the zone
+    alone (`(b & 0xF0) >= 0xA0`). The two differ for a rightmost byte such as X'BA' or X'BB', which is `[` and `]` in
+    CCSID 037 (the only 7-bit ASCII characters that reach it): the runtime keeps the byte as the last character, IBM
+    removes it as a special character. A field ending in `[` or `]` is the whole difference; both sides agree with each
+    other, so no equivalence case sees it, and no burned program is known to DEEDIT such a field.
+  - **Still ASSUMED**, IBM leaving each open: LENGTH's default for COBOL (the page gives LENGTH no default), a field with no
+    digit left (the page says nothing of an all-special field), a `CR` in lower case, "ends with" taken literally.
+    The page does not give a RESP2 for LENGERR.
 
 ### X27. RETURN ... IMMEDIATE, LINK ... SYNCONRETURN — ASSUMED, REFUSED where IBM is silent (#4270 slice)
 - **RETURN IMMEDIATE** (CICS TS 6.x, EXEC CICS RETURN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return).

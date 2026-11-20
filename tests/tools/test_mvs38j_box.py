@@ -287,6 +287,13 @@ def test_mount_requests_are_answered_once_with_devinit_and_a_reply(tmp_path):
         sysgen.answer_mounts(sent.append, con, 0, {}, set())
 
 
+def test_tape_unit_reads_a_ranged_drive_line(tmp_path):
+    """mvs.conf declares its drives as `0100.4  3420  *` (the live `sysgen custom` run failed on it, 2026-11-20)."""
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "conf" / "m.conf").write_text("0150 3350 dasd/x\n0100.4  3420    *\n0310.4  3420    *\n")
+    assert sysgen.tape_unit(tmp_path, "conf/m.conf") == "100"
+
+
 def test_a_device_name_ask_is_answered_with_the_configs_tape_unit(tmp_path):
     (tmp_path / "conf").mkdir()
     (tmp_path / "conf" / "s.cnf").write_text("0150 3350 dasd/x\n0170 3420 *\n0171 3420 *\n")
@@ -669,6 +676,14 @@ def test_the_master_catalog_password_and_ickdsf_confirmation_are_answered_once_e
         sysgen.answer_mounts(sent_cmds.append, con, 0, {}, seen, "480", sysgen.CUSTOM_REPLIES)
     assert con.sent == ["r 06,sysprog", "r 04,u"] or sorted(con.sent) == ["r 04,u", "r 06,sysprog"]
     assert len(con.sent) == 2 and sent_cmds == []
+
+
+def test_the_live_iec301a_master_catalog_ask_gets_the_password():
+    """MVS02's ask as the live run printed it (2026-11-20): no word PASSWORD in the line."""
+    con = types.SimpleNamespace(lines=["*04 IEC301A S JOB MVS02    DSNAME SYS1.VSAM.MASTER.CATALOG"], sent=[])
+    con.send = con.sent.append
+    sysgen.answer_mounts([].append, con, 0, {}, set(), "480", sysgen.CUSTOM_REPLIES)
+    assert con.sent == ["r 04,sysprog"]
 
 
 def test_the_tsoaps_tape_is_mounted_from_the_mvs03_mount_request():

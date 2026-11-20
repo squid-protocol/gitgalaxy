@@ -229,7 +229,7 @@ def with_target_volumes(work, conf, donor="conf/smp2.cnf"):
 def tape_unit(work, conf):
     """The first 3420 tape drive of a Hercules config (the unit a job's tape DD is pointed at when MVS asks for a device)."""
     for line in (Path(work) / conf).read_text(errors="backslashreplace").splitlines():
-        m = re.match(r"\s*([0-9A-Fa-f]{3,4})\s+3420\b", line)
+        m = re.match(r"\s*([0-9A-Fa-f]{3,4})(?:\.\d+)?\s+3420\b", line)
         if m:
             return m.group(1)[-3:].upper()
     raise SysgenError(f"no 3420 tape drive in {conf}")
@@ -632,7 +632,9 @@ def ipl_conf(work):
         elif re.match(r"#0009\s+3215-C\s+/", line):
             line = line[1:]
         elif (Path(work) / CUSTOM_MARKER).exists() and re.match(r"#(0180|0190)\s", line):
-            line = line[1:]  # PUB000 / PUB001 are initialized: attached at every later IPL (Moseley's "remove the hash")
+            line = line[
+                1:
+            ]  # PUB000 / PUB001 are initialized: attached at every later IPL (Moseley's "remove the hash")
         out.append(
             re.sub(r"^(000C\s+3505\s+)localhost:3505\b", r"\g<1>3505", line)
         )  # bind every interface: docker's publish needs it
@@ -722,7 +724,8 @@ CUSTOM_DECKS = (("mvs00.jcl", 2), ("mvs01.jcl", 1), ("mvs02.jcl", 1), ("mvs03.jc
 CUSTOM_VOLUMES = ("dasd/pub000.3380", "dasd/pub001.3390")
 CUSTOM_TAPES = {"TSOAPS": "tape/tsoaps.het"}
 CUSTOM_REPLIES = (  # (WTOR regex with the reply id first, reply): the password is Moseley's SYSPROG
-    (re.compile(r"\*(\d+)\s+.*\bPASSWORD\b", re.IGNORECASE), "sysprog"),
+    # live 2026-11-20: MVS02 asks `*04 IEC301A S JOB MVS02 DSNAME SYS1.VSAM.MASTER.CATALOG` (no word PASSWORD in it)
+    (re.compile(r"\*(\d+)\s+(?:IEC301A\b.*MASTER\.CATALOG|.*\bPASSWORD\b)", re.IGNORECASE), "sysprog"),
     (re.compile(r"\*(\d+)\s+ICK\d{3}D\b.*\bREPLY\b"), "u"),
 )
 

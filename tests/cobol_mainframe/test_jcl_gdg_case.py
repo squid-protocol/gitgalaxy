@@ -18,6 +18,7 @@ from gitgalaxy.core import job_flow
 from gitgalaxy.core.jcl_flow import JclFlow
 from gitgalaxy.core.jcl_gdg import JclGdgRefused, resolve_gdg
 from gitgalaxy.core.jcl_proc import expand_flow_rows
+from gitgalaxy.core.jcl_restart import resolve_gdg_restart
 
 ROOT = Path(__file__).resolve().parents[2]
 DOC = json.loads((ROOT / "tests" / "equivalence" / "jcl" / "gdg" / "scenarios.json").read_text(encoding="utf-8"))
@@ -53,11 +54,15 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "job-bias-",
         "proc-step-gdg",
         "proc-called-twice",
+        "restart-step-",
+        "restart-star-",
+        "restart-checkpoint-same",
+        "restart-checkpoint-keep",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
     gens = {r["generation"] for r in ROWS if r["kind"] == "DD" and r.get("generation")}
-    assert gens == {"0", "-1", "-2", "+1", "+2"}
+    assert gens == {"0", "-1", "-2", "+1", "+2", "+3"}
 
 
 def test_each_scenario_names_a_job_gives_a_basis_and_its_assumptions_exist():
@@ -82,9 +87,11 @@ def test_what_is_not_answered_is_refused_by_name():
 @pytest.mark.parametrize("sc", DOC["scenarios"], ids=lambda s: s["id"])
 def test_the_resolver_reproduces_every_generation_and_catalog_answer(sc):
     catalog = BY_ID[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
-    rows = expand_flow_rows(ROWS, sc["job"])
-    flow = JclFlow(rows).run(sc["job"], sc["given"])
-    names, after = resolve_gdg(rows, sc["job"], catalog, flow)
+    if sc.get("restart"):
+        names, after = resolve_gdg_restart(ROWS, sc["job"], catalog, sc["given"])
+    else:
+        rows = expand_flow_rows(ROWS, sc["job"])
+        names, after = resolve_gdg(rows, sc["job"], catalog, JclFlow(rows).run(sc["job"], sc["given"]))
     assert names == sc["expect"], sc["id"]
     assert after == sc["catalog_after"], sc["id"]
 
@@ -217,3 +224,32 @@ def test_a_procedure_step_override_of_a_gdg_dd_is_refused_by_name():
     )
     with pytest.raises(JclGdgRefused, match="overrides a procedure step"):
         _run(text, "J", CAT, {"C1.M1": {"rc": 0}})
+
+
+def _restart(text, job, catalog, given):
+    return resolve_gdg_restart(job_flow.jcl_job_flow(text), job, catalog, given)
+
+
+def test_a_step_restart_reading_the_original_plus_one_is_refused():
+    sc = BY_ID["restart-step-present-numbers"]
+    with pytest.raises(JclGdgRefused, match="before any step creates"):
+        _restart(TEXT, "RSTOLD", sc["catalog"], {"STEP3": {"rc": 0}})
+
+
+def test_a_checkpoint_restart_under_step_bias_is_refused_and_the_catalog_given_is_not_changed():
+    sc = BY_ID["restart-checkpoint-same-numbers"]
+    before = json.dumps(sc["catalog"], sort_keys=True)
+    _restart(TEXT, "RCHK", sc["catalog"], sc["given"])
+    assert json.dumps(sc["catalog"], sort_keys=True) == before
+    step_bias = TEXT.replace(
+        "//RCHK     JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,", "//RCHK     JOB (ACCT),'GDG RESTART',GDGBIAS=STEP,"
+    )
+    assert step_bias != TEXT
+    with pytest.raises(JclGdgRefused, match="GDGBIAS=JOB"):
+        _restart(step_bias, "RCHK", sc["catalog"], sc["given"])
+
+
+def test_the_restart_refusals_are_named_in_the_file():
+    refused = " ".join(r["construct"] for r in DOC["refused"])
+    assert "original relative generation" in refused or "reads a generation by the number" in refused
+    assert "checkpoint restart" in refused

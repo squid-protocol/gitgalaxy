@@ -154,7 +154,72 @@
     "//IN       DD DSN=PAY.GDG(0),DISP=SHR",
     "//         PEND",
     "//C1       EXEC GQ",
-    "//C2       EXEC GQ"
+    "//C2       EXEC GQ",
+    "//*",
+    "//RSTEP    JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,",
+    "//         RESTART=STEP3",
+    "//STEP1    EXEC PGM=MAKE",
+    "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP2    EXEC PGM=MAKE",
+    "//O2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//STEP3    EXEC PGM=USE",
+    "//CUR      DD DSN=PAY.GDG(0),DISP=SHR",
+    "//PRV      DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//RSTEPN   JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,",
+    "//         RESTART=STEP3",
+    "//STEP1    EXEC PGM=MAKE",
+    "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP2    EXEC PGM=MAKE",
+    "//O2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//STEP3    EXEC PGM=MAKE",
+    "//NEW      DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP4    EXEC PGM=USE",
+    "//SAME     DD DSN=PAY.GDG(+1),DISP=OLD",
+    "//CUR      DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//RSTAR    JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,",
+    "//         RESTART=*",
+    "//STEP1    EXEC PGM=MAKE",
+    "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP2    EXEC PGM=USE",
+    "//CUR      DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//RSTOLD   JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,",
+    "//         RESTART=STEP3",
+    "//STEP1    EXEC PGM=MAKE",
+    "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP2    EXEC PGM=MAKE",
+    "//O2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//STEP3    EXEC PGM=USE",
+    "//OLD1     DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//*",
+    "//RCHK     JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,",
+    "//         RESTART=(STEP3,CHK1)",
+    "//SYSCHK   DD DSN=CHKPT,UNIT=3390,DISP=OLD",
+    "//STEP1    EXEC PGM=MAKE",
+    "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP2    EXEC PGM=MAKE",
+    "//O2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//STEP3    EXEC PGM=USE",
+    "//A1       DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//A2       DD DSN=PAY.GDG(+2),DISP=SHR",
+    "//N3       DD DSN=PAY.GDG(+3),DISP=(NEW,CATLG)",
+    "//STEP4    EXEC PGM=USE",
+    "//B3       DD DSN=PAY.GDG(+3),DISP=OLD",
+    "//*",
+    "//RCHKEP   JOB (ACCT),'GDG RESTART',CLASS=A,MSGCLASS=X,",
+    "//         RESTART=(STEP3,CHK1)",
+    "//SYSCHK   DD DSN=CHKPT,UNIT=3390,DISP=OLD",
+    "//STEP1    EXEC PGM=MAKE",
+    "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//STEP2    EXEC PGM=MAKE",
+    "//O2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//STEP3    EXEC PGM=USE",
+    "//A2       DD DSN=PAY.GDG(+2),DISP=SHR",
+    "//N3       DD DSN=PAY.GDG(+3),DISP=(NEW,CATLG,KEEP)",
+    "//STEP4    EXEC PGM=USE,COND=EVEN",
+    "//B3       DD DSN=PAY.GDG(+3),DISP=OLD"
   ],
   "scenarios": [
     {
@@ -1189,6 +1254,207 @@
       },
       "assumed": "A7",
       "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' p. 235: 'When you are using GDGBIAS=STEP, relative references to a generation data set are resolved on a job step basis. The system establishes the relationship between the relative generation number and the absolute generation number when the generation data set is first referenced in each job step. Each job step that references the generation data set establishes a new relationship.' (the same text: z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB, GDGBIAS, p. 404). 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237: 'At the end of the job step, the system updates the catalog with the relative generation numbers of all generations in the group to reflect the additions.' Each procedure step is a job step for the new relationship (ASSUMED A7, as in proc-step-gdg-dds-are-job-steps): C1.M1 creates (+1) = 8 and 8 is rolled in at its end; C1.R1 first references the group and reads (0) = 8; the second call C2 runs the same procedure text: C2.M1's (+1) is 9 and C2.R1's (0) is 9. The procedure's JCL is the same for both calls; the answers differ because the catalog at each step differs."
+    },
+    {
+      "id": "restart-step-present-numbers",
+      "job": "RSTEP",
+      "restart": true,
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "given": {
+        "STEP3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEP3.CUR": 9,
+        "STEP3.PRV": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243 'For step restart', and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART, 'Generation data sets in restarted jobs' p. 431 (JCL Reference p. 431): 'if the last generation data set created and cataloged was assigned a generation number of +2, it would be referred to as 0 in the restart step and in steps following the restart step. ... the generation data set assigned number of +1 when created would be referred to as -1.' The first run (catalog 6, 7) created and cataloged 8 (+1) and 9 (+2) in STEP1 and STEP2, so the restart, which begins at STEP3, finds 6, 7, 8, 9 cataloged: its (0) is 9 and its (-1) is 8. STEP1 and STEP2 do not run again."
+    },
+    {
+      "id": "restart-step-creates-and-rereads",
+      "job": "RSTEPN",
+      "restart": true,
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "given": {
+        "STEP3": {
+          "rc": 0
+        },
+        "STEP4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEP3.NEW": 10,
+        "STEP4.SAME": 10,
+        "STEP4.CUR": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243: after a step restart the generations cataloged before the restart step are named by their present numbers. The restart finds 6, 7, 8, 9 cataloged, so a (+1) created in the restart step STEP3 is 10 (DSNAME: (+1) is the next generation after the most recent); STEP4's (+1) is the same generation (the relationship is fixed at the first reference in the job, GDGBIAS=JOB default, User's Guide p. 236), and its (0) is still 9 until the job ends, when 10 is rolled in."
+    },
+    {
+      "id": "restart-star-is-the-first-step",
+      "job": "RSTAR",
+      "restart": true,
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "STEP1": {
+          "rc": 0
+        },
+        "STEP2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEP1.O1": 8,
+        "STEP2.CUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART, 'Generation data sets in restarted jobs' p. 431: RESTART=* restarts at the first step, so no step runs before the restart step and nothing was created and cataloged for the restart to renumber; the job resolves its generations against the catalog as it stands, 6, 7: (+1) is 8 and (0) is 7 until the job ends (User's Guide p. 236, GDGBIAS=JOB), as in an ordinary run."
+    },
+    {
+      "id": "restart-checkpoint-same-numbers",
+      "job": "RCHK",
+      "restart": true,
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "STEP3": {
+          "rc": 0
+        },
+        "STEP4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEP3.A1": 8,
+        "STEP3.A2": 9,
+        "STEP3.N3": 10,
+        "STEP4.B3": 10
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        }
+      },
+      "assumed": "A9",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243 'For checkpoint restart': 'you can, during checkpoint restart, refer to these data sets and generation data sets created and cataloged in steps before the restart step by the same relative generation numbers that were used to create them.' RESTART=(STEP3,CHK1) with a SYSCHK DD is a deferred checkpoint restart (JCL Reference, JOB: RESTART examples 2-4); the manual states the same-numbers rule under 'checkpoint restart' and gives deferred restart only a volume-serial note, so applying it to the deferred form is ASSUMED A9. The original run began with 6, 7 cataloged: STEP1's (+1) is 8 and STEP2's (+2) is 9, both cataloged before the restart step, and the restart step names them by (+1) and (+2) again: 8 and 9. STEP3 creates (+3) = 10 and STEP4 reads it as (+3)."
+    },
+    {
+      "id": "restart-checkpoint-keep-by-creating-number",
+      "job": "RCHKEP",
+      "restart": true,
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "STEP3": {
+          "abend": "S0C4"
+        },
+        "STEP4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEP3.A2": 9,
+        "STEP3.N3": 10,
+        "STEP4.B3": 10
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "deferred_rollin": [
+            10
+          ]
+        }
+      },
+      "assumed": "A9",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243 'For checkpoint restart' and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART, 'Generation data sets in restarted jobs' p. 431 (p. 432): 'If generation data sets created in the restart step were kept instead of cataloged, that is, DISP=(NEW,CATLG,KEEP) was coded, then refer to them by the same relative generation numbers used to create them.' STEP3 abends, so its abnormal disposition KEEP applies (DISP) and generation 10 is kept, not cataloged (it stays in deferred roll-in, DFSMS Using Data Sets); STEP4 (COND=EVEN runs after the abend) names it by the number that created it, (+3) = 10. Generations 8 and 9 were cataloged by the steps before the restart step. ASSUMED A9 as for the previous scenario."
     }
   ],
   "assumed": [
@@ -1219,6 +1485,10 @@
     {
       "id": "A8",
       "text": "A JOB statement with no GDGBIAS= resolves on a job basis. The manual (JCL Reference p. 404) makes JOB the default only for a job class that names no default; the class default is installation-defined and is not in the repository."
+    },
+    {
+      "id": "A9",
+      "text": "The same-relative-numbers rule the manuals state for checkpoint restart is applied to a deferred checkpoint restart, RESTART=(stepname,checkid) with a SYSCHK DD: the manuals give the deferred form only a volume-serial note under this heading. The catalog given for such a scenario is the catalog as the original run began, so the original relative numbers name the same generations; the steps before the restart step are taken as run to normal end."
     }
   ],
   "refused": [
@@ -1277,6 +1547,14 @@
     {
       "construct": "a GDG DD of a procedure step that the call overrides (stepname.ddname), a symbolic DSN, a procedure that is not in-stream, or a nested call",
       "why": "this slice reads the in-stream procedure's own DD rows; the overridden or substituted DSN is not answered here"
+    },
+    {
+      "construct": "a step restart whose restart step or a later step reads a generation by the number that created it in a step before the restart step, for example (+1)",
+      "why": "JCL Reference p. 431: 'do not use the original relative generation numbers' there; the manual states no outcome, so the (+1) is refused as read before any step creates it"
+    },
+    {
+      "construct": "a checkpoint restart (RESTART=(step,checkid)) of a job with GDGBIAS=STEP, or whose steps before the restart step do not create their (+n) with NEW / MOD",
+      "why": "the manuals state the checkpoint rule by the numbers that created the generations, not how a per-step relationship is rebuilt; refused by name"
     }
   ]
 }

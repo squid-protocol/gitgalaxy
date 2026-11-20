@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `6056e06b5` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `5693635ca` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -20,14 +20,14 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 37 | 5 | 42 (95.5%) | 42 (95.5%) | 5 |
+| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 39 | 3 | 42 (95.5%) | 42 (95.5%) | 3 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
-| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 28 | 3 | 31 (100.0%) | 31 (100.0%) | 3 |
+| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 27 | 4 | 31 (100.0%) | 31 (100.0%) | 4 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
 | `example-health-apis` | 29 | 1 | 0 | 4 | 4 | 20 | 0 | 28 (96.6%) | 20 (69.0%) | 0 |
-| `zecs` | 7 | 0 | 0 | 0 | 0 | 7 | 0 | 7 (100.0%) | 7 (100.0%) | 0 |
-| **Total** | 158 | 4 | 0 | 4 | 4 | 138 | 8 | 154 (97.5%) | 146 (92.4%) | 8 |
+| `zecs` | 7 | 0 | 0 | 0 | 0 | 5 | 2 | 7 (100.0%) | 7 (100.0%) | 2 |
+| **Total** | 158 | 4 | 0 | 4 | 4 | 137 | 9 | 154 (97.5%) | 146 (92.4%) | 9 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every
 surviving translator mutant accounted for (`definition_of_done.md`).
@@ -57,14 +57,14 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 5 | 0 | 51.0% (6137 of 12035) | 41.3% (12559 of 30382) | 2249 | 209 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 91.1% (5470 of 6003) | 100.0% (6284 of 6284) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 8 | 3 | 0 | 44.7% (1893 of 4238) | 100.0% (4417 of 4417) | 1144 | 390 |
-| `cics-genapp` | 31 | 11 | 0 | 0 | 25.7% (2756 of 10705) | 100.0% (10993 of 10993) | 1014 | 0 |
-| `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 3 | 0 | 51.0% (6104 of 11962) | 41.3% (12559 of 30382) | 2249 | 209 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 89.7% (5335 of 5948) | 100.0% (6284 of 6284) | 288 | 70 |
+| `cics-banking-sample-application-cbsa` | 31 | 8 | 4 | 0 | 44.9% (1892 of 4210) | 100.0% (4417 of 4417) | 1144 | 390 |
+| `cics-genapp` | 31 | 11 | 0 | 0 | 26.1% (2735 of 10481) | 100.0% (10993 of 10993) | 1014 | 0 |
+| `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (322 of 636) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `zecs` | 7 | 4 | 0 | 0 | 48.7% (1162 of 2387) | 100.0% (2528 of 2529) | 826 | 352 |
-| **Total** | 158 | 60 | 8 | 0 | 49.3% (17740 of 36000) | 67.7% (37425 of 55249) | 5527 | 1021 |
+| `zecs` | 7 | 4 | 2 | 0 | 49.3% (1190 of 2415) | 100.0% (2528 of 2529) | 826 | 352 |
+| **Total** | 158 | 60 | 9 | 0 | 49.3% (17578 of 35652) | 67.7% (37425 of 55249) | 5527 | 1021 |
 
 ## Capability ledger
 
@@ -94,7 +94,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Data and messaging | IMS DL/I | Partial | 1 of 16 rules match IBM | calls run on our own model, so no rule matches yet |
 | Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
-| Batch | JCL step flow | Works | 120 of 120 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's JCL Reference before the evaluator ran) |
+| Batch | JCL step flow | Works | 123 of 123 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's JCL Reference before the evaluator ran) |
 | Batch | JCL in the real codebases | Partial | 8 of 22 COND jobs answer-checked | 159 jobs read in 230 JCL members; 22 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
 | Batch | JCL job execution | Partial | no denominator | 1 multi-step job case (the programs' steps are wired by the case, not yet run from the JCL) |
 | Other languages | HLASM assembler | Partial | no denominator | 21 opcodes, the zECS subset |
@@ -133,7 +133,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-20T14:51:20Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-20T15:21:54Z.
 
 - `scope:core`: 12 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.

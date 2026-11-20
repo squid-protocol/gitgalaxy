@@ -117,3 +117,76 @@ def edges_of(repo: Path, tmp: Path) -> set[str]:
 )
 def test_the_compile_jcl_order_decides_which_same_name_member_a_copy_reads(tmp_path, order, winner):
     assert edges_of(estate(tmp_path, order), tmp_path) == {winner}
+
+
+# --- JCLLIB ORDER=: a compile step that calls a cataloged proc found along the PROCLIB order ---
+
+PROC = (
+    "//FAKECOB  PROC MEMBER=\n"
+    "//COB      EXEC PGM=IGYCRCTL,PARM='LIB'\n"
+    "//SYSLIB   DD DSN=FAKE.PROD.COPYB,DISP=SHR\n"
+    "//         DD DSN=FAKE.PROD.COPYA,DISP=SHR\n"
+    "//FAKECOB  PEND\n"
+)
+
+
+def call_job(*dds: str, jcllib: str = "FAKE.PROCLIB1,FAKE.PROCLIB2", step: str = "COB", member: str = "MAINPG") -> str:
+    return (
+        "//FAKEJOB  JOB (ACCT),'FAKE'\n"
+        f"//PROCS    JCLLIB ORDER=({jcllib})\n"
+        "//BUILD    EXEC FAKECOB\n"
+        f"//{step}.SYSIN DD DSN=FAKE.SRC.COBOL({member}),DISP=SHR\n" + "".join(dds)
+    )
+
+
+def test_a_proc_found_along_jcllib_supplies_the_syslib(tmp_path):
+    write(tmp_path, "proclib/PROCLIB1/FAKECOB.prc", PROC)
+    write(tmp_path, "jcl/BUILD.jcl", call_job())
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_the_first_jcllib_library_holding_the_proc_wins(tmp_path):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC)
+    write(tmp_path, "pl/PROCLIB2/FAKECOB.prc", PROC.replace("COPYB", "COPYZ"))
+    write(tmp_path, "jcl/BUILD.jcl", call_job())
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYB", "COPYA"]}
+    write(tmp_path, "jcl/BUILD.jcl", call_job(jcllib="FAKE.PROCLIB2,FAKE.PROCLIB1"))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYZ", "COPYA"]}
+
+
+def test_a_call_override_replaces_the_whole_concatenation(tmp_path):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC)
+    write(tmp_path, "jcl/BUILD.jcl", call_job(syslib("FAKE.OWN.COPYQ", name="COB.SYSLIB")))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYQ"]}
+
+
+@pytest.mark.parametrize(
+    "jcllib",
+    ["FAKE.OTHERLIB", ""],
+    ids=["proc-library-not-listed", "no-jcllib"],
+)
+def test_a_proc_outside_the_jcllib_order_declares_nothing(tmp_path, jcllib):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC)
+    text = (
+        call_job(jcllib=jcllib)
+        if jcllib
+        else call_job().replace("//PROCS    JCLLIB ORDER=(FAKE.PROCLIB1,FAKE.PROCLIB2)\n", "")
+    )
+    write(tmp_path, "jcl/BUILD.jcl", text)
+    assert jcl_syslib_orders(str(tmp_path)) == {}
+
+
+def test_a_proc_with_a_symbolic_library_declares_nothing(tmp_path):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC.replace("FAKE.PROD.COPYB", "&HLQ..COPYB"))
+    write(tmp_path, "jcl/BUILD.jcl", call_job())
+    assert jcl_syslib_orders(str(tmp_path)) == {}
+
+
+def test_the_jcllib_order_decides_which_same_name_member_a_copy_reads(tmp_path):
+    repo = tmp_path / "fakeestate"
+    write(repo, "apps/MAINPG.cbl", PROGRAM)
+    write(repo, "q/COPYB/REC1.cpy", ITEM_B)
+    write(repo, "p/COPYA/REC1.cpy", ITEM_A)
+    write(repo, "pl/PROCLIB1/FAKECOB.prc", PROC)
+    write(repo, "jcl/BUILD.jcl", call_job())
+    assert edges_of(repo, tmp_path) == {"q/COPYB/REC1.cpy"}

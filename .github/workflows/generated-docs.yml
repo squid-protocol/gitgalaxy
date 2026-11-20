@@ -83,9 +83,9 @@ jobs:
 
       - name: Install GitGalaxy (+ the translator's parser, read by cics_spec_status)
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e ./gitgalaxy
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Render the pages (must succeed and be deterministic)
         env:

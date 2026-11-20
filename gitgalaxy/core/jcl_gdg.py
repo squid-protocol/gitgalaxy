@@ -65,6 +65,8 @@ def resolve_gdg(
                     if state is not None:
                         raise JclGdgRefused(f"{key}: two steps create the same (+{n}) with DISP=NEW")
                     created[(base, absolute)] = "pending"
+                elif dd["disp"] == "MOD" and state is None:
+                    created[(base, absolute)] = "pending"  # MOD of an absent generation is changed to NEW (DISP)
                 elif state is None:
                     raise JclGdgRefused(f"{key}: (+{n}) read before any step creates it")
             elif absolute not in start[base]:

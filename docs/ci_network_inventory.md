@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 21 | 0 | 0 | 0 | 51 |
+| pip | 28 | 0 | 0 | 0 | 44 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -19,12 +19,12 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | gh-download | 0 | 0 | 0 | 0 | 1 |
 | gh-api | 0 | 0 | 0 | 0 | 27 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
-| artifact-upload | 0 | 8 | 0 | 33 | 0 |
+| artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 53 | 77 | 54 | 215 | 103 |
+| **total** | 60 | 84 | 54 | 208 | 96 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -99,14 +99,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - shard / Install dependencies
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
-### estate-crucible.yml
-
-- `pip` - estate / Install GitGalaxy
-
-### evidence-pages.yml
-
-- `pip` - pages / Install GitGalaxy
-
 ### evidence-refresh.yml
 
 - `pip` - db2 / Install GitGalaxy
@@ -128,17 +120,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `pip` - sweep / Install GitGalaxy
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)
 
-### fact-crosscheck.yml
-
-- `pip` - crosscheck / Install GitGalaxy with the translator extra
-
 ### full-suite-gate.yml
 
 - `pip` - full-suite-matrix / Install dependencies
-
-### generated-docs.yml
-
-- `pip` - render / Install GitGalaxy (+ the translator's parser, read by cics_spec_status)
 
 ### gitgalaxy.yml
 
@@ -168,7 +152,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### mypy-audit.yml
 
 - `gh-api` - mypy-audit / Plan the audit
-- `pip` - mypy-audit / Install mypy and GitGalaxy
 
 ### os-smoke-grid.yml
 
@@ -207,12 +190,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### ruff-audit.yml
 
 - `gh-api` - ruff-audit / Plan the audit
-- `pip` - ruff-audit / Install ruff and GitGalaxy
 
 ### small-audits.yml
 
 - `gh-api` - small-audits / Plan the audit
-- `pip` - small-audits / Install GitGalaxy (for ast-accuracy-audit)
 
 ### smoke-test.yml
 

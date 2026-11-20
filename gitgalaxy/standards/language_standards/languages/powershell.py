@@ -210,7 +210,7 @@ DEFINITION: dict[str, Any] = {
         # doesn't alter which lines match or how many, only makes match.groups() richer.
         "class_start": re.compile(r"^[ \t]*(?:class|enum)\s+([" + ID_START + r"][" + ID_CONTINUE + r"]*)", re.I | re.M),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # safety: Defensive Programming. Strict mode, validation attributes, and null-conditional access (?.).
+        # safety (Defensive Checks: assert/try/guards): strict mode, validation attributes, and null-conditional access (?.).
         "safety": re.compile(
             r"\b(try|catch|finally|trap|Set-StrictMode|ValidateNotNull|ValidateSet|ValidateRange|ValidatePattern)\b|-ErrorAction\s+Stop|\$\?|\?\.",
             re.I,

@@ -35,8 +35,6 @@
   "equivalence-e2e.yml|plan|Plan the shards|gh-api",
   "equivalence-e2e.yml|shard|Install dependencies|pip",
   "equivalence-e2e.yml|shard|Load or build the oracle image, and check it against its pin (#4309)|docker",
-  "estate-crucible.yml|estate|Install GitGalaxy|pip",
-  "evidence-pages.yml|pages|Install GitGalaxy|pip",
   "evidence-refresh.yml|db2-part|Build the oracle image and check it against its pin (#4309)|docker",
   "evidence-refresh.yml|db2-part|Install GitGalaxy|pip",
   "evidence-refresh.yml|db2|Install GitGalaxy|pip",
@@ -55,9 +53,7 @@
   "evidence-refresh.yml|refresh|Push lane - hold the PR back if a full run has started meanwhile (#4743)|gh-api",
   "evidence-refresh.yml|sweep|Install GitGalaxy|pip",
   "evidence-refresh.yml|sweep|Load or build the oracle image, and check it against its pin (#4309)|docker",
-  "fact-crosscheck.yml|crosscheck|Install GitGalaxy with the translator extra|pip",
   "full-suite-gate.yml|full-suite-matrix|Install dependencies|pip",
-  "generated-docs.yml|render|Install GitGalaxy (+ the translator's parser, read by cics_spec_status)|pip",
   "gitgalaxy.yml|full-report|Install GitGalaxy & Full Precision Engines|pip",
   "gitgalaxy.yml|pre-gate|Plan the gates|gh-api",
   "golden-crucible.yml|crucible-audit|Install GitGalaxy Environment|pip",
@@ -68,7 +64,6 @@
   "mainframe-ground-truth.yml|ground-truth-part|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|ground-truth-warm|Install GitGalaxy|pip",
   "mainframe-ground-truth.yml|plan|Plan the check|git-fetch",
-  "mypy-audit.yml|mypy-audit|Install mypy and GitGalaxy|pip",
   "mypy-audit.yml|mypy-audit|Plan the audit|gh-api",
   "os-smoke-grid.yml|smoke-test|Install dependencies|pip",
   "ports-compile.yml|ports-compile|Assess clean-install check (burned estates, translator from a wheelhouse)|pip",
@@ -86,9 +81,7 @@
   "release-crucible-archive.yml|archive-crucible-output|Install GitGalaxy (full-precision)|pip",
   "rosetta-audit.yml|rosetta-audit|Install GitGalaxy PR build (full precision)|pip",
   "rosetta-audit.yml|rosetta-audit|Install GitGalaxy baseline build (full precision, separate venv)|pip",
-  "ruff-audit.yml|ruff-audit|Install ruff and GitGalaxy|pip",
   "ruff-audit.yml|ruff-audit|Plan the audit|gh-api",
-  "small-audits.yml|small-audits|Install GitGalaxy (for ast-accuracy-audit)|pip",
   "small-audits.yml|small-audits|Plan the audit|gh-api",
   "smoke-test.yml|evidence-deltas|Install dependencies|pip",
   "smoke-test.yml|full-suite-part|Install dependencies|pip",
@@ -104,13 +97,5 @@
   "tri-comparison-history.yml|plan|Plan the run|gh-api",
   "tri-comparison-history.yml|tri-comparison-history|Install GitGalaxy + tree-sitter-language-pack|pip"
  ],
- "advisory_uploads": [
-  "blocker-baseline.yml|baseline|Keep the survey logs",
-  "evidence-pages.yml|pages|Keep the preview",
-  "evidence-refresh.yml|db2-part|Keep the Db2 proofs' logs",
-  "evidence-refresh.yml|publish-blockers|Keep the preview",
-  "evidence-refresh.yml|sweep|Keep the proofs' logs",
-  "muninn.yml|muninn|Keep SARIF (dispatch)",
-  "referee-panel.yml|panel|Upload the scorecard"
- ]
+ "advisory_uploads": []
 }

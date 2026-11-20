@@ -5,9 +5,9 @@ the whole file (bounded), not its first 64 KB, and a binary DER certificate coun
 """
 
 import re
-import time
 
 import pytest
+from _timing import REDOS_LIMIT_S, assert_cpu_below
 
 from gitgalaxy.core.aperture import ApertureFilter
 from gitgalaxy.core.prism import Prism
@@ -137,9 +137,7 @@ def test_cobol_secret_rule_is_redos_proof(text):
     rx = re.compile(
         LENS.THREAT_SIGNATURES["hardcoded_secrets"].pattern, LENS.THREAT_SIGNATURES["hardcoded_secrets"].flags
     )
-    t = time.perf_counter()
-    rx.search(text)
-    assert time.perf_counter() - t < 1.0
+    assert_cpu_below(lambda: rx.search(text), REDOS_LIMIT_S, what="COBOL secret rule")
 
 
 def test_sarif_never_invents_a_position(tmp_path):

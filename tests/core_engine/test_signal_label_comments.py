@@ -142,6 +142,9 @@ def test_safety_comments_use_the_display_name():
         "embedded_python",
         "m4",
         "dart",
+        "cobol",
+        "c",
+        "shell",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety ({name}:" in text, stem

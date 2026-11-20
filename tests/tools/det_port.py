@@ -72,8 +72,59 @@ def estate(corpus: Path, work: Path) -> Path:
     return project
 
 
+# case.json keys the translation never reads: a change to only these re-uses the cached port (#8599)
+NOT_TRANSLATED = ("scenarios", "notes")
+_TOOL_FILES = ("det_port.py", "equivalence_common.py", "equivalence_java.py", "det_parity.py")
+
+
+class _NotCached(Exception):
+    """A translation that failed: its result is returned, never cached."""
+
+
+def translate_key(case: dict[str, Any], style: str, typed: bool, groups: bool) -> str:
+    """What the translation of `case` reads besides the corpus and the engine (those key the cache entry): the case
+    without its scenarios and notes, the layers, and the bytes of the tools that shape the port."""
+    import hashlib
+
+    h = hashlib.sha256()
+    body = {k: v for k, v in case.items() if k not in NOT_TRANSLATED}
+    h.update(json.dumps([body, style, typed, groups], sort_keys=True, ensure_ascii=False).encode("utf-8"))
+    for f in _TOOL_FILES:
+        h.update(f.encode() + b"\0" + (TOOLS / f).read_bytes() + b"\0")
+    return h.hexdigest()
+
+
 def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",
               typed: bool = False, groups: bool = False) -> dict[str, Any]:  # fmt: skip
+    """`_port_case`, from the cache when this port's translate fingerprint was translated before: a case-only change
+    (its scenarios, its notes) keeps the fingerprint, so `refresh` no longer translates the program again (#8599)."""
+    import equivalence as eq
+    import equivalence_cache as ec
+
+    if ec.root() is None:
+        return _port_case(name, work, project, corpus, style, typed, groups)
+    extra = translate_key(eq.load_case(name), style, typed, groups)
+
+    def build(entry: Path) -> None:
+        res = _port_case(name, entry, project, corpus, style, typed, groups)
+        if res.get("translated") is False or "statements" not in res:
+            raise _NotCached(json.dumps(res))
+        (entry / "result.json").write_text(json.dumps(res), encoding="utf-8")
+
+    try:
+        entry = ec.port_entry(corpus, f"{name}\0{extra}", build)
+    except _NotCached as e:
+        return json.loads(str(e))
+    for sub in ("port", "generated"):
+        dest = work / name / sub
+        shutil.rmtree(dest, ignore_errors=True)
+        if (entry / name / sub).is_dir():
+            shutil.copytree(entry / name / sub, dest)
+    return json.loads((entry / "result.json").read_text(encoding="utf-8"))
+
+
+def _port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",
+               typed: bool = False, groups: bool = False) -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
 
     from gitgalaxy.tools.cobol_to_java.det import program as P

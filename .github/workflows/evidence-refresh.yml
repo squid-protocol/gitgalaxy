@@ -301,6 +301,7 @@ jobs:
           java-version: "17"
 
       - name: Cache Maven dependencies
+        id: maven_dependencies
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
@@ -309,6 +310,17 @@ jobs:
             evidence-m2-
             cics-crucible-m2-
             java-compile-m2-
+
+      # #8746: Central throttled one runner past the in-test -U retry (#8375) and a whole Db2 shard failed in java_maven.
+      # Fetch the Spring Boot parent POM once, retried with backoff (#8723), before any case runs; a cache hit holds it.
+      - name: Fetch the Spring Boot parent POM, retried (#8746)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
+        shell: bash
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -650,6 +662,7 @@ jobs:
           java-version: "17"
 
       - name: Cache Maven dependencies
+        id: maven_dependencies
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
@@ -659,6 +672,17 @@ jobs:
             det-sweep-m2-
             cics-crucible-m2-
             java-compile-m2-
+
+      # #8746: Central throttled one runner past the in-test -U retry (#8375) and a whole Db2 shard failed in java_maven.
+      # Fetch the Spring Boot parent POM once, retried with backoff (#8723), before any case runs; a cache hit holds it.
+      - name: Fetch the Spring Boot parent POM, retried (#8746)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
+        shell: bash
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -823,6 +847,7 @@ jobs:
           java-version: "17"
 
       - name: Cache Maven dependencies
+        id: maven_dependencies
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
@@ -832,6 +857,17 @@ jobs:
             det-sweep-m2-
             cics-crucible-m2-
             java-compile-m2-
+
+      # #8746: Central throttled one runner past the in-test -U retry (#8375) and a whole Db2 shard failed in java_maven.
+      # Fetch the Spring Boot parent POM once, retried with backoff (#8723), before any case runs; a cache hit holds it.
+      - name: Fetch the Spring Boot parent POM, retried (#8746)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
+        shell: bash
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -1017,6 +1053,7 @@ jobs:
           java-version: "17"
 
       - name: Cache Maven dependencies
+        id: maven_dependencies
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
@@ -1026,6 +1063,17 @@ jobs:
             det-sweep-m2-
             cics-crucible-m2-
             java-compile-m2-
+
+      # #8746: Central throttled one runner past the in-test -U retry (#8375) and a whole Db2 shard failed in java_maven.
+      # Fetch the Spring Boot parent POM once, retried with backoff (#8723), before any case runs; a cache hit holds it.
+      - name: Fetch the Spring Boot parent POM, retried (#8746)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
+        shell: bash
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

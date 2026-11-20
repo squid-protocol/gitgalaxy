@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 47 | 0 | 0 | 0 | 22 |
+| pip | 47 | 0 | 0 | 0 | 21 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 79 | 84 | 54 | 208 | 74 |
+| **total** | 79 | 84 | 54 | 208 | 73 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -71,10 +71,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### doom-rosetta.yml
 
 - `gh-api` - callgraph / Scope
-
-### engine-coverage-map.yml
-
-- `pip` - map / Install dependencies
 
 ### equivalence-e2e.yml
 

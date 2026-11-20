@@ -218,7 +218,7 @@ DEFINITION: dict[str, Any] = {
         # Shell is strictly procedural.
         "class_start": None,
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety (Defensive Programming / Validation)
+        # 6. safety (Defensive Checks: assert/try/guards)
         # Shell hardening: strict modes, traps, and robust quoting.
         # QUADRATIC BLOWUP + NESTING FIX: the trap clause's `[^\n]*` and both
         # `${...}` clauses' flat `[^}]+`/`[^}]*` were unbounded and unanchored --

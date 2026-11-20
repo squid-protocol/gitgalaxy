@@ -542,6 +542,12 @@ def _lexicon_name(key: str) -> str:
     return f"**{config.signal_display_name(key)}** (`{key}`)"
 
 
+def _weighted_label(key: str) -> str:
+    """Display name of a weighted signal; a key that is no signal keeps the Title Case form (gitgalaxy#8009)."""
+    shown = config.signal_display_name(key)
+    return key.replace("_", " ").title() if shown == key else shown
+
+
 def _lexicon_bullets() -> list[str]:
     return [
         f"> * **{title}:** " + ", ".join(f"{_lexicon_name(k)} ({gloss})" for k, gloss in entries) + "."
@@ -2061,7 +2067,7 @@ class LLMRecorder:
                 # #2813: the signature lines below are raw counts; the proximity-weighted
                 # figure they used to carry is listed here beside its tally.
                 for w_key, w_val in weighted.items():
-                    lines.append(f"* *{w_key.replace('_', ' ').title()} (weighted view):* {w_val}")
+                    lines.append(f"* *{_weighted_label(w_key)} (weighted view):* {w_val}")
 
             lines.append("**Structural Signatures (Net Mitigated Signals):**")
             lines.append(f"* *Structure:* {', '.join(struct_hits) if struct_hits else 'None'}")

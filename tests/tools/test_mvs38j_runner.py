@@ -115,9 +115,9 @@ def test_ief285i_with_the_live_trailing_marker_is_parsed():
 
 PROC_LOG = """\
 IEF403I PJOB - STARTED - TIME=10.00.00
-IEF142I PJOB STEP1 COMPILE - STEP WAS EXECUTED - COND CODE 0004
-IEF142I PJOB STEP1 LKED - STEP WAS EXECUTED - COND CODE 0000
-IEF272I PJOB STEP1 GO - STEP WAS NOT EXECUTED.
+IEF142I PJOB COMPILE STEP1 - STEP WAS EXECUTED - COND CODE 0004
+IEF142I PJOB LKED STEP1 - STEP WAS EXECUTED - COND CODE 0000
+IEF272I PJOB GO STEP1 - STEP WAS NOT EXECUTED.
 IEF450I PJOB STEP2 GO - ABEND S0C7 U0000 SYSTEM=0C7 USER=0000
 IEF142I PJOB STEP3 - STEP WAS EXECUTED - COND CODE 0000
 $HASP395 PJOB     ENDED
@@ -125,7 +125,7 @@ $HASP395 PJOB     ENDED
 
 
 def test_proc_steps_keep_the_step_and_procstep_names_apart():
-    """A PROC step line has a PROCSTEP name after the job step: both are kept, and a plain step has procstep None."""
+    """A PROC step line names the procedure step BEFORE the job step that called it (live, #8414): both are kept, and a plain step has procstep None."""
     out = runner.parse_log(PROC_LOG)
     job = out["jobs"][0]
     assert [(s["step"], s["procstep"], s["executed"], s["cond_code"]) for s in job["steps"]] == [

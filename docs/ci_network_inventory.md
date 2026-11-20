@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 28 | 0 | 0 | 0 | 44 |
+| pip | 32 | 0 | 0 | 0 | 39 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 60 | 84 | 54 | 208 | 96 |
+| **total** | 64 | 84 | 54 | 208 | 91 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -77,7 +77,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### detection-accuracy-audit.yml
 
-- `pip` - detection-accuracy-audit / Install GitGalaxy
 - `git-fetch` - plan / Plan the audit
 
 ### doom-rosetta.yml
@@ -85,10 +84,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - callgraph / Scope
 - `pip` - callgraph / Install GitGalaxy
 - `pip` - shard / Install GitGalaxy
-
-### engine-coverage-map.yml
-
-- `pip` - map / Install dependencies
 
 ### equivalence-e2e.yml
 
@@ -140,7 +135,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### graph-comparison-history.yml
 
-- `pip` - graph-comparison-history / Install GitGalaxy + tree-sitter-language-pack
 - `gh-api` - plan / Plan the run
 
 ### mainframe-ground-truth.yml
@@ -211,7 +205,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tree-sitter-accuracy-history.yml
 
 - `gh-api` - plan / Plan the run
-- `pip` - tree-sitter-accuracy-history / Install GitGalaxy + tree-sitter-language-pack
 
 ### tri-comparison-audit.yml
 
@@ -221,4 +214,3 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tri-comparison-history.yml
 
 - `gh-api` - plan / Plan the run
-- `pip` - tri-comparison-history / Install GitGalaxy + tree-sitter-language-pack

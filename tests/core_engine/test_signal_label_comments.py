@@ -171,6 +171,10 @@ def test_safety_comments_use_the_display_name():
         "zscript",
         "fsharp",
         "matlab",
+        "hlasm",
+        "jcl",
+        "pli",
+        "postgresql",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety ({name}:" in text, stem

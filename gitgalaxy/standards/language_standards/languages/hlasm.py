@@ -404,7 +404,7 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety (#2869): the z/OS recovery macros -- ESTAE/ESTAEX and
+        # safety (Defensive Checks: ESTAE/ESPIE/SETRP recovery handlers) (#2869): the z/OS recovery macros -- ESTAE/ESTAEX and
         # ESPIE/SPIE install a failure handler for the task, SETRP sets the
         # recovery disposition inside one (HLASM's installed-handler family)
         # -- plus the CICS/SQL/DLI handler vocabulary shared verbatim with

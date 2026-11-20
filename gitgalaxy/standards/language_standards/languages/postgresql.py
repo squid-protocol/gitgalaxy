@@ -124,7 +124,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:IF[ \t\n]+NOT[ \t\n]+EXISTS[ \t\n]+)?" + _QUAL + r"(" + _NAME + r")(?=[ \t(\n;]|$)",
             re.I | re.M,
         ),
-        # safety: the exception block (PL/pgSQL's try/catch), transaction guards and
+        # safety (Defensive Checks: exception blocks, transaction guards, constraints): the exception block (PL/pgSQL's try/catch), transaction guards and
         # the declared integrity constraints.
         "safety": re.compile(
             r"\bEXCEPTION[ \t\r\n]{1,20}WHEN\b|\bCOMMIT\b|\bROLLBACK\b|\bSAVEPOINT\b"

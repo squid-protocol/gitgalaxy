@@ -30,6 +30,30 @@
    "reason": "GOTO bitmask operator; any bit offset > 14 reliably flags a branch jump without conflicting with paragraph indices 0..13."
   },
   {
+   "id": "ce055c149f",
+   "op": "LIT",
+   "line": 34,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (the same constant-unused rows stated for the ABNDPROC and UPDCUST ports).",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "535caace7c",
+   "op": "LIT",
+   "line": 36,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, true, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, true, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read: the TRUNC, NUMPROC and COMP-5 modes are swapped in explicitly by runTask, not taken from it.",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
    "id": "f9c705d9f6",
    "op": "LIT",
    "line": 39,
@@ -122,11 +146,16 @@
   {
    "id": "4b1b7b73a5",
    "op": "LIT",
-   "line": 63,
+   "line": 66,
    "before": "\"AAAAAP////8=\"));",
    "after": "\"XAAAAP////8=\"));",
-   "verdict": "case-gap",
-   "reason": "C_MAX image constant (line 63): tried link_bytes areas of 4, 8, 9, 12 and 16 bytes and started tasks; none made the program read C_MAX, so no input here distinguishes it. Open."
+   "verdict": "unreachable",
+   "reason": "C_MAX reaches only DEFINE DCOUNTER MAXIMUM. The larger limit changes neither RESP nor RESP2 (VALUE 1 is within MINIMUM 1 and MAXIMUM either way, MAXIMUM >= MINIMUM) and the stored limit is read only by a later GET/QUERY DCOUNTER, which ZECSNC never issues.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "e55dc7a9ee",
@@ -1026,6 +1055,76 @@
    "reason": "Scalar initialization in initialState() on line 268; field is assigned or overwritten dynamically before use."
   },
   {
+   "id": "74251b70c2",
+   "op": "ROR",
+   "line": 273,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "unreachable",
+   "reason": "The `switch` on the AID has only `default -> { }`, so any non-null AID acts the same in both. The mutant differs only for a null AID (it reaches `switch (null)`, an NPE); a null AID exists only on region.linked (the CSMI path), and ZECSNC is a transaction program entered with ENTER.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "1792cb0b30",
+   "op": "CON",
+   "line": 284,
+   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
+   "after": "if (calen == 1 && ca != null && !(ca instanceof byte[])) {",
+   "verdict": "unreachable",
+   "reason": "The branch needs a non-byte[] typed COMMAREA object entry (`calen` is 0 there). ZECSNC is HLASM with no typed COMMAREA: `dto_entry` is refused for the case (attempt `refused`), `commarea` is null and the byte[] entries skip the branch under both conditions.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "7971a0921b",
+   "op": "ROR",
+   "line": 284,
+   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
+   "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
+   "verdict": "unreachable",
+   "reason": "Same branch as 1792cb0b30: `calen != 0` differs from `calen == 0` only for a non-byte[] typed COMMAREA, which this program has none of (`dto_entry` refused); a byte[] entry fails the `!(ca instanceof byte[])` test in both.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "79d6bb74cc",
+   "op": "DEL",
+   "line": 286,
+   "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+   "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */",
+   "verdict": "unreachable",
+   "reason": "Inside the branch for a typed (non-byte[]) COMMAREA object entry: ZECSNC is HLASM with no typed COMMAREA, `dto_entry` is refused for the case, and a byte[] entry takes the first branch and fails `!(ca instanceof byte[])`, so no input of this program reaches the line.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "c36f5345b4",
+   "op": "DEL",
+   "line": 287,
+   "before": "calen = DetCics.eibCalen(task, cb.length);",
+   "after": "/* calen = DetCics.eibCalen(task, cb.length); */",
+   "verdict": "unreachable",
+   "reason": "Inside the branch for a typed (non-byte[]) COMMAREA object entry: ZECSNC is HLASM with no typed COMMAREA, `dto_entry` is refused for the case, and a byte[] entry takes the first branch and fails `!(ca instanceof byte[])`, so no input of this program reaches the line.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
    "id": "90c7f05e15",
    "op": "DEL",
    "line": 290,
@@ -1051,6 +1150,48 @@
    "after": "/* heldKey.clear(); */",
    "verdict": "equivalent",
    "reason": "Task cleanup / initialization on line 292; resets default state."
+  },
+  {
+   "id": "3c9c961def",
+   "op": "AOR",
+   "line": 294,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "unreachable",
+   "reason": "ZECSNC reads only CA_TRAN from DFHCOMMAREA and never writes it (ZECSNC.asm), so the write-back copies back the bytes it loaded. The tail (`beyond`) is non-null only when the link area is longer than the 8-byte DSECT, so EIBCALEN is neither 0 nor 8, the program ABENDs, the task has ended and `caBack` is not run.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "7f6e3c1c79",
+   "op": "DEL",
+   "line": 294,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "Deleting the `caBack` assignment leaves the no-op `() -> { }`. The write-back copies DFHCOMMAREA's loaded bytes over the link area, ZECSNC never writes DFHCOMMAREA, and the only run with a tail abends before `caBack` (see 3c9c961def).",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "8d440789b1",
+   "op": "CON",
+   "line": 294,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
+   "verdict": "unreachable",
+   "reason": "ZECSNC reads only CA_TRAN from DFHCOMMAREA and never writes it (ZECSNC.asm), so the write-back copies back the bytes it loaded. The tail (`beyond`) is non-null only when the link area is longer than the 8-byte DSECT, so EIBCALEN is neither 0 nor 8, the program ABENDs, the task has ended and `caBack` is not run.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "74b683c0e6",
@@ -1152,13 +1293,18 @@
    "reason": "Standard EIB field assignment on line 299; field is never read anywhere in ZECSNC."
   },
   {
-   "id": "74251b70c2",
-   "op": "ROR",
-   "line": 300,
-   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
-   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
-   "verdict": "case-gap",
-   "reason": "runTask entry handling for AID and raw COMMAREA length check"
+   "id": "3a66d71eef",
+   "op": "DEL",
+   "line": 302,
+   "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
+   "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "The wrapper restores the COMMAREA's whole bytes on a normal return when the runner states an exact-length area shorter than the 8-byte layout. EIBCALEN 1-7 ABENDs ZECSNC first (the task has ended, so `caBack` never runs) and EIBCALEN 0 takes the no-COMMAREA path; the same restore is repeated in the `finally` block, and ZECSNC never writes DFHCOMMAREA, so the restored bytes are the loaded ones.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "2a25dd659c",
@@ -1170,49 +1316,74 @@
    "reason": "Commarea boundary check on line 305; commarea length matches DFHCA size (8 bytes) exactly."
   },
   {
-   "id": "1792cb0b30",
+   "id": "e30a1b9fbd",
    "op": "CON",
-   "line": 314,
-   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
-   "after": "if (calen == 1 && ca != null && !(ca instanceof byte[])) {",
-   "verdict": "case-gap",
-   "reason": "the typed-COMMAREA guard compares calen with 1: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
+   "line": 307,
+   "before": "perform(0, 13);",
+   "after": "perform(0, 14);",
+   "verdict": "equivalent",
+   "reason": "`perform(0, 14)`: paragraph 13 then falls to 14 and `next >= 14` throws Goback, which the caller catches with an empty body, the same continuation as the original `i == thru` return. No path reaches an index above 13.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
-   "id": "7971a0921b",
-   "op": "ROR",
-   "line": 314,
-   "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
-   "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
-   "verdict": "case-gap",
-   "reason": "the typed-COMMAREA guard turned to calen != 0: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
+   "id": "fa48743479",
+   "op": "CON",
+   "line": 307,
+   "before": "perform(0, 13);",
+   "after": "perform(1, 13);",
+   "verdict": "equivalent",
+   "reason": "`perform(1, 13)` skips paragraph 0, whose only statement is `GO TO SYSDATE` (paragraph 1): the same first paragraph runs either way.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
-   "id": "3c9c961def",
-   "op": "AOR",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "caBack write-back at line 329 (arithmetic change): the LINK scenarios did not kill it; ZECSNC has no typed COMMAREA to write back. Open."
-  },
-  {
-   "id": "7f6e3c1c79",
+   "id": "5f1e0fa981",
    "op": "DEL",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "case-gap",
-   "reason": "caBack write-back at line 329 (deleted statement): the LINK scenarios did not kill it; likely equivalent because ZECSNC never writes DFHCA, but no attack supports saying so. Open."
+   "line": 322,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "`caBack.run()` is the write-back of unchanged bytes (or a no-op): ZECSNC never writes DFHCOMMAREA, and the tail copy is unreachable because a link area longer than 8 bytes abends first. Deleting the call changes no event, return or link-area byte.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
-   "id": "8d440789b1",
-   "op": "CON",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "caBack write-back at line 329 (constant change): the LINK scenarios did not kill it; ZECSNC has no typed COMMAREA to write back. Open."
+   "id": "eef761ada3",
+   "op": "DEL",
+   "line": 326,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "unreachable",
+   "reason": "The `finally` restore of COMP-5 byte order: same as 3073026cba, every `runTask` entry sets it again and nothing else reads it after the task.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "3073026cba",
+   "op": "DEL",
+   "line": 327,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "unreachable",
+   "reason": "The `finally` restore of TRUNC(BINARY) is seen only by code that runs on the thread after the task. Every `runTask` entry swaps TRUNC, COMP-5 and NUMPROC explicitly, and the case runs one program per scenario, so no later reader sees the leaked mode.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "eeb3f0cc9c",
@@ -1233,22 +1404,18 @@
    "reason": "IndexOutOfBoundsException handler in runTask(); no out-of-bounds access occurs in ZECSNC."
   },
   {
-   "id": "e30a1b9fbd",
-   "op": "CON",
-   "line": 341,
-   "before": "perform(0, 13);",
-   "after": "perform(0, 14);",
-   "verdict": "case-gap",
-   "reason": "perform(0, 13) procedure division execution range"
-  },
-  {
-   "id": "fa48743479",
-   "op": "CON",
-   "line": 341,
-   "before": "perform(0, 13);",
-   "after": "perform(1, 13);",
-   "verdict": "case-gap",
-   "reason": "perform(0, 13) procedure division execution range"
+   "id": "ef9317623a",
+   "op": "LIT",
+   "line": 335,
+   "before": "region.run(task, \"ZECSNC\", this::runTask);",
+   "after": "region.run(task, \"XECSNC\", this::runTask);",
+   "verdict": "equivalent",
+   "reason": "The region program name feeds `Programs.defined`/`task.run`, read only by a LINK/XCTL or ASSIGN PROGRAM from the running program. ZECSNC issues none (ASSIGN APPLID/SYSID/STARTCODE, DEFINE DCOUNTER, ABEND, RETURN), and the `Programs` stub answers `self.accept` for any name asked of it.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "3f288a2d87",
@@ -1305,22 +1472,18 @@
    ]
   },
   {
-   "id": "5f1e0fa981",
+   "id": "88818b9290",
    "op": "DEL",
-   "line": 356,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack.run() COMMAREA writeback is uncompared by equivalence harness"
-  },
-  {
-   "id": "3073026cba",
-   "op": "DEL",
-   "line": 360,
-   "before": "Cobol.swapTruncBinary(truncBefore);",
-   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "case-gap",
-   "reason": "swapTruncBinary compiler option restore after single-shot run"
+   "line": 359,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "`Goback` carries nothing a handler reads (empty catch bodies, no message, cause or trace call): `super(null, null, false, false)` only turns off the stack trace and suppression, never seen.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "bb743c09b4",
@@ -1332,22 +1495,18 @@
    "reason": "Mutant on line 361; does not alter observable program behavior."
   },
   {
-   "id": "eef761ada3",
-   "op": "DEL",
-   "line": 361,
-   "before": "Cobol.swapZosComp5(comp5Before);",
-   "after": "/* Cobol.swapZosComp5(comp5Before); */",
-   "verdict": "harness-gap",
-   "reason": "finally-block restore of the COMP-5 mode (line 361): the mode leaks only into a later program on the same thread, which the case does not compare. Open."
-  },
-  {
-   "id": "ef9317623a",
-   "op": "LIT",
-   "line": 370,
-   "before": "region.run(task, \"ZECSNC\", this::runTask);",
-   "after": "region.run(task, \"XECSNC\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "program name passed to region.run (line 370): changes only the name the region records for the task, which the proof does not compare. Open."
+   "id": "eece816a77",
+   "op": "AOR",
+   "line": 372,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "`performThru[performDepth++]` vs `[performDepth--]`: the index written is the same (post-op), and `perform` is entered once, at depth 0, with no nested PERFORM in ZECSNC; the `finally` resets the depth to `mine`. No read of a changed depth exists.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
   },
   {
    "id": "b2e05c823b",
@@ -1371,6 +1530,34 @@
    "reason": "performThru initial allocation size; depth never exceeds 1."
   },
   {
+   "id": "167d0a9ea4",
+   "op": "NEG",
+   "line": 384,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "The loop `for (d = mine - 1; d >= 0; d--)` runs only inside a nested PERFORM (`mine > 0`). ZECSNC has one `perform(0, 13)` and uses GO TO elsewhere, so the body never executes.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
+   "id": "1789b09e2e",
+   "op": "ROR",
+   "line": 384,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "Same loop as 167d0a9ea4: `mine` is 0, the body never executes.",
+   "tried": [
+    "entry-only-one",
+    "link-bytes-eight-tail",
+    "link-bytes-twelve"
+   ]
+  },
+  {
    "id": "5f33f6ee51",
    "op": "CON",
    "line": 384,
@@ -1378,15 +1565,6 @@
    "after": "private int performDepth = 1;",
    "verdict": "equivalent",
    "reason": "performDepth initial assignment; depth is managed within perform() invocation."
-  },
-  {
-   "id": "88818b9290",
-   "op": "DEL",
-   "line": 392,
-   "before": "super(null, null, false, false);",
-   "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "15a95136c1",
@@ -1414,15 +1592,6 @@
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
    "verdict": "unreachable",
    "reason": "performThru buffer resizing; ZECSNC has only a single top-level perform() call (depth 0), so depth 64 is never reached."
-  },
-  {
-   "id": "eece816a77",
-   "op": "AOR",
-   "line": 405,
-   "before": "performThru[performDepth++] = thru;",
-   "after": "performThru[performDepth--] = thru;",
-   "verdict": "case-gap",
-   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "b66c453944",
@@ -1486,24 +1655,6 @@
    "after": "for (int d = mine - 1; d > 0; d--) {",
    "verdict": "unreachable",
    "reason": "performThru search loop; mine is 0 for the single perform call, so loop condition d >= 0 is immediately false."
-  },
-  {
-   "id": "167d0a9ea4",
-   "op": "NEG",
-   "line": 417,
-   "before": "if (performThru[d] == i) {",
-   "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
-  },
-  {
-   "id": "1789b09e2e",
-   "op": "ROR",
-   "line": 417,
-   "before": "if (performThru[d] == i) {",
-   "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "5301710ab0",

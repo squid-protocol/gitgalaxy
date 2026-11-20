@@ -191,6 +191,23 @@ def test_a_cancelled_leg_says_how_long_it_ran():
     assert mw.legs(jobs) == ([], ["mac 3 after 45 min", "old"])
 
 
+def test_a_cancelled_leg_with_no_steps_never_got_a_runner_8673():
+    jobs = [
+        {"name": "mac", "conclusion": "cancelled", "started_at": "2026-11-19T14:11:06Z",
+         "completed_at": "2026-11-19T14:26:07Z", "steps": []},
+        {"name": "hung", "conclusion": "cancelled", "started_at": "2026-11-19T14:11:06Z",
+         "completed_at": "2026-11-19T14:26:07Z", "steps": [{"name": "x", "conclusion": "cancelled"}]},
+        {"name": "old", "conclusion": "cancelled"},  # no steps key: unknown, not claimed
+    ]  # fmt: skip
+    _, cancelled = mw.legs(jobs)
+    assert cancelled == ["mac after 15 min" + mw.NO_RUNNER, "hung after 15 min", "old"]
+    only = mw.legs_note([], cancelled[:1])
+    assert "never got a runner" in only and "rerun" in only and "hang:" not in only
+    assert "a hang: compare" in mw.legs_note([], cancelled)  # mixed: the hang caveat stays
+    assert "a hang: compare" in mw.legs_note([], cancelled[1:2])
+    assert "never got a runner" in mw.legs_note(["f"], cancelled[:1])  # failed + starved: names the leg
+
+
 def test_main_watch_may_rerun_and_dispatch():
     """The rerun (event path) and the dispatch (reconcile) both need actions: write; the rerun reads the attempt."""
     wf = read("main-watch.yml")

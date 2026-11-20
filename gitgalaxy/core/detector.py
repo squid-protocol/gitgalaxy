@@ -44,6 +44,7 @@ from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
 from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
+from gitgalaxy.core.return_types import extract_call_assigns, extract_expr_chain, extract_return_type
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -276,6 +277,12 @@ class FunctionNode(TypedDict, total=False):
     # function calls methods on. Only unconflicted evidence; empty where the
     # language does not opt in (`calls_out_receiver_types`).
     calls_out_receiver_types: dict[str, str]
+    # Declared return class name on the unit's header (for cross-function receiver typing)
+    return_type: str | None
+    # Chained call-expression receivers (`get_store().save` -> `"get_store()"`), when `<expr>`
+    calls_out_expr_chains: dict[str, list[str]]
+    # Factory-call variable assignments (`const s = getStore()`, `s := NewStore()`)
+    calls_out_call_assigns: dict[str, str]
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
@@ -12174,6 +12181,7 @@ class StructuralExtractor:
         # invocation families name their callee with a verb or by position and
         # carry no qualifier: their map stays empty, meaning "not captured".
         qualifiers_seen: dict[str, list[str]] = {}
+        expr_chains_seen: dict[str, list[str]] = {}
         # #3835: argument counts per callee, where overloads are chosen by them
         arities_seen: dict[str, list[int]] = {}
         track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
@@ -12329,6 +12337,12 @@ class StructuralExtractor:
                             marked = INIT_LIST_QUALIFIER
                     if marked not in seen:
                         seen.append(marked)
+                    if marked == "<expr>" and not is_send:
+                        chain = extract_expr_chain(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
+                        if chain:
+                            seen_chains = expr_chains_seen.setdefault(callee, [])
+                            if chain not in seen_chains:
+                                seen_chains.append(chain)
                     if track_arities and not own_header_call:
                         arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
                         if self.primary_lang_id == "kotlin":
@@ -12449,15 +12463,15 @@ class StructuralExtractor:
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
             if receivers and self.primary_lang_id == "java":
                 receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
-            elif receivers and self.primary_lang_id in overload_types.LANGS:
-                # #8161 (PR 5): C# / Kotlin parameters, locals, constructions and fields (core/overload_types.py)
-                receiver_types = overload_types.receiver_types(
-                    java_mask_literals(block), receivers, self._java_field_values, self.primary_lang_id
-                )
             elif receivers and self.primary_lang_id in TYPED_LANGS:
                 # #8161 (X3): C++ / Go / Rust / TypeScript / JavaScript (core/receiver_types.py)
                 receiver_types = receiver_types_of(
                     self.primary_lang_id, typing_text or receiver_text, receivers, self._file_declared_types
+                )
+            elif receivers and self.primary_lang_id in overload_types.LANGS:
+                # #8161 (PR 5): C# / Kotlin parameters, locals, constructions and fields (core/overload_types.py)
+                receiver_types = overload_types.receiver_types(
+                    java_mask_literals(block), receivers, self._java_field_values, self.primary_lang_id
                 )
             elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
@@ -12539,6 +12553,19 @@ class StructuralExtractor:
         }
         if ctor_forms:
             sat["ctor_forms"] = ctor_forms
+        if expr_chains_seen:
+            chains = {c: expr_chains_seen[c] for c in calls_out if c in expr_chains_seen}
+            if chains:
+                sat["calls_out_expr_chains"] = chains
+        if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types"):
+            ret_type = extract_return_type(self.primary_lang_id, receiver_text)
+            if ret_type:
+                sat["return_type"] = ret_type
+            if self.primary_lang_id in TYPED_LANGS:
+                receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
+                call_assigns = extract_call_assigns(self.primary_lang_id, typing_text or receiver_text, receivers)
+                if call_assigns:
+                    sat["calls_out_call_assigns"] = call_assigns
         if arity_range is not None and arity_range != (args_count, args_count, args_count):
             # [fewest, most, parameter count]: the count is the header's own, where the `args` metric misreads
             # a default with parentheses (`const Allocator& alloc = Allocator()`)
@@ -12569,6 +12596,7 @@ class StructuralExtractor:
     _OVERLOAD_CALL_PRECEDERS: ClassVar[dict[str, frozenset[str]]] = {
         "csharp": frozenset({"return", "new", "throw", "else", "case", "yield", "await", "is", "in", "when", "and", "or", "not"}),
         "kotlin": frozenset({"return", "throw", "else", "in", "is", "to", "as", "and", "or", "until", "downTo", "step", "by"}),
+        "cpp": frozenset({"return", "new", "delete", "throw", "else", "case", "sizeof", "alignof", "decltype", "co_await", "co_return", "co_yield"}),
     }  # fmt: skip
 
     def _java_call_arg_types(
@@ -12587,7 +12615,7 @@ class StructuralExtractor:
         typed = lang in overload_types.LANGS  # C# / Kotlin (core/overload_types.py); else Java's rules
         masked = java_mask_literals(block)
         sites_of = java_name_sites(masked)
-        leaf = name.rsplit(".", 1)[-1]
+        leaf = _UNIT_NAME_SEPARATORS.split(name)[-1]
 
         def sites(word: str) -> list[int]:
             # the one-pass index reads ASCII-led names; a Unicode one (combining marks, ZWJ) is searched literally

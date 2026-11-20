@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 21 | 0 | 0 | 0 | 51 |
+| pip | 24 | 0 | 0 | 0 | 48 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 53 | 77 | 54 | 215 | 103 |
+| **total** | 56 | 77 | 54 | 215 | 100 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -168,7 +168,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### mypy-audit.yml
 
 - `gh-api` - mypy-audit / Plan the audit
-- `pip` - mypy-audit / Install mypy and GitGalaxy
 
 ### os-smoke-grid.yml
 
@@ -207,12 +206,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### ruff-audit.yml
 
 - `gh-api` - ruff-audit / Plan the audit
-- `pip` - ruff-audit / Install ruff and GitGalaxy
 
 ### small-audits.yml
 
 - `gh-api` - small-audits / Plan the audit
-- `pip` - small-audits / Install GitGalaxy (for ast-accuracy-audit)
 
 ### smoke-test.yml
 

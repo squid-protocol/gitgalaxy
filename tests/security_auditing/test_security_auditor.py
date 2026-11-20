@@ -1,3 +1,4 @@
+import inspect
 from unittest.mock import patch
 
 import pytest
@@ -100,8 +101,7 @@ def test_the_classifier_is_gone():
     """#8430: the XGBoost classifier and its switches are removed, not dormant."""
     assert not hasattr(security_auditor_module, "ML_AVAILABLE")
     assert not hasattr(SecurityAuditor, "_construct_feature_matrix")
-    with pytest.raises(TypeError):
-        SecurityAuditor(**{"model_path": "/nonexistent/model.json"})
+    assert "model_path" not in inspect.signature(SecurityAuditor.__init__).parameters
 
 
 # ==============================================================================

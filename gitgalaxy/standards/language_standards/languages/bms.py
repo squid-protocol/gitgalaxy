@@ -147,7 +147,7 @@ DEFINITION: dict[str, Any] = {
         # first operand (TYPE=&SYSPARM / TYPE=(DSECT,...) / TYPE=MAP).
         "class_start": re.compile(r"^(" + _NAME + r")[ \t]+DFHMSD\b(?![^\n]{0,200}\bTYPE=FINAL\b)", re.M | re.I),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety: no runtime failure handling exists in a screen definition.
+        # safety (Defensive Checks: none): no runtime failure handling exists in a screen definition.
         "safety": None,
         # safety_bypasses: no type system or error channel to bypass.
         "safety_bypasses": None,

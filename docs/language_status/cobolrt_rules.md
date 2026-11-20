@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-194 rules: 94 MATCHED, 26 DIFFERS, 14 REFUSED, 60 ASSUMED; 0 measured on z/OS (#4702).
+194 rules: 94 MATCHED, 27 DIFFERS, 14 REFUSED, 59 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -42,6 +42,8 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 - `ims-ap`: IBM IMS Application Programming (DB PCB masks, current position in the database)
 - `ims-codes`: IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)
 - `mvs-da`: IBM z/OS MVS Data Areas (PSA, TCB, TIOT)
+- `mq-refdev`: IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)
+- `mq-dev`: IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)
 
 ## Options
 
@@ -295,13 +297,13 @@ The queue manager a CICS task's MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE reach,
 
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
-| RT-MQ-QUEUE-MANAGER | The task's queue manager: local queues, CCSID and messages from the case's mq.cfg; a name it does not hold is MQRC_UNKNOWN_OBJECT_NAME | none: the queues are the case's facts, not a z/OS queue manager's | - | W1 (ASSUMED); W3 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-QUEUE-MANAGER | The task's queue manager: local queues, CCSID and messages from the case's mq.cfg; a name it does not hold is MQRC_UNKNOWN_OBJECT_NAME | `mq-refdev` MQOPEN: reason code MQRC_UNKNOWN_OBJECT_NAME (2085) | - | W1 (ASSUMED); W3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-MQ-CONNECTION | Only a CICS MQI call with Hconn MQHC_DEF_HCONN (0) is modelled; any other Hconn or MQI verb is refused by name | none: the runtime stops by name outside the modelled calls | - | W6 (REFUSED) | REFUSED | uncalibrated |
-| RT-MQ-OPEN | MQOPEN: resolves the object descriptor, makes the object handle (1, 2, 3 ... in the order opened) | none: the handle value is opaque in IBM's; the runtime's numbering is the oracle's | - | W3 (ASSUMED); W4 (ASSUMED) | ASSUMED | uncalibrated |
-| RT-MQ-CLOSE | MQCLOSE: the handle becomes MQHO_UNUSABLE_HOBJ (-1) | none: IBM documents the handle's reset; the options handled are those the model gives meaning to | - | W4 (ASSUMED) | ASSUMED | uncalibrated |
-| RT-MQ-GET | MQGET (destructive): highest priority first, first in first out within it; WAIT on an empty queue ends at once with 2033, MQWI_UNLIMITED refused; MQGMO_CONVERT a no-op where the message is as asked, refused otherwise | none: no concurrent producer is assumed; conversion beyond the identity is refused | - | W2 (ASSUMED); W3 (ASSUMED); W5 (ASSUMED); W7 (REFUSED) | ASSUMED | uncalibrated |
-| RT-MQ-PUT | MQPUT / MQPUT1: MsgId GGMQ + a counter, the put context (PutApplType, PutDate / PutTime from the pinned clock, identity placeholders), the message queued under the unit of work | none: the MsgId form and identity-context placeholders are the oracle's | - | W3 (ASSUMED); W4 (ASSUMED); W8 (ASSUMED) | ASSUMED | uncalibrated |
-| RT-MQ-UNIT-OF-WORK | The MQ unit of work is the CICS task's: SYNCPOINT commits, SYNCPOINT ROLLBACK and an abend back out (BackoutCount raised), the task's end commits | none: IBM's rule is modelled; the oracle's joint syncpoint with ggcics.c is assumed | - | W5 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-OPEN | MQOPEN: resolves the object descriptor, makes the object handle (1, 2, 3 ... in the order opened) | `mq-refdev` MQOPEN: Hobj (MQHOBJ) - output | - | W3 (ASSUMED); W4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-CLOSE | MQCLOSE: the handle becomes MQHO_UNUSABLE_HOBJ (-1) | `mq-refdev` MQCLOSE: Hobj (MQHOBJ) - input/output | - | W4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-MQ-GET | MQGET (destructive): highest priority first, first in first out within it; WAIT on an empty queue ends at once with 2033, MQWI_UNLIMITED refused; MQGMO_CONVERT a no-op where the message is as asked, refused otherwise | `mq-refdev` MQGET: MQGMO_WAIT / WaitInterval, MQGMO_CONVERT; queue attribute MsgDeliverySequence | - | W2 (ASSUMED); W3 (ASSUMED); W5 (ASSUMED); W7 (REFUSED) | ASSUMED | uncalibrated |
+| RT-MQ-PUT | MQPUT / MQPUT1: MsgId GGMQ + a counter, the put context (PutApplType, PutDate / PutTime from the pinned clock, identity placeholders), the message queued under the unit of work | `mq-refdev` MQMD: MsgId (MQBYTE24); MQPMO: context options (Table 529) | - | W3 (ASSUMED); W4 (ASSUMED); W8 (ASSUMED) | DIFFERS | uncalibrated |
+| RT-MQ-UNIT-OF-WORK | The MQ unit of work is the CICS task's: SYNCPOINT commits, SYNCPOINT ROLLBACK and an abend back out (BackoutCount raised), the task's end commits | `mq-dev` Syncpoints in CICS Transaction Server for z/OS applications | - | W5 (ASSUMED) | ASSUMED | uncalibrated |
 
 ## DATA: items and storage
 

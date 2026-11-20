@@ -6506,6 +6506,28 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   the det port stores 0. IBM is silent on what the DL/I language interface leaves in register 15 for a COBOL
   CALL (the IMS 15.3 Application Programming pages name only the status code in the PCB). A program that reads RETURN-CODE after a DL/I call, or ends without setting it, relies on this assumption:
   PAUDBUNL ends RETURN-CODE 0 after its last GN (GB).
+- **IBM trace (#8700, 2026-11-19; IMS 15.4 Application Programming APIs "REPL call", "DLET call", "ISRT call", and
+  Messages and Codes Volume 4 "DL/I codes" DA, DJ, II; 15.4, the register cites 15.3).** Rules `RT-DLI-ISRT` and
+  `RT-DLI-CHANGE`.
+  - **DIFFERS, REPL / DLET after a hold (RT-DLI-CHANGE).** DJ (Volume 4): "The segment was already deleted using this PCB.
+    After one Get Hold call, multiple REPL calls or a DLET call following a REPL call are valid, but multiple DLET calls
+    are not." DLET (APIs): "IMS rejects the DLET call if the preceding call for the PCB was not a Get Hold, REPL, or
+    DLET call", and GHU: "you can issue more than one REPL or DLET call to the segment if you do not issue intervening
+    calls to the same PCB". The runtime (and `ggdli.c`) clears the hold on every call, so a second REPL, or a DLET after
+    a REPL, answers DJ where IBM succeeds. Not reached: PAUDBUNL issues only GN. The rest of the rule is **MATCHED**:
+    DJ with no get-hold before, and DA: "tried to modify the key field in the segment" (Volume 4, DA); DLET "deletes the
+    held segment, along with all its physical dependents".
+  - **Refused where IBM answers.** REPL with an SSA: "Using a qualified SSA is invalid and results in an AJ status code",
+    and "Use only unqualified SSAs on a REPL call"; the runtime refuses any SSA on a REPL or DLET (`"a REPL with SSAs"`)
+    rather than answer AJ. A DLET takes one unqualified SSA only after a path get-hold: handled for the D-coded path
+    (`changePath`), refused otherwise. REPL of a segment that is not replace-sensitive with changed data is AM in IBM;
+    the runtime answers AM by PROCOPT, not by comparing the data.
+  - **ISRT, MATCHED.** "If the segment type you are inserting has a unique key field, the place where IMS adds the new
+    segment occurrence depends on the value of its key field"; "The last SSA must be unqualified"; "If IMS returns a GE
+    status code, at least one of the parents does not exist"; II: "tried to insert a segment that already exists ... A
+    segment with an equal physical twin sequence field already exists for the parent." **Still ASSUMED:** the
+    FIRST / LAST / HERE insert rules for a non-unique or absent key (IBM: the DBD's RULES parameter; whether the
+    runtime reads it was not checked here), and load-mode statuses LB / LC / LD / LE (not in the text read).
 
 ### I2. Sequence-field order and SSA comparison — the stored bytes, in the data page
 - **Order.** Twins sit in the order of their sequence field's bytes, compared unsigned, on both sides. That is
@@ -6541,6 +6563,38 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   and on another PCB whose position or parentage a DLET removed.
 - **Not settled.** Whether a qualified GN that finds nothing answers GE or GB depends on IMS's sequence-field search
   (it may stop early at a key past the qualification): refused by name.
+- **IBM trace (#8700, 2026-11-19; IMS 15.4 Application Programming, Chapter 15, pp. 241-247, and Application
+  Programming APIs "GU/GHU call", "GN/GHN call", "GNP/GHNP call"; 15.4, the register cites 15.3).** Rules
+  `RT-DLI-GET` and the position side of `RT-DLI-ISRT`.
+  - **MATCHED.**
+    - "A GU call with an unqualified SSA at the root level attempts to satisfy the call by starting at the beginning of
+      the database."
+    - GN: "Processing moves forward from current position", and "If you issued the GN again after the GB status code,
+      IMS would return the first segment occurrence in the database" (GB sets position to the start).
+    - GNP: "The search for the requested segment is limited to the dependents of the lowest-level segment most recently
+      accessed by a GU or GN call ... A GNP call does not affect parentage unless it includes the P command code."
+    - GP: "The program issued a GNP when there is no parentage established, or the segment level specified in the GNP is
+      not lower than the level of the established parent" (Messages and Codes Volume 4, 15.4). GK: "a different segment
+      type at the same hierarchic level for an unqualified GN or GNP call".
+    - "Position after DLET": "position immediately follows the segment occurrence you deleted ... An unqualified GN call
+      returns the segment occurrence that followed", the same as the model's "just before where the deleted segment was";
+      "Position after REPL": unchanged; "Position after ISRT": "current position immediately follows the new segment
+      occurrence".
+  - **Hold.** "The segment is freed as soon as the current position changes—when you issue another call to the same PCB
+    you used for the Get Hold call": the runtime clears the hold on every call on the PCB, which is where it differs
+    from IBM for REPL / DLET (see I1, `RT-DLI-CHANGE`).
+  - **Refused where IBM answers (stricter than IBM, never different).**
+    - II: "The current position after an II status code is just before the duplicate of the segment you tried to
+      insert" (Volume 4). The model marks position open.
+    - ISRT and parentage: "ISRT affects parentage only when you insert a segment that is not a dependent of the
+      established parent" (APIs, GNP). The model marks parentage open after every ISRT.
+    - A qualified GN that finds nothing: GN "returns the GE status code" when the SSA key has an upper limit and a
+      greater key is found first, and GB when "the SSA ... specified data beyond the last occurrence" (Volume 4, GB).
+      Both are IBM's; which one a case gets needs the sequence-field search. Still refused (Not settled above).
+    - GE after GU / ISRT (position "immediately follows the last segment occurrence that IMS examined", and after a
+      non-unique-key parent it is further on): a rule IBM states per key uniqueness; the model marks it open.
+  - **Still ASSUMED.** The D command code's handing back of D-coded segments and the missing-SSA derivation ("the SSA that
+    IMS uses is derived from that position") were not read against the runtime here.
 
 ### I4. The DB PCB mask — layout from IBM, the initial contents and an unsuccessful call's feedback assumed
 - **Layout** (IMS 15.3 Application Programming, "Specifying the DB PCB mask", Table 35, p. 212, ibm.com/docs/en/SSEPH2_15.3.0/pdf/IMS_15.3_Application_Programming.pdf):
@@ -6559,6 +6613,36 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - A GE from GU or ISRT gives the deepest segment along the SSAs' path that IMS could satisfy (level `00`, a blank
     name and length 0 when none could). GNP's GE gives its parent, and II gives the parent of the segment ISRT tried
     to insert. GB, REPL and DLET leave level, name and key feedback as they were.
+- **IBM trace (#8700, 2026-11-19; IMS 15.4 Application Programming, Chapter 12 "Specifying the DB PCB mask", Table 35
+  and notes 2-9, pp. 212-214; the register cites 15.3, the local copy is 15.4, and the layout is unchanged).** Rules
+  `RT-DLI-ENTRY` and `RT-DLI-FEEDBACK`.
+  - **MATCHED, layout.** Table 35 gives database name 8, segment level number 2, status code 2, processing options 4,
+    reserved for IMS 4, segment name 8, length of key feedback area 4 (binary), number of sensitive segments 4 (binary),
+    key feedback area variable: the runtime's offsets (0, 8, 10, 12, 16, 20, 28, 32, 36) are that order. Note 4: the
+    processing options value "does not change" (the runtime stores the PCB's PROCOPT). Note 8 (the count of sensitive
+    segment types) is what the runtime stores; the X'00' fill of the key feedback area is the entry's own choice,
+    IBM's text only says the area is not normally cleared.
+  - **MATCHED, feedback.** Note 2: "If IMS is unable to find the segment that you request, it gives you the level number
+    of the last segment it encounters that satisfied your call" (`deepest`); note 6: "When a retrieval is
+    unsuccessful, this field contains the last segment along the path to the requested segment that would satisfy the
+    call"; note 9: "If IMS is unable to satisfy the call, the key feedback area contains the key of the segment at the
+    last level that was satisfied ... IMS does not normally clear the key feedback area. IMS sets this length of the key
+    feedback area to indicate the portion of the area that is valid" (bytes past the length keep what they held). For
+    ISRT's GE, Application Programming APIs "ISRT call": "If the level number in the DB PCB is 00, IMS did not find any
+    of the segments you specified. A 01 means that IMS found only the root segment" (the runtime's level `00` for none).
+  - **DIFFERS, entry segment name (RT-DLI-ENTRY).** Note 6: "When a program is initially scheduled, the name of the
+    database type is put in the SEGNAME field. For example, the field contains DEDB when the database type is DEDB;
+    GSAM when the database type is GSAM; HDAM, or PHDAM when the database type is HDAM or PHDAM." The runtime (and
+    `ggdli.c`) leaves the segment name blank at entry (the Assumed paragraph above). IBM names the database type; the
+    text gives no value for a HIDAM, HISAM or HSAM database, so the runtime's blank cannot be called right for any
+    database. A program that reads the name before its first call sees blanks where z/OS has the type. Not reached:
+    PAUDBUNL reads the name only after a call. Note 3 also says the status at scheduling is a data-availability code
+    when the program issued INIT; the runtime refuses INIT (`RT-DLI-CALL`), so blank is the no-INIT answer.
+  - **Still ASSUMED (RT-DLI-FEEDBACK).** IBM is silent on the mask after GB, REPL, DLET and II (the "as they were" and
+    "parent of the segment ISRT tried to insert" choices), and on GNP's GE feedback. Application Programming "Position
+    after an unsuccessful retrieval or ISRT call": the key feedback area "reflects the positions that IMS has at the
+    levels it was able to satisfy" after a GE, which agrees with the parent answer for a keyed path but is not a rule for
+    every case.
 
 ### I5. DL/I beyond the modelled calls — REFUSED
 - **Refused by the det translator.**

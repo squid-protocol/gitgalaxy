@@ -1532,47 +1532,72 @@
   {
    "id": "011b086356",
    "op": "CON",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "543ace65cd",
    "op": "ROR",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "d988768fb6",
    "op": "NEG",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "fb5fa3f222",
    "op": "ROR",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "00ced069d0",
    "op": "DEL",
-   "line": 143,
+   "line": 146,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "7fdf137f2b",
@@ -1902,15 +1927,6 @@
    "tried": [
     "store-dominates-read"
    ]
-  },
-  {
-   "id": "d962a015dd",
-   "op": "DEL",
-   "line": 259,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "9adfd30951",
@@ -2327,6 +2343,34 @@
    ]
   },
   {
+   "id": "a01eccecbc",
+   "op": "CON",
+   "line": 283,
+   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
+   "id": "d18bededba",
+   "op": "DEL",
+   "line": 283,
+   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
    "id": "e9a039532f",
    "op": "LIT",
    "line": 284,
@@ -2507,6 +2551,20 @@
    ]
   },
   {
+   "id": "535bc5b884",
+   "op": "DEL",
+   "line": 297,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
    "id": "7872d66123",
    "op": "LIT",
    "line": 297,
@@ -2669,24 +2727,6 @@
    ]
   },
   {
-   "id": "a01eccecbc",
-   "op": "CON",
-   "line": 311,
-   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
-   "after": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "d18bededba",
-   "op": "DEL",
-   "line": 311,
-   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
-   "after": "/* caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
    "id": "5665347662",
    "op": "DEL",
    "line": 314,
@@ -2708,51 +2748,17 @@
    ]
   },
   {
-   "id": "149c03eaa6",
-   "op": "CON",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "535bc5b884",
+   "id": "c27c095bbf",
    "op": "DEL",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "ab2d1772cc",
-   "op": "AOR",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "398a5a1d9a",
-   "op": "NEG",
-   "line": 332,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "line": 325,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "x-bad",
+    "x-empty",
+    "x-lower"
    ]
   },
   {
@@ -2913,15 +2919,6 @@
    "tried": [
     "refusal-text"
    ]
-  },
-  {
-   "id": "c27c095bbf",
-   "op": "DEL",
-   "line": 357,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "99851a316c",
@@ -3257,6 +3254,20 @@
    ]
   },
   {
+   "id": "13534ab468",
+   "op": "DEL",
+   "line": 468,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
    "id": "2f61febdd4",
    "op": "DEL",
    "line": 468,
@@ -3436,15 +3447,6 @@
    "tried": [
     "flow-plumbing"
    ]
-  },
-  {
-   "id": "13534ab468",
-   "op": "DEL",
-   "line": 500,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "0534bd64da",

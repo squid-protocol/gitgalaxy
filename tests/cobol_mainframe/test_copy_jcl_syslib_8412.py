@@ -190,3 +190,53 @@ def test_the_jcllib_order_decides_which_same_name_member_a_copy_reads(tmp_path):
     write(repo, "pl/PROCLIB1/FAKECOB.prc", PROC)
     write(repo, "jcl/BUILD.jcl", call_job())
     assert edges_of(repo, tmp_path) == {"q/COPYB/REC1.cpy"}
+
+
+# --- symbolic SYSLIB datasets: PROC defaults, SET, and the call's keyword symbols ---
+
+SYMPROC = PROC.replace("PROC MEMBER=", "PROC HLQ=FAKE.PROD,MEMBER=").replace("FAKE.PROD.COPYB", "&HLQ..COPYB")
+
+
+def sym_job(*, set_line: str = "", params: str = "", dds: str = "") -> str:
+    return call_job(dds).replace("//BUILD    EXEC FAKECOB\n", set_line + f"//BUILD    EXEC FAKECOB{params}\n")
+
+
+def sym_orders(tmp_path: Path, job_text: str, proc: str = SYMPROC) -> dict[str, list[str]]:
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", proc)
+    write(tmp_path, "jcl/BUILD.jcl", job_text)
+    return jcl_syslib_orders(str(tmp_path))
+
+
+def test_a_proc_default_resolves_a_symbolic_library(tmp_path):
+    assert sym_orders(tmp_path, sym_job()) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_the_call_keyword_symbol_overrides_the_proc_default(tmp_path):
+    proc = SYMPROC.replace("&HLQ..COPYB", "&HLQ..&LIBN.")
+    job_text = sym_job(params=",HLQ=FAKE.TEST,LIBN=COPYT")
+    assert sym_orders(tmp_path, job_text, proc) == {"MAINPG": ["COPYT", "COPYA"]}
+
+
+def test_a_set_symbol_fills_a_name_the_proc_does_not_default(tmp_path):
+    proc = SYMPROC.replace("HLQ=FAKE.PROD,", "")
+    assert sym_orders(tmp_path, sym_job(set_line="//         SET HLQ='FAKE.SET'\n"), proc) == {
+        "MAINPG": ["COPYB", "COPYA"]
+    }
+
+
+def test_a_set_that_clashes_with_a_proc_default_is_unresolved(tmp_path):
+    assert sym_orders(tmp_path, sym_job(set_line="//         SET HLQ=FAKE.OTHER\n")) == {}
+
+
+def test_a_call_keyword_symbol_settles_that_clash(tmp_path):
+    job_text = sym_job(set_line="//         SET HLQ=FAKE.OTHER\n", params=",HLQ=FAKE.MINE")
+    assert sym_orders(tmp_path, job_text) == {"MAINPG": ["COPYB", "COPYA"]}
+
+
+def test_a_symbol_nothing_assigns_stays_unresolved(tmp_path):
+    assert sym_orders(tmp_path, sym_job(), SYMPROC.replace("HLQ=FAKE.PROD,", "")) == {}
+
+
+def test_a_symbolic_library_in_a_direct_compile_step_reads_the_jobs_set():
+    text = "//         SET HLQ=FAKE.PROD\n" + job(syslib("&HLQ..COPYB", "FAKE.PROD.COPYA"))
+    assert _jcl_compiles(text.replace("//         SET", "//S1       SET")) == [("MAINPG", ["COPYB", "COPYA"])]

@@ -1,5 +1,5 @@
 {
- "commit": "05aaca693",
+ "commit": "5312cc64b",
  "components": {
   "capabilities": {
    "groups": [
@@ -979,7 +979,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T21:49:13Z",
+  "as_of": "2026-11-20T22:00:53Z",
   "core": {
    "closed": 253,
    "open": 12,
@@ -1005,9 +1005,9 @@
   },
   "eta": "17 days",
   "frontier": {
-   "closed": 131,
+   "closed": 132,
    "found_last_window": 5,
-   "open": 84,
+   "open": 83,
    "total": 215
   },
   "frontier_milestone": {
@@ -1101,9 +1101,9 @@
     "total": 57
    },
    {
-    "closed": 88,
+    "closed": 89,
     "number": 14,
-    "open": 10,
+    "open": 9,
     "title": "Compiler call-graph comparison",
     "total": 98
    },

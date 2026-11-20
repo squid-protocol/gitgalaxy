@@ -659,6 +659,25 @@ def test_regressions_allows_a_count_that_fell_by_mutants_the_moved_port_lost():
     assert dm.regressions(CASE, rebased, [], {**old, "killed": [], "stillborn": [], "survived": []}, [])  # nor can old
 
 
+def test_resync_lines_moves_a_carried_survivor_to_the_moved_ports_line(tmp_path):
+    """#7955: an id hashes the change, not its line, so a survivor `refresh` carried across a moved port kept the old
+    line and `survivor_attack facts` read the wrong text (or past the file's end). `resync_lines` renews it."""
+    import mutation as mu
+
+    port = tmp_path / "service"
+    port.mkdir()
+    code = "class X {\n  void f(int a) {\n    a = a + 1;\n  }\n}\n"
+    (port / "X.java").write_text(code, encoding="utf-8")
+    found = mu.all_mutants(tmp_path, set(mu.OPERATORS), dm.FILES)
+    assert found
+    m = found[0]
+    stale = {"id": m.id, "op": m.op, "file": m.file, "line": m.line + 40, "before": m.before, "after": m.after}
+    gone = {**stale, "id": "ffffffffff", "line": 99}  # not in the port: left as it was
+    out = dm.resync_lines({"survived": [stale, gone]}, tmp_path)
+    assert out["survived"][0]["line"] == m.line
+    assert out["survived"][1]["line"] == 99
+
+
 # ---- sibling cases (#6166) ---------------------------------------------------------------------------------------
 def sibling_env(monkeypatch, verdicts, sib_sha="s1"):
     written, stated = {}, {}

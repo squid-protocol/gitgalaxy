@@ -42,12 +42,8 @@ def wall_clock_calls(text: str) -> int:
 WALL_CLOCK_OFFENDERS: frozenset[str] = frozenset(
     {
         "tests/cobol_mainframe/test_pic_run_lengths_7169.py",
-        "tests/cobol_mainframe/test_translator_pic_runs_7169.py",
-        "tests/core_engine/test_cics_macro_level.py",
         "tests/core_engine/test_prefetch.py",
-        "tests/core_engine/test_vectorized_math_probe_4108.py",
         "tests/security_auditing/test_redos_poison.py",
-        "tests/security_auditing/test_secrets_shunt_4987.py",
     }
 )
 

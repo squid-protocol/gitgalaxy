@@ -2886,6 +2886,7 @@
     "doc": "cics-apr",
     "section": "SEND MAP, RECEIVE MAP"
    },
+   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime treats X'00' and a space as not set, so a space attribute (X'40') is dropped where IBM sends it and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -2894,7 +2895,7 @@
    "register": [
     "X2"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -2908,6 +2909,7 @@
     "doc": "cics-apr",
     "section": "RECEIVE MAP, DFHMDF JUSTIFY"
    },
+   "ibm_note": "IBM's DFHMDF JUSTIFY table assumes the missing half: LEFT gives BLANK, RIGHT gives ZERO, BLANK gives LEFT, ZERO gives RIGHT. The runtime fills with ZERO only when ZERO is coded and places RIGHT only when RIGHT is coded, so JUSTIFY=(RIGHT) fills with blanks (IBM: zeros) and JUSTIFY=(,ZERO) is left-justified (IBM: right). Declared in X54",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -2916,7 +2918,7 @@
    "register": [
     "X54"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {

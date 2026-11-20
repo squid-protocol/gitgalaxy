@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
+from gitgalaxy.security import security_auditor as security_auditor_module
 from gitgalaxy.security.security_auditor import SecurityAuditor
 
 
@@ -97,12 +98,10 @@ def test_audit_repository_empty_state():
 
 def test_the_classifier_is_gone():
     """#8430: the XGBoost classifier and its switches are removed, not dormant."""
-    import gitgalaxy.security.security_auditor as sa
-
-    assert not hasattr(sa, "ML_AVAILABLE")
+    assert not hasattr(security_auditor_module, "ML_AVAILABLE")
     assert not hasattr(SecurityAuditor, "_construct_feature_matrix")
     with pytest.raises(TypeError):
-        SecurityAuditor(model_path="/nonexistent/model.json")
+        SecurityAuditor(**{"model_path": "/nonexistent/model.json"})
 
 
 # ==============================================================================

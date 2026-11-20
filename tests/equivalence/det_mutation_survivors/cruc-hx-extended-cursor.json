@@ -70,20 +70,20 @@
   {
    "id": "ff235d835b",
    "op": "LIT",
-   "line": 44,
+   "line": 47,
    "before": "\"AH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
    "after": "\"XH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "2f6c58921e",
-   "op": "LIT",
-   "line": 48,
-   "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The mutated base64 character is the first byte of the DFHAID image: DFHNULL (X'00'). HXEXT.cbl names only DFHPF5 from DFHAID (IF EIBAID = DFHPF5), so DFHNULL is never read; the other 23 bytes are unchanged.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
+   ]
   },
   {
    "id": "2b6ac12059",
@@ -102,13 +102,40 @@
    ]
   },
   {
+   "id": "2f6c58921e",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "verdict": "equivalent",
+   "reason": "The mutated character changes byte 0 of the DFHCOMMAREA image. Byte 0 is read by nothing in HXEXT (the program names only WS-CA; DFHCOMMAREA is never referenced), and a task with an area overlays byte 0 with the caller's first byte (EIBCALEN >= 1) while EIBCALEN 0 has no area to carry it back.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
+   ]
+  },
+  {
    "id": "00c7001f03",
    "op": "LIT",
-   "line": 52,
+   "line": 55,
    "before": "\"AAA=\"));",
    "after": "\"XAA=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The mutated character changes the initial image of the generated RETURN-CODE item (GG_RETURN_CODE). HXEXT.cbl never names RETURN-CODE, and only runProgram() reads it; a CICS program is entered through runTask(), which neither reads nor returns it.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
+   ]
   },
   {
    "id": "95eb7e1867",
@@ -1532,47 +1559,72 @@
   {
    "id": "011b086356",
    "op": "CON",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "543ace65cd",
    "op": "ROR",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "d988768fb6",
    "op": "NEG",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "fb5fa3f222",
    "op": "ROR",
-   "line": 142,
+   "line": 145,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
-   "verdict": "harness-gap",
-   "reason": "`task.level()` > 1 selects a LINKed program's abend path, where its COMMAREA writes stay its caller's (caBack.run before the Goback); the proof reads a LINKed program's final COMMAREA storage as unobservable (equivalence_cics_compare.py drops it), so no scenario separates the guard (open: the harness needs a two-task key that observes the caller's area)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "00ced069d0",
    "op": "DEL",
-   "line": 143,
+   "line": 146,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the storage caBack copies back holds the bytes loaded at entry; an abend-time write-back at any level rewrites the caller's area with its own bytes, and the typed and raw LINK cases (empty, lower-case and 8/41/36-byte areas) compare equal with and without it",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
   },
   {
    "id": "7fdf137f2b",
@@ -1902,15 +1954,6 @@
    "tried": [
     "store-dominates-read"
    ]
-  },
-  {
-   "id": "d962a015dd",
-   "op": "DEL",
-   "line": 259,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "9adfd30951",
@@ -2327,6 +2370,34 @@
    ]
   },
   {
+   "id": "a01eccecbc",
+   "op": "CON",
+   "line": 283,
+   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
+   "id": "d18bededba",
+   "op": "DEL",
+   "line": 283,
+   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
    "id": "e9a039532f",
    "op": "LIT",
    "line": 284,
@@ -2507,6 +2578,20 @@
    ]
   },
   {
+   "id": "535bc5b884",
+   "op": "DEL",
+   "line": 297,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
+   ]
+  },
+  {
    "id": "7872d66123",
    "op": "LIT",
    "line": 297,
@@ -2648,6 +2733,24 @@
    ]
   },
   {
+   "id": "52588ea7a2",
+   "op": "CON",
+   "line": 310,
+   "before": "perform(0, 2);",
+   "after": "perform(0, 3);",
+   "verdict": "equivalent",
+   "reason": "perform(0, 3) in runTask: the thru bound is read only when paragraph 0 returns normally. p0 (MAIN-PARA) ends with EXEC CICS RETURN, port text `if (true) throw new Goback()`, so it never returns a next paragraph; its only other exit (GOTO|to after a SEND fault) needs a HANDLE CONDITION that HXEXT.cbl does not have.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
+   ]
+  },
+  {
    "id": "5bfb999ba7",
    "op": "CON",
    "line": 310,
@@ -2667,24 +2770,6 @@
     "a8-linktail-invreq",
     "a9-entry-tsioerr"
    ]
-  },
-  {
-   "id": "a01eccecbc",
-   "op": "CON",
-   "line": 311,
-   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
-   "after": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "d18bededba",
-   "op": "DEL",
-   "line": 311,
-   "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
-   "after": "/* caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "5665347662",
@@ -2708,72 +2793,17 @@
    ]
   },
   {
-   "id": "149c03eaa6",
-   "op": "CON",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "535bc5b884",
+   "id": "c27c095bbf",
    "op": "DEL",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "ab2d1772cc",
-   "op": "AOR",
-   "line": 329,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
-   "id": "398a5a1d9a",
-   "op": "NEG",
-   "line": 332,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "line": 325,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
    "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
-   ]
-  },
-  {
-   "id": "a32c1da6d0",
-   "op": "ROR",
-   "line": 332,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
-   "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
+    "x-bad",
+    "x-empty",
+    "x-lower"
    ]
   },
   {
@@ -2782,27 +2812,6 @@
    "line": 332,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
-   "tried": [
-    "a1-clear-entry",
-    "a10-entry-pf5-invmpsz",
-    "a2-clear-link",
-    "a3-enter-link1",
-    "a4-pf5-link-tail",
-    "a5-nocomm-pf5",
-    "a6-link-invmpsz",
-    "a7-link-tsioerr",
-    "a8-linktail-invreq",
-    "a9-entry-tsioerr"
-   ]
-  },
-  {
-   "id": "b1e3e417f7",
-   "op": "COR",
-   "line": 332,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
    "tried": [
@@ -2838,15 +2847,6 @@
     "a8-linktail-invreq",
     "a9-entry-tsioerr"
    ]
-  },
-  {
-   "id": "52588ea7a2",
-   "op": "CON",
-   "line": 342,
-   "before": "perform(0, 2);",
-   "after": "perform(0, 3);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "10e5116790",
@@ -2915,15 +2915,6 @@
    ]
   },
   {
-   "id": "c27c095bbf",
-   "op": "DEL",
-   "line": 357,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
-  },
-  {
    "id": "99851a316c",
    "op": "DEL",
    "line": 361,
@@ -2949,6 +2940,24 @@
    "after": "region.run(task, \"XXEXT\", this::runTask);",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+  },
+  {
+   "id": "f2009f3979",
+   "op": "CON",
+   "line": 370,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "performDepth starts at 1 instead of 0: it only moves the slot index of performThru. The slots below `mine` are scanned only when a paragraph falls off its end without being the PERFORM's thru, and every PERFORM here is (1,1), (2,2) or (0,2) from p0, which always ends in Goback; perform(1,1) and perform(2,2) return at i == thru before the scan.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
+   ]
   },
   {
    "id": "d1904416f4",
@@ -2979,15 +2988,6 @@
    ]
   },
   {
-   "id": "f2009f3979",
-   "op": "CON",
-   "line": 402,
-   "before": "private int performDepth = 0;",
-   "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "2218c2ae45",
    "op": "DEL",
    "line": 410,
@@ -3001,6 +3001,24 @@
     "held-first-display",
     "held-good-entry",
     "held-pf5-blink"
+   ]
+  },
+  {
+   "id": "8f3f1432ad",
+   "op": "DEL",
+   "line": 418,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Dropping `performDepth = mine` in the finally leaves the depth one higher after each PERFORM. Only the stale-slot scan reads the lower slots, and it runs only for a paragraph that falls off its end without being thru, which no paragraph of HXEXT does (p1, p2 are performed as (1,1), (2,2); p0 ends in Goback). The array doubles at length 64: no effect on output.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
    ]
   },
   {
@@ -3232,15 +3250,6 @@
    ]
   },
   {
-   "id": "8f3f1432ad",
-   "op": "DEL",
-   "line": 450,
-   "before": "performDepth = mine;",
-   "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "e0a4c0fbaa",
    "op": "LIT",
    "line": 459,
@@ -3254,6 +3263,20 @@
     "held-first-display",
     "held-good-entry",
     "held-pf5-blink"
+   ]
+  },
+  {
+   "id": "13534ab468",
+   "op": "DEL",
+   "line": 468,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "HXEXT's PROCEDURE DIVISION never names DFHCOMMAREA (PIC X, LINKAGE only), so the write-back copies the bytes loaded at entry onto the caller's own area (the beyond tail after the record, proved by the link-long scenarios); without it the caller's area is the same bytes, and the typed and raw LINK cases compare equal",
+   "tried": [
+    "x-bad",
+    "x-empty",
+    "x-lower"
    ]
   },
   {
@@ -3436,15 +3459,6 @@
    "tried": [
     "flow-plumbing"
    ]
-  },
-  {
-   "id": "13534ab468",
-   "op": "DEL",
-   "line": 500,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "harness-gap",
-   "reason": "caBack writes the COMMAREA back into the object the task carries (a LINKed program's is its caller's); the case schema has no key that runs a caller and reads its area after the callee, so the write-back or its absence is not compared (open: a two-task case key in the harness)"
   },
   {
    "id": "0534bd64da",
@@ -3652,6 +3666,24 @@
     "bad-acct-short",
     "msg-only-typed",
     "pf5-all-typed"
+   ]
+  },
+  {
+   "id": "58bd69cc1b",
+   "op": "CON",
+   "line": 552,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "`return 2` is p1's (CHECK-INPUT) fall-through value. p1 is entered only as perform(1, 1), where perform() returns at i == thru before it reads `next`; a GOTO|to return is a different statement. Changing 2 to 3 is never read.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
    ]
   },
   {
@@ -3876,13 +3908,22 @@
    ]
   },
   {
-   "id": "58bd69cc1b",
+   "id": "0584ba8a98",
    "op": "CON",
-   "line": 584,
-   "before": "return 2;",
-   "after": "return 3;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "line": 585,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "equivalent",
+   "reason": "`return 3` is p2's (BLINK-MISTAKE) fall-through value. p2 is entered only as perform(2, 2), where perform() returns at i == thru before it reads `next`. Changing 3 to 4 is never read.",
+   "tried": [
+    "amount-only",
+    "dto-entry-f-clear",
+    "dto-entry-f-enter",
+    "dto-entry-f-pf5",
+    "long-acct",
+    "pa1-f",
+    "pf3-f"
+   ]
   },
   {
    "id": "b0482afde7",
@@ -4029,15 +4070,6 @@
    "tried": [
     "flow-plumbing"
    ]
-  },
-  {
-   "id": "0584ba8a98",
-   "op": "CON",
-   "line": 617,
-   "before": "return 3;",
-   "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   }
  ]
 }

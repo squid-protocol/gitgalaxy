@@ -108,7 +108,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. Protected calls, assertions, and type checks.
+        # 6. safety (Defensive Checks: assert/try/guards): protected calls, assertions, and type checks.
         # C2: error( raises; type/getmetatable/rawequal/ipairs/pairs/next are introspection/iteration. C3: <close|toclose> cleanup's (verified owner); <const> immutability's.
         "safety": re.compile(r"\b(pcall|xpcall|assert)\b"),
         # 7. safety_neg: Safety Bypasses. Actively bypassing safety (environment manipulation/raw access).

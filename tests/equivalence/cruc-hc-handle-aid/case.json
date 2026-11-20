@@ -81,6 +81,37 @@
       "terminal": "HA06 H",
       "why": "HA06 sets no label and RETURNs TRANSID('HA07'): the first leg of the two-transaction path",
       "transid": "HA06"
+    },
+    {
+      "name": "deact-pf7",
+      "commarea": null,
+      "terminal": "HA02 D",
+      "aid": "DFHPF7",
+      "transid": "HA02",
+      "why": "PF7 pressed after HANDLE AID PF7 was deactivated: no transfer"
+    },
+    {
+      "name": "ha03-long",
+      "commarea": null,
+      "terminal": "HA03 E 0123456789012345678901234567890",
+      "transid": "HA03",
+      "why": "input longer than the area, RESP set LENGERR"
+    },
+    {
+      "name": "pop-pf7",
+      "commarea": null,
+      "terminal": "HA05 G",
+      "aid": "DFHPF7",
+      "transid": "HA05",
+      "why": "PF7 after POP HANDLE: label back, taken"
+    },
+    {
+      "name": "ha07-pf7",
+      "commarea": null,
+      "terminal": "HA07 B",
+      "aid": "DFHPF7",
+      "transid": "HA07",
+      "why": "HA07 PF7 under ANYKEY"
     }
   ]
 }

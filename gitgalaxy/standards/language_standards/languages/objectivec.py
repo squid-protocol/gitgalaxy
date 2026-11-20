@@ -365,7 +365,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
-        # 6. safety: Defensive Programming. ARC memory qualifiers and Cocoa/NeXT Assertions.
+        # 6. safety (Defensive Checks: assert/try/guards): ARC memory qualifiers and Cocoa/NeXT assertions.
         # BUG FIX: @try/@catch/@finally never matched -- same \b-before-@
         # shape as branch's fix above.
         # C4: bare nil is every null literal. C1: NSError is a type name. ARC qualifiers stay: zeroing weak refs are a runtime crash-prevention mechanism (C5 note).

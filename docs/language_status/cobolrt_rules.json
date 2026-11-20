@@ -49,6 +49,12 @@
   },
   "mvs-da": {
    "title": "IBM z/OS MVS Data Areas (PSA, TCB, TIOT)"
+  },
+  "mq-refdev": {
+   "title": "IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)"
+  },
+  "mq-dev": {
+   "title": "IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)"
   }
  },
  "options": {
@@ -713,6 +719,7 @@
     "doc": "cobol-lr",
     "section": "DIVIDE statement (REMAINDER phrase)"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, DIVIDE statement): \"The result of subtracting the product of the quotient and the divisor from the dividend is stored in identifier-4\"; \"the quotient used to calculate the remainder is in an intermediate field. The value of the intermediate field is truncated rather than rounded\"; on a size error in the quotient \"the contents of the quotient field (identifier-3) and the remainder field (identifier-4) are unchanged\". The remainder formula, truncation and the unchanged receivers match; IBM does not say how many decimal places that intermediate field has, so truncation to the first GIVING receiver's scale (and not its high-order digits) stays the assumption. Declared in C14",
    "options": [],
    "register": [
     "C14"
@@ -1985,7 +1992,7 @@
     "cmp2"
    ],
    "ibm": null,
-   "ibm_note": "IBM documents no IEEE converter for COMP-1 / COMP-2; the model's choice (det/hfp.py from_ieee / to_ieee)",
+   "ibm_note": "IBM documents no IEEE converter for a COMP-1 / COMP-2 item; the model's choice (det/hfp.py from_ieee / to_ieee). The one documented HFP-IEEE conversion is the Java interop's (Language Reference, the note on COMP-1 / COMP-2 against Java float / double: LE __fp_htob / __fp_btoh, biased round to nearest = ties away from 0): from_ieee agrees with it, to_ieee rounds ties to even and does not (register C6, #8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2009,7 +2016,7 @@
     "cmpScaled"
    ],
    "ibm": null,
-   "ibm_note": "IBM does not document the generated conversion; truncation is the model's choice",
+   "ibm_note": "IBM says only that a fixed-point number is converted to the internal floating-point numbering system, and that up to 15 digits survive a COMP-2 round trip (Programming Guide, 'Conversions and precision'); it does not say truncated or rounded: truncation is the model's choice, consistent with the round trip (register C6, #8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2029,7 +2036,7 @@
     "power"
    ],
    "ibm": null,
-   "ibm_note": "IBM documents no result for a floating-point exponentiation; the capture kit's reference power() is the model until captured z/OS output agrees",
+   "ibm_note": "IBM documents long floating-point arithmetic for a floating-point exponentiation and an undefined negative base to a fractional power (Programming Guide, Appendix A, 'Exponentiations evaluated in floating-point arithmetic'), no result digits; the capture kit's reference power() is the model until captured z/OS output agrees",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2095,8 +2102,8 @@
     "fixedStore"
    ],
    "ibm": {
-    "doc": "cobol-pg",
-    "section": "Conversions and precision"
+    "doc": "cobol-lr",
+    "section": "ROUNDED phrase"
    },
    "options": [],
    "features": [
@@ -2106,7 +2113,7 @@
    "register": [
     "C6"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -2290,12 +2297,13 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: TRIM"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, TRIM): \"returns a character string that contains the characters in the argument with leading spaces, trailing spaces, or both, removed\"; \"If argument-1 contains all spaces or argument-1 is of length zero, the returned value is of length zero\"; examples FUNCTION TRIM(\" \") returns \"\". Only the space character is removed, so low-values stay, as the rule says",
    "options": [],
    "features": [
     "intrinsic_functions: TRIM"
    ],
    "register": [],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -2379,6 +2387,7 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: TEST-NUMVAL, TEST-NUMVAL-C"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, TEST-NUMVAL): 0 when argument-1 conforms to NUMVAL; else \"the position of the first character in error\"; otherwise \"FUNCTION LENGTH (argument-1) + 1\" (zero-length, all spaces, or valid but incomplete such as ' +.'); '0 1' returns 3. The runtime matches all of these. IBM adds that under ARITH(COMPAT) the position of the 19th digit is returned when no earlier error exists (the 32nd under ARITH(EXTEND)); Funcs.testNumval has no digit-count check and returns 0. A DIFFERS not yet declared in the register: left ASSUMED until the runtime change and its entry land",
    "options": [],
    "features": [
     "intrinsic_functions: TEST-NUMVAL",
@@ -2552,7 +2561,7 @@
    "register": [
     "X22"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -2814,6 +2823,7 @@
     "doc": "cics-apr",
     "section": "BIF DEEDIT"
    },
+   "ibm_note": "IBM keeps the rightmost byte unaltered only when its zone is X'A'-X'F' AND its numeric portion is X'0'-X'9'; the runtime tests the zone alone, so a trailing '[' or ']' (X'BA' / X'BB' in CCSID 037) is kept where IBM removes it. Same on the stub (GGCDEED); declared in X26",
    "options": [],
    "features": [
     "cics_commands: BIF DEEDIT"
@@ -2821,7 +2831,7 @@
    "register": [
     "X26"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -2879,6 +2889,7 @@
     "doc": "cics-apr",
     "section": "SEND MAP, RECEIVE MAP"
    },
+   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime treats X'00' and a space as not set, so a space attribute (X'40') is dropped where IBM sends it and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -2887,7 +2898,7 @@
    "register": [
     "X2"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -2901,6 +2912,7 @@
     "doc": "cics-apr",
     "section": "RECEIVE MAP, DFHMDF JUSTIFY"
    },
+   "ibm_note": "IBM's DFHMDF JUSTIFY table assumes the missing half: LEFT gives BLANK, RIGHT gives ZERO, BLANK gives LEFT, ZERO gives RIGHT. The runtime fills with ZERO only when ZERO is coded and places RIGHT only when RIGHT is coded, so JUSTIFY=(RIGHT) fills with blanks (IBM: zeros) and JUSTIFY=(,ZERO) is left-justified (IBM: right). Declared in X54",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -2909,7 +2921,7 @@
    "register": [
     "X54"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -3869,7 +3881,7 @@
    "register": [
     "I4"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -4070,7 +4082,7 @@
     "I1",
     "I3"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -4091,7 +4103,7 @@
     "I1",
     "I5"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -4424,6 +4436,7 @@
     "doc": "cobol-lr",
     "section": "File status key"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, File status key): \"a value is placed in the specified file status key ... during execution of any request on that file; the value indicates the status of that request\", placed before any EXCEPTION/ERROR declarative, INVALID KEY or AT END phrase runs; Table 34 gives the meanings. The code meanings are IBM's; that the oracle's files raise each code in the same situation as VSAM, and the order of checks when two apply, stay assumed. Declared in F1",
    "options": [],
    "features": [
     "statements: CLOSE",
@@ -4455,6 +4468,7 @@
     "doc": "cobol-lr",
     "section": "READ statement: KEY phrase"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference, READ statement, KEY IS phrase): \"The KEY IS phrase can be specified only for indexed files. data-name-1 must identify a record key associated with file-name-1.\" IBM defines which key a keyed READ names, not how the record is found, so the repository lookup verified against the key bytes is the runtime's mechanism and stays assumed. Declared in F1",
    "options": [],
    "features": [
     "statements: READ",
@@ -4543,8 +4557,11 @@
     "qm",
     "qname"
    ],
-   "ibm": null,
-   "ibm_note": "the queues are the case's facts, not a z/OS queue manager's",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQOPEN: reason code MQRC_UNKNOWN_OBJECT_NAME (2085)"
+   },
+   "ibm_note": "IBM documents 2085 for a name the queue manager cannot find; which queues exist, their CCSID and messages are the case's facts, not a z/OS queue manager's",
    "options": [],
    "register": [
     "W1",
@@ -4579,8 +4596,11 @@
     "resolveOd",
     "handle"
    ],
-   "ibm": null,
-   "ibm_note": "the handle value is opaque in IBM's; the runtime's numbering is the oracle's",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQOPEN: Hobj (MQHOBJ) - output"
+   },
+   "ibm_note": "IBM: the handle \"ceases to be valid when the MQCLOSE call is issued\" and is passed to later calls; its value is not defined, so the runtime's 1, 2, 3 numbering is the oracle's",
    "options": [],
    "register": [
     "W3",
@@ -4596,8 +4616,11 @@
    "methods": [
     "mqclose"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents the handle's reset; the options handled are those the model gives meaning to",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQCLOSE: Hobj (MQHOBJ) - input/output"
+   },
+   "ibm_note": "IBM sets Hobj to MQHO_UNUSABLE_HOBJ, but adds \"On z/OS, Hobj is set to a value that is undefined\"; the runtime's -1 is a choice where IBM leaves the z/OS value open (W4)",
    "options": [],
    "register": [
     "W4"
@@ -4614,8 +4637,11 @@
     "before",
     "add"
    ],
-   "ibm": null,
-   "ibm_note": "no concurrent producer is assumed; conversion beyond the identity is refused",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQGET: MQGMO_WAIT / WaitInterval, MQGMO_CONVERT; queue attribute MsgDeliverySequence"
+   },
+   "ibm_note": "priority-then-FIFO order matches MQMDS_PRIORITY; whether a queue is PRIORITY or FIFO by default is not in the text read (W3 contradicts itself); IBM waits the interval before 2033, the models answer at once on the no-producer assumption (W2)",
    "options": [],
    "register": [
     "W2",
@@ -4636,15 +4662,18 @@
     "put",
     "putEvent"
    ],
-   "ibm": null,
-   "ibm_note": "the MsgId form and identity-context placeholders are the oracle's",
+   "ibm": {
+    "doc": "mq-refdev",
+    "section": "MQMD: MsgId (MQBYTE24); MQPMO: context options (Table 529)"
+   },
+   "ibm_note": "IBM: a generated MsgId starts with a 4-byte product identifier (CSQ + blank on z/OS); the runtime's GGMQ + counter is the oracle's, declared in W4. The put-context fields match Table 529 (identity fields placeholders, W4)",
    "options": [],
    "register": [
     "W3",
     "W4",
     "W8"
    ],
-   "status": "ASSUMED",
+   "status": "DIFFERS",
    "calibration": "uncalibrated"
   },
   {
@@ -4655,8 +4684,11 @@
     "uowEnd",
     "end"
    ],
-   "ibm": null,
-   "ibm_note": "IBM's rule is modelled; the oracle's joint syncpoint with ggcics.c is assumed",
+   "ibm": {
+    "doc": "mq-dev",
+    "section": "Syncpoints in CICS Transaction Server for z/OS applications"
+   },
+   "ibm_note": "SYNCPOINT, SYNCPOINT ROLLBACK, the normal-end commit, the abnormal-end backout and BackoutCount are as IBM says; the z/OS cap of 255 on BackoutCount is not applied, and the joint syncpoint with ggcics.c is the oracle's (W5)",
    "options": [],
    "register": [
     "W5"

@@ -13,6 +13,16 @@ backoff=$2
 shift 3
 sleeper=${CI_RETRY_SLEEP:-sleep}
 status=0
+# No explicit probe: a digest-pinned `docker pull` is content-addressed, so a local image under that ref is exact.
+# A tag-only ref is never inferred (a stale local tag would be accepted).
+if [ -z "${CI_RETRY_CACHED:-}" ] && [ "$1" = "docker" ] && [ "${2:-}" = "pull" ]; then
+  for arg in "${@:3}"; do
+    case "$arg" in
+      -*) ;;
+      *@sha256:*) CI_RETRY_CACHED="docker image inspect '$arg'" ;;
+    esac
+  done
+fi
 if [ -n "${CI_RETRY_CACHED:-}" ] && bash -c "$CI_RETRY_CACHED" > /dev/null 2>&1; then
   echo "ci_retry: cache hit, skipping: $*" >&2
   exit 0

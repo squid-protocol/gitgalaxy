@@ -492,9 +492,10 @@ def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
     ):
         assert kept[field] not in ("", "0")
     survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
-    # owner ruling 2026-11-03 (#7495, #7607): the two mutants that die only on non-digit data are undefined by IBM
+    # owner ruling 2026-11-03 (#7495, #7607): the mutant that dies only on non-digit data is undefined by IBM
+    # (bee9666e07, the short-EIBCALEN row, was stated so too until slice 20's scenarios killed it)
     assert not [s for s in survivors if s["verdict"] == "case-gap"]
-    assert {s["id"] for s in survivors if s["verdict"] == dm.UNDEFINED} == {"bee9666e07", "eb7aa72523"}
+    assert {s["id"] for s in survivors if s["verdict"] == dm.UNDEFINED} == {"eb7aa72523"}
 
 
 def test_updcust_non_digit_mutants_are_undefined_by_ibm():
@@ -657,6 +658,25 @@ def test_regressions_allows_a_count_that_fell_by_mutants_the_moved_port_lost():
     no_every = {k: v for k, v in rebased.items() if k != "every"}  # an entry that cannot say: the count decides
     assert dm.regressions(CASE, no_every, [], old, [])
     assert dm.regressions(CASE, rebased, [], {**old, "killed": [], "stillborn": [], "survived": []}, [])  # nor can old
+
+
+def test_resync_lines_moves_a_carried_survivor_to_the_moved_ports_line(tmp_path):
+    """#7955: an id hashes the change, not its line, so a survivor `refresh` carried across a moved port kept the old
+    line and `survivor_attack facts` read the wrong text (or past the file's end). `resync_lines` renews it."""
+    import mutation as mu
+
+    port = tmp_path / "service"
+    port.mkdir()
+    code = "class X {\n  void f(int a) {\n    a = a + 1;\n  }\n}\n"
+    (port / "X.java").write_text(code, encoding="utf-8")
+    found = mu.all_mutants(tmp_path, set(mu.OPERATORS), dm.FILES)
+    assert found
+    m = found[0]
+    stale = {"id": m.id, "op": m.op, "file": m.file, "line": m.line + 40, "before": m.before, "after": m.after}
+    gone = {**stale, "id": "ffffffffff", "line": 99}  # not in the port: left as it was
+    out = dm.resync_lines({"survived": [stale, gone]}, tmp_path)
+    assert out["survived"][0]["line"] == m.line
+    assert out["survived"][1]["line"] == 99
 
 
 # ---- sibling cases (#6166) ---------------------------------------------------------------------------------------

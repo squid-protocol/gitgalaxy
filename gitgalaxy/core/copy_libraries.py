@@ -35,6 +35,7 @@ import fnmatch
 import json
 import os
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -195,31 +196,126 @@ _COMPILER_PGM = "IGYCRCTL"  # Enterprise COBOL; the IGYW* cataloged procs run it
 _SYSIN_MEMBER = re.compile(r"\(([A-Z0-9@#$]{1,8})\)$", re.I)
 
 
-def _jcl_compiles(text: str) -> list[tuple[str, list[str]]]:
-    """#8412: each compile step of one JCL file as (program, [library name, ...]): the SYSIN member, and the SYSLIB
-    DD concatenation (the DD and its unnamed continuation DDs) read as library names, a dataset's last qualifier
-    (a library is the directory it is named after, as `COPY ... IN` reads it). A step whose SYSIN member is not
-    literal (`&MEMBER`, in-stream), or whose SYSLIB holds a symbolic or member-qualified dataset, declares nothing."""
-    from gitgalaxy.core.jcl_proc import _dd_keys
+def _symbol_value(v: str) -> str:
+    return v.strip().strip("'").upper()
+
+
+def _libs_of(raw: list[str], symbols: dict[str, str]) -> list[str] | None:
+    """The SYSLIB dataset names `raw` as library names (last qualifiers, in order, each once) after `&NAME.` substitution
+    from `symbols`. None when a name stays symbolic or is member-qualified: the order is unknown, never half an order."""
+    from gitgalaxy.core.jcl_proc import _SYMBOLIC
+
+    out: list[str] = []
+    for dsn in raw:
+        dsn = _SYMBOLIC.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), dsn)
+        last = dsn.rpartition(".")[2]
+        if "&" in dsn or "(" in dsn or not last:
+            return None
+        if last not in out:
+            out.append(last)
+    return out
+
+
+def _merged(*layers: dict[str, str]) -> dict[str, str]:
+    """Symbol layers of equal rank: a name two layers give different values is dropped (unresolved), never picked."""
+    out: dict[str, str] = {}
+    clash: set[str] = set()
+    for layer in layers:
+        for k, v in layer.items():
+            if k in out and out[k] != v:
+                clash.add(k)
+            out[k] = v
+    return {k: v for k, v in out.items() if k not in clash}
+
+
+def _spliced(
+    stmts: list[tuple[int, str, str, str]], order: list[str], libraries: Mapping[str, Mapping[str, str]]
+) -> list[tuple[int, str, str, str]]:
+    """The statements with each INCLUDE replaced by its group, found along the JCLLIB `order` (IBM z/OS MVS JCL
+    Reference, "Considerations for using INCLUDE groups"; the group's EXEC / SET / DD statements count as written in
+    place). A group found nowhere (or invalid) stays as its INCLUDE statement: what it holds is unknown."""
+    from gitgalaxy.core.jcl_proc import JclProcRefused, _include_statements, _keyword
+
+    out: list[tuple[int, str, str, str]] = []
+    for st in stmts:
+        if st[2] != "INCLUDE":
+            out.append(st)
+            continue
+        try:
+            out += _include_statements(_keyword(st[3], "MEMBER").upper(), order, libraries)
+        except JclProcRefused:
+            out.append(st)
+    return out
+
+
+def _compile_steps(
+    text: str,
+    procs: frozenset[str] = frozenset(),
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
+    order: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """#8412: each compile step of one JCL file as {step, proc, inline, in_proc, sysin, libs, raw, symbols, params}: `sysin` the literal
+    SYSIN member (or None), `libs` the SYSLIB DD concatenation (the DD and its unnamed continuation DDs) read as library
+    names, a dataset's last qualifier (a library is the directory it is named after, as `COPY ... IN` reads it).
+    A symbolic name (`&HLQ..COPYB`) is read from the `PROC` statement's defaults and the `SET` statements before the step
+    (a name the two give different values is unresolved); a name still symbolic, or a member-qualified dataset, makes
+    `libs` None. `raw` is the unexpanded dataset list, `params` the call's keyword symbols (they override the proc's
+    defaults, IBM z/OS MVS JCL Reference, "Symbolic parameters"), `symbols` the file's own.
+    A compile step is `EXEC PGM=IGYCRCTL`, an `IGYW*` proc, or a call of a name in `procs` or of an in-stream procedure
+    of this file (`PROC` .. `PEND`, searched before the libraries, p. 26); `proc` holds the called name. `in_proc` names
+    the in-stream procedure a step is written inside (empty at job level): its symbols are the PROC defaults and its own
+    SETs only, the job's reach it through the call. `libraries` ({library: {member: JCL text}}) and `order` (the JCLLIB
+    libraries) splice each INCLUDE group in place; a group found nowhere leaves `libs` None from there."""
+    from gitgalaxy.core.jcl_proc import _dd_keys, _first_wins, _split
     from gitgalaxy.core.job_flow import _statements
 
-    out: list[tuple[str, list[str]]] = []
-    program: str | None = None
-    libs: list[str] | None = None
-    ok = False
+    stmts = _spliced(_statements(text), order or [], libraries or {})
+    closed = {n for _no, n, op, _o in stmts if op == "PEND" and n}  # an in-stream procedure ends with its PEND
+    inline = {n for _no, n, op, _o in stmts if op == "PROC" and n in closed}
+    out: list[dict[str, Any]] = []
+    cur: dict[str, Any] | None = None
     in_syslib = False
-
-    def close() -> None:
-        if ok and program and libs:
-            out.append((program, libs))
-
-    for _no, name, op, operands in _statements(text):
-        if op == "EXEC":
-            close()
+    defaults: dict[str, str] = {}
+    sets: dict[str, str] = {}
+    local: dict[str, str] = {}
+    in_proc = ""
+    poisoned = False
+    for _no, name, op, operands in stmts:
+        if op == "INCLUDE":
+            poisoned = True  # a group nothing resolved may hold a DD or a SET
+            if cur is not None:
+                cur["unknown"] = True
+        elif op == "PROC":
+            in_proc = name if name in inline else ""
+            defaults = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
+            local, cur, in_syslib = {}, None, False
+        elif op == "PEND":
+            in_proc, defaults, local, cur, in_syslib = "", {}, {}, None, False
+        elif op == "SET":
+            vals = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
+            (local if in_proc else sets).update(vals)
+        elif op == "EXEC":
             up = operands.upper().replace("PROC=", "").replace("PGM=", "")
-            ok = up.startswith(_COMPILER_PGM) or up.startswith("IGYW")
-            program, libs, in_syslib = None, [], False
-        elif op == "DD" and ok:
+            called = re.split(r"[,\s]", up, maxsplit=1)[0]
+            is_call = (called in procs or called in inline) and not up.startswith(_COMPILER_PGM)
+            ok = up.startswith(_COMPILER_PGM) or up.startswith("IGYW") or is_call
+            cur = None
+            if ok:
+                params = {k.upper(): _symbol_value(v) for k, v in _first_wins(_split(operands)).items()}
+                cur = {
+                    "step": name,
+                    "proc": called if is_call else "",
+                    "inline": is_call and called in inline,
+                    "in_proc": in_proc,
+                    "sysin": None,
+                    "raw": [],
+                    "params": params,
+                    "symbols": _merged(defaults, local if in_proc else sets),
+                    "unknown": poisoned,
+                }
+                out.append(cur)
+            in_syslib = False
+        elif op == "DD" and cur is not None:
             dd = name.rpartition(".")[2]
             if not name and in_syslib:
                 pass
@@ -231,24 +327,43 @@ def _jcl_compiles(text: str) -> list[tuple[str, list[str]]]:
             dsn = (keys.get("DSN") or keys.get("DSNAME") or "").upper()
             if dd == "SYSIN":
                 m = _SYSIN_MEMBER.search(dsn)
-                program = m.group(1) if m else None
+                cur["sysin"] = m.group(1) if m else None
             elif in_syslib and dsn:
-                last = dsn.split("(")[0].rpartition(".")[2]
-                if "&" in dsn or "(" in dsn or not last:
-                    ok = False  # one unreadable library: the whole concatenation is unknown, never half an order
-                elif libs is not None and last not in libs:
-                    libs.append(last)
-    close()
+                cur["raw"].append(dsn)
+    for step in out:
+        step["libs"] = None if step.pop("unknown") else _libs_of(step["raw"], step["symbols"])
     return out
+
+
+def _jcl_compiles(text: str) -> list[tuple[str, list[str]]]:
+    """#8412: each compile step of one JCL file as (program, [library name, ...]). A step whose SYSIN member is not
+    literal (`&MEMBER`, in-stream), or whose SYSLIB is unreadable or absent, declares nothing."""
+    return [(s["sysin"], s["libs"]) for s in _compile_steps(text) if s["sysin"] and s["libs"]]
+
+
+def _jcllib_order(text: str) -> list[str]:
+    """#8412: the libraries a job's `JCLLIB ORDER=(a.b.PROCLIB,...)` names, as last qualifiers, in order."""
+    from gitgalaxy.core.job_flow import _statements
+
+    for _no, _name, op, operands in _statements(text):
+        if op == "JCLLIB":
+            m = re.search(r"ORDER=\(?([^)]*)\)?", operands, re.I)
+            raw = m.group(1) if m else ""
+            return [x.strip().upper().rpartition(".")[2] for x in raw.split(",") if x.strip()]
+    return []
 
 
 def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
     """#8412: PROGRAM -> the library names its compile JCL's SYSLIB concatenation lists, in order, over every
-    `.jcl` / `.prc` / `.proc` under `root`. A program two JCL files compile with different orders is ambiguous
-    and declares nothing, never a guess. Reads nothing past `_JCL_FILE_CAP` files."""
+    `.jcl` / `.prc` / `.proc` under `root`. A compile step may call a cataloged proc (`EXEC MYCOB`): the job's
+    `JCLLIB ORDER=` names the PROCLIB libraries (directories named after each dataset's last qualifier) searched
+    for the member, first hit wins; the proc's compile step supplies the SYSLIB unless the call overrides it
+    (`//STEP.SYSLIB DD`, which replaces the whole concatenation). A program two JCL files compile with different
+    orders is ambiguous and declares nothing, never a guess. Reads nothing past `_JCL_FILE_CAP` files."""
     from gitgalaxy.core.source_text import read_source
 
     found: dict[str, list[str] | None] = {}
+    texts: list[tuple[str, str, str]] = []  # (directory name, member stem, text)
     seen = 0
     for base, dirs, files in os.walk(root):
         dirs[:] = sorted(d for d in dirs if d not in _JCL_PRUNE)
@@ -262,9 +377,58 @@ def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
                 text = read_source(os.path.join(base, fname)).text
             except (OSError, ValueError):
                 continue
-            for program, libs in _jcl_compiles(text):
-                key = program.upper()
-                found[key] = libs if found.get(key, libs) == libs else None
+            texts.append((os.path.basename(base).upper(), fname.rpartition(".")[0].upper(), text))
+
+    def declare(program: str, libs: list[str]) -> None:
+        key = program.upper()
+        found[key] = libs if found.get(key, libs) == libs else None
+
+    members = {(lib, stem): text for lib, stem, text in texts}
+    groups: dict[
+        str, dict[str, str]
+    ] = {}  # {library: {member: text}}, what a JCLLIB order searches (INCLUDE groups too)
+    for (lib, stem), mtext in members.items():
+        groups.setdefault(lib, {})[stem] = mtext
+    for _lib, _stem, text in texts:
+        order = _jcllib_order(text)
+        # a name resolves along the JCLLIB order to the first library holding it, and only to a proc with a compile step
+        resolved: dict[str, list[dict[str, Any]]] = {}
+        for stem in {stem for (_d, stem) in members if any((lib, stem) in members for lib in order)}:
+            first = next(lib for lib in order if (lib, stem) in members)
+            steps = [x for x in _compile_steps(members[(first, stem)], libraries=groups, order=order) if not x["proc"]]
+            if steps:
+                resolved[stem] = steps
+        steps_here = _compile_steps(text, frozenset(resolved), groups, order)
+        # the job's in-stream procedures are searched before any library (p. 26); their compile steps run through a call
+        inline: dict[str, list[dict[str, Any]]] = {}
+        for x in steps_here:
+            if x["in_proc"] and not x["proc"]:
+                inline.setdefault(x["in_proc"], []).append(x)
+        called = {x["proc"] for x in steps_here if x["proc"] and not x["in_proc"]}
+        for call in steps_here:
+            if call["in_proc"] and (call["proc"] or call["in_proc"] in called):
+                continue  # a template step: only a call of its procedure compiles with it
+            if not call["proc"]:
+                if call["sysin"] and call["libs"]:
+                    declare(call["sysin"], call["libs"])
+                continue
+            proc_steps = inline.get(call["proc"], []) if call["inline"] else resolved[call["proc"]]
+            if len(proc_steps) != 1:
+                continue  # which compile step a call's overrides address is not guessed
+            if call["libs"] is None:
+                continue
+            step = proc_steps[0]
+            if call["libs"]:
+                libs: list[str] | None = call["libs"]
+            else:
+                # the proc's own defaults, the call's keyword symbols over them; a job SET that names a proc symbol the
+                # call does not set is a clash (unresolved), a SET naming a symbol the proc does not default fills it
+                clash = {k for k in call["symbols"] if k in step["symbols"] and k not in call["params"]}
+                symbols = {**call["symbols"], **step["symbols"], **call["params"]}
+                libs = _libs_of(step["raw"], {k: v for k, v in symbols.items() if k not in clash})
+            sysin = call["sysin"] or step["sysin"]
+            if libs and sysin:
+                declare(sysin, libs)
     return {k: v for k, v in found.items() if v}
 
 

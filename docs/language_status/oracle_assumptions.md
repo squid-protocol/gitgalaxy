@@ -2757,6 +2757,14 @@ here, which is not evidence either way, so they are removed. 110 stated, 239 una
 rows the facade does not observe: harness gaps, not `equivalent`). CUSTCTRL stays L4; CRDTAGY1, ACCTCTRL and the 23
 unmeasured CBSA programs are open.
 
+Slice 26 (#7954): ACCTCTRL accounted in full. The two `case-gap` rows (`46c2a36017`, `db2802af42`: `fill_` reads
+ACCOUNT-CONTROL-NUMBER one byte late, visible only at 10,000,000 or more ACCOUNT rows) are killed by a sibling case,
+`cbsa-acctctrl-count`, whose `CBSAX.ACCOUNT` is a recursive-CTE view (a stored 10M-row table fails the harness reset
+`DELETE` with SQL0964C, log full; `db2.qualifier='CBSAX'` points the program at it). `46c2a36017` dies on the byte path;
+`db2802af42` only on the `dto_entry` scenario, since `fill_` is invisible to the byte image. Three newly sampled rows
+(COBOLRT_VERSION, PROFILE codepage, `eibCalen` 98 to 99) are stated `equivalent`. ACCTCTRL: 259 killed, 0 unaccounted, ledger
+fresh. CUSTCTRL (239), CRDTAGY1 and the 23 unmeasured CBSA programs are open.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

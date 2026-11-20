@@ -54377,8 +54377,8 @@
           "message",
           "run",
           "queueFunction",
-          "CorePump",
           "pumpAll",
+          "CorePump",
           "requestPump",
           "markInitializationComplete",
           "MainLoop",
@@ -65686,7 +65686,6 @@
           "GetMetadataReference"
         ],
         "CommonGetSemanticModel@4156": [
-          "Experimental",
           "GetSemanticModel"
         ],
         "CommonGetSpecialType@4220": [
@@ -66168,7 +66167,6 @@
           "GetSemanticModel"
         ],
         "GetSemanticModel@2616": [
-          "Experimental",
           "GetSemanticModel",
           "ArgumentNullException",
           "GetLazyState",
@@ -66338,7 +66336,6 @@
           "SingleOrDefault"
         ],
         "IsSymbolAccessibleWithin@2514": [
-          "Obsolete",
           "NotImplementedException"
         ],
         "IsSymbolAccessibleWithinCore@2499": [
@@ -66668,8 +66665,6 @@
           "Create"
         ],
         "Create@327": [
-          "EditorBrowsable",
-          "Obsolete",
           "ArgumentNullException",
           "ParsedSyntaxTree"
         ],
@@ -66677,8 +66672,6 @@
           "ParsedSyntaxTree"
         ],
         "Create@923": [
-          "EditorBrowsable",
-          "Obsolete",
           "Create"
         ],
         "CreateForDebugger@379": [
@@ -66828,8 +66821,6 @@
           "ParseText"
         ],
         "ParseText@448": [
-          "EditorBrowsable",
-          "Obsolete",
           "From",
           "ParseText"
         ],
@@ -66837,8 +66828,6 @@
           "ParseText"
         ],
         "ParseText@487": [
-          "EditorBrowsable",
-          "Obsolete",
           "ArgumentNullException",
           "Lexer",
           "LanguageParser",
@@ -66849,13 +66838,9 @@
           "VerifySource"
         ],
         "ParseText@900": [
-          "EditorBrowsable",
-          "Obsolete",
           "ParseText"
         ],
         "ParseText@911": [
-          "EditorBrowsable",
-          "Obsolete",
           "From",
           "ParseText"
         ],
@@ -71389,12 +71374,10 @@
           "ScheduleTask"
         ],
         "ScheduleTask@574": [
-          "SuppressMessage",
           "AddWork",
           "WaitUntilCurrentBatchCompletesAsync"
         ],
         "ScheduleTask@584": [
-          "SuppressMessage",
           "WorkspaceEventHandlerAndOptions",
           "func",
           "Create",
@@ -133307,7 +133290,6 @@
           "__new__",
           "__PYX_INC_MEMVIEW",
           "_get_base",
-          "ndim",
           "Py_INCREF"
         ],
         "memview@236": [
@@ -136944,7 +136926,11 @@
           "is_async_callable",
           "handler"
         ],
-        "_sse_producer_cm@535": [],
+        "_sse_producer_cm@535": [
+          "create_task_group",
+          "start_soon",
+          "cancel"
+        ],
         "_sse_with_checkpoints@597": [
           "sleep"
         ],
@@ -137019,9 +137005,6 @@
           "__aiter__",
           "iterate_in_threadpool",
           "_sse_producer_cm",
-          "create_task_group",
-          "start_soon",
-          "cancel",
           "enter_async_context",
           "_sse_with_checkpoints",
           "StreamingResponse",
@@ -137552,7 +137535,6 @@
           "TypeAdapter",
           "json_schema",
           "PlainSerializer",
-          "MyModel",
           "ConfigDict",
           "FastAPI",
           "get",
@@ -137576,9 +137558,9 @@
           "TypeAdapter",
           "json_schema",
           "PlainSerializer",
-          "MyModel",
           "ConfigDict",
           "dump_python",
+          "MyModel",
           "FakeNumpyArray",
           "snapshot"
         ]
@@ -137612,10 +137594,9 @@
         ],
         "test_propagates_pydantic2_model_config@39": [
           "FastAPI",
-          "EmbeddedModel",
           "ConfigDict",
           "Missing",
-          "Model",
+          "EmbeddedModel",
           "post",
           "TestClient",
           "json"
@@ -137643,7 +137624,6 @@
         "area@20": [],
         "get_client@8": [
           "FastAPI",
-          "Rectangle",
           "get",
           "TestClient"
         ],
@@ -137773,9 +137753,9 @@
           "isoformat"
         ],
         "test_pydanticv2@8": [
-          "ModelWithDatetimeField",
           "field_serializer",
           "FastAPI",
+          "ModelWithDatetimeField",
           "datetime",
           "get",
           "TestClient",
@@ -139248,9 +139228,6 @@
       "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": {
         "get_client@10": [
           "FastAPI",
-          "ModelB",
-          "ModelC",
-          "ModelA",
           "field_validator",
           "get",
           "TestClient"
@@ -139487,8 +139464,6 @@
       },
       "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": {
         "client_fixture@8": [
-          "Address",
-          "Facility",
           "FastAPI",
           "get",
           "TestClient"
@@ -139665,7 +139640,6 @@
         "test_pydanticv2@27": [
           "FastAPI",
           "get",
-          "SomeCustomClass",
           "field_serializer",
           "TestClient",
           "json"
@@ -139682,13 +139656,11 @@
         "test_invalid_dict@30": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_sequence@6": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_simple_dict@69": [
@@ -139714,7 +139686,6 @@
         "test_invalid_tuple@18": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ]
       },
@@ -139734,25 +139705,21 @@
         "test_invalid_dict@36": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_sequence@6": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_simple_dict@51": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ],
         "test_invalid_tuple@21": [
           "raises",
           "FastAPI",
-          "Item",
           "get"
         ]
       },
@@ -139815,7 +139782,6 @@
           "isoformat"
         ],
         "test_custom_encoders@205": [
-          "safe_datetime",
           "MyDict",
           "now",
           "jsonable_encoder",
@@ -139824,7 +139790,6 @@
         ],
         "test_custom_enum_encoders@228": [
           "custom_enum_encoder",
-          "MyEnum",
           "jsonable_encoder"
         ],
         "test_decimal_encoder_float@280": [
@@ -139851,19 +139816,19 @@
           "jsonable_encoder"
         ],
         "test_encode_custom_json_encoders_model_pydanticv2@140": [
-          "ModelWithCustomEncoder",
           "field_serializer",
-          "ModelWithCustomEncoderSubclass",
+          "ModelWithCustomEncoder",
           "datetime",
-          "jsonable_encoder"
+          "jsonable_encoder",
+          "ModelWithCustomEncoderSubclass"
         ],
         "test_encode_dataclass@125": [
           "Item",
           "jsonable_encoder"
         ],
         "test_encode_deque_encodes_child_models@302": [
-          "Model",
           "deque",
+          "Model",
           "jsonable_encoder"
         ],
         "test_encode_dict@75": [
@@ -139894,8 +139859,8 @@
           "jsonable_encoder"
         ],
         "test_encode_model_with_pure_path@243": [
-          "ModelWithPath",
           "PurePath",
+          "ModelWithPath",
           "jsonable_encoder",
           "str"
         ],
@@ -140869,37 +140834,31 @@
         "endpoint@82": [],
         "endpoint@95": [],
         "test_raises_pydantic_v1_model_in_additional_responses_model@58": [
-          "ErrorModelV1",
           "FastAPI",
           "raises",
           "get"
         ],
         "test_raises_pydantic_v1_model_in_endpoint_param@19": [
-          "ParamModelV1",
           "FastAPI",
           "raises",
           "post"
         ],
         "test_raises_pydantic_v1_model_in_response_model@45": [
-          "ResponseModelV1",
           "FastAPI",
           "raises",
           "get"
         ],
         "test_raises_pydantic_v1_model_in_return_type@32": [
-          "ReturnModelV1",
           "FastAPI",
           "raises",
           "get"
         ],
         "test_raises_pydantic_v1_model_in_sequence@86": [
-          "ModelV1A",
           "FastAPI",
           "raises",
           "post"
         ],
         "test_raises_pydantic_v1_model_in_union@73": [
-          "ModelV1A",
           "FastAPI",
           "raises",
           "post"
@@ -141075,11 +141034,7 @@
         ],
         "full_name@15": [],
         "test_read_with_orm_mode@8": [
-          "PersonBase",
-          "Person",
           "ConfigDict",
-          "PersonCreate",
-          "PersonRead",
           "FastAPI",
           "post",
           "TestClient",
@@ -142036,9 +141991,6 @@
       "python/fastapi/tests/test_schema_compat_pydantic_v2.py": {
         "get_client@12": [
           "FastAPI",
-          "PlatformRole",
-          "OtherRole",
-          "User",
           "get",
           "TestClient"
         ],
@@ -142066,7 +142018,6 @@
         ],
         "create_app@9": [
           "FastAPI",
-          "Item",
           "ConfigDict",
           "post",
           "warns",
@@ -142126,7 +142077,6 @@
       "python/fastapi/tests/test_schema_ref_pydantic_v2.py": {
         "get_client@11": [
           "FastAPI",
-          "ModelWithRef",
           "Field",
           "ConfigDict",
           "get",
@@ -143728,8 +143678,6 @@
         ],
         "test_discriminator_pydantic_v2@10": [
           "FastAPI",
-          "FirstItem",
-          "OtherItem",
           "Tag",
           "Field",
           "post",
@@ -143742,8 +143690,6 @@
       },
       "python/fastapi/tests/test_union_body_discriminator_annotated.py": {
         "client_fixture@13": [
-          "Cat",
-          "Dog",
           "Tag",
           "Discriminator",
           "FastAPI",
@@ -145824,7 +145770,6 @@
           "make_mask",
           "is_mask",
           "_shrink_mask",
-          "m1",
           "ValueError",
           "empty",
           "broadcast",
@@ -146815,7 +146760,6 @@
           "outmess",
           "expandtabs",
           "replace",
-          "False",
           "split_by_unquoted",
           "strip",
           "len",
@@ -151135,7 +151079,7 @@
           "vec"
         ],
         "query_data_derive_contiguous_tuple@838": [
-          "QueryDataA",
+          "struct",
           "new",
           "query",
           "contiguous_iter_mut",
@@ -151545,9 +151489,10 @@
         ],
         "entities_and_commands@4585": [
           "entities_and_commands",
-          "Foo",
+          "struct",
           "new",
           "spawn",
+          "Foo",
           "id",
           "get_mut",
           "unwrap",
@@ -151561,9 +151506,10 @@
           "is_err"
         ],
         "entities_and_commands_deferred@4622": [
-          "Foo",
+          "struct",
           "new",
           "spawn",
+          "Foo",
           "id",
           "from",
           "entities_and_commands",
@@ -154704,6 +154650,7 @@
           "flat_map"
         ],
         "enum_from_ast@133": [
+          "Token",
           "iter",
           "map",
           "from_ast",
@@ -154716,6 +154663,7 @@
           "error_spanned_by"
         ],
         "fields_from_ast@198": [
+          "Token",
           "with_capacity",
           "len",
           "push",
@@ -154810,12 +154758,10 @@
         ],
         "decide_identifier@683": [
           "get_with_tokens",
-          "Some",
           "error_spanned_by"
         ],
         "decide_tag@622": [
           "get_with_tokens",
-          "Some",
           "len",
           "error_spanned_by"
         ],
@@ -155119,6 +155065,7 @@
           "clone",
           "error_spanned_by",
           "format",
+          "Token",
           "value"
         ],
         "parse_lit_into_path@1455": [
@@ -155491,8 +155438,7 @@
           "I8"
         ],
         "test_expecting_message@1834": [
-          "Newtype",
-          "Tuple",
+          "struct",
           "assert_de_tokens_error",
           "Str"
         ],
@@ -155638,8 +155584,9 @@
           "U32"
         ],
         "test_transparent_tuple_struct@1820": [
-          "Transparent",
+          "struct",
           "assert_tokens",
+          "Transparent",
           "U32"
         ],
         "test_unknown_field_rename_enum@777": [
@@ -155774,6 +155721,7 @@
           "add"
         ],
         "empty@112": [
+          "struct",
           "UnsafeSyncEntry",
           "End"
         ],
@@ -155924,12 +155872,14 @@
           "tokens_trailing_brace"
         ],
         "last_type_in_bounds@116": [
+          "Token",
           "last",
           "unwrap",
           "last_type_in_path",
           "Break"
         ],
         "last_type_in_bounds@289": [
+          "Token",
           "last",
           "unwrap",
           "last_type_in_path",
@@ -163257,7 +163207,6 @@
           "processShareFetchResponse",
           "Map",
           "get",
-          "Some",
           "setAcknowledgeErrorCode",
           "setAcknowledgeErrorMessage",
           "remove",
@@ -163328,6 +163277,7 @@
           "trace"
         ],
         "createResponse@4155": [
+          "LinkedHashMap",
           "TopicIdPartition",
           "TopicPartition",
           "get",
@@ -163366,6 +163316,7 @@
           "setErrorCode",
           "setErrorMessage",
           "errorCode",
+          "ArrayList",
           "addAll",
           "DescribeShareGroupOffsetsResponseTopic",
           "setTopicName",
@@ -163390,6 +163341,7 @@
           "apiVersion",
           "errorCode",
           "filterByAuthorized",
+          "ArrayBuffer",
           "contains",
           "setTopicId",
           "getTopicId",
@@ -163401,6 +163353,7 @@
           "ifPresent",
           "setName",
           "filterByAuthorized",
+          "ArrayBuffer",
           "buildErrorResponse",
           "contains",
           "fetchOffsets",
@@ -163413,12 +163366,14 @@
           "forException",
           "apiVersion",
           "errorCode",
+          "ArrayList",
           "addAll"
         ],
         "forwardToController@132": [
           "forwardRequest"
         ],
         "getAcknowledgeBatchesFromShareAcknowledgeRequest@3974": [
+          "Map",
           "data",
           "topics",
           "containsKey",
@@ -163429,6 +163384,7 @@
           "topicId",
           "get",
           "partitionIndex",
+          "ArrayList",
           "acknowledgementBatches",
           "add",
           "ShareAcknowledgementBatch",
@@ -163437,6 +163393,7 @@
           "acknowledgeTypes"
         ],
         "getAcknowledgeBatchesFromShareFetchRequest@4010": [
+          "Map",
           "data",
           "topics",
           "containsKey",
@@ -163447,6 +163404,7 @@
           "topicId",
           "get",
           "partitionIndex",
+          "ArrayList",
           "acknowledgementBatches",
           "add",
           "ShareAcknowledgementBatch",
@@ -163476,13 +163434,10 @@
         ],
         "getCurrentLeader@379": [
           "getPartitionOrError",
-          "Right",
           "getOrElse",
-          "Left",
           "debug",
           "toScala",
           "getLeaderAndIsr",
-          "Some",
           "leader",
           "leaderEpoch",
           "LeaderNode",
@@ -163591,6 +163546,7 @@
           "validateAcknowledgementBatches",
           "foreach",
           "remove",
+          "Map",
           "contains",
           "partitionResponse",
           "size",
@@ -163621,6 +163577,8 @@
           "get",
           "authorize",
           "errorResponseForTransaction",
+          "Map",
+          "HashSet",
           "filterByAuthorized",
           "filterNot",
           "isInternal",
@@ -163636,8 +163594,8 @@
           "data",
           "copyWithoutPreprocessed",
           "sendResponse",
-          "Some",
           "resources",
+          "Some",
           "AlterConfigsResponseData",
           "forwardRequest",
           "AlterConfigsRequest",
@@ -163664,6 +163622,7 @@
         "handleAlterShareGroupOffsetsRequest@3866": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "authorize",
           "Builder",
           "AlterShareGroupOffsetsRequestTopicCollection",
@@ -163687,7 +163646,9 @@
           "isConsumerGroupProtocolEnabled",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "ConsumerGroupDescribeResponseData",
+          "ArrayBuffer",
           "authorize",
           "add",
           "DescribedGroup",
@@ -163715,6 +163676,7 @@
           "isConsumerGroupProtocolEnabled",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "authorize",
           "filterByAuthorized",
           "ConsumerGroupHeartbeatResponseData",
@@ -163747,6 +163709,7 @@
           "DeleteGroupsResponse"
         ],
         "handleDeleteRecordsRequest@1539": [
+          "Map",
           "filterByAuthorized",
           "TopicPartition",
           "contains",
@@ -163759,7 +163722,9 @@
         "handleDeleteShareGroupOffsetsRequest@3917": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "authorize",
+          "ArrayList",
           "add",
           "DeleteShareGroupOffsetsResponseTopic",
           "setTopicName",
@@ -163781,6 +163746,7 @@
           "DeleteShareGroupStateResponse",
           "toGlobalErrorResponse",
           "data",
+          "completedFuture",
           "deleteState",
           "getErrorResponse"
         ],
@@ -163822,6 +163788,7 @@
         ],
         "handleDescribeGroupsRequest@1303": [
           "DescribeGroupsResponseData",
+          "ArrayBuffer",
           "authorize",
           "add",
           "groupError",
@@ -163868,6 +163835,7 @@
         ],
         "handleDescribeShareGroupOffsetsRequest@3752": [
           "groups",
+          "ArrayBuffer",
           "completedFuture",
           "DescribeShareGroupOffsetsResponseGroup",
           "setGroupId",
@@ -163956,6 +163924,7 @@
         ],
         "handleFetchFromShareFetchRequest@3412": [
           "put",
+          "ArrayList",
           "contains",
           "partitionResponse",
           "add",
@@ -163974,9 +163943,11 @@
         "handleFetchRequest@564": [
           "version",
           "topicIdsToNames",
+          "emptyMap",
           "fetchData",
           "forgottenTopics",
           "newContext",
+          "ArrayBuffer",
           "authorize",
           "partitionResponse",
           "contains",
@@ -164019,6 +163990,7 @@
           "authorize",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "heartbeat",
           "HeartbeatResponse"
         ],
@@ -164028,8 +164000,8 @@
           "authorize",
           "copyWithoutPreprocessed",
           "sendResponse",
-          "Some",
           "resources",
+          "Some",
           "IncrementalAlterConfigsResponseData",
           "forwardRequest",
           "IncrementalAlterConfigsRequest",
@@ -164054,6 +164026,7 @@
           "InitializeShareGroupStateResponse",
           "toGlobalErrorResponse",
           "data",
+          "completedFuture",
           "initializeState",
           "getErrorResponse"
         ],
@@ -164066,6 +164039,7 @@
           "authorize",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "joinGroup",
           "JoinGroupResponse"
         ],
@@ -164073,6 +164047,7 @@
           "authorize",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "leaveGroup",
           "normalizedData",
           "LeaveGroupResponse"
@@ -164091,6 +164066,7 @@
           "ListConfigResourcesResponse",
           "setErrorCode",
           "code",
+          "ArrayList",
           "groupIds",
           "add",
           "ConfigResource",
@@ -164137,12 +164113,15 @@
           "authorize",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "useTopicIds",
           "getTopicName",
           "ifPresent",
           "setName",
           "filterByAuthorized",
           "newBuilder",
+          "ArrayBuffer",
+          "addPartitions",
           "contains",
           "setTopicId",
           "getTopicId",
@@ -164151,7 +164130,6 @@
           "add",
           "addPartition",
           "build",
-          "completedFuture",
           "commitOffsets",
           "OffsetCommitRequestData",
           "setGroupId",
@@ -164166,9 +164144,12 @@
           "authorize",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "filterByAuthorized",
+          "Builder",
           "OffsetDeleteRequestTopicCollection",
           "contains",
+          "addPartitions",
           "OffsetDeleteRequestTopic",
           "setName",
           "getLeaderAndIsr",
@@ -164184,6 +164165,7 @@
         "handleOffsetFetchRequest@1019": [
           "groups",
           "requireStable",
+          "ArrayBuffer",
           "requestAllOffsets",
           "authorize",
           "completedFuture",
@@ -164219,6 +164201,8 @@
           "hasTransactionalRecords",
           "authorize",
           "sendErrorResponseMaybeThrottle",
+          "Map",
+          "ArrayBuffer",
           "topicId",
           "equals",
           "name",
@@ -164250,6 +164234,7 @@
           "ReadShareGroupStateResponse",
           "toGlobalErrorResponse",
           "data",
+          "completedFuture",
           "readState",
           "getErrorResponse"
         ],
@@ -164259,6 +164244,7 @@
           "ReadShareGroupStateSummaryResponse",
           "toGlobalErrorResponse",
           "data",
+          "completedFuture",
           "readStateSummary",
           "getErrorResponse"
         ],
@@ -164288,6 +164274,7 @@
         "handleShareAcknowledgeRequest@3547": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "exception",
           "authorize",
           "isMemberIdValid",
@@ -164298,6 +164285,7 @@
           "TopicPartition",
           "get",
           "filterByAuthorized",
+          "Map",
           "getAcknowledgeBatchesFromShareAcknowledgeRequest",
           "handleAcknowledgements",
           "releaseSession",
@@ -164308,6 +164296,7 @@
         "handleShareFetchRequest@3175": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "exception",
           "authorize",
           "isMemberIdValid",
@@ -164322,7 +164311,7 @@
           "contains",
           "forEach",
           "filterByAuthorized",
-          "completedFuture",
+          "Map",
           "getAcknowledgeBatchesFromShareFetchRequest",
           "handleAcknowledgements",
           "version",
@@ -164333,7 +164322,9 @@
         "handleShareGroupDescribe@3090": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "ShareGroupDescribeResponseData",
+          "ArrayBuffer",
           "authorize",
           "add",
           "DescribedGroup",
@@ -164359,6 +164350,7 @@
         "handleShareGroupHeartbeat@3047": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "authorize",
           "isMemberIdValid",
           "exception",
@@ -164371,7 +164363,9 @@
         "handleStreamsGroupDescribe@2870": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "StreamsGroupDescribeResponseData",
+          "ArrayBuffer",
           "authorize",
           "add",
           "DescribedGroup",
@@ -164400,6 +164394,7 @@
         "handleStreamsGroupHeartbeat@2740": [
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "authorize",
           "data",
           "topology",
@@ -164452,6 +164447,7 @@
           "areMandatoryProtocolTypeAndNamePresent",
           "sendMaybeThrottle",
           "getErrorResponse",
+          "completedFuture",
           "authorize",
           "syncGroup",
           "SyncGroupResponse"
@@ -164468,6 +164464,7 @@
           "emptyList",
           "filterByAuthorized",
           "partition",
+          "Set",
           "authorize",
           "diff",
           "isInternal",
@@ -164487,9 +164484,12 @@
           "sendResponse",
           "authorize",
           "getErrorResponse",
+          "completedFuture",
           "filterByAuthorized",
           "Builder",
+          "ArrayBuffer",
           "contains",
+          "addPartitions",
           "TxnOffsetCommitRequestTopic",
           "setName",
           "getLeaderAndIsr",
@@ -164515,19 +164515,21 @@
           "WriteShareGroupStateResponse",
           "toGlobalErrorResponse",
           "data",
+          "completedFuture",
           "writeState",
           "getErrorResponse"
         ],
         "handleWriteTxnMarkersRequest@1712": [
           "authorize",
           "authorizeClusterOperation",
+          "ConcurrentHashMap",
           "AtomicInteger",
           "sendResponseExemptThrottle",
           "WriteTxnMarkersResponse",
           "updateErrors",
           "decrementAndGet",
+          "ArrayBuffer",
           "onlinePartition",
-          "Some",
           "put",
           "addResultAndMaybeComplete",
           "completeTransaction",
@@ -164578,6 +164580,9 @@
           "setErrorMessage"
         ],
         "processResponseCallback@636": [
+          "LinkedHashMap",
+          "Set",
+          "HashMap",
           "orElse",
           "add",
           "PartitionData",
@@ -164623,6 +164628,8 @@
           "sendResponse"
         ],
         "processShareAcknowledgeResponse@4047": [
+          "LinkedHashMap",
+          "HashMap",
           "errorCode",
           "getCurrentLeader",
           "topicPartition",
@@ -164635,10 +164642,12 @@
           "recordLockDurationMsOrDefault"
         ],
         "processShareFetchResponse@4127": [
+          "HashMap",
           "getCurrentLeader",
           "put",
           "setLeaderId",
           "setLeaderEpoch",
+          "LinkedHashMap",
           "createResponse",
           "responseSize",
           "milliseconds",
@@ -164668,7 +164677,6 @@
         ],
         "replicationQuota@779": [],
         "responseCallback@133": [
-          "Some",
           "sendForwardedResponse",
           "handleInvalidVersionsDuringForwarding"
         ],
@@ -164677,7 +164685,6 @@
           "sendMaybeThrottle"
         ],
         "sendResponse@2163": [
-          "Some",
           "sendResponseMaybeThrottle",
           "AlterConfigsResponse",
           "reassembleLegacyResponse",
@@ -164686,7 +164693,6 @@
           "handleInvalidVersionsDuringForwarding"
         ],
         "sendResponse@2189": [
-          "Some",
           "sendResponseMaybeThrottle",
           "IncrementalAlterConfigsResponse",
           "reassembleIncrementalResponse",
@@ -164736,6 +164742,7 @@
           "format"
         ],
         "sendResponseCallback@457": [
+          "HashMap",
           "debug",
           "format",
           "getCurrentLeader",
@@ -164775,6 +164782,7 @@
           "getOrDefault"
         ],
         "sizeOfThrottledPartitions@4279": [
+          "LinkedHashMap",
           "responses",
           "forEach",
           "partitions",
@@ -164901,6 +164909,7 @@
         ],
         "addToDir@1472": [
           "getOrElseUpdate",
+          "AnyRefMap",
           "put"
         ],
         "allLogs@1456": [],
@@ -164917,7 +164926,6 @@
         ],
         "asyncDelete@1299": [
           "removeLogAndMetrics",
-          "Some",
           "abortCleaning",
           "updateCheckpoints",
           "of",
@@ -164990,6 +164998,7 @@
         ],
         "cordonedLogDirs@136": [],
         "createAndValidateLogDirs@185": [
+          "ConcurrentLinkedQueue",
           "contains",
           "IOException",
           "info",
@@ -165036,6 +165045,7 @@
           "getOrElse"
         ],
         "fetchTopicConfigOverrides@596": [
+          "Map",
           "originals",
           "topicConfig",
           "fromProps",
@@ -165075,7 +165085,6 @@
           "KafkaStorageException",
           "filterNot",
           "Seq",
-          "Some",
           "containsKey",
           "find",
           "map",
@@ -165092,6 +165101,7 @@
           "mkString",
           "fetchLogConfig",
           "create",
+          "ConcurrentHashMap",
           "put",
           "info",
           "remove",
@@ -165127,6 +165137,7 @@
         ],
         "liveLogDirs@120": [],
         "loadDirectoryIds@304": [
+          "HashMap",
           "foreach",
           "readPropertiesFile",
           "File",
@@ -165155,6 +165166,7 @@
         "loadLogs@424": [
           "info",
           "hiResClockMs",
+          "ConcurrentHashMap",
           "handleIOException",
           "error",
           "newFixedThreadPool",
@@ -165194,6 +165206,7 @@
         ],
         "logRecoveryThreadName@410": [],
         "logsByDir@1467": [
+          "AnyRefMap",
           "foreachEntry"
         ],
         "logsByTopic@1458": [],
@@ -165233,6 +165246,7 @@
           "File"
         ],
         "offlineLogDirs@150": [
+          "Set",
           "forEach"
         ],
         "onlineLogDirId@148": [
@@ -165382,7 +165396,6 @@
           "setPartitionIndex",
           "partition",
           "map",
-          "Some",
           "setErrorCode",
           "setActiveProducers"
         ],
@@ -165400,7 +165413,6 @@
         ],
         "appendRecordsToLeader@1219": [
           "inReadLock",
-          "Some",
           "effectiveMinIsr",
           "NotEnoughReplicasException",
           "appendAsLeader",
@@ -165414,6 +165426,7 @@
           "Some"
         ],
         "apply@96": [
+          "AlterPartitionListener",
           "mark",
           "DelayedOperations",
           "Partition"
@@ -165431,7 +165444,6 @@
         ],
         "checkCurrentLeaderEpoch@369": [],
         "checkEnoughReplicasReachOffset@947": [
-          "Some",
           "map",
           "flatMap",
           "trace",
@@ -165457,19 +165469,18 @@
           "Some"
         ],
         "createLogInAssignedDirectoryId@745": [
-          "Some",
           "onlineLogDirId",
           "hasOfflineLogDirs",
           "createLogIfNotExists",
           "warn"
         ],
         "delete@533": [
+          "inWriteLock",
           "clear",
           "onDeleted"
         ],
         "deleteRecordsOnLeader@1520": [
           "inReadLock",
-          "Some",
           "PolicyViolationException",
           "OffsetOutOfRangeException",
           "maybeIncrementLogStartOffset",
@@ -165489,7 +165500,6 @@
         "fetchOffsetForTimestamp@1433": [
           "inReadLock",
           "localLogWithEpochOrThrow",
-          "Some",
           "filter",
           "map",
           "exception",
@@ -165532,7 +165542,6 @@
         "getLocalLog@384": [
           "checkCurrentLeaderEpoch",
           "Right",
-          "Some",
           "Left"
         ],
         "getOffsetByTimestamp@1462": [
@@ -165540,7 +165549,8 @@
           "map",
           "fetchOffsetByTimestamp",
           "getOrElse",
-          "OffsetResultHolder"
+          "OffsetResultHolder",
+          "empty"
         ],
         "getOutOfSyncReplicas@1155": [
           "map",
@@ -165617,16 +165627,13 @@
         "lastOffsetForLeaderEpoch@1585": [
           "inReadLock",
           "getLocalLog",
-          "Left",
           "endOffsetForEpoch",
-          "Some",
           "EpochEndOffset",
           "setPartition",
           "setErrorCode",
           "setLeaderEpoch",
           "epoch",
-          "setEndOffset",
-          "Right"
+          "setEndOffset"
         ],
         "leaderIdIfLocal@422": [
           "filter"
@@ -165639,8 +165646,6 @@
         ],
         "localLogWithEpochOrThrow@426": [
           "getLocalLog",
-          "Left",
-          "Right",
           "exception"
         ],
         "logDirectoryId@528": [
@@ -165650,13 +165655,13 @@
         "logEndOffsetString@1041": [],
         "logEndOffsetString@954": [],
         "logStartOffset@1508": [
+          "inReadLock",
           "map",
           "getOrElse"
         ],
         "lowWatermarkIfLeader@1060": [
           "NotLeaderOrFollowerException",
           "hasAliveBroker",
-          "Some",
           "min"
         ],
         "makeFollower@694": [
@@ -165690,16 +165695,15 @@
           "mark"
         ],
         "markOffline@548": [
+          "inWriteLock",
           "clear",
           "onFailed"
         ],
         "maybeAddListener@269": [
           "inReadLock",
-          "Some",
           "add"
         ],
         "maybeCreate@323": [
-          "Some",
           "trace",
           "foreach",
           "createLog"
@@ -165707,7 +165711,6 @@
         "maybeCreateFutureReplica@295": [
           "inWriteLock",
           "info",
-          "Some",
           "IllegalStateException",
           "createLogIfNotExists"
         ],
@@ -165724,7 +165727,6 @@
           "trace",
           "contains",
           "maybeIncrementHighWatermark",
-          "Some",
           "debug",
           "map"
         ],
@@ -165749,7 +165751,6 @@
         ],
         "maybeStartTransactionVerification@481": [
           "maybeStartTransactionVerification",
-          "Some",
           "NotLeaderOrFollowerException"
         ],
         "needsExpandIsr@896": [
@@ -165772,10 +165773,14 @@
         ],
         "partitionId@178": [
           "StateChangeLogger",
+          "ConcurrentHashMap",
+          "ReentrantReadWriteLock",
           "Object",
           "CommittedPartitionState",
           "of",
-          "SimpleAssignmentState"
+          "SimpleAssignmentState",
+          "CopyOnWriteArrayList",
+          "LogOffsetsListener"
         ],
         "prepareIsrExpand@1609": [
           "map",
@@ -165816,6 +165821,7 @@
           "foreach"
         ],
         "removeFutureLocalReplica@471": [
+          "inWriteLock",
           "asyncDelete"
         ],
         "removeListener@283": [
@@ -165829,7 +165835,6 @@
           "map",
           "contains",
           "inWriteLock",
-          "Some",
           "exists",
           "callback"
         ],
@@ -165844,15 +165849,18 @@
         "submitAlterPartition@1687": [
           "debug",
           "submit",
+          "common",
           "TopicIdPartition",
           "getOrElse",
           "IllegalStateException",
+          "inWriteLock",
           "handleAlterPartitionUpdate",
           "handleAlterPartitionError",
           "forException",
           "tryCompleteDelayedRequests"
         ],
         "toString@1835": [
+          "StringBuilder",
           "append",
           "mkString",
           "addingReplicas",
@@ -165866,10 +165874,12 @@
           "flatMap"
         ],
         "truncateFullyAndStartAt@1562": [
-          "truncateFullyAndStartAt"
+          "truncateFullyAndStartAt",
+          "inReadLock"
         ],
         "truncateTo@1547": [
           "truncateTo",
+          "inReadLock",
           "Map"
         ],
         "tryCompleteDelayedRequests@1085": [
@@ -165890,9 +165900,9 @@
           "CommittedPartitionState"
         ],
         "updateFollowerFetchState@767": [
+          "inReadLock",
           "updateFetchStateOrThrow",
           "maybeExpandIsr",
-          "inReadLock",
           "exists",
           "maybeIncrementLeaderHW",
           "tryCompleteDelayedRequests",
@@ -165908,11 +165918,9 @@
       "scala/kafka/ReplicaManager.scala": {
         "activeProducerState@2300": [
           "getPartitionOrError",
-          "Left",
           "PartitionResponse",
           "setPartitionIndex",
-          "setErrorCode",
-          "Right"
+          "setErrorCode"
         ],
         "addCompletePurgatoryAction@853": [
           "TopicPartitionOperationKey",
@@ -166016,6 +166024,7 @@
           "stopPartitions",
           "error",
           "LazyOffsetCheckpoints",
+          "HashSet",
           "applyLocalLeadersDelta",
           "applyLocalFollowersDelta",
           "maybeAddLogDirFetchers",
@@ -166029,6 +166038,8 @@
         ],
         "applyLocalFollowersDelta@2449": [
           "info",
+          "HashMap",
+          "HashSet",
           "getOrCreatePartition",
           "add",
           "find",
@@ -166081,6 +166092,7 @@
         ],
         "checkpointHighWatermarks@2116": [
           "putHw",
+          "AnyRefMap",
           "foreach",
           "get",
           "write",
@@ -166175,7 +166187,6 @@
           "KafkaStorageException",
           "getFileStore",
           "adjustForLargeFileSystems",
-          "Some",
           "DescribeLogDirsTopic",
           "setName",
           "setPartitions",
@@ -166188,6 +166199,7 @@
           "setIsFutureKey",
           "filterNot",
           "partitions",
+          "emptyList",
           "metadataVersion",
           "cordonedLogDirs",
           "DescribeLogDirsResult",
@@ -166209,6 +166221,7 @@
         ],
         "fetchMessages@1665": [
           "readFromLog",
+          "LinkedHashMap",
           "topicStats",
           "mark",
           "put",
@@ -166227,6 +166240,7 @@
           "tryCompleteElseWatch"
         ],
         "fetchOffset@1459": [
+          "Map",
           "TopicPartition",
           "contains",
           "debug",
@@ -166277,6 +166291,7 @@
           "isValidBrokerId",
           "getPartitionReplicaEndpoints",
           "ListenerName",
+          "Set",
           "contains",
           "add",
           "DefaultReplicaView",
@@ -166312,7 +166327,6 @@
         ],
         "getLogEndOffsetLag@1283": [
           "localLog",
-          "Some",
           "max"
         ],
         "getOrCreatePartition@2309": [
@@ -166336,7 +166350,8 @@
         "getPartition@444": [
           "Option",
           "get",
-          "getOrElse"
+          "getOrElse",
+          "None"
         ],
         "getPartitionOrError@520": [
           "getPartition",
@@ -166346,18 +166361,14 @@
         ],
         "getPartitionOrException@487": [
           "getPartitionOrError",
-          "Left",
           "KafkaStorageException",
-          "exception",
-          "Right"
+          "exception"
         ],
         "getPartitionOrException@499": [
           "getPartitionOrError",
           "topicPartition",
-          "Left",
           "KafkaStorageException",
           "exception",
-          "Right",
           "getOrElse",
           "getTopicId",
           "topic",
@@ -166397,6 +166408,8 @@
           "forException"
         ],
         "handleProduceAppend@697": [
+          "HashSet",
+          "Map",
           "map",
           "topic",
           "topicId",
@@ -166414,7 +166427,6 @@
           "maybeSendPartitionsToTransactionCoordinator"
         ],
         "hasConsistentTopicId@2039": [
-          "Some",
           "contains"
         ],
         "initialFetchOffset@2093": [],
@@ -166434,6 +166446,7 @@
           "lastOffsetForLeaderEpoch",
           "TopicPartition",
           "getPartition",
+          "of",
           "EpochEndOffset",
           "setPartition",
           "setErrorCode",
@@ -166471,6 +166484,7 @@
           "map",
           "TopicPartitionOperationKey",
           "tryCompleteElseWatch",
+          "HashMap",
           "put",
           "responseCallback"
         ],
@@ -166479,6 +166493,7 @@
           "getPartition"
         ],
         "maybeAddLogDirFetchers@2058": [
+          "HashMap",
           "getLog",
           "BrokerEndPoint",
           "maybeCreateFutureReplica",
@@ -166504,10 +166519,9 @@
         ],
         "maybeSendPartitionsToTransactionCoordinator@1000": [
           "callback",
+          "Map",
           "maybeStartTransactionVerificationForPartition",
-          "Left",
           "put",
-          "Right",
           "foreach",
           "addOrVerifyTransaction"
         ],
@@ -166540,7 +166554,6 @@
         ],
         "onAcks@1315": [
           "getPartition",
-          "Some",
           "lowWatermarkIfLeader",
           "setAcksPending",
           "setErrorCode",
@@ -166579,6 +166592,7 @@
         ],
         "processRemoteFetch@1605": [
           "TopicPartitionOperationKey",
+          "CompletableFuture",
           "asyncRead",
           "complete",
           "checkAndComplete",
@@ -166587,6 +166601,7 @@
           "of"
         ],
         "processRemoteFetches@1628": [
+          "HashMap",
           "processRemoteFetch",
           "put",
           "remoteFetchMaxWaitMs",
@@ -166602,6 +166617,7 @@
         ],
         "putHw@2117": [
           "getOrElseUpdate",
+          "AnyRefMap",
           "put"
         ],
         "read@1773": [
@@ -166632,12 +166648,14 @@
         ],
         "readFromLog@1753": [
           "read",
+          "ArrayBuffer",
           "max"
         ],
         "reassigningPartitionsCount@248": [
           "count"
         ],
         "removeAllTopicMetrics@2234": [
+          "HashSet",
           "forEach",
           "add",
           "topic",
@@ -166654,6 +166672,7 @@
           "resizeThreadPool"
         ],
         "sendInvalidRequiredAcksResponse@920": [
+          "HashMap",
           "put",
           "PartitionResponse",
           "responseCallback"
@@ -166697,6 +166716,7 @@
           "delete",
           "completeDelayedOperationsWhenNotPartitionLeader",
           "removePartitionMetrics",
+          "HashMap",
           "getLog",
           "exists",
           "remoteLogEnabled",
@@ -166779,6 +166799,7 @@
         ],
         "addProcessors@725": [
           "normalised",
+          "ArrayBuffer",
           "newProcessor",
           "nextProcessorId",
           "addProcessor",
@@ -166806,7 +166827,6 @@
         "chainAcceptorFuture@180": [
           "equals",
           "listener",
-          "Some",
           "whenComplete",
           "completeExceptionally",
           "start"
@@ -166927,7 +166947,8 @@
           "sensor",
           "metricName",
           "Map",
-          "add"
+          "add",
+          "Avg"
         ],
         "createDataPlaneAcceptor@230": [
           "DataPlaneAcceptor"
@@ -166970,6 +166991,7 @@
           "forEach",
           "chainFuture",
           "allOf",
+          "CompletableFuture",
           "map"
         ],
         "endpoints@228": [
@@ -166989,7 +167011,8 @@
           "sensor",
           "rateQuotaMetricConfig",
           "add",
-          "connectionRateMetricName"
+          "connectionRateMetricName",
+          "Rate"
         ],
         "handleChannelMuteEvent@1232": [
           "handleChannelMuteEvent",
@@ -167072,7 +167095,6 @@
         ],
         "processCompletedReceives@1002": [
           "openOrClosingChannel",
-          "Some",
           "parseRequestHeader",
           "maybeBeginServerReauthentication",
           "nanoseconds",
@@ -167299,7 +167321,6 @@
         "updateIpConnectionRateQuota@1340": [
           "isIpConnectionRateMetric",
           "shouldUpdateQuota",
-          "Some",
           "info",
           "put",
           "remove",
@@ -180270,22 +180291,18 @@
           "_msgSender"
         ],
         "_checkRole@92": [
-          "hasRole",
-          "AccessControlUnauthorizedAccount"
+          "hasRole"
         ],
         "_grantRole@181": [
           "hasRole",
-          "RoleGranted",
           "_msgSender"
         ],
         "_revokeRole@198": [
           "hasRole",
-          "RoleRevoked",
           "_msgSender"
         ],
         "_setRoleAdmin@168": [
-          "getRoleAdmin",
-          "RoleAdminChanged"
+          "getRoleAdmin"
         ],
         "getRoleAdmin@104": [],
         "grantRole@120": [
@@ -180299,7 +180316,6 @@
         ],
         "renounceRole@155": [
           "_msgSender",
-          "AccessControlBadConfirmation",
           "_revokeRole"
         ],
         "revokeRole@135": [
@@ -180308,8 +180324,7 @@
           "_revokeRole"
         ],
         "supportsInterface@69": [
-          "supportsInterface",
-          "type"
+          "supportsInterface"
         ]
       },
       "solidity/openzeppelin/CrosschainRemoteExecutor.sol": {
@@ -180320,18 +180335,14 @@
         ],
         "_processMessage@80": [
           "wrap",
-          "bytes32",
           "decodeMode",
           "execSingle",
           "execBatch",
-          "execDelegateCall",
-          "ERC7579UnsupportedCallType"
+          "execDelegateCall"
         ],
         "_setup@60": [
           "IERC7786GatewaySource",
-          "supportsAttribute",
-          "bytes4",
-          "CrosschainControllerSet"
+          "supportsAttribute"
         ],
         "constructor@33": [
           "_setup"
@@ -180339,7 +180350,6 @@
         "controller@46": [],
         "gateway@38": [],
         "reconfigure@54": [
-          "address",
           "AccessRestricted",
           "_setup"
         ]
@@ -180350,22 +180360,16 @@
         ],
         "_execute@262": [
           "_validate",
-          "ERC2771UntrustfulTarget",
-          "address",
-          "ERC2771ForwarderExpiredRequest",
-          "ERC2771ForwarderInvalidSigner",
           "_useNonce",
           "encodePacked",
           "call",
           "add",
           "mload",
           "gas",
-          "_checkForwardedGas",
-          "ExecutedForwardRequest"
+          "_checkForwardedGas"
         ],
         "_isTrustedByTarget@316": [
           "encodeCall",
-          "address",
           "staticcall",
           "gas",
           "add",
@@ -180387,15 +180391,10 @@
           "EIP712"
         ],
         "execute@132": [
-          "ERC2771ForwarderMismatchedValue",
-          "_execute",
-          "FailedCall"
+          "_execute"
         ],
         "executeBatch@168": [
-          "address",
           "_execute",
-          "ERC2771ForwarderMismatchedValue",
-          "ERC2771ForwarderFailureInAtomicBatch",
           "sendValue"
         ],
         "verify@117": [
@@ -180407,8 +180406,7 @@
         "_cancel@472": [
           "getProposalId",
           "_validateStateBitmap",
-          "_encodeStateBitmap",
-          "ProposalCanceled"
+          "_encodeStateBitmap"
         ],
         "_castVote@613": [
           "_defaultParams"
@@ -180419,52 +180417,36 @@
           "_getVotes",
           "proposalSnapshot",
           "_countVote",
-          "VoteCast",
-          "VoteCastWithParams",
           "_tallyUpdated"
         ],
         "_checkGovernance@215": [
           "_executor",
           "_msgSender",
-          "GovernorOnlyExecutor",
-          "address",
           "keccak256",
           "_msgData",
           "popFront"
         ],
         "_countVote@246": [],
         "_defaultParams@267": [],
-        "_encodeStateBitmap@721": [
-          "bytes32",
-          "uint8"
-        ],
+        "_encodeStateBitmap@721": [],
         "_executeOperations@435": [
           "verifyCallResult"
         ],
-        "_executor@666": [
-          "address"
-        ],
+        "_executor@666": [],
         "_getVotes@239": [],
         "_isValidDescriptionForProposer@757": [
-          "bytes",
-          "bytes10",
           "_unsafeReadBytesOffset",
           "tryParseAddress"
         ],
         "_propose@304": [
           "getProposalId",
           "keccak256",
-          "bytes",
-          "GovernorInvalidProposalLength",
-          "GovernorUnexpectedProposalState",
           "state",
-          "bytes32",
           "clock",
           "votingDelay",
           "votingPeriod",
           "toUint48",
-          "toUint32",
-          "ProposalCreated"
+          "toUint32"
         ],
         "_queueOperations@379": [],
         "_quorumReached@229": [],
@@ -180482,14 +180464,11 @@
           "_hashTypedDataV4",
           "keccak256",
           "encode",
-          "_useNonce",
-          "bytes"
+          "_useNonce"
         ],
         "_validateStateBitmap@731": [
           "state",
-          "_encodeStateBitmap",
-          "bytes32",
-          "GovernorUnexpectedProposalState"
+          "_encodeStateBitmap"
         ],
         "_validateVoteSig@564": [
           "isValidSignatureNow",
@@ -180503,7 +180482,6 @@
           "getProposalId",
           "_msgSender",
           "_validateCancel",
-          "GovernorUnableToCancel",
           "_cancel"
         ],
         "castVote@509": [
@@ -180512,7 +180490,6 @@
         ],
         "castVoteBySig@536": [
           "_validateVoteSig",
-          "GovernorInvalidSignature",
           "_castVote"
         ],
         "castVoteWithReason@515": [
@@ -180525,7 +180502,6 @@
         ],
         "castVoteWithReasonAndParamsBySig@549": [
           "_validateExtendedVoteSig",
-          "GovernorInvalidSignature",
           "_castVote"
         ],
         "clock@793": [],
@@ -180539,13 +180515,11 @@
           "_validateStateBitmap",
           "_encodeStateBitmap",
           "_executor",
-          "address",
           "pushBack",
           "keccak256",
           "_executeOperations",
           "empty",
-          "clear",
-          "ProposalExecuted"
+          "clear"
         ],
         "getProposalId@131": [
           "hashProposal"
@@ -180558,25 +180532,18 @@
           "_getVotes"
         ],
         "hashProposal@121": [
-          "uint256",
           "keccak256",
           "encode"
         ],
         "name@99": [],
         "onERC1155BatchReceived@696": [
-          "_executor",
-          "address",
-          "GovernorDisabledDeposit"
+          "_executor"
         ],
         "onERC1155Received@685": [
-          "_executor",
-          "address",
-          "GovernorDisabledDeposit"
+          "_executor"
         ],
         "onERC721Received@674": [
-          "_executor",
-          "address",
-          "GovernorDisabledDeposit"
+          "_executor"
         ],
         "onlyGovernance@68": [
           "_checkGovernance"
@@ -180590,33 +180557,26 @@
         "propose@274": [
           "_msgSender",
           "_isValidDescriptionForProposer",
-          "GovernorRestrictedProposer",
           "proposalThreshold",
           "getVotes",
           "clock",
-          "GovernorInsufficientProposerVotes",
           "_propose"
         ],
         "queue@344": [
           "getProposalId",
           "_validateStateBitmap",
           "_encodeStateBitmap",
-          "_queueOperations",
-          "ProposalQueued",
-          "GovernorQueueNotImplemented"
+          "_queueOperations"
         ],
         "quorum@806": [],
         "receive@83": [
-          "_executor",
-          "address",
-          "GovernorDisabledDeposit"
+          "_executor"
         ],
         "relay@657": [
           "verifyCallResult"
         ],
         "state@141": [
           "proposalSnapshot",
-          "GovernorNonexistentProposal",
           "clock",
           "proposalDeadline",
           "_quorumReached",
@@ -180624,8 +180584,7 @@
           "proposalEta"
         ],
         "supportsInterface@90": [
-          "supportsInterface",
-          "type"
+          "supportsInterface"
         ],
         "version@104": [],
         "votingDelay@800": [],
@@ -180638,8 +180597,7 @@
           "delegatecall",
           "gas",
           "returndatacopy",
-          "returndatasize",
-          "revert"
+          "returndatasize"
         ],
         "_fallback@58": [
           "_delegate",
@@ -180661,8 +180619,7 @@
           "getUint256Slot"
         ],
         "_nonReentrantBeforeView@88": [
-          "_reentrancyGuardEntered",
-          "ReentrancyGuardReentrantCall"
+          "_reentrancyGuardEntered"
         ],
         "_reentrancyGuardEntered@112": [
           "_reentrancyGuardStorageSlot",
@@ -180875,12 +180832,13 @@
       },
       "swift/alamofire/ParameterEncoder.swift": {
         "encode@159": [
+          "encode",
           "parameterEncoderFailed",
           "missingRequiredComponent",
           "httpMethod",
           "encodesParametersInURL",
           "URLComponents",
-          "encode",
+          "mapError",
           "encoderFailed",
           "get",
           "compactMap",
@@ -180889,6 +180847,7 @@
           "contentType"
         ],
         "encode@38": [
+          "encode",
           "JSONParameterEncoder",
           "JSONEncoder"
         ],
@@ -180920,10 +180879,13 @@
       "swift/alamofire/Request.swift": {
         "==@1119": [],
         "adapt@988": [
+          "write",
           "Interceptor"
         ],
         "appendResponseSerializer@561": [
+          "write",
           "append",
+          "async",
           "processNextResponseSerializer",
           "canTransitionTo",
           "resume"
@@ -180937,26 +180899,35 @@
           "URLProtectionSpace",
           "credentials",
           "cookies",
+          "isEmpty",
+          "map",
           "joined",
           "HTTPHeaders",
           "replacingOccurrences",
           "String"
         ],
         "cURLDescription@876": [
+          "write",
+          "async",
           "handler"
         ],
         "cURLDescription@898": [],
         "cacheResponse@854": [
+          "write",
           "precondition"
         ],
         "callCURLHandlerIfNecessary@375": [
+          "write",
+          "async",
           "handler",
           "cURLDescription"
         ],
         "canTransitionTo@50": [],
         "cancel@692": [
           "cancel",
+          "write",
           "canTransitionTo",
+          "async",
           "didCancel",
           "finish",
           "resume",
@@ -180964,17 +180935,21 @@
         ],
         "cleanup@1087": [
           "cleanup",
-          "removeAll"
+          "write",
+          "removeAll",
+          "forEach"
         ],
         "didAdaptInitialRequest@330": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "append",
           "request"
         ],
         "didCancel@435": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "requestDidCancel"
         ],
         "didCancelTask@448": [
@@ -180985,26 +180960,33 @@
         "didCompleteTask@487": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "read",
+          "forEach",
           "request",
           "retryOrFinish"
         ],
         "didCreateInitialURLRequest@300": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "append",
           "request"
         ],
         "didCreateTask@388": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "append",
+          "async",
           "handler",
           "request"
         ],
         "didCreateURLRequest@360": [
           "dispatchPrecondition",
           "onQueue",
+          "read",
+          "async",
           "handler",
           "request",
           "callCURLHandlerIfNecessary"
@@ -181031,6 +181013,7 @@
         "didGatherMetrics@457": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "append",
           "request"
         ],
@@ -181056,11 +181039,13 @@
         ],
         "downloadProgress@800": [],
         "eventMonitor@1044": [
+          "write",
           "CompositeEventMonitor"
         ],
         "finish@535": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "processNextResponseSerializer",
           "requestDidFinish"
         ],
@@ -181073,46 +181058,63 @@
           "MutableState"
         ],
         "interceptor@960": [
+          "write",
           "Interceptor"
         ],
         "onFinish@1071": [
+          "write",
           "append",
           "finishHandler"
         ],
         "onURLRequestCreation@915": [
+          "write",
+          "async",
           "handler"
         ],
         "onURLSessionTaskCreation@940": [
+          "write",
+          "async",
           "handler"
         ],
         "prepareForRetry@501": [
           "dispatchPrecondition",
           "onQueue",
+          "write",
           "reset",
           "requestIsRetrying"
         ],
         "processNextResponseSerializer@585": [
+          "write",
+          "async",
           "responseSerializer",
           "removeAll",
           "canTransitionTo",
+          "forEach",
           "cleanup"
         ],
         "redirect@834": [
+          "write",
           "precondition"
         ],
-        "reset@637": [],
+        "reset@637": [
+          "write"
+        ],
         "responseSerializerDidComplete@628": [
+          "write",
           "append",
           "processNextResponseSerializer"
         ],
         "resume@739": [
           "resume",
+          "write",
           "canTransitionTo",
+          "async",
           "didResume",
           "didResumeTask",
           "readyToPerform"
         ],
         "retry@1015": [
+          "write",
           "Interceptor"
         ],
         "retryOrFinish@515": [
@@ -181120,13 +181122,14 @@
           "onQueue",
           "finish",
           "retryResult",
-          "doNotRetryWithError",
           "asAFError",
           "retryRequest"
         ],
         "suspend@718": [
           "suspend",
+          "write",
           "canTransitionTo",
+          "async",
           "didSuspend",
           "didSuspendTask"
         ],
@@ -181134,6 +181137,7 @@
           "fatalError"
         ],
         "updateUploadProgress@656": [
+          "async",
           "handler"
         ],
         "uploadProgress@817": [],
@@ -181160,28 +181164,36 @@
         "init@256": [],
         "init@70": [],
         "map@139": [
-          "map"
+          "map",
+          "DataResponse"
         ],
         "map@320": [
-          "map"
+          "map",
+          "DownloadResponse"
         ],
         "mapError@181": [
-          "mapError"
+          "mapError",
+          "DataResponse"
         ],
         "mapError@364": [
-          "mapError"
+          "mapError",
+          "DownloadResponse"
         ],
         "tryMap@162": [
-          "tryMap"
+          "tryMap",
+          "DataResponse"
         ],
         "tryMap@344": [
-          "tryMap"
+          "tryMap",
+          "DownloadResponse"
         ],
         "tryMapError@202": [
-          "tryMapError"
+          "tryMapError",
+          "DataResponse"
         ],
         "tryMapError@386": [
-          "tryMapError"
+          "tryMapError",
+          "DownloadResponse"
         ]
       },
       "swift/alamofire/Session.swift": {
@@ -181194,6 +181206,7 @@
         ],
         "asURLRequest@334": [
           "URLRequest",
+          "map",
           "encode"
         ],
         "asURLRequest@731": [
@@ -181203,11 +181216,14 @@
           "asURLRequest"
         ],
         "cancelAllRequests@262": [
-          "cancel"
+          "forEach",
+          "cancel",
+          "async"
         ],
         "cancelRequestsForSessionInvalidation@1452": [
           "dispatchPrecondition",
           "onQueue",
+          "forEach",
           "finish",
           "sessionInvalidated"
         ],
@@ -181265,6 +181281,7 @@
           "performEagerlyIfNecessary"
         ],
         "finishRequestsForDeinit@1347": [
+          "async",
           "finish"
         ],
         "init@129": [
@@ -181282,6 +181299,7 @@
           "URLSession"
         ],
         "perform@1156": [
+          "async",
           "insert",
           "performUploadRequest",
           "performDataRequest",
@@ -181303,9 +181321,8 @@
         "performDownloadRequest@1222": [
           "dispatchPrecondition",
           "onQueue",
-          "request",
           "performSetupOperations",
-          "resumeData",
+          "async",
           "didReceiveResumeData"
         ],
         "performEagerlyIfNecessary@1147": [
@@ -181316,6 +181333,7 @@
           "onQueue",
           "asURLRequest",
           "validate",
+          "async",
           "didFailToCreateURLRequest",
           "asAFError",
           "createURLRequestFailed",
@@ -181335,6 +181353,7 @@
           "onQueue",
           "performSetupOperations",
           "createUploadable",
+          "async",
           "didCreateUploadable",
           "didFailToCreateUploadable",
           "asAFError",
@@ -181346,6 +181365,7 @@
           "performSetupOperations"
         ],
         "readyToPerform@1365": [
+          "async",
           "perform"
         ],
         "request@1416": [
@@ -181366,6 +181386,7 @@
           "Interceptor"
         ],
         "retryRequest@1395": [
+          "async",
           "prepareForRetry",
           "perform",
           "after",
@@ -181373,6 +181394,7 @@
         ],
         "retryResult@1379": [
           "retrier",
+          "async",
           "completion",
           "retry",
           "requestRetryFailed",
@@ -181391,7 +181413,9 @@
         "updateStatesForTask@1304": [
           "dispatchPrecondition",
           "onQueue",
+          "withState",
           "resume",
+          "async",
           "didResumeTask",
           "suspend",
           "didSuspendTask",
@@ -181450,6 +181474,7 @@
           "performEagerlyIfNecessary"
         ],
         "withAllRequests@247": [
+          "async",
           "action"
         ]
       }

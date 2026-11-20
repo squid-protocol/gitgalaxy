@@ -35653,7 +35653,7 @@
         "_serialize_item@624": "Encapsulated Accessors",
         "_serialize_sse_item@500": "Stateful Encapsulated Methods",
         "_shutdown@4889": "Stateful Encapsulated Methods",
-        "_sse_producer_cm@535": "Encapsulated Accessors",
+        "_sse_producer_cm@535": "Stateful Encapsulated Methods",
         "_sse_with_checkpoints@597": "Encapsulated Accessors",
         "_startup@4873": "Stateful Encapsulated Methods",
         "_sync_stream_jsonl@641": "Encapsulated Accessors",
@@ -38733,7 +38733,7 @@
       "python/twisted/defer.py": {
         "_DeferredList@1425": "Encapsulated Accessors",
         "_DeferredList@1434": "Encapsulated Accessors",
-        "_DeferredList@1442": "Encapsulated Accessors",
+        "_DeferredList@1442": "Stateful Encapsulated Methods",
         "__aenter__@2197": "Generic / Templated Code",
         "__aexit__@2203": "Generic / Templated Code",
         "__cmp__@1400": "Defensive Guards",

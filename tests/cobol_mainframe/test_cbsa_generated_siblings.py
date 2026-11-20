@@ -15,6 +15,7 @@ EXEMPT = {
     "cbsa-bankdata": "batch loader: DELETEs its sortcode's rows, then writes them; it reads no seeded row",
     "cbsa-updacc-faults": "SQL-fault case for UPDACC (det-translated, no port): its generated sibling is cbsa-updacc-generated",
     "cbsa-updacc-beyond": "past-storage COMMAREA scenarios for UPDACC (#7954): judged on the det port only, since the Spring side cannot take a byte[] entry",
+    "cbsa-acctctrl-count": "ten-million-account COUNT for ACCTCTRL (#7954): a synthetic CBSAX.ACCOUNT view, judged on the det port only; it holds no seeded row to generate",
 }
 
 
@@ -58,4 +59,4 @@ def test_the_exemptions_are_live():
 
 
 def test_the_only_exemptions_are_the_batch_loader_and_the_two_updacc_sibling_cases():
-    assert set(EXEMPT) == {"cbsa-bankdata", "cbsa-updacc-faults", "cbsa-updacc-beyond"}
+    assert set(EXEMPT) == {"cbsa-bankdata", "cbsa-updacc-faults", "cbsa-updacc-beyond", "cbsa-acctctrl-count"}

@@ -13,6 +13,7 @@ Workspace packages (one package importing a SIBLING by name) are a different loo
 not handled here.
 """
 
+import glob
 import json
 import os
 import posixpath
@@ -37,7 +38,11 @@ class Package:
         self.name = name if isinstance(name, str) else ""
         self.has_exports = "exports" in manifest
         self.exports = manifest.get("exports")
-        self.main = [v for v in (manifest.get("module"), manifest.get("main")) if isinstance(v, str) and v]
+        self.main = [
+            v if v.startswith("./") else "./" + v
+            for v in (manifest.get("module"), manifest.get("main"))
+            if isinstance(v, str) and v and not v.startswith(("/", ".."))
+        ]
 
 
 def owning_package(root: str, directory: str, cache: dict[str, Package | None]) -> Package | None:
@@ -88,7 +93,7 @@ def export_targets(pkg: Package, subpath: str) -> list[str]:
     path, and `.` is `module` / `main`."""
     if not pkg.has_exports:
         if subpath == ".":
-            return pkg.main
+            return pkg.main or ["./index"]
         return [subpath]
     exports = pkg.exports
     if isinstance(exports, dict) and any(k.startswith(".") for k in exports):
@@ -123,3 +128,72 @@ def split_specifier(specifier: str) -> tuple[str, str]:
     name = "/".join(parts[:cut])
     rest = "/".join(parts[cut:])
     return name, "./" + rest if rest else "."
+
+
+_MAX_WORKSPACE_PACKAGES = 500
+
+
+def workspace_packages(root: str) -> dict[str, Package]:
+    """#4254: Map each workspace package's `name` to its `Package` from `<root>/package.json`'s `workspaces`."""
+    manifest_path = os.path.join(root, "package.json")
+    try:
+        if not os.path.isfile(manifest_path) or os.path.getsize(manifest_path) > _MAX_MANIFEST_BYTES:
+            return {}
+        data = json.loads(read_source(manifest_path).text)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    raw_ws = data.get("workspaces")
+    if isinstance(raw_ws, dict):
+        raw_ws = raw_ws.get("packages")
+    if not isinstance(raw_ws, list):
+        return {}
+    positives = [
+        p.strip().rstrip("/") for p in raw_ws if isinstance(p, str) and p.strip() and not p.strip().startswith("!")
+    ]
+    negatives = [
+        p.strip()[1:].strip().rstrip("/")
+        for p in raw_ws
+        if isinstance(p, str) and p.strip().startswith("!") and len(p.strip()) > 1
+    ]
+    if not positives:
+        return {}
+
+    excluded_dirs: set[str] = set()
+    for neg in negatives:
+        for hit in glob.iglob(os.path.join(root, neg), recursive=True):
+            excluded_dirs.add(os.path.normpath(hit))
+
+    seen_dirs: set[str] = set()
+    by_name: dict[str, Package | None] = {}
+    for pat in positives:
+        for hit in sorted(glob.iglob(os.path.join(root, pat), recursive=True)):
+            norm_hit = os.path.normpath(hit)
+            if norm_hit in excluded_dirs or norm_hit in seen_dirs or not os.path.isdir(norm_hit):
+                continue
+            rel = os.path.relpath(norm_hit, root).replace(os.sep, "/")
+            if rel == "." or any(seg in ("node_modules", ".git") or seg.startswith(".") for seg in rel.split("/")):
+                continue
+            seen_dirs.add(norm_hit)
+            pkg_json = os.path.join(norm_hit, "package.json")
+            try:
+                if not os.path.isfile(pkg_json) or os.path.getsize(pkg_json) > _MAX_MANIFEST_BYTES:
+                    continue
+                pkg_data = json.loads(read_source(pkg_json).text)
+            except (OSError, ValueError):
+                continue
+            if not isinstance(pkg_data, dict):
+                continue
+            pkg = Package(rel, pkg_data)
+            if not pkg.name:
+                continue
+            if pkg.name in by_name:
+                by_name[pkg.name] = None  # ambiguous duplicate workspace package name
+            else:
+                by_name[pkg.name] = pkg
+            if len(seen_dirs) >= _MAX_WORKSPACE_PACKAGES:
+                break
+        if len(seen_dirs) >= _MAX_WORKSPACE_PACKAGES:
+            break
+    return {name: pkg for name, pkg in by_name.items() if pkg is not None}

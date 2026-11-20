@@ -1,0 +1,48 @@
+{
+  "kind": "cics",
+  "corpus": "cics-banking-sample-application-cbsa",
+  "program": "ACCTCTRL",
+  "program_source": "src/base/cobol_src/ACCTCTRL.cbl",
+  "copy_dirs": [
+    "src/base/cobol_copy"
+  ],
+  "transid": "OCAC",
+  "clock": "2026/10/01 10:30:15.00",
+  "region": {
+    "applid": "CBSAREGN",
+    "sysid": "CICA"
+  },
+  "db2": {
+    "ddl": [
+      "etc/install/base/db2jcl/CRETB01.jcl",
+      "etc/install/base/db2jcl/CREI101.jcl"
+    ],
+    "seed": "@case/seed.sql",
+    "compare": [],
+    "qualifier": "CBSAX"
+  },
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "src/base/cobol_copy/ACCTCTRL.cpy",
+        "record": "ACCOUNT-CONTROL-RECORD"
+      }
+    ]
+  },
+  "linked": true,
+  "screens": {},
+  "scenarios": [
+    {
+      "name": "count-ten-million-accounts",
+      "commarea": {},
+      "why": "#7954: SELECT COUNT(*) over 10,000,001 ACCOUNT rows of sort code 987654 gives NUMBER-OF-ACCOUNTS 10000001, whose first digit shows when the typed record reads ACCOUNT-CONTROL-NUMBER 9 wide or one byte late"
+    },
+    {
+      "name": "dto-entry-count-ten-million-accounts",
+      "commarea": {},
+      "dto_entry": true,
+      "why": "as count-ten-million-accounts, through the typed DTO alone: fill_ gives back the count 10000001, whose first digit shows when fill_ reads ACCOUNT-CONTROL-NUMBER 9 wide or one byte late (#7954)"
+    }
+  ],
+  "notes": "Sibling of cbsa-acctctrl (#7954): the same ACCTCTRL program on a seed of 10,000,001 ACCOUNT rows for sort code 987654 (one recursive INSERT), so NUMBER-OF-ACCOUNTS reaches 8 digits with a leading 1. The main case's seed cannot reach it (reseeding per scenario is too costly). The table is not compared (10M rows); the program only reads it. Judged on the det port; synthetic data. Derived from CBSA (Copyright IBM Corp. 2023, EPL-2.0): LICENSE is the corpus's own."
+}

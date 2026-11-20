@@ -2686,6 +2686,14 @@ Slice 19 (#7954): ZECS003 re-measured with a `link-bytes-tail-sdr` scenario (a `
 kills the two `caBack` rows above and three rows stated `equivalent`, which were wrong claims and are removed. ZECS003
 stays at 28 unaccounted (fill_ DTO setters, two-argument `handleLink` facades, four `task.write` case-gaps).
 
+Slice 22 (#7954): ABNDPROC and UPDCUST re-run in full under the in-process judge that runs the java-facade pass (#8639);
+the ledgers predated it, so the eight `handleLink` / `lastLinkBytes` rows per case (the `linked()` / `run()` names, the
+link-area copy) were facade-only code the old judge never ran. A full `run` kills all 16, with no new scenario. The port
+move added seven mutants: four constants nothing reads (`COBOLRT_VERSION`, `PROFILE`) and three `equivalent` rows with
+attempts on record (the typed entry's EIBCALEN default, which neither program reads, and ABNDPROC's exact-length `caBack`
+wrapper). Both read L5 (ABNDPROC 427 mutants, UPDCUST 690, none unaccounted). CBSA still does not reach L5: UPDACC,
+ACCTCTRL's two 10M-account `case-gap` rows, CRDTAGY1, CUSTCTRL and 23 unmeasured programs remain.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

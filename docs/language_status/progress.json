@@ -1,5 +1,5 @@
 {
- "commit": "54cf72ab5",
+ "commit": "cd1ee2674",
  "components": {
   "capabilities": {
    "groups": [
@@ -579,14 +579,14 @@
     },
     "cics-banking-sample-application-cbsa": {
      "caught": 1830,
-     "equivalent": 1137,
+     "equivalent": 1144,
      "l5": 0,
      "measured": 8,
-     "mutants": 4533,
+     "mutants": 4475,
      "programs": 31,
      "raw_pct": 44.5,
      "ready": 0,
-     "sampled": 4533,
+     "sampled": 4475,
      "sampled_pct": 100.0,
      "survived": 2285,
      "unreachable": 403
@@ -650,14 +650,14 @@
    },
    "total": {
     "caught": 17180,
-    "equivalent": 5533,
+    "equivalent": 5540,
     "l5": 3,
     "measured": 60,
-    "mutants": 55394,
+    "mutants": 55336,
     "programs": 158,
     "raw_pct": 48.8,
     "ready": 0,
-    "sampled": 37570,
+    "sampled": 37512,
     "sampled_pct": 67.8,
     "survived": 18037,
     "unreachable": 1036
@@ -976,7 +976,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-20T02:08:06Z",
+  "as_of": "2026-11-20T03:34:26Z",
   "core": {
    "closed": 253,
    "open": 12,
@@ -1287,7 +1287,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 130,
+    "closed": 131,
     "total": 146
    },
    "cobol": {

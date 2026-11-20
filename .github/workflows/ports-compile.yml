@@ -95,8 +95,8 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e ./gitgalaxy
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
@@ -187,7 +187,7 @@ jobs:
         if: steps.assess_plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
-          pip wheel "./[translator]" -w "$RUNNER_TEMP/wheelhouse"
+          tests/tools/ci_retry.sh 4 10 -- pip wheel "./[translator]" -w "$RUNNER_TEMP/wheelhouse"
           python scripts/check_assess_install.py --wheelhouse "$RUNNER_TEMP/wheelhouse" --estates "$GITGALAXY_MAINFRAME_CORPORA"
         shell: bash
 

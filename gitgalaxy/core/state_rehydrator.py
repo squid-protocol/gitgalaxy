@@ -67,6 +67,21 @@ def _has_column(cursor, table: str, column: str) -> bool:
     return any(row[1] == column for row in cursor.execute(f"PRAGMA table_info({table})"))
 
 
+def _raw_pre_adjustment(row, row_keys) -> dict[str, Any]:
+    """The persisted raw (pre-adjustment) api / unreferenced counts as the `raw_pre_adjustment` payload
+    galaxyscope snapshots on a fresh file; empty when the baseline predates the columns."""
+    if "raw_arch_api" not in row_keys or "raw_state_unreferenced" not in row_keys:
+        return {}
+    if row["raw_arch_api"] is None or row["raw_state_unreferenced"] is None:
+        return {}
+    return {
+        "raw_pre_adjustment": {
+            "api": int(row["raw_arch_api"]),
+            "unreferenced_by_name": int(row["raw_state_unreferenced"]),
+        }
+    }
+
+
 def _restore_child_table(cursor, repo_name, baseline_hash, table, select_sql, to_payload) -> dict:
     """Restore one per-file fact channel's payload for unchanged files (#3200/#3201/#3246).
 
@@ -286,6 +301,11 @@ class StateRehydrator:
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,
+                    # #2536: the raw extraction counts BEFORE the Contextual Baseline Fix. The delta's
+                    # _calculate_risk_exposures snapshots equations itself, but a rehydrated file's
+                    # equations are already the adjusted values, so without this the raw_arch_api /
+                    # raw_state_unreferenced columns of every unchanged file read the adjusted counts.
+                    **_raw_pre_adjustment(f, row_keys),
                     "mitigation_telemetry": mitigation_telemetry,
                     # #3220: seed metadata with the persisted documentation shield.
                     # _calculate_risk_exposures keeps an existing "metadata" dict (only
@@ -297,7 +317,14 @@ class StateRehydrator:
                             float(f["doc_umbrella"])
                             if "doc_umbrella" in row_keys and f["doc_umbrella"] is not None
                             else 0.0
-                        )
+                        ),
+                        # the detector-time parent classes (persisted as a comma-joined string); the
+                        # recorder reads them back out of the metadata the score layer reuses
+                        **(
+                            {"parent_entity": f["parent_entity"]}
+                            if "parent_entity" in row_keys and f["parent_entity"]
+                            else {}
+                        ),
                     },
                     # #3220: a rehydrated file's language identity was already
                     # confidently locked in the baseline scan. _calculate_risk_exposures
@@ -550,6 +577,25 @@ class StateRehydrator:
                         (repo_name, baseline_hash),
                     ).fetchone()[0]
                 copy_reports[key] = _json_list(raw) if raw else None
+            # The baseline's excluded artifacts (files the scan saw and left out, with the reason). A
+            # delta scan re-derives the census exclusions from the tree, but a file excluded AFTER
+            # dispatch (a worker bypass, the statistical auditor) is in no census: only this table
+            # remembers it, and without it the delta's excluded count and totals drift from a full scan.
+            excluded_artifacts: list[dict[str, Any]] = []
+            if _has_table(cursor, "excluded_artifacts"):
+                excluded_artifacts.extend(
+                    {
+                        "path": nfc(r["file_path"]),
+                        "reason": r["exclusion_reason"] or "Unknown",
+                        "identity_confidence": 0.0,
+                        "size_bytes": int(r["size_bytes"] or 0),
+                    }
+                    for r in cursor.execute(
+                        "SELECT file_path, exclusion_reason, size_bytes FROM excluded_artifacts "
+                        "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_path, id",
+                        (repo_name, baseline_hash),
+                    )
+                )
             conn.close()
 
             # #3815: a baseline written before stored paths were NFC can hold an NFD path. Key
@@ -558,7 +604,12 @@ class StateRehydrator:
                 ram_state = {nfc(p): {**node, "path": nfc(p)} for p, node in ram_state.items()}
 
             # Return the standardized payload
-            return {"commit_hash": baseline_hash, "ram_cache": ram_state, **copy_reports}
+            return {
+                "commit_hash": baseline_hash,
+                "ram_cache": ram_state,
+                "excluded_artifacts": excluded_artifacts,
+                **copy_reports,
+            }
 
         except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError) as e:
             # Broadened beyond sqlite3.Error: a structurally valid DB can still

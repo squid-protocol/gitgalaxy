@@ -1698,6 +1698,46 @@ class Orchestrator:
             "file_count": 0,
         }
 
+    def _run_ecosystem_audits(self, repository_graph: list[dict[str, Any]]) -> tuple[dict[str, Any], list[str]]:
+        """Phase 10, shared by the full and the delta scan: X-Ray, API Mapper and the Import Policy Gate.
+        A delta that skipped it recorded 0 for audit_binary_anomalies / audit_unknown_packages / audit_shadow_apis.
+        Returns the audits and the manifest paths they were built from (the SBOM recorder reads the same list)."""
+        # NEW:
+        # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
+        # Union of GuideStar's language-intent signals (Makefile, pyproject.toml,
+        # etc. -- files with no parseable dependency list, used only for its own
+        # Bayesian intent inference) with SUPPORTED_MANIFEST_FILENAMES, the
+        # canonical set UniversalManifestSlicer can actually parse. Without this
+        # union, ecosystems MANIFEST_MAP doesn't track (composer.json,
+        # requirements.txt) silently never reach the SBOM whenever any other
+        # manifest is also present in the repo.
+        from gitgalaxy.security.manifest_parser import (
+            SUPPORTED_MANIFEST_FILENAMES,
+            SUPPORTED_MANIFEST_SUFFIXES,
+            ManifestParser,
+        )
+
+        guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
+        target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
+        manifest_paths = [
+            str(self.root / self.disk_paths.get(rel_path, rel_path))  # #3815: the on-disk name
+            for rel_path in self.stem_map.values()
+            # Suffix check covers per-project-named manifests (e.g. *.csproj)
+            # that can't live in the exact-filename SUPPORTED_MANIFEST_FILENAMES set.
+            if Path(rel_path).name in target_manifests or Path(rel_path).suffix in SUPPORTED_MANIFEST_SUFFIXES
+        ]
+
+        # 2. Build the global translation map
+        alias_map = ManifestParser(parent_logger=logger).build_resolution_map(manifest_paths)
+
+        audits = {
+            "api_mapper": run_api_audit(self.root),
+            "xray": run_xray_audit(self.root, config=self.config),
+            # 3. Pass the RAM graph and the alias map to the Import Policy Gate
+            "import_policy_gate": run_import_gate_audit(repository_graph, alias_map=alias_map, config=self.config),
+        }
+        return audits, manifest_paths
+
     def _restore_inline_mitigations(self) -> None:
         """Delta scan: an unchanged file's `galaxyscope:ignore` directives, read back from disk. A baseline stores none,
         and without them the risk recomputed for a rehydrated file, and the gates, would ignore the suppression."""
@@ -2095,43 +2135,7 @@ class Orchestrator:
             # ==========================================================
             logger.info("Phase 10: Executing Ecosystem Security Audits (X-Ray, Import Policy Gate, API Mapper)...")
 
-            # NEW:
-            # 1. Gather all manifests instantly using the Phase 0 stem_map (Zero Disk Walk)
-            # Union of GuideStar's language-intent signals (Makefile, pyproject.toml,
-            # etc. -- files with no parseable dependency list, used only for its own
-            # Bayesian intent inference) with SUPPORTED_MANIFEST_FILENAMES, the
-            # canonical set UniversalManifestSlicer can actually parse. Without this
-            # union, ecosystems MANIFEST_MAP doesn't track (composer.json,
-            # requirements.txt) silently never reach the SBOM whenever any other
-            # manifest is also present in the repo.
-            from gitgalaxy.security.manifest_parser import (
-                SUPPORTED_MANIFEST_FILENAMES,
-                SUPPORTED_MANIFEST_SUFFIXES,
-                ManifestParser,
-            )
-
-            guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
-            target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
-            manifest_paths = [
-                str(self.root / self.disk_paths.get(rel_path, rel_path))  # #3815: the on-disk name
-                for rel_path in self.stem_map.values()
-                # Suffix check covers per-project-named manifests (e.g. *.csproj)
-                # that can't live in the exact-filename SUPPORTED_MANIFEST_FILENAMES set.
-                if Path(rel_path).name in target_manifests or Path(rel_path).suffix in SUPPORTED_MANIFEST_SUFFIXES
-            ]
-
-            # 2. Build the global translation map
-            alias_map = ManifestParser(parent_logger=logger).build_resolution_map(manifest_paths)
-
-            ecosystem_audits = {
-                "api_mapper": run_api_audit(self.root),
-                "xray": run_xray_audit(self.root, config=self.config),
-                # 3. Pass the RAM graph and the alias map to the Import Policy Gate
-                "import_policy_gate": run_import_gate_audit(repository_graph, alias_map=alias_map, config=self.config),
-            }
-
-            # Attach it to the summary payload
-            summary["ecosystem_audits"] = ecosystem_audits
+            summary["ecosystem_audits"], manifest_paths = self._run_ecosystem_audits(repository_graph)
 
             # #376: computed back in Phase 2 (_resolve_dependency_graph), where
             # summary doesn't exist yet -- stashed on self and folded in here.
@@ -3547,10 +3551,13 @@ class Orchestrator:
             # additive: scoring still consumes the adjusted equations.
             # =================================================================
             pre_adjust_eq = meta.get("equations", {})
-            meta["raw_pre_adjustment"] = {
-                "api": pre_adjust_eq.get("api", 0),
-                "unreferenced_by_name": pre_adjust_eq.get("unreferenced_by_name", 0),
-            }
+            # A rehydrated (delta) file arrives with its persisted raw snapshot, and its equations are
+            # already adjusted: keep the snapshot rather than re-reading the adjusted counts as raw.
+            if not meta.get("raw_pre_adjustment"):
+                meta["raw_pre_adjustment"] = {
+                    "api": pre_adjust_eq.get("api", 0),
+                    "unreferenced_by_name": pre_adjust_eq.get("unreferenced_by_name", 0),
+                }
             # =================================================================
 
             # =================================================================
@@ -4107,6 +4114,7 @@ class Orchestrator:
         modified: list[str],
         deleted: list[str],
         db_output_path: str,
+        baseline_excluded: list[dict[str, Any]] | None = None,
     ):
         """
         Executes a high-efficiency 'Continuous Delta' scan for CI/CD environments.
@@ -4123,48 +4131,43 @@ class Orchestrator:
         try:
             # 1. Inject the surviving state
             self.ram_cache = ram_cache
+
+            # 2. Rebuild the census from the tree exactly as a full scan does (Phase 0). The
+            # census is stat-only (no file is read), so it is cheap, and it is the ONE place that
+            # decides what is scanned, what is excluded and why: the intent lock (a manifest such
+            # as pyproject.toml passes the extension gate only through it), the micro-mass quota,
+            # NFC twins, disguised executables, and the excluded-artifacts list. A delta that
+            # re-derived any of that by hand drifted from the full scan (#8774).
+            self.guidestar.scan_project_config()
+            self._build_file_census()
+
             # #3815: git names a changed file by its on-disk (maybe NFD) path; the baseline
             # stores it in NFC. Compare in NFC, or an NFD checkout's edit reads as a new file
             # beside the stale old one -- a rename that never happened.
-            for d_file in (nfc(d) for d in deleted):
-                if d_file in self.ram_cache:
-                    del self.ram_cache[d_file]
+            changed = {nfc(p) for p in (*added, *modified)}
+            deleted_nfc = {nfc(d) for d in deleted}
 
-            # 2. Rebuild the Census & Ext Tally from the surviving RAM
-            self.census = set()
-            self.ext_tally = {}
-            self.stem_map = {}
+            # Survivors: baseline entries the full census still dispatches. A deleted file, a file
+            # that is now excluded, and a synthetic node a full scan regenerates (a credential
+            # leak, a model-weights artifact) are all dropped here and re-derived below.
+            self.ram_cache = {p: n for p, n in self.ram_cache.items() if p in self.stem_map and p not in deleted_nfc}
+            for p in changed:
+                if p not in self.stem_map:
+                    logger.info(f"DELTA_EXCLUDED: {p} (a full scan's census leaves it out)")
 
-            for rel_path in self.ram_cache.keys():  # noqa: SIM118
-                stem = Path(rel_path).stem.lower()
-                ext = Path(rel_path).suffix.lower()
-                name = Path(rel_path).name.lower()
-                self.census.add(stem)
-                self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
-                self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
+            # Files the baseline scan dispatched but a worker or the statistical auditor excluded
+            # carry their excluded row forward: they are not in the cache, and not re-scanned.
+            carried: list[dict[str, Any]] = []
+            seen_excluded = {u["path"] for u in self.unparsable_files}
+            for row in baseline_excluded or []:
+                path = row["path"]
+                if path in self.stem_map and path not in changed and path not in seen_excluded:
+                    carried.append(row)
+            carried_paths = {r["path"] for r in carried}
 
-            # 3. Target the New/Modified files for Pass 1 (Surgical Strike)
-            for disk_rel in added + modified:
-                rel_path = nfc(disk_rel)  # #3815: stored in NFC, opened by its on-disk name
-                # #4483: the full scan's census admits a file only through the aperture filter
-                # (denied extension, oversize, ignored directory...); a delta must too, or an
-                # added/modified file a full scan would exclude gets indexed. One that fails now
-                # is evicted along with its stale baseline entry.
-                is_valid, _size, _reason = self.filter.evaluate_path_integrity(self.root / disk_rel)
-                if not is_valid:
-                    self.ram_cache.pop(rel_path, None)
-                    logger.info(f"DELTA_EXCLUDED: {rel_path} ({_reason})")
-                    continue
-                if rel_path != disk_rel:
-                    self.disk_paths[rel_path] = disk_rel
-                stem = Path(rel_path).stem.lower()
-                ext = Path(rel_path).suffix.lower()
-                name = Path(rel_path).name.lower()
-
-                self.census.add(stem)
-                self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
-                self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
-                self.stem_map[rel_path] = rel_path  # Instruct Pass 1 to ONLY process these
+            # 3. Target the New/Modified files (and any dispatched file the cache lacks) for Pass 1
+            to_scan = {p for p in self.stem_map if p in changed or (p not in self.ram_cache and p not in carried_paths)}
+            self.stem_map = {p: p for p in sorted(to_scan)}  # Instruct Pass 1 to ONLY process these
 
             # 4. Execute the Surgical Scan (Only parses new files)
             self._extract_features_parallel()
@@ -4196,10 +4199,19 @@ class Orchestrator:
             # 6. Audit Verification & Dependency Resolution
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
             if repository_graph:
-                repository_graph = self.model_auditor.audit_repository(repository_graph)
+                repository_graph = self.model_auditor.audit_repository(
+                    repository_graph, is_shadow_patch=self.config.get("SHADOW_PATCH_DETECTED", False)
+                )
+            # What a full scan reports as excluded: the census's, the workers', the baseline's
+            # carried-forward rows, and the auditor's verdicts on this run.
+            total_unparsable = sorted([*self.unparsable_files, *carried], key=lambda e: e["path"]) + unparsable_audits
+
+            # The directory grouping (and the 3D layout) a full scan assigns after its audit.
+            if repository_graph:
+                repository_graph = self.spatial_mapper.map_repository(repository_graph)
 
             # 7. Synthesis and Database Forging
-            summary = self.processor.summarize_galaxy_metrics(repository_graph, unparsable_audits)
+            summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
             if self.network_sensor.copy_libraries is not None:  # #4265: only when libraries are declared
                 summary["copy_member_collisions"] = self.network_sensor.copy_collisions
@@ -4216,6 +4228,11 @@ class Orchestrator:
 
             # #376: see the identical backfill in the main pipeline above.
             summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)
+
+            summary["ecosystem_audits"], _ = self._run_ecosystem_audits(repository_graph)
+
+            # the anomaly roll-up a full scan merges into the summary (audit_binary_anomalies etc.)
+            summary.setdefault("unparsable_files", {}).update(self._summarize_anomalies(total_unparsable))
 
             # the same suppression and gates as a full scan: a delta scan used to have no gate phase and exited 0
             self._apply_threat_suppression(repository_graph)
@@ -4234,7 +4251,7 @@ class Orchestrator:
 
             self.db_recorder.record_mission(
                 parsed_files=repository_graph,
-                unparsable_files=unparsable_audits,
+                unparsable_files=total_unparsable,
                 summary=summary,
                 session_meta=session_meta,
                 output_path=db_output_path,
@@ -4752,7 +4769,14 @@ def main():
                     untracked = _untracked_files(target_path)
                     if untracked:
                         logging.warning("⚠️ " + _untracked_warning(untracked))
-                    scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
+                    scope.execute_incremental_scan(
+                        ram_cache,
+                        added,
+                        modified,
+                        deleted,
+                        db_out_path,
+                        baseline_excluded=baseline_state.get("excluded_artifacts"),
+                    )
 
                 except subprocess.CalledProcessError:
                     logging.warning(f"⚠️ Git diff failed against {baseline_commit}. Falling back to full scan.")

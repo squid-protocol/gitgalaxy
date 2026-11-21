@@ -470,7 +470,9 @@ def test_subprocess_spawners_count_as_high_risk_execution_8865(code):
     assert LANGUAGE_DEFINITIONS["python"]["rules"]["high_risk_execution"].search(code), code
 
 
-@pytest.mark.parametrize("code", ["check_output(['ls'])", "mysubprocess_check_output = 1", "subprocess.list2cmdline(a)"])
+@pytest.mark.parametrize(
+    "code", ["check_output(['ls'])", "mysubprocess_check_output = 1", "subprocess.list2cmdline(a)"]
+)
 def test_non_spawning_subprocess_names_miss_high_risk_execution_8865(code):
     assert not LANGUAGE_DEFINITIONS["python"]["rules"]["high_risk_execution"].search(code), code
 
@@ -479,3 +481,48 @@ def test_global_statement_counts_as_globals_8865():
     rule = LANGUAGE_DEFINITIONS["python"]["rules"]["globals"]
     assert rule.search("def mutates():\n    global STATE\n    STATE += 1\n")
     assert not rule.search("def f():\n    nonlocal x\n")  # #8862 owns the closure question
+
+
+# serialization_parsing (#8882): every interchange codec the contract names, encode and decode.
+@pytest.mark.parametrize(
+    "code",
+    [
+        "return json.dumps(x)",
+        "return json.loads(s)",
+        "json.load(fh)",
+        "json.dump(x, fh)",
+        "x = orjson.dumps(v)",
+        "cfg = yaml.safe_load(fh)",
+        "yaml.safe_dump(cfg)",
+        "yaml.dump(cfg)",
+        "root = ET.fromstring(text)",
+        "tree = ElementTree.parse(path)",
+        "doc = minidom.parseString(text)",
+        "r = csv.reader(fh)",
+        "w = csv.DictWriter(fh, fields)",
+        "msg.ParseFromString(raw)",
+        "raw = msg.SerializeToString()",
+        "json_format.MessageToJson(msg)",
+        "blob = pickle.dumps(obj)",
+        "blob = marshal.dumps(code)",
+        "data = pickle.loads(raw)",
+        "v = ast.literal_eval(s)",
+    ],
+)
+def test_python_serialization_parsing_covers_the_contract_formats(code):
+    assert PY_RULES["serialization_parsing"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "json_data = x",
+        "y = myjson.loads(s)",
+        "yaml_file = 'a.yaml'",
+        "csv_reader_cfg = {}",
+        "import json",
+        "ET_count = 3",
+    ],
+)
+def test_python_serialization_parsing_ignores_non_calls(code):
+    assert not PY_RULES["serialization_parsing"].search(code), code

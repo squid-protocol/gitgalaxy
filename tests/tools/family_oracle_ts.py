@@ -392,7 +392,27 @@ SPECS: dict[str, Spec] = {
 }
 
 
+_EXTRA_MODULES = ("family_oracle_specs_a", "family_oracle_specs_b")  # C#, Kotlin, Swift, Scala; Ruby, PHP, Lua, shell
+_extras_loaded = False
+
+
+def _load_extras() -> None:
+    """Register the oracles that carry their own node maps (family_oracle_specs_a / _b). Idempotent; a missing module is skipped."""
+    global _extras_loaded
+    if _extras_loaded:
+        return
+    _extras_loaded = True
+    import importlib
+
+    for name in _EXTRA_MODULES:
+        try:
+            importlib.import_module(name).register()
+        except ImportError:
+            continue
+
+
 def languages() -> list[str]:
+    _load_extras()
     return sorted(SPECS)
 
 
@@ -619,6 +639,7 @@ _ORACLES: dict[str, TreeSitterOracle] = {}
 
 
 def get_oracle(lang: str) -> TreeSitterOracle | None:
+    _load_extras()
     if lang not in SPECS:
         return None
     if lang not in _ORACLES:

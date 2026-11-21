@@ -495,3 +495,57 @@ def test_python_serialization_parsing_covers_the_contract_formats(code):
 )
 def test_python_serialization_parsing_ignores_non_calls(code):
     assert not PY_RULES["serialization_parsing"].search(code), code
+
+
+# #8859: time_date_logic misses the measurement clocks. One snippet per case so a
+# regression names itself in the test id.
+@pytest.mark.parametrize(
+    "code",
+    [
+        "x = time.perf_counter()",
+        "x = time.perf_counter_ns()",
+        "x = time.monotonic()",
+        "x = time.monotonic_ns()",
+        "x = time.process_time()",
+        "x = time.process_time_ns()",
+        "x = time.thread_time()",
+        "x = time.time_ns()",
+        "x = time.gmtime()",
+        "x = time.localtime()",
+        "x = time.mktime(t)",
+        "x = time.strftime('%Y', t)",
+        "x = time.strptime(s, '%Y')",
+        "x = datetime.now()",
+        "x = datetime.utcnow()",
+        "x = datetime.today()",
+        "x = datetime.fromtimestamp(1)",
+        "x = datetime.datetime.now()",
+        "x = stamp.strftime('%Y')",
+        "x = datetime.strptime(s, '%Y')",
+        "x = when.isoformat()",
+        "x = perf_counter()",
+        "x = perf_counter_ns ()",
+        "x = monotonic()",
+        "x = process_time()",
+        "x = time_ns()",
+    ],
+)
+def test_python_time_date_logic_matches_clocks(code):
+    assert PY_RULES["time_date_logic"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "perf_counter_total = 3",
+        "monotonic = 1",
+        "now = 3",
+        "x = now()",
+        "process_time_budget = 2",
+        "time_ns_label = 'x'",
+        "x = sometime.perf_counters",
+        "strftime_fmt = '%Y'",
+    ],
+)
+def test_python_time_date_logic_ignores_non_clock_names(code):
+    assert not PY_RULES["time_date_logic"].search(code), code

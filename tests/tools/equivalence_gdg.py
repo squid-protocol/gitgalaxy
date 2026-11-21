@@ -8,8 +8,8 @@ the catalog and its refusals, with no file or Docker access.
     steps: {"case": "...", "job": "TRANBKP", "gdg_out": {"TRANSACT": "CARD.TRAN.BKUP"}}      # DD writes base(+1)
            {"case": "...", "job": "NEXT", "gdg_in": {"TRANFILE": {"base": "CARD.TRAN.BKUP", "gen": "0"}}}
 
-`gen` is `"0"`, `"-n"`, `"+1"` or `"all"`. The rules, from the z/OS MVS JCL Reference ("Generation data groups", the
-DSNAME parameter's relative generation numbers):
+`gen` is `"0"`, `"-n"`, `"+1"` or `"all"`. The rules below are ASSUMED (IBM-documented behaviour recalled from the z/OS MVS JCL Reference, "Generation data
+groups" / the DSNAME parameter, NOT checked against the manual text; register F4 records the assumption):
 * a relative number `(0)` / `(-n)` is resolved once per job, against the catalog as the job started: a generation a step
   of the same job catalogued does not move `(0)`; a step of that job reads it back as `(+1)`;
 * a step that writes `(+1)` creates a new generation, catalogued when the step ends (a step that abends catalogues

@@ -2159,6 +2159,16 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   RETURN-CODEs 0. Residual risk: the wiring is the case's `feeds`/`inputs`, not a read JCL job; the oracle is GnuCOBOL plus our
   stub, not z/OS. Without the shared card the step case's own 2022-07-01 .. 07-31 window leaves the fed file with an empty
   report (0/0), which would compare equal and prove nothing.
+- **GDG generations across a job case (#8883, `tests/tools/equivalence_gdg.py`).** A job case declares `gdgs` (base, LIMIT,
+  record length, existing generations beside the case); a step's `gdg_out` {DD: base} writes `(+1)`, catalogued when the step
+  ends (never for a step that abends), and `gdg_in` {DD: {base, gen}} reads `(0)` / `(-n)` / `(+1)` / `all`. Relative numbers
+  are resolved once per job, against the catalog as the job started (**ASSUMED**: IBM behaviour recalled from the z/OS MVS JCL
+  Reference, "Generation data groups" / DSNAME, not checked against the manual text; the same holds for `(+1)` catalogued at step
+  end and a base read as all generations newest first); a step's `job` key starts a new job, and a whole base reads as the concatenation of
+  its generations, newest first. Both sides read the COBOL side's generation bytes, as any feed. Refused by name: an
+  undeclared base (a GDG defined by the job itself), a LIMIT roll-off (SCRATCH / NOSCRATCH / EMPTY), `(+2)` and further, a
+  second `(+1)` in a job, `(+1)` read before written, an empty base or `(-n)` past the oldest, a non-sequential dataset or a
+  record length differing from the base's. Pinned stubbed in `test_equivalence_gdg_8883.py`; no committed job case yet.
 - A SORT, IDCAMS, IEBGENER or DFSORT step the forge does not lower or translate is not run. The generated batch job refuses a utility step by name
   (`JclSteps.utility`: the job fails on its TODO, or with `gitgalaxy.batch.skip-unimplemented` the step is logged as
   skipped; never a silent success).

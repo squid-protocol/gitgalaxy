@@ -1,0 +1,1087 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "tests/equivalence/jcl/fixture/dsutil_scenarios.json",
+ "unobserved": [
+  "the engine's answer (no gitgalaxy evaluator models what IEBGENER / IEBCOPY / IEFBR14 do to a dataset: two columns, manual and box)",
+  "a dataset's record format, length or block size (no VTOC listing is taken)",
+  "which members a PDS holds (read back by IEBGENER, one member per step)"
+ ],
+ "results": [
+  {
+   "id": "iefbr14-catlg-then-delete",
+   "job": "BR14CAT",
+   "expect": {
+    "steps": {
+     "MAKE": {
+      "action": "run",
+      "rc": 0
+     },
+     "GONE": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.NEW1",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.NEW1",
+      "deleted"
+     ]
+    ]
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "MAKE": {
+      "action": "run",
+      "rc": 0
+     },
+     "GONE": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.NEW1",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.NEW1",
+      "deleted"
+     ]
+    ]
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "MAKE",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "GONE",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [
+    {
+     "dsn": "PUB001.UTIL.NEW1",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "PUB001.UTIL.NEW1",
+     "disposition": "UNCATALOGED"
+    },
+    {
+     "dsn": "PUB001.UTIL.NEW1",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "iefbr14-new-without-disposition",
+   "job": "BR14DFT",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.NEW2",
+      "deleted"
+     ]
+    ]
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.NEW2",
+      "deleted"
+     ]
+    ]
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [
+    {
+     "dsn": "PUB001.UTIL.NEW2",
+     "disposition": "DELETED"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "iefbr14-old-dataset-not-cataloged",
+   "job": "BR14NOF",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "bypass"
+     },
+     "S2": {
+      "action": "bypass"
+     }
+    }
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "bypass"
+     },
+     "S2": {
+      "action": "bypass"
+     }
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [],
+   "jcl_error": false,
+   "unparsed_ief": 2,
+   "assumed": "A1"
+  },
+  {
+   "id": "iebgener-copy-instream-to-new-dataset",
+   "job": "GENCPY",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.GEN1",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.GEN1",
+      "kept"
+     ],
+     [
+      "PRB.UTIL.GEN1",
+      "deleted"
+     ]
+    ],
+    "sysout_count": {
+     "GENERATOR RECORD ONE": 1,
+     "GENERATOR RECORD TWO": 1
+    }
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.GEN1",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.GEN1",
+      "kept"
+     ],
+     [
+      "PRB.UTIL.GEN1",
+      "deleted"
+     ]
+    ],
+    "sysout_count": {
+     "GENERATOR RECORD ONE": 1,
+     "GENERATOR RECORD TWO": 1
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [
+    {
+     "dsn": "JES2.JOB00008.SO0102",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.GEN1",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00008.SO0103",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.GEN1",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00008.SO0104",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.GEN1",
+     "disposition": "UNCATALOGED"
+    },
+    {
+     "dsn": "PUB001.UTIL.GEN1",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "iebgener-no-sysut1-dd",
+   "job": "GENNOIN",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 12
+     }
+    }
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 12
+     }
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 12,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [
+    {
+     "dsn": "JES2.JOB00010.SO0101",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "JES2.JOB00010.SO0102",
+     "disposition": "SYSOUT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0,
+   "assumed": "A2"
+  },
+  {
+   "id": "iebgener-dummy-input-empty-output",
+   "job": "GENEMP",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.EMPTY",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.EMPTY",
+      "deleted"
+     ]
+    ]
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 12
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.EMPTY",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.EMPTY",
+      "deleted"
+     ]
+    ]
+   },
+   "verdict": "differ:box",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 12,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [
+    {
+     "dsn": "JES2.JOB00012.SO0101",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.EMPTY",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "PUB001.UTIL.EMPTY",
+     "disposition": "UNCATALOGED"
+    },
+    {
+     "dsn": "PUB001.UTIL.EMPTY",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "iebcopy-select-one-member",
+   "job": "CPYSEL",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     },
+     "S4": {
+      "action": "run",
+      "rc": 0
+     },
+     "S5": {
+      "action": "run",
+      "abend": "S013"
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.DST",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.DST",
+      "kept"
+     ]
+    ],
+    "sysout_count": {
+     "MEMA LINE": 1,
+     "MEMB LINE": 0
+    }
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     },
+     "S4": {
+      "action": "run",
+      "rc": 0
+     },
+     "S5": {
+      "action": "run",
+      "abend": "S013"
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.DST",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.DST",
+      "kept"
+     ]
+    ],
+    "sysout_count": {
+     "MEMA LINE": 1,
+     "MEMB LINE": 0
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "S5",
+     "system": "S013",
+     "user": "U0000"
+    }
+   ],
+   "box_dispositions": [
+    {
+     "dsn": "JES2.JOB00014.SO0104",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00014.SO0105",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00014.SO0106",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "SYS26325.T013327.RA000.CPYSEL.R0000001",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "SYS26325.T013327.RA000.CPYSEL.R0000002",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "JES2.JOB00014.SO0107",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00014.SO0108",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "JES2.JOB00014.SO0109",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00014.SO0110",
+     "disposition": "SYSOUT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "iebcopy-exclude-one-member",
+   "job": "CPYEXC",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     },
+     "S4": {
+      "action": "run",
+      "rc": 0
+     },
+     "S5": {
+      "action": "run",
+      "abend": "S013"
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.DST",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.DST",
+      "kept"
+     ]
+    ],
+    "sysout_count": {
+     "MEMB LINE": 1,
+     "MEMA LINE": 0
+    }
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     },
+     "S4": {
+      "action": "run",
+      "rc": 0
+     },
+     "S5": {
+      "action": "run",
+      "abend": "S013"
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.DST",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.DST",
+      "kept"
+     ]
+    ],
+    "sysout_count": {
+     "MEMB LINE": 1,
+     "MEMA LINE": 0
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "S5",
+     "system": "S013",
+     "user": "U0000"
+    }
+   ],
+   "box_dispositions": [
+    {
+     "dsn": "JES2.JOB00016.SO0104",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00016.SO0105",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00016.SO0106",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "SYS26325.T013331.RA000.CPYEXC.R0000001",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "SYS26325.T013331.RA000.CPYEXC.R0000002",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "JES2.JOB00016.SO0107",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00016.SO0108",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "JES2.JOB00016.SO0109",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00016.SO0110",
+     "disposition": "SYSOUT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "iebcopy-no-member-statement-copies-all",
+   "job": "CPYALL",
+   "expect": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     },
+     "S4": {
+      "action": "run",
+      "rc": 0
+     },
+     "S5": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.DST",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.DST",
+      "kept"
+     ]
+    ],
+    "sysout_count": {
+     "MEMA LINE": 1,
+     "MEMB LINE": 1
+    }
+   },
+   "engine": null,
+   "box": {
+    "steps": {
+     "S1": {
+      "action": "run",
+      "rc": 0
+     },
+     "S2": {
+      "action": "run",
+      "rc": 0
+     },
+     "S3": {
+      "action": "run",
+      "rc": 0
+     },
+     "S4": {
+      "action": "run",
+      "rc": 0
+     },
+     "S5": {
+      "action": "run",
+      "rc": 0
+     }
+    },
+    "events": [
+     [
+      "PRB.UTIL.DST",
+      "cataloged"
+     ],
+     [
+      "PRB.UTIL.DST",
+      "kept"
+     ]
+    ],
+    "sysout_count": {
+     "MEMA LINE": 1,
+     "MEMB LINE": 1
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "box_dispositions": [
+    {
+     "dsn": "JES2.JOB00018.SO0104",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00018.SO0105",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00018.SO0106",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.SRC",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "CATALOGED"
+    },
+    {
+     "dsn": "SYS26325.T013335.RA000.CPYALL.R0000001",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "SYS26325.T013335.RA000.CPYALL.R0000002",
+     "disposition": "DELETED"
+    },
+    {
+     "dsn": "JES2.JOB00018.SO0107",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00018.SO0108",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "JES2.JOB00018.SO0109",
+     "disposition": "SYSOUT"
+    },
+    {
+     "dsn": "PUB001.UTIL.DST",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "UCPUB001",
+     "disposition": "KEPT"
+    },
+    {
+     "dsn": "JES2.JOB00018.SO0110",
+     "disposition": "SYSOUT"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  }
+ ]
+}

@@ -172,21 +172,6 @@
    ]
   },
   {
-   "id": "8f9f19913b",
-   "op": "CON",
-   "line": 63,
-   "before": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 1, false);",
-   "after": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
-   ]
-  },
-  {
    "id": "8f934c3502",
    "op": "CON",
    "line": 65,
@@ -232,6 +217,22 @@
    ]
   },
   {
+   "id": "8f9f19913b",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 1, false);",
+   "after": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 2, false);",
+   "verdict": "harness-gap",
+   "reason": "ACCTA grows by one byte onto the byte after the attribute byte, which the port leaves NUL (LOW-VALUES) and the mutant's one-byte MOVE pads with a space: a NUL turned into a space in a symbolic-map byte; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
+   ]
+  },
+  {
    "id": "ca18b700a0",
    "op": "CON",
    "line": 66,
@@ -258,16 +259,17 @@
   {
    "id": "0fd741c580",
    "op": "CON",
-   "line": 69,
+   "line": 72,
    "before": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 1, false);",
    "after": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
+   "verdict": "harness-gap",
+   "reason": "MSGA grows by one byte onto the byte after the attribute byte, which the port leaves NUL (LOW-VALUES) and the mutant's MOVE X'F1' pads with a space: a NUL turned into a space in a symbolic-map byte; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
    "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "pf6-long-commarea",
-    "short-values"
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
    ]
   },
   {
@@ -3341,6 +3343,22 @@
    ]
   },
   {
+   "id": "2f61febdd4",
+   "op": "DEL",
+   "line": 436,
+   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
+   "verdict": "harness-gap",
+   "reason": "without MOVE LOW-VALUES TO HXM2O on the first display the output area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
+   ]
+  },
+  {
    "id": "5cd7217dba",
    "op": "CON",
    "line": 440,
@@ -3527,15 +3545,6 @@
    ]
   },
   {
-   "id": "2f61febdd4",
-   "op": "DEL",
-   "line": 468,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "1a11dc62a4",
    "op": "CON",
    "line": 469,
@@ -3560,6 +3569,22 @@
    ]
   },
   {
+   "id": "d9c0f89e64",
+   "op": "DEL",
+   "line": 477,
+   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS); */",
+   "verdict": "harness-gap",
+   "reason": "without MOVE LOW-VALUES TO HXM2I the input area keeps its initial spaces where the port writes NULs before RECEIVE MAP; every field the RECEIVE fills is overwritten and the rest are read by typed text, and DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
+   ]
+  },
+  {
    "id": "5e8f4f85e4",
    "op": "CON",
    "line": 483,
@@ -3581,6 +3606,22 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8ec71a9459",
+   "op": "DEL",
+   "line": 483,
+   "before": "java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0);",
+   "after": "/* java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0); */",
+   "verdict": "harness-gap",
+   "reason": "the NUL fill of the input area before a successful RECEIVE MAP is dropped, leaving the previous task's spaces/initial bytes where the port has NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
    ]
   },
   {
@@ -3692,15 +3733,6 @@
    ]
   },
   {
-   "id": "d9c0f89e64",
-   "op": "DEL",
-   "line": 509,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "59acaa31ce",
    "op": "CON",
    "line": 513,
@@ -3771,15 +3803,6 @@
    "tried": [
     "eib-resp-unread"
    ]
-  },
-  {
-   "id": "8ec71a9459",
-   "op": "DEL",
-   "line": 515,
-   "before": "java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0);",
-   "after": "/* java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "8f0044f63a",
@@ -3857,6 +3880,22 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d1599893c2",
+   "op": "DEL",
+   "line": 530,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS); */",
+   "verdict": "harness-gap",
+   "reason": "MOVE SPACES TO MSGO is dropped on the good-entry arm, leaving the NULs of the earlier LOW-VALUES move where the original writes spaces: a space turned into a NUL in a symbolic-map data field; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
    ]
   },
   {
@@ -4010,13 +4049,36 @@
    ]
   },
   {
-   "id": "d1599893c2",
+   "id": "b0482afde7",
    "op": "DEL",
-   "line": 562,
-   "before": "Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "line": 558,
+   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
+   "verdict": "harness-gap",
+   "reason": "without MOVE LOW-VALUES TO HXM2O on the PF5 path the output area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
+   ]
+  },
+  {
+   "id": "ec1c582775",
+   "op": "DEL",
+   "line": 564,
+   "before": "Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS);",
+   "after": "/* Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS); */",
+   "verdict": "harness-gap",
+   "reason": "MOVE DFHBMUNP (X'40', a space) TO ACCTA is dropped: the attribute byte stays NUL where the original writes a space; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-clear",
+    "nul-empty-receive",
+    "nul-first-display-pf1",
+    "nul-good-entry-pf2",
+    "nul-pf5-no-fields"
+   ]
   },
   {
    "id": "28c31429c3",
@@ -4167,24 +4229,6 @@
     "pa1-f",
     "pf3-f"
    ]
-  },
-  {
-   "id": "b0482afde7",
-   "op": "DEL",
-   "line": 590,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "ec1c582775",
-   "op": "DEL",
-   "line": 596,
-   "before": "Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS);",
-   "after": "/* Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "ed0122b913",

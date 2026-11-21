@@ -9,9 +9,7 @@
   "cics-crucible.yml|runner-tests|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "codeql.yml|analyze|Report the results this PR adds|gh-api",
   "det-sweep.yml|db2|Load or build the oracle image, and check it against its pin (#4309)|docker",
-  "det-sweep.yml|detmut|Check the ledgers of the cases this PR changes|git-fetch",
   "det-sweep.yml|plan|Plan the sweep|gh-api",
-  "det-sweep.yml|plan|Plan the sweep|git-fetch",
   "det-sweep.yml|shard|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "doom-rosetta.yml|callgraph|Scope|gh-api",
   "equivalence-e2e.yml|db2|Load or build the oracle image, and check it against its pin (#4309)|docker",
@@ -33,7 +31,6 @@
   "graph-comparison-history.yml|plan|Plan the run|gh-api",
   "mypy-audit.yml|mypy-audit|Plan the audit|gh-api",
   "ports-compile.yml|ports-compile|Plan the clean-install check|gh-api",
-  "publish.yml|pypi-publish|Enforce Main Branch Tagging|git-fetch",
   "referee-panel.yml|panel|Install Che4z COBOL Language Support|gh-download",
   "referee-panel.yml|panel|Install Cobrix|git-fetch",
   "referee-panel.yml|panel|Install Cobrix|maven-gradle",
@@ -44,9 +41,7 @@
   "smoke-test.yml|full-suite-part|Plan the ReDoS sweeps (#5166)|gh-api",
   "smoke-test.yml|suite-plan|Plan the suite|gh-api",
   "smoke-test.yml|suite-time|Total against the budget|gh-api",
-  "tree-sitter-accuracy-audit.yml|plan|Plan the audit|git-fetch",
   "tree-sitter-accuracy-history.yml|plan|Plan the run|gh-api",
-  "tri-comparison-audit.yml|plan|Plan the audit|git-fetch",
   "tri-comparison-history.yml|plan|Plan the run|gh-api"
  ],
  "advisory_uploads": []

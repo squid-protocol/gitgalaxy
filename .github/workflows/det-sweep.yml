@@ -133,7 +133,7 @@ jobs:
           REPO: ${{ github.repository }}
         shell: bash  # -e -o pipefail: the planner's exit status survives `| tee` (a crash planned nothing, reported success)
         run: |
-          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          tests/tools/ci_retry.sh 3 5 -- git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
           labels=""
           if [ -n "$PR" ]; then labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
           # #5919: the queue depth is read here, not by the planner; empty (not a PR, or unreadable) plans calm
@@ -937,7 +937,7 @@ jobs:
       - name: Check the ledgers of the cases this PR changes
         run: |
           cd gitgalaxy
-          git fetch --quiet origin main
+          tests/tools/ci_retry.sh 3 5 -- git fetch --quiet origin main
           PYTHONPATH="$PWD" python tests/tools/det_mutation.py stale-check --vs origin/main
 
   # The required check (its name, `det`, is what it was when this was one job): the shards' verdicts, merged, against

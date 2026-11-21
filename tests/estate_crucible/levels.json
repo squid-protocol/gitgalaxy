@@ -77,7 +77,14 @@
       "app": "MQSA",
       "about": "IBM MQ, deeper",
       "issues": [4892],
-      "first_run": null,
+      "first_run": {
+        "date": "2026-11-21",
+        "engine": "d00f3016d",
+        "key": "v0.8.0",
+        "scan": {"horrors": 13, "pass": 13, "fail": [], "why": "every MQSA horror (H-0086..H-0093, H-0100, H-0101, H-0114..H-0116) passes"},
+        "translate": {"engine": "d00f3016d", "programs": 8, "whole": 0, "holes": 8, "refused": 0, "detail": "no program whole; every one has its MQI calls as holes (batch MQ: MQCONN / MQCONNX / MQOPEN / MQGET / MQPUT / MQPUT1 / MQCMIT / MQINQ / MQSET / MQCLOSE / MQDISC outside CICS, register W5 / W6, not modelled): MQSACNX 13/17, MQSADYN 17/22, MQSAGET 25/32, MQSAINQ 13/18, MQSAPUT 24/31, MQSAREP 9/12, MQSASET 13/18, MQSATRG 20/25. Translate only, bare stub: nothing run or proven. members_at_pin counts the 6 copybooks beside the 8 programs"},
+        "source": "gitgalaxy#7065"
+      },
       "members_at_pin": {"cobol": 14, "jcl": 1},
       "constructs": [
         {"name": "MQPUT1", "horrors": ["H-0086"]},
@@ -102,7 +109,14 @@
       "app": "HKEP",
       "about": "IMS DL/I and TM",
       "issues": [4893],
-      "first_run": null,
+      "first_run": {
+        "date": "2026-11-21",
+        "engine": "d00f3016d",
+        "key": "v0.8.0",
+        "scan": {"horrors": 7, "pass": 3, "fail": ["H-0096", "H-0117", "H-0118", "H-0119"], "why": "the ims_gen reader keeps no row for the HKEP DBD / PSB macros: 14 ims_gen rows missing (DBD, SEGM, FIELD, LCHILD, PCB, PSB, SENSEG); outside the horrors, HKEPWALK's 1000-SCAN self-PERFORM edge is missing"},
+        "translate": {"engine": "d00f3016d", "programs": 2, "whole": 2, "holes": 0, "refused": 0, "detail": "HKEPFIND 4/4, HKEPWALK 10/10 statements on a bare stub (the DL/I calls are plain CALLs here); the DBD / PSB assembler members are not translated. Translate only: nothing run or proven"},
+        "source": "gitgalaxy#7065"
+      },
       "members_at_pin": {"cobol": 2, "jcl": 0},
       "constructs": [
         {"name": "DBD segments in hierarchic order", "horrors": ["H-0096"]},

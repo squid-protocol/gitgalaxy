@@ -146,6 +146,23 @@ the call graph.
 
 ![Graph accuracy coverage by language](docs/self_scan/graph_coverage_chart.svg)
 
+**Keyword families.** Every per-function signal (I/O, regex, time, decorators, bitwise, ...) is a keyword family with a
+written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.py): 71 families, 73 code languages).
+A parser (Python `ast`, tree-sitter) says what each function does, and each family is scored against that on recall and
+precision (the family-validity tool, [PR #8864](https://github.com/squid-protocol/gitgalaxy/pull/8864)). Each cell shows the weaker of the two, so a family that
+finds every construct but also fires on strings does not look good.
+- Tested so far (2026-11-21): 2,894 language-by-family rules are defined; 181 are measured against a parser (15 languages),
+  677 more only by a parserless decoy test, and 2,036 are not tested yet. The measured cells range from 0% to 100%
+  (lower of recall and precision), so the figure prints every score. The decoy test plants each family's keyword in a
+  comment and in a string literal: comments are ignored in all 756 cells, while a keyword in a string literal counts in
+  93% of them (known behaviour, [#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)).
+- Limit: one corpus per language, and the parser's reading is our interpretation of each contract, not ground truth.
+  Cells marked † come from repositories that are not pinned, so they are exploratory
+  ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)). The full 73 x 71 matrix, with hover numbers, is
+  [`family_validity_matrix.svg`](docs/self_scan/family_validity_matrix.svg).
+
+![Keyword families: how much is checked, and how well](docs/self_scan/family_validity_chart.svg)
+
 **Same intent, same measurement.** The [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
 plants the same 12-probe program in every language. Any difference in what the engine measures is therefore language
 bias.

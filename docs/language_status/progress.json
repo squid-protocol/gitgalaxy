@@ -1,5 +1,5 @@
 {
- "commit": "fa90edd4f",
+ "commit": "bcec0f0fd",
  "components": {
   "capabilities": {
    "groups": [
@@ -645,17 +645,17 @@
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 1930,
+     "caught": 1934,
      "equivalent": 1582,
      "l5": 4,
      "measured": 8,
      "mutants": 4347,
      "programs": 31,
-     "raw_pct": 46.9,
+     "raw_pct": 47.0,
      "ready": 0,
      "sampled": 4347,
      "sampled_pct": 100.0,
-     "survived": 2184,
+     "survived": 2180,
      "unreachable": 581
     },
     "cics-genapp": {
@@ -716,7 +716,7 @@
     }
    },
    "total": {
-    "caught": 17296,
+    "caught": 17300,
     "equivalent": 5965,
     "l5": 8,
     "measured": 60,
@@ -726,7 +726,7 @@
     "ready": 0,
     "sampled": 37355,
     "sampled_pct": 67.7,
-    "survived": 17920,
+    "survived": 17916,
     "unreachable": 1212
    }
   },
@@ -1043,16 +1043,16 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T11:46:33Z",
+  "as_of": "2026-11-21T13:19:53Z",
   "core": {
    "closed": 253,
-   "open": 13,
-   "total": 266
+   "open": 21,
+   "total": 274
   },
   "core_last_window": {
-   "closed": 6,
-   "net_closed": 5,
-   "opened": 1
+   "closed": 5,
+   "net_closed": -4,
+   "opened": 9
   },
   "core_milestone": {
    "closed": 136,
@@ -1067,7 +1067,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "18 days",
+  "eta": "not converging",
   "frontier": {
    "closed": 133,
    "found_last_window": 5,
@@ -1345,6 +1345,34 @@
     "open": 5,
     "title": "CICS Security - Full CICS Cross-Program SAST",
     "total": 5
+   },
+   {
+    "closed": 0,
+    "number": 40,
+    "open": 14,
+    "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
+    "total": 14
+   },
+   {
+    "closed": 0,
+    "number": 41,
+    "open": 1,
+    "title": "Graveyard Shift 1 \ud83c\udf19 \u2014 POSTTRAN \u2192 INTCALC, one chain",
+    "total": 1
+   },
+   {
+    "closed": 0,
+    "number": 42,
+    "open": 6,
+    "title": "Graveyard Shift 2 \ud83c\udf19 \u2014 the whole CardDemo nightly",
+    "total": 6
+   },
+   {
+    "closed": 0,
+    "number": 43,
+    "open": 1,
+    "title": "Graveyard Shift 3 \ud83c\udf19 \u2014 the nightly as Spring Batch",
+    "total": 1
    }
   ],
   "sweep": {
@@ -1359,7 +1387,7 @@
    },
    "cobol": {
     "closed": 147,
-    "total": 157
+    "total": 158
    }
   },
   "window_days": 7
@@ -1709,14 +1737,14 @@
     "l2_plus_pct": 61.2,
     "l4_plus": 85,
     "l4_plus_pct": 61.2,
-    "l5": 0,
+    "l5": 2,
     "levels": {
      "L0": 6,
      "L1": 48,
      "L2": 0,
      "L3": 0,
-     "L4": 85,
-     "L5": 0
+     "L4": 83,
+     "L5": 2
     },
     "netted": {
      "infeasible_netted": 23,

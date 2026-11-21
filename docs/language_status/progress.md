@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `fa90edd4f` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `bcec0f0fd` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -36,7 +36,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 139 | 6 | 48 | 0 | 0 | 85 | 0 |
+| `cics-crucible` | 139 | 6 | 48 | 0 | 0 | 83 | 2 |
 
 
 Code we had never seen when we met it, never in the denominator above. L1 is measured from first contact; L2
@@ -59,12 +59,12 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 |---|---|---|---|---|---|---|---|---|
 | `aws-mainframe-modernization-carddemo` | 44 | 25 | 3 | 0 | 51.1% (6090 of 11928) | 41.3% (12559 of 30382) | 2249 | 209 |
 | `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 86.8% (5065 of 5838) | 100.0% (6284 of 6284) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 8 | 4 | 0 | 46.9% (1930 of 4114) | 100.0% (4347 of 4347) | 1582 | 581 |
+| `cics-banking-sample-application-cbsa` | 31 | 8 | 4 | 0 | 47.0% (1934 of 4114) | 100.0% (4347 of 4347) | 1582 | 581 |
 | `cics-genapp` | 31 | 11 | 0 | 0 | 26.3% (2711 of 10313) | 100.0% (10993 of 10993) | 1014 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (322 of 636) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `zecs` | 7 | 4 | 1 | 0 | 49.4% (1178 of 2387) | 100.0% (2528 of 2529) | 826 | 352 |
-| **Total** | 158 | 60 | 8 | 0 | 49.1% (17296 of 35216) | 67.7% (37355 of 55179) | 5965 | 1212 |
+| **Total** | 158 | 60 | 8 | 0 | 49.1% (17300 of 35216) | 67.7% (37355 of 55179) | 5965 | 1212 |
 
 ## Capability ledger
 
@@ -134,12 +134,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T11:46:33Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T13:19:53Z.
 
-- `scope:core`: 13 open, 253 closed.
+- `scope:core`: 21 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.
-- Last 7 days: 1 opened, 6 closed, net +5 closed.
-- ETA (open / net closure rate): **18 days**.
+- Last 7 days: 9 opened, 5 closed, net -4 closed.
+- ETA (open / net closure rate): **not converging**.
 
 ## 5. Gap Atlas
 

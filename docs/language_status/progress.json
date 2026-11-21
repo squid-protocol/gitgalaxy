@@ -1,5 +1,5 @@
 {
- "commit": "b9ee91781",
+ "commit": "d661fe7a6",
  "components": {
   "capabilities": {
    "groups": [
@@ -247,15 +247,26 @@
      "unit": ""
     },
     {
-     "done": 135,
+     "done": 140,
      "found": "",
      "group": "Batch",
      "have": "run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers",
      "name": "JCL step flow",
-     "note": "answers written from IBM's JCL Reference before the evaluator ran",
-     "of": 135,
+     "note": "answers written from IBM's manuals before the evaluator ran; plus 23 ASSUMED scenarios (a stated assumption, not IBM text), 23 reproduced",
+     "of": 140,
      "state": "works",
      "unit": "IBM-written scenarios"
+    },
+    {
+     "done": 16,
+     "found": "",
+     "group": "Batch",
+     "have": "fixture/scenarios.json: 8 of 8 agree (file has 14); proc/scenarios.json: 8 of 8 agree (file has 46); 147 scenarios in 7 answer files not run on the box",
+     "name": "JCL on MVS 3.8J (tier 2)",
+     "note": "not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS",
+     "of": 16,
+     "state": "works",
+     "unit": "scenarios agreeing on the box"
     },
     {
      "done": 8,
@@ -989,7 +1000,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T01:42:26Z",
+  "as_of": "2026-11-21T01:43:27Z",
   "core": {
    "closed": 253,
    "open": 13,

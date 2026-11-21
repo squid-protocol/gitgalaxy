@@ -34,6 +34,8 @@ on:
       - "tests/tools/doom_speedrun/ts_callgraph_oracle.py"
       - "tests/tools/doom_speedrun/doom_clang*.py"
       - "tests/tools/clang_callgraph.py"
+      - "ci/requirements/treesitter.*"  # #8481: the tree-sitter pack is the oracle's grammar
+      - "ci/requirements/solver.*"  # #8481: pins the same pack
       - "tests/tools/doom_speedrun/callgraph_baseline.json"  # the callgraph job's PR scope (below)
       - "gitgalaxy/galaxyscope.py"
       - ".github/workflows/doom-rosetta.yml"
@@ -158,7 +160,7 @@ jobs:
         run: |
           if [ -z "$PR" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
           files=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate -q '.[].filename')
-          hits=$(printf '%s\n' "$files" | grep -E '^(gitgalaxy/core/(detector|call_resolver)\.py|gitgalaxy/galaxyscope\.py|gitgalaxy/standards/language_standards/(_shared_patterns\.py|languages/(c|cpp)\.py)|tests/tools/doom_speedrun/(callgraph_oracle|doom_speedrun)\.py|tests/tools/doom_speedrun/callgraph_baseline\.json|tests/tools/clang_callgraph\.py|\.github/workflows/doom-rosetta\.yml)$' || true)
+          hits=$(printf '%s\n' "$files" | grep -E '^(gitgalaxy/core/(detector|call_resolver)\.py|gitgalaxy/galaxyscope\.py|gitgalaxy/standards/language_standards/(_shared_patterns\.py|languages/(c|cpp)\.py)|tests/tools/doom_speedrun/(callgraph_oracle|doom_speedrun)\.py|tests/tools/doom_speedrun/callgraph_baseline\.json|tests/tools/clang_callgraph\.py|ci/requirements/(treesitter|solver)\.(txt|in)|\.github/workflows/doom-rosetta\.yml)$' || true)
           if [ -n "$hits" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; echo "call-graph inputs changed:"; echo "$hits"
           else echo "run=false" >> "$GITHUB_OUTPUT"; echo "no call-graph input changed: skipped"; fi
 

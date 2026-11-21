@@ -385,6 +385,20 @@ def test_every_shared_tree_sitter_input_runs_all_languages(audit):
         assert p["run"] and p["langs"] == aap.ALL_LANGS, path
 
 
+@pytest.mark.parametrize("audit", [*TS, aap.TRI])
+@pytest.mark.parametrize("lock", ["treesitter.txt", "treesitter.in", "solver.txt", "solver.in"])
+def test_a_tree_sitter_pack_lockfile_change_runs_all_languages_8481(audit, lock):
+    """The pack is the audit's ground truth: a lockfile-only bump (#8401 took 1.24.0 green) must run every language."""
+    p = plan_with([f"ci/requirements/{lock}"], audit, [])
+    assert p["run"] and p["langs"] == aap.ALL_LANGS
+
+
+@pytest.mark.parametrize("audit", [*TS, aap.TRI])
+@pytest.mark.parametrize("lock", ["docs.txt", "lint.txt", "test.in"])
+def test_an_unrelated_requirements_lockfile_runs_no_tree_sitter_audit_8481(audit, lock):
+    assert not plan_with([f"ci/requirements/{lock}"], audit, [])["run"]
+
+
 @pytest.mark.parametrize("audit", TS)
 @pytest.mark.parametrize(
     "path",
@@ -567,7 +581,7 @@ def test_the_audit_runs_the_selected_languages_from_the_environment_and_the_hist
 def test_every_path_the_tree_sitter_workflow_filters_on_is_planned(audit):
     for path in aap.workflow_paths(audit):
         if "*" in path:
-            assert path.startswith((aap.LANG_STANDARDS, aap.TREE_BASELINE)), path
+            assert path.startswith((aap.LANG_STANDARDS, aap.TREE_BASELINE, "ci/requirements/")), path
         else:
             assert path in aap.EVERYTHING[audit], path
 
@@ -737,6 +751,8 @@ def test_every_path_a_new_workflow_filters_on_is_planned(audit):
     for path in aap.workflow_paths(audit):
         if path.startswith((aap.LANG_STANDARDS, aap.TRI_BASELINE)):  # judged per file / per language
             assert "*" in path
+        elif path in aap._TS_PACK:  # #8481: a pack bump moves every language
+            assert path in aap.EVERYTHING[audit]
         else:
             assert aap._glob(path, list(aap.EVERYTHING[audit])) or path in aap.EVERYTHING[audit], path
 

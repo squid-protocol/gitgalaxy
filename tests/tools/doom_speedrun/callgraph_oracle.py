@@ -194,15 +194,21 @@ def decode_bytes(raw):
 
 def _macro_prefixed_call(n):
     """A bare macro statement (no semicolon) fused with the call after it: tree-sitter reads `MACRO f(x);` inside a
-    function body as a declaration of a function `f` returning type `MACRO` (srb2's `HUDONLY`, #6266)."""
+    function body as a declaration of a function `f` returning type `MACRO` (srb2's `HUDONLY`, #6266). A newer C grammar (tree-sitter-language-pack 1.24.0,
+    #8481) also swallows the statements between the macro and the call into an ERROR child of the same declaration
+    (`INLEVEL\n if (!p) return f(L);\n g(L, h(p));`): the call is then a `function_declarator` after the ERROR."""
     if n.type != "declaration" or n.parent is None or n.parent.type != "compound_statement":
         return False
     return (
         len(n.children) >= 2
         and n.children[0].type == "type_identifier"
-        and re.fullmatch(r"[A-Z][A-Z0-9_]+", decode_bytes(n.children[0].text))
-        is not None  # a macro, not `OString s(x)`
-        and n.children[1].type == "function_declarator"
+        and (
+            re.fullmatch(r"[A-Z][A-Z0-9_]+", decode_bytes(n.children[0].text))
+            is not None  # a macro, not `OString s(x)`
+            or decode_bytes(n.children[0].text) in ("else", "do")  # `else f(L);` after a fused macro statement (#8481)
+        )
+        and any(c.type == "function_declarator" for c in n.children[1:])
+        and all(c.type in ("ERROR", "function_declarator", ";") for c in n.children[1:])
     )
 
 
@@ -367,6 +373,11 @@ class Body:
                 end = inner.start_byte if inner is not None else n.end_byte
                 self._text_calls(n.text[: end - n.start_byte])
             elif _macro_prefixed_call(n):  # `HUDONLY\n lua_getfield(L, 1);` reads as a declaration of that name
+                if any(
+                    c.type == "ERROR" for c in n.children
+                ):  # the statements fused in: the ERROR branch's bookkeeping
+                    self.broken = True
+                    self.desynced |= _unescaped_quotes(n.text) % 2 == 1
                 self._text_calls(n.text)
             elif n.type == "ERROR":
                 self.broken = True

@@ -155,6 +155,31 @@ def test_the_brace_fallback_reads_a_declared_local_as_a_declaration_not_a_call()
     assert "layout" not in body.calls and "map" not in body.calls and "from" not in body.calls
 
 
+def test_a_bare_macro_statement_fused_with_the_calls_after_it_keeps_every_call_8481():
+    """tree-sitter-language-pack 1.24.0 reads `NOHUD` + an `if` + an `else f(L);` as one declaration with an ERROR child
+    (and `else f(L);` as a declaration of `f`): every call in the span is still a call."""
+    src = b"""static int lib_music(lua_State *L)
+{
+    player_t *player = NULL;
+    NOHUD
+    if (!lua_isnone(L, 1) && lua_isuserdata(L, 1))
+    {
+        player = *((player_t **)luaL_checkudata(L, 1, META_PLAYER));
+        if (!player)
+            return LUA_ErrInvalid(L, "player_t");
+    }
+    if (!player || P_IsLocalPlayer(player))
+        lua_pushinteger(L, S_MusicType());
+    else
+        lua_pushnil(L);
+    return 1;
+}
+"""
+    fn = co.function_nodes(co._parser("c").parse(src))[0]
+    body = co.Body(fn, {})
+    assert {"luaL_checkudata", "P_IsLocalPlayer", "lua_pushinteger", "S_MusicType", "lua_pushnil"} <= set(body.calls)
+
+
 def make_port(work, name, files, funcs):
     """files: {rel: source}; funcs: [(rel, name, start_line, [callees])]."""
     repo = work / "repos" / name

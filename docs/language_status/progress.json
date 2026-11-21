@@ -1,5 +1,5 @@
 {
- "commit": "39aa0e941",
+ "commit": "f98ba355f",
  "components": {
   "capabilities": {
    "groups": [
@@ -528,7 +528,26 @@
       "built": 11,
       "built_pct": 78.6,
       "constructs": 14,
-      "first_run": null,
+      "first_run": {
+       "date": "2026-11-21",
+       "engine": "d00f3016d",
+       "key": "v0.8.0",
+       "scan": {
+        "fail": [],
+        "horrors": 13,
+        "pass": 13,
+        "why": "every MQSA horror (H-0086..H-0093, H-0100, H-0101, H-0114..H-0116) passes"
+       },
+       "source": "gitgalaxy#7065",
+       "translate": {
+        "detail": "no program whole; every one has its MQI calls as holes (batch MQ: MQCONN / MQCONNX / MQOPEN / MQGET / MQPUT / MQPUT1 / MQCMIT / MQINQ / MQSET / MQCLOSE / MQDISC outside CICS, register W5 / W6, not modelled): MQSACNX 13/17, MQSADYN 17/22, MQSAGET 25/32, MQSAINQ 13/18, MQSAPUT 24/31, MQSAREP 9/12, MQSASET 13/18, MQSATRG 20/25. Translate only, bare stub: nothing run or proven. members_at_pin counts the 6 copybooks beside the 8 programs",
+        "engine": "d00f3016d",
+        "holes": 8,
+        "programs": 8,
+        "refused": 0,
+        "whole": 0
+       }
+      },
       "horrors": 13,
       "issues": [
        4892
@@ -550,7 +569,31 @@
       "built": 6,
       "built_pct": 66.7,
       "constructs": 9,
-      "first_run": null,
+      "first_run": {
+       "date": "2026-11-21",
+       "engine": "d00f3016d",
+       "key": "v0.8.0",
+       "scan": {
+        "fail": [
+         "H-0096",
+         "H-0117",
+         "H-0118",
+         "H-0119"
+        ],
+        "horrors": 7,
+        "pass": 3,
+        "why": "the ims_gen reader keeps no row for the HKEP DBD / PSB macros: 14 ims_gen rows missing (DBD, SEGM, FIELD, LCHILD, PCB, PSB, SENSEG); outside the horrors, HKEPWALK's 1000-SCAN self-PERFORM edge is missing"
+       },
+       "source": "gitgalaxy#7065",
+       "translate": {
+        "detail": "HKEPFIND 4/4, HKEPWALK 10/10 statements on a bare stub (the DL/I calls are plain CALLs here); the DBD / PSB assembler members are not translated. Translate only: nothing run or proven",
+        "engine": "d00f3016d",
+        "holes": 0,
+        "programs": 2,
+        "refused": 0,
+        "whole": 2
+       }
+      },
       "horrors": 7,
       "issues": [
        4893
@@ -1000,7 +1043,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T10:04:03Z",
+  "as_of": "2026-11-21T10:07:29Z",
   "core": {
    "closed": 253,
    "open": 13,

@@ -208,6 +208,11 @@ side, the worker now runs it after a passing `runTask` side, in the same session
 (`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
 named `<scenario> [java-facade]`; `killers` names those for a separate run too.
 
+**`survivor_attack.py try` proves a CICS attack through the facades too (#8599).** It ran every proof with `--no-facades`
+while `live_methods` counts `handleLink` / `lastLinkBytes` as live, so an attack on a facade-only survivor could report
+`survived` where the facade side kills it. `attack_flags` now drops `--no-facades` for a CICS case (batch and the other
+kinds have no facade). Not re-run on the oracle here: the 360 survivors auto-triaged in #8485 are still to be re-attacked.
+
 cbsa-abndproc's 212 recorded survivors (fast+one-jvm, seed 0; 195 still in the port), re-judged in process: **8 now
 die**, 187 survive (2.2 s a survivor, the facade side included). The 8 and 6 random survivors, re-judged with
 `--no-one-jvm`: **14 of 14 agree**, with the same scenarios in `killed_by` (2 s in process, 31-54 s as separate runs).

@@ -3213,9 +3213,9 @@
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
       "rust/bevy/bevy_ecs_macros.rs": 8.598,
-      "rust/bevy/bevy_ecs_query.rs": 7.511,
+      "rust/bevy/bevy_ecs_query.rs": 7.592,
       "rust/bevy/bevy_ecs_table.rs": 6.604,
-      "rust/bevy/bevy_ecs_world.rs": 7.923,
+      "rust/bevy/bevy_ecs_world.rs": 7.946,
       "rust/bevy/bevy_reflect_path.rs": 6.054,
       "rust/bevy/bevy_render_phase.rs": 6.346,
       "rust/bevy/bevy_schedule_graph.rs": 6.556
@@ -3278,7 +3278,7 @@
       "rust/wasmtime/wasmtime_component_macro.rs": 6.636,
       "rust/wasmtime/wasmtime_instance.rs": 7.509,
       "rust/wasmtime/wasmtime_ir_instructions.rs": 7.782,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 7.886,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 7.89,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 6.549
     },
     "scala": {
@@ -3901,7 +3901,7 @@
       "typescript/playwright/bidiConnection.ts": 9.049,
       "typescript/playwright/connection.ts": 9.197,
       "typescript/playwright/crConnection.ts": 7.088,
-      "typescript/playwright/dispatcher.ts": 8.062,
+      "typescript/playwright/dispatcher.ts": 8.405,
       "typescript/playwright/frames.ts": 8.215,
       "typescript/playwright/protocol.ts": 3.375
     },
@@ -3916,7 +3916,7 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
-      "typescript/vscode/async.ts": 8.846,
+      "typescript/vscode/async.ts": 8.861,
       "typescript/vscode/codeEditorWidget.ts": 7.964,
       "typescript/vscode/eslint.config.js": 6.106,
       "typescript/vscode/extHost.api.impl.ts": 11.673,

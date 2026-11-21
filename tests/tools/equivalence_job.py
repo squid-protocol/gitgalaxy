@@ -12,9 +12,16 @@ Java side is given too. If every step's Java output equals its COBOL output, the
 job's chain; that composition is the claim, nothing about a step that a standalone proof does not already make.
 
 A step that abends has no output to feed: the job stops there and is not proven (what an abended step leaves in its
-datasets is not defined, equivalence.compare_run). Refused by name: a Db2 / IMS / CICS / call step, an indexed (VSAM)
-fed dataset, a feed from a step that is not earlier or a dataset that step does not compare, record lengths that
-differ across a feed, a fault run on a step (a fault plan names one step's datasets; not modelled in the job).
+datasets is not defined, equivalence.compare_run).
+
+An INDEXED (VSAM-style) dataset may be fed (#8879), including one the earlier step opens I-O (a KSDS it reads and
+REWRITEs): what is fed is the earlier step's COBOL-side unload (`ul<DD>`, primary-key order), staged as the same
+fixed-length lines and loaded, keyed as the next step's SELECT declares (`keys`), into both sides. Same composition
+claim as a sequential feed. Refused by name: a Db2 / IMS / CICS / call step, a feed between an indexed and a sequential
+dataset, indexed feeds whose keys or record lengths differ, a feed from a step that is not earlier or a dataset that
+step does not compare, record lengths that differ across a feed, a fault run on a step (a fault plan names one step's
+datasets; not modelled in the job). A step that abended feeds nothing (the job stops). An `inputs` value beginning
+`@corpus/` names a file in the step's corpus (CardDemo's shipped data) instead of one beside the job case.
 The oracle is GnuCOBOL plus our stub, not z/OS; the JCL that wires the steps is the case's `feeds`, not a read job.
 """
 
@@ -26,6 +33,9 @@ from pathlib import Path
 from typing import Any
 
 JOBS = Path(__file__).resolve().parents[1] / "equivalence" / "jobs"
+
+
+CORPUS_PREFIX = "@corpus/"
 
 
 class Unsupported(Exception):
@@ -59,7 +69,7 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         for dd, rel in step.get("inputs", {}).items():
             if dd not in cases[step["case"]]["datasets"] or dd in step.get("feeds", {}):
                 raise Unsupported(f"step {step['case']}: input {dd} is not one of its datasets, or is also fed")
-            if not (JOBS / rel).is_file():
+            if not rel.startswith(CORPUS_PREFIX) and not (JOBS / rel).is_file():
                 raise Unsupported(f"step {step['case']}: input {dd}: no file {rel} beside the job case")
     unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs"}
     if unknown:
@@ -77,8 +87,14 @@ def _check_feed(name: str, dd: str, feed: dict[str, Any], case: dict[str, Any], 
     out = cases[src]["datasets"].get(feed.get("dd"))
     if out is None or not out.get("compare"):
         raise Unsupported(f"step {name}: feed {dd} reads {src}.{feed.get('dd')}, which that step does not compare")
-    if "indexed" in (spec.get("organization"), out.get("organization")):
-        raise Unsupported(f"step {name}: feed {dd} is an indexed (VSAM) dataset; only sequential feeds are modelled")
+    orgs = (spec.get("organization"), out.get("organization"))
+    if "indexed" in orgs:
+        if orgs != ("indexed", "indexed"):
+            raise Unsupported(f"step {name}: feed {dd} ({orgs[0]}) reads {src}.{feed['dd']} ({orgs[1]}): "
+                              "an indexed feed needs an indexed dataset on both sides")  # fmt: skip
+        if spec.get("keys") != out.get("keys"):
+            raise Unsupported(f"step {name}: feed {dd} is keyed {spec.get('keys')}, {src}.{feed['dd']} "
+                              f"is keyed {out.get('keys')}")  # fmt: skip
     if spec["reclen"] != out["reclen"]:
         raise Unsupported(f"step {name}: feed {dd} has record length {spec['reclen']}, {src}.{feed['dd']} "
                           f"writes {out['reclen']}")  # fmt: skip
@@ -115,7 +131,8 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
         enc = api.data_encoding(case)
         fed = {}
         for dd, rel in step.get("inputs", {}).items():
-            case["datasets"][dd] = {**case["datasets"][dd], "input": str((JOBS / rel).resolve())}
+            path = rel[len(CORPUS_PREFIX) :] if rel.startswith(CORPUS_PREFIX) else str((JOBS / rel).resolve())
+            case["datasets"][dd] = {**case["datasets"][dd], "input": path}
         for dd, feed in step.get("feeds", {}).items():
             src = outputs.get(feed["step"], {}).get(feed["dd"])
             if src is None:

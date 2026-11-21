@@ -3672,14 +3672,14 @@
         "Callbacks & Closures": 2,
         "Compute Cores": 7,
         "Defensive Guards": 19,
-        "Encapsulated Accessors": 72,
+        "Encapsulated Accessors": 73,
         "Generic / Templated Code": 17,
         "I/O & Config Routines": 4,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 16,
         "Parameter Forwarders": 7,
         "State Mutators": 5,
-        "Stateful Encapsulated Methods": 73,
+        "Stateful Encapsulated Methods": 72,
         "Type Conversions": 7
       },
       "csharp/roslyn/CSharpSyntaxTree.cs": {
@@ -10032,9 +10032,10 @@
       },
       "rust/bevy/bevy_ecs_query.rs": {
         "Annotated & Test Methods": 14,
+        "Callbacks & Closures": 1,
         "Compute Cores": 1,
-        "Defensive Guards": 5,
-        "Generic / Templated Code": 8,
+        "Defensive Guards": 6,
+        "Generic / Templated Code": 6,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 1,
@@ -10047,16 +10048,16 @@
         "Stateful Encapsulated Methods": 8
       },
       "rust/bevy/bevy_ecs_world.rs": {
-        "Annotated & Test Methods": 28,
+        "Annotated & Test Methods": 29,
         "Callbacks & Closures": 1,
         "Compute Cores": 2,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 7,
-        "Generic / Templated Code": 107,
+        "Generic / Templated Code": 104,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 3,
         "Parameter Forwarders": 15,
-        "State Mutators": 16,
+        "State Mutators": 18,
         "Stateful Encapsulated Methods": 8
       },
       "rust/bevy/bevy_reflect_path.rs": {
@@ -10319,8 +10320,8 @@
       },
       "rust/wasmtime/wasmtime_isle_parser.rs": {
         "Compute Cores": 23,
-        "Defensive Guards": 6,
-        "Generic / Templated Code": 16,
+        "Defensive Guards": 7,
+        "Generic / Templated Code": 15,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 3,
         "State Mutators": 9
@@ -11694,9 +11695,8 @@
       "typescript/playwright/dispatcher.ts": {
         "Callbacks & Closures": 3,
         "Compute Cores": 2,
-        "Defensive Guards": 3,
+        "Defensive Guards": 4,
         "Encapsulated Accessors": 5,
-        "Generic / Templated Code": 1,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2,
@@ -11788,11 +11788,11 @@
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": {},
       "typescript/vscode/async.ts": {
-        "Callbacks & Closures": 36,
+        "Callbacks & Closures": 37,
         "Compute Cores": 5,
-        "Defensive Guards": 27,
+        "Defensive Guards": 29,
         "Encapsulated Accessors": 24,
-        "Generic / Templated Code": 71,
+        "Generic / Templated Code": 68,
         "I/O & Config Routines": 8,
         "Interface Declarations": 48,
         "Parameter Forwarders": 21,

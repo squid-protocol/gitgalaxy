@@ -193,7 +193,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG and step-restart slices are done, below): SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios (no fixture has them yet: new scenarios first), the checkpoint restarts (`RSTJOB4` / `11` / `12`, SYSCHK) and `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`), the checkpoint restarts (`RSTJOB4` / `11` / `12`, SYSCHK) and `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -299,6 +299,31 @@ step (`RSTJOB6` Z3 runs) and a bare `COND=(0,NE)` reads only the steps that ran 
 
 Skipped, with the reason in the file: the checkpoint restarts (`RSTJOB4`, `11`, `12`: a SYSCHK dataset from a checkpointed run is needed) and the
 IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. `RSTJOB13` to `16` (the COND-override-on-a-procedure-call scenarios of #8835, added after this run) are skipped until the probe is rerun on the box. Not observed: what a program does (every step is IDCAMS).
+
+## Probe run (#8414): IEBGENER / IEBCOPY / IEFBR14
+
+`probe.py dsutil --printer FILE` runs the nine `cases` of `tests/equivalence/jcl/fixture/dsutil_scenarios.json` with the **real utilities**
+(nothing is swapped for IDCAMS): IEFBR14 allocation and disposition (`NEW,CATLG` then `OLD,DELETE`; `NEW` with no disposition; `OLD` on an
+uncataloged name), IEBGENER (instream to a new dataset, no `SYSUT1`, a `DUMMY` `SYSUT1`) and IEBCOPY (`SELECT`, `EXCLUDE`, no member statement)
+on a two-member PDS read back member by member. The manual answers were committed before the run (dfd68b486). The fixture's `PRB.UTIL.*` names are
+re-rooted to `PUB001.UTIL.*` at run time (see the trap below) and mapped back when the dispositions are read. A `PRBCLEAN` IEFBR14 job
+(`MOD,DELETE`) runs before each scenario and at the end. `tests/equivalence/jcl/fixture/dsutil_mvs38j_probe.json` holds `expect` and `box`; `engine`
+is null (no gitgalaxy evaluator models what a utility does to a dataset: two columns, not three).
+(The list key is `cases`, not `scenarios`: the capability ledger reads every `scenarios` file in `tests/equivalence/jcl/*/` as an engine answer set and needs a `given` the utilities do not have.)
+Run 2026-11-21: **8 of 9 agree manual / box**. `unparsed_ief` is 0 except A1's scenario (2: `IEF453I JOB FAILED - JCL ERROR` and `IEF212I DATA SET NOT FOUND`: the box calls a missing `OLD` dataset a JCL error, a message `runner.parse_log` does not read, so `jcl_error` stays false; the step is `IEF272I` not executed). The two assumptions agree: A1 (an `OLD` dataset that is not cataloged fails
+allocation and flushes the later steps) and A2 (IEBGENER with no `SYSUT1` ends RC 12). Internal only (Q16).
+
+* **Register finding (manual vs box, not resolved): `iebgener-dummy-input-empty-output`.** The fixture's answer is RC 0 (a `DUMMY` `SYSUT1` reads end
+  of data, the usual way to allocate an empty dataset, `SYSUT2` carrying its own DCB). On 3.8J IEBGENER ends **RC 12** with `IEB317I JOB TERMINATED,NO
+  INPUT BLKSIZE/LRECL`: a dummy input gives it no DCB to take, and the DCB coded on `SYSUT2` is not used instead. `SYSUT2` is still created and cataloged
+  and the next step deletes it. `expect` is not changed: the manual text read for this fixture does not say, and a later IEBGENER level may differ.
+  The engine has no answer to compare.
+* **Trap: IEC301A.** A permanent dataset cataloged in the master catalog waits on `IEC301A ... SYS1.VSAM.MASTER.CATALOG` for the SYSPROG password and
+  holds the initiator, so every later job queues behind it (the first run lost 10 minutes this way). Names go under `PUB001.` (a user-catalog alias).
+  A warm IPL does not clear the held job: the spool keeps it and JES2 never reaches `$HASP099` (900 s); move `ipl.done` aside once so the IPL formats the spool, then put it back.
+
+Not observed: the engine's answer, a dataset's record format / length / block size (no VTOC listing), which members a PDS holds beyond the one read
+back per step. Not in the fixture (`refused`): IEBGENER `GENERATE`, IEBCOPY unload / reload, VTOC and DCB checks.
 
 ## What this tier cannot test
 

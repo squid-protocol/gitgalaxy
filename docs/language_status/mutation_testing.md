@@ -379,6 +379,13 @@ What it says:
   or whose generator / harness / oracle drifted, and a current one returns "nothing stale" before `_run_translate`.
   The cost that remains is by design: a drifted ledger is translated once to compare the port's bytes, then renewed.
   Pinned by `test_a_current_ledger_is_never_translated_or_proven_again_8599`.
+- **Sharing the baseline proof across cases of one batch has nothing to share (checked 2026-11-21, #8599).** The baseline
+  proof is of one port against one case's scenarios. The 131 recorded ledgers carry 131 distinct `inputs.port` hashes (no
+  two cases translate to the same port bytes), so no baseline is reusable between cases; a proof is only reusable across
+  runs of the same case (the kept baseline above). The scan and the refactor are the shared part and already are
+  (`equivalence_cache`, keyed by corpus state). Not a loosening: a baseline proof is never skipped for a port it was not
+  made on. Still open on #8599 and needing box time, not code: the re-attack of the 360 survivors auto-triaged in #8485
+  through the facades (`survivor_attack.py try` now includes them), and the `compare --require-agree` spot-check.
 - **Hot-first in the CICS in-process path does not pay on UPDCUST: measured, not shipped (2026-11-21, #8599).** The
   in-process runner sends all 64 scenarios to the session JVM in one call and judges afterwards. The candidate ran the
   six scenarios with the most kills first (frozen after 10 scenario kills, and kills counted only after the unmutated

@@ -2850,12 +2850,17 @@
     "usesLfForNl",
     "character"
    ],
-   "ibm": null,
-   "ibm_note": "the region's code page is a deployment fact IBM leaves to the installation",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "ASSIGN: LOCALCCSID"
+   },
+   "ibm_note": "IBM (CICS TS for z/OS 6, API Reference, ASSIGN, LOCALCCSID): \"This option returns the fullword binary Coded Character Set Identifier (CCSID) used for the CICS region. It is the value specified on the LOCALCCSID system initialization parameter.\" Application Programming, Chapter 5 (containers): \"If the application programmer does not specify a code page for data conversion, CICS uses the default code page for the whole of the local CICS region, which is specified on the LOCALCCSID system initialization parameter\"; \"the message data is taken to be in the region's EBCDIC code page\". MATCHED in part: the region has one code page, set by the installation, and EBCDIC is its default. Still ASSUMED because IBM states no rule for temporary storage items (the WRITEQ TS pages say nothing of a code page: TS data is the program's own bytes) or for a byte with no character in both pages: the runtime moving the program's bytes unconverted into the region's page, with an unmapped byte stopping the run by name, is our choice. Declared in C18",
    "options": [
     "REGION-CODE-PAGE"
    ],
-   "register": [],
+   "register": [
+    "C18"
+   ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"
   },
@@ -2884,16 +2889,17 @@
   {
    "id": "RT-CICS-BMS-SUBFIELDS",
    "family": "CICS",
-   "title": "A symbolic map field's subfields: attribute, colour and highlight bytes (X'00' and a space not set), length -1 the cursor; RECEIVE MAP's input text padded and its length without trailing blanks",
+   "title": "A symbolic map field's subfields: attribute, colour and highlight bytes (recorded as they are: X'00' and the space X'40' are values), length -1 the cursor; RECEIVE MAP's input text padded and its length without trailing blanks",
    "methods": [
     "subfields",
+    "subfieldByte",
     "typed"
    ],
    "ibm": {
     "doc": "cics-apr",
     "section": "SEND MAP, RECEIVE MAP"
    },
-   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime treats X'00' and a space as not set, so a space attribute (X'40') is dropped where IBM sends it and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
+   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime records every byte as it is (#7955: X'00' and a space are values the harness compares), so a space attribute (X'40') is recorded where IBM sends it, and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",

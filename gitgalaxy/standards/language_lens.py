@@ -266,6 +266,7 @@ def _settings_libs(spec: Any) -> list[Any]:
 _ZAPP_DIR_CAP = 20000  # directories walked to expand one zapp.yaml glob; a bigger tree declares nothing past it
 _ZAPP_GROUPS = "propertyGroups"  # a key of a file we read, not a dict we write
 _ZAPP_PRUNE = {".git", "node_modules"}
+_ZAPP_SYSLIB = "SYSLIB"  # the library an unqualified COPY searches; every other name is for `COPY x IN name`
 
 
 def _zapp_glob_regex(pattern: str) -> re.Pattern[str]:
@@ -286,24 +287,49 @@ def _zapp_glob_regex(pattern: str) -> re.Pattern[str]:
     return re.compile(out + "$", re.I)
 
 
-def _zapp_dirs(folder: str, spec: Any) -> list[str]:
-    """#8412: the local COBOL copy directories a Z Open Editor `zapp.yaml` declares, in declaration order: every
-    `local` library of a `language: cobol` property group (the SYSLIB concatenation, then named libraries), each
-    `locations` glob expanded over the folder's directories (matches sorted). `mvs` entries, `${...}` variables and
-    absolute or parent-escaping paths declare nothing."""
+def _zapp_library_globs(spec: Any) -> list[tuple[str, str]]:
+    """(library name upper-cased, folder-relative glob) of every `local` library of a `language: cobol` property
+    group, in declaration order. `mvs` entries, `${...}` variables and absolute or parent-escaping paths drop out."""
     groups = spec.get(_ZAPP_GROUPS) if isinstance(spec, dict) else None
-    globs: list[str] = []
+    out: list[tuple[str, str]] = []
     for group in groups or []:
         if not isinstance(group, dict) or str(group.get("language", "")).lower() != "cobol":
             continue
         for lib in group.get("libraries") or []:
             if not isinstance(lib, dict) or str(lib.get("type", "")).lower() != "local":
                 continue
+            name = str(lib.get("name", "")).strip().upper()
             for loc in lib.get("locations") or []:
                 text = str(loc).strip().replace("\\", "/").removeprefix("./").strip("/")
                 if text and "${" not in text and ".." not in text.split("/") and not os.path.isabs(str(loc).strip()):
-                    globs.append(text)
-    return _expand_dir_globs(folder, globs)
+                    out.append((name, text))
+    return out
+
+
+def _zapp_dirs(folder: str, spec: Any) -> list[str]:
+    """#8412: the local COBOL SYSLIB directories a Z Open Editor `zapp.yaml` declares, in declaration order (the
+    `syslib` library of each `language: cobol` property group), each `locations` glob expanded over the folder's
+    directories (matches sorted). Named libraries (`MYLIB`) are only for `COPY x IN MYLIB` (`_zapp_named_dirs`)."""
+    return _expand_dir_globs(folder, [g for name, g in _zapp_library_globs(spec) if name == _ZAPP_SYSLIB])
+
+
+def _zapp_named_dirs(folder: str, spec: Any) -> dict[str, list[str]]:
+    """#8412: the directories each named (non-SYSLIB) local COBOL library of a zapp.yaml holds, for `COPY x IN name`."""
+    names = {n for n, _ in _zapp_library_globs(spec) if n and n != _ZAPP_SYSLIB}
+    return {n: _expand_dir_globs(folder, [g for m, g in _zapp_library_globs(spec) if m == n]) for n in sorted(names)}
+
+
+def named_zapp_dirs_in_folder(folder: str) -> dict[str, list[str]]:
+    """#8412: `folder`'s zapp.yaml named COBOL libraries as {NAME: [absolute directories]}; {} when none or unreadable."""
+    path = os.path.join(folder, "zapp.yaml")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        import yaml  # optional dependency (the `yaml` extra); without it a zapp.yaml declares nothing
+
+        return _zapp_named_dirs(folder, yaml.safe_load(read_source(path).text))
+    except Exception:  # a malformed file or a missing PyYAML declares nothing
+        return {}
 
 
 def _expand_dir_globs(folder: str, globs: list[str]) -> list[str]:

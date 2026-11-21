@@ -24,6 +24,33 @@ _WRAPPER = (
     _PREFIX + r"(?:(?:time|exec|nohup|nice|sudo)[ \t]+(?:-[^\s]*[ \t]+){0,4}|trap[ \t]+(?=[^\s]+[ \t]+[A-Z0-9]))?"
 )
 
+_HEREDOC_OPEN = re.compile(r"<<-?[ \t]*(?P<q>['\"]?)(?P<tag>[A-Za-z_][A-Za-z0-9_]{0,63})(?P=q)[^\n]*\n")
+
+
+def _blank_shell_heredocs(text: str) -> str:
+    """Blank heredoc body + closing delimiter lines (`<<'EOF' ... EOF`) at the same length so
+    embedded text and `EOF` terminators are never scanned as shell commands."""
+    if "<<" not in text:
+        return text
+    out: list[str] | None = None
+    pos = 0
+    while (m := _HEREDOC_OPEN.search(text, pos)) is not None:
+        tag = m.group("tag")
+        body_start = m.end()
+        term = re.search(rf"^[ \t]*{re.escape(tag)}[ \t]*$", text[body_start:], re.M)
+        if term is None:
+            pos = body_start
+            continue
+        end = body_start + term.end()
+        if out is None:
+            out = list(text)
+        for i in range(body_start, end):
+            if out[i] != "\n":
+                out[i] = " "
+        pos = end
+    return text if out is None else "".join(out)
+
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Bash 5.2 / Zsh 5.9 / Modern DevOps Scripts",
@@ -100,6 +127,7 @@ DEFINITION: dict[str, Any] = {
             r"|(?:\$\((?!\()|`)[ \t]*" + _WRAPPER + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$)))"
             r"([A-Za-z_][A-Za-z0-9_.:-]*)"
         ),
+        "_calls_out_rewrite": _blank_shell_heredocs,
         "_calls_out_ignore": frozenset(
             {
                 # reserved words

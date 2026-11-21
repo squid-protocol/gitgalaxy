@@ -15,6 +15,7 @@
 # procstepname, a restart step name that is not unique, a checkid with no SYSCHK DD.
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from gitgalaxy.core.jcl_flow import JclFlow
@@ -26,9 +27,16 @@ class JclRestartRefused(ValueError):
     """A restart construct IBM's text does not settle, or that is invalid JCL: refused by name, never guessed."""
 
 
-def restart_flow(rows: list[dict[str, Any]], job: str, given: dict[str, dict[str, Any]]) -> dict[str, str]:
-    """Per step of `job` (in order): "skipped", "run" or "bypass". `given`: per step that starts, its outcome."""
-    names, skipped, _flat, run, _checkid = _restart_run(rows, job, given)
+def restart_flow(
+    rows: list[dict[str, Any]],
+    job: str,
+    given: dict[str, dict[str, Any]],
+    text: str | None = None,
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
+) -> dict[str, str]:
+    """Per step of `job` (in order): "skipped", "run" or "bypass". `given`: per step that starts, its outcome.
+    A procedure that is not in-stream is read from `libraries` along the job's JCLLIB ORDER in `text` (#8413)."""
+    names, skipped, _flat, run, _checkid = _restart_run(rows, job, given, text, libraries)
     return {n: ("skipped" if n in skipped else run.actions[n]) for n in names}
 
 
@@ -49,7 +57,11 @@ def resolve_gdg_restart(
 
 
 def _restart_run(
-    rows: list[dict[str, Any]], job: str, given: dict[str, dict[str, Any]]
+    rows: list[dict[str, Any]],
+    job: str,
+    given: dict[str, dict[str, Any]],
+    text: str | None = None,
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
 ) -> tuple[list[str], set[str], list[dict[str, Any]], Any, str | None]:
     """-> (step names in order, the skipped step names, the expanded rows, the restarted run, the checkid)."""
     job = job.upper()
@@ -63,7 +75,7 @@ def _restart_run(
     head = mine[0]
     restart = head.get("restart")
     calls = {r["step_name"] for r in mine if r["kind"] == "STEP" and not r["in_proc"] and r["proc"]}
-    flat = expand_flow_rows(rows, job)
+    flat = expand_flow_rows(rows, job, text, libraries)
     steps = [r for r in flat if r["kind"] == "STEP"]
     names = [s["step_name"] for s in steps]
     if restart == "*":

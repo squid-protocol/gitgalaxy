@@ -57,3 +57,38 @@ def test_no_committed_port_receives_a_map_without_its_mapset():
         for m in receive.finditer(p.read_text(encoding="utf-8"))
     ]
     assert bad == []
+
+
+def _sent(**sub):
+    return {"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {"F": sub}, "options": [], "cursor": None}
+
+
+def test_7955_nul_and_space_attribute_bytes_are_different_values():
+    """#7955: X'00' and X'40' in a map's attribute / colour / highlight byte are values, on both sides."""
+    for key in ("attr", "color", "hilight"):
+        assert ec.java_subfields({"F": {key: 0}}) == {"F": {key: 0}}
+        assert ec.java_subfields({"F": {key: 0x40}}) == {"F": {key: 0x40}}
+        assert ec.java_subfields({"F": {key: 0xF2}}) == {"F": {key: 0xF2}}
+        nul = {"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {"F": {key: 0}}, "options": []}
+        java = _sent(**{key: 0x40})
+        assert "subfields.F" in str(ec.compare_events([nul], [java], exact_bytes=True))
+        assert "subfields.F" not in str(ec.compare_events([nul], [_sent(**{key: 0})], exact_bytes=True))
+        assert "subfields.F" not in str(ec.compare_events([nul], [java]))  # a port that records what it set: loose
+
+
+def test_7955_map_data_nul_is_not_a_blank():
+    cobol = [
+        {"event": "SEND-MAP", "map": "M", "screen": {"F": ec.AlnumText("\x00\x00")}, "subfields": {}, "options": []}
+    ]
+    blank = [{"event": "SEND-MAP", "map": "M", "screen": {"F": "  "}, "subfields": {}, "options": []}]
+    assert "screen.F" in str(ec.compare_events(cobol, blank, exact_bytes=True))
+    assert "screen.F" not in str(ec.compare_events(blank, blank, exact_bytes=True))
+    assert "screen.F" not in str(ec.compare_events(cobol, blank))  # a generated / model-written port: loose
+
+
+def test_7955_maponly_sends_no_symbolic_map_bytes():
+    cobol = [{"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {}, "options": ["MAPONLY"]}]
+    java = [
+        {"event": "SEND-MAP", "map": "M", "screen": None, "subfields": {"F": {"attr": 0x40}}, "options": ["MAPONLY"]}
+    ]
+    assert "subfields" not in str(ec.compare_events(cobol, java))

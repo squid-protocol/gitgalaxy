@@ -1,5 +1,5 @@
 {
- "commit": "0913f54ac",
+ "commit": "b6fd69969",
  "components": {
   "capabilities": {
    "groups": [
@@ -1067,7 +1067,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T21:15:12Z",
+  "as_of": "2026-11-21T21:50:40Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1343,9 +1343,9 @@
     "total": 17
    },
    {
-    "closed": 61,
+    "closed": 62,
     "number": 36,
-    "open": 10,
+    "open": 9,
     "title": "Pit Crew \ud83d\udd27 \u2014 CI, Shepherd & the Churn Factory",
     "total": 71
    },
@@ -1371,11 +1371,11 @@
     "total": 5
    },
    {
-    "closed": 6,
+    "closed": 7,
     "number": 40,
     "open": 26,
     "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
-    "total": 32
+    "total": 33
    },
    {
     "closed": 0,

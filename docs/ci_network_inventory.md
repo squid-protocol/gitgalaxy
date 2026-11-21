@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 6 | 0 | 0 | 0 | 21 |
+| gh-api | 10 | 0 | 0 | 0 | 17 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 108 | 84 | 54 | 208 | 37 |
+| **total** | 112 | 84 | 54 | 208 | 33 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -90,14 +90,4 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### smoke-test.yml
 
-- `gh-api` - full-suite-part / Plan the ReDoS sweeps (#5166)
-- `gh-api` - suite-plan / Plan the suite
 - `gh-api` - suite-time / Total against the budget
-
-### tree-sitter-accuracy-history.yml
-
-- `gh-api` - plan / Plan the run
-
-### tri-comparison-history.yml
-
-- `gh-api` - plan / Plan the run

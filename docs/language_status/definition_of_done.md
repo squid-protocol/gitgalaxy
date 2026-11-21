@@ -47,6 +47,24 @@ A level marked `*` is **stale**: last measured against an earlier harness or ora
 
 **Decided:** the default promise is **L3** for online (CICS) programs and **L4** for programs the customer marks critical. L2 ships only with explicit customer agreement; L5 on request.
 
+**System levels** (owner decision 2026-11-21, #8888): a second ladder beside L0-L5, per batch job or online flow, never
+nested in it. A program can be L4 inside a job whose hand-offs break, and a job's chain can be proven while its steps
+are at L2, so neither ladder implies the other. An estate's S level is the share of its jobs (and flows) at each level.
+
+| level | in one line |
+|---|---|
+| S0 inventoried | the JCL job or transaction flow is in the estate's survey |
+| S1 wired | its generated Spring Batch job / CICS flow leaves no hole, and its step flow matches the IBM-manual answers |
+| S2 chain proven, hand-wired | its steps run as a chain on both sides with every hand-off carried (sequential, VSAM, GDG), every step's outputs and condition codes equal; the wiring is the job case's (`tests/equivalence/jobs`, #4268) |
+| S3 chain proven from the JCL | S2, with the wiring read from the JCL by the generated job |
+| S4 cycle proven | an operating cycle (the nightly batch and the online transactions over the same data) proven as one run |
+
+The oracle is the same as for L2+ (GnuCOBOL plus the stubs and models, Db2 for Linux), not z/OS. S2 counts a job only
+from a chain proof CI records; a written job case alone counts nothing, and a level with no measure yet reads "not
+measured", never 0 (the progress page and slide, `progress_report.system_ladder`).
+
+**Decided (#8888):** the default promise adds **S2** for every batch job in scope, next to the program promise above.
+
 ## 3. Per estate: "done"
 
 An estate is done when all of the following hold:

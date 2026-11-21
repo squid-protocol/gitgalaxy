@@ -381,6 +381,7 @@ DEFINITION: dict[str, Any] = {
             r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?!["
             + ID_CONTINUE
             + r":-]))"
+            r"(?!::env(?![-" + ID_CONTINUE + r"]))"
             r"(?:(?:::)?(?:[" + ID_START + r"][" + ID_CONTINUE + r"-]*::)+|::)?"
             r"([" + ID_START + r"][" + ID_CONTINUE + r"-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r":.$,=])"
         ),

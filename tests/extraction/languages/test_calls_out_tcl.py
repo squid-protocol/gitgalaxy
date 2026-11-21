@@ -45,6 +45,7 @@ def test_tcl_namespace_qualified_calls_emit_leaf_and_qualifier():
     assert fn["calls_out_qualifiers"]["fetchfiles"] == ["::portfetch"]
     assert fn["calls_out_qualifiers"]["jail"] == ["::fileutil"]
     assert fn["calls_out_qualifiers"]["file"] == [""]
+    assert _calls("proc probe_globals {} {\n    global region\n    ::env\n}\n", "probe_globals") == []
 
 
 def test_tcl_quoted_command_substitutions_and_escapes():

@@ -26,7 +26,7 @@ The orchestrator (`Orchestrator.execute_pipeline()` in `galaxyscope.py`) execute
 6. Spectral audit: statistical quality audit (50/0 rule, Z-score).
 7. Spatial layout (ray-casting Fibonacci packing).
 8. Metrics synthesis & forensics.
-9. ML threat inference (XGBoost).
+9. Threat inference: removed 2026-11-19 (research pending, [#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430)); this step runs only the exact upstream/downstream reach counts and the manual shadow-patch alert.
 10. Ecosystem security audits (X-Ray, import policy gate, API mapper), then threat suppression (10.5) and the CI/CD policy gate (10.6).
 11. Global telemetry & metadata locking.
 12. Archival & export routing (SQLite, JSON, Markdown, WebGL, SARIF, SBOM).

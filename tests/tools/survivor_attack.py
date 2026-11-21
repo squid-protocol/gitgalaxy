@@ -145,6 +145,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         goto_flag_bit,
         return_area_cut,
         eib_resp_unread,
+        eib_calen_unread,
         refusal_text,
         exception_ctor,
     ):
@@ -1131,6 +1132,47 @@ def eib_resp_unread(
     if not fact:
         return None
     return {"result": "eib-resp-unread", "fact": fact}
+
+
+# ---- EIBCALEN: the entry chain's `calen` local, stored into an item nothing reads (#7955) ----
+_CALEN_CHAIN = re.compile(r"^(\s*)calen = DetCics\.eibCalen\(task, (\d{1,4})\);\s*$")
+_CALEN_INIT = re.compile(r"^(\s*)int calen = (\d);\s*$")
+_CALEN_IF = re.compile(r"^(\s*)if \(calen == (\d) && task\.linkArea\(\) != null\) \{\s*$")
+_CALEN_LINK = re.compile(r"^\s*calen = DetCics\.eibCalen\(task, task\.linkArea\(\)\.length\);\s*$")
+_CALEN_STORE = re.compile(r"^\s*Cobol\.store\((f\d+_EIBCALEN), BigDecimal\.valueOf\(calen\), (?:true|false), CS\);\s*$")
+_CALEN_USES = (_CALEN_CHAIN, _CALEN_INIT, _CALEN_IF, _CALEN_LINK, _CALEN_STORE)
+
+
+def eib_calen_unread(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """The `runTask` entry chain `calen = DetCics.eibCalen(task, N)` (one per COMMAREA class the task may carry), its
+    `int calen = 0` start and the `calen == 0` test before the link-area fallback: `calen` only ever reaches
+    `Cobol.store(fN_EIBCALEN, ...)`, and nothing reads EIBCALEN, so a changed constant (the same shape), a deleted
+    assignment or another start value is never seen. `DetCics.eibCalen` only reads the task's EIBCALEN, and the fallback
+    is guarded by `linkArea() != null`, so no edit in the class can throw or change a branch outside `calen`."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    kinds = [m for m in (_CALEN_CHAIN.match(before), _CALEN_INIT.match(before), _CALEN_IF.match(before)) if m]
+    if not kinds:
+        return None
+    state = _eib_unread(text)
+    if state is None:
+        return None
+    store = [m for ln in text.splitlines() if (m := _CALEN_STORE.match(ln))]
+    if len(store) != 1 or store[0].group(1) not in state[0]:
+        return None
+    for ln in text.splitlines():
+        if _word("calen", ln) and not any(p.match(ln) for p in _CALEN_USES):
+            return None
+    first = kinds[0]
+    if after.strip().startswith("/*") and _CALEN_CHAIN.match(before):
+        return {"result": "eib-calen-unread", "fact": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen"}  # fmt: skip
+    same = next((p for p in (_CALEN_CHAIN, _CALEN_INIT, _CALEN_IF) if p.match(before) and p.match(after)), None)
+    if same is None or same.match(after).group(1) != first.group(1):  # type: ignore[union-attr]
+        return None
+    if re.sub(r"\d+", "N", before) != re.sub(r"\d+", "N", after):
+        return None
+    return {"result": "eib-calen-unread", "fact": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen"}  # fmt: skip
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

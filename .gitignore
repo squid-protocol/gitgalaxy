@@ -29,6 +29,8 @@ flask_session/
 
 # PYPI PACKAGING & BUILD ARTIFACTS
 build/
+# The vendored three.js files live in a folder called build/ (see site/vendor/README.md).
+!site/vendor/three/build/
 dist/
 *.egg-info/
 

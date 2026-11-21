@@ -80,7 +80,7 @@ def test_every_vendored_library_ships_its_licence():
 def test_pages_load_nothing_from_a_third_party():
     offenders = []
     for page in _site_pages():
-        text = page.read_text(encoding="utf-8", errors="replace")
+        text = page.read_text(encoding="utf-8")
         offenders += [
             f"{page.relative_to(SITE)}: {m.group(0)[:80]}"
             for rx in LOADS

@@ -48,3 +48,4 @@ GitGalaxy works like an X-ray. It reveals structure a codebase's authors did not
 | xavierxmorris Azure slice | Apache-2.0 | Surveyed only |
 | viniman27 API-recovery study | none | Surveyed only |
 | DOOM port corpus (DOOM-rosetta, #5619): the ports in `tests/doom_rosetta/manifest.csv` | per port, read from its files (`license` column; GPL-2.0, GPL-3.0, MIT, Apache-2.0, BSD-3-Clause/CC0) | Scanned at pinned SHAs, fetched at run time; measurements only, no code, WADs or game data committed. Only clearly licensed ports are listed (owner, 2026-10-19) |
+| three.js 0.183.0 and tween.js 18.6.4 (MIT); Space Grotesk and Space Mono fonts (SIL OFL 1.1) | MIT / OFL-1.1, licence files kept beside the files | **Vendored** in `site/vendor/` byte-for-byte, so gitgalaxy.io loads nothing from a third party; maintainer approved this specific case 2026-11-21 (rule 3). See `site/vendor/README.md` |

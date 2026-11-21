@@ -74,3 +74,16 @@ constellation mode.
 
 After the first deploy: submit `https://gitgalaxy.io/sitemap.xml` in Search Console (a Domain or URL-prefix property for
 `https://gitgalaxy.io/`, verified by a DNS TXT record).
+
+## 6. Search-engine verification files
+
+`site/BingSiteAuth.xml` (Bing Webmaster Tools ownership; it holds the account ID, not a secret) and
+`site/ee941f8514ba50cc6a9621169f97ba1b.txt` (the IndexNow key; the file must contain exactly its own name) live at the web
+root so they survive a redeploy. They were first copied onto the server by hand on 2026-11-21, so **before the first
+`git pull` that brings them in, delete the untracked copies** or git will refuse to overwrite them (the pull then restores
+identical files):
+
+    ssh gitgalaxy-io 'cd /var/www/gitgalaxy/site && rm -f BingSiteAuth.xml ee941f8514ba50cc6a9621169f97ba1b.txt'
+
+To tell Bing (and Yandex, Seznam, Naver) about changed pages on this domain, POST them to IndexNow with `host`
+`gitgalaxy.io`, that key and `keyLocation` `https://gitgalaxy.io/ee941f8514ba50cc6a9621169f97ba1b.txt`.

@@ -88,7 +88,7 @@ jobs:
           # Not github.event.before: a queued run is replaced by a newer one, so its diff would miss the replaced push. The
           # base is the last successful run's commit (a planned skip is a success too), so the diffs chain with no gap. No
           # earlier run, or a commit gone from history, plans an empty or unreadable diff: it runs.
-          base=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tree-sitter-accuracy-history.yml --branch main \
+          base=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh run list --repo "$GITHUB_REPOSITORY" --workflow tree-sitter-accuracy-history.yml --branch main \
             --event push --status success --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || true)
           python3 tests/tools/accuracy_audit_plan.py --audit tree-sitter-history --event "$GITHUB_EVENT_NAME" --base "${base:-HEAD}" \
             --github-output "$GITHUB_OUTPUT" | tee plan.json

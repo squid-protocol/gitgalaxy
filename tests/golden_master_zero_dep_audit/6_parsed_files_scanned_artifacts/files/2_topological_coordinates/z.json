@@ -125,11 +125,11 @@
       "assembly/bootos/os.asm": -143.85
     },
     "assembly/cosmopolitan": {
-      "assembly/cosmopolitan/BUILD.mk": -1192.13,
-      "assembly/cosmopolitan/ape.S": -746.45,
-      "assembly/cosmopolitan/loader.c": -940.58,
-      "assembly/cosmopolitan/notice.inc": -446.82,
-      "assembly/cosmopolitan/start.S": -1009.94
+      "assembly/cosmopolitan/BUILD.mk": -1192.19,
+      "assembly/cosmopolitan/ape.S": -746.51,
+      "assembly/cosmopolitan/loader.c": -940.64,
+      "assembly/cosmopolitan/notice.inc": -446.88,
+      "assembly/cosmopolitan/start.S": -1010.0
     },
     "assembly/cosmopolitan_runtime": {
       "assembly/cosmopolitan_runtime/argc.S": -3278.77,
@@ -1445,9 +1445,9 @@
       "groovy/godot_android_gradle/java_settings.gradle": -7872.42
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 2782.85,
+      "groovy/gradle/DefaultPluginManager.java": 2782.88,
       "groovy/gradle/DefaultProject.java": 2605.71,
-      "groovy/gradle/DefaultTask.java": 2225.9
+      "groovy/gradle/DefaultTask.java": 2225.88
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": -289.86,
@@ -1633,9 +1633,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 4060.33
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": -8647.62,
-      "groovy/spock/SpecParser.java": -9258.53,
-      "groovy/spock/SpecRewriter.java": -8986.33,
+      "groovy/spock/DeepBlockRewriter.java": -8646.31,
+      "groovy/spock/SpecParser.java": -9258.94,
+      "groovy/spock/SpecRewriter.java": -8986.39,
       "groovy/spock/SpockTransform.java": -8416.63
     },
     "groovy/spock_core_groovy": {
@@ -1892,10 +1892,10 @@
       "html/vscode_webviews/workbench.html": -3506.35
     },
     "html/wordpress_blocks": {
-      "html/wordpress_blocks/LICENSE.txt": -1960.81,
-      "html/wordpress_blocks/index.html": -1819.55,
-      "html/wordpress_blocks/page.html": -2203.15,
-      "html/wordpress_blocks/search.html": -1473.34
+      "html/wordpress_blocks/LICENSE.txt": -1960.89,
+      "html/wordpress_blocks/index.html": -1819.63,
+      "html/wordpress_blocks/page.html": -2203.23,
+      "html/wordpress_blocks/search.html": -1473.42
     },
     "java": {
       "java/SOURCES.md": 5210.36
@@ -1908,18 +1908,18 @@
       "java/jenkins_cli/SetBuildDescriptionCommand.java": -10749.45
     },
     "java/selenium_grid_session_queue": {
-      "java/selenium_grid_session_queue/NOTICE": 4162.14,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 3938.1
+      "java/selenium_grid_session_queue/NOTICE": 4162.38,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 3938.19
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": -983.73,
-      "java/springboot/Binder.java": -1141.5,
-      "java/springboot/JarLauncher.java": -926.46,
-      "java/springboot/LICENSE.txt": -1924.09,
-      "java/springboot/OnClassCondition.java": -1432.42,
-      "java/springboot/ServletWebServerApplicationContext.java": -1739.62,
-      "java/springboot/SpringApplication.java": -1390.59,
-      "java/springboot/WebMvcAutoConfiguration.java": -1754.73
+      "java/springboot/AutoConfigurationImportSelector.java": -983.49,
+      "java/springboot/Binder.java": -1140.99,
+      "java/springboot/JarLauncher.java": -926.32,
+      "java/springboot/LICENSE.txt": -1924.27,
+      "java/springboot/OnClassCondition.java": -1432.51,
+      "java/springboot/ServletWebServerApplicationContext.java": -1739.81,
+      "java/springboot/SpringApplication.java": -1390.62,
+      "java/springboot/WebMvcAutoConfiguration.java": -1755.19
     },
     "javascript": {
       "javascript/SOURCES.md": -10165.62
@@ -2183,7 +2183,7 @@
       "json/kafka/message/VoteRequest.json": 6061.93
     },
     "kotlin": {
-      "kotlin/SOURCES.md": 3861.58
+      "kotlin/SOURCES.md": 3861.78
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": 7751.84,
@@ -2462,7 +2462,7 @@
       "markdown/kubernetes_client_go/ARCHITECTURE.md": -3546.28
     },
     "matlab": {
-      "matlab/SOURCES.md": -1075.07
+      "matlab/SOURCES.md": -1075.14
     },
     "matlab/eeglab": {
       "matlab/eeglab/README.md": -8636.98,
@@ -3116,8 +3116,8 @@
       "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -6555.13
     },
     "python/pip_vendored_requests": {
-      "python/pip_vendored_requests/LICENSE.txt": -1191.02,
-      "python/pip_vendored_requests/packages.py": -1253.75
+      "python/pip_vendored_requests/LICENSE.txt": -1191.1,
+      "python/pip_vendored_requests/packages.py": -1253.84
     },
     "python/scikit-learn_examples": {
       "python/scikit-learn_examples/COPYING": -10772.89,
@@ -3746,7 +3746,7 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": -5424.99
     },
     "swift": {
-      "swift/SOURCES.md": -9484.96
+      "swift/SOURCES.md": -9485.12
     },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": 8013.91,
@@ -3770,7 +3770,7 @@
       "tabular/csv_erp/test.translation.import.model1-translated.csv": -10696.65
     },
     "tabular/devsecops_payloads": {
-      "tabular/devsecops_payloads/weaponized_export.csv": -9220.86
+      "tabular/devsecops_payloads/weaponized_export.csv": -9221.01
     },
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 6422.85
@@ -3819,13 +3819,13 @@
       "tcl/sqlite/testrunner.tcl": 8433.67
     },
     "tcl/sqlite_core_dml": {
-      "tcl/sqlite_core_dml/LICENSE.md": 2497.96
+      "tcl/sqlite_core_dml/LICENSE.md": 2497.98
     },
     "tcl/sqlite_cte_window": {
       "tcl/sqlite_cte_window/LICENSE.md": -10276.69
     },
     "tcl/sqlite_fts5": {
-      "tcl/sqlite_fts5/LICENSE.md": -1925.72
+      "tcl/sqlite_fts5/LICENSE.md": -1925.79
     },
     "tcl/sqlite_json_triggers": {
       "tcl/sqlite_json_triggers/LICENSE.md": 10080.86
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": -9915.9
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": -759.63
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": -759.67
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 227.36,

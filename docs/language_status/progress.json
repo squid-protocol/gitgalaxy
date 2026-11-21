@@ -1,5 +1,5 @@
 {
- "commit": "8972b2ff5",
+ "commit": "08c878271",
  "components": {
   "capabilities": {
    "groups": [
@@ -1067,7 +1067,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T22:34:45Z",
+  "as_of": "2026-11-21T22:57:38Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1350,9 +1350,9 @@
     "total": 71
    },
    {
-    "closed": 21,
+    "closed": 22,
     "number": 37,
-    "open": 4,
+    "open": 3,
     "title": "Friendly Fire \ud83c\udfaf \u2014 Signal Misfires",
     "total": 25
    },
@@ -1371,9 +1371,9 @@
     "total": 5
    },
    {
-    "closed": 8,
+    "closed": 9,
     "number": 40,
-    "open": 25,
+    "open": 24,
     "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
     "total": 33
    },

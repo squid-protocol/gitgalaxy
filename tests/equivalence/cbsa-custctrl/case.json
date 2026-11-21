@@ -453,6 +453,45 @@
     }
    ],
    "why": "READ NOTFND on 259 raw caller bytes: INITIALIZE clears the named items and leaves FILLER (bytes 42-258) as the caller sent it (#7954)"
+  },
+  {
+   "name": "retry-delay-invreq",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first READ: the retry loop starts"
+    },
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6,
+     "why": "the retry DELAY fails INVREQ RESP2 6 (seconds out of range; IBM, EXEC CICS DELAY, planned by the scenario, register X72)"
+    }
+   ],
+   "why": "the DELAY in the SYSIDERR retry loop fails INVREQ: the DELAY has no RESP option and the program has no HANDLE CONDITION, so IBM abends the task (#7954: kills the DELAY plan-and-condition rows of the det port)"
+  },
+  {
+   "name": "retry-delay-expired",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first READ: the retry loop starts"
+    },
+    {
+     "cmd": "DELAY",
+     "resp": "EXPIRED",
+     "why": "the retry DELAY answers EXPIRED (X72)"
+    }
+   ],
+   "why": "the DELAY in the SYSIDERR retry loop answers EXPIRED, which IBM ignores by default: the loop goes on to its next READ, NORMAL, and the control record comes back (#7954: kills the DELAY condition rows of the det port)"
   }
  ],
  "notes": "CBSA's customer-control service (CUSTCTRL; no program in the corpus LINKs it, so the COMMAREA is its own DFHCOMMAREA, the CUSTCTRL copybook). It INITIALIZEs the COMMAREA, sets the key to sort code 000000 and customer number 9999999999 (CUSTOMER-CONTROL-KEY) and READs the CUSTOMER file INTO the COMMAREA with that 16-byte key: the control record BANKDATA writes into the CUSTOMER file (eyecatcher CTRL, NUMBER-OF-CUSTOMERS, LAST-CUSTOMER-NUMBER). On NORMAL the record is returned as stored, success flag included (the program never sets 'Y'); any other RESP gives CUSTOMER-CONTROL-SUCCESS-FLAG 'N' and FAIL-CODE '1'. The SYSIDERR retry loop (l.171-187: up to 100 READs, a 3-second DELAY each) is reached by read-sysiderr-retried (one SYSIDERR, then NORMAL); its 100-retry end by sysiderr-persistent (SYSIDERR on every READ: 100 DELAY+READ rounds, then 'N' '1'). The file is compared after every scenario. customer.txt holds the control record, a decoy with the same customer number 9999999999 under sort code 123456, and two customers; the control record's FILLERs are spaces then zeros, which the CUSTOMER layout reads as name/address, date of birth, credit score and review date. The program is precompiled with CBL SQL and INCLUDEs SQLCA but runs no SQL statement: the empty \"db2\" section only lets the harness precompile it (no tables, nothing compared)."

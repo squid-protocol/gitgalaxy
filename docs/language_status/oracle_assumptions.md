@@ -1869,6 +1869,17 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 | `cics.convention.ABEND.HANDLE_ABEND` | yes: a handled abend continues in the program's routine | modelled by the stub | modelled by the runtime | forms IBM leaves open are refused by name | X16, X5 |
 | `cics.convention.ABEND.UNHANDLED` | yes: the task ends with the abend | the harness compares the abend | the harness compares the abend | ABTERMENC(RETCODE) is refused by name (le.runtime_options.ABTERMENC) | C18 |
 
+### IBM trace: the region's code page (#8700, 2026-11-21)
+`RT-CICS-REGION-CODE-PAGE` (the `cics.region.LOCALCCSID` row above). CICS TS for z/OS 6, API Reference, ASSIGN, LOCALCCSID:
+"This option returns the fullword binary Coded Character Set Identifier (CCSID) used for the CICS region. It is the value
+specified on the LOCALCCSID system initialization parameter." Application Programming, Chapter 5, data conversion of
+containers: "If the application programmer does not specify a code page for data conversion, CICS uses the default code
+page for the whole of the local CICS region, which is specified on the LOCALCCSID system initialization parameter"; and
+"the message data is taken to be in the region's EBCDIC code page". (The local text copies carry no order number.)
+- **MATCHED:** one code page per region, named by LOCALCCSID, EBCDIC by default (the table row above).
+- **Still ASSUMED:** IBM states no code-page rule for a temporary storage item or for a byte with no character in both
+  pages; the move byte for byte and the named stop are the runtime's choice, not IBM text.
+
 ### C19. ALTER — the altered GO TO reads a per-paragraph slot: MODELLED; independent segments and non-lone-GO-TO paragraphs REFUSED
 - **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, ALTER statement): the ALTER statement changes the
   transfer point specified in a GO TO statement. ALTER is an obsolete element, but supported. The paragraph named

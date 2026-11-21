@@ -386,3 +386,20 @@ def test_the_code_page_rows_are_counted_from_the_codecs_the_gauntlet_and_the_cru
         ok or None,
         n or None,
     ) or not n
+
+
+# ---- #8888: an S bar under each training codebase ---------------------------------------------------------------------
+def test_each_training_codebase_has_an_s_bar_from_the_report(report):
+    estates = report["ladder"]["estates"]
+    svg = ps.render(report)
+    titles, texts = _titles(svg), _texts(svg)
+    drawn = 0
+    for key, e in estates.items():
+        sy, nm = e["system"], ps.ESTATE_NAMES.get(key, key)
+        if sy["jobs"]:
+            n0 = sy["levels"]["S0"]
+            assert f"{nm}: {n0} job{'s' * (n0 != 1)} at S0 (jobs inventoried)" in titles
+            assert any(t.startswith(f"S2 chain-proven: {sy['levels']['S2']} of {sy['jobs']} jobs") for t in texts)
+            drawn += 1
+    assert drawn  # the committed estate sizes (tests/fixtures/estate_size.json) give the fixture estates their jobs
+    assert any(t.startswith("S1, S3, S4: not measured yet") for t in texts)  # said once; never a 0 for them

@@ -55,6 +55,18 @@ L5_LIGHT = ["#1d3f6e", "#4f78ad", "#a9bdd8"]
 SURFACE = "#0f1117"  # the README films' background
 L5_DARK = ["#2f5e9e", "#5a82b8", "#a9bdd8"]
 
+# The system ladder (#8888) is a second axis, per job: S0 shares L0's neutral (inventoried only), S1-S4 one cyan ramp,
+# lightest = wired, darkest = a whole cycle proven. None is a ladder, status or L5 hue.
+S_STATES = [
+    ("S0", "jobs inventoried"),
+    ("S1", "wired: the generated job leaves no hole"),
+    ("S2", "chain proven, hand-wired"),
+    ("S3", "chain proven from the JCL"),
+    ("S4", "operating cycle proven"),
+]
+SY_DARK = [LADDER_DARK[0], "#8fd3de", "#2aa6bb", "#1b7f91", "#105a67"]
+SY_LABEL_CLS = ["on-light", "on-light", "on-dark", "on-dark", "on-dark"]
+
 LEVELS = [
     ("L0", "Read", "scanned, not yet translated"),
     ("L1", "Translates whole", "every line becomes Java"),
@@ -496,6 +508,42 @@ def render(prog: dict[str, Any]) -> str:
         )
         l5_bar(e5, nm)
         y += row_h
+        if e.get("system"):
+            s_bar(e["system"], nm)
+
+    def s_bar(sy: dict[str, Any], nm: str) -> None:
+        """#8888: the estate's jobs on the S ladder, a thin bar under its program row; unmeasured levels say so."""
+        nonlocal y
+        h = 16
+        s.text(bar_x - 10, y + 12, "S", cls="t3", size=12, weight=700, anchor="end")
+        if sy.get("jobs") is None:
+            s.rect(bar_x, y, bar_w, h, "track", rx=3, title=f"{nm}: JCL jobs not measured")
+            s.text(r_x, y + 12, "Jobs: not measured", cls="t3", size=12)
+        elif sy["jobs"] == 0:
+            s.rect(bar_x, y, bar_w, h, "track", rx=3, title=f"{nm}: no JCL job in the estate")
+            s.text(r_x, y + 12, "No JCL jobs", cls="t3", size=12)
+        else:
+            vals = [sy["levels"].get(lv) or 0 for lv, _ in S_STATES]
+            stacked(
+                s,
+                bar_x,
+                y,
+                bar_w,
+                h,
+                vals,
+                [f"sy{i}" for i in range(len(S_STATES))],
+                [f"{nm}: {v} job{'s' * (v != 1)} at {lv} ({lab})" for v, (lv, lab) in zip(vals, S_STATES)],
+                label_min=40,
+                label_cls=SY_LABEL_CLS,
+                names=[lv for lv, _ in S_STATES],
+                min_w=22,
+            )
+            line = f"S2 chain-proven: {sy['levels']['S2']} of {sy['jobs']} jobs"
+            if sy.get("job_cases") and not sy["levels"]["S2"]:
+                n = len(sy["job_cases"])
+                line += f" · {n} job case{'s' * (n != 1)} written, not yet run in CI"
+            s.text(r_x, y + 12, line, cls="t3", size=12)
+        y += h + 12
 
     def band(num: int, title: str, sub: str) -> None:
         nonlocal y
@@ -516,6 +564,26 @@ def render(prog: dict[str, Any]) -> str:
         s.text(lx + 17, y + 25, short, cls="t3", size=12.5)
         lx += 17 + 7.2 * len(short) + 14
     y += 40
+    # #8888: the S ladder's legend, under the column heads (its own colours: a second axis, per job, not per program)
+    s.text(bar_x, y + 4, "S: each codebase's batch jobs on the system ladder (a second axis, per job)", cls="t2",
+           size=13.5, weight=700)  # fmt: skip
+    lx = bar_x
+    y += 14
+    for i, (lv, lab) in enumerate(S_STATES):
+        s.rect(lx, y, 12, 12, f"sy{i}", rx=2)
+        txt = f"{lv} {lab}"
+        s.text(lx + 17, y + 11, txt, cls="t3", size=12.5)
+        lx += 17 + 6.6 * len(txt) + 16
+        if lx > W - PAD - 240 and i < len(S_STATES) - 1:  # wrap before the slide's edge
+            lx, y = bar_x, y + 20
+    s_measured = next((e["system"]["measured"] for e in estates.values() if e.get("system")), None)
+    if s_measured is not None:  # said once here, not on every row: a level with no measure counts no job
+        unmeasured = [lv for lv, _ in S_STATES if lv not in s_measured]
+        if unmeasured:
+            s.text(bar_x, y + 34, f"{', '.join(unmeasured)}: not measured yet, so no job is counted there; "
+                   "S2 counts only a chain proof CI records.", cls="t3", size=12.5)  # fmt: skip
+            y += 20
+    y += 30
 
     band(
         1,
@@ -636,8 +704,11 @@ def render(prog: dict[str, Any]) -> str:
         "Results by age of code",
         "Real codebases mix decades: 1980s programs LINK 1990s ones that call 2010s Db2 code. Each program is dated by "
         f"the features it uses (era_tags.py); {eras.get('none', {}).get('programs', 0)} show no dating clue"
-        + "".join(f"; {ESTATE_NAMES.get(k, k)}'s {n} are not dated yet (no feature inventory)"
-                  for k, n in sorted((prog.get("eras_undated") or {}).items())) + ".",  # fmt: skip
+        + "".join(
+            f"; {ESTATE_NAMES.get(k, k)}'s {n} are not dated yet (no feature inventory)"
+            for k, n in sorted((prog.get("eras_undated") or {}).items())
+        )
+        + ".",  # fmt: skip
         gap_after=42,
     )
     ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 166, 14
@@ -846,6 +917,7 @@ def render(prog: dict[str, Any]) -> str:
     {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}
     {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_DARK))}
     {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_DARK))}
+    {"".join(f".sy{i} {{ fill: {c}; }} " for i, c in enumerate(SY_DARK))}
     .st-good {{ fill: #3ccf98; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
     .slot {{ fill: none; stroke: #3a3d47; stroke-width: 1.5; stroke-dasharray: 5 5; }}

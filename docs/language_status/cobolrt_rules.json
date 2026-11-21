@@ -3557,8 +3557,9 @@
    "site": "le/LeTime.java:putVstring",
    "ibm": {
     "doc": "le-pr",
-    "section": "Data type definitions: VSTRING"
+    "section": "Data type definitions: VSTRING (COBOL: STRING-OUT PIC X(80)); CEEDATE / CEEDATM output_char_date"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"Data type definitions\" table for COBOL, VSTRING): \"A halfword length-prefixed character string (for input); fixed-length 80-character string (for output)\", declared \"01 STRING-IN. 02 LEN PIC S9(4) USAGE IS BINARY. 02 TXT PIC X(N).\" for input and \"01 STRING-OUT PIC X(80).\" for output. CEEDATE: output_char_date is \"A fixed-length 80-character string (VSTRING)\" and, \"If input_Lilian_date is not valid, output_char_date is set to all blanks.\" Input VSTRINGs (the picture) are halfword-prefixed, as the runtime reads them. For an OUTPUT, IBM documents a plain 80-byte text with no length prefix and blanks on error; the runtime writes a halfword length then the text, leaves the rest of the item untouched and, on error, writes a zero length (register L6 assumption 2, which says IBM states no COBOL layout: this text does). That is a difference, not an open point; it is kept ASSUMED here and filed as a bug in #8700 (both sides of the harness share the prefixed model, so no case sees it). Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6"
@@ -3578,14 +3579,15 @@
    "site": "le/LeTime.java:gmt",
    "ibm": {
     "doc": "le-pr",
-    "section": "CEEGMT: get current Greenwich Mean Time"
+    "section": "CEEGMT: get current Greenwich Mean Time (CEEUTC alias)"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEEGMT\"): \"CEEGMT returns the current Greenwich Mean Time (GMT) as both a Lilian date and as the number of seconds since 00:00:00 14 October 1582.\" \"In order for the results of this service to be meaningful, your system's TOD (time-of-day) clock must be set to Greenwich Mean Time and be based on the standard epoch.\" output_GMT_Lilian: a 32-bit binary integer, \"the number of days since 14 October 1582 (16 May 1988 is day number 148138)\"; output_GMT_seconds: a 64-bit double floating-point number, \"the number of seconds since 00:00:00 on 14 October 1582, not counting leap seconds\" (\"00:00:01 on 15 October 1582 is second number 86,401\"); fc CEE000 on success; \"Language Environment treats Coordinated Universal Time (UTC) and Greenwich Mean Time (GMT) as the same. You can use the CEEUTC service, which is an alias of the CEEGMT service\". The runtime does what this says: its clock is GMT, the day count and the seconds (with the clock's hundredths) are IBM's, a fullword and a COMP-2, success feedback zero, CEEUTC the same method. IBM's one failure, CEE2E6 (GMT not available, outputs 0), cannot arise from a pinned clock and is not modelled (an unpinned clock is refused by name, L6). The clock's value is the run's, which IBM cannot define. Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6",
     "X4"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -3599,6 +3601,7 @@
     "doc": "le-pr",
     "section": "CEEGMTO: get offset from Greenwich Mean Time to local time"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEEGMTO\"): \"CEEGMTO returns values to the calling routine representing the difference between the local system time and Greenwich Mean Time (GMT).\" offset_hours: \"the offset from GMT to local time, in hours. For example, for Pacific Standard Time, offset_hours equals -8\"; offset_minutes \"0 to 59\"; offset_seconds: \"-28,800 (-8 * 60 * 60)\" for Pacific standard time; \"If local time offset is not available, offset_hours equals 0 and CEEGMTO terminates with a non-CEE000\" code (CEE2E7, message 2503). IBM defines the output as the real difference of the system's local time from GMT. The runtime answers 0, 0, 0.0 and success whatever zone the system is in, because its clock is read as GMT (register L6 assumption 1): that equals IBM only when the local zone is GMT, and no zone is modelled. Stays ASSUMED, the zone gap recorded, as for CURRENT-DATE's +0000. Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6"
@@ -3618,8 +3621,9 @@
    ],
    "ibm": {
     "doc": "db2-app",
-    "section": "DSNTIAC: the CICS interface to DSNTIAR"
+    "section": "Displaying SQLCA fields by calling DSNTIAR; DSNTIAC (assembler and COBOL syntax)"
    },
+   "ibm_note": "IBM (Db2 13 for z/OS Application Programming and SQL Guide, \"Displaying SQLCA fields by calling DSNTIAR\" and \"DSNTIAC\"): \"If your CICS application requires CICS storage handling, you must use the subroutine DSNTIAC instead of DSNTIAR\", called \"CALL 'DSNTIAC' USING eib commarea sqlca msg lrecl\"; \"Both DSNTIAC and DSNTIAR format the SQLCA in the same way.\" The message area is a halfword total length (\"the minimum length of the output area is 240-bytes\") then lines of lrecl, lrecl \"in the range 72-240 bytes\"; \"DSNTIAR places up to 10 lines in the message area. If the text of a message is longer than the record length you specify on DSNTIAR, the output message splits into several records, on word boundaries if possible. The split records are indented. All records begin with a blank character for carriage control. If you have more lines than the message output area can contain, DSNTIAR issues a return code of 4. A completely blank record marks the end of the message output area.\" Return codes: 0 successful; 4 more data than fit; 8 \"Logical record length not in the range 72-240, inclusive\"; 12 \"Message area not large enough. The message length was 240 or greater.\"; 16 TSO message routine error; 20 DSNTIA1 not loaded; 24 \"SQLCA data error\". The runtime's return codes 0, 4, 8, 12 (no whole line in the area) and 24 and its line length range are IBM's. The text is Db2's message catalogue (IBM gives no byte-for-byte text, register Q5), and three layout points differ from the quote: the runtime's lines do not begin with a carriage-control blank, its split lines are not indented, and it does not cap the text at 10 lines. Filed as a bug in #8700; the rule stays ASSUMED, not matched. Checked against the Db2 13 Application Programming and SQL Guide text copy",
    "options": [],
    "register": [
     "Q5"
@@ -3637,8 +3641,9 @@
    ],
    "ibm": {
     "doc": "zarch-pop",
-    "section": "STORE CLOCK EXTENDED"
+    "section": "STORE CLOCK EXTENDED (STCKE): the 16-byte operand"
    },
+   "ibm_note": "IBM (z/Architecture Principles of Operation, SA22-7832, \"STORE CLOCK EXTENDED\", STCKE): \"the following are stored into the 16-byte second operand: ... the epoch index is stored in byte position 0 [when the multiple-epoch facility is installed]. The current value of the TOD clock is stored in byte positions 1-13. The TOD programmable field, bits 16-31 of the TOD programmable register, is stored in byte positions 14 and 15.\" \"Zeros are stored at the operand location when the clock is in the error state or the not-operational state.\" ZUIDSTCK is not an IBM service: it is zECS's own assembler wrapper around STCKE, so IBM defines only the 16-byte layout it wraps. The runtime makes the 16 bytes a stated input of the run and never the host clock (register X47): the layout is IBM's, the value is the machine's, which no manual states. The program keeps only bytes 1-6 (epoch index and the first five clock bytes) as a key prefix. IBM neither confirms nor contradicts the stand-in, so the rule stays ASSUMED. Checked against the z/Architecture Principles of Operation text copy",
    "options": [],
    "register": [
     "X47"
@@ -3659,8 +3664,9 @@
    "site": "le/LeTime.java:qcen",
    "ibm": {
     "doc": "le-pr",
-    "section": "CEEQCEN: query the century window"
+    "section": "CEEQCEN: query the century window; CEESCEN: set the century window"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEEQCEN\" and \"CEESCEN\"): century_start is \"An integer between 0 and 100 indicating the year on which the century window is based. For example, if the Language Environment default is in effect, all 2-digit years lie within the 100-year window starting 80 years prior to the system date. CEEQCEN then returns the value 80.\" CEESCEN: \"An integer between 0 and 100, setting the century window.\" The runtime's default 80, its 0-to-100 range and a CEEQCEN that returns what CEESCEN set are IBM's. What IBM leaves open: the reaction to a value outside 0-100 (the runtime answers CEE2533 and keeps the setting; this manual lists no such code for CEESCEN, only CEE000 and CEE2E6, the latter being the GMT message), and the scope (\"Century intervals are kept as thread-level data\" against \"CEESCEN applies to the enclave\"; the runtime holds one setting for the run). Stays ASSUMED. Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6"
@@ -3827,6 +3833,7 @@
     "doc": "le-pr",
     "section": "CEELOCT: get current local date or time"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEELOCT\"): \"CEELOCT returns the current local date or time in three formats: Lilian date, Lilian seconds, Gregorian character string (in the form YYYYMMDDHHMISS999)\"; output_Lilian a 32-bit binary integer (\"day 1 equals 15 October 1582, day 148,887 equals 4 June 1990\"); output_seconds a 64-bit double floating-point number (\"19:00:01.078 on 4 June 1990 is second number 12,863,905,201.078\"); output_Gregorian \"A 17-byte fixed-length character string in the form YYYYMMDDHHMISS999\"; fc CEE000, or CEE2F3 (severity 3, message 2531, \"The local time was not available from the system\"). The runtime's three outputs, the 17 bytes (register L5 assumption 3, the longer field, is not what IBM documents), the success feedback and the CEE2F3 token are IBM's. One difference: for CEE2F3 IBM says \"output_Lilian is set to 0\" and \"output_seconds is set to 0\"; the planned-fault path (Ceeloct.fail) leaves the outputs as they were. Filed as a bug in #8700, so the rule is not MATCHED. The clock is the run's (the zone is the pinned clock's, L5 assumption 1). Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L5"

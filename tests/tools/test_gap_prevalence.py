@@ -961,6 +961,26 @@ def test_a_clone_holding_an_archive_never_earns_the_clone_defect_label(tmp_path)
     assert gp.clone_defect_violations(res) == []
 
 
+def test_a_clone_holding_a_recfm_v_export_never_earns_the_clone_defect_label(tmp_path):
+    """#8412: authored RDW-framed member (invented name) beside a plain one; the aperture refuses it by name."""
+    clone = _clone(tmp_path, "OTHER.cpy")
+    rec = "       01 PAYREC PIC X.".ljust(24).encode("cp037")
+    (clone / "PAYREC.cpy").write_bytes(((len(rec) + 4).to_bytes(2, "big") + b"\x00\x00" + rec) * 4)
+    index = gp.clone_member_index(clone)
+    n = gp.rdw_files(clone)
+    assert n == 1 and gp.rdw_files(_clone(tmp_path / "plain", "OTHER.cpy")) == 0
+    # the member the search "finds" is the refused file: not a resolver defect, not a clone defect
+    for name in ("PAYREC", "GONEREC"):
+        key = gp.verified_copybook_key(f"missing copybook {name}", index, 0, n)
+        assert key == gp.RDW_HELD and not gp.is_named_defect(key)
+    assert gp.verified_copybook_key("missing copybook GONEREC", index, 0, 0) == gp.CLONE_DEFECT
+    assert gp.verified_copybook_key("missing copybook DFHAID", index, 0, n) == "missing copybook: CICS system"
+    rows = {(CENSUS[0], "p.cbl"): {"error": "CopyNotFound: COPY PAYREC not found"}}
+    res = gp.measure_census(rows, {}, top=(1,), clone_index={CENSUS[0]: index}, clone_rdws={CENSUS[0]: n})
+    assert res["whole_now"] == 0 and res.get("accounted_now", 0) == 0 and "clone_defect_checked" not in res
+    assert gp.clone_defect_violations(res) == []
+
+
 def test_no_index_means_unverified_and_never_accounted():
     key = gp.verified_copybook_key("missing copybook PAYREC", None)
     assert key == gp.UNVERIFIED and not gp.is_named_defect(key)

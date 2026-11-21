@@ -369,7 +369,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 8
+   "tests": 10
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -1968,7 +1968,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 8
+   "tests": 10
   },
   "cbsa-crdtagy2": {
    "generated": [],

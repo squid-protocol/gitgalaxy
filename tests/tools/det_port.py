@@ -184,7 +184,7 @@ def _port_case(name: str, work: Path, project: Path, corpus: Path, style: str = 
         called_holes += [f"{extra['program']}: {h}" for h in x.stats["holes"]]
         translated.append(x)
         r.stats["warnings"] = [*r.stats.get("warnings", []), *x.stats.get("warnings", [])]
-    for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
+    for rel, text in P.project_runtime(PKG, project).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
     _snapshot_generated(port.parent / "generated", project, stub, [t.java for t in translated])

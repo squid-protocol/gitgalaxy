@@ -75,9 +75,10 @@ def cache_root() -> Path:
 # #6072: corpora that are not in the manifest but that a ladder slice can name as a case's `corpus`. cics-crucible is
 # a sibling checkout pinned in tests/crucible_pins.toml ([cics]), not a clone under the cache; `select([])` stays the
 # manifest alone, so no manifest-wide loop (answer keys, completeness, refraction) sees it. A bare `fetch` does take
-# it (fetch_targets): that one call is how every CI job with a case reading it gets the checkout.
-CRUCIBLE_CORPORA = {"cics-crucible": "cics"}
-CRUCIBLE_PATH_ENV = "CICS_CRUCIBLE_PATH"
+# it (fetch_targets): that one call is how every CI job with a case reading it gets the checkout. estate-crucible
+# ([estate]) is one too: the Open World level estates (#7065), whose programs det batch cases prove.
+CRUCIBLE_CORPORA = {"cics-crucible": "cics", "estate-crucible": "estate"}
+CRUCIBLE_PATH_ENV = "CICS_CRUCIBLE_PATH"  # cics-crucible's; each crucible's own comes from its pin (path_env)
 CRUCIBLE_UNPINNED_ENV = "CICS_CRUCIBLE_ALLOW_UNPINNED"
 
 
@@ -88,7 +89,15 @@ def _crucible_entry(name: str) -> dict[str, Any]:
     finally:
         sys.path.remove(str(REPO_ROOT / "tests"))
     pin = entry(CRUCIBLE_CORPORA[name])
-    return {"name": name, "ref": str(pin["ref"]), "url": pin["repo"], "crucible": CRUCIBLE_CORPORA[name]}
+    return {
+        "name": name,
+        "ref": str(pin["ref"]),
+        "url": pin["repo"],
+        "crucible": CRUCIBLE_CORPORA[name],
+        "path_env": pin["path_env"],
+        "unpinned_env": pin["allow_unpinned_env"],
+        "default_dir": pin["default_dir"],
+    }
 
 
 def select(names: list[str], corpora: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
@@ -119,15 +128,17 @@ def _git(*args: str, cwd: Path, check: bool = True) -> str:
     return result.stdout.strip()
 
 
-def _crucible_checkout() -> Path:
-    """$CICS_CRUCIBLE_PATH, else ../cics-crucible beside the main checkout (a worktree's git-common-dir parent)."""
-    if os.environ.get(CRUCIBLE_PATH_ENV):
-        return Path(os.environ[CRUCIBLE_PATH_ENV])
+def _crucible_checkout(corpus: dict[str, Any]) -> Path:
+    """The pin's path_env ($CICS_CRUCIBLE_PATH ...), else its default_dir (../cics-crucible ...) beside the main
+    checkout (a worktree's git-common-dir parent)."""
+    env = corpus.get("path_env", CRUCIBLE_PATH_ENV)
+    if os.environ.get(env):
+        return Path(os.environ[env])
     common = _git("rev-parse", "--git-common-dir", cwd=REPO_ROOT, check=False)
     main = (
         (Path(common) if Path(common).is_absolute() else REPO_ROOT / common).resolve().parent if common else REPO_ROOT
     )
-    return main.parent / "cics-crucible"
+    return main.parent / corpus.get("default_dir", "cics-crucible")
 
 
 def _fetch_crucible(corpus: dict[str, Any]) -> Path:
@@ -148,7 +159,7 @@ def _fetch_crucible(corpus: dict[str, Any]) -> Path:
 
 def clone_path(corpus: dict[str, Any]) -> Path:
     if corpus.get("crucible"):
-        return _crucible_checkout()
+        return _crucible_checkout(corpus)
     return cache_root() / corpus["name"]
 
 
@@ -192,15 +203,17 @@ def _require_crucible(corpus: dict[str, Any]) -> Path:
     dest = clone_path(corpus)
     if not (dest / ".git").exists():
         sys.exit(
-            f"{corpus['name']}: no checkout at {dest}; set {CRUCIBLE_PATH_ENV} or run tests/tools/box/sync-pins.sh"
+            f"{corpus['name']}: no checkout at {dest}; set {corpus.get('path_env', CRUCIBLE_PATH_ENV)} or run "
+            "tests/tools/box/sync-pins.sh"
         )
-    if os.environ.get(CRUCIBLE_UNPINNED_ENV):
+    unpinned = corpus.get("unpinned_env", CRUCIBLE_UNPINNED_ENV)
+    if os.environ.get(unpinned):
         return dest
     head = _git("rev-parse", "HEAD", cwd=dest, check=False)
     pinned = _git("rev-parse", "--verify", "--quiet", f"{corpus['ref']}^{{commit}}", cwd=dest, check=False)
     if not head or head != pinned:
         sys.exit(f"{corpus['name']} at {dest} is not at the pinned {corpus['ref']}; run tests/tools/box/sync-pins.sh "
-                 f"(or set {CRUCIBLE_UNPINNED_ENV})")  # fmt: skip
+                 f"(or set {unpinned})")  # fmt: skip
     return dest
 
 

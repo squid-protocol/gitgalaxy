@@ -55,16 +55,31 @@ def has_batch(project: Path | None) -> bool:
     return project is None or any(project.glob("src/main/java/**/batch/CobolFiles.java"))
 
 
-def runtime_files(package: str, batch: bool = True) -> dict[str, str]:
+def has_cics(project: Path | None) -> bool:
+    """Whether the generated project has its CICS package (CicsTask, CicsSpec): a batch-only estate has none."""
+    return project is None or any(project.glob("src/main/java/**/cics/CicsTask.java"))
+
+
+def runtime_files(package: str, batch: bool = True, cics: bool = True) -> dict[str, str]:
     """The runtime's sources, relative to the package directory (cobolrt/...), with the package filled in: the
-    batch adapters for a project with a batch package, the standalone Sysout / CobolAbend for one without."""
+    batch adapters for a project with a batch package, the standalone Sysout / CobolAbend for one without. Without
+    `cics` (a project with no CICS package), cobolrt/cics/ is left out, as the batch forge leaves it out of a SORT
+    step's runtime: DetCics and DetMq import that package (CicsTask, CicsSpec) and DetJustify calls DetCics, so none
+    of them compiles there."""
     out = {}
     for f in sorted(RUNTIME.rglob("*.java")):
         rel = f.relative_to(RUNTIME).as_posix()
         if rel.startswith("batch/" if not batch else "standalone/"):
             continue
+        if not cics and rel.startswith("cics/"):
+            continue
         out["cobolrt/" + rel] = f.read_text(encoding="utf-8").replace("__PACKAGE__", package)
     return out
+
+
+def project_runtime(package: str, project: Path | None) -> dict[str, str]:
+    """The runtime for a generated project (None: every source, as for a project with both packages)."""
+    return runtime_files(package, has_batch(project), has_cics(project))
 
 
 # ---- FILE-CONTROL ----------------------------------------------------------------------------------------------

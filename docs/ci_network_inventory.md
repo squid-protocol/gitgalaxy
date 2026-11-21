@@ -16,7 +16,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
-| git-fetch | 17 | 0 | 0 | 0 | 9 |
+| git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
 | gh-api | 0 | 0 | 0 | 0 | 27 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
@@ -25,7 +25,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 97 | 84 | 54 | 208 | 48 |
+| **total** | 102 | 84 | 54 | 208 | 43 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -52,9 +52,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### det-sweep.yml
 
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
-- `git-fetch` - detmut / Check the ledgers of the cases this PR changes
 - `gh-api` - plan / Plan the sweep
-- `git-fetch` - plan / Plan the sweep
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
 ### doom-rosetta.yml
@@ -98,10 +96,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - ports-compile / Plan the clean-install check
 
-### publish.yml
-
-- `git-fetch` - pypi-publish / Enforce Main Branch Tagging
-
 ### referee-panel.yml
 
 - `git-fetch` - panel / Install Cobrix
@@ -124,17 +118,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - suite-plan / Plan the suite
 - `gh-api` - suite-time / Total against the budget
 
-### tree-sitter-accuracy-audit.yml
-
-- `git-fetch` - plan / Plan the audit
-
 ### tree-sitter-accuracy-history.yml
 
 - `gh-api` - plan / Plan the run
-
-### tri-comparison-audit.yml
-
-- `git-fetch` - plan / Plan the audit
 
 ### tri-comparison-history.yml
 

@@ -369,7 +369,7 @@ nav:
         - 'AI AppSec Sensor': "02-17-ai-appsec-sensor.md"
         - 'Dev Agent Firewall': "02-18-dev-agent-firewall.md"
         - 'Neural Auditor': "02-19-neural-auditor.md"
-        - 'Security Auditor (XGBoost)': "02-20-security-auditor.md"
+        - 'Security Auditor (classifier removed)': "02-20-security-auditor.md"
         - 'SQLite Record Keeper': "02-21-record-keeper.md"
         - 'State Rehydrator': "02-22-state-rehydrator.md"
     - '3. Validation & Outlook':

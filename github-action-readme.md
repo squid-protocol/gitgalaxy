@@ -95,7 +95,7 @@ Configure the GitGalaxy action via the `with` block in your workflow step.
 | `target` | Yes | `.` | The directory or specific file path to scan. |
 | `args` | No | `""` | Additional CLI arguments passed directly to the tool. |
 | `version` | No | `latest` | `latest` installs the hash-pinned release the action ships with (`templates/requirements/`, `--require-hashes`). An explicit version (see [GitHub Releases](https://github.com/squid-protocol/gitgalaxy/releases)) is exact-pinned but not hash-verified, and a release older than the `full` extra silently runs in Zero-Dependency Mode even with `full_precision: 'true'`. |
-| `full_precision` | No | `false` | Set to `'true'` to install the optional engines (`tiktoken`, `xgboost`, `pandas`, `numpy`) for token counts. It does not enable ML threat inference: no model ships and `scikit-learn` is not installed (#8430). Graph metrics such as Blast Radius need none of them. |
+| `full_precision` | No | `false` | Set to `'true'` to install the optional engines (`tiktoken`, `pyyaml`) for token counts. There is no ML threat inference: the XGBoost classifier was removed on 2026-11-19, research pending (#8430). Graph metrics such as Blast Radius need none of them. |
 
 ### Understanding the `--paranoid` Flag
 

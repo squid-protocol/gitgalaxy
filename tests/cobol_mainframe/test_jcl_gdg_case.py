@@ -58,6 +58,11 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "restart-star-",
         "restart-checkpoint-same",
         "restart-checkpoint-keep",
+        "pass-never-received",
+        "wraparound-",
+        "after-a-wraparound",
+        "one-step-adds-three",
+        "next-job-reads-minus-two",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
@@ -76,7 +81,7 @@ def test_each_scenario_names_a_job_gives_a_basis_and_its_assumptions_exist():
 
 def test_what_is_not_answered_is_refused_by_name():
     refused = " ".join(r["construct"] for r in DOC["refused"])
-    for name in ("same (+n)", "read before any step creates", "PASSed generation", "DISP=MOD"):
+    for name in ("same (+n)", "read before any step creates", "DISP=MOD"):
         assert name in refused, name
     for name in ("other than the oldest", "deleted earlier in the job", "whole group"):
         assert name in refused, name
@@ -125,16 +130,24 @@ def test_two_new_plus_ones_a_read_before_create_and_a_missing_generation_are_ref
         _run(nobase, "J", CAT, {"A": {"rc": 0}})
 
 
-def test_a_passed_generation_never_received_and_a_removing_disposition_are_refused():
+def test_a_passed_generation_never_received_is_scratched_and_a_removing_disposition_is_refused():
     passed = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,PASS)\n"
-    with pytest.raises(JclGdgRefused, match="never received"):
-        _run(passed, "J", CAT, {"A": {"rc": 0}})
+    names, after = _run(passed, "J", CAT, {"A": {"rc": 0}})
+    assert names == {"A.O": 3} and after["G.B"]["generations"] == [1, 2]
     uncat = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,UNCATLG)\n"
     with pytest.raises(JclGdgRefused, match="removes an existing"):
         _run(uncat, "J", CAT, {"A": {"rc": 0}})
     group = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B,DISP=(OLD,UNCATLG)\n"
     with pytest.raises(JclGdgRefused, match="UNCATLG of a generation group"):
         _run(group, "J", CAT, {"A": {"rc": 0}})
+
+
+def test_creations_across_the_9999_wrap_roll_in_oldest_first_and_the_limit_drops_the_oldest():
+    cat = {"G.B": {"limit": 3, "generations": [9998, 9999]}}
+    two = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+2),DISP=(NEW,CATLG)\n//P DD DSN=G.B(+1),DISP=(NEW,CATLG)\n"
+    names, after = _run(two, "J", cat, {"A": {"rc": 0}})
+    assert names == {"A.O": 2, "A.P": 1}
+    assert after["G.B"]["generations"] == [9999, 1, 2]
 
 
 def test_a_new_generation_with_no_disposition_is_deleted_and_keep_is_a_deferred_roll_in():

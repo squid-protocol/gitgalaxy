@@ -1184,6 +1184,14 @@ def judge(base: dict[str, Any], mutant: dict[str, Any]) -> str:
     return {"proven": "survived", "refuted": "killed", "timeout": "killed"}.get(mutant["verdict"], "refused")
 
 
+def attack_flags(kind: str, case_file: Path, faults: str) -> tuple[str, ...]:
+    """The `equivalence.py run` flags of an attack's proofs. A CICS case is proven through its deployed entry points too
+    (the baseline's facade side, #4449): `--no-facades` would let a mutant in facade-only code (`handleLink`,
+    `lastLinkBytes`, which `live_methods` counts as live) survive an attack falsely (#8599). Other kinds have no facade."""
+    flags = ("--case-file", str(case_file), "--faults", faults, "--one-jvm")
+    return flags if kind == "cics" else ("--case-file", str(case_file), "--no-facades", *flags[2:])
+
+
 def attack_case(case: dict[str, Any], proposals: list[dict[str, Any]], ca_names: set[str] | None) -> dict[str, Any]:
     """The case with only `proposals` as its inputs. Their extra keys pass through: the harness knows more scenario
     fields than the model's format (a WEB body, a clock); `targets` is the model's note and goes."""
@@ -1402,7 +1410,7 @@ def attack(
     here.mkdir(parents=True, exist_ok=True)
     cf = here / "case.json"
     cf.write_text(json.dumps({k: v for k, v in trial.items() if k != "name"}, indent=1) + "\n", encoding="utf-8")
-    flags = ("--case-file", str(cf), "--no-facades", "--faults", faults, "--one-jvm")
+    flags = attack_flags(kind, cf, faults)
     print(f"{case_name}: proving the port on {len(proposals)} new input(s); the trial case: {cf}", flush=True)
     base = mu.prove(case_name, port, here / "baseline", 3600, flags)
     names = [p["name"] for p in proposals]

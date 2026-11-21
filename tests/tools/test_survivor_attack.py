@@ -1223,3 +1223,11 @@ def test_return_area_cut_is_settled_only_while_both_sizes_cover_the_length():
     assert _plumb(text, _RET, _RET.replace("commarea(f_WS_CA, 1)", "commarea(f_WS_CA, 0)")) is None  # under LENGTH
     assert _plumb(text, _RET, _RET.replace(", 1, Cobol", ", 2, Cobol")) is None  # the LENGTH itself moved
     assert _plumb(text, _RET, _RET.replace("commarea(f_WS_CA", "commarea(f_OTHER")) is None
+
+
+def test_a_cics_attack_is_proven_through_the_facades_too_8599(tmp_path):
+    cf = tmp_path / "case.json"
+    cics = sa.attack_flags("cics", cf, "none")
+    assert "--no-facades" not in cics and cics[:2] == ("--case-file", str(cf))
+    assert "--no-facades" in sa.attack_flags("batch", cf, "all")
+    assert sa.attack_flags("batch", cf, "all")[-3:] == ("--faults", "all", "--one-jvm")

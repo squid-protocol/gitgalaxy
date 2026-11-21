@@ -2,6 +2,7 @@
 """Keyword-family validity test (#8863): does each per-function signal count what its name says?
 
     python tests/tools/family_oracle.py SCAN_DB --src ROOT              # report, every family, Python
+    python tests/tools/family_oracle.py SCAN_DB --src ROOT --lang go    # another language (go rust javascript typescript java c)
     python tests/tools/family_oracle.py SCAN_DB --src ROOT --json OUT   # the same, machine readable
     python tests/tools/family_oracle.py SCAN_DB --src ROOT --gate FLOORS.json   # exit 1 when a family falls below its floor
     python tests/tools/family_oracle.py --list-families                 # each family and the sentence it is scored against
@@ -22,7 +23,7 @@ construct) or no-instances (the oracle never sees it, so nothing can be said).
 What the numbers mean, and do not. The oracle is a reading of the family NAME written in `FAMILIES` below, one sentence each. Where a family is
 narrow on purpose (`arch_serialization` is unsafe deserialization only), the sentence says so, and the score is against that sentence. A low
 recall against a sentence nobody agreed to is a definition question, not a bug: the sentences are provisional until the owner answers #8862.
-Only Python has an oracle so far (`ast`); another language raises a clear error rather than scoring against nothing. Report only: nothing here
+Python's oracle is `ast`; Go, Rust, JavaScript, TypeScript, Java and C use tree-sitter (`family_oracle_ts.py`, the `translator` extra); any other language raises a clear error rather than scoring against nothing. Report only: nothing here
 runs in CI, and `--gate` is the hook for a ratchet once the floors are agreed.
 
 SCAN_DB is a finished `*_master.db`; `--src` is the directory that was scanned (the database's file paths are looked up under it, then with
@@ -263,8 +264,34 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
     return c
 
 
-ORACLES = {"python": python_oracle}
-EXTENSIONS = {"python": (".py", ".pyi", ".pyw")}
+class _PythonOracle:
+    """The interface every language oracle has: `exts`, `families`, `index(text)` -> {(name, line): node}, `count(node)` -> (counts, tokens)."""
+
+    exts = (".py", ".pyi", ".pyw")
+    families = FAMILIES
+
+    @staticmethod
+    def index(text: str) -> dict:
+        return _index_functions(ast.parse(text))
+
+    @staticmethod
+    def count(node: ast.FunctionDef | ast.AsyncFunctionDef) -> tuple[collections.Counter, dict]:
+        c = python_oracle(node)
+        return c.n, c.tokens
+
+
+def get_oracle(lang: str):
+    """The oracle for `lang`: Python's `ast`, or a tree-sitter one from family_oracle_ts (languages listed there)."""
+    if lang == "python":
+        return _PythonOracle
+    import family_oracle_ts
+
+    oracle = family_oracle_ts.get_oracle(lang)
+    if oracle is None:
+        raise SystemExit(
+            f"no oracle for language {lang!r} yet (available: python, {', '.join(family_oracle_ts.languages())}); see #8863"
+        )
+    return oracle
 
 
 def _index_functions(tree: ast.AST) -> dict[tuple[str, int], ast.FunctionDef | ast.AsyncFunctionDef]:
@@ -340,13 +367,11 @@ def score(
     recall_bar: float = RECALL_BAR,
     precision_bar: float = PRECISION_BAR,
 ) -> dict:
-    """Score every family of `FAMILIES` found in the scan against the oracle; returns {"matched", "unmatched", "families": [...]}."""
-    if lang not in ORACLES:
-        raise SystemExit(f"no oracle for language {lang!r} yet (available: {', '.join(sorted(ORACLES))}); see #8863")
-    oracle = ORACLES[lang]
+    """Score every family of the language's oracle found in the scan; returns {"matched", "unmatched", "families": [...]}."""
+    oracle = get_oracle(lang)
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     have = {r[1] for r in con.execute("PRAGMA table_info(function_data)")}
-    fams = [f for f in FAMILIES if f.column in have]
+    fams = [f for f in oracle.families if f.column in have]
     cols = ",".join(f"u.{f.column}" for f in fams)
     rows = con.execute(
         f"SELECT f.file_path, u.func_name, u.start_line, {cols} FROM function_data u JOIN file_data f ON f.id = u.file_id"  # noqa: S608
@@ -356,7 +381,7 @@ def score(
     orc_vals: dict[str, list[float]] = {f.column: [] for f in fams}
     missed: dict[str, collections.Counter[str]] = {f.column: collections.Counter() for f in fams}
     matched = unmatched = 0
-    exts = EXTENSIONS[lang]
+    exts = oracle.exts
     for row in rows:
         rel, name, line = row[0], row[1], row[2]
         if not str(rel).lower().endswith(exts):
@@ -364,22 +389,23 @@ def score(
         if rel not in trees:
             path = resolve_source(str(rel), src)
             try:
-                trees[rel] = _index_functions(ast.parse(read_source(path).text)) if path else None
+                trees[rel] = oracle.index(read_source(path).text) if path else None
             except (SyntaxError, ValueError):
                 trees[rel] = None
-        node = (trees[rel] or {}).get((name, line))
+        funcs = trees[rel] or {}
+        node = funcs.get((name, line)) or funcs.get((str(name).replace("::", ".").split(".")[-1], line))
         if node is None:
             unmatched += 1
             continue
         matched += 1
-        counts = oracle(node)
+        counts, tokens = oracle.count(node)
         for fam, value in zip(fams, row[3:], strict=True):
-            o = counts.n.get(fam.oracle, 0)
+            o = counts.get(fam.oracle, 0)
             v = value or 0
             fam_vals[fam.column].append(float(v))
             orc_vals[fam.column].append(float(o))
             if o > 0 and not v > 0:
-                missed[fam.column].update(counts.tokens.get(fam.oracle, {}))
+                missed[fam.column].update(tokens.get(fam.oracle, {}))
     out = []
     for fam in fams:
         fv, ov = fam_vals[fam.column], orc_vals[fam.column]
@@ -446,7 +472,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("db", nargs="?", help="a finished *_master.db")
     ap.add_argument("--src", help="the directory that was scanned")
-    ap.add_argument("--lang", default="python", help="oracle language (python)")
+    ap.add_argument("--lang", default="python", help="oracle language (python; others from family_oracle_ts)")
     ap.add_argument("--json", dest="json_out", help="also write the result here")
     ap.add_argument("--gate", help="JSON {family: {recall, precision}} floors; exit 1 when one is not met")
     ap.add_argument("--top", type=int, default=5, help="missed tokens listed per family")
@@ -455,7 +481,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = ap.parse_args(argv)
     if args.list_families:
-        for f in FAMILIES:
+        for f in get_oracle(args.lang).families:
             print(f"{f.column:22s} {f.sentence}")
         return 0
     if not args.db or not args.src:

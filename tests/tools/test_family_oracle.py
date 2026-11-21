@@ -177,3 +177,75 @@ def test_list_families(capsys):
     assert fo.main(["--list-families"]) == 0
     text = capsys.readouterr().out
     assert "arch_regex" in text and "unsafe deserialization only" in text
+
+
+# ---- tree-sitter oracles (#8863): one construct per case, per language ----
+import family_oracle_ts as ts_oracle  # noqa: E402  (imports tree-sitter lazily, so this always loads)
+
+try:
+    import tree_sitter_language_pack  # noqa: F401
+
+    HAVE_TS = True
+except ImportError:
+    HAVE_TS = False
+needs_ts = pytest.mark.skipif(not HAVE_TS, reason="tree_sitter_language_pack (the translator extra) is not installed")
+
+
+def _ts_counts(lang: str, src: str, name: str, line: int = 0) -> dict:
+    oracle = ts_oracle.get_oracle(lang)
+    index = oracle.index(textwrap.dedent(src))
+    node = next(n for (nm, ln), n in index.items() if nm == name and (not line or ln == line))
+    counts, _ = oracle.count(node)
+    return dict(counts)
+
+
+@needs_ts
+@pytest.mark.parametrize(
+    ("lang", "src", "name", "key", "want"),
+    [
+        (
+            "java",
+            "class A {\n  int f(Map<String, List<String>> m) { return 1; }\n}",
+            "f",
+            "bitwise",
+            0,
+        ),  # closing generics are not a shift
+        ("java", "class A {\n  int f(int a) { return a << 2; }\n}", "f", "bitwise", 1),
+        ("java", "class A {\n  int f() { try { return 1; } catch (Exception e) { return 2; } }\n}", "f", "branch", 1),
+        ("java", "class A {\n  @Override @Deprecated\n  public int f() { return 1; }\n}", "f", "decorators", 2),
+        ("java", "class A {\n  void f() { Thread.sleep(1); }\n}", "f", "sleep", 1),
+        ("rust", 'fn f() { let s = ">> ^ ~ <<"; }', "f", "bitwise", 0),  # characters in a string
+        ("rust", "fn f(a: u32) -> u32 { a << 2 ^ a }", "f", "bitwise", 2),
+        ("rust", '#[inline]\nfn f() { println!("x"); }', "f", "decorators", 1),
+        ("rust", "fn f() { std::process::exit(1); }", "f", "bailout", 1),
+        ("rust", "fn f(a: i32, b: i32) { let c = |x: i32| x + a; }", "f", "closures", 1),
+        ("go", "package m\nfunc F(a, b int, c string) {}", "F", "args", 3),  # `a, b int` is two parameters
+        ("go", 'package m\nfunc F() { fmt.Println("x") }', "F", "print", 1),
+        ("go", "package m\nfunc F() { g := func() {}; g() }", "F", "closures", 1),
+        ("go", "package m\nfunc F(a int) int { if a > 1 && a < 5 { return 1 }; return 0 }", "F", "branch", 2),
+        ("c", "int f(int a, char *b) { return a; }", "f", "args", 2),
+        ("c", "int f(void) { return 1; }", "f", "args", 0),
+        ("c", 'int f(void) { printf("a >> b"); return 1; }', "f", "bitwise", 0),
+        ("c", "int f(int a) { return a ? 1 : 2; }", "f", "branch", 1),
+        ("javascript", "function f(a) { return /a+/.test(a); }", "f", "regex", 2),  # the literal and the .test call
+        ("javascript", "const f = (a) => { setTimeout(a, 1); };", "f", "sleep", 1),  # an arrow function bound to a name
+        ("javascript", "function f() { return 1; }", "f", "closures", 0),  # the `function` keyword is not a closure
+        ("typescript", "function f(m: Map<string, Array<string>>) { return m; }", "f", "bitwise", 0),
+        ("typescript", "function f(a: number) { throw new Error('x'); }", "f", "bailout", 1),
+    ],
+)
+def test_treesitter_oracle_reads_one_construct(lang, src, name, key, want):
+    assert _ts_counts(lang, src, name).get(key, 0) == want
+
+
+@needs_ts
+def test_decorated_rust_function_is_keyed_by_its_first_attribute_line():
+    index = ts_oracle.get_oracle("rust").index("#[test]\n#[inline]\nfn f() {}\n")
+    assert ("f", 1) in index  # a scan keys it by the first attribute's line
+    assert ("f", 3) in index
+
+
+def test_every_spec_lists_families_the_tool_can_score():
+    for lang in ts_oracle.languages():
+        columns = {f.column for f in ts_oracle.get_oracle(lang).families}
+        assert {"complexity", "args", "bitwise_ops", "state_print_hits"} <= columns, lang

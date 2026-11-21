@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `bd1345841` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `9ac4a65f8` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -59,12 +59,12 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 |---|---|---|---|---|---|---|---|---|
 | `aws-mainframe-modernization-carddemo` | 44 | 25 | 3 | 0 | 51.1% (6090 of 11928) | 41.3% (12559 of 30382) | 2249 | 209 |
 | `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 86.8% (5065 of 5838) | 100.0% (6284 of 6284) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 8 | 4 | 0 | 47.0% (1934 of 4114) | 100.0% (4347 of 4347) | 1582 | 581 |
+| `cics-banking-sample-application-cbsa` | 31 | 8 | 4 | 0 | 47.4% (1948 of 4114) | 100.0% (4347 of 4347) | 1582 | 581 |
 | `cics-genapp` | 31 | 11 | 0 | 0 | 26.3% (2711 of 10313) | 100.0% (10993 of 10993) | 1014 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (322 of 636) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `zecs` | 7 | 4 | 1 | 0 | 49.4% (1178 of 2387) | 100.0% (2528 of 2529) | 826 | 352 |
-| **Total** | 158 | 60 | 8 | 0 | 49.1% (17300 of 35216) | 67.7% (37355 of 55179) | 5965 | 1212 |
+| **Total** | 158 | 60 | 8 | 0 | 49.2% (17314 of 35216) | 67.7% (37355 of 55179) | 5965 | 1212 |
 
 ## Capability ledger
 
@@ -113,7 +113,7 @@ z/OS: 0 of 194 rules measured. Register of named limits: 148 entries, 74 refuse 
 | COBOL runtime rules | 96 MATCHED, 30 DIFFERS, 54 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 125 programs, 309 scenarios | pinned at `v0.19.0 (d0e7ebe9)` | tests/cics_crucible/coverage.json |
-| Estate crucible | 116 of 122 horrors pass | pinned at `v0.8.0` | tests/estate_crucible/baseline.json |
+| Estate crucible | 120 of 122 horrors pass | pinned at `v0.8.0` | tests/estate_crucible/baseline.json |
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
 
@@ -134,7 +134,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T14:00:18Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T14:37:31Z.
 
 - `scope:core`: 22 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.

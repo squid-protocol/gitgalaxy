@@ -1,5 +1,5 @@
 {
- "commit": "bd1345841",
+ "commit": "9ac4a65f8",
  "components": {
   "capabilities": {
    "groups": [
@@ -605,12 +605,12 @@
        "a DFSRRC00 batch step",
        "IMS TM and MFS"
       ],
-      "pass": 3,
+      "pass": 7,
       "programs": 2,
       "region": 4
      }
     ],
-    "pass": 116,
+    "pass": 120,
     "ref": "v0.8.0"
    }
   },
@@ -645,17 +645,17 @@
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 1934,
+     "caught": 1948,
      "equivalent": 1582,
      "l5": 4,
      "measured": 8,
      "mutants": 4347,
      "programs": 31,
-     "raw_pct": 47.0,
+     "raw_pct": 47.4,
      "ready": 0,
      "sampled": 4347,
      "sampled_pct": 100.0,
-     "survived": 2180,
+     "survived": 2166,
      "unreachable": 581
     },
     "cics-genapp": {
@@ -716,17 +716,17 @@
     }
    },
    "total": {
-    "caught": 17300,
+    "caught": 17314,
     "equivalent": 5965,
     "l5": 8,
     "measured": 60,
     "mutants": 55179,
     "programs": 158,
-    "raw_pct": 49.1,
+    "raw_pct": 49.2,
     "ready": 0,
     "sampled": 37355,
     "sampled_pct": 67.7,
-    "survived": 17916,
+    "survived": 17902,
     "unreachable": 1212
    }
   },
@@ -1043,7 +1043,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T14:00:18Z",
+  "as_of": "2026-11-21T14:37:31Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1349,9 +1349,9 @@
    {
     "closed": 0,
     "number": 40,
-    "open": 14,
+    "open": 15,
     "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
-    "total": 14
+    "total": 15
    },
    {
     "closed": 0,

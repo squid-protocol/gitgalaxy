@@ -1055,6 +1055,49 @@ def calibrate(direct: _DirectContext, worker: _MutantWorker, mw: Path, limit: fl
 
 
 # ---- the run -----------------------------------------------------------------------------------------------------
+BASELINE_KEY = "baseline.key.json"
+
+
+def baseline_key(case: str, port: Path, case_arg: tuple[str, ...]) -> str | None:
+    """#8599: what a baseline proof depends on -- the port's every file, the case file when one is given, the case's
+    harness / oracle / generator / corpus fingerprints (evidence.py) and the engine. None when they cannot be read:
+    then the baseline is proven again."""
+    try:
+        import equivalence_cache
+        import evidence as ev
+
+        digest = ev.compute_inputs(ev.equivalence_target(case))["digest"]
+        h = hashlib.sha256(f"{case}\0{digest}\0{equivalence_cache.engine_hash()}\0".encode())
+        for f in sorted(p for p in port.rglob("*") if p.is_file()):
+            h.update(f.relative_to(port).as_posix().encode() + b"\0" + f.read_bytes() + b"\0")
+        if case_arg:
+            h.update(Path(case_arg[1]).read_bytes())
+        return h.hexdigest()
+    except (ImportError, OSError, KeyError, ValueError, SystemExit):
+        return None
+
+
+def baseline_proof(case: str, port: Path, given: bool, work: Path, case_arg: tuple[str, ...]) -> dict[str, Any]:
+    """The baseline proof of `run`, or the one a run in this `--work` already made for the same port, case inputs and
+    engine (a `refresh` after a `run`, a re-run after a crash: 13-60 s a case). Only a proven baseline is kept."""
+    key = baseline_key(case, port, case_arg)
+    stamp = work.parent / f"{work.name}.{BASELINE_KEY}"
+    if key is not None and stamp.is_file() and (work / "report.json").is_file():
+        try:
+            kept = json.loads(stamp.read_text(encoding="utf-8"))
+            report = json.loads((work / "report.json").read_text(encoding="utf-8"))
+            if kept.get("key") == key and report.get("proven"):
+                print(f"{case}: baseline proof kept from an earlier run (same port, case inputs, engine)", flush=True)
+                return {"verdict": "proven", "seconds": kept["seconds"], "killed_by": killers(report), "report": report}
+        except (OSError, ValueError, KeyError):
+            pass  # unreadable: prove it again
+    stamp.unlink(missing_ok=True)  # (the proof below replaces the directory it described)
+    base = prove(case, port if given else None, work, timeout=3600, extra=case_arg)
+    if key is not None and base["verdict"] == "proven":
+        stamp.write_text(json.dumps({"key": key, "seconds": base["seconds"]}), encoding="utf-8")
+    return base
+
+
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
         keep: bool, full: bool = False, only: Path | None = None, case_file: Path | None = None,
         port: Path | None = None, files: str = "**/*.java",
@@ -1068,7 +1111,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     started = time.time()
     print(f"{case}: proving the port as {'given' if given else 'committed'} (baseline)", flush=True)
     case_arg = ("--case-file", str(case_file)) if case_file else ()  # #4049: a candidate case
-    base = prove(case, port if given else None, work / "baseline", timeout=3600, extra=case_arg)
+    base = baseline_proof(case, port, given, work / "baseline", case_arg)
     if base["verdict"] != "proven":  # the committed port must be proven
         raise SystemExit(f"{case}: the committed port is not proven ({base['verdict']}); nothing to measure")
     limit = timeout or max(300.0, 3 * base["seconds"])

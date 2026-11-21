@@ -888,6 +888,186 @@
    ]
   },
   {
+   "id": "b7478fd27b",
+   "op": "CON",
+   "line": 210,
+   "before": "java.util.Map.entry(\"PTD999\", 11),",
+   "after": "java.util.Map.entry(\"PTD999\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 210, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "79ba12b96f",
+   "op": "CON",
+   "line": 211,
+   "before": "java.util.Map.entry(\"PTD010\", 10),",
+   "after": "java.util.Map.entry(\"PTD010\", 11),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 211, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "e1baab4eba",
+   "op": "CON",
+   "line": 212,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+   "after": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 10),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 212, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "7d30ba6486",
+   "op": "CON",
+   "line": 213,
+   "before": "java.util.Map.entry(\"GMOFH999\", 8),",
+   "after": "java.util.Map.entry(\"GMOFH999\", 9),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 213, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "42ee8ccf2a",
+   "op": "CON",
+   "line": 214,
+   "before": "java.util.Map.entry(\"GMOFH010\", 7),",
+   "after": "java.util.Map.entry(\"GMOFH010\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 214, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "d56e670fc9",
+   "op": "CON",
+   "line": 215,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+   "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 7),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 215, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "5801742c5d",
+   "op": "CON",
+   "line": 216,
+   "before": "java.util.Map.entry(\"WCV999\", 5),",
+   "after": "java.util.Map.entry(\"WCV999\", 6),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 216, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "cb0909c0cf",
+   "op": "CON",
+   "line": 217,
+   "before": "java.util.Map.entry(\"WCV010\", 4),",
+   "after": "java.util.Map.entry(\"WCV010\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 217, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "f3feb3e634",
+   "op": "CON",
+   "line": 218,
+   "before": "java.util.Map.entry(\"GET-NUMBER-OF-CUSTOMERS-VSAM\", 3),",
+   "after": "java.util.Map.entry(\"GET-NUMBER-OF-CUSTOMERS-VSAM\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 218, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "67f9d10e37",
+   "op": "CON",
+   "line": 219,
+   "before": "java.util.Map.entry(\"P999\", 2),",
+   "after": "java.util.Map.entry(\"P999\", 3),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 219, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "e5ef806aff",
+   "op": "CON",
+   "line": 220,
+   "before": "java.util.Map.entry(\"P010\", 1),",
+   "after": "java.util.Map.entry(\"P010\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 220, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "c5c36c3dc5",
+   "op": "CON",
+   "line": 221,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"PREMIERE\", 1)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS (line 221, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "8a9edcf3c0",
    "op": "NEG",
    "line": 238,

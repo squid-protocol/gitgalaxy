@@ -460,7 +460,10 @@ docs/self_scan/	tests/tools/self_scan.py
 docs/self_scan/BUMPING_THE_CRUCIBLE_PIN.md	tests/tools/crucible_pins.py
 docs/self_scan/README.md	tests/tools/test_progress_report.py
 docs/self_scan/ROSETTA_AUDIT.md	tests/tools/rosetta_audit.py
+docs/self_scan/_stale_test_chart.svg	tests/tools/test_family_validity_chart.py
 docs/self_scan/call_resolution_history.csv	tests/tools/call_resolution_rates.py,tests/tools/test_generated_branch.py
+docs/self_scan/family_validity_chart.svg	tests/tools/family_validity_chart.py
+docs/self_scan/family_validity_matrix.svg	tests/tools/family_validity_chart.py
 docs/self_scan/gitgalaxy.json	tests/tools/self_scan.py
 docs/self_scan/gitgalaxy_master.db	tests/tools/context_pack.py
 docs/self_scan/gitgalaxy_master.db/	tests/tools/context_pack.py,tests/tools/self_scan.py
@@ -515,6 +518,8 @@ estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
 estate_journey.md	tests/tools/estate_journey.py,tests/tools/test_estate_journey.py
 evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
+family_validity_chart.svg	tests/tools/family_validity_chart.py
+family_validity_matrix.svg	tests/tools/family_validity_chart.py,tests/tools/test_family_validity_chart.py
 feed.md	tests/tools/blocker_estate_feed.py
 file.md	tests/extraction
 fresh-1.md	tests/cobol_mainframe

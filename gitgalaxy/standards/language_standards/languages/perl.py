@@ -98,6 +98,7 @@ DEFINITION: dict[str, Any] = {
                 "not",
                 "until",
                 "sub",
+                "undef",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

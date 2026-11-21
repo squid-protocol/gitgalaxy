@@ -82066,7 +82066,6 @@
           "em_b_wave",
           "cat",
           "dom_real",
-          "EOF",
           "dom_ideal",
           "phys_real_1",
           "dyn_real_SAFE",
@@ -82295,7 +82294,6 @@
           "nmm_real",
           "cat",
           "dom_real",
-          "EOF",
           "dom_ideal",
           "phys_real_1",
           "dyn_real_SAFE",
@@ -82459,7 +82457,6 @@
           "nmm_real",
           "cat",
           "dom_real",
-          "EOF",
           "dom_ideal",
           "phys_real_1",
           "dyn_real_SAFE",
@@ -112946,8 +112943,7 @@
         ],
         "login_token@114": [
           "isa",
-          "login_token",
-          "undef"
+          "login_token"
         ],
         "new@30": [
           "new",
@@ -113017,7 +113013,6 @@
           "exists",
           "push",
           "selectcol_arrayref",
-          "undef",
           "keys",
           "scalar"
         ],
@@ -113052,7 +113047,6 @@
           "id"
         ],
         "_check_assigned_to@1440": [
-          "undef",
           "user",
           "blessed",
           "component_obj",
@@ -113072,7 +113066,6 @@
           "ref"
         ],
         "_check_bug_status@1487": [
-          "undef",
           "user",
           "ref",
           "statuses_available",
@@ -113092,7 +113085,6 @@
           "blessed"
         ],
         "_check_bugid_field@2283": [
-          "undef",
           "check",
           "id",
           "ref",
@@ -113100,7 +113092,6 @@
           "bug_id"
         ],
         "_check_cc@1590": [
-          "undef",
           "blessed",
           "component_obj",
           "id",
@@ -113112,7 +113103,6 @@
           "keys"
         ],
         "_check_comment@1613": [
-          "undef",
           "defined",
           "delete",
           "check_required_create_fields",
@@ -113121,11 +113111,9 @@
         "_check_commenton@1645": [
           "ref",
           "defined",
-          "undef",
           "ThrowUserError"
         ],
         "_check_component@1663": [
-          "undef",
           "trim",
           "ThrowUserError",
           "blessed",
@@ -113141,11 +113129,9 @@
           "selectrow_array"
         ],
         "_check_date_field@2215": [
-          "_check_datetime_field",
-          "undef"
+          "_check_datetime_field"
         ],
         "_check_datetime_field@2220": [
-          "undef",
           "trim",
           "split",
           "validate_date",
@@ -113156,7 +113142,6 @@
           "ref",
           "user",
           "is_timetracker",
-          "undef",
           "trim",
           "validate_date",
           "ThrowUserError"
@@ -113227,7 +113212,6 @@
           "ThrowUserError"
         ],
         "_check_groups@1851": [
-          "undef",
           "blessed",
           "id",
           "product_obj",
@@ -113251,7 +113235,6 @@
           "abs"
         ],
         "_check_keywords@1889": [
-          "undef",
           "defined",
           "ref",
           "trim",
@@ -113282,7 +113265,6 @@
           "can_enter_product"
         ],
         "_check_qa_contact@1933": [
-          "undef",
           "trim",
           "ref",
           "blessed",
@@ -113300,8 +113282,7 @@
           "defined",
           "ThrowUserError",
           "dbh",
-          "selectrow_array",
-          "undef"
+          "selectrow_array"
         ],
         "_check_reporter@1972": [
           "shift",
@@ -113312,7 +113293,6 @@
           "user"
         ],
         "_check_resolution@1989": [
-          "undef",
           "trim",
           "ref",
           "status",
@@ -113380,7 +113360,6 @@
           "lc"
         ],
         "_check_target_milestone@2140": [
-          "undef",
           "blessed",
           "product_obj",
           "target_milestone",
@@ -113404,7 +113383,6 @@
           "check_time"
         ],
         "_check_version@2167": [
-          "undef",
           "trim",
           "blessed",
           "product_obj",
@@ -113415,9 +113393,7 @@
           "ThrowUserError",
           "ref"
         ],
-        "_clear_dup_id@2655": [
-          "undef"
-        ],
+        "_clear_dup_id@2655": [],
         "_create_cf_accessors@4782": [
           "ref",
           "request_cache",
@@ -113448,7 +113424,6 @@
         "_multi_select_accessor@4818": [
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "id"
         ],
         "_preload_referenced_bugs@522": [
@@ -113474,7 +113449,6 @@
           "dbh",
           "prepare",
           "selectrow_array",
-          "undef",
           "ThrowUserError",
           "exists"
         ],
@@ -113518,7 +113492,6 @@
           "check_can_change_field",
           "set_target_milestone",
           "default_milestone",
-          "undef",
           "grep",
           "is_active",
           "components",
@@ -113541,7 +113514,6 @@
         "_sync_fulltext@1249": [
           "dbh",
           "selectall_arrayref",
-          "undef",
           "id",
           "join",
           "do",
@@ -113553,7 +113525,6 @@
           "exists",
           "user",
           "is_timetracker",
-          "undef",
           "dbh",
           "prepare",
           "execute",
@@ -113625,7 +113596,6 @@
           "_check_tag_name",
           "tags",
           "do",
-          "undef",
           "id",
           "selectrow_array",
           "delete",
@@ -113635,7 +113605,6 @@
           "exists",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "bug_id"
         ],
         "any_flags_requesteeble@3514": [
@@ -113667,8 +113636,7 @@
         "bug_alias_to_id@4137": [
           "dbh",
           "trick_taint",
-          "selectrow_array",
-          "undef"
+          "selectrow_array"
         ],
         "bug_file_loc@3390": [],
         "bug_group@3565": [
@@ -113683,7 +113651,6 @@
           "exists",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "bug_id"
         ],
         "cc_users@3597": [
@@ -113691,7 +113658,6 @@
           "exists",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "id",
           "new_from_list"
         ],
@@ -113804,7 +113770,6 @@
           "bug_id",
           "id",
           "do",
-          "undef",
           "map",
           "LogActivityEntry",
           "keys",
@@ -113838,7 +113803,6 @@
         ],
         "dup_id@3431": [
           "exists",
-          "undef",
           "dbh",
           "selectrow_array"
         ],
@@ -113847,7 +113811,6 @@
           "exists",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "id"
         ],
         "duplicates@3675": [
@@ -113895,7 +113858,6 @@
           "sql_date_format",
           "params",
           "selectall_arrayref",
-          "undef",
           "is_timetracker",
           "pop",
           "join_activity_entries",
@@ -113918,7 +113880,6 @@
           "exists",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "id",
           "new_from_list"
         ],
@@ -113940,7 +113901,6 @@
           "defined",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "id",
           "new_from_list"
         ],
@@ -114004,7 +113964,6 @@
         "op_sys@3403": [],
         "percentage_complete@3807": [
           "shift",
-          "undef",
           "user",
           "is_timetracker",
           "remaining_time",
@@ -114052,7 +114011,6 @@
         ],
         "qa_contact@3837": [
           "exists",
-          "undef",
           "params",
           "User"
         ],
@@ -114077,8 +114035,7 @@
           "dbh",
           "ThrowCodeError",
           "remove_from_db",
-          "do",
-          "undef"
+          "do"
         ],
         "remove_group@3173": [
           "blessed",
@@ -114121,7 +114078,6 @@
           "_check_tag_name",
           "exists",
           "tags",
-          "undef",
           "do",
           "id",
           "delete"
@@ -114162,7 +114118,6 @@
           "exists",
           "dbh",
           "selectcol_arrayref",
-          "undef",
           "id",
           "new_from_list"
         ],
@@ -114171,7 +114126,6 @@
           "split",
           "_send_bugmail",
           "id",
-          "undef",
           "is_open_state",
           "blocked",
           "join",
@@ -114347,7 +114301,6 @@
         ],
         "status@3877": [
           "shift",
-          "undef",
           "Status"
         ],
         "status_whiteboard@3411": [],
@@ -114367,7 +114320,6 @@
           "user",
           "exists",
           "selectcol_arrayref",
-          "undef",
           "id"
         ],
         "target_milestone@3412": [],
@@ -114387,7 +114339,6 @@
           "scalar",
           "do",
           "sql_in",
-          "undef",
           "new_from_list",
           "join",
           "alias",
@@ -114441,7 +114392,6 @@
         ],
         "FETCH@709": [
           "param",
-          "undef",
           "scalar"
         ],
         "STORE@700": [
@@ -114731,7 +114681,6 @@
           "quote_identifier",
           "do",
           "join",
-          "undef",
           "usage_mode",
           "print",
           "get_text",
@@ -114766,7 +114715,6 @@
           "_bz_real_schema",
           "get_add_column_ddl",
           "quote",
-          "undef",
           "get_text",
           "usage_mode",
           "do",
@@ -114845,7 +114793,6 @@
           "get_alter_column_ddl",
           "defined",
           "quote",
-          "undef",
           "_bz_schema",
           "get_type_ddl",
           "say",
@@ -114977,8 +114924,7 @@
         ],
         "bz_enum_initial_values@585": [],
         "bz_fk_info@1119": [
-          "bz_column_info",
-          "undef"
+          "bz_column_info"
         ],
         "bz_get_related_fks@1018": [
           "_bz_real_schema",
@@ -114995,8 +114941,7 @@
         ],
         "bz_last_key@540": [
           "last_insert_id",
-          "localconfig",
-          "undef"
+          "localconfig"
         ],
         "bz_populate_enum_tables@589": [
           "selectrow_array",
@@ -115077,7 +115022,6 @@
         ],
         "bz_table_columns_real@1291": [
           "column_info",
-          "undef",
           "selectcol_arrayref"
         ],
         "bz_table_indexes@1259": [
@@ -115096,7 +115040,6 @@
         ],
         "bz_table_list_real@1303": [
           "table_info",
-          "undef",
           "selectcol_arrayref"
         ],
         "connect_main@154": [
@@ -115187,8 +115130,7 @@
           "colored"
         ],
         "_get_apachectl@556": [
-          "bin_loc",
-          "undef"
+          "bin_loc"
         ],
         "_get_extension_requirements@470": [
           "extension_requirement_packages",
@@ -115313,14 +115255,12 @@
         ],
         "CanCreate@4279": [
           "shift",
-          "undef",
           "GetFileExtension",
           "uc",
           "GetFileType"
         ],
         "CanWrite@4255": [
           "shift",
-          "undef",
           "GetFileType",
           "GetFileExtension",
           "uc",
@@ -115328,8 +115268,7 @@
         ],
         "CleanWarning@2318": [
           "shift",
-          "defined",
-          "undef"
+          "defined"
         ],
         "ClearOptions@2680": [
           "shift",
@@ -115352,7 +115291,6 @@
           "keys",
           "GroupMatches",
           "shift",
-          "undef",
           "GetValue",
           "ShiftTime",
           "defined",
@@ -115450,7 +115388,6 @@
           "Read",
           "Write",
           "delete",
-          "undef",
           "substr",
           "Warn",
           "length",
@@ -115490,13 +115427,11 @@
         "DoUnpack@6029": [
           "substr",
           "defined",
-          "undef",
           "unpack"
         ],
         "DoUnpackDbl@6046": [
           "substr",
           "defined",
-          "undef",
           "unpack",
           "SwapWords",
           "SwapBytes"
@@ -115518,7 +115453,6 @@
           "GetInfo",
           "defined",
           "VPrint",
-          "undef",
           "join",
           "Encode",
           "print",
@@ -115538,16 +115472,14 @@
         ],
         "DummyWriteProc@1241": [],
         "Encode@6352": [
-          "Decode",
-          "undef"
+          "Decode"
         ],
         "EncodeFileName@4723": [
           "IsUTF8",
           "Warn",
           "defined",
           "WindowsLongPath",
-          "Decode",
-          "undef"
+          "Decode"
         ],
         "Error@5626": [
           "Warn",
@@ -115578,8 +115510,7 @@
           "lc",
           "Seek",
           "Read",
-          "Warn",
-          "undef"
+          "Warn"
         ],
         "ExtractInfo@2711": [
           "shift",
@@ -115589,7 +115520,6 @@
           "delete",
           "defined",
           "Options",
-          "undef",
           "ParseArguments",
           "Init",
           "FoundTag",
@@ -115660,7 +115590,6 @@
         "FoundTag@9426": [
           "ref",
           "warn",
-          "undef",
           "GetTagTable",
           "GetTagInfo",
           "VerboseInfo",
@@ -115700,8 +115629,7 @@
         ],
         "GetByteOrder@6131": [],
         "GetCompositeTagInfo@4145": [
-          "shift",
-          "undef"
+          "shift"
         ],
         "GetDescription@3739": [
           "ref",
@@ -115742,7 +115670,6 @@
           "GetFileExtension",
           "uc",
           "ref",
-          "undef",
           "wantarray"
         ],
         "GetFixed16s@6098": [
@@ -115766,13 +115693,11 @@
         ],
         "GetFoundTags@3399": [
           "SetFoundTags",
-          "undef",
           "GetTagList"
         ],
         "GetGroup@3787": [
           "ref",
           "defined",
-          "undef",
           "wantarray",
           "sprintf",
           "ord",
@@ -115823,14 +115748,11 @@
           "defined",
           "wantarray"
         ],
-        "GetTagIndex@4601": [
-          "undef"
-        ],
+        "GetTagIndex@4601": [],
         "GetTagInfo@9133": [
           "GetTagInfoList",
           "splice",
           "defined",
-          "undef",
           "Warn",
           "CleanWarning",
           "sprintf",
@@ -115846,7 +115768,6 @@
           "keys",
           "defined",
           "SetFoundTags",
-          "undef",
           "Group",
           "GetGroup",
           "GetDescriptions"
@@ -115854,7 +115775,6 @@
         "GetTagName@4165": [],
         "GetTagTable@8927": [
           "shift",
-          "undef",
           "warn",
           "RegisterNamespace",
           "defined",
@@ -115870,7 +115790,6 @@
           "int"
         ],
         "GetUnixTime@6794": [
-          "undef",
           "warn",
           "pop",
           "reverse",
@@ -115888,7 +115807,6 @@
           "delete",
           "keys",
           "DecodeBits",
-          "undef",
           "Warn",
           "CleanWarning",
           "IsInt",
@@ -115919,7 +115837,6 @@
         ],
         "HandleTag@9266": [
           "defined",
-          "undef",
           "GetTagInfo",
           "length",
           "substr",
@@ -115944,15 +115861,13 @@
           "Seek",
           "Read",
           "AXS",
-          "m",
-          "undef"
+          "m"
         ],
         "ImageInfo@2382": [
           "ref",
           "isa",
           "shift",
           "new",
-          "undef",
           "ParseArguments",
           "ExtractInfo",
           "GetInfo"
@@ -115961,7 +115876,6 @@
           "shift",
           "delete",
           "keys",
-          "undef",
           "Options",
           "new",
           "ref"
@@ -116024,8 +115938,7 @@
           "FoundTag"
         ],
         "NextTagKey@4634": [
-          "defined",
-          "undef"
+          "defined"
         ],
         "Open@4845": [
           "delete",
@@ -116039,7 +115952,6 @@
           "FILE_SHARE_READ",
           "FILE_SHARE_WRITE",
           "CreateFileW",
-          "undef",
           "OsFHandleOpenFd",
           "defined",
           "CloseHandle",
@@ -116058,7 +115970,6 @@
           "warn",
           "GetTagTable",
           "AddTagToTable",
-          "undef",
           "length",
           "push",
           "split",
@@ -116079,7 +115990,6 @@
         "ParseArguments@5061": [
           "shift",
           "keys",
-          "undef",
           "delete",
           "ref",
           "Method",
@@ -116116,7 +116026,6 @@
           "int",
           "TagTableKeys",
           "VerboseDir",
-          "undef",
           "GetByteOrder",
           "GetTagInfo",
           "substr",
@@ -116156,7 +116065,6 @@
         "ProcessJPEG@7248": [
           "new",
           "VerboseDir",
-          "undef",
           "length",
           "Read",
           "Seek",
@@ -116238,15 +116146,13 @@
           "length",
           "scalar",
           "delete",
-          "defined",
-          "undef"
+          "defined"
         ],
         "ReadValue@6263": [
           "warn",
           "length",
           "defined",
           "int",
-          "undef",
           "substr",
           "push",
           "join",
@@ -116295,7 +116201,6 @@
           "Warn",
           "defined",
           "grep",
-          "undef",
           "GroupMatches",
           "CopyAltInfo",
           "scalar",
@@ -116356,8 +116261,7 @@
           "sprintf"
         ],
         "ToFloat@5946": [
-          "defined",
-          "undef"
+          "defined"
         ],
         "ToggleByteOrder@6180": [
           "SetByteOrder",
@@ -116371,7 +116275,6 @@
           "shift"
         ],
         "ValidateImage@6391": [
-          "undef",
           "Options",
           "lc",
           "GetTagName",
@@ -116386,7 +116289,6 @@
         ],
         "VerboseDump@9782": [
           "shift",
-          "undef",
           "HexDump"
         ],
         "Warn@5593": [
@@ -116402,7 +116304,6 @@
           "Warn",
           "new",
           "Decode",
-          "undef",
           "Call",
           "substr"
         ],
@@ -116489,7 +116390,6 @@
         "AbsPath@4505": [
           "shift",
           "defined",
-          "undef",
           "Options",
           "WindowsLongPath",
           "abs_path",
@@ -116529,7 +116429,6 @@
         "Cleanup@369": [
           "Unlink",
           "defined",
-          "undef",
           "PreserveTime",
           "SetWindowTitle"
         ],
@@ -116537,7 +116436,6 @@
           "shift",
           "ref",
           "keys",
-          "undef",
           "defined",
           "IsUTF8",
           "EncodeBase64",
@@ -116578,8 +116476,7 @@
           "Open",
           "print",
           "Warn",
-          "close",
-          "undef"
+          "close"
         ],
         "EncodeXML@3729": [
           "shift",
@@ -116609,7 +116506,6 @@
           "Warn"
         ],
         "FilenameSPrintf@4646": [
-          "undef",
           "defined",
           "CleanFilename",
           "Warn",
@@ -116624,13 +116520,11 @@
           "uc"
         ],
         "FilterArgfileLine@4893": [
-          "shift",
-          "undef"
+          "shift"
         ],
         "FindFileWindows@4430": [
           "Options",
           "Decode",
-          "undef",
           "CleanFilename",
           "HasWildcards",
           "Warn",
@@ -116667,7 +116561,6 @@
           "int",
           "x",
           "SetWindowTitle",
-          "undef",
           "length",
           "Warn",
           "FilenameSPrintf",
@@ -116753,8 +116646,7 @@
         ],
         "PreserveTime@4493": [
           "SetFileTime",
-          "keys",
-          "undef"
+          "keys"
         ],
         "PrintCSV@3901": [
           "shift",
@@ -116791,7 +116683,6 @@
         "ProcessFiles@4232": [
           "Options",
           "defined",
-          "undef",
           "IsDirectory",
           "ScanDir",
           "AcceptFile",
@@ -116807,13 +116698,11 @@
         ],
         "Progress@5012": [
           "defined",
-          "print",
-          "undef"
+          "print"
         ],
         "ReadStayOpen@4922": [
           "shift",
           "length",
-          "undef",
           "sysread",
           "pos",
           "substr",
@@ -116829,7 +116718,6 @@
         "ScanDir@4293": [
           "Options",
           "Decode",
-          "undef",
           "HasWildcards",
           "CheckUTF8",
           "ReadDir",
@@ -116855,7 +116743,6 @@
         "SetImageInfo@3129": [
           "defined",
           "Unlink",
-          "undef",
           "delete",
           "GetFileType",
           "FilenameSPrintf",
@@ -116928,7 +116815,6 @@
           "Open",
           "Warn",
           "binmode",
-          "undef",
           "read",
           "defined",
           "close"
@@ -116993,7 +116879,6 @@
           "shift"
         ],
         "_remove@187": [
-          "undef",
           "reactor",
           "remove",
           "_not_accepting",
@@ -117037,7 +116922,6 @@
           "on",
           "delete",
           "_stream",
-          "undef",
           "_remove",
           "connect"
         ],
@@ -117199,7 +117083,6 @@
         ],
         "_defer@189": [
           "shift",
-          "undef",
           "ioloop",
           "next_tick"
         ],
@@ -117249,8 +117132,7 @@
         ],
         "catch@62": [
           "shift",
-          "then",
-          "undef"
+          "then"
         ],
         "clone@64": [
           "new",
@@ -117343,7 +117225,6 @@
           "unparsed",
           "tree",
           "compiled",
-          "undef",
           "tag_start",
           "replace_mark",
           "expression_mark",
@@ -117419,8 +117300,7 @@
         "closed@40": [
           "shift",
           "completed",
-          "emit",
-          "undef"
+          "emit"
         ],
         "connection@46": [
           "shift",
@@ -117453,7 +117333,6 @@
         "parse_message@66": [
           "emit",
           "send",
-          "undef",
           "finish",
           "length",
           "unpack",
@@ -117536,7 +117415,6 @@
           "req",
           "headers",
           "sec_websocket_protocol",
-          "undef",
           "defined",
           "res"
         ]
@@ -117564,7 +117442,6 @@
           "dbg",
           "delete",
           "ref",
-          "undef",
           "chomp",
           "die",
           "bgabort"
@@ -117582,7 +117459,6 @@
           "info",
           "uc",
           "lc",
-          "undef",
           "exists",
           "ref",
           "join",
@@ -117635,8 +117511,7 @@
           "bless"
         ],
         "report_id_complete@782": [
-          "set_response_packet",
-          "undef"
+          "set_response_packet"
         ],
         "set_response_packet@733": [
           "time",
@@ -117831,7 +117706,6 @@
         "target_uri@1109": [
           "_parse_uri",
           "defined",
-          "undef",
           "_remove_dot_segments",
           "_merge_uri"
         ],
@@ -117969,14 +117843,12 @@
           "opt"
         ],
         "bool@25": [
-          "undef",
           "defined",
           "N",
           "Y"
         ],
         "clean_MY_globals@403": [
-          "shift",
-          "undef"
+          "shift"
         ],
         "float_to_version@425": [
           "sprintf"
@@ -117988,24 +117860,19 @@
         "get_macro@489": [],
         "get_macro_name_from_line@479": [],
         "init_MY_globals@367": [
-          "shift",
-          "undef"
+          "shift"
         ],
         "line_has_macro_def@467": [
-          "undef",
           "defined"
         ],
         "macro_def@452": [
-          "undef",
           "die",
           "defined"
         ],
         "macro_ref@441": [
           "sprintf"
         ],
-        "parse_arg@16": [
-          "undef"
-        ],
+        "parse_arg@16": [],
         "repository@536": [],
         "set_EQ_from_line@409": [
           "defined",
@@ -118013,7 +117880,6 @@
         ],
         "set_macro@518": [],
         "yesno@35": [
-          "undef",
           "bool"
         ]
       },
@@ -118026,8 +117892,7 @@
         "_find_part_by_type@1261": [
           "shift",
           "is_leaf",
-          "push",
-          "undef"
+          "push"
         ],
         "_parse_multipart@946": [
           "dbg",
@@ -118039,7 +117904,6 @@
           "length",
           "push",
           "chomp",
-          "undef",
           "parse_content_type",
           "header",
           "add_body_part",
@@ -118198,7 +118062,6 @@
           "length",
           "die",
           "split",
-          "undef",
           "am_running_in_taint_mode",
           "tainted",
           "taint_var",
@@ -118304,7 +118167,6 @@
         "cond_clause_can_or_has@631": [
           "defined",
           "lint_warn",
-          "undef",
           "can"
         ],
         "cond_clause_has@626": [
@@ -118362,7 +118224,6 @@
           "push",
           "untaint_var",
           "lint_warn",
-          "undef",
           "warn"
         ],
         "is_always_matching_regexp@1556": [
@@ -118393,7 +118254,6 @@
         "lint_trusted_networks@1252": [
           "contains_net",
           "lint_warn",
-          "undef",
           "push"
         ],
         "lint_warn@1668": [
@@ -118406,15 +118266,11 @@
           "ref",
           "bless"
         ],
-        "pack_eval_args@1224": [
-          "undef"
-        ],
+        "pack_eval_args@1224": [],
         "pack_eval_method@1219": [
-          "warn",
-          "undef"
+          "warn"
         ],
         "parse@207": [
-          "undef",
           "split",
           "defined",
           "shift",
@@ -118526,7 +118382,6 @@
           "get_pristine_header",
           "get_all_headers",
           "get_all_hdrs_in_rcvd_index_range",
-          "undef",
           "push",
           "get_envelope_from",
           "get_header",
@@ -118655,7 +118510,6 @@
           "answer",
           "can",
           "cname",
-          "undef",
           "chomp",
           "die",
           "info",
@@ -118759,8 +118613,7 @@
         "finish@1953": [
           "call_plugins",
           "report_unsatisfied_actions",
-          "defined",
-          "undef"
+          "defined"
         ],
         "finish_tests@1978": [],
         "get@2480": [
@@ -118777,8 +118630,7 @@
           "get_all_headers",
           "push",
           "wantarray",
-          "join",
-          "undef"
+          "join"
         ],
         "get_autolearn_force_names@718": [
           "_get_autolearn_points",
@@ -118815,8 +118667,7 @@
           "dbg",
           "defined",
           "get",
-          "index",
-          "undef"
+          "index"
         ],
         "get_head_only_points@666": [
           "_get_autolearn_points"
@@ -118902,7 +118753,6 @@
           "time_method",
           "init_learner",
           "learn",
-          "undef",
           "did_learn",
           "finish",
           "finish_learner",
@@ -118925,7 +118775,6 @@
         "new@282": [
           "shift",
           "ref",
-          "undef",
           "new",
           "dbg",
           "time",
@@ -118938,7 +118787,6 @@
         "register_plugin_eval_glue@3001": [
           "warn",
           "exists",
-          "undef",
           "can",
           "defined",
           "shift",
@@ -119089,7 +118937,6 @@
           "call_plugins",
           "time",
           "parse",
-          "undef",
           "new",
           "check",
           "finish",
@@ -119117,7 +118964,6 @@
           "read",
           "print",
           "die",
-          "undef",
           "close",
           "getpwnam",
           "untaint_var",
@@ -119228,7 +119074,6 @@
           "parse_rules",
           "finish_parsing",
           "delete",
-          "undef",
           "found_any_rules",
           "new",
           "is_scan_available",
@@ -119256,7 +119101,6 @@
           "time",
           "init",
           "parse",
-          "undef",
           "new",
           "check",
           "finish",
@@ -119311,7 +119155,6 @@
           "defined",
           "die",
           "close",
-          "undef",
           "warn"
         ],
         "read_pre@1931": [
@@ -119325,7 +119168,6 @@
           "defined",
           "die",
           "close",
-          "undef",
           "parse_scores_only",
           "finish_parsing",
           "delete"
@@ -119351,7 +119193,6 @@
           "init",
           "time_method",
           "learn",
-          "undef",
           "new",
           "report"
         ],
@@ -119359,7 +119200,6 @@
           "init",
           "time_method",
           "learn",
-          "undef",
           "new",
           "revoke"
         ],
@@ -119391,7 +119231,6 @@
           "time_method",
           "dbg",
           "defined",
-          "undef",
           "finish",
           "new",
           "delete",
@@ -150125,10 +149964,12 @@
         ],
         "abstract!@58": [],
         "action_method?@213": [
+          "class",
           "action_methods",
           "include?"
         ],
         "action_methods@164": [
+          "class",
           "action_methods"
         ],
         "action_methods@94": [
@@ -150141,6 +149982,7 @@
         ],
         "clear_action_methods!@107": [],
         "config@196": [
+          "class",
           "config",
           "inheritable_copy"
         ],
@@ -150151,10 +149993,12 @@
           "anonymous?"
         ],
         "controller_path@159": [
+          "class",
           "controller_path"
         ],
         "corrections@25": [
           "new",
+          "class",
           "action_methods",
           "correct"
         ],
@@ -150262,6 +150106,7 @@
           "start_with?"
         ],
         "key@176": [
+          "class",
           "generate_unique_secure_token"
         ],
         "mirror_later@308": [
@@ -150499,6 +150344,7 @@
           "authenticated?",
           "present?",
           "new",
+          "require",
           "squish"
         ],
         "authenticated?@91": [
@@ -150521,6 +150367,7 @@
           "dig"
         ],
         "mail@54": [
+          "require",
           "tap",
           "prepend",
           "key?"
@@ -150566,6 +150413,7 @@
           "anonymous?"
         ],
         "controller_name@156": [
+          "class",
           "controller_name"
         ],
         "dispatch@249": [
@@ -175419,10 +175267,12 @@
         ],
         "conflicts_with@511": [
           "new",
+          "class",
           "formulae_by_full_name",
           "to_a"
         ],
         "dump@140": [
+          "require",
           "select",
           "map",
           "present?",
@@ -175478,6 +175328,7 @@
           "keg_only?",
           "linked_keg",
           "any_installed_prefix",
+          "require",
           "for_keg",
           "used_options",
           "map",
@@ -175519,6 +175370,7 @@
         "formulae_by_full_name@113": [
           "present?",
           "key?",
+          "require",
           "enable_factory_cache!",
           "nil?",
           "installed",
@@ -175559,6 +175411,7 @@
           "new"
         ],
         "install_change_state!@395": [
+          "require",
           "with_formula_name",
           "ensure_installed!",
           "resolve_conflicts!",
@@ -175571,15 +175424,18 @@
           "present?",
           "puts",
           "brew",
+          "class",
           "installed_formulae"
         ],
         "install_verb@46": [
           "formula_upgradable?"
         ],
         "installed?@491": [
+          "class",
           "formula_installed?"
         ],
         "installed_and_up_to_date?@346": [
+          "class",
           "formula_installed_and_up_to_date?"
         ],
         "installed_formulae@90": [
@@ -175618,6 +175474,7 @@
         ],
         "preinstall!@350": [
           "installed?",
+          "class",
           "no_upgrade_with_args?",
           "upgradable?",
           "puts"
@@ -175627,13 +175484,16 @@
           "new"
         ],
         "reset!@24": [
-          "reset!"
+          "reset!",
+          "require"
         ],
         "resolve_conflicts!@525": [
           "each",
+          "class",
           "formula_installed?",
           "brew",
           "restart_service?",
+          "require",
           "puts",
           "stop"
         ],
@@ -175646,6 +175506,7 @@
           "changed?"
         ],
         "service_change_state!@435": [
+          "require",
           "versioned_service_file",
           "restart_service_needed?",
           "puts",
@@ -175673,6 +175534,7 @@
           "present?"
         ],
         "start_service_needed?@415": [
+          "require",
           "start_service?",
           "started?"
         ],
@@ -175687,6 +175549,7 @@
           "keg_only?"
         ],
         "upgradable?@507": [
+          "class",
           "formula_upgradable?"
         ],
         "upgradable_formulae@94": [],
@@ -176064,6 +175927,7 @@
         "fetch_repo@927": [
           "verbose?",
           "ohai",
+          "require",
           "concat",
           "invalid_cert_flags",
           "directory?",
@@ -176223,6 +176087,7 @@
         ],
         "partial_clone_sparse_checkout?@1081": [
           "blank?",
+          "require",
           "supports_partial_clone_sparse_checkout?"
         ],
         "puts@171": [
@@ -176373,6 +176238,7 @@
           "must"
         ],
         "source_modified_time@888": [
+          "require",
           "new",
           "must",
           "version",
@@ -176518,6 +176384,7 @@
           "symlink_location",
           "active_spec_sym",
           "alias_path",
+          "class",
           "build_flags"
         ],
         "tap_migrations@152": [
@@ -177206,8 +177073,7 @@
           "head"
         ],
         "usage@3": [
-          "cat",
-          "__EOF__"
+          "cat"
         ]
       },
       "shell/freebsd-src/echo_test.sh": {
@@ -177230,9 +177096,7 @@
       "shell/freebsd-src/ed_test.sh": {
         "address_body@63": [
           "cat",
-          "EOF",
           "ed",
-          "CMDS",
           "atf_check"
         ],
         "address_head@59": [
@@ -177241,9 +177105,7 @@
         "append_body@25": [
           "create_std_data",
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "append_head@20": [
@@ -177255,22 +177117,18 @@
         "change_body@101": [
           "create_std_data",
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "change_head@97": [
           "atf_set"
         ],
         "create_std_data@5": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "delete_body@138": [
           "create_std_data",
           "ed",
-          "CMDS",
           "atf_check"
         ],
         "delete_head@134": [
@@ -177279,9 +177137,7 @@
         "insert_body@161": [
           "create_std_data",
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "insert_head@157": [
@@ -177290,9 +177146,7 @@
         "join_body@199": [
           "create_std_data",
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "join_head@195": [
@@ -177301,7 +177155,6 @@
         "mark_body@226": [
           "create_std_data",
           "ed",
-          "CMDS",
           "atf_check"
         ],
         "mark_head@222": [
@@ -177309,9 +177162,7 @@
         ],
         "unicode_append_body@1952": [
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "unicode_append_head@1948": [
@@ -177319,9 +177170,7 @@
         ],
         "unicode_cyrillic_body@1977": [
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "unicode_cyrillic_head@1973": [
@@ -177329,9 +177178,7 @@
         ],
         "unicode_global_substitute_body@1906": [
           "ed",
-          "CMDS",
           "cat",
-          "EOF",
           "atf_check"
         ],
         "unicode_global_substitute_head@1902": [
@@ -177339,33 +177186,28 @@
         ],
         "unicode_join_body@1931": [
           "ed",
-          "CMDS",
           "atf_check"
         ],
         "unicode_join_head@1927": [
           "atf_set"
         ],
         "unicode_number_body@1810": [
-          "atf_check",
-          "CMDS"
+          "atf_check"
         ],
         "unicode_number_head@1806": [
           "atf_set"
         ],
         "unicode_print_body@1792": [
-          "atf_check",
-          "CMDS"
+          "atf_check"
         ],
         "unicode_print_head@1788": [
           "atf_set"
         ],
         "unicode_regex_body@1828": [
-          "atf_check",
-          "CMDS"
+          "atf_check"
         ],
         "unicode_regex_charclass_body@1846": [
-          "atf_check",
-          "CMDS"
+          "atf_check"
         ],
         "unicode_regex_charclass_head@1842": [
           "atf_set"
@@ -177375,12 +177217,10 @@
         ],
         "unicode_substitute_body@1864": [
           "ed",
-          "CMDS",
           "atf_check"
         ],
         "unicode_substitute_cjk_body@1885": [
           "ed",
-          "CMDS",
           "atf_check"
         ],
         "unicode_substitute_cjk_head@1881": [
@@ -178303,7 +178143,6 @@
           "cat",
           "atf_require_prog",
           "cxx",
-          "EOF",
           "pkg-config",
           "cc",
           "cflags",
@@ -178757,12 +178596,10 @@
         ],
         "ViewLicenses@60": [
           "cat",
-          "EOF",
           "open"
         ],
         "makePackageInfo@277": [
-          "cat",
-          "EOF"
+          "cat"
         ]
       },
       "shell/haiku/leak_analyser.sh": {
@@ -178851,7 +178688,6 @@
           "mkdir",
           "kube::util::ensure-cfssl",
           "cat",
-          "EOF",
           "base64",
           "gunzip",
           "CFSSL_BIN",
@@ -178976,8 +178812,7 @@
       },
       "shell/kubernetes/configure-helper.sh": {
         "addockeropt@1522": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "append-param-if-not-present@52": [],
         "append_or_replace_prefixed_line@645": [
@@ -178989,7 +178824,6 @@
         ],
         "assemble-docker-flags@1565": [
           "cat",
-          "EOF",
           "addockeropt",
           "disable_aufs",
           "set_docker_options_non_ubuntu",
@@ -179017,43 +178851,35 @@
         ],
         "create-kube-scheduler-config@1424": [
           "mkdir",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-kubeconfig@1319": [
           "mkdir",
           "gke-internal-create-kubeconfig",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-kubelet-kubeconfig@1352": [
           "cat",
-          "EOF",
           "get-metadata-value"
         ],
         "create-kubeproxy-user-kubeconfig@1402": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-kubescheduler-policy-config@1433": [
           "mkdir",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-master-audit-policy@1131": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-master-audit-webhook-config@1294": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-master-auth@820": [
           "rm",
           "append_or_replace_prefixed_line",
           "create-kubeconfig",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "create-master-etcd-apiserver-auth@1485": [
           "base64",
@@ -179081,8 +178907,7 @@
         ],
         "create-node-problem-detector-kubeconfig@1441": [
           "mkdir",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "detect-cgroup-config@3169": [
           "stat"
@@ -179259,8 +179084,7 @@
         "reset-motd@3111": [
           "KUBE_HOME",
           "version",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "safe-bind-mount@348": [
           "mkdir",
@@ -179290,8 +179114,7 @@
           "addockeropt"
         ],
         "setup-addon-custom-yaml@2861": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "setup-addon-manifests@2540": [
           "copy-manifests"
@@ -179303,7 +179126,6 @@
           "mkdir",
           "config_path",
           "cat",
-          "EOF",
           "chmod",
           "systemctl"
         ],
@@ -179321,7 +179143,6 @@
         ],
         "setup-journald@527": [
           "cat",
-          "EOF",
           "systemctl"
         ],
         "setup-konnectivity-agent-manifest@3034": [
@@ -179331,7 +179152,6 @@
           "setup-addon-manifests",
           "mv",
           "cat",
-          "EOF",
           "update-prometheus-to-sd-parameters",
           "sed"
         ],
@@ -179341,14 +179161,12 @@
         ],
         "setup-logrotate@541": [
           "mkdir",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "setup-netd-manifest@2843": [
           "mkdir",
           "touch",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "setup-nodelocaldns-manifest@2832": [
           "setup-addon-manifests",
@@ -179357,8 +179175,7 @@
         ],
         "setup-os-params@64": [
           "sysctl",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "start-cloud-controller-manager@2320": [
           "setup-addon-manifests",
@@ -179447,7 +179264,6 @@
           "kubelet_bin",
           "builtin_kubelet",
           "cat",
-          "EOF",
           "systemctl"
         ],
         "start-lb-controller@3054": [
@@ -179460,7 +179276,6 @@
         "start-node-problem-detector@1693": [
           "NODE_PROBLEM_DETECTOR_PORT:-20256",
           "cat",
-          "EOF",
           "systemctl"
         ],
         "start-volumesnapshot-crd-and-controller@2706": [
@@ -179499,8 +179314,7 @@
         "wait-for-apiserver-and-update-fluentd@2620": [
           "kubectl",
           "sleep",
-          "cat",
-          "EOF"
+          "cat"
         ],
         "wait-for-volumesnapshot-crd-and-controller@2673": [
           "kubectl",
@@ -179762,7 +179576,6 @@
           "rm",
           "mkdir",
           "cat",
-          "EOF",
           "cp",
           "kube::release::clean_cruft",
           "kube::release::create_tarball"
@@ -179972,7 +179785,6 @@
           "mkdir",
           "command",
           "cat",
-          "EOI",
           "grep",
           "uname",
           "getsubids"
@@ -179985,7 +179797,6 @@
           "WARNING",
           "INFO",
           "cat",
-          "EOT",
           "systemctl",
           "show_systemd_error",
           "sleep"
@@ -180031,8 +179842,7 @@
           "fetch_blob",
           "mapfile",
           "mkdir",
-          "jq",
-          "EOJSON"
+          "jq"
         ],
         "usage@31": []
       },
@@ -180081,8 +179891,7 @@
       },
       "shell/reactos/do_code_format.sh": {
         "usage@9": [
-          "cat",
-          "EOF"
+          "cat"
         ],
         "version@4": []
       },
@@ -228500,7 +228309,8 @@
           "src",
           "doNotOptimizeAway",
           "declarations",
-          "field"
+          "field",
+          "import"
         ],
         "fromJSType@180": [],
         "genericFailure@32": [
@@ -230468,8 +230278,12 @@
         "AddRef@799": [
           "IUnknown_AddRef"
         ],
-        "AdjustWindowRectExForDpi@109": [],
-        "BringWindowToTop@274": [],
+        "AdjustWindowRectExForDpi@109": [
+          "import"
+        ],
+        "BringWindowToTop@274": [
+          "import"
+        ],
         "BuildActionMap@787": [
           "BuildActionMap"
         ],
@@ -230485,9 +230299,15 @@
           "CreateEffect"
         ],
         "CreateEventA@2600": [],
-        "CreateWindowExW@1396": [],
-        "DefWindowProcW@1609": [],
-        "DirectInput8Create@55": [],
+        "CreateWindowExW@1396": [
+          "import"
+        ],
+        "DefWindowProcW@1609": [
+          "import"
+        ],
+        "DirectInput8Create@55": [
+          "import"
+        ],
         "DispatchMessageW@121": [],
         "EnumAudioEndpoints@4061": [
           "EnumAudioEndpoints",
@@ -230497,7 +230317,9 @@
         "EnumCreatedEffectObjects@769": [
           "EnumCreatedEffectObjects"
         ],
-        "EnumDisplayMonitors@2417": [],
+        "EnumDisplayMonitors@2417": [
+          "import"
+        ],
         "EnumEffects@757": [
           "EnumEffects"
         ],
@@ -230510,8 +230332,12 @@
         "Escape@772": [
           "Escape"
         ],
-        "ExitProcess@2617": [],
-        "GetAsyncKeyState@2341": [],
+        "ExitProcess@2617": [
+          "import"
+        ],
+        "GetAsyncKeyState@2341": [
+          "import"
+        ],
         "GetAt@3886": [
           "GetAt",
           "as",
@@ -230540,8 +230366,12 @@
         "GetCapabilities@709": [
           "GetCapabilities"
         ],
-        "GetCapture@2350": [],
-        "GetClientRect@99": [],
+        "GetCapture@2350": [
+          "import"
+        ],
+        "GetClientRect@99": [
+          "import"
+        ],
         "GetCount@3883": [
           "GetCount",
           "as",
@@ -230562,7 +230392,9 @@
           "as",
           "ptrCast"
         ],
-        "GetCursorPos@245": [],
+        "GetCursorPos@245": [
+          "import"
+        ],
         "GetDataFlow@4093": [
           "GetDataFlow",
           "as",
@@ -230592,11 +230424,15 @@
         "GetDeviceState@727": [
           "GetDeviceState"
         ],
-        "GetDpiForWindow@4175": [],
+        "GetDpiForWindow@4175": [
+          "import"
+        ],
         "GetEffectInfo@760": [
           "GetEffectInfo"
         ],
-        "GetFocus@2330": [],
+        "GetFocus@2330": [
+          "import"
+        ],
         "GetForceFeedbackState@763": [
           "GetForceFeedbackState"
         ],
@@ -230608,25 +230444,39 @@
         "GetImageInfo@793": [
           "GetImageInfo"
         ],
-        "GetKBCodePage@2333": [],
-        "GetKeyState@2336": [],
-        "GetKeyboardState@2346": [],
+        "GetKBCodePage@2333": [
+          "import"
+        ],
+        "GetKeyState@2336": [
+          "import"
+        ],
+        "GetKeyboardState@2346": [
+          "import"
+        ],
         "GetLastError@35": [],
         "GetMasterVolume@3840": [
           "GetMasterVolume",
           "as",
           "ptrCast"
         ],
-        "GetMessageTime@118": [],
+        "GetMessageTime@118": [
+          "import"
+        ],
         "GetMixFormat@3609": [
           "GetMixFormat",
           "as",
           "ptrCast"
         ],
         "GetModuleHandleA@2610": [],
-        "GetModuleHandleW@39": [],
-        "GetMonitorInfoA@2405": [],
-        "GetMonitorInfoW@2411": [],
+        "GetModuleHandleW@39": [
+          "import"
+        ],
+        "GetMonitorInfoA@2405": [
+          "import"
+        ],
+        "GetMonitorInfoW@2411": [
+          "import"
+        ],
         "GetMute@3846": [
           "GetMute",
           "as",
@@ -230669,8 +230519,12 @@
           "as",
           "ptrCast"
         ],
-        "GetWindowLongPtrW@231": [],
-        "GetWindowRect@104": [],
+        "GetWindowLongPtrW@231": [
+          "import"
+        ],
+        "GetWindowRect@104": [
+          "import"
+        ],
         "IDirectInput8W_ConfigureDevices@666": [
           "as",
           "ptrCast",
@@ -230804,8 +230658,12 @@
           "as",
           "ptrCast"
         ],
-        "LoadCursorW@1237": [],
-        "LoadIconW@1218": [],
+        "LoadCursorW@1237": [
+          "import"
+        ],
+        "LoadIconW@1218": [
+          "import"
+        ],
         "MethodMixin@1080": [
           "MethodMixin"
         ],
@@ -230849,9 +230707,15 @@
         "MethodMixin@634": [
           "MethodMixin"
         ],
-        "MonitorFromPoint@2387": [],
-        "MonitorFromRect@2393": [],
-        "MonitorFromWindow@2399": [],
+        "MonitorFromPoint@2387": [
+          "import"
+        ],
+        "MonitorFromRect@2393": [
+          "import"
+        ],
+        "MonitorFromWindow@2399": [
+          "import"
+        ],
         "OnDefaultDeviceChanged@3989": [
           "OnDefaultDeviceChanged",
           "as",
@@ -230882,14 +230746,18 @@
           "as",
           "ptrCast"
         ],
-        "PeekMessageW@123": [],
+        "PeekMessageW@123": [
+          "import"
+        ],
         "Poll@775": [
           "Poll"
         ],
         "QueryInterface@796": [
           "QueryInterface"
         ],
-        "RegisterClassW@1322": [],
+        "RegisterClassW@1322": [
+          "import"
+        ],
         "RegisterEndpointNotificationCallback@4070": [
           "RegisterEndpointNotificationCallback",
           "as",
@@ -230908,7 +230776,9 @@
           "as",
           "ptrCast"
         ],
-        "ReleaseCapture@2358": [],
+        "ReleaseCapture@2358": [
+          "import"
+        ],
         "Reset@3621": [
           "Reset",
           "as",
@@ -230926,7 +230796,9 @@
         "SetActionMap@790": [
           "SetActionMap"
         ],
-        "SetCapture@2353": [],
+        "SetCapture@2353": [
+          "import"
+        ],
         "SetClientProperties@3690": [
           "SetClientProperties",
           "as",
@@ -230935,8 +230807,12 @@
         "SetCooperativeLevel@739": [
           "SetCooperativeLevel"
         ],
-        "SetCursor@240": [],
-        "SetCursorPos@249": [],
+        "SetCursor@240": [
+          "import"
+        ],
+        "SetCursorPos@249": [
+          "import"
+        ],
         "SetDataFormat@733": [
           "SetDataFormat"
         ],
@@ -230948,7 +230824,9 @@
         "SetEventNotification@736": [
           "SetEventNotification"
         ],
-        "SetForegroundWindow@278": [],
+        "SetForegroundWindow@278": [
+          "import"
+        ],
         "SetMasterVolume@3837": [
           "SetMasterVolume",
           "as",
@@ -230967,12 +230845,24 @@
           "as",
           "ptrCast"
         ],
-        "SetWindowLongPtrW@259": [],
-        "SetWindowLongW@268": [],
-        "SetWindowPos@283": [],
-        "SetWindowTextW@346": [],
-        "ShowCursor@1411": [],
-        "ShowWindow@1416": [],
+        "SetWindowLongPtrW@259": [
+          "import"
+        ],
+        "SetWindowLongW@268": [
+          "import"
+        ],
+        "SetWindowPos@283": [
+          "import"
+        ],
+        "SetWindowTextW@346": [
+          "import"
+        ],
+        "ShowCursor@1411": [
+          "import"
+        ],
+        "ShowWindow@1416": [
+          "import"
+        ],
         "Start@3615": [
           "Start",
           "as",
@@ -231007,7 +230897,8 @@
           "GetLastError"
         ],
         "eql@393": [
-          "eql"
+          "eql",
+          "import"
         ],
         "getDpiFactor@4188": [
           "assert",
@@ -231147,6 +231038,7 @@
           "flags",
           "create",
           "destroy",
+          "import",
           "init",
           "AOFType",
           "close",
@@ -231990,6 +231882,7 @@
       "zig/tigerbeetle/cluster.zig": {
         "ClusterType@58": [
           "This",
+          "import",
           "SuperBlockType",
           "StateMachineType",
           "ReplicaType",
@@ -232351,11 +232244,13 @@
       },
       "zig/tigerbeetle/state_machine.zig": {
         "ChangeEventsScanLookupType@4918": [
+          "import",
           "This",
           "ScanTreeType"
         ],
         "ExpirePendingTransfersType@4761": [
           "This",
+          "import",
           "FieldType",
           "ScanRangeType",
           "ScanLookupType"
@@ -232370,6 +232265,7 @@
           "assert",
           "ArrayListUnmanaged",
           "This",
+          "import",
           "GridType",
           "WorkloadType",
           "ForestType",
@@ -233293,6 +233189,7 @@
           "append",
           "clangSupportsDiagnostics",
           "clangMightShellOutForAssembly",
+          "import",
           "targetTriple",
           "appendSlice",
           "isThumb",
@@ -234581,6 +234478,7 @@
           "dupe",
           "append",
           "dump_argv",
+          "import",
           "addDepFilePost",
           "lock",
           "unlock",
@@ -241744,6 +241642,7 @@
           "init",
           "deinit",
           "allocPrint",
+          "import",
           "printPtrDerivation",
           "written",
           "fromInterned"
@@ -250029,6 +249928,7 @@
           "getTarget",
           "zigBackend",
           "archs",
+          "import",
           "toLlvmCallConv",
           "cCallingConvention",
           "eql"
@@ -250899,6 +250799,7 @@
           "flush",
           "finalResult",
           "rename",
+          "import",
           "ParseCommandLineOptions",
           "raiseFileDescriptorLimit",
           "zigTriple",
@@ -250960,6 +250861,7 @@
           "exit",
           "sizeOf",
           "print",
+          "import",
           "renderAsText",
           "flush",
           "addZoirErrorMessages",
@@ -251083,6 +250985,7 @@
           "writeAll",
           "cleanExit",
           "fatal",
+          "import",
           "GetHostCPUName",
           "GetHostCPUFeatures",
           "detectNativeCpuWithLLVM",
@@ -251093,6 +250996,7 @@
           "check",
           "fatal",
           "dupeZ",
+          "import",
           "initializeLLVMTarget",
           "getFromTriple",
           "panic",
@@ -251118,6 +251022,7 @@
           "writerStreaming",
           "sizeOf",
           "print",
+          "import",
           "renderAsText",
           "flush"
         ],
@@ -251416,6 +251321,7 @@
           "deinit",
           "allocator",
           "argsCopyZ",
+          "import",
           "as",
           "intCast",
           "eql",
@@ -251496,6 +251402,7 @@
           "clangMain",
           "lldMain",
           "jitCmd",
+          "import",
           "run",
           "cmdFetch",
           "cmdInit",
@@ -251637,6 +251544,7 @@
           "deinit",
           "appendSlice",
           "append",
+          "import",
           "set",
           "allocator",
           "allocSentinel",
@@ -251658,6 +251566,7 @@
         "serve@4068": [
           "init",
           "start",
+          "import",
           "debugIncremental",
           "panic",
           "deinit",
@@ -251767,9 +251676,7 @@
         "atime@261": [
           "This"
         ],
-        "clone@178": [
-          "volatile"
-        ],
+        "clone@178": [],
         "ctime@269": [
           "This"
         ],
@@ -251777,39 +251684,30 @@
           "This"
         ],
         "syscall0@5": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall1@34": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall2@47": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall3@61": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall4@76": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall5@95": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall6@115": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall7@145": [
-          "volatile",
           "intFromEnum"
         ],
         "syscall_pipe@17": [
-          "volatile",
           "intFromEnum"
         ]
       }
@@ -251943,6 +251841,7 @@
           "identifierTokenToNameSlice",
           "eql",
           "count",
+          "import",
           "nameToken",
           "getOrPut",
           "append",
@@ -252529,6 +252428,7 @@
           "final",
           "join",
           "err",
+          "import",
           "getErrorBundleFromStderr",
           "deinit",
           "pushErrorBundle",
@@ -253315,6 +253215,7 @@
           "toOwnedSlice"
         ],
         "workspaceSymbolHandler@1584": [
+          "import",
           "handler"
         ]
       },

@@ -1204,18 +1204,18 @@ class NetworkRiskSensor:
             hits = in_target(resolution_map.get(name, ()))
         return hits
 
-    def _resolve_declaration(
+    def _resolve_declaration_hits(
         self,
         target_token: str,
         curr_path: str,
         file_facts: dict[str, tuple[str, bool]] | None,
         src_lang: str | None,
-    ) -> str | None:
-        """#3596: `a.b.name` -> the one file of the importer's language that
-        declares `name` and sits under a directory ending in a/b."""
+    ) -> list[str]:
+        """#3596/#4125: every file of the importer's language that declares
+        `parts[-1]` and sits under a directory ending in `a/b`."""
         parts = target_token.split(".")
         if len(parts) < 2:
-            return None
+            return []
         package_dir = "/".join(parts[:-1])
         hits = [
             c
@@ -1227,6 +1227,18 @@ class NetworkRiskSensor:
         # (a Kotlin test `fun joinToCode()` beside an unextracted main one).
         if not _is_test_path(curr_path):
             hits = [c for c in hits if not _is_test_path(c)]
+        return hits
+
+    def _resolve_declaration(
+        self,
+        target_token: str,
+        curr_path: str,
+        file_facts: dict[str, tuple[str, bool]] | None,
+        src_lang: str | None,
+    ) -> str | None:
+        """#3596: `a.b.name` -> the one file of the importer's language that
+        declares `name` and sits under a directory ending in a/b."""
+        hits = self._resolve_declaration_hits(target_token, curr_path, file_facts, src_lang)
         return hits[0] if len(hits) == 1 else None
 
     def _resolve_literal_file(self, target_token: str, resolution_map: dict[str, list[str]]) -> str | None:
@@ -1614,7 +1626,20 @@ class NetworkRiskSensor:
                         src_lang=src_lang,
                         file_facts=file_facts,
                     )
-                    targets = [default if t is _NO_DECLARATION else t for t in targets] or [default]
+                    if (
+                        default is None
+                        and not targets
+                        and src_lang == "kotlin"
+                        and isinstance(target_token, str)
+                        and "." in target_token
+                    ):
+                        # #4125: Kotlin `import a.b.fn` imports every top-level overload of `fn`
+                        # declared across files of package `a.b`.
+                        multi = self._resolve_declaration_hits(target_token, curr_path, file_facts, src_lang)
+                        if len(multi) > 1:
+                            targets = multi
+                    if not targets or _NO_DECLARATION in targets:
+                        targets = [default if t is _NO_DECLARATION else t for t in targets] or [default]
                 forms = (f.get("import_libraries") or {}).get(target_token.upper(), [""]) if members else []
                 for n, target_path in enumerate(targets):
                     if not isinstance(target_path, str) or target_path == curr_path:

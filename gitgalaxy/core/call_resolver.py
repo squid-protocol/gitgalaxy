@@ -590,7 +590,40 @@ _BUILTIN_INSTANCE_METHODS_RUBY = frozenset(
 _BUILTIN_INSTANCE_METHODS_GO = frozenset(
     {"Close", "Error", "String", "Lock", "Unlock", "RLock", "RUnlock", "Load", "Store", "Next", "Err"}
 )
-_BUILTIN_INSTANCE_METHODS_RUST = frozenset({"len", "iter", "clone", "into", "unwrap", "as_ref", "fmt"})
+_BUILTIN_INSTANCE_METHODS_RUST = frozenset(
+    {
+        "len",
+        "iter",
+        "clone",
+        "into",
+        "unwrap",
+        "as_ref",
+        "fmt",
+        # #4991: core/std Option, Result, Slice, Iterator, str, float methods
+        "is_empty",
+        "iter_mut",
+        "into_iter",
+        "classify",
+        "unwrap_or",
+        "unwrap_or_else",
+        "expect",
+        "is_some",
+        "is_none",
+        "is_ok",
+        "is_err",
+        "as_str",
+        "as_bytes",
+        "as_mut",
+        "to_string",
+        "to_owned",
+        "to_vec",
+        "chars",
+        "lines",
+        "starts_with",
+        "ends_with",
+        "trim",
+    }
+)
 _BUILTIN_INSTANCE_METHODS_CPP = frozenset(
     {
         "size",

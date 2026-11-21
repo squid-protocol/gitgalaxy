@@ -19,7 +19,7 @@ diff be" is answered from data instead of a guess informed only by the issue tex
 - **`docs/gitgalaxy_architecture_brief.md`** — NOT in a checkout: it is published daily to the
   `generated` branch (read it with `python tests/tools/generated_branch.py show
   docs/gitgalaxy_architecture_brief.md`), a byproduct of the CI scan that also produces SARIF/SBOM. This scan
-  always installs `tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s
+  always installs `tiktoken`/`pyyaml` first (`gitgalaxy.yml`'s
   "Install GitGalaxy & Full Precision Engines" step) — confirm by checking the brief's own
   Section 0 traceability table, which reports `Zero-Dependency Mode: Inactive (Full Precision)`.
   Use it for *repo-wide* framing before a large refactor: Section 7 has the actual blast-radius
@@ -51,8 +51,8 @@ diff be" is answered from data instead of a guess informed only by the issue tex
        FROM file_data GROUP BY directory_group ORDER BY loc DESC LIMIT 8;"
     ```
   - **Full-precision dependencies required:** every graph column is native and needs
-    no optional package (networkx left the runtime in #3041); token mass and the ML columns need
-    `tiktoken`, `numpy`, `pandas`, `xgboost`, and `pyyaml` importable in whatever environment runs
+    no optional package (networkx left the runtime in #3041); token mass needs
+    `tiktoken` and `pyyaml` importable in whatever environment runs
     the scan — without all of them, galaxyscope drops into Zero-Dependency Mode and those columns
     come back NULL (`pagerank_score`/`normalized_blast_radius` are computed natively in both modes
     since #3027; `docs/zero_dependency_mode.md` has the per-column list) (this

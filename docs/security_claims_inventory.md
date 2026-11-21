@@ -40,13 +40,11 @@ TESTED**, **10 UNTESTED**, **39 FALSE**, **14 VAGUE**.
 
 ## Most serious problems (fix first)
 
-1. **The XGBoost malware classifier never runs.** `security_auditor.py:72` loads
-   `gitgalaxy_malware_xgb_multiclass.json`, which is not in the repo; both golden masters record
-   `"Inference Ran": false`. Every test uses a mock or a synthetic stand-in model (`test_ml_real_model_2986.py`: "says
-   nothing about detection quality"). Yet 02-20, 04-00 (text and diagram), README (`[full]` extra),
-   zero_dependency_mode.md (short version), github-action-readme.md (`full_precision`) and wiki/index.md describe a
-   working Trojan/Stealer/Dropper/Botnet classifier. The Action's `full.txt` also lacks scikit-learn, so it could not run
-   even with a model. The pipeline template's "ML Malware Gate" job gates on `--fail-on-malware`, which cannot fire.
+1. **(Removed 2026-11-19, #8430: research pending; kept for the record.) The malware classifier never ran.** No trained
+   model ever shipped, so no install ran it and both golden masters recorded it as not run. By owner decision the
+   classifier and `--fail-on-malware` were removed rather than kept as a dormant claim; the docs now say "Removed:
+   research pending" (02-20, 04-00 in #8801; the rest in the #8430 doc slices). A model returns only with a labelled,
+   measured evaluation (#96).
 2. **(Fixed in #8595; kept for the record.) The standalone `import-policy-gate` CLI (and `tool: import-policy-gate`
    in the Action) never blocked on real input.** `run_import_gate_audit` reads `raw_imports` and `risk_vector` (`import_policy_gate.py:125,244`); the audit
    JSON stores them as `"9. Extracted Dependencies"` and `"4. Vulnerability & Risk Exposures"` and drops `risk_vector`
@@ -106,9 +104,8 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Minification guard (>250 chars) avoids ReDoS | 02-06:38,42 | TESTED | `test_security_lens.py::test_minified_fallback_*`, `test_redos_poison.py` | Say it blanks every long line in every file |
 | "Hardware-optimized regular expression engines" | 02-06:42 | FALSE | Stdlib `re` only | "Stdlib regex with literal prefilter gates" |
 | Detects zero-days and custom obfuscation that bypasses standard signatures | 02-06:9,15; security/README.md:9,50; 02-20:8,14 | VAGUE | No evaluation set exists | "Flags structural shapes worth review" |
-| XGBoost multiclass model predicts Trojans, Stealers, Droppers, Botnets | 02-20:8,11,20,29; tests/security_auditing/readme.md:44 | FALSE | Model not shipped; goldens `"Inference Ran": false` | Lead 02-20 with "no model ships; never runs" |
-| ML skipped gracefully without xgboost/pandas; columns NULL, not "Safe" | 02-20:22; security/README.md:34,41 | TESTED | `test_security_auditor.py::test_audit_repository_no_model`, `test_ml_boundary_2986.py` | — |
-| Shadow patch: hash mutated without version bump, overrides ML | security/README.md:23,56; 02-20:24,27,45,52; CLI ref:83 | FIXED (#8611) | Now documented as a manual hint: alerts files with `file_impact > 0.5`, assigns no class or score, runs without a model; no hash/version logic exists | Real detection is open (#8431) |
+| A multiclass ML model predicts Trojans, Stealers, Droppers, Botnets | 02-20; tests/security_auditing/readme.md | REMOVED (#8430) | Classifier removed 2026-11-19; no model ever shipped | 02-20 says "Removed: research pending" |
+| Shadow patch: hash mutated without version bump, overrides the removed classifier | security/README.md:23,56; 02-20:24,27,45,52; CLI ref:83 | FIXED (#8611) | Now documented as a manual hint: alerts files with `file_impact > 0.5`, assigns no class or score, runs without a model; no hash/version logic exists | Real detection is open (#8431) |
 | Feature vector integrates Gini, signature counts and "global architectural distances" | 02-20:19 | FALSE (partly) | Distances are frozen constants (`security_auditor.py:453-458`, #1159) | Say so |
 | Exact transitive upstream/downstream counts, no 500-file cap | 02-20:18; security/README.md:34,52 | TESTED | `test_security_auditor.py::test_dependency_graph_*` | — |
 | "Graph BFS capped at 10,000 nodes" | 02-20:48 | FALSE | No BFS; a 50M work budget (`network_risk_sensor.py:186`) | Describe the work budget |
@@ -129,9 +126,9 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Claim | Where | Tag | Evidence | Fix |
 |---|---|---|---|---|
 | ML threat classification of Trojans; `[full]` enables it; complements Semgrep | 04-00:37-38,46,57,75; README.md:372-373; zero_dependency_mode.md:10,16,65-74,82 | FALSE | Model not shipped (problem 1) | Say no model ships |
-| Action runs ML inference with `full_precision` and a supplied model | github-action-readme.md:71,99 | FALSE | No model input; `full.txt` lacks scikit-learn | Drop |
+| Action runs ML inference with `full_precision` and a supplied model | github-action-readme.md:71,99 | REMOVED (#8430) | Classifier removed; no model input exists | Drop |
 | Gates do not run on `--incremental` scans | github-action-readme.md:71 | FALSE | They do (`galaxyscope.py:4234`; `test_cli_contract.py`) | Delete the sentence |
-| `--fail-on-malware` cannot fire without the model | CLI ref:71; zero_dependency_mode.md:71-77,83 | TESTED | `test_ml_boundary_2986.py::test_no_model_scan_reads_unexercised_not_safe` | Also say the template's malware gate is a no-op |
+| `--fail-on-malware` gate | CLI ref:71; zero_dependency_mode.md:71-77,83 | REMOVED (#8430) | Flag removed 2026-11-19 with the classifier | Drop from CLI ref and zero_dependency_mode.md |
 | `--fail-on-secrets` fails on "any" unmitigated hardcoded secret | CLI ref:70,176; github-action-readme.md:71 | TESTED | `test_cli_contract.py::test_a_tripped_gate_exits_1_with_every_report_written`; misses long lines and some config types | "A detected secret"; link blind spots |
 | `--max-risk-exposure`; gates off by default | github-action-readme.md:71; CLI ref:66-68,152 | TESTED | `test_cli_contract.py` | — |
 | `--max-systemic-threat` | CLI ref:73 | UNTESTED | `test_galaxyscope.py::test_cicd_policy_enforcement_gates` reimplements the logic inline and never calls the gate | Add a CLI-contract test |

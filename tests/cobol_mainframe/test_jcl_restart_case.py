@@ -14,16 +14,22 @@ from pathlib import Path
 import pytest
 
 from gitgalaxy.core import job_flow
+from gitgalaxy.core.jcl_proc import JclProcRefused
 from gitgalaxy.core.jcl_restart import JclRestartRefused, restart_flow
 
 ROOT = Path(__file__).resolve().parents[2]
 DOC = json.loads((ROOT / "tests" / "equivalence" / "jcl" / "restart" / "scenarios.json").read_text(encoding="utf-8"))
 TEXT = "\n".join(DOC["flow_jcl"]) + "\n"
 ROWS = job_flow.jcl_job_flow(TEXT)
+LIBDOC = json.loads((ROOT / "tests" / "equivalence" / "jcl" / "restart" / "library.json").read_text(encoding="utf-8"))
+LIB_TEXT = "\n".join(LIBDOC["library_jcl"]) + "\n"
+LIB_ROWS = job_flow.jcl_job_flow(LIB_TEXT)
+LIBS = {lib: {m: "\n".join(ls) + "\n" for m, ls in ms.items()} for lib, ms in LIBDOC["libraries"].items()}
 
 
 def test_every_jcl_line_fits_columns_1_to_72():
-    for n, ln in enumerate(DOC["flow_jcl"], 1):
+    members = [ln for ms in LIBDOC["libraries"].values() for ls in ms.values() for ln in ls]
+    for n, ln in enumerate(DOC["flow_jcl"] + LIBDOC["library_jcl"] + members, 1):
         assert len(ln) <= 72, (n, ln)
 
 
@@ -60,6 +66,24 @@ def test_the_resolver_reproduces_every_restart_answer(sc):
     got = restart_flow(ROWS, sc["job"], sc["given"])
     assert got == sc["expect"], sc["id"]
     assert list(got) == list(sc["expect"]), sc["id"]
+
+
+@pytest.mark.parametrize("sc", LIBDOC["scenarios"], ids=lambda s: s["id"])
+def test_the_resolver_reproduces_every_library_procedure_restart_answer(sc):
+    got = restart_flow(LIB_ROWS, sc["job"], sc["given"], LIB_TEXT, LIBS)
+    assert got == sc["expect"], sc["id"]
+    assert list(got) == list(sc["expect"]), sc["id"]
+
+
+@pytest.mark.parametrize("r", LIBDOC["refused"], ids=lambda r: r["id"])
+def test_a_library_restart_that_is_not_answered_is_refused_by_name(r):
+    with pytest.raises((JclRestartRefused, JclProcRefused), match=r["match"]):
+        restart_flow(LIB_ROWS, r["job"], {}, LIB_TEXT, LIBS)
+
+
+def test_a_library_procedure_with_no_libraries_given_is_refused():
+    with pytest.raises(JclProcRefused, match="no libraries were given"):
+        restart_flow(LIB_ROWS, "LIBJ1", {})
 
 
 @pytest.mark.parametrize("r", DOC["refused"], ids=lambda r: r["id"])

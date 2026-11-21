@@ -227,7 +227,13 @@ def _proc_results() -> list[tuple[dict[str, Any], bool]]:
                     and [k for k in got if k.split(".")[0] == sc["call"]] == list(sc["expect"])))  # fmt: skip
     rows = job_flow.jcl_job_flow(text)
     for sc in doc["flow"]:
-        out.append((sc, JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions == sc["expect"]))
+        out.append(
+            (
+                sc,
+                JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions
+                == sc["expect"],
+            )
+        )
     return out
 
 
@@ -256,7 +262,8 @@ def _step_results() -> dict[str, list[tuple[dict[str, Any], bool]]]:
         for sc in doc["scenarios"]:
             job = sc["job"]
             if case == "restart":
-                res.append((sc, restart_flow(rows, job, sc["given"]) == sc["expect"]))
+                got = restart_flow(rows, job, sc["given"])
+                res.append((sc, got == sc["expect"]))
                 continue
             if case == "gdg" and sc.get("restart"):  # a restarted run: steps before the restart step do not start
                 catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
@@ -329,6 +336,17 @@ def _flow_results(f: Path, doc: dict[str, Any]) -> list[tuple[dict[str, Any], bo
             for sc in doc["scenarios"]]  # fmt: skip
 
 
+def _library_restart_results(doc: dict[str, Any]) -> list[tuple[dict[str, Any], bool]]:
+    """The restarts of a library procedure (`restart/library.json`): the member is read from the file's `libraries`."""
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_restart import restart_flow
+
+    text = "\n".join(doc["library_jcl"]) + "\n"
+    libs = {lb: {m: "\n".join(x) + "\n" for m, x in ms.items()} for lb, ms in doc["libraries"].items()}
+    rows = job_flow.jcl_job_flow(text)
+    return [(sc, restart_flow(rows, sc["job"], sc["given"], text, libs) == sc["expect"]) for sc in doc["scenarios"]]
+
+
 def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
     """Each answer file (`case/file.json`) with its scenarios and whether the evaluator reproduced each, run live."""
     steps = _step_results()
@@ -340,6 +358,8 @@ def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
             continue
         if case == "proc":
             res = _proc_results()
+        elif case == "restart" and f.name == "library.json":
+            res = _library_restart_results(doc)
         elif case in steps and f.name == "scenarios.json":
             res = steps[case]
         else:
@@ -408,8 +428,13 @@ def jcl_step_flow() -> dict[str, Any]:
         rec = json.loads(JCL_MEASURED.read_text(encoding="utf-8"))
         if rec.get("answers_sha256") == _sha(JCL_CASES / "carddemo" / "scenarios.json") and rec.get("of") == n_cd:
             cd_ok = rec["matched"]
-    return {"fixture": (fx_ok, fx_n), "assumed": (as_ok, as_n), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"]),
-            "tier2": mvs38j_tier2()}
+    return {
+        "fixture": (fx_ok, fx_n),
+        "assumed": (as_ok, as_n),
+        "carddemo": (cd_ok, n_cd),
+        "carddemo_jobs": len(cd["jobs"]),
+        "tier2": mvs38j_tier2(),
+    }
 
 
 def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:

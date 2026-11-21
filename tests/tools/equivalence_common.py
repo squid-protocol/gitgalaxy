@@ -582,7 +582,15 @@ def comp5_zos_text(text: str) -> str:
     halfword, in the text) as z/OS holds it: each oracle halfword n, 0 (n = 1 to 70, the range of SQLERRML) reads 0, n.
     Nothing else in the text changes; applied only under a declared `comp5_byte_order`, and the port's text is not touched,
     so a port that held the halfword little-endian still differs."""
-    return _SQLERRML_LE.sub(lambda m: m.group(0)[::-1], text)
+
+    def swap(m: re.Match[str]) -> str:
+        # a real SQLERRML is followed by its n message characters (cut by the field's end): a printable byte then a NUL
+        # that has no message after it (the ':' of a STRING literal before an empty SQLERRM) is not a halfword (#7955)
+        n = ord(m.group(0)[0])
+        tail = text[m.end() : m.end() + n]
+        return m.group(0)[::-1] if "\x00" not in tail else m.group(0)
+
+    return _SQLERRML_LE.sub(swap, text)
 
 
 # #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph

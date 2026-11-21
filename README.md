@@ -151,15 +151,17 @@ written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.p
 A parser (Python `ast`, tree-sitter) says what each function does, and each family is scored against that on recall and
 precision (the family-validity tool, [PR #8864](https://github.com/squid-protocol/gitgalaxy/pull/8864)). Each cell shows the weaker of the two, so a family that
 finds every construct but also fires on strings does not look good.
-- Tested so far (2026-11-21): 812 of 2,893 defined cells: 91 against a parser (7 languages) and 721 by a parserless decoy
-  test only. The decoy test plants each family's keyword in a comment and in a string literal in the language's own
-  syntax: comments are stripped in all 756 controlled cells, while a keyword in a string literal counts in 93% of them
-  (known behaviour, [#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)). Gray cells are defined but not yet
-  tested by either; black cells are languages with no rule for that family.
-- Limit: one corpus per language, and the oracle is our reading of each contract, not ground truth. Hatched cells come
-  from repositories that are not pinned, so they are exploratory ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)).
+- Tested so far (2026-11-21): 2,893 language-by-family rules are defined; 91 are measured against a parser (7 languages),
+  721 more only by a parserless decoy test, and 2,081 are not tested yet. The measured cells range from 0% to 100%
+  (lower of recall and precision), so the figure prints every score. The decoy test plants each family's keyword in a
+  comment and in a string literal: comments are ignored in all 756 cells, while a keyword in a string literal counts in
+  93% of them (known behaviour, [#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)).
+- Limit: one corpus per language, and the parser's reading is our interpretation of each contract, not ground truth.
+  Cells marked † come from repositories that are not pinned, so they are exploratory
+  ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)). The full 73 x 71 matrix, with hover numbers, is
+  [`family_validity_matrix.svg`](docs/self_scan/family_validity_matrix.svg).
 
-![Keyword-family accuracy by language](docs/self_scan/family_validity_chart.svg)
+![Keyword families: how much is checked, and how well](docs/self_scan/family_validity_chart.svg)
 
 **Same intent, same measurement.** The [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
 plants the same 12-probe program in every language. Any difference in what the engine measures is therefore language

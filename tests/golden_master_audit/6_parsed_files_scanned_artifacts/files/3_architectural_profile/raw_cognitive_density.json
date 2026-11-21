@@ -2492,7 +2492,7 @@
       "nix/bun/shell.nix": 0.0
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": 0.183,
+      "nix/ghostty/build.zig": 0.198,
       "nix/ghostty/default.nix": 0.0,
       "nix/ghostty/flake.nix": 0.0,
       "nix/ghostty/shell.nix": 0.0
@@ -4053,54 +4053,54 @@
     "zig/bun": {
       "zig/bun/LICENSE.md": 0.0,
       "zig/bun/MimallocArena.zig": 0.294,
-      "zig/bun/Parser.zig": 0.843,
-      "zig/bun/comptime_string_map.zig": 0.552,
-      "zig/bun/napi.zig": 0.343
+      "zig/bun/Parser.zig": 0.948,
+      "zig/bun/comptime_string_map.zig": 0.581,
+      "zig/bun/napi.zig": 0.351
     },
     "zig/mach": {
       "zig/mach/Core.zig": 0.264,
       "zig/mach/StringTable.zig": 0.164,
-      "zig/mach/collision.zig": 0.631,
-      "zig/mach/graph.zig": 0.401,
+      "zig/mach/collision.zig": 0.663,
+      "zig/mach/graph.zig": 0.403,
       "zig/mach/main.zig": 0.0,
-      "zig/mach/module.zig": 1.206,
-      "zig/mach/testing.zig": 0.239,
-      "zig/mach/win32.zig": 0.055
+      "zig/mach/module.zig": 1.222,
+      "zig/mach/testing.zig": 0.369,
+      "zig/mach/win32.zig": 0.057
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": 0.345,
-      "zig/tigerbeetle/build.zig": 0.142,
-      "zig/tigerbeetle/build_multiversion.zig": 0.103,
-      "zig/tigerbeetle/cluster.zig": 0.372,
-      "zig/tigerbeetle/config.zig": 0.249,
+      "zig/tigerbeetle/aof.zig": 0.371,
+      "zig/tigerbeetle/build.zig": 0.15,
+      "zig/tigerbeetle/build_multiversion.zig": 0.109,
+      "zig/tigerbeetle/cluster.zig": 0.389,
+      "zig/tigerbeetle/config.zig": 0.267,
       "zig/tigerbeetle/constants.zig": 0.014,
       "zig/tigerbeetle/copyhound.zig": 0.522,
       "zig/tigerbeetle/counting_allocator.zig": 0.839,
-      "zig/tigerbeetle/direction.zig": 0.579,
+      "zig/tigerbeetle/direction.zig": 0.589,
       "zig/tigerbeetle/download.sh": 0.913,
       "zig/tigerbeetle/download.win.ps1": 0.93,
-      "zig/tigerbeetle/state_machine.zig": 0.295
+      "zig/tigerbeetle/state_machine.zig": 0.347
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 0.425,
-      "zig/zig/InternPool.zig": 0.461,
-      "zig/zig/Sema.zig": 0.416,
-      "zig/zig/Type.zig": 0.218,
-      "zig/zig/Zcu.zig": 0.363,
-      "zig/zig/main.zig": 1.156
+      "zig/zig/Compilation.zig": 0.447,
+      "zig/zig/InternPool.zig": 0.467,
+      "zig/zig/Sema.zig": 0.44,
+      "zig/zig/Type.zig": 0.227,
+      "zig/zig/Zcu.zig": 0.367,
+      "zig/zig/main.zig": 1.199
     },
     "zig/zig_std_linux_mips": {
-      "zig/zig_std_linux_mips/mips.zig": 0.006
+      "zig/zig_std_linux_mips/mips.zig": 0.024
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 0.15,
-      "zig/zls/DocumentStore.zig": 0.327,
-      "zig/zls/Server.zig": 0.415,
-      "zig/zls/analysis.zig": 0.518,
-      "zig/zls/ast.zig": 0.654,
-      "zig/zls/config_gen.zig": 0.522,
+      "zig/zls/DocumentScope.zig": 0.158,
+      "zig/zls/DocumentStore.zig": 0.331,
+      "zig/zls/Server.zig": 0.434,
+      "zig/zls/analysis.zig": 0.53,
+      "zig/zls/ast.zig": 0.673,
+      "zig/zls/config_gen.zig": 0.528,
       "zig/zls/langref.html.in": 0.009,
-      "zig/zls/print_ast.zig": 0.139
+      "zig/zls/print_ast.zig": 0.138
     }
   },
   "path": [

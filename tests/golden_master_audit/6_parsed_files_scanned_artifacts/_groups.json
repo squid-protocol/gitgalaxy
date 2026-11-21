@@ -7069,7 +7069,7 @@
     "nix/ghostty": {
       "Average Risk Exposures": {
         "API Exposure": "0.59%",
-        "Cognitive Load Exposure": "2.08%",
+        "Cognitive Load Exposure": "2.2%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "25.0%",
@@ -7082,7 +7082,7 @@
         "Testing Exposure": "2.32%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 135.7,
+      "Directory Group Magnitude": 141.3,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_1": "25.0%",
         "file_cluster_2": "75.0%"
@@ -12708,20 +12708,20 @@
     "zig/bun": {
       "Average Risk Exposures": {
         "API Exposure": "9.06%",
-        "Cognitive Load Exposure": "19.29%",
+        "Cognitive Load Exposure": "21.52%",
         "Commented Logic Exposure": "2.69%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "33.59%",
-        "Error & Exception Exposure": "39.69%",
+        "Error & Exception Exposure": "39.74%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "40.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "39.76%",
+        "State Flux Exposure": "39.77%",
         "Tech Debt Exposure": "53.32%",
-        "Testing Exposure": "48.49%",
+        "Testing Exposure": "48.5%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 3561.86,
+      "Directory Group Magnitude": 3755.46,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "20.0%",
         "file_cluster_12": "40.0%",
@@ -12740,7 +12740,7 @@
     "zig/mach": {
       "Average Risk Exposures": {
         "API Exposure": "33.68%",
-        "Cognitive Load Exposure": "11.79%",
+        "Cognitive Load Exposure": "12.45%",
         "Commented Logic Exposure": "2.38%",
         "Concurrency Exposure": "1.67%",
         "Documentation Exposure": "53.4%",
@@ -12748,12 +12748,12 @@
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "41.38%",
+        "State Flux Exposure": "41.04%",
         "Tech Debt Exposure": "45.63%",
-        "Testing Exposure": "41.21%",
+        "Testing Exposure": "41.23%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2975.98,
+      "Directory Group Magnitude": 3062.78,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "12.5%",
         "file_cluster_12": "37.5%",
@@ -12777,26 +12777,27 @@
     "zig/tigerbeetle": {
       "Average Risk Exposures": {
         "API Exposure": "24.44%",
-        "Cognitive Load Exposure": "22.32%",
+        "Cognitive Load Exposure": "22.71%",
         "Commented Logic Exposure": "0.4%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "73.39%",
-        "Error & Exception Exposure": "49.52%",
+        "Error & Exception Exposure": "49.56%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "53.51%",
+        "State Flux Exposure": "54.17%",
         "Tech Debt Exposure": "16.42%",
         "Testing Exposure": "21.8%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 4455.42,
+      "Directory Group Magnitude": 4951.82,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "8.3%",
         "file_cluster_12": "8.3%",
         "file_cluster_15": "16.7%",
         "file_cluster_2": "8.3%",
-        "file_cluster_4": "25.0%",
+        "file_cluster_4": "16.7%",
+        "file_cluster_6": "8.3%",
         "file_cluster_7": "25.0%",
         "file_cluster_9": "8.3%"
       },
@@ -12819,24 +12820,24 @@
     "zig/zig": {
       "Average Risk Exposures": {
         "API Exposure": "73.39%",
-        "Cognitive Load Exposure": "22.26%",
+        "Cognitive Load Exposure": "23.06%",
         "Commented Logic Exposure": "3.23%",
         "Concurrency Exposure": "8.31%",
         "Documentation Exposure": "73.08%",
-        "Error & Exception Exposure": "45.82%",
+        "Error & Exception Exposure": "45.84%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "55.5%",
+        "State Flux Exposure": "55.65%",
         "Tech Debt Exposure": "11.8%",
-        "Testing Exposure": "15.44%",
+        "Testing Exposure": "15.45%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 37360.96,
+      "Directory Group Magnitude": 39509.06,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_12": "50.0%",
-        "file_cluster_4": "33.3%",
-        "file_cluster_6": "16.7%"
+        "file_cluster_4": "16.7%",
+        "file_cluster_6": "33.3%"
       },
       "File Count": 6,
       "Files": [
@@ -12851,7 +12852,7 @@
     "zig/zig_std_linux_mips": {
       "Average Risk Exposures": {
         "API Exposure": "11.61%",
-        "Cognitive Load Exposure": "4.85%",
+        "Cognitive Load Exposure": "5.19%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "100.0%",
@@ -12861,10 +12862,10 @@
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "0.0%",
         "Tech Debt Exposure": "94.07%",
-        "Testing Exposure": "2.37%",
+        "Testing Exposure": "2.38%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 65.44,
+      "Directory Group Magnitude": 69.94,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_15": "100.0%"
       },
@@ -12876,20 +12877,20 @@
     "zig/zls": {
       "Average Risk Exposures": {
         "API Exposure": "35.55%",
-        "Cognitive Load Exposure": "13.68%",
+        "Cognitive Load Exposure": "14.14%",
         "Commented Logic Exposure": "1.86%",
         "Concurrency Exposure": "10.69%",
         "Documentation Exposure": "82.47%",
-        "Error & Exception Exposure": "40.71%",
+        "Error & Exception Exposure": "40.73%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "53.44%",
+        "State Flux Exposure": "53.59%",
         "Tech Debt Exposure": "10.97%",
         "Testing Exposure": "12.12%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 8461.78,
+      "Directory Group Magnitude": 8731.88,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_12": "25.0%",
         "file_cluster_2": "12.5%",

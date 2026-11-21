@@ -3637,7 +3637,7 @@
       "avg_exposures": {
         "api_exposure": 0.59,
         "churn": 0.0,
-        "cognitive_load": 2.08,
+        "cognitive_load": 2.2,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 25.0,
@@ -3650,7 +3650,7 @@
         "verification": 2.32
       },
       "file_count": 4,
-      "total_mass": 135.7
+      "total_mass": 141.3
     },
     "objective-c": {
       "avg_exposures": {
@@ -6905,26 +6905,26 @@
       "avg_exposures": {
         "api_exposure": 9.06,
         "churn": 0.0,
-        "cognitive_load": 19.29,
+        "cognitive_load": 21.52,
         "concurrency": 0.0,
         "dead_code": 2.69,
         "documentation": 33.59,
-        "safety_score": 39.69,
+        "safety_score": 39.74,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
-        "state_flux": 39.76,
+        "state_flux": 39.77,
         "tech_debt": 53.32,
-        "verification": 48.49
+        "verification": 48.5
       },
       "file_count": 5,
-      "total_mass": 3561.86
+      "total_mass": 3755.46
     },
     "zig/mach": {
       "avg_exposures": {
         "api_exposure": 33.68,
         "churn": 0.0,
-        "cognitive_load": 11.79,
+        "cognitive_load": 12.45,
         "concurrency": 1.67,
         "dead_code": 2.38,
         "documentation": 53.4,
@@ -6932,56 +6932,56 @@
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 41.38,
+        "state_flux": 41.04,
         "tech_debt": 45.63,
-        "verification": 41.21
+        "verification": 41.23
       },
       "file_count": 8,
-      "total_mass": 2975.98
+      "total_mass": 3062.78
     },
     "zig/tigerbeetle": {
       "avg_exposures": {
         "api_exposure": 24.44,
         "churn": 0.0,
-        "cognitive_load": 22.32,
+        "cognitive_load": 22.71,
         "concurrency": 0.0,
         "dead_code": 0.4,
         "documentation": 73.39,
-        "safety_score": 49.52,
+        "safety_score": 49.56,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 53.51,
+        "state_flux": 54.17,
         "tech_debt": 16.42,
         "verification": 21.8
       },
       "file_count": 12,
-      "total_mass": 4455.42
+      "total_mass": 4951.82
     },
     "zig/zig": {
       "avg_exposures": {
         "api_exposure": 73.39,
         "churn": 0.0,
-        "cognitive_load": 22.26,
+        "cognitive_load": 23.06,
         "concurrency": 8.31,
         "dead_code": 3.23,
         "documentation": 73.08,
-        "safety_score": 45.82,
+        "safety_score": 45.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 55.5,
+        "state_flux": 55.65,
         "tech_debt": 11.8,
-        "verification": 15.44
+        "verification": 15.45
       },
       "file_count": 6,
-      "total_mass": 37360.96
+      "total_mass": 39509.06
     },
     "zig/zig_std_linux_mips": {
       "avg_exposures": {
         "api_exposure": 11.61,
         "churn": 0.0,
-        "cognitive_load": 4.85,
+        "cognitive_load": 5.19,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
@@ -6991,29 +6991,29 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 94.07,
-        "verification": 2.37
+        "verification": 2.38
       },
       "file_count": 1,
-      "total_mass": 65.44
+      "total_mass": 69.94
     },
     "zig/zls": {
       "avg_exposures": {
         "api_exposure": 35.55,
         "churn": 0.0,
-        "cognitive_load": 13.68,
+        "cognitive_load": 14.14,
         "concurrency": 10.69,
         "dead_code": 1.86,
         "documentation": 82.47,
-        "safety_score": 40.71,
+        "safety_score": 40.73,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 53.44,
+        "state_flux": 53.59,
         "tech_debt": 10.97,
         "verification": 12.12
       },
       "file_count": 8,
-      "total_mass": 8461.78
+      "total_mass": 8731.88
     }
   }
 }

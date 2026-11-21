@@ -12141,14 +12141,15 @@
         "Type Conversions": 3
       },
       "zig/mach/collision.zig": {
-        "Compute Cores": 5,
+        "Compute Cores": 8,
         "Defensive Guards": 4,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 6
+        "Parameter Forwarders": 3
       },
       "zig/mach/graph.zig": {
+        "Compute Cores": 1,
         "Defensive Guards": 14,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 2,
         "State Mutators": 2
       },
       "zig/mach/main.zig": {},
@@ -12161,15 +12162,16 @@
         "Type Conversions": 5
       },
       "zig/mach/testing.zig": {
-        "Compute Cores": 2,
+        "Compute Cores": 3,
         "Defensive Guards": 13,
-        "Generic / Templated Code": 4,
+        "Generic / Templated Code": 3,
         "Parameter Forwarders": 1
       },
       "zig/mach/win32.zig": {
+        "Compute Cores": 1,
         "Generic / Templated Code": 2,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 36,
+        "Parameter Forwarders": 35,
         "State Mutators": 49,
         "Type Conversions": 93
       }
@@ -12235,34 +12237,34 @@
         "Callbacks & Closures": 1
       },
       "zig/tigerbeetle/state_machine.zig": {
-        "Compute Cores": 14,
+        "Compute Cores": 15,
         "Defensive Guards": 8,
         "Generic / Templated Code": 6,
-        "I/O & Config Routines": 8,
+        "I/O & Config Routines": 9,
         "Many-Argument Workhorses": 43,
-        "Parameter Forwarders": 6,
-        "State Mutators": 30,
+        "Parameter Forwarders": 5,
+        "State Mutators": 29,
         "Type Conversions": 13
       }
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": {
-        "Compute Cores": 13,
+        "Compute Cores": 19,
         "Defensive Guards": 88,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 25,
-        "Parameter Forwarders": 30,
+        "Parameter Forwarders": 24,
         "State Mutators": 22,
         "Type Conversions": 2
       },
       "zig/zig/InternPool.zig": {
-        "Compute Cores": 37,
+        "Compute Cores": 40,
         "Defensive Guards": 55,
         "Generic / Templated Code": 11,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 49,
-        "Parameter Forwarders": 179,
+        "Parameter Forwarders": 176,
         "State Mutators": 22,
         "Type Conversions": 82
       },
@@ -12315,9 +12317,10 @@
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": {
+        "Compute Cores": 1,
         "Defensive Guards": 20,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 14,
+        "Parameter Forwarders": 13,
         "State Mutators": 2,
         "Type Conversions": 4
       },
@@ -12338,11 +12341,11 @@
         "State Mutators": 3
       },
       "zig/zls/analysis.zig": {
-        "Compute Cores": 7,
+        "Compute Cores": 8,
         "Defensive Guards": 127,
         "Generic / Templated Code": 7,
         "Many-Argument Workhorses": 16,
-        "Parameter Forwarders": 37,
+        "Parameter Forwarders": 36,
         "State Mutators": 3
       },
       "zig/zls/ast.zig": {

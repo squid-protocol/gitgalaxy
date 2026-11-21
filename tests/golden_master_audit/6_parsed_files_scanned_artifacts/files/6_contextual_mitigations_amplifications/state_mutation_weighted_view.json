@@ -1621,7 +1621,7 @@
     },
     "zig/bun": {
       "zig/bun/MimallocArena.zig": 6,
-      "zig/bun/Parser.zig": 243,
+      "zig/bun/Parser.zig": 249,
       "zig/bun/comptime_string_map.zig": 21,
       "zig/bun/napi.zig": 109
     },
@@ -1630,34 +1630,34 @@
       "zig/mach/StringTable.zig": 3,
       "zig/mach/collision.zig": 155,
       "zig/mach/graph.zig": 52,
-      "zig/mach/module.zig": 50,
+      "zig/mach/module.zig": 48,
       "zig/mach/win32.zig": 3
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": 62,
+      "zig/tigerbeetle/aof.zig": 64,
       "zig/tigerbeetle/build.zig": 61,
       "zig/tigerbeetle/build_multiversion.zig": 13,
-      "zig/tigerbeetle/cluster.zig": 83,
+      "zig/tigerbeetle/cluster.zig": 85,
       "zig/tigerbeetle/copyhound.zig": 21,
       "zig/tigerbeetle/counting_allocator.zig": 15,
       "zig/tigerbeetle/download.sh": 45,
       "zig/tigerbeetle/download.win.ps1": 23,
-      "zig/tigerbeetle/state_machine.zig": 212
+      "zig/tigerbeetle/state_machine.zig": 230
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 442,
+      "zig/zig/Compilation.zig": 444,
       "zig/zig/InternPool.zig": 649,
-      "zig/zig/Sema.zig": 2184,
+      "zig/zig/Sema.zig": 2204,
       "zig/zig/Type.zig": 94,
       "zig/zig/Zcu.zig": 205,
-      "zig/zig/main.zig": 1759
+      "zig/zig/main.zig": 1765
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 27,
       "zig/zls/DocumentStore.zig": 97,
-      "zig/zls/Server.zig": 127,
+      "zig/zls/Server.zig": 129,
       "zig/zls/analysis.zig": 463,
-      "zig/zls/ast.zig": 265,
+      "zig/zls/ast.zig": 269,
       "zig/zls/config_gen.zig": 154,
       "zig/zls/print_ast.zig": 35
     }

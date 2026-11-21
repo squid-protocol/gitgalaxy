@@ -1621,7 +1621,7 @@
     },
     "zig/bun": {
       "zig/bun/MimallocArena.zig": "2 instances",
-      "zig/bun/Parser.zig": "70 instances",
+      "zig/bun/Parser.zig": "73 instances",
       "zig/bun/comptime_string_map.zig": "7 instances",
       "zig/bun/napi.zig": "34 instances"
     },
@@ -1630,34 +1630,34 @@
       "zig/mach/StringTable.zig": "1 instances",
       "zig/mach/collision.zig": "49 instances",
       "zig/mach/graph.zig": "15 instances",
-      "zig/mach/module.zig": "16 instances",
+      "zig/mach/module.zig": "15 instances",
       "zig/mach/win32.zig": "1 instances"
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": "14 instances",
+      "zig/tigerbeetle/aof.zig": "15 instances",
       "zig/tigerbeetle/build.zig": "12 instances",
       "zig/tigerbeetle/build_multiversion.zig": "2 instances",
-      "zig/tigerbeetle/cluster.zig": "18 instances",
+      "zig/tigerbeetle/cluster.zig": "19 instances",
       "zig/tigerbeetle/copyhound.zig": "7 instances",
       "zig/tigerbeetle/counting_allocator.zig": "4 instances",
       "zig/tigerbeetle/download.sh": "12 instances",
       "zig/tigerbeetle/download.win.ps1": "5 instances",
-      "zig/tigerbeetle/state_machine.zig": "47 instances"
+      "zig/tigerbeetle/state_machine.zig": "56 instances"
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": "126 instances",
+      "zig/zig/Compilation.zig": "127 instances",
       "zig/zig/InternPool.zig": "178 instances",
-      "zig/zig/Sema.zig": "630 instances",
+      "zig/zig/Sema.zig": "640 instances",
       "zig/zig/Type.zig": "31 instances",
       "zig/zig/Zcu.zig": "59 instances",
-      "zig/zig/main.zig": "561 instances"
+      "zig/zig/main.zig": "564 instances"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "8 instances",
       "zig/zls/DocumentStore.zig": "24 instances",
-      "zig/zls/Server.zig": "39 instances",
+      "zig/zls/Server.zig": "40 instances",
       "zig/zls/analysis.zig": "150 instances",
-      "zig/zls/ast.zig": "83 instances",
+      "zig/zls/ast.zig": "85 instances",
       "zig/zls/config_gen.zig": "50 instances",
       "zig/zls/print_ast.zig": "11 instances"
     }

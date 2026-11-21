@@ -125,11 +125,11 @@
       "assembly/bootos/os.asm": 11180.03
     },
     "assembly/cosmopolitan": {
-      "assembly/cosmopolitan/BUILD.mk": 9911.75,
-      "assembly/cosmopolitan/ape.S": 9638.19,
-      "assembly/cosmopolitan/loader.c": 9916.86,
-      "assembly/cosmopolitan/notice.inc": 10181.59,
-      "assembly/cosmopolitan/start.S": 9372.77
+      "assembly/cosmopolitan/BUILD.mk": 9912.48,
+      "assembly/cosmopolitan/ape.S": 9638.93,
+      "assembly/cosmopolitan/loader.c": 9917.59,
+      "assembly/cosmopolitan/notice.inc": 10182.32,
+      "assembly/cosmopolitan/start.S": 9373.5
     },
     "assembly/cosmopolitan_runtime": {
       "assembly/cosmopolitan_runtime/argc.S": 7182.57,
@@ -1445,9 +1445,9 @@
       "groovy/godot_android_gradle/java_settings.gradle": -6416.98
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": -9930.48,
-      "groovy/gradle/DefaultProject.java": -9680.01,
-      "groovy/gradle/DefaultTask.java": -9595.04
+      "groovy/gradle/DefaultPluginManager.java": -9930.52,
+      "groovy/gradle/DefaultProject.java": -9680.03,
+      "groovy/gradle/DefaultTask.java": -9595.06
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 6497.68,
@@ -1633,10 +1633,10 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": -7203.88
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 7479.12,
-      "groovy/spock/SpecParser.java": 7784.27,
-      "groovy/spock/SpecRewriter.java": 7683.48,
-      "groovy/spock/SpockTransform.java": 7943.5
+      "groovy/spock/DeepBlockRewriter.java": 7477.73,
+      "groovy/spock/SpecParser.java": 7784.36,
+      "groovy/spock/SpecRewriter.java": 7683.53,
+      "groovy/spock/SpockTransform.java": 7943.6
     },
     "groovy/spock_core_groovy": {
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 5317.83,
@@ -1892,10 +1892,10 @@
       "html/vscode_webviews/workbench.html": -10698.74
     },
     "html/wordpress_blocks": {
-      "html/wordpress_blocks/LICENSE.txt": 9888.79,
-      "html/wordpress_blocks/index.html": 9745.97,
-      "html/wordpress_blocks/page.html": 10000.51,
-      "html/wordpress_blocks/search.html": 10126.24
+      "html/wordpress_blocks/LICENSE.txt": 9889.22,
+      "html/wordpress_blocks/index.html": 9746.39,
+      "html/wordpress_blocks/page.html": 10000.93,
+      "html/wordpress_blocks/search.html": 10126.67
     },
     "java": {
       "java/SOURCES.md": -8893.53
@@ -1908,18 +1908,18 @@
       "java/jenkins_cli/SetBuildDescriptionCommand.java": 3750.56
     },
     "java/selenium_grid_session_queue": {
-      "java/selenium_grid_session_queue/NOTICE": -9847.62,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": -9693.8
+      "java/selenium_grid_session_queue/NOTICE": -9847.99,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": -9694.01
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 9473.61,
-      "java/springboot/Binder.java": 8877.06,
-      "java/springboot/JarLauncher.java": 9006.12,
-      "java/springboot/LICENSE.txt": 8861.9,
-      "java/springboot/OnClassCondition.java": 8635.57,
-      "java/springboot/ServletWebServerApplicationContext.java": 9652.11,
-      "java/springboot/SpringApplication.java": 9163.34,
-      "java/springboot/WebMvcAutoConfiguration.java": 9195.73
+      "java/springboot/AutoConfigurationImportSelector.java": 9473.99,
+      "java/springboot/Binder.java": 8876.65,
+      "java/springboot/JarLauncher.java": 9006.25,
+      "java/springboot/LICENSE.txt": 8862.0,
+      "java/springboot/OnClassCondition.java": 8635.39,
+      "java/springboot/ServletWebServerApplicationContext.java": 9652.54,
+      "java/springboot/SpringApplication.java": 9163.52,
+      "java/springboot/WebMvcAutoConfiguration.java": 9195.94
     },
     "javascript": {
       "javascript/SOURCES.md": -5349.83
@@ -2183,7 +2183,7 @@
       "json/kafka/message/VoteRequest.json": 11510.73
     },
     "kotlin": {
-      "kotlin/SOURCES.md": -10181.75
+      "kotlin/SOURCES.md": -10182.27
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": 4938.84,
@@ -2462,7 +2462,7 @@
       "markdown/kubernetes_client_go/ARCHITECTURE.md": 9935.96
     },
     "matlab": {
-      "matlab/SOURCES.md": 10934.24
+      "matlab/SOURCES.md": 10934.92
     },
     "matlab/eeglab": {
       "matlab/eeglab/README.md": 1243.98,
@@ -3116,8 +3116,8 @@
       "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -8020.35
     },
     "python/pip_vendored_requests": {
-      "python/pip_vendored_requests/LICENSE.txt": 10193.17,
-      "python/pip_vendored_requests/packages.py": 10422.26
+      "python/pip_vendored_requests/LICENSE.txt": 10193.86,
+      "python/pip_vendored_requests/packages.py": 10422.95
     },
     "python/scikit-learn_examples": {
       "python/scikit-learn_examples/COPYING": 2928.86,
@@ -3746,7 +3746,7 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": 8041.97
     },
     "swift": {
-      "swift/SOURCES.md": 7910.93
+      "swift/SOURCES.md": 7911.06
     },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": -5535.95,
@@ -3770,7 +3770,7 @@
       "tabular/csv_erp/test.translation.import.model1-translated.csv": 4933.87
     },
     "tabular/devsecops_payloads": {
-      "tabular/devsecops_payloads/weaponized_export.csv": 8301.14
+      "tabular/devsecops_payloads/weaponized_export.csv": 8301.28
     },
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 9462.8
@@ -3819,13 +3819,13 @@
       "tcl/sqlite/testrunner.tcl": 6697.41
     },
     "tcl/sqlite_core_dml": {
-      "tcl/sqlite_core_dml/LICENSE.md": -10314.61
+      "tcl/sqlite_core_dml/LICENSE.md": -10314.67
     },
     "tcl/sqlite_cte_window": {
       "tcl/sqlite_cte_window/LICENSE.md": -2175.46
     },
     "tcl/sqlite_fts5": {
-      "tcl/sqlite_fts5/LICENSE.md": 10507.77
+      "tcl/sqlite_fts5/LICENSE.md": 10508.19
     },
     "tcl/sqlite_json_triggers": {
       "tcl/sqlite_json_triggers/LICENSE.md": 1269.95
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 811.17
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10676.04
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10676.77
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": -10035.34,

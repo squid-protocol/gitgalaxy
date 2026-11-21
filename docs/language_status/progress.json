@@ -1,5 +1,5 @@
 {
- "commit": "75ea5e342",
+ "commit": "ae4801822",
  "components": {
   "capabilities": {
    "groups": [
@@ -258,13 +258,13 @@
      "unit": "IBM-written scenarios"
     },
     {
-     "done": 16,
+     "done": 22,
      "found": "",
      "group": "Batch",
-     "have": "fixture/scenarios.json: 8 of 8 agree (file has 14); proc/scenarios.json: 8 of 8 agree (file has 46); 147 scenarios in 7 answer files not run on the box",
+     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); proc/scenarios.json: 8 of 8 agree (file has 46); 141 scenarios in 7 answer files not run on the box",
      "name": "JCL on MVS 3.8J (tier 2)",
      "note": "not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS",
-     "of": 16,
+     "of": 22,
      "state": "works",
      "unit": "scenarios agreeing on the box"
     },
@@ -1000,7 +1000,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T02:08:05Z",
+  "as_of": "2026-11-21T02:22:20Z",
   "core": {
    "closed": 253,
    "open": 13,

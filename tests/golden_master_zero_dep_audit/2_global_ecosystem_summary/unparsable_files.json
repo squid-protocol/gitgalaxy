@@ -26,7 +26,7 @@
         "Blocked (Unsupported Extension: '.cff')": 2
       },
       ".cmd": {
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 2
+        "Blocked (ignored directory: build)": 2
       },
       ".cob": {
         "Zero-Density Threshold (LOC: 200, Signals: 0)": 3
@@ -123,7 +123,7 @@
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 1
       },
       ".txt": {
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+        "Blocked (ignored directory: docs)": 1
       },
       ".typed": {
         "Blocked (Unsupported Extension: '.typed')": 1
@@ -143,7 +143,10 @@
       "no_extension": {
         "Blocked (Machine-Generated Source Code Signature: 36288 LOC)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 163,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1,
+        "Blocked (ignored directory: .gitignore)": 1,
+        "Blocked (ignored directory: BUILD)": 1,
+        "Blocked (ignored directory: LICENSE)": 160,
         "Unsupported Format (.undeterminable)": 3
       }
     },

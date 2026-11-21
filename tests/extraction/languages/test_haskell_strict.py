@@ -218,6 +218,27 @@ def test_haskell_regex_execution_symbolic_operator_bug():
     assert pattern.search("makeRegex pat")
 
 
+def test_haskell_bitwise_matches_the_data_bits_operators_8904():
+    """#8904: the rule listed `.&&.` and `.||.`, operators Haskell does not have, so Data.Bits' real `.&.` and `.|.` never matched."""
+    rule = HS_RULES["bitwise_ops"]
+    assert rule.search("x .&. 3")
+    assert rule.search("a .|. b")
+    assert len(rule.findall("(a .&. m) .|. (b .&. n)")) == 3
+    assert rule.search("shiftL x 2") and rule.search("xor a b")  # the intrinsics still count
+    assert not rule.search("x .&&. 3") and not rule.search("a .||. b")  # the old, nonexistent spellings
+    assert not rule.search("xs ++ ys") and not rule.search("f . g")  # composition and append are not bit operators
+
+
+def test_haskell_io_is_an_operation_not_the_io_type_8904():
+    """#8904: `IO` in a signature is a type, not an operation that moves data ("at its invocation", the io contract); it no longer counts."""
+    rule = HS_RULES["io"]
+    assert not rule.search("hs_io :: Int -> IO Int")
+    assert not rule.search("main :: IO ()")
+    assert rule.search("contents <- readFile path")
+    assert rule.search("withFile path ReadMode hGetContents")
+    assert not rule.search("modifyIORef ref f")  # IORef is a mutable cell, not I/O across the program boundary
+
+
 def test_haskell_globals_unsafeperformio_bug():
     """
     Regression test: the trailing `[^=]*` between the IORef/TVar/MVar type

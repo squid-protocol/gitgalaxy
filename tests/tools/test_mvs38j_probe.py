@@ -211,3 +211,40 @@ def test_the_committed_flow_results_cover_every_flow_scenario_and_agree_three_wa
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]
         assert r["unobserved"] == probe.FLOW_UNOBSERVED, r["id"]
     assert [r["id"] for r in got["results"] if r.get("substituted")] == ["concat-read-order"]
+
+
+def test_the_restart_deck_keeps_restart_and_cond_and_overrides_each_procedure_steps_sysin():
+    doc, _ = probe.restart_scenarios()
+    deck = probe.restart_deck(doc["flow_jcl"], "RSTJOB3", {"CALL1.P2": {"rc": 8}})
+    lines = deck.splitlines()
+    assert lines[0] == "//RSTJOB3  JOB (ACCT),'PROC STEP',CLASS=A,MSGCLASS=A,RESTART=CALL1.P2"
+    assert "//P3       EXEC PGM=IDCAMS,COND=(4,LT,P2)" in lines
+    assert (
+        lines.index("//P2.SYSIN DD *") + 1 < len(lines) and lines[lines.index("//P2.SYSIN DD *") + 1] == " SET MAXCC=8"
+    )
+    assert lines[lines.index("//P1.SYSIN DD *") + 1] == " SET MAXCC=0"
+    plain = probe.restart_deck(doc["flow_jcl"], "RSTJOB7", {})
+    assert "//M3       EXEC PGM=IDCAMS,COND=((0,NE,M1),(4,LT,M2))" in plain.splitlines()
+    assert all(len(ln) <= 72 for ln in lines + plain.splitlines())
+
+
+def test_a_restart_step_with_no_record_is_skipped_an_executed_one_run_and_a_cond_bypass_bypass():
+    log = """\
+ IEF142I J1 B - STEP WAS EXECUTED - COND CODE 0008
+ IEF202I J1 C - STEP WAS NOT RUN BECAUSE OF CONDITION CODES
+ IEF272I J1 C - STEP WAS NOT EXECUTED.
+ IEF142I J1 P2 CALL - STEP WAS EXECUTED - COND CODE 0000
+ $HASP395 J1  ENDED
+"""
+    got = probe.observed_restart(runner.parse_log(log), "J1", ["A", "B", "C", "CALL.P2", "CALL.P1"])
+    assert got == {"A": "skipped", "B": "run", "C": "bypass", "CALL.P2": "run", "CALL.P1": "skipped"}
+
+
+def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agree_three_ways():
+    got = json.loads((probe.RESTART_RESULTS).read_text(encoding="utf-8"))
+    assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
+    doc, scs = probe.restart_scenarios()
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 11
+    assert set(got["skipped"]) == {s["id"] for s in doc["scenarios"]} - {s["id"] for s in scs}
+    for r in got["results"]:
+        assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]) == "agree", r["id"]

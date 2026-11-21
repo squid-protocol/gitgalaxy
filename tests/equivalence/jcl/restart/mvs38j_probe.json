@@ -1,0 +1,566 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "tests/equivalence/jcl/restart/scenarios.json",
+ "skipped": {
+  "checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+  "checkpoint-restart-rd-does-not-change-the-steps": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+  "step-restart-if-reads-restart-step": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+  "step-restart-if-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+  "restart-if-referback-false": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+  "restart-if-referback-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+  "restart-star-checkpoint": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+  "procstep-checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)"
+ },
+ "unobserved": [
+  "what a program does (every step is IDCAMS with SET MAXCC)",
+  "a checkpoint restart (SYSCHK, checkid, RD=): not run",
+  "the restart rule for a bare COND=(code,op) over skipped steps (assumption A1): only its outcome on the box is compared"
+ ],
+ "results": [
+  {
+   "id": "step-restart-all-zero",
+   "job": "RSTJOB1",
+   "expect": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "run",
+    "S5": "run"
+   },
+   "engine": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "run",
+    "S5": "run"
+   },
+   "box": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "run",
+    "S5": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "step-restart-cond-names-restart-step",
+   "job": "RSTJOB1",
+   "expect": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "bypass"
+   },
+   "engine": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "bypass"
+   },
+   "box": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "bypass",
+    "S5": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "step-restart-bare-cond-ignores-skipped",
+   "job": "RSTJOB1",
+   "expect": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "run",
+    "S5": "run"
+   },
+   "engine": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "run",
+    "S5": "run"
+   },
+   "box": {
+    "S1": "skipped",
+    "S2": "skipped",
+    "S3": "run",
+    "S4": "run",
+    "S5": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "S3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "S5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0,
+   "assumed": "A1"
+  },
+  {
+   "id": "restart-star-first-step",
+   "job": "RSTJOB2",
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run"
+   },
+   "engine": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run"
+   },
+   "box": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "T1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "restart-star-cond",
+   "job": "RSTJOB2",
+   "expect": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "bypass"
+   },
+   "engine": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "bypass"
+   },
+   "box": {
+    "T1": "run",
+    "T2": "run",
+    "T3": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "T1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "T3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart",
+   "job": "RSTJOB3",
+   "expect": {
+    "U0": "skipped",
+    "CALL1.P1": "skipped",
+    "CALL1.P2": "run",
+    "CALL1.P3": "run",
+    "U5": "run"
+   },
+   "engine": {
+    "U0": "skipped",
+    "CALL1.P1": "skipped",
+    "CALL1.P2": "run",
+    "CALL1.P3": "run",
+    "U5": "run"
+   },
+   "box": {
+    "U0": "skipped",
+    "CALL1.P1": "skipped",
+    "CALL1.P2": "run",
+    "CALL1.P3": "run",
+    "U5": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL1",
+     "procstep": "P2",
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL1",
+     "procstep": "P3",
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "U5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-inside-proc",
+   "job": "RSTJOB3",
+   "expect": {
+    "U0": "skipped",
+    "CALL1.P1": "skipped",
+    "CALL1.P2": "run",
+    "CALL1.P3": "bypass",
+    "U5": "run"
+   },
+   "engine": {
+    "U0": "skipped",
+    "CALL1.P1": "skipped",
+    "CALL1.P2": "run",
+    "CALL1.P3": "bypass",
+    "U5": "run"
+   },
+   "box": {
+    "U0": "skipped",
+    "CALL1.P1": "skipped",
+    "CALL1.P2": "run",
+    "CALL1.P3": "bypass",
+    "U5": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL1",
+     "procstep": "P2",
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL1",
+     "procstep": "P3",
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "CALL1",
+     "procstep": "P3",
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "U5",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "restart-cond-referback-ignored",
+   "job": "RSTJOB6",
+   "expect": {
+    "Z1": "skipped",
+    "Z2": "run",
+    "Z3": "run"
+   },
+   "engine": {
+    "Z1": "skipped",
+    "Z2": "run",
+    "Z3": "run"
+   },
+   "box": {
+    "Z1": "skipped",
+    "Z2": "run",
+    "Z3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "Z2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "Z3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "restart-cond-mixed-tests",
+   "job": "RSTJOB7",
+   "expect": {
+    "M1": "skipped",
+    "M2": "run",
+    "M3": "bypass"
+   },
+   "engine": {
+    "M1": "skipped",
+    "M2": "run",
+    "M3": "bypass"
+   },
+   "box": {
+    "M1": "skipped",
+    "M2": "run",
+    "M3": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "M2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "M3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "M3",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "restart-cond-mixed-tests-run",
+   "job": "RSTJOB7",
+   "expect": {
+    "M1": "skipped",
+    "M2": "run",
+    "M3": "run"
+   },
+   "engine": {
+    "M1": "skipped",
+    "M2": "run",
+    "M3": "run"
+   },
+   "box": {
+    "M1": "skipped",
+    "M2": "run",
+    "M3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "M2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "M3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "restart-step-cond-only-is-false",
+   "job": "RSTJOB8",
+   "expect": {
+    "G1": "skipped",
+    "G2": "run",
+    "G3": "run"
+   },
+   "engine": {
+    "G1": "skipped",
+    "G2": "run",
+    "G3": "run"
+   },
+   "box": {
+    "G1": "skipped",
+    "G2": "run",
+    "G3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "G2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "G3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  }
+ ]
+}

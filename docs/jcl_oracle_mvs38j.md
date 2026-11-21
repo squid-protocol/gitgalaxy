@@ -193,7 +193,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow and GDG slices are done, below): SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG and step-restart slices are done, below): SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios (no fixture has them yet: new scenarios first), the checkpoint restarts (`RSTJOB4` / `11` / `12`, SYSCHK) and `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -285,6 +285,20 @@ Findings (register entries, not edits of `expect` or the evaluator):
 Not observed (`GDG_UNOBSERVED`): what a program reads (every `PGM=` is IEFBR14), the fate of a generation rolled off at LIMIT
 (SCRATCH / NOSCRATCH: only catalog membership is compared), the deferred roll-in state itself, a system-managed group (assumption
 A5: 3.8J has the VSAM-catalog form), and the model DSCB after a base-name delete.
+
+## Probe run (#8414): JOB RESTART= (deferred step restart)
+
+`probe.py restart --printer FILE` runs the eleven `tests/equivalence/jcl/restart` scenarios of the jobs 3.8J can express: `RSTJOB1` (`RESTART=S3`),
+`RSTJOB2` (`RESTART=*`), `RSTJOB3` (`RESTART=CALL1.P2`, a procedure step), `RSTJOB6` / `RSTJOB7` (COND naming a skipped step, a mixed COND) and
+`RSTJOB8` (`COND=ONLY` on the restart step). Every `PGM=` becomes IDCAMS with `SET MAXCC=n` from `given`; a procedure's steps run `SYSIN DD DUMMY`
+and the call overrides each `procstep.SYSIN`. The JOB card keeps `RESTART=` and every COND stays as written. The log gives each step one of
+`skipped` (no step record: the box did not start it and did not bypass it), `run` (`IEF142I`) or `bypass` (`IEF202I`).
+`tests/equivalence/jcl/restart/mvs38j_probe.json` holds `expect` (IBM text), `engine` (`jcl_restart.restart_flow`) and `box`.
+Run 2026-11-21: **11 of 11 agree three ways**, `unparsed_ief` 0, no JCL error. Notably the box ignores a `COND` stepname that names a skipped
+step (`RSTJOB6` Z3 runs) and a bare `COND=(0,NE)` reads only the steps that ran (assumption A1 on its outcome: S5 runs). Internal only (Q16).
+
+Skipped, with the reason in the file: the checkpoint restarts (`RSTJOB4`, `11`, `12`: a SYSCHK dataset from a checkpointed run is needed) and the
+IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. Not observed: what a program does (every step is IDCAMS).
 
 ## What this tier cannot test
 

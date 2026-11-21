@@ -450,3 +450,40 @@ _BRANCH_COUNT_CASES = [
 def test_branch_counts_match_only_as_statement_8034(lang, source, expected):
     rule = LANGUAGE_DEFINITIONS[lang]["rules"]["branch"]
     assert len(rule.findall(source)) == expected, source
+
+
+# #8861: bitwise_ops counts the contract's and / or operators, one case per function.
+@pytest.mark.parametrize(
+    "src",
+    [
+        "m = a & b",
+        "m = a | b",
+        "m &= 0xFF",
+        "m |= flag",
+        "m ^= key",
+        "m = ~a",
+        "m = a >> 3",
+        "m = {**a} | b",
+    ],
+)
+def test_python_bitwise_ops_counts_operators(src):
+    assert PY_RULES["bitwise_ops"].search(src)
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "def f(x: str | None) -> None: ...",
+        "def f(x: None | str): ...",
+        "def f() -> int | None: ...",
+        "y = x < 2 and z > 1",
+        "f = lambda x: x + 1",
+    ],
+)
+def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
+    assert not PY_RULES["bitwise_ops"].search(src)
+
+
+def test_python_bitwise_ops_string_content_still_counts_documented():
+    """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
+    assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')

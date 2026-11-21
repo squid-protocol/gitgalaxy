@@ -549,8 +549,20 @@ DEFINITION: dict[str, Any] = {
             r"|\bbcrypt\.checkpw\("
             r"|(?<!def )\bauthenticate\("
         ),
+        # serialization_parsing (#8882): the contract is every structured-interchange codec
+        # (JSON, YAML, XML, CSV, protobuf, marshal/pickle), encode AND decode, not only the
+        # unsafe-deserialization subset (that stays safety_bypasses' `pickle.loads?`).
+        # Call-anchored on the module/receiver name, so `myjson.loads` and `json_data` miss.
         "serialization_parsing": re.compile(
-            r"\b(pickle\.loads?|pickle\.Unpickler|marshal\.loads?|ast\.literal_eval)\b"
+            r"\b(?:json|ujson|orjson|simplejson)\.(?:loads?|dumps?)\b"
+            r"|\byaml\.(?:safe_|full_|unsafe_)?(?:load|load_all|dump|dump_all)\b"
+            r"|\b(?:ElementTree|ET|etree|minidom)\.(?:parse|fromstring|tostring|XML|parseString)\b"
+            r"|\bcsv\.(?:reader|writer|DictReader|DictWriter)\b"
+            r"|\.(?:ParseFromString|SerializeToString)\("
+            r"|\bjson_format\.(?:MessageToJson|MessageToDict|Parse|ParseDict)\b"
+            r"|\b(?:pickle|marshal)\.(?:loads?|dumps?)\b"
+            r"|\bpickle\.Unpickler\b"
+            r"|\bast\.literal_eval\b"
         ),
         "regex_execution": re.compile(r"\b(re\.compile|re\.search|re\.match|re\.sub|re\.findall|re\.split)\b"),
         "time_date_logic": re.compile(r"\b(datetime\.datetime|timedelta|time\.sleep|time\.time|calendar)\b"),

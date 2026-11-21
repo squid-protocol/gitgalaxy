@@ -487,3 +487,48 @@ def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
 def test_python_bitwise_ops_string_content_still_counts_documented():
     """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
     assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+
+
+# serialization_parsing (#8882): every interchange codec the contract names, encode and decode.
+@pytest.mark.parametrize(
+    "code",
+    [
+        "return json.dumps(x)",
+        "return json.loads(s)",
+        "json.load(fh)",
+        "json.dump(x, fh)",
+        "x = orjson.dumps(v)",
+        "cfg = yaml.safe_load(fh)",
+        "yaml.safe_dump(cfg)",
+        "yaml.dump(cfg)",
+        "root = ET.fromstring(text)",
+        "tree = ElementTree.parse(path)",
+        "doc = minidom.parseString(text)",
+        "r = csv.reader(fh)",
+        "w = csv.DictWriter(fh, fields)",
+        "msg.ParseFromString(raw)",
+        "raw = msg.SerializeToString()",
+        "json_format.MessageToJson(msg)",
+        "blob = pickle.dumps(obj)",
+        "blob = marshal.dumps(code)",
+        "data = pickle.loads(raw)",
+        "v = ast.literal_eval(s)",
+    ],
+)
+def test_python_serialization_parsing_covers_the_contract_formats(code):
+    assert PY_RULES["serialization_parsing"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "json_data = x",
+        "y = myjson.loads(s)",
+        "yaml_file = 'a.yaml'",
+        "csv_reader_cfg = {}",
+        "import json",
+        "ET_count = 3",
+    ],
+)
+def test_python_serialization_parsing_ignores_non_calls(code):
+    assert not PY_RULES["serialization_parsing"].search(code), code

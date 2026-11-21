@@ -191,11 +191,27 @@
         "file": "UNVALIDATED",
         "function": "DRIFTING"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9339,
+        "composition_repo": null,
+        "file": null,
+        "function": 0.9499
+      },
+      "date": "2026-11-21",
+      "engine_commit": "103a1231",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "UNVALIDATED",
+        "function": "DEGRADED"
+      }
     }
   ],
   "levels": {
     "composition_file": {
-      "agreement": 0.9571,
+      "agreement": 0.9339,
       "eroding": {
         "Callbacks & Closures Files": {
           "files": 43,
@@ -210,32 +226,47 @@
         "Declarative / Non-Code": {
           "files": 618,
           "mostly_to": "Large Core Modules",
-          "retained": 0.9579
+          "retained": 0.9531
         },
         "Encapsulated Accessors Files": {
           "files": 53,
           "mostly_to": "Large Core Modules (2)",
           "retained": 0.8302
         },
+        "Generic / Templated Code Files": {
+          "files": 65,
+          "mostly_to": "Large Core Modules (2)",
+          "retained": 0.8923
+        },
         "Interface Declarations Files": {
           "files": 397,
           "mostly_to": "Large Core Modules",
-          "retained": 0.9773
+          "retained": 0.9446
         },
         "Large Core Modules": {
           "files": 304,
           "mostly_to": "Interface Declarations Files",
           "retained": 0.9211
         },
+        "Large Core Modules (2)": {
+          "files": 234,
+          "mostly_to": "Large Core Modules (3)",
+          "retained": 0.9615
+        },
         "Large Core Modules (3)": {
           "files": 292,
           "mostly_to": "Interface Declarations Files",
-          "retained": 0.9007
+          "retained": 0.8836
         },
         "Many-Argument Workhorses Files": {
           "files": 70,
           "mostly_to": "Large Core Modules (2)",
           "retained": 0.8857
+        },
+        "Parameter Forwarders Files": {
+          "files": 145,
+          "mostly_to": "Large Core Modules (2)",
+          "retained": 0.7931
         },
         "State Mutators Files": {
           "files": 46,
@@ -244,7 +275,7 @@
         }
       },
       "files_compared": 2725,
-      "fit_shift": -0.106
+      "fit_shift": -0.095
     },
     "composition_repo": {
       "crucible_label": {
@@ -254,22 +285,27 @@
       "inherits": "composition_file"
     },
     "file": {
-      "agreement": 0.9633,
+      "agreement": 0.927,
       "eroding": {
+        "file_cluster_0": {
+          "files": 90,
+          "mostly_to": "file_cluster_13",
+          "retained": 0.8889
+        },
+        "file_cluster_11": {
+          "files": 424,
+          "mostly_to": "file_cluster_13",
+          "retained": 0.9104
+        },
         "file_cluster_12": {
           "files": 206,
-          "mostly_to": "file_cluster_11",
-          "retained": 0.8981
-        },
-        "file_cluster_13": {
-          "files": 76,
-          "mostly_to": "file_cluster_15",
-          "retained": 0.9737
+          "mostly_to": "file_cluster_13",
+          "retained": 0.8932
         },
         "file_cluster_15": {
           "files": 285,
-          "mostly_to": "file_cluster_10",
-          "retained": 0.9789
+          "mostly_to": "file_cluster_13",
+          "retained": 0.7719
         },
         "file_cluster_16": {
           "files": 36,
@@ -283,8 +319,8 @@
         },
         "file_cluster_5": {
           "files": 65,
-          "mostly_to": "file_cluster_0",
-          "retained": 0.9385
+          "mostly_to": "file_cluster_12",
+          "retained": 0.9231
         },
         "file_cluster_6": {
           "files": 55,
@@ -310,7 +346,7 @@
       "files_compared": 2725
     },
     "function": {
-      "agreement": 0.9657,
+      "agreement": 0.9499,
       "eroding": {
         "C Struct Operations": {
           "functions": 82,
@@ -318,23 +354,35 @@
         },
         "Defensive Guards": {
           "functions": 3651,
-          "retained": 0.9759
+          "retained": 0.9677
         },
         "Encapsulated Accessors": {
           "functions": 2135,
-          "retained": 0.8557
+          "retained": 0.8539
+        },
+        "Generic / Templated Code": {
+          "functions": 2507,
+          "retained": 0.9617
         },
         "I/O & Config Routines": {
           "functions": 7440,
-          "retained": 0.9255
+          "retained": 0.9254
+        },
+        "Interface Declarations": {
+          "functions": 7837,
+          "retained": 0.9624
+        },
+        "Parameter Forwarders": {
+          "functions": 5094,
+          "retained": 0.9142
         },
         "State Mutators": {
           "functions": 3313,
-          "retained": 0.9339
+          "retained": 0.9333
         },
         "Stateful Encapsulated Methods": {
           "functions": 2506,
-          "retained": 0.8607
+          "retained": 0.8595
         }
       },
       "functions_compared": 43654
@@ -343,8 +391,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "f32857e6",
-    "measured_at": "2026-11-07"
+    "engine_commit": "103a1231",
+    "measured_at": "2026-11-21"
   },
   "retrain_issue": 8012,
   "schema": 1,

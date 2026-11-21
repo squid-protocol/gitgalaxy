@@ -3213,7 +3213,7 @@
       "rust/bevy/LICENSE-APACHE": "Data / Markup / Trivial",
       "rust/bevy/LICENSE-MIT": "Data / Markup / Trivial",
       "rust/bevy/bevy_ecs_macros.rs": "Generic / Templated Code Files",
-      "rust/bevy/bevy_ecs_query.rs": "Generic / Templated Code Files",
+      "rust/bevy/bevy_ecs_query.rs": "Large Core Modules (2)",
       "rust/bevy/bevy_ecs_table.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_ecs_world.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_reflect_path.rs": "Generic / Templated Code Files",

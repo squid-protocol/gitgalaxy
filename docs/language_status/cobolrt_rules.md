@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-194 rules: 95 MATCHED, 30 DIFFERS, 14 REFUSED, 55 ASSUMED; 0 measured on z/OS (#4702).
+194 rules: 96 MATCHED, 30 DIFFERS, 14 REFUSED, 54 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -251,12 +251,12 @@ The date / time services, COBDATFT and MVSWAIT, as the harness's C models do the
 | RT-LE-FEEDBACK-CODE | The 12-byte feedback code: all zero for success, else severity 3, the message number, case / severity / control and 'CEE'; what the model does not model refused by name | `le-pr` Feedback codes and conditions | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-LILIAN | Lilian day 1 is 15 October 1582 (Gregorian leap years); Lilian second 86400 is 00:00:00 on that day; a seconds item travels by value in its own usage (COMP-2: HFP on z/OS) | `le-pr` CEEDAYS: Lilian date | - | L6 (MATCHED / ASSUMED / REFUSED); C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | MATCHED | uncalibrated |
 | RT-LE-PICTURE-STRING | Picture strings: the date / time terms LE documents, formatted and parsed; any other term refused by name | `le-pr` Picture character terms and picture strings | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
-| RT-LE-VSTRING | A VSTRING result: halfword length then the text, the rest of the item untouched | `le-pr` Data type definitions: VSTRING | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
-| RT-LE-CEEGMT | CEEGMT / CEEUTC: the run's clock is GMT; Lilian day and seconds | `le-pr` CEEGMT: get current Greenwich Mean Time | - | L6 (MATCHED / ASSUMED / REFUSED); X4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-LE-VSTRING | A VSTRING result: halfword length then the text, the rest of the item untouched | `le-pr` Data type definitions: VSTRING (COBOL: STRING-OUT PIC X(80)); CEEDATE / CEEDATM output_char_date | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
+| RT-LE-CEEGMT | CEEGMT / CEEUTC: the run's clock is GMT; Lilian day and seconds | `le-pr` CEEGMT: get current Greenwich Mean Time (CEEUTC alias) | - | L6 (MATCHED / ASSUMED / REFUSED); X4 (ASSUMED) | MATCHED | uncalibrated |
 | RT-LE-CEEGMTO | CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock | `le-pr` CEEGMTO: get offset from Greenwich Mean Time to local time | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
-| RT-LE-DSNTIAC | DSNTIAC: formats an SQLCA into message lines (a stand-in; the text is unproven) | `db2-app` DSNTIAC: the CICS interface to DSNTIAR | - | Q5 (STAND-IN) | ASSUMED | uncalibrated |
-| RT-LE-ZUIDSTCK | ZUIDSTCK: the 16 TOD bytes are a stated input of the run, opaque to the program (a stand-in; never the host clock) | `zarch-pop` STORE CLOCK EXTENDED | - | X47 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
-| RT-LE-CEEQCEN | CEEQCEN / CEESCEN: the century window's start (80 by default; CEESCEN sets 0 to 100, else CEE2533) | `le-pr` CEEQCEN: query the century window | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
+| RT-LE-DSNTIAC | DSNTIAC: formats an SQLCA into message lines (a stand-in; the text is unproven) | `db2-app` Displaying SQLCA fields by calling DSNTIAR; DSNTIAC (assembler and COBOL syntax) | - | Q5 (STAND-IN) | ASSUMED | uncalibrated |
+| RT-LE-ZUIDSTCK | ZUIDSTCK: the 16 TOD bytes are a stated input of the run, opaque to the program (a stand-in; never the host clock) | `zarch-pop` STORE CLOCK EXTENDED (STCKE): the 16-byte operand | - | X47 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
+| RT-LE-CEEQCEN | CEEQCEN / CEESCEN: the century window's start (80 by default; CEESCEN sets 0 to 100, else CEE2533) | `le-pr` CEEQCEN: query the century window; CEESCEN: set the century window | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
 | RT-LE-CEEDATE | CEEDATE: a Lilian day as a character date by a picture string | `le-pr` CEEDATE: convert Lilian date to character format | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEEDATM | CEEDATM: Lilian seconds as a character timestamp by a picture string | `le-pr` CEEDATM: convert seconds to character timestamp | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEESECS | CEESECS: a character timestamp to Lilian seconds, its range checked (31 December 9999 23:59:59.999 the last) | `le-pr` CEESECS: convert timestamp to seconds | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |

@@ -1,5 +1,5 @@
 {
- "commit": "ffadb5f3c",
+ "commit": "9d75839a7",
  "components": {
   "capabilities": {
    "groups": [
@@ -148,7 +148,7 @@
      "unit": "rules match IBM"
     },
     {
-     "done": 12,
+     "done": 13,
      "found": "",
      "group": "Data and messaging",
      "have": "date, time and condition services",
@@ -395,8 +395,8 @@
      "REFUSED": 1
     },
     "LE": {
-     "ASSUMED": 7,
-     "MATCHED": 12
+     "ASSUMED": 6,
+     "MATCHED": 13
     },
     "MQ": {
      "ASSUMED": 5,
@@ -426,9 +426,9 @@
    "measured_on_zos": 0,
    "rules": 194,
    "status": {
-    "ASSUMED": 55,
+    "ASSUMED": 54,
     "DIFFERS": 30,
-    "MATCHED": 95,
+    "MATCHED": 96,
     "REFUSED": 14
    }
   },
@@ -1000,7 +1000,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T05:52:22Z",
+  "as_of": "2026-11-21T06:16:33Z",
   "core": {
    "closed": 253,
    "open": 13,

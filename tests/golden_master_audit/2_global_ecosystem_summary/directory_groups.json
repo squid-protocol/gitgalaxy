@@ -2003,7 +2003,7 @@
       "avg_exposures": {
         "api_exposure": 10.33,
         "churn": 0.0,
-        "cognitive_load": 30.92,
+        "cognitive_load": 30.93,
         "concurrency": 38.79,
         "dead_code": 1.76,
         "documentation": 98.74,
@@ -2016,7 +2016,7 @@
         "verification": 80.0
       },
       "file_count": 3,
-      "total_mass": 1074.68
+      "total_mass": 1076.08
     },
     "groovy/gradle_buildlogic_groovy": {
       "avg_exposures": {
@@ -2155,7 +2155,7 @@
       "avg_exposures": {
         "api_exposure": 2.99,
         "churn": 0.0,
-        "cognitive_load": 33.55,
+        "cognitive_load": 36.1,
         "concurrency": 0.0,
         "dead_code": 1.3,
         "documentation": 92.86,
@@ -2168,7 +2168,7 @@
         "verification": 60.61
       },
       "file_count": 4,
-      "total_mass": 767.32
+      "total_mass": 809.52
     },
     "groovy/spock_core_groovy": {
       "avg_exposures": {
@@ -2763,7 +2763,7 @@
       "avg_exposures": {
         "api_exposure": 3.38,
         "churn": 0.0,
-        "cognitive_load": 9.62,
+        "cognitive_load": 9.98,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
@@ -2776,13 +2776,13 @@
         "verification": 1.19
       },
       "file_count": 2,
-      "total_mass": 61.74
+      "total_mass": 63.14
     },
     "java/springboot": {
       "avg_exposures": {
         "api_exposure": 4.16,
         "churn": 0.0,
-        "cognitive_load": 14.47,
+        "cognitive_load": 15.0,
         "concurrency": 10.9,
         "dead_code": 0.0,
         "documentation": 59.79,
@@ -2795,7 +2795,7 @@
         "verification": 50.59
       },
       "file_count": 8,
-      "total_mass": 1602.44
+      "total_mass": 1637.74
     },
     "javascript": {
       "avg_exposures": {

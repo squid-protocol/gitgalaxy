@@ -2740,7 +2740,7 @@
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "94429b4b6cd34e66fa46b25b429216bc797fedf56bd615de2a68eea86b6e8ef2",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "49a25bf04f7230f60c5c305111f7ec162fa58a1248ddcadb34b0bc9a6c8661a5"
+   "survivors": "cfc14881a611cc9612b41e15b3b2cfcfd0c298ac71dfe0740dab9e08f6bc6b49"
   },
   "components": {
    "generator": {

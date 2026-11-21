@@ -7,16 +7,16 @@
     "Callbacks & Closures Files": "1.9% (65)",
     "Compute Cores Files": "2.2% (73)",
     "Data / Markup / Trivial": "20.5% (691)",
-    "Declarative / Non-Code": "21.4% (719)",
-    "Encapsulated Accessors Files": "1.5% (50)",
-    "Generic / Templated Code Files": "2.2% (73)",
-    "Interface Declarations Files": "12.9% (434)",
-    "Large Core Modules": "10.4% (349)",
-    "Large Core Modules (2)": "7.8% (262)",
-    "Large Core Modules (3)": "8.9% (299)",
+    "Declarative / Non-Code": "21.6% (727)",
+    "Encapsulated Accessors Files": "1.5% (51)",
+    "Generic / Templated Code Files": "2.2% (75)",
+    "Interface Declarations Files": "12.6% (423)",
+    "Large Core Modules": "10.7% (361)",
+    "Large Core Modules (2)": "8.4% (283)",
+    "Large Core Modules (3)": "8.9% (298)",
     "Many-Argument Workhorses Files": "2.3% (76)",
-    "Parameter Forwarders Files": "5.4% (180)",
+    "Parameter Forwarders Files": "4.4% (149)",
     "State Mutators Files": "2.3% (77)",
-    "Type Conversions Files": "0.5% (16)"
+    "Type Conversions Files": "0.4% (15)"
   }
 }

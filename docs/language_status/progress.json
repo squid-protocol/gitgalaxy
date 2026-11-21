@@ -1,5 +1,5 @@
 {
- "commit": "1b49e1636",
+ "commit": "7f4759088",
  "components": {
   "capabilities": {
    "groups": [
@@ -618,6 +618,9 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 6090,
+     "closed": 3,
+     "closed_caught": 310,
+     "closed_survived": 129,
      "equivalent": 2249,
      "l5": 3,
      "measured": 25,
@@ -632,6 +635,9 @@
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5065,
+     "closed": 0,
+     "closed_caught": 0,
+     "closed_survived": 0,
      "equivalent": 288,
      "l5": 0,
      "measured": 10,
@@ -646,6 +652,9 @@
     },
     "cics-banking-sample-application-cbsa": {
      "caught": 1948,
+     "closed": 4,
+     "closed_caught": 1227,
+     "closed_survived": 976,
      "equivalent": 1582,
      "l5": 4,
      "measured": 8,
@@ -660,6 +669,9 @@
     },
     "cics-genapp": {
      "caught": 2711,
+     "closed": 0,
+     "closed_caught": 0,
+     "closed_survived": 0,
      "equivalent": 1014,
      "l5": 0,
      "measured": 11,
@@ -674,6 +686,9 @@
     },
     "dbb-mortgage-application": {
      "caught": 322,
+     "closed": 0,
+     "closed_caught": 0,
+     "closed_survived": 0,
      "equivalent": 6,
      "l5": 0,
      "measured": 2,
@@ -688,6 +703,9 @@
     },
     "example-health-apis": {
      "caught": 0,
+     "closed": 0,
+     "closed_caught": 0,
+     "closed_survived": 0,
      "equivalent": 0,
      "l5": 0,
      "measured": 0,
@@ -702,6 +720,9 @@
     },
     "zecs": {
      "caught": 1178,
+     "closed": 1,
+     "closed_caught": 240,
+     "closed_survived": 252,
      "equivalent": 826,
      "l5": 1,
      "measured": 4,
@@ -717,6 +738,9 @@
    },
    "total": {
     "caught": 17314,
+    "closed": 8,
+    "closed_caught": 1777,
+    "closed_survived": 1357,
     "equivalent": 5965,
     "l5": 8,
     "measured": 60,
@@ -1043,7 +1067,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T16:07:38Z",
+  "as_of": "2026-11-21T16:37:39Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1524,6 +1548,24 @@
      "programs": 44
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [
+      "TRANREPT"
+     ],
+     "jobs": 55,
+     "levels": {
+      "S0": 55,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 42
    },
    "cics-async-api-credit-card-application-example": {
@@ -1558,6 +1600,22 @@
      "programs": 10
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [],
+     "jobs": 0,
+     "levels": {
+      "S0": 0,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 10
    },
    "cics-banking-sample-application-cbsa": {
@@ -1592,6 +1650,22 @@
      "programs": 31
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [],
+     "jobs": 46,
+     "levels": {
+      "S0": 46,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 31
    },
    "cics-genapp": {
@@ -1626,6 +1700,22 @@
      "programs": 31
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [],
+     "jobs": 29,
+     "levels": {
+      "S0": 29,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 31
    },
    "dbb-mortgage-application": {
@@ -1660,6 +1750,22 @@
      "programs": 6
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [],
+     "jobs": 3,
+     "levels": {
+      "S0": 3,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 5
    },
    "example-health-apis": {
@@ -1694,6 +1800,22 @@
      "programs": 29
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [],
+     "jobs": 16,
+     "levels": {
+      "S0": 16,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 28
    },
    "zecs": {
@@ -1728,6 +1850,22 @@
      "programs": 7
     },
     "stale": 0,
+    "system": {
+     "chain_proven": [],
+     "job_cases": [],
+     "jobs": 10,
+     "levels": {
+      "S0": 10,
+      "S1": null,
+      "S2": 0,
+      "S3": null,
+      "S4": null
+     },
+     "measured": [
+      "S0",
+      "S2"
+     ]
+    },
     "translated_whole": 7
    }
   },
@@ -1847,6 +1985,7 @@
   "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
   "ladder": "docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch)",
   "mutation": "docs/language_status/mutation_scores.json",
-  "rules": "docs/language_status/cobolrt_rules.json"
+  "rules": "docs/language_status/cobolrt_rules.json",
+  "system": "S0: the estate's JCL jobs (estate_size.py jcl_jobs); job cases: tests/equivalence/jobs/*.json (#4268); S2 counts a job only from a recorded chain proof, and no CI job records one yet (the det sweep proves step cases); S1, S3, S4 are not measured (#8888)"
  }
 }

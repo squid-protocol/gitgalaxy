@@ -249,13 +249,12 @@ def render_summary_svg(
             rows.append((med, fam, got))
     rows.sort(key=lambda r: (r[0], r[1].key))  # worst first: the reader sees the problems first
 
-    left, label_w, cw, ch, cgap = 16, 188, 60, 18, 2
+    left, label_w, cw, ch, cgap = 16, 188, 40, 18, 2
     gx = left + label_w
     table_w = len(langs) * (cw + cgap)
-    right_x = gx + table_w + 40
-    width = max(right_x + 340, 1060)
-    top_a = 150
-    height = top_a + (ch + cgap) * len(rows) + 130
+    width = max(gx + table_w + 16, 880)  # about the width GitHub shows a README image at: the text must stay readable
+    top_a = 200
+    height = top_a + (ch + cgap) * len(rows) + 250
     p = _svg_open(width, height)
     p.append(f'<text class="title" x="{left}" y="24">Keyword families: how much is checked, and how well</text>')
     p.append(
@@ -280,13 +279,13 @@ def render_summary_svg(
         text = f"{_fmt_int(n)} {label}"
         p.append(f'<text class="legend" x="{lx + 14}" y="{bar_y + 32}">{escape(text)}</text>')
         lx += 22 + int(len(text) * 5.6)
-    # panel A: parser table
+    # panel A: parser table, language names rotated so 15+ columns stay narrow
     p.append(
-        f'<text class="h" x="{left}" y="{top_a - 34}">Measured against a parser: the lower of recall and precision, in %</text>'
+        f'<text class="h" x="{left}" y="{top_a - 80}">Measured against a parser: the lower of recall and precision, in %</text>'
     )
     for i, lang in enumerate(langs):
-        cx = gx + i * (cw + cgap) + cw / 2
-        p.append(f'<text class="lang" x="{cx:.0f}" y="{top_a - 8}" text-anchor="middle">{escape(lang)}</text>')
+        cx = gx + i * (cw + cgap) + cw / 2 + 4
+        p.append(f'<text class="lang" transform="translate({cx:.0f},{top_a - 8}) rotate(-90)">{escape(lang)}</text>')
     y = top_a
     for _med, fam, got in rows:
         label = fam.key + (" (draft)" if fam.status == "draft" else "")
@@ -307,7 +306,7 @@ def render_summary_svg(
                 stroke = f' stroke="{FAIL}" stroke-width="1.6"' if b == 0 else ""
                 p.append(f'<rect x="{x0}" y="{y}" width="{cw}" height="{ch}" fill="{BIN_FILLS[b]}"{stroke}/>')
                 bright = b == 4
-                dagger = "" if cell["pinned"] else "†"
+                dagger = "" if cell["pinned"] else "\u2020"
                 p.append(
                     f'<text class="{"numd" if bright else "num"}" x="{x0 + cw / 2}" y="{y + 13}">{pct}{dagger}</text>'
                 )
@@ -317,57 +316,59 @@ def render_summary_svg(
             elif state == "empty":
                 p.append(f'<text class="dim" x="{x0 + cw / 2}" y="{y + 13}">\N{EN DASH}</text>')
             elif state in ("untested", "decoy"):
-                p.append(f'<text class="dim" x="{x0 + cw / 2}" y="{y + 13}">·</text>')
+                p.append(f'<text class="dim" x="{x0 + cw / 2}" y="{y + 13}">\N{MIDDLE DOT}</text>')
         y += ch + cgap
     ya = y + 12
-    p.append(
-        f'<text class="note" x="{left}" y="{ya}">R = the family misses constructs the parser sees; P = it fires where the parser sees none. † corpus not pinned (exploratory).</text>'
+    key_lines = (
+        "R = the family misses constructs the parser sees; P = it fires where the parser sees none. \u2020 corpus not pinned (exploratory).",
+        f"Dashed grey italic: under {SMALL_N} functions. \N{MIDDLE DOT} not tested yet. \N{EN DASH} tested, construct never occurs. Rows worst first.",
+        "Draft = the family's contract is a draft.",
     )
-    p.append(
-        f'<text class="note" x="{left}" y="{ya + 14}">Dashed grey italic: under {SMALL_N} functions. · not tested yet. \N{EN DASH} tested, the construct never occurs. Rows worst first. Draft = the contract is a draft.</text>'
-    )
+    for k, line in enumerate(key_lines):
+        p.append(f'<text class="note" x="{left}" y="{ya + k * 13}">{escape(line)}</text>')
     kx = float(left)
     for i, label in enumerate(BIN_LABELS):
         stroke = f' stroke="{FAIL}" stroke-width="1.4"' if i == 0 else ""
-        p.append(f'<rect x="{kx:.0f}" y="{ya + 24}" width="12" height="9" fill="{BIN_FILLS[i]}"{stroke}/>')
-        p.append(f'<text class="legend" x="{kx + 16:.0f}" y="{ya + 32}">{label}</text>')
+        p.append(f'<rect x="{kx:.0f}" y="{ya + 44}" width="12" height="9" fill="{BIN_FILLS[i]}"{stroke}/>')
+        p.append(f'<text class="legend" x="{kx + 16:.0f}" y="{ya + 52}">{label}</text>')
         kx += 28 + len(label) * 5.6
-    # panel B: decoy test
-    bx, bw = right_x, width - right_x - left
-    p.append(f'<text class="h" x="{bx}" y="{top_a - 34}">Decoy test (no parser needed)</text>')
+    # panel B: decoy test, below the table
+    yb = ya + 86
+    p.append(f'<text class="h" x="{left}" y="{yb}">Decoy test (no parser needed)</text>')
     p.append(
-        f'<text class="note" x="{bx}" y="{top_a - 20}">Each family keyword planted in a comment and in a string</text>'
+        f'<text class="note" x="{left}" y="{yb + 15}">Each family keyword planted in a comment and in a string literal, in {len(decoys)} languages.</text>'
     )
-    p.append(f'<text class="note" x="{bx}" y="{top_a - 7}">literal, in {len(decoys)} languages.</text>')
-    by = top_a + 4
+    bar_w2 = 330
+    by = yb + 28
     for label, n, tot, accent in (
         ("In a comment: ignored", dt_["comment_ignored"], dt_["comment_total"], False),
         ("In a string literal: counted", dt_["string_counted"], dt_["string_total"], True),
     ):
-        p.append(f'<text class="big" x="{bx}" y="{by + 10}">{label}</text>')
-        w = bw * (n / tot if tot else 0)
-        p.append(f'<rect x="{bx}" y="{by + 18}" width="{bw}" height="14" fill="{TRACK}"/>')
-        p.append(f'<rect x="{bx}" y="{by + 18}" width="{w:.1f}" height="14" fill="{FAIL if accent else NEUTRAL}"/>')
-        p.append(f'<text class="legend" x="{bx}" y="{by + 46}">{_fmt_int(n)} of {_fmt_int(tot)} cells</text>')
-        by += 70
+        p.append(f'<text class="big" x="{left}" y="{by + 10}">{label}</text>')
+        w = bar_w2 * (n / tot if tot else 0)
+        p.append(f'<rect x="{left}" y="{by + 16}" width="{bar_w2}" height="14" fill="{TRACK}"/>')
+        p.append(f'<rect x="{left}" y="{by + 16}" width="{w:.1f}" height="14" fill="{FAIL if accent else NEUTRAL}"/>')
+        p.append(
+            f'<text class="legend" x="{left + bar_w2 + 10}" y="{by + 27}">{_fmt_int(n)} of {_fmt_int(tot)} cells</text>'
+        )
+        by += 44
+    nx = left + bar_w2 + 130
     notes = (
-        "Comments are stripped before any family is counted, as designed.",
-        "Strings are not: a keyword inside a string counts like code. That is",
-        "documented behaviour (issue #2535), but it conflicts with the families'",
-        "written contracts, so it is a decision for the maintainers, not a fix.",
+        "Comments are stripped before any family is counted,",
+        "as designed. Strings are not: a keyword inside a string",
+        "counts like code. That is documented behaviour (issue",
+        "#2535), but it conflicts with the families' written",
+        "contracts, so it is a decision for the maintainers.",
     )
     for i, line in enumerate(notes):
-        p.append(f'<text class="note" x="{bx}" y="{by + 4 + i * 13}">{escape(line)}</text>')
-    by += 70
+        p.append(f'<text class="note" x="{nx}" y="{yb + 30 + i * 13}">{escape(line)}</text>')
     for i, line in enumerate(
         (
-            "One repository per language; the parser's reading is our interpretation",
-            "of each family's contract, not ground truth. Cells are measurements on",
-            "one corpus, not proof a family is right everywhere.",
-            "Full 73 x 71 matrix: docs/self_scan/family_validity_matrix.svg",
+            "One repository per language; the parser's reading is our interpretation of each family's contract, not ground truth.",
+            "Cells are measurements on one corpus, not proof a family is right everywhere. Full 73 x 71 matrix: docs/self_scan/family_validity_matrix.svg",
         )
     ):
-        p.append(f'<text class="note" x="{bx}" y="{by + i * 13}">{escape(line)}</text>')
+        p.append(f'<text class="note" x="{left}" y="{by + 14 + i * 13}">{escape(line)}</text>')
     p.append("</svg>")
     return "\n".join(p) + "\n"
 

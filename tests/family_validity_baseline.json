@@ -112,6 +112,128 @@
     "status": "both"
    }
   },
+  "csharp": {
+   "args": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 5166,
+    "n_oracle": 5167,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 415,
+    "n_oracle": 88,
+    "pinned": false,
+    "precision": 0.039,
+    "recall": 0.182,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 3082,
+    "n_oracle": 3006,
+    "pinned": false,
+    "precision": 0.945,
+    "recall": 0.968,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 1472,
+    "n_oracle": 1148,
+    "pinned": false,
+    "precision": 0.78,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 3,
+    "n_oracle": 3,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 1114,
+    "n_oracle": 1111,
+    "pinned": false,
+    "precision": 0.996,
+    "recall": 0.998,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 3447,
+    "n_oracle": 3363,
+    "pinned": false,
+    "precision": 0.974,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 514,
+    "n_oracle": 427,
+    "pinned": false,
+    "precision": 0.553,
+    "recall": 0.665,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 325,
+    "n_oracle": 325,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 7,
+    "n_oracle": 18,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.389,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 32,
+    "n_oracle": 30,
+    "pinned": false,
+    "precision": 0.938,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 273,
+    "n_oracle": 318,
+    "pinned": false,
+    "precision": 0.912,
+    "recall": 0.783,
+    "status": "misses"
+   }
+  },
   "go": {
    "args": {
     "corpus": "language-crucible v1.7.0",
@@ -259,10 +381,10 @@
     "corpus": "language-crucible v1.7.0",
     "functions": 746,
     "n_family": 211,
-    "n_oracle": 226,
+    "n_oracle": 214,
     "pinned": true,
     "precision": 1.0,
-    "recall": 0.934,
+    "recall": 0.986,
     "status": "ok"
    },
    "closures": {
@@ -381,10 +503,10 @@
     "corpus": "express",
     "functions": 332,
     "n_family": 120,
-    "n_oracle": 120,
+    "n_oracle": 115,
     "pinned": false,
     "precision": 0.958,
-    "recall": 0.958,
+    "recall": 1.0,
     "status": "ok"
    },
    "closures": {
@@ -478,6 +600,362 @@
     "status": "ok"
    }
   },
+  "kotlin": {
+   "args": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 2589,
+    "n_oracle": 2589,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 42,
+    "n_oracle": 92,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.457,
+    "status": "misses"
+   },
+   "branch": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 1326,
+    "n_oracle": 1320,
+    "pinned": false,
+    "precision": 0.992,
+    "recall": 0.997,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 484,
+    "n_oracle": 1488,
+    "pinned": false,
+    "precision": 0.886,
+    "recall": 0.288,
+    "status": "misses"
+   },
+   "debug_prints": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 73,
+    "n_oracle": 72,
+    "pinned": false,
+    "precision": 0.986,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 3672,
+    "n_oracle": 3596,
+    "pinned": false,
+    "precision": 0.968,
+    "recall": 0.988,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 1249,
+    "n_oracle": 1059,
+    "pinned": false,
+    "precision": 0.848,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 172,
+    "n_oracle": 115,
+    "pinned": false,
+    "precision": 0.14,
+    "recall": 0.209,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 1180,
+    "n_oracle": 606,
+    "pinned": false,
+    "precision": 0.368,
+    "recall": 0.716,
+    "status": "both"
+   },
+   "regex_execution": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 111,
+    "n_oracle": 62,
+    "pinned": false,
+    "precision": 0.55,
+    "recall": 0.984,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 65,
+    "n_oracle": 56,
+    "pinned": false,
+    "precision": 0.8,
+    "recall": 0.929,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 22,
+    "n_oracle": 184,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.12,
+    "status": "misses"
+   }
+  },
+  "lua": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 92,
+    "n_oracle": 92,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 9,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 114,
+    "n_oracle": 113,
+    "pinned": true,
+    "precision": 0.991,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 6,
+    "n_oracle": 6,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 21,
+    "n_oracle": 21,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 2,
+    "n_oracle": 4,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.5,
+    "status": "misses"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 2,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 1,
+    "n_oracle": 20,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.05,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 0,
+    "n_oracle": 3,
+    "pinned": true,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
+  "php": {
+   "args": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 6817,
+    "n_oracle": 6817,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 1044,
+    "n_oracle": 148,
+    "pinned": false,
+    "precision": 0.129,
+    "recall": 0.912,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 7187,
+    "n_oracle": 7077,
+    "pinned": false,
+    "precision": 0.983,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 124,
+    "n_oracle": 135,
+    "pinned": false,
+    "precision": 0.903,
+    "recall": 0.83,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 771,
+    "n_oracle": 775,
+    "pinned": false,
+    "precision": 0.949,
+    "recall": 0.945,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 80,
+    "n_oracle": 43,
+    "pinned": false,
+    "precision": 0.537,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 10160,
+    "n_oracle": 10120,
+    "pinned": false,
+    "precision": 0.996,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 721,
+    "n_oracle": 194,
+    "pinned": false,
+    "precision": 0.176,
+    "recall": 0.655,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 297,
+    "n_oracle": 289,
+    "pinned": false,
+    "precision": 0.949,
+    "recall": 0.976,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 592,
+    "n_oracle": 590,
+    "pinned": false,
+    "precision": 0.997,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "thread_sleeps": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 4,
+    "n_oracle": 4,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 204,
+    "n_oracle": 264,
+    "pinned": false,
+    "precision": 0.995,
+    "recall": 0.769,
+    "status": "misses"
+   }
+  },
   "python": {
    "args": {
     "corpus": "language-crucible v1.7.0",
@@ -503,10 +981,10 @@
     "corpus": "language-crucible v1.7.0",
     "functions": 421,
     "n_family": 231,
-    "n_oracle": 251,
+    "n_oracle": 225,
     "pinned": true,
     "precision": 0.974,
-    "recall": 0.896,
+    "recall": 1.0,
     "status": "ok"
    },
    "cleanup": {
@@ -710,6 +1188,118 @@
     "status": "misses"
    }
   },
+  "ruby": {
+   "args": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 3332,
+    "n_oracle": 3130,
+    "pinned": false,
+    "precision": 0.939,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 602,
+    "n_oracle": 113,
+    "pinned": false,
+    "precision": 0.043,
+    "recall": 0.23,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 3560,
+    "n_oracle": 3299,
+    "pinned": false,
+    "precision": 0.926,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 1672,
+    "n_oracle": 1535,
+    "pinned": false,
+    "precision": 0.874,
+    "recall": 0.952,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 564,
+    "n_oracle": 286,
+    "pinned": false,
+    "precision": 0.504,
+    "recall": 0.993,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 4589,
+    "n_oracle": 81,
+    "pinned": false,
+    "precision": 0.004,
+    "recall": 0.235,
+    "status": "both"
+   },
+   "io": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 728,
+    "n_oracle": 336,
+    "pinned": false,
+    "precision": 0.273,
+    "recall": 0.592,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 638,
+    "n_oracle": 425,
+    "pinned": false,
+    "precision": 0.641,
+    "recall": 0.962,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 565,
+    "n_oracle": 509,
+    "pinned": false,
+    "precision": 0.692,
+    "recall": 0.768,
+    "status": "both"
+   },
+   "thread_sleeps": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 17,
+    "n_oracle": 16,
+    "pinned": false,
+    "precision": 0.647,
+    "recall": 0.688,
+    "status": "both"
+   },
+   "time_date_logic": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 197,
+    "n_oracle": 74,
+    "pinned": false,
+    "precision": 0.249,
+    "recall": 0.662,
+    "status": "both"
+   }
+  },
   "rust": {
    "args": {
     "corpus": "language-crucible v1.7.0",
@@ -829,6 +1419,342 @@
     "pinned": false,
     "precision": 0.919,
     "recall": 0.118,
+    "status": "misses"
+   }
+  },
+  "scala": {
+   "args": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 3060,
+    "n_oracle": 2976,
+    "pinned": false,
+    "precision": 0.971,
+    "recall": 0.998,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 75,
+    "n_oracle": 6,
+    "pinned": false,
+    "precision": 0.08,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 1601,
+    "n_oracle": 1475,
+    "pinned": false,
+    "precision": 0.921,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 2731,
+    "n_oracle": 2224,
+    "pinned": false,
+    "precision": 0.814,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 19,
+    "n_oracle": 14,
+    "pinned": false,
+    "precision": 0.737,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "decorators": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 2365,
+    "n_oracle": 2415,
+    "pinned": false,
+    "precision": 0.986,
+    "recall": 0.966,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 619,
+    "n_oracle": 541,
+    "pinned": false,
+    "precision": 0.871,
+    "recall": 0.996,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 108,
+    "n_oracle": 39,
+    "pinned": false,
+    "precision": 0.352,
+    "recall": 0.974,
+    "status": "over-counts"
+   },
+   "panics_and_aborts": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 308,
+    "n_oracle": 277,
+    "pinned": false,
+    "precision": 0.899,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 2,
+    "n_oracle": 14,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.143,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 21,
+    "n_oracle": 81,
+    "pinned": false,
+    "precision": 0.952,
+    "recall": 0.247,
+    "status": "misses"
+   },
+   "time_date_logic": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 47,
+    "n_oracle": 127,
+    "pinned": false,
+    "precision": 0.979,
+    "recall": 0.362,
+    "status": "misses"
+   }
+  },
+  "shell": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 128,
+    "n_oracle": 127,
+    "pinned": true,
+    "precision": 0.977,
+    "recall": 0.984,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 0,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 264,
+    "n_oracle": 223,
+    "pinned": true,
+    "precision": 0.845,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 224,
+    "n_oracle": 143,
+    "pinned": true,
+    "precision": 0.638,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 271,
+    "n_oracle": 198,
+    "pinned": true,
+    "precision": 0.609,
+    "recall": 0.833,
+    "status": "over-counts"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 161,
+    "n_oracle": 42,
+    "pinned": true,
+    "precision": 0.261,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 74,
+    "n_oracle": 68,
+    "pinned": true,
+    "precision": 0.919,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 28,
+    "n_oracle": 23,
+    "pinned": true,
+    "precision": 0.821,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 41,
+    "n_oracle": 8,
+    "pinned": true,
+    "precision": 0.195,
+    "recall": 1.0,
+    "status": "over-counts"
+   }
+  },
+  "swift": {
+   "args": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 1086,
+    "n_oracle": 1105,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.983,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 17,
+    "n_oracle": 13,
+    "pinned": false,
+    "precision": 0.765,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 784,
+    "n_oracle": 518,
+    "pinned": false,
+    "precision": 0.659,
+    "recall": 0.998,
+    "status": "over-counts"
+   },
+   "closures": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 347,
+    "n_oracle": 618,
+    "pinned": false,
+    "precision": 0.991,
+    "recall": 0.557,
+    "status": "misses"
+   },
+   "debug_prints": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 8,
+    "n_oracle": 7,
+    "pinned": false,
+    "precision": 0.875,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 226,
+    "n_oracle": 183,
+    "pinned": false,
+    "precision": 0.81,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 484,
+    "n_oracle": 411,
+    "pinned": false,
+    "precision": 0.849,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 8,
+    "n_oracle": 11,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.727,
+    "status": "misses"
+   },
+   "panics_and_aborts": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 126,
+    "n_oracle": 121,
+    "pinned": false,
+    "precision": 0.96,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 1,
+    "n_oracle": 0,
+    "pinned": false,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 9,
+    "n_oracle": 8,
+    "pinned": false,
+    "precision": 0.889,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 27,
+    "n_oracle": 44,
+    "pinned": false,
+    "precision": 0.963,
+    "recall": 0.591,
     "status": "misses"
    }
   },

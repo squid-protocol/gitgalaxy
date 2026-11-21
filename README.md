@@ -151,8 +151,8 @@ written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.p
 A parser (Python `ast`, tree-sitter) says what each function does, and each family is scored against that on recall and
 precision (the family-validity tool, [PR #8864](https://github.com/squid-protocol/gitgalaxy/pull/8864)). Each cell shows the weaker of the two, so a family that
 finds every construct but also fires on strings does not look good.
-- Tested so far (2026-11-21): 2,893 language-by-family rules are defined; 91 are measured against a parser (7 languages),
-  721 more only by a parserless decoy test, and 2,081 are not tested yet. The measured cells range from 0% to 100%
+- Tested so far (2026-11-21): 2,894 language-by-family rules are defined; 181 are measured against a parser (15 languages),
+  677 more only by a parserless decoy test, and 2,036 are not tested yet. The measured cells range from 0% to 100%
   (lower of recall and precision), so the figure prints every score. The decoy test plants each family's keyword in a
   comment and in a string literal: comments are ignored in all 756 cells, while a keyword in a string literal counts in
   93% of them (known behaviour, [#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)).

@@ -430,14 +430,7 @@ def render(prog: dict[str, Any]) -> str:
          f"caught or explained, in {dt['closed']} finished programs", f"{waiting:,} more waiting evaluation", False),
     ]  # fmt: skip
 
-    # ---------------------------------------------------------------- how to read it: the six steps, defined once
-    lw = (W - 2 * PAD) / len(LEVELS)
-    for i, (lv, name, desc) in enumerate(LEVELS):
-        x = PAD + i * lw
-        s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4)
-        s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
-        s.text(x + 26, y + 33, desc, cls="t3", size=13)
-    y += 92
+    y += 20  # the level key now sits over the codebase rows that use it (owner 2026-11-21), not here
 
     # ---------------------------------------------------------------- blind trials (owner: first, under the level key)
     if fresh.get("blind"):
@@ -572,6 +565,15 @@ def render(prog: dict[str, Any]) -> str:
             s.text(PAD, y + 35 + 20 * k, line, cls="t3", size=13.5)
         y += 48 + 20 * sub.count("\n")
 
+    # how to read the rows: the six steps, defined once, right above the bars that use them (owner 2026-11-21: the key
+    # was at the top of the slide, a screen away from the rows)
+    lw = (W - 2 * PAD) / len(LEVELS)
+    for i, (lv, name, desc) in enumerate(LEVELS):
+        x = PAD + i * lw
+        s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4, title=f"{lv} {name}: {desc}")
+        s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
+        s.text(x + 26, y + 33, desc, cls="t3", size=13)
+    y += 66
     # column heads, and the L5 legend (its own colours: L5 is a different kind of test)
     s.text(bar_x, y + 4, "Levels L0-L4: how far each program has climbed", cls="t2", size=13.5, weight=700)
     s.text(r_x, y + 4, "L5: the planted-bug test", cls="t2", size=13.5, weight=700)

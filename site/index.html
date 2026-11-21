@@ -3,74 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitGalaxy | WebGPU Command v17.4</title>
-
-    <script
-        src="https://js.sentry-cdn.com/7f9d03714fb4d30ac0cc541eabd2b415.min.js"
-        crossorigin="anonymous"></script>
-    <script>
-        Sentry.onLoad(function() {
-            Sentry.init({
-                // Force Sentry to catch unhandled promises and global errors
-                tracePropagationTargets: ["localhost", /^https:\/\/gitgalaxy\.io/],
-            });
-
-            // =====================================================================
-            // HOOK 1: Context Loss
-            // =====================================================================
-            document.addEventListener('webglcontextlost', function(event) {
-                event.preventDefault(); 
-                Sentry.captureMessage("FATAL: WebGL Context Lost");
-            }, false);
-
-            // WebGPU specific device loss tracking (Caught via unhandled async errors in Three's backend)
-            window.addEventListener('unhandledrejection', function(event) {
-                if (event.reason && event.reason.message && event.reason.message.includes('device is lost')) {
-                    Sentry.captureMessage("FATAL: WebGPU Device Lost (OOM or Driver Crash)");
-                }
-            });
-
-            // =====================================================================
-            // HOOK 2: Catch Unhandled Promise Rejections (The Async Crash)
-            // =====================================================================
-            window.addEventListener('unhandledrejection', function(event) {
-                const reason = event.reason ? event.reason.toString() : 'Unknown Async Rejection';
-                Sentry.withScope(function(scope) {
-                    scope.setTag("error_type", "async_gpu_crash");
-                    scope.setLevel("fatal");
-                    Sentry.captureMessage("Async Crash: " + reason.substring(0, 500));
-                });
-            });
-
-            // =====================================================================
-            // HOOK 3: Console Error & Warning Interceptor
-            // =====================================================================
-            const originalConsoleError = console.error;
-            const originalConsoleWarn = console.warn; // Three.js sometimes uses warnings for failures!
-
-            const interceptLog = (level, ...args) => {
-                const errorString = args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' ');
-                
-                if (errorString.includes('THREE') || errorString.includes('WebGPU') || errorString.includes('vertex') || errorString.includes('shader')) {
-                    Sentry.withScope(function(scope) {
-                        scope.setTag("error_type", "engine_compilation_failure");
-                        scope.setLevel(level);
-                        Sentry.captureMessage(`Three.js ${level}: ` + errorString.substring(0, 500)); 
-                    });
-                }
-            };
-
-            console.error = function(...args) {
-                interceptLog("fatal", ...args);
-                originalConsoleError.apply(console, args);
-            };
-
-            console.warn = function(...args) {
-                interceptLog("warning", ...args);
-                originalConsoleWarn.apply(console, args);
-            };
-        });
+    <title>GitGalaxy: see any code repository as an interactive 3D galaxy</title>
+    <meta name="description" content="Explore famous codebases as interactive 3D galaxies, or map your own repository. Scan it with the free gitgalaxy engine and drop the result in your browser; nothing is uploaded.">
+    <link rel="canonical" href="https://gitgalaxy.io/">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#010103">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GitGalaxy">
+    <meta property="og:title" content="GitGalaxy: see any code repository as an interactive 3D galaxy">
+    <meta property="og:description" content="Explore famous codebases as 3D galaxies, or map your own. Your scan stays in your browser.">
+    <meta property="og:url" content="https://gitgalaxy.io/">
+    <meta name="twitter:card" content="summary">
+    <link rel="alternate" type="application/rss+xml" title="GitGalaxy blog" href="/blog/feed.xml">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"GitGalaxy","url":"https://gitgalaxy.io/","applicationCategory":"DeveloperApplication","operatingSystem":"Any (WebGPU or WebGL browser)","description":"Interactive 3D visualizer that maps a code repository as a galaxy of files, dependencies and risk. Runs entirely in the browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true}
     </script>
+
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
     
@@ -118,8 +66,17 @@
         
         <header>
             <h1 id="brand-title">GitGalaxy</h1>
-            <h2> </h2>
+            <h2>Any code repository, as a galaxy</h2>
         </header>
+
+        <div class="panel-section" id="site-intro">
+            <p>Explore famous codebases as interactive 3D galaxies, or map your own: scan it with the free <a href="https://pypi.org/project/gitgalaxy/" target="_blank" rel="noopener">gitgalaxy</a> engine (<code>pip install gitgalaxy</code>) and drop the result here. Your scan is processed in your browser and never uploaded.</p>
+            <nav aria-label="Site">
+                <a href="/blog/">Blog</a>
+                <a href="https://squid-protocol.github.io/gitgalaxy/" target="_blank" rel="noopener">Docs</a>
+                <a href="https://github.com/squid-protocol/gitgalaxy" target="_blank" rel="noopener">GitHub</a>
+            </nav>
+        </div>
 
         <div class="panel-section search-box">
             <label>Warp-Speed Search</label>

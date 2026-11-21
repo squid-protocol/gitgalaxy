@@ -1,0 +1,34 @@
+# Existing articles that live on the docs site. The blog index links to them where they are
+# (no copies, so search ranking is not split across two URLs). Text is from docs/wiki/museum-of-code/index.md.
+# To list a new exhibit, add an entry; native posts go in site/blog/posts/ instead.
+base: https://squid-protocol.github.io/gitgalaxy/museum-of-code/
+groups:
+  - title: Interactive studies
+    items:
+      - title: "DOOM's DNA"
+        path: doom-dna/
+        description: "43 descendants of the 1993 shooter, measured by shape alone: who copied whom, and which translations kept the blueprint."
+      - title: "Every Model Has a Tell"
+        path: agent-habits/
+        description: "Three AI coding models built programs for the same ten jobs; measured by structure alone, each kept its own handwriting."
+  - title: Codebase teardowns
+    items:
+      - {title: "AlphaFold (2018)", path: alphafold_teardown.html, description: "The 5,000-line Python breakthrough that solved protein folding."}
+      - {title: "Android", path: teardown-of-android/, description: "The world's most ubiquitous mobile OS."}
+      - {title: "Apollo 11", path: teardown-of-apollo-11/, description: "The AGC assembly code that took humanity to the moon."}
+      - {title: "Bitcoin v0.1.0", path: teardown-of-bitcoin/, description: "The original, highly coupled C++ prototype of decentralized finance."}
+      - {title: "BLAST", path: teardown-of-blast/, description: "The high-performance C/C++ engine decoding genomics."}
+      - {title: "Fineract", path: teardown-of-fineract/, description: "The sprawling Java core banking platform."}
+      - {title: "FreeBSD", path: teardown-of-freebsd/, description: "The legendary 13.8-million-line OS monolith."}
+      - {title: "GnuPG", path: teardown-of-gnupg/, description: "The strict C architecture securing the internet's cryptography."}
+      - {title: "Kubernetes", path: teardown-of-kubernetes/, description: "The massive Go orchestration engine powering the cloud."}
+      - {title: "Linux", path: teardown-of-linux/, description: "The 24-million-line C titan that runs the world."}
+      - {title: "MediaWiki", path: teardown-of-mediawiki/, description: "The PHP architecture behind Wikipedia."}
+      - {title: "NVDA", path: teardown-of-nvda/, description: "The Python/C++ hybrid making Windows accessible."}
+      - {title: "OpenCV", path: teardown-of-opencv/, description: "The computer vision library."}
+      - {title: "Pandas", path: teardown-of-pandas/, description: "The God Nodes of the Python data science ecosystem."}
+      - {title: "ROOT", path: teardown-of-root/, description: "CERN's C++ data analysis framework."}
+      - {title: "SQLite", path: teardown-of-sqlite/, description: "The most deployed database engine in human history."}
+      - {title: "TensorFlow", path: teardown-of-tensorflow/, description: "The heavily coupled AI operations monolith."}
+      - {title: "WordPress", path: teardown-of-wordpress/, description: "The PHP engine running a third of the web."}
+      - {title: "WRF-Fortran", path: teardown-of-wrf-fortran/, description: "The weather forecasting model."}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+<title>GitGalaxy blog</title>
+<link>https://gitgalaxy.io/blog/</link>
+<description>Studies and write-ups from the GitGalaxy project: what code looks like when you measure its structure.</description>
+<language>en</language>
+</channel>
+</rss>

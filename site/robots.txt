@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /data/
+Disallow: /backend/
+Disallow: /museum/
+Disallow: /api/
+
+Sitemap: https://gitgalaxy.io/sitemap.xml

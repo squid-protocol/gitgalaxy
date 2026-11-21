@@ -536,17 +536,6 @@ class PosterGenerator {
         // ==========================================
         if (!this._verifyRenderIntegrity(canvas)) {
             
-            // 📡 SILENT TELEMETRY: Send the diagnostic data to Sentry
-            if (window.Sentry) {
-                window.Sentry.captureException(new Error("GPU Render Crash: Black Screen Detected"), {
-                    tags: {
-                        target_resolution: `${targetW}x${targetH}`,
-                        gpu_max_texture_size: maxTexture, // The golden metric!
-                        calculated_tile_size: TILE_SIZE
-                    }
-                });
-            }
-
             // 🛑 VISUAL ERROR: Stop the pipeline and alert the user
             throw new Error(
                 "Hardware Resource Mismatch\n\n" +

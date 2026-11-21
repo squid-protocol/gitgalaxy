@@ -1,0 +1,38 @@
+{
+ "corpus": "estate-crucible",
+ "program": "BDLDDB2",
+ "program_source": "estate/apps/BDLD/cobol/BDLDDB2.cbl",
+ "copy_dirs": [
+  "estate/apps/BDLD/copybook"
+ ],
+ "job": "BDLDNITE",
+ "step": "LOAD020",
+ "parm": null,
+ "clock": "2026/11/21 10:30:15.00",
+ "datasets": {
+  "SORTED": {
+   "input": "@generate",
+   "organization": "sequential",
+   "reclen": 40,
+   "generate": {
+    "copybook": "estate/apps/BDLD/cobol/BDLDDB2.cbl",
+    "record": "SORTED-REC",
+    "records": 40,
+    "seed": 7065
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "@case/BDLDSUM.ddl"
+  ],
+  "include_dirs": [
+   "estate/apps/BDLD/dclgen"
+  ],
+  "compare": [
+   "PROD.BDLD_SUMMARY"
+  ],
+  "compare_sql": true
+ },
+ "notes": "estate-crucible Batch Badlands (#7065, BDLD): BDLDDB2, run under IKJEFT01 (DSN RUN PROGRAM(BDLDDB2)) by BDLDNITE step LOAD020, loading 40 GENERATED SORTED records (the BDLREC layout) into PROD.BDLD_SUMMARY with one INSERT each. The estate ships no DDL for the table, only its DCLGEN (dclgen/DCLBDLD.dcl); BDLDSUM.ddl here is that DCLGEN's DECLARE TABLE as a CREATE TABLE (the same two columns, types and NOT NULL; no key, as the DECLARE states none). Every INSERT's SQLCODE / SQLSTATE / row count is compared with what Db2 answered (compare_sql), and the table after the step. The oracle is GnuCOBOL with Db2 for Linux, not z/OS."
+}

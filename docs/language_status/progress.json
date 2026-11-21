@@ -1,5 +1,5 @@
 {
- "commit": "657325fcd",
+ "commit": "10ae70a50",
  "components": {
   "capabilities": {
    "groups": [
@@ -479,7 +479,7 @@
       "jobs": 19,
       "name": "Batch Badlands",
       "next": [],
-      "pass": 25,
+      "pass": 26,
       "programs": 5,
       "region": 1
      },
@@ -567,7 +567,7 @@
       "region": 4
      }
     ],
-    "pass": 115,
+    "pass": 116,
     "ref": "v0.8.0"
    }
   },
@@ -1000,7 +1000,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T02:56:02Z",
+  "as_of": "2026-11-21T03:12:23Z",
   "core": {
    "closed": 253,
    "open": 13,

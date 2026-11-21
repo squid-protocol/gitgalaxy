@@ -290,3 +290,16 @@ def test_every_gate_leg_is_planned_balanced(durations):
         n = legs[(os_name, py)]
         assert _planned_ratio(weight, n, plan.GATE_SETUP_S) <= RATIO_LIMIT, (os_name, py, n)
         assert _planned_ratio(weight, n, 0) <= RATIO_LIMIT, (os_name, py, n)
+
+
+def test_windows_312_is_split_so_its_planned_part_is_under_20_minutes_8701(durations):
+    # 2026-11-19: 2 parts planned at 18 min measured 25:06 (speed 1.3 under-stated Windows 3.12); target is under 20 min
+    legs = [
+        x for x in plan.gate_plan(durations)["matrix"] if (x["os"], x["python-version"]) == ("windows-latest", "3.12")
+    ]
+    assert legs[0]["splits"] >= 3
+    mean = sum(durations.values()) / len(durations)
+    speed = {(o, py): s for o, py, s in plan.LEGS}[("windows-latest", "3.12")]
+    weight = {k: mean * speed for k in durations}
+    planned_min = sp.shard_seconds(weight, legs[0]["splits"], plan.GATE_SETUP_S, plan.JOBS) / 60
+    assert planned_min < 20

@@ -1,7 +1,7 @@
 {
   "fixture": "library_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385): the JOB statement's RESTART parameter, the JCLLIB statement's ORDER parameter (first library holding the member wins) and the EXEC statement's COND rules. Restarts of a procedure that is a library member; written before the resolver ran. Not run on the MVS 3.8J box (no library), so apart from restart/scenarios.json.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385): the JOB statement's RESTART parameter, the JCLLIB statement's ORDER parameter (first library holding the member wins) and the EXEC statement's COND rules. Restarts of a procedure that is a library member; written before the resolver ran. Not run on the MVS 3.8J box (no library), so apart from restart/scenarios.json. Checkpoint restarts (RESTART=(stepname.procstepname,checkid), SYSCHK DD) into a library procedure added in a later slice; the order of the SYSCHK DD against the JCLLIB statement is the manual's JOB-statement order (JCLLIB, then the DDs), not stated for SYSCHK in particular.",
   "libraries": {
     "LIB.A": {
       "RPRC": [
@@ -55,6 +55,25 @@
     "//CALL1    EXEC ONLYA",
     "//CALL2    EXEC ONLYB",
     "//*",
+    "//LIBJ5    JOB (ACCT),'LIB CKPT',CLASS=A,RESTART=(CALL1.M2,CK1)",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//U2       EXEC PGM=PGMV,COND=(4,LT,CALL1.M2)",
+    "//*",
+    "//LIBJ6    JOB (ACCT),'LIB CKPT ORDER',CLASS=A,RESTART=(CALL1.N2,CK2)",
+    "//LIB      JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//*",
+    "//LIBJ7    JOB (ACCT),'LIB CKPT STAR',CLASS=A,RESTART=(*,CK3)",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//CALL1    EXEC RPRC",
+    "//U2       EXEC PGM=PGMV",
+    "//*",
     "//LIBBAD1  JOB (ACCT),'LIB CALLING',CLASS=A,RESTART=CALL1",
     "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
     "//CALL1    EXEC RPRC",
@@ -66,6 +85,11 @@
     "//LIBBAD3  JOB (ACCT),'LIB NO MEMBER',CLASS=A,RESTART=CALL1.M1",
     "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
     "//CALL1    EXEC NOSUCH",
+    "//*",
+    "//LIBBAD4  JOB (ACCT),'LIB NO SYSCHK',CLASS=A,RESTART=(CALL1.M2,CK1)",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
     "//"
   ],
   "scenarios": [
@@ -164,6 +188,86 @@
         "CALL2.B2": "run"
       },
       "basis": "ONLYA is held only by LIB.A and ONLYB only by LIB.B: a member absent from the first library is taken from the next one in ORDER. RESTART=CALL2.B2 skips everything before it, including the whole first call."
+    },
+    {
+      "id": "library-checkpoint-restart-first-library-wins",
+      "job": "LIBJ5",
+      "given": {
+        "CALL1.M2": {
+          "rc": 0
+        },
+        "CALL1.M3": {
+          "rc": 0
+        },
+        "U2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.M1": "skipped",
+        "CALL1.M2": "run",
+        "CALL1.M3": "run",
+        "U2": "run"
+      },
+      "basis": "JOB RESTART=(stepname.procstepname,checkid) with a SYSCHK DD before the first EXEC is a deferred checkpoint restart (JCL Reference, JOB: RESTART; z/OS 3.1 ieab600). RPRC is LIB.A's member (first in JCLLIB ORDER), so CALL1.M2 is one of its steps. The steps before M2 are not executed; M2 resumes at checkpoint CK1 and still starts, M3 and U2 run (their tests are false at rc 0). The checkpoint changes which steps run no differently from a step restart."
+    },
+    {
+      "id": "library-checkpoint-restart-cond-names-restart-step",
+      "job": "LIBJ5",
+      "given": {
+        "CALL1.M2": {
+          "rc": 8
+        }
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.M1": "skipped",
+        "CALL1.M2": "run",
+        "CALL1.M3": "bypass",
+        "U2": "bypass"
+      },
+      "basis": "Same checkpoint restart with M2 ending rc 8: (4,LT,M2) is true for M3 and for U2, so both are bypassed."
+    },
+    {
+      "id": "library-checkpoint-restart-order-reversed",
+      "job": "LIBJ6",
+      "given": {
+        "CALL1.N2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.N1": "skipped",
+        "CALL1.N2": "run"
+      },
+      "basis": "JCLLIB ORDER=(LIB.B,LIB.A): the first library holding RPRC is LIB.B, whose member has N1 and N2, so the checkpoint restart names N2 of that expansion."
+    },
+    {
+      "id": "library-checkpoint-restart-star",
+      "job": "LIBJ7",
+      "given": {
+        "CALL1.M1": {
+          "rc": 0
+        },
+        "CALL1.M2": {
+          "rc": 0
+        },
+        "CALL1.M3": {
+          "rc": 0
+        },
+        "U2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.M1": "run",
+        "CALL1.M2": "run",
+        "CALL1.M3": "run",
+        "U2": "run"
+      },
+      "basis": "RESTART=(*,CK3) restarts at the first job step, here the call CALL1, whose first executed step is M1: nothing is skipped (JOB RESTART Example 3 shape)."
     }
   ],
   "refused": [
@@ -187,6 +291,13 @@
       "match": "in no library",
       "construct": "EXEC of a procedure that is in no JCLLIB library",
       "reason": "IBM: the procedure cannot be found, the JCL is in error"
+    },
+    {
+      "id": "lib-checkid-without-syschk",
+      "job": "LIBBAD4",
+      "match": "SYSCHK",
+      "construct": "RESTART=(CALL1.M2,CK1) naming a step of a library procedure with no SYSCHK DD before the first EXEC",
+      "reason": "IBM: a checkid needs a SYSCHK DD placed immediately before the first EXEC; without it the JCL is in error"
     }
   ]
 }

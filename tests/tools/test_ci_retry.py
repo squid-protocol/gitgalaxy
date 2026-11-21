@@ -242,3 +242,32 @@ def test_an_explicit_probe_beats_the_inferred_one(tmp_path):
     proc, _, _ = _run(tmp_path, 3, 0, cmd=["docker", "pull", DIGEST], extra_env={**env, "CI_RETRY_CACHED": "false"})
     assert proc.returncode == 0 and "cache hit" not in proc.stderr
     assert log.read_text().splitlines() == [f"pull {DIGEST}"]
+
+
+# #8424: a `gh api` read captured into a variable / process substitution is wrapped in capture mode, so a failed try never
+# leaks into the captured value. The four planner workflows carry the same three-call step.
+GH_API_PLAN_WORKFLOWS = ["gitgalaxy.yml", "small-audits.yml", "mypy-audit.yml", "ruff-audit.yml"]
+
+
+def _gh_api_lines(name):
+    return [
+        ln
+        for ln in (WORKFLOWS / name).read_text(encoding="utf-8").splitlines()
+        if "gh api" in ln and not ln.lstrip().startswith("#")
+    ]
+
+
+def test_every_wrapped_gh_api_capture_uses_capture_mode():
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        for ln in _gh_api_lines(path.name):
+            if "ci_retry.sh" in ln:
+                assert "CI_RETRY_CAPTURE=1" in ln, f"{path.name}: {ln.strip()}"
+
+
+@pytest.mark.parametrize("name", GH_API_PLAN_WORKFLOWS)
+def test_the_planner_gh_api_calls_are_wrapped_in_capture_mode(name):
+    lines = _gh_api_lines(name)
+    assert len(lines) == 3, f"{name}: expected the labels / files / count calls"
+    for ln in lines:
+        assert "CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api" in ln, ln
+        assert "||" in ln, f"{name}: the planner must still fail open: {ln.strip()}"

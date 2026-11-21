@@ -79,9 +79,10 @@ def test_a_send_maps_colour_cursor_and_options_are_compared():
 
 
 def test_unset_subfields_are_unset_on_both_sides():
-    """X'00' (LOW-VALUES: the map's own) and a space are "not set"; a length other than -1 is not the cursor."""
+    """X'00' (LOW-VALUES) and X'40' (a space) are values, not "unset" (#7955); a length other than -1 is not the cursor."""
     assert ec.java_subfields({"A": {"color": 0, "hilight": 0x40, "length": 5}, "B": {"length": -1}}) == {
-        "B": {"length": -1}
+        "A": {"color": 0, "hilight": 0x40},
+        "B": {"length": -1},
     }
     assert ec.compare_events([_event({})], [_event(None)])["equal"] == 1
 

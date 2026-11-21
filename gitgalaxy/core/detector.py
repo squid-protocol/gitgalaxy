@@ -4515,7 +4515,9 @@ class StructuralExtractor:
                 del cls["_start_line"]
                 del cls["_end_line"]
 
-            branch_hits = equations.get("branch", 0)
+            # decision_points = branch + short_circuit (docs/family_levels.md): the composite the
+            # decision-density metrics were always meant to read; the stored struct_branch column is the leaf.
+            branch_hits = equations.get("branch", 0) + equations.get("short_circuit", 0)
             # #2770: the denominator is coding lines (line_count = non-blank lines of
             # the comment-stripped code stream), NOT branch + structural_boundaries.
             # structural_boundaries is an ungoverned per-language vocabulary tally
@@ -11878,7 +11880,8 @@ class StructuralExtractor:
                 if count > 0:
                     hit_vector[key] = count
 
-            branch_hits = hit_vector.get("branch", 0)
+            # decision_points = branch + short_circuit (docs/family_levels.md); hit_vector keeps the leaves.
+            branch_hits = hit_vector.get("branch", 0) + hit_vector.get("short_circuit", 0)
             linear_hits = hit_vector.get("structural_boundaries", 0)
         else:
             # Fallback for untested manual calls
@@ -11892,6 +11895,9 @@ class StructuralExtractor:
                 if hasattr(branch_pattern, "findall")
                 else (len(re.findall(str(branch_pattern), block)) if branch_pattern else 0)
             )
+            sc_pattern = rules.get("short_circuit")
+            if hasattr(sc_pattern, "findall"):
+                branch_hits += len(sc_pattern.findall(block))  # type: ignore[union-attr]
             linear_hits = (
                 len(linear_pattern.findall(block))  # type: ignore[union-attr]
                 if hasattr(linear_pattern, "findall")

@@ -493,11 +493,11 @@
     "corpus": "language-crucible v1.7.0",
     "functions": 421,
     "n_family": 27,
-    "n_oracle": 110,
+    "n_oracle": 20,
     "pinned": true,
     "precision": 0.704,
-    "recall": 0.173,
-    "status": "both"
+    "recall": 0.95,
+    "status": "over-counts"
    },
    "branch": {
     "corpus": "language-crucible v1.7.0",

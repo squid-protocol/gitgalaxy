@@ -2475,7 +2475,7 @@
 <use href="#c" x="1032" y="702" class="u"/>
 <use href="#c" x="1044" y="702" class="u"/>
 <text class="fam" x="24" y="723">bitwise_ops</text>
-<rect x="192" y="714" width="11" height="11" fill="#f2302c"><title>python / bitwise_ops: recall 0.17, precision 0.70 (110 oracle, 27 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="192" y="714" width="11" height="11" fill="#a4f22c"><title>python / bitwise_ops: recall 0.95, precision 0.70 (20 oracle, 27 family functions; language-crucible v1.7.0)</title></rect>
 <rect x="204" y="714" width="11" height="11" fill="#f2dd2c"><title>go / bitwise_ops: recall 0.61, precision 0.74 (140 oracle, 115 family functions; prometheus (not pinned))</title></rect>
 <rect x="204" y="714" width="11" height="11" fill="url(#hatch)"/>
 <rect x="216" y="714" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>java / bitwise_ops: recall 0.00, precision 0.00 (9 oracle, 18 family functions; language-crucible v1.7.0)</title></rect>

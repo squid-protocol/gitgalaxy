@@ -3911,6 +3911,7 @@
     "doc": "ims-ap",
     "section": "Hierarchic sequence"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Sequential access\"; IMS 15.4 Application Programming APIs, DBD AMBIGUOUS INSERT): \"When you use a sequential access method, the segments in the database are stored in hierarchic sequence, one after another\"; a unique sequence field fixes the twin order; for FIRST / LAST / HERE the DBD's insert rule applies only to a segment \"with no sequence field or with a nonunique sequence field\" and \"The value is ignored when specified for a segment type with a unique sequence field\". The runtime stores twins by segment type and sequence field, which is IBM's order. IBM says nothing about how a harness loads a database: refusing an out-of-order seed and the DBD / PSB configuration reader are the harness's own (registers I1, I6), so the rule stays ASSUMED. Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -3937,6 +3938,7 @@
     "doc": "ims-apis",
     "section": "Segment search arguments (SSAs)"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Multiple qualification statements\"; IMS 15.4 Application Programming APIs, \"Command codes\"; IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), AC, AJ, AK): AC \"The call specifies two SSAs for the same hierarchic level\" and \"the SSA specifying that segment name is not in its correct hierarchic sequence\"; AK \"An SSA contains an invalid field name\"; AJ \"the format of one of the SSAs is invalid\"; \"Logical AND ... (coded * or &)\", \"Logical OR ... (coded + or |)\", \"A set is a number of qualification statements that are joined by an AND ... Each OR starts a new set\" (AND binds tighter); the independent AND is \"Use it only with secondary indexes\" (refused here); the null command code is \"Use an SSA in command code format without specifying the command code\". Those parts MATCH. Two choices go past IBM and are refusals, not wrong answers: the runtime's limit of 16 qualification statements (MAX_TERMS) where IBM says \"You can use a maximum of 1024 qualification statements on a call\", and L / P / C refused outside one call shape where IBM's command-code table allows each on every get (C also on ISRT: \"You can use the C command code for all Get calls and for the ISRT call\"). Stays ASSUMED, the choices named. Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -3978,6 +3980,7 @@
     "doc": "ims-ap",
     "section": "Specifying the DB PCB mask"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Specifying the DB PCB mask\", Table 35 and notes 2-9): the layout is database name 8, segment level 2, status code 2, processing options 4, reserved 4, segment name 8, length of key feedback area 4 (binary), number of sensitive segments 4 (binary), key feedback area: the runtime's offsets are that order. Note 2: \"If IMS is unable to find the segment that you request, it gives you the level number of the last segment it encounters that satisfied your call\"; note 9: \"IMS does not normally clear the key feedback area. IMS sets this length of the key feedback area to indicate the portion of the area that is valid\". Those parts MATCH. IBM is silent on the mask after GB, REPL, DLET and II (the runtime leaves level, name and key as they were, or gives the parent) and on GNP's GE; the entry contents are the runtime's (RT-DLI-ENTRY carries a separate DIFFERS: note 6 puts the database type in SEGNAME at scheduling). Stays ASSUMED (register I4). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I4"
@@ -3999,6 +4002,7 @@
     "doc": "ims-apis",
     "section": "GU / GHU, GN / GHN, GNP / GHNP calls"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, Chapter 15 \"Current position in the database after each call\"; IMS 15.4 Application Programming APIs, \"GU/GHU call\", \"GN/GHN call\", \"GNP/GHNP call\", \"D command code\"): \"A GU call with an unqualified SSA at the root level attempts to satisfy the call by starting at the beginning of the database\"; GN \"Processing moves forward from current position\"; GNP: \"The search for the requested segment is limited to the dependents of the lowest-level segment most recently accessed by a GU or GN call\"; GP and GK as the runtime answers them. D: \"The D command code has no effect on the IMS retrieval logic. The only thing it does is cause each segment to be moved to your I/O area\", the segments \"one after the other, left to right\" and \"IMS always returns the last segment in the path\". Position after a successful call MATCHES. Where IBM answers by IMS's own search (position after a GE from GU, after II, a qualified GN that finds nothing: GE or GB) the runtime refuses the next call that needs it (stricter, never different). Not read against the runtime here: the missing-SSA derivation, and D's P-processing-option requirement. Stays ASSUMED (register I3). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -4069,6 +4073,7 @@
     "doc": "ims-apis",
     "section": "ISRT call"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming APIs, \"ISRT call\"; IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), II): \"If the segment type you are inserting has a unique key field, the place where IMS adds the new segment occurrence depends on the value of its key field\"; \"The last SSA must be unqualified\"; \"If IMS returns a GE status code, at least one of the parents does not exist\"; II \"tried to insert a segment that already exists ... A segment with an equal physical twin sequence field already exists for the parent\"; with D, \"all the SSAs below and including the SSA containing the D command code\" make a path insert. Those parts MATCH. Not matched to text: the FIRST / LAST / HERE rules for a non-unique or absent key (IBM: the DBD's RULES parameter; the runtime's reading of it is unchecked) and the load-mode codes LB / LC / LD / LE, which the text copy does not give. Stays ASSUMED (registers I1, I3). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -4129,6 +4134,7 @@
     "doc": "ims-codes",
     "section": "DL/I status codes"
    },
+   "ibm_note": "IBM (IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), AM; IMS 15.4 Application Programming APIs, \"ISRT call\"; IMS 15.4 Application Programming, \"PCB masks for GSAM databases\"): AM \"If the processing option is L and the program issued a call other than an ISRT call. Load programs can issue only ISRT calls.\" (the runtime's AM for any other function MATCHES). \"When you use the ISRT call with GSAM, the area named by the i/o area parameter contains the record you want to add. The area must be long enough to hold these records\" (an area shorter than the record refused is the caller's error). Open in IBM: the mask's segment level, \"Segment Level Number. Not used by GSAM, but you must code it. It is 2 bytes\", no value stated, so the runtime's blank is its own choice; the SSA refusal is not IBM text either. Stays ASSUMED (register I5). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"
@@ -4148,6 +4154,7 @@
     "doc": "ims-apis",
     "section": "EXEC DLI SCHD / TERM"
    },
+   "ibm_note": "IBM (IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), TC; IMS 15.4 Application Programming APIs, \"SCHD command\", NODHABEND): TC \"This status code applies to CICS online command-level programs only, and it is returned following a scheduling request. It means that you have already scheduled a PSB\"; NODHABEND: a CICS transaction does not fail with a DHxx abend and, \"Following an unsuccessful SCHD command, the control, as well as the status code in the DIB are passed back to the application program\"; the codes not returned to the program abend, which fits refusing a SCHD of a scheduled PSB without NODHABEND. Those parts MATCH. Not in the text: that the databases load at the first SCHD and that the PCBs start with no position (IBM only says to \"notify DL/I that your program will be accessing a database by scheduling a PSB\"); DIBSTAT blank for success is what the manual's sample programs test (\"CLC DIBSTAT,=C' '  IS STATUS BLANK\"). Stays ASSUMED (register I5). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"
@@ -4166,6 +4173,7 @@
     "doc": "ims-apis",
     "section": "EXEC DLI SCHD / TERM"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming APIs, \"TERM command\"): \"The Terminate (TERM) command is used to terminate a PSB in a CICS online program.\" \"If you want to use a PSB other than the one already scheduled, use the TERM command to release the PSB.\" \"When you issue the TERM command, all database changes are committed and cannot be backed out.\" \"No options are allowed with the TERM command. If your program subsequently needs a PSB that has terminated, it must reschedule that PSB by issuing another SCHD command.\" The runtime does this: the PSB is released and its PCBs dropped, what was written is kept (the committed changes), a later SCHD schedules again, DIBSTAT is blank (as for any success). The TERM call form adds \"causes a CICS sync point\"; the runtime refuses that call (RT-DLI-CALL) and takes no sync point for the EXEC form, whose text names only the database commit. IBM is silent on a TERM with no PSB scheduled, which the runtime refuses by name: a stated boundary, not a different answer. Stays ASSUMED only for that refusal and the sync point; the traced behaviour MATCHES (register I5). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"

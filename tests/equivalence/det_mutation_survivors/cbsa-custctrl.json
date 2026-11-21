@@ -60,23 +60,6 @@
    ]
   },
   {
-   "id": "cf7b3073f3",
-   "op": "LIT",
-   "line": 50,
-   "before": "\"MDAw\"));",
-   "after": "\"XDAw\"));",
-   "verdict": "equivalent",
-   "reason": "LIT at line 50: edits the VALUE image of SYSIDERR-RETRY ('000'). The only read is the PERFORM VARYING test, which runs after MOVE 1 TO SYSIDERR-RETRY, so the image is never read. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "7b56cc62fd",
    "op": "LIT",
    "line": 51,
@@ -86,23 +69,6 @@
    "reason": "every read of image byte(s) [0] of s_CUSTOMER_KY follows a top-level Cobol.store in its own method (inert-image)",
    "tried": [
     "inert-image"
-   ]
-  },
-  {
-   "id": "3e7fe99e8d",
-   "op": "LIT",
-   "line": 52,
-   "before": "\"OTg3NjU0\"));",
-   "after": "\"XTg3NjU0\"));",
-   "verdict": "equivalent",
-   "reason": "LIT at line 52: edits the VALUE image of SORTCODE ('987654'). SORTCODE is read only by MOVE SORTCODE TO REQUIRED-SORT-CODE, and REQUIRED-SORT-CODE (in CUSTOMER-KY) is never read by CUSTCTRL.cbl (grep: the declaration and that MOVE), so the digits reach no READ, key or output. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -430,91 +396,6 @@
    ]
   },
   {
-   "id": "53c0aa837e",
-   "op": "LIT",
-   "line": 108,
-   "before": "\"ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "after": "\"XCAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "verdict": "equivalent",
-   "reason": "LIT at line 108: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "7d24601504",
-   "op": "LIT",
-   "line": 109,
-   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "verdict": "equivalent",
-   "reason": "LIT at line 109: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "66d7c43c6a",
-   "op": "LIT",
-   "line": 110,
-   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "verdict": "equivalent",
-   "reason": "LIT at line 110: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "1a4aead80c",
-   "op": "LIT",
-   "line": 111,
-   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "verdict": "equivalent",
-   "reason": "LIT at line 111: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "1697d485b1",
-   "op": "LIT",
-   "line": 112,
-   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "verdict": "equivalent",
-   "reason": "LIT at line 112: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "49e16a4ebd",
    "op": "LIT",
    "line": 113,
@@ -524,57 +405,6 @@
    "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
    "tried": [
     "inert-image"
-   ]
-  },
-  {
-   "id": "be6a16279d",
-   "op": "LIT",
-   "line": 113,
-   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
-   "verdict": "equivalent",
-   "reason": "LIT at line 113: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "1dc44e973f",
-   "op": "LIT",
-   "line": 114,
-   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
-   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
-   "verdict": "equivalent",
-   "reason": "LIT at line 114: edits a chunk of the 1985-byte initial image of DFHCOMMAREA (4 spaces, 36 zeros, 200 spaces, 19 zeros, then NUL to byte 1985). Bytes 0-41 are named items that INITIALIZE DFHCOMMAREA at WCV010 rewrites before any read; the filler and tail (42 on) are never read by the program and are not copied out: a no-COMMAREA run has no copy-back, a LINK or raw entry overwrites them from its input and copies back at most the input length, and the typed copy-back (fill_) reads bytes 0-41 only. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "58bdac3369",
-   "op": "LIT",
-   "line": 118,
-   "before": "\"AAA=\"));",
-   "after": "\"XAA=\"));",
-   "verdict": "unreachable",
-   "reason": "LIT at line 118: edits the VALUE image of GG_RETURN_CODE. That storage is read only by runProgram() and runBatch() (lines 324 and 458), never by runTask(); CUSTCTRL.cbl itself has no such item.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -611,23 +441,6 @@
    "reason": "field_observability: dead window: no reachable statement or runtime reader reads REQUIRED-SORT-CODE or bytes 0-6 of CUSTOMER-KY (solver-unobservable)",
    "tried": [
     "solver-unobservable"
-   ]
-  },
-  {
-   "id": "726f8f7862",
-   "op": "CON",
-   "line": 152,
-   "before": "private final Field f2_SORTCODE = Field.zoned(s_SORTCODE, 0, 6, 0, false, false, false);",
-   "after": "private final Field f2_SORTCODE = Field.zoned(s_SORTCODE, 0, 6, 1, false, false, false);",
-   "verdict": "equivalent",
-   "reason": "CON at line 152: SORTCODE scale 0 to 1. The only reader is the MOVE into the never-read REQUIRED-SORT-CODE; the stored value is not seen by any READ key, branch or output. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -787,91 +600,6 @@
    ]
   },
   {
-   "id": "ddb01aa04a",
-   "op": "CON",
-   "line": 159,
-   "before": "private final Field f93_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 259);",
-   "after": "private final Field f93_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 260);",
-   "verdict": "equivalent",
-   "reason": "CON at line 159: DFHCOMMAREA group length 259 to 260. The port uses f93 only as the target of DetCics.put(f93, record), which copies min(record.length, field length); every record in the CUSTOMER dataset is 259 bytes (checked: 4 records, all 259), so 259 and 260 copy the same bytes. INITIALIZE is lowered per named item and does not use the group length. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "432b5ff5ed",
-   "op": "CON",
-   "line": 160,
-   "before": "private final Field f96_CUSTOMER_CONTROL_KEY = Field.group(s_DFHCOMMAREA, 4, 16);",
-   "after": "private final Field f96_CUSTOMER_CONTROL_KEY = Field.group(s_DFHCOMMAREA, 4, 17);",
-   "verdict": "equivalent",
-   "reason": "CON at line 160: CUSTOMER-CONTROL-KEY group length 16 to 17: the RIDFLD gets one more byte (offset 20, the first digit of NUMBER-OF-CUSTOMERS, '0' after INITIALIZE), but Store.find does Arrays.copyOf(key, keyLength) with keyLength 16, so the 17th byte is cut before the compare. The control-record READ answered the same in every scenario. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "08b7bacf4c",
-   "op": "CON",
-   "line": 161,
-   "before": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 0, false, false, false);",
-   "after": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 1, false, false, false);",
-   "verdict": "equivalent",
-   "reason": "CON at line 161: CUSTOMER-CONTROL-SORTCODE scale 0 to 1: the only use is MOVE ZERO TO it, and zero is the same bytes at any scale. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "bd834b9124",
-   "op": "CON",
-   "line": 161,
-   "before": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 0, false, false, false);",
-   "after": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 7, 0, false, false, false);",
-   "verdict": "equivalent",
-   "reason": "CON at line 161: CUSTOMER-CONTROL-SORTCODE width 6 to 7: MOVE ZERO writes one more zero at byte 10, which MOVE ALL '9' TO CUSTOMER-CONTROL-NUMBER overwrites on the next statement: the key bytes are the same. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "c6b1a7e49d",
-   "op": "CON",
-   "line": 161,
-   "before": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 0, false, false, false);",
-   "after": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 5, 6, 0, false, false, false);",
-   "verdict": "equivalent",
-   "reason": "CON at line 161: CUSTOMER-CONTROL-SORTCODE offset 4 to 5: MOVE ZERO writes zeros at bytes 5-10 instead of 4-9. Byte 4 is already '0' from INITIALIZE, bytes 5-9 are the same zeros, and byte 10 (first digit of the number) is rewritten by MOVE ALL '9' TO CUSTOMER-CONTROL-NUMBER right after: the key bytes are the same. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "21bd9e05ed",
    "op": "CON",
    "line": 162,
@@ -929,23 +657,6 @@
    "reason": "f110_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "854d50c0b4",
-   "op": "CON",
-   "line": 163,
-   "before": "private final Field f101_CUSTOMER_CONTROL_SUCCESS_FLAG = Field.alphanumeric(s_DFHCOMMAREA, 40, 1, false);",
-   "after": "private final Field f101_CUSTOMER_CONTROL_SUCCESS_FLAG = Field.alphanumeric(s_DFHCOMMAREA, 40, 2, false);",
-   "verdict": "equivalent",
-   "reason": "CON at line 163: SUCCESS-FLAG width 1 to 2: the only use is MOVE 'N' TO it, which then also writes a space into byte 41; the next statement, MOVE '1' TO CUSTOMER-CONTROL-FAIL-CODE, rewrites byte 41, so the bytes after both MOVEs are the same. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -1057,6 +768,18 @@
    ]
   },
   {
+   "id": "a35bb3a95c",
+   "op": "CON",
+   "line": 167,
+   "before": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f116_EIBCALEN is only stored into: bytes 24..25 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
    "id": "d28a264dcd",
    "op": "CON",
    "line": 167,
@@ -1153,57 +876,6 @@
    ]
   },
   {
-   "id": "05debe54ef",
-   "op": "CON",
-   "line": 173,
-   "before": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-   "after": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
-   "verdict": "unreachable",
-   "reason": "CON at line 173: GG_RETURN_CODE offset 0 to 1: the item is read only in runProgram() and runBatch() (lines 324, 458); runTask(), the CICS entry, never reads it and CUSTCTRL.cbl has no such item.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "7737c0ffd6",
-   "op": "CON",
-   "line": 173,
-   "before": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-   "after": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
-   "verdict": "unreachable",
-   "reason": "CON at line 173: GG_RETURN_CODE width 4 to 5: same as 05debe54ef, read only in runProgram() and runBatch(), never under runTask().",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "2b2eb71e08",
-   "op": "CON",
-   "line": 178,
-   "before": "k.setCustomerSortcode(Cobol.num(Field.zoned(s, 4, 6, 0, false, false, false), CS).intValue());",
-   "after": "k.setCustomerSortcode(Cobol.num(Field.zoned(s, 4, 6, 1, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "CON at line 178: scale 0 to 1 in the findById key extractor (id_OutputData reads the sortcode at offset 4). The sortcode in the key the program builds is always ZERO (MOVE ZERO TO CUSTOMER-CONTROL-SORTCODE), and zero at scale 1 is still zero, so the id is the same. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "1118b8b632",
    "op": "ROR",
    "line": 192,
@@ -1273,74 +945,6 @@
    "reason": "LIT at line 195 (`@SuppressWarnings(\"unchecked\")`): a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect. Settled by survivor_attack.py facts (annotation-text); no input of the program can show a difference.",
    "tried": [
     "annotation-text"
-   ]
-  },
-  {
-   "id": "078cf7e7b8",
-   "op": "COR",
-   "line": 200,
-   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
-   "verdict": "equivalent",
-   "reason": "COR at line 200: || to &&: store() is called only from the supplier inside task.read, after task.read has run the same undefinableFile || undefinedInRegion test (cics_task_faults.py fileFault) and answered the fault without calling the supplier. So inside store() the test is always false on both sides and || and && agree. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "1180665891",
-   "op": "LIT",
-   "line": 204,
-   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
-   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
-   "verdict": "unreachable",
-   "reason": "LIT at line 204: the file name of the write hook: CUSTCTRL.cbl only READs CUSTOMER (no WRITE, REWRITE or DELETE), so the save lambda never runs. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "5966608c8a",
-   "op": "LIT",
-   "line": 204,
-   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
-   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
-   "verdict": "unreachable",
-   "reason": "LIT at line 204: the file name of the delete hook: CUSTCTRL.cbl has no DELETE, so the delete lambda never runs. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "d0dfd5793a",
-   "op": "LIT",
-   "line": 204,
-   "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
-   "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"XutputData\"));",
-   "verdict": "equivalent",
-   "reason": "LIT at line 204: recordLengths(\"OutputData\") to an unknown name: the map is only for a variable-length file (null for a fixed one, see DetCics.Store.withLengths), and the CUSTOMER records are fixed 259 bytes, so the lookup is null for the real name and for the mutated one. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -2617,74 +2221,6 @@
    ]
   },
   {
-   "id": "c4e05e5fb7",
-   "op": "CON",
-   "line": 252,
-   "before": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 0, false, false, false), CS).intValue());",
-   "after": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 1, false, false, false), CS).intValue());",
-   "verdict": "equivalent",
-   "reason": "CON at line 252: scale 0 to 1 on the sortcode in the typed copy-back (fill_). By the time of RETURN bytes 4-9 hold either INITIALIZE/MOVE ZERO or the record the READ returned, whose key is the RIDFLD with sortcode 000000, so the value is 0 and 0 at scale 1 is 0. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "a6d7a4fbc7",
-   "op": "CON",
-   "line": 257,
-   "before": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 1, false), CS));",
-   "after": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 2, false), CS));",
-   "verdict": "equivalent",
-   "reason": "CON at line 257: fail-code width 1 to 2 in fill_: the DTO string gets byte 42 as well (a filler: a space in every dataset record and in the image). The harness compares a DTO through java_commarea, which lays each property out at its declared width, so the extra filler byte is not a property. Survived the 9 typed-entry scenarios, including the fail-code '1' one. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "3ef14b9636",
-   "op": "DEL",
-   "line": 281,
-   "before": "System.arraycopy(IMAGE_s_SYSIDERR_RETRY, 0, s_SYSIDERR_RETRY.bytes, 0, IMAGE_s_SYSIDERR_RETRY.length);",
-   "after": "/* System.arraycopy(IMAGE_s_SYSIDERR_RETRY, 0, s_SYSIDERR_RETRY.bytes, 0, IMAGE_s_SYSIDERR_RETRY.length); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 281: deletes the copy of the SYSIDERR-RETRY image in initialState(). Zero bytes instead of '000': MOVE 1 TO SYSIDERR-RETRY runs before the first test of it, so no read sees the image. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "eae97d5ce1",
-   "op": "DEL",
-   "line": 282,
-   "before": "System.arraycopy(IMAGE_s_SORTCODE, 0, s_SORTCODE.bytes, 0, IMAGE_s_SORTCODE.length);",
-   "after": "/* System.arraycopy(IMAGE_s_SORTCODE, 0, s_SORTCODE.bytes, 0, IMAGE_s_SORTCODE.length); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 282: deletes the copy of the SORTCODE image in initialState(). Storage is then zero bytes; the only reader is the MOVE into the never-read REQUIRED-SORT-CODE (see 3e7fe99e8d), and the MOVE does not read a field past its own bytes, so no output sees it. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "fda97af424",
    "op": "DEL",
    "line": 282,
@@ -2694,23 +2230,6 @@
    "reason": "DEL at line 282 (`fill_CustctrlDfhcommarea(d, s, base);`): out_CustctrlDfhcommarea() is reached from no entry point of the program. Settled by survivor_attack.py facts (no-entry-path); no input of the program can show a difference.",
    "tried": [
     "no-entry-path"
-   ]
-  },
-  {
-   "id": "a355f6e728",
-   "op": "DEL",
-   "line": 309,
-   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
-   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 309: deletes the copy of the DFHCOMMAREA image in initialState(). The storage is then zero bytes: bytes 0-41 are rewritten by INITIALIZE at WCV010, the rest is never read nor copied out (see the image-literal entries, lines 108-114). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -3038,40 +2557,6 @@
    ]
   },
   {
-   "id": "06d1271254",
-   "op": "DEL",
-   "line": 337,
-   "before": "initialState();",
-   "after": "/* initialState(); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 337: deletes initialState() in runTask(): storage then starts as zero bytes, not the VALUE images. Every item the program reads is written first: SYSIDERR-RETRY (MOVE 1), WS-CICS-RESP (RESP receiver), COMMAREA bytes 0-41 (INITIALIZE), the key (MOVE ZERO and ALL '9'); SORTCODE goes only to a never-read item. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "965786617b",
-   "op": "DEL",
-   "line": 338,
-   "before": "Cobol.move(task.transid(), f111_EIBTRNID, CS);",
-   "after": "/* Cobol.move(task.transid(), f111_EIBTRNID, CS); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 338: deletes the store of the transaction id into EIBTRNID: CUSTCTRL.cbl never names EIBTRNID (grep), nothing in the port reads f111. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "579f0ee1cf",
    "op": "DEL",
    "line": 339,
@@ -3081,126 +2566,6 @@
    "reason": "DEL at line 339 (`System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE`): s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing. Settled by survivor_attack.py facts (inert-image); no input of the program can show a difference.",
    "tried": [
     "inert-image"
-   ]
-  },
-  {
-   "id": "a2717f3c29",
-   "op": "DEL",
-   "line": 340,
-   "before": "Cobol.store(f112_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
-   "after": "/* Cobol.store(f112_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 340: deletes the store of the task number into EIBTASKN: CUSTCTRL.cbl never names EIBTASKN (its WS-EIBTASKN12 is only declared), nothing in the port reads f112. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "f65c97655b",
-   "op": "ROR",
-   "line": 344,
-   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
-   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
-   "verdict": "equivalent",
-   "reason": "ROR at line 344: == to != on the aid null test: the switch has only default -> {}, so its discriminant never matters. A null aid would give switch(null), which NPEs, but the harness always passes an AID (DFHENTER by default, equivalence_cics.py), so both sides take the same default. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "82da38a49d",
-   "op": "CON",
-   "line": 348,
-   "before": "int calen = 0;",
-   "after": "int calen = 1;",
-   "verdict": "equivalent",
-   "reason": "CON at line 348: calen default 0 to 1 when no COMMAREA is given: calen is stored only into EIBCALEN, which CUSTCTRL.cbl never reads, and the exact-length cut after it applies only when the scenario states commarea_length, which needs a COMMAREA (so calen is then overwritten). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "1ddcd91b64",
-   "op": "CON",
-   "line": 350,
-   "before": "in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "equivalent",
-   "reason": "CON at line 350: typed load base 0 to 1: the DTO bytes land one byte late (byte 42, a filler, gets one); bytes 0-41 are rewritten by INITIALIZE before any read, byte 42 is never read, and the DTO the harness compares is built from bytes 0-41. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "3c8afa5aff",
-   "op": "DEL",
-   "line": 350,
-   "before": "in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 350: deletes in_CustctrlDfhcommarea (the typed entry's load of bytes 0-41): INITIALIZE DFHCOMMAREA at WCV010 rewrites all of bytes 0-41 before any read, so the loaded values are never seen. (A cut shorter than 42 bytes ends in PastFrom in both.) Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "94a4f84167",
-   "op": "CON",
-   "line": 352,
-   "before": "calen = DetCics.eibCalen(task, 259);",
-   "after": "calen = DetCics.eibCalen(task, 260);",
-   "verdict": "equivalent",
-   "reason": "CON at line 352: default EIBCALEN 259 to 260 for a typed COMMAREA: eibCalen(task, 259) returns the scenario's commarea_length when stated, else the default; the default is stored into EIBCALEN (never read) and the exact-length cut applies only when commarea_length is stated. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "4536d487e9",
-   "op": "DEL",
-   "line": 354,
-   "before": "s_DFHCOMMAREA.beyond = null;",
-   "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 354: deletes s_DFHCOMMAREA.beyond = null: Storage.beyond is null at construction and a service runs one task. The 1800-byte LINK tail (input g-link-bytes-long-tail, now a case scenario) sets beyond through loadCommarea and left this mutant equal.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-long-tail",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -3225,24 +2590,6 @@
    "reason": "DEL at line 364 (`heldKey.clear();`): heldKey is a map nothing puts into: clear() and get() see it empty. Settled by survivor_attack.py facts (never-populated); no input of the program can show a difference.",
    "tried": [
     "never-populated"
-   ]
-  },
-  {
-   "id": "1ba66af0a6",
-   "op": "ROR",
-   "line": 368,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "ROR at line 368: < to <= on calen < storage length (1985): differs only for calen == 1985, where it copies the 1985-byte array to a 1985-byte array that caBack restores: the same bytes. commarea_length is limited to 0..259 by the harness anyway. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-long-tail",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -3366,58 +2713,6 @@
    ]
   },
   {
-   "id": "3dec2c453a",
-   "op": "DEL",
-   "line": 373,
-   "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
-   "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */",
-   "verdict": "harness-gap",
-   "reason": "DEL at line 373: deletes DetCics.restoreCommarea in the exact-length caBack. For a typed entry the copy-back reads bytes 0-41, inside the cut storage when calen >= 42 (and a calen under 42 ends in PastFrom before RETURN). The case that needs the restore is a byte LINK with a stated commarea_length (the raw copy-back reads the whole 1985), and the harness refuses that combination (link_bytes with commarea_length: tried, refused). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-long-tail",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "47971bebbe",
-   "op": "CON",
-   "line": 378,
-   "before": "perform(0, 11);",
-   "after": "perform(0, 12);",
-   "verdict": "unreachable",
-   "reason": "CON at line 378: perform(0, 11) to perform(0, 12): the loop leaves a PERFORM at i == thru; with 11 the end is paragraph 11 (the last), with 12 it would be the next index. P010's PERFORM of GET-ME-OUT-OF-HERE reaches paragraph 7 (RETURN), which always throws Goback, so paragraph 11 is never reached and neither bound ends the loop. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "721158dd04",
-   "op": "CON",
-   "line": 378,
-   "before": "perform(0, 11);",
-   "after": "perform(1, 11);",
-   "verdict": "equivalent",
-   "reason": "CON at line 378: perform(0, 11) to perform(1, 11): paragraph 0 (PREMIERE) is an empty paragraph that returns 1, so starting at 1 runs the same paragraphs. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "134d18fd00",
    "op": "LIT",
    "line": 386,
@@ -3439,74 +2734,6 @@
    "reason": "a PastFrom message is written to <scenario>.x6 and only classified by x6_judged (EIBCALEN kept, PERFORM_DEPTH absent): the refusal kind and the judged events are the same (refusal-text)",
    "tried": [
     "refusal-text"
-   ]
-  },
-  {
-   "id": "36bcd49968",
-   "op": "DEL",
-   "line": 393,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "unreachable",
-   "reason": "DEL at line 393: deletes caBack.run() in the end-of-runTask fallback, guarded by !task.ended(): the paragraph GMOFH010's EXEC CICS RETURN runs caBack.run() and task.returnTransid() and throws Goback first, and an abend also ends the task, so this block is never entered by a CUSTCTRL run. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "08389f69e6",
-   "op": "DEL",
-   "line": 397,
-   "before": "Cobol.swapTruncOpt(optBefore);",
-   "after": "/* Cobol.swapTruncOpt(optBefore); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 397: deletes the restore of Cobol.swapTruncOpt in finally: runTask sets all three Cobol mode flags on entry, so a leaked flag is overwritten by the next task, and no code between tasks in the harness does Cobol arithmetic. Survived every scenario run in one JVM.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "782fcc5f01",
-   "op": "DEL",
-   "line": 398,
-   "before": "Cobol.swapTruncBinary(truncBefore);",
-   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 398: deletes the restore of Cobol.swapTruncBinary in finally: same as 08389f69e6 (set on entry by every runTask, nothing between tasks reads it).",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "e90afcc0e7",
-   "op": "DEL",
-   "line": 399,
-   "before": "Cobol.swapNumprocPfd(pfdBefore);",
-   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 399: deletes the restore of Cobol.swapNumprocPfd in finally: same as 08389f69e6 (set on entry by every runTask, nothing between tasks reads it).",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -3675,210 +2902,6 @@
     "sysiderr-notfnd",
     "sysiderr-then-ioerr",
     "sysiderr-twice"
-   ]
-  },
-  {
-   "id": "28a010de8d",
-   "op": "CON",
-   "line": 494,
-   "before": "boolean jumped = (next & GOTO) != 0;",
-   "after": "boolean jumped = (next & GOTO) != 1;",
-   "verdict": "equivalent",
-   "reason": "CON at line 494: (next & GOTO) != 1 (jumped true whenever the bit is not exactly 1, so always): the same as cba025d331, PERFORM (3,5) runs on into 6 and 7 inside itself, the same events and the same Goback. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "cba025d331",
-   "op": "ROR",
-   "line": 494,
-   "before": "boolean jumped = (next & GOTO) != 0;",
-   "after": "boolean jumped = (next & GOTO) == 0;",
-   "verdict": "equivalent",
-   "reason": "ROR at line 494: (next & GOTO) != 0 to == 0 (jumped true on every fall-through): the end-of-range check is skipped, so PERFORM (3,5) goes on to paragraphs 6 and 7 instead of returning to paragraph 1, which would PERFORM (6,8) at once: the same paragraphs in the same order, ended by the same Goback in paragraph 7. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "e4b025002a",
-   "op": "NEG",
-   "line": 496,
-   "before": "if (!jumped) {",
-   "after": "if (!(!jumped)) {",
-   "verdict": "equivalent",
-   "reason": "NEG at line 496: if (!jumped) to if (jumped): the fall-through checks are skipped on a fall-through, the same effect as cba025d331: (3,5) runs on into paragraphs 6 and 7, the same events and Goback. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "401fb88f61",
-   "op": "DEL",
-   "line": 498,
-   "before": "return;",
-   "after": "/* return; */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 498: deletes the return at i == thru: PERFORM (3,5) then falls into the outer-range scan (no match) and goes on to paragraph 6, the same as cba025d331: the same events and Goback. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "5b9faebf08",
-   "op": "ROR",
-   "line": 500,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "ROR at line 500: stops the scan before depth 0 (d > 0). The scan matches an outer PERFORM whose end is the paragraph just run and which is not this one's end; outer ends are 11 (the (0,11) PERFORM) and 5/8, and the inner PERFORMs only run paragraphs 3-7, so no depth ever matches and PerformExit is never thrown. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "5bac5fe0a8",
-   "op": "CON",
-   "line": 500,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "unreachable",
-   "reason": "CON at line 500: starts the outer-range scan one level lower (mine - 2). The scan matches an outer PERFORM whose end is the paragraph just run and which is not this one's end; outer ends are 11 (the (0,11) PERFORM) and 5/8, and the inner PERFORMs only run paragraphs 3-7, so no depth ever matches and PerformExit is never thrown. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "f3c041db56",
-   "op": "CON",
-   "line": 500,
-   "before": "for (int d = mine - 1; d >= 0; d--) {",
-   "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "unreachable",
-   "reason": "CON at line 500: stops the scan before depth 0 (d >= 1). The scan matches an outer PERFORM whose end is the paragraph just run and which is not this one's end; outer ends are 11 (the (0,11) PERFORM) and 5/8, and the inner PERFORMs only run paragraphs 3-7, so no depth ever matches and PerformExit is never thrown. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "8283835b4f",
-   "op": "CON",
-   "line": 506,
-   "before": "if (next >= 12) {",
-   "after": "if (next >= 13) {",
-   "verdict": "unreachable",
-   "reason": "CON at line 506: next >= 12 to next >= 13: same as b5aa64a717, 12 is returned only by paragraph 11, which is never reached. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "b5aa64a717",
-   "op": "ROR",
-   "line": 506,
-   "before": "if (next >= 12) {",
-   "after": "if (next > 12) {",
-   "verdict": "unreachable",
-   "reason": "ROR at line 506: next >= 12 to next > 12: next == 12 is returned only by paragraph 11 (the last), which no run reaches because paragraph 7 throws Goback first. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "0cbe207234",
-   "op": "ROR",
-   "line": 512,
-   "before": "if (e.depth != mine) {",
-   "after": "if (e.depth == mine) {",
-   "verdict": "unreachable",
-   "reason": "ROR at line 512: e.depth != mine to ==: the handler of PerformExit, never entered (see 5bac5fe0a8). CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "8de5c9a79e",
-   "op": "NEG",
-   "line": 512,
-   "before": "if (e.depth != mine) {",
-   "after": "if (!(e.depth != mine)) {",
-   "verdict": "unreachable",
-   "reason": "NEG at line 512: negates the test in the catch of PerformExit: no PerformExit is ever thrown (see 5bac5fe0a8), so the handler never runs. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "ad1c727b19",
-   "op": "DEL",
-   "line": 516,
-   "before": "performDepth = mine;",
-   "after": "/* performDepth = mine; */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 516: deletes performDepth = mine in finally: after PERFORM (3,5) the depth stays one too high, so PERFORM (6,8) stacks one level deeper; the depth only sizes the outer-range scan, which never matches (see 5bac5fe0a8), so nothing changes. CUSTCTRL has no GO TO and no HANDLE CONDITION, so no paragraph returns GOTO|n and condition() never gives a label; paragraph 7 (RETURN) throws Goback on every run; the only PERFORMs are (0,11) and, inside paragraph 1, (3,5) then (6,8). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {
@@ -4776,142 +3799,6 @@
    ]
   },
   {
-   "id": "0a8323768c",
-   "op": "CON",
-   "line": 598,
-   "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "after": "if (planned3[0] == 1) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "equivalent",
-   "reason": "CON at line 598: planned3[0] == 0 to == 1: a normal DELAY keeps {0,0} instead of calling delayOrInvreq, which for 3 seconds returns {0,0} and adds to the unread clock. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "242a6c0bde",
-   "op": "CON",
-   "line": 598,
-   "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "after": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(4), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "equivalent",
-   "reason": "CON at line 598: seconds 3 to 4 in delayMillis: only the amount added to the unread task.waited changes. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "39b5c87b5d",
-   "op": "CON",
-   "line": 598,
-   "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "after": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(4), null), \"DELAY out of range\");",
-   "verdict": "equivalent",
-   "reason": "CON at line 598: the range argument 3 to 4: both are valid ranges so delayOrInvreq returns {0,0} either way. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "61698c0cd9",
-   "op": "CON",
-   "line": 598,
-   "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "after": "if (planned3[1] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "verdict": "equivalent",
-   "reason": "CON at line 598: planned3[0] == 0 to planned3[1] == 0: differs only for a planned answer with RESP nonzero and RESP2 zero (EXPIRED), where the mutant recomputes {0,0} and goes on; the original gives EXPIRED, which condition() ignores, and goes on too. Planned INVREQ with RESP2 6 and a normal DELAY take the same branch on both. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "f7f4b4f035",
-   "op": "LIT",
-   "line": 598,
-   "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
-   "after": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"XELAY out of range\");",
-   "verdict": "unreachable",
-   "reason": "LIT at line 598: the INVREQ message text of delayOrInvreq: built only for an out-of-range request, and the constant 3 seconds is in range. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "1f0841c347",
-   "op": "CON",
-   "line": 601,
-   "before": "if (planned3[0] != 0) {",
-   "after": "if (planned3[1] != 0) {",
-   "verdict": "equivalent",
-   "reason": "CON at line 601: planned3[0] != 0 to planned3[1] != 0: differs only for RESP nonzero with RESP2 zero (EXPIRED), where the original calls condition() (ignored, -1) and the mutant skips it; the same path on. INVREQ with RESP2 0 is refused by the harness (X72). The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "469defe156",
-   "op": "CON",
-   "line": 603,
-   "before": "if (to >= 0) return GOTO | to;",
-   "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "unreachable",
-   "reason": "CON at line 603: to >= 0 to to >= 1: same as bf4c907b41, no handler label exists so to is never 0 or more. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
-   "id": "bf4c907b41",
-   "op": "ROR",
-   "line": 603,
-   "before": "if (to >= 0) return GOTO | to;",
-   "after": "if (to > 0) return GOTO | to;",
-   "verdict": "unreachable",
-   "reason": "ROR at line 603: to >= 0 to to > 0: condition() returns -1 for an ignored condition and abends otherwise; a label (to >= 0) needs a HANDLE CONDITION or HANDLE ABEND, which CUSTCTRL does not have, so to is never 0 or more. The retry DELAY is EXEC CICS DELAY FOR SECONDS(3); task.delay() only advances task.waited, a clock read by START and RUN TRANSID children, and CUSTCTRL starts none; an EXPIRED answer is ignored by default (condition() returns -1). Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
-   ]
-  },
-  {
    "id": "4c85d27c00",
    "op": "DEL",
    "line": 611,
@@ -5042,23 +3929,6 @@
    "reason": "f138_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "b906684d2d",
-   "op": "DEL",
-   "line": 644,
-   "before": "task.returnTransid(null, null);",
-   "after": "/* task.returnTransid(null, null); */",
-   "verdict": "equivalent",
-   "reason": "DEL at line 644: deletes task.returnTransid in GMOFH010: the RETURN then throws Goback with the task not ended, and the fallback at the end of runTask runs caBack.run() again (an idempotent copy-out) and task.returnTransid(null, null): the same events in the same order. Attacked with the 40 case scenarios plus 8 more tried on the real COBOL side (SYSIDERR twice then NORMAL, SYSIDERR then NOTFND, SYSIDERR then IOERR on a typed entry, a 10-byte tail with SYSIDERR, EIBCALEN 1, a persistent SYSIDERR with a failing DELAY, and a 1800-byte LINK tail): this mutant survived every one.",
-   "tried": [
-    "g-delay-invreq-persistent",
-    "g-dto-eibcalen-1",
-    "g-link-bytes-sysiderr-tail",
-    "g-sysiderr-then-ioerr-dto",
-    "g-sysiderr-then-notfnd",
-    "g-sysiderr-twice-then-normal"
    ]
   },
   {

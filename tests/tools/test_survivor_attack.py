@@ -1231,3 +1231,48 @@ def test_a_cics_attack_is_proven_through_the_facades_too_8599(tmp_path):
     assert "--no-facades" not in cics and cics[:2] == ("--case-file", str(cf))
     assert "--no-facades" in sa.attack_flags("batch", cf, "all")
     assert sa.attack_flags("batch", cf, "all")[-3:] == ("--faults", "all", "--one-jvm")
+
+
+# ---- EIBCALEN: the entry chain's calen local feeds only an unread EIBCALEN (#7955)
+_CALEN_TXT = _EIBTXT.replace(
+    "        if (f122_EIBAID.get() == 1) { f121_EIBCALEN.get(); }\n",
+    "        if (f122_EIBAID.get() == 1) { f142_EIBRESP.get(); }\n"
+    "        int calen = 0;\n"
+    "        if (ca instanceof AWs) {\n"
+    "            calen = DetCics.eibCalen(task, 20);\n"
+    "        } else if (ca instanceof BWs) {\n"
+    "            calen = DetCics.eibCalen(task, 4);\n"
+    "        }\n"
+    "        if (calen == 0 && task.linkArea() != null) {\n"
+    "            calen = DetCics.eibCalen(task, task.linkArea().length);\n"
+    "        }\n"
+    "        Cobol.store(f121_EIBCALEN, BigDecimal.valueOf(calen), false, CS);\n",
+)
+_CL = "            calen = DetCics.eibCalen(task, 20);"
+_CI = "        int calen = 0;"
+_CT = "        if (calen == 0 && task.linkArea() != null) {"
+
+
+def _calen(text, before, after):
+    got = _plumb(text, before, after)
+    return bool(got) and got["result"] == "eib-calen-unread"
+
+
+def test_eib_calen_chain_start_and_test_are_settled_while_eibcalen_is_unread():
+    assert _calen(_CALEN_TXT, _CL, _CL.replace("20", "21"))
+    assert _calen(_CALEN_TXT, _CL, _CL.replace("20", "0"))
+    assert _calen(_CALEN_TXT, _CL, "        /* " + _CL.strip() + " */")
+    assert _calen(_CALEN_TXT, _CI, _CI.replace("= 0", "= 1"))
+    assert _calen(_CALEN_TXT, _CT, _CT.replace("== 0", "== 1"))
+    single = "            calen = DetCics.eibCalen(task, 4);"  # both chain arms, single digit
+    assert _calen(_CALEN_TXT, single, single.replace("4", "5"))
+
+
+def test_eib_calen_is_not_settled_when_anything_reads_it_or_the_edit_leaves_the_class():
+    read = _CALEN_TXT.replace("f142_EIBRESP.get(); }", "f142_EIBRESP.get(); f121_EIBCALEN.get(); }")
+    assert not _calen(read, _CL, _CL.replace("20", "21"))  # EIBCALEN is read
+    msg = _CALEN_TXT.replace("void run() {", 'void run() { say("n=" + calen);')
+    assert not _calen(msg, _CL, _CL.replace("20", "21"))  # calen is read elsewhere (the PastFrom shape)
+    assert not _calen(_CALEN_TXT, _CL, _CL.replace("(task, 20)", "(task, 20 + 1)"))
+    assert not _calen(_CALEN_TXT, _CT, _CT.replace("&&", "||"))  # the guard that keeps linkArea() non-null
+    assert not _calen(_CALEN_TXT, _CL, _CL.replace("calen =", "calen +="))

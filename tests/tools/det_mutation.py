@@ -147,6 +147,8 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # annotation-text / inert-image: a @SuppressWarnings value (javac lint only); an initial storage image nothing observes
 # (an all-zero image of read-only items, or image bytes no named item covers); the paragraph switch's default arm and
 # the PERFORM stack's capacity are flow-plumbing too (#7955)
+# eib-calen-unread: the entry chain's `calen` local (one assignment per COMMAREA class, its start and the calen == 0 test)
+# only feeds a store into EIBCALEN, which nothing reads (#7955)
 # zero-image-read: a Field.binary declaration of an item only read from a storage whose image is all zero (#7955)
 ATTACK_SETTLED = (
     "no-entry-path",
@@ -167,6 +169,7 @@ ATTACK_SETTLED = (
     "goto-flag-bit",
     "return-area-cut",
     "eib-resp-unread",
+    "eib-calen-unread",
     "refusal-text",
     "exception-ctor",
 )

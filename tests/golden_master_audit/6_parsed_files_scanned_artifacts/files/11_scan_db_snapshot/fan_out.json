@@ -44434,17 +44434,17 @@
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": {
-        "portfetch::assemble_url@77": 0,
+        "portfetch::assemble_url@77": 1,
         "portfetch::check_dns@275": 0,
         "portfetch::checksites@162": 1,
-        "portfetch::get_urls@254": 0,
+        "portfetch::get_urls@254": 1,
         "portfetch::mirror_sites@104": 1,
         "portfetch::percent_encode@49": 0,
         "portfetch::separate_tag@87": 0,
         "portfetch::sortsites@231": 0
       },
       "tcl/macports_port_api/library.tcl": {
-        "PortSystem@6": 0,
+        "PortSystem@6": 1,
         "macports_worker_init@4": 0
       },
       "tcl/macports_port_api/portactivate.tcl": {
@@ -44462,7 +44462,7 @@
         "portbuild::build_start@204": 0
       },
       "tcl/macports_port_api/portbump.tcl": {
-        "portbump::bump_main@189": 1,
+        "portbump::bump_main@189": 5,
         "portbump::bump_start@179": 0,
         "portbump::find_revision_line@97": 0,
         "portbump::replace_checksums@59": 0,
@@ -44502,10 +44502,10 @@
         "portdestroot::destroot_start@83": 0
       },
       "tcl/macports_port_api/portdistcheck.tcl": {
-        "portdistcheck::distcheck_main@53": 0
+        "portdistcheck::distcheck_main@53": 2
       },
       "tcl/macports_port_api/portdistfiles.tcl": {
-        "portdistfiles::distfiles_main@54": 0,
+        "portdistfiles::distfiles_main@54": 3,
         "portdistfiles::distfiles_start@49": 0
       },
       "tcl/macports_port_api/portextract.tcl": {
@@ -44521,29 +44521,29 @@
       },
       "tcl/macports_port_api/portfetch.tcl": {
         "portfetch::_async_cleanup@655": 0,
-        "portfetch::_fetch_start@693": 1,
-        "portfetch::bzrfetch@247": 0,
+        "portfetch::_fetch_start@693": 2,
+        "portfetch::bzrfetch@247": 1,
         "portfetch::checkdistfiles@201": 0,
         "portfetch::checkfiles@229": 4,
         "portfetch::checkpatchfiles@178": 0,
-        "portfetch::cvsfetch@287": 0,
+        "portfetch::cvsfetch@287": 1,
         "portfetch::fetch_addfilestomap@612": 0,
         "portfetch::fetch_async_start@635": 4,
         "portfetch::fetch_deletefiles@601": 0,
-        "portfetch::fetch_init@685": 0,
-        "portfetch::fetch_main@743": 5,
+        "portfetch::fetch_init@685": 1,
+        "portfetch::fetch_main@743": 6,
         "portfetch::fetch_start@724": 2,
-        "portfetch::fetchfiles@451": 1,
+        "portfetch::fetchfiles@451": 2,
         "portfetch::files_present@623": 0,
         "portfetch::find_git_path@158": 0,
         "portfetch::get_full_mirror_sites_path@222": 0,
-        "portfetch::gitfetch@395": 0,
-        "portfetch::hgfetch@427": 0,
+        "portfetch::gitfetch@395": 1,
+        "portfetch::hgfetch@427": 1,
         "portfetch::set_fetch_type@127": 0,
         "portfetch::start_pings@665": 0,
         "portfetch::suffix@172": 0,
         "portfetch::svn_proxy_args@336": 0,
-        "portfetch::svnfetch@357": 1
+        "portfetch::svnfetch@357": 2
       },
       "tcl/macports_port_api/portinstall.tcl": {
         "portinstall::create_archive@112": 2,
@@ -44552,9 +44552,9 @@
         "portinstall::install_start@94": 0
       },
       "tcl/macports_port_api/portlint.tcl": {
-        "portlint::lint_checksum@157": 0,
+        "portlint::lint_checksum@157": 2,
         "portlint::lint_checksum_type_list@125": 0,
-        "portlint::lint_main@288": 1,
+        "portlint::lint_main@288": 3,
         "portlint::lint_platforms@258": 0,
         "portlint::lint_start@283": 0,
         "portlint::seems_utf8@87": 0
@@ -44579,10 +44579,10 @@
     },
     "tcl/macports_registry": {
       "tcl/macports_registry/common.tcl": {
-        "test@3": 1,
-        "test_equal@19": 1,
-        "test_set@36": 1,
-        "test_throws@53": 1
+        "test@3": 0,
+        "test_equal@19": 0,
+        "test_set@36": 0,
+        "test_throws@53": 0
       },
       "tcl/macports_registry/depends.tcl": {
         "main@5": 1
@@ -44591,7 +44591,7 @@
         "main@5": 5
       },
       "tcl/macports_registry/portimage.tcl": {
-        "_activate_contents@683": 8,
+        "_activate_contents@683": 9,
         "_activate_directories@399": 1,
         "_activate_files@331": 1,
         "_check_registry@259": 0,
@@ -44600,23 +44600,23 @@
         "_extract_progress@597": 1,
         "_get_port_conflicts@634": 0,
         "_progress@626": 0,
-        "activate@78": 3,
-        "activate_composite@68": 1,
-        "deactivate@162": 2,
-        "deactivate_composite@153": 1,
+        "activate@78": 4,
+        "activate_composite@68": 2,
+        "deactivate@162": 3,
+        "deactivate_composite@153": 2,
         "extract_archive_to_imagedir@430": 0,
         "install@1083": 0
       },
       "tcl/macports_registry/portuninstall.tcl": {
         "cmp_regrefs@107": 0,
         "generate_deplist@44": 0,
-        "uninstall@133": 1,
-        "uninstall_composite@124": 1
+        "uninstall@133": 3,
+        "uninstall_composite@124": 2
       },
       "tcl/macports_registry/receipt_flat.tcl": {
         "clean_dep_map@819": 0,
         "close_file_map@736": 0,
-        "convert_entry_from_HEAD@223": 5,
+        "convert_entry_from_HEAD@223": 6,
         "delete_entry@407": 0,
         "entry_exists@344": 0,
         "entry_exists_for_name@360": 0,
@@ -44661,7 +44661,7 @@
         "active@175": 2,
         "clean_dep_map@377": 0,
         "close_file_map@279": 0,
-        "convert_to_sqlite@435": 0,
+        "convert_to_sqlite@435": 7,
         "delete_entry@103": 1,
         "entry_exists@76": 0,
         "entry_exists_for_name@82": 0,
@@ -44673,7 +44673,7 @@
         "installed@137": 2,
         "list_dependents@362": 0,
         "list_depends@356": 0,
-        "location@208": 1,
+        "location@208": 2,
         "new_entry@49": 2,
         "open_dep_map@307": 0,
         "open_entry@116": 0,
@@ -44752,10 +44752,10 @@
         "copy_file@197": 1,
         "crash_on_write@1844": 1,
         "crashsql@1752": 2,
-        "db_delete_and_reopen@2482": 1,
-        "db_restore@2470": 1,
+        "db_delete_and_reopen@2482": 2,
+        "db_restore@2470": 2,
         "db_restore_and_reopen@2477": 2,
-        "db_save@2458": 1,
+        "db_save@2458": 2,
         "db_save_and_close@2465": 1,
         "dbcksum@2176": 0,
         "delete_all_data@1159": 0,
@@ -44763,15 +44763,15 @@
         "do_catchsql_test@973": 1,
         "do_copy_file@205": 2,
         "do_delete_file@276": 2,
-        "do_eqp_execsql_test@1070": 2,
-        "do_eqp_test@1048": 2,
+        "do_eqp_execsql_test@1070": 1,
+        "do_eqp_test@1048": 1,
         "do_execsql_test@941": 1,
         "do_filepath_test@882": 1,
         "do_ioerr_test@1927": 6,
         "do_not_use_codec@323": 1,
         "do_realnum_test@892": 1,
         "do_select_tests@1103": 1,
-        "do_test@703": 36,
+        "do_test@703": 8,
         "do_test_with_ansi_output@815": 0,
         "do_timed_execsql_test@977": 1,
         "do_vmstep_test@916": 0,
@@ -44819,7 +44819,7 @@
         "puts@687": 0,
         "puts_override@674": 0,
         "query_plan_graph@990": 1,
-        "realnum_normalize@888": 32,
+        "realnum_normalize@888": 0,
         "reset_db@551": 2,
         "run_ioerr_prep@1890": 3,
         "set_test_counter@583": 0,
@@ -44839,7 +44839,7 @@
         "test_find_binary@2538": 2,
         "test_find_cli@2551": 1,
         "test_find_sqldiff@2592": 1,
-        "test_pwd@248": 1,
+        "test_pwd@248": 2,
         "test_restore_config_pagecache@2514": 1,
         "test_set_config_pagecache@2496": 1,
         "vdbe_coverage_report@1384": 1,
@@ -44885,12 +44885,12 @@
         "make_new_testset@1544": 3,
         "mark_job_as_finished@1562": 1,
         "must_be_testfixture@1411": 1,
-        "progress_report@1725": 4,
+        "progress_report@1725": 5,
         "r_get_next_job@998": 3,
         "r_write_db@987": 0,
         "run_testset@1795": 7,
         "script_input_ready@1595": 5,
-        "show_status@588": 3,
+        "show_status@588": 4,
         "usage@93": 1
       }
     },

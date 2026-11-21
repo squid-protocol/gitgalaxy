@@ -16,10 +16,122 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
 # #5909: a `switch` arm is `label body`. The label is a pattern, not a command, and a one-line body
-# (`x { doX }`) is not at command position. `_expose_switch_arms` blanks each label and puts the body on
-# its own line, with `;` as a line break. A label is told from a script-taking custom command only by the
-# `switch` context, which a regex cannot see (balanced braces).
+# (`x { doX }`) is not at command position. `_rewrite_tcl_calls` blanks each label and puts the body on
+# its own line, with `;` as a line break. It also blanks `proc` parameter lists (whose default-value
+# braces `{a ""}` `{b ""}` otherwise trigger `} {`), joins `\` line continuations, blanks braced data
+# values of `set` and `foreach`/`lmap` lists, and exposes one-line `{body}` blocks of `foreach`/`lmap`,
+# `after <ms|idle>`, and `uplevel <level>`.
 _WS = " \t\r\n"
+_QUOTE_BEFORE = frozenset(" \t\r\n[{;(,=")
+
+
+def _scan_tcl_quoted(text: str, start: int, out: list[str]) -> int:
+    r"""Scan a Tcl double-quoted string starting at `start` (`text[start] == '"'`).
+
+    If a matching closing `"` is found:
+    - When it contains unescaped `[...]` command substitutions, blank the outer quotes and literal
+      bytes while preserving `[...]` (recursively processing nested `"..."` inside them).
+    - When it contains no `[...]`, blank the interior (keeping newlines and the outer `"..."`
+      delimiters) so `_apply_literal_shield` and `_rewrite_tcl_calls` still see a single quoted
+      word token (e.g. a `switch` arm label `"a b"`).
+    If unmatched, leave `out` untouched and return `start + 1`.
+    """
+    n = len(text)
+    i = start + 1
+    # Collect interior indices to blank so an unmatched `"` (e.g. inside `{"}`) leaves `out` unchanged.
+    to_blank: list[int] = []
+    nested_quotes: list[tuple[int, int]] = []
+    bracket_depth = 0
+    has_subst = False
+    while i < n:
+        ch = text[i]
+        if ch == "\\":
+            if bracket_depth == 0:
+                to_blank.append(i)
+                if i + 1 < n and text[i + 1] != "\n":
+                    to_blank.append(i + 1)
+            i += 2
+            continue
+        if bracket_depth == 0:
+            if ch == '"':
+                if has_subst:
+                    out[start] = " "
+                    out[i] = " "
+                for idx in to_blank:
+                    if out[idx] != "\n":
+                        out[idx] = " "
+                for q_start, q_end in nested_quotes:
+                    for idx in range(q_start, q_end):
+                        if out[idx] != "\n":
+                            out[idx] = " "
+                return i + 1
+            if ch == "[":
+                bracket_depth = 1
+                has_subst = True
+                i += 1
+                continue
+            if ch != "\n":
+                to_blank.append(i)
+            i += 1
+        else:
+            if ch == "[":
+                bracket_depth += 1
+                i += 1
+            elif ch == "]":
+                bracket_depth -= 1
+                i += 1
+            elif ch == '"' and (i == 0 or text[i - 1] in _QUOTE_BEFORE):
+                # Recursively scan a double-quoted string inside `[...]` command substitution.
+                sub_out = list(text)
+                end_q = _scan_tcl_quoted(text, i, sub_out)
+                if end_q > i + 1:
+                    nested_quotes.extend(
+                        (idx, idx + 1) for idx in range(i, end_q) if sub_out[idx] == " " and text[idx] != " "
+                    )
+                    i = end_q
+                else:
+                    i += 1
+            else:
+                i += 1
+    return start + 1
+
+
+def _expose_tcl_quoted_substitutions(text: str) -> str:
+    r"""Pre-shield rewrite for Tcl: expose `[...]` command substitutions inside `"..."` strings
+    before `_apply_literal_shield` blanks quoted literals, and cleanly blank multi-line `"..."`
+    strings with escaped `\"` / `\[` / `\\\n`."""
+    if '"' not in text:
+        return text
+    out = list(text)
+    n = len(text)
+    i = 0
+    at_line_start = True
+    while i < n:
+        ch = text[i]
+        if ch == "\n":
+            at_line_start = True
+            i += 1
+            continue
+        if at_line_start and ch in " \t":
+            i += 1
+            continue
+        if at_line_start and ch == "#":
+            # Skip `#` comment line (including `\\\n` continuations) so `"` in comments doesn't open a string.
+            while i < n and text[i] != "\n":
+                if text[i] == "\\" and i + 1 < n and text[i + 1] == "\n":
+                    i += 2
+                    continue
+                i += 1
+            continue
+        at_line_start = False
+        if ch == "\\":
+            i += 2
+            continue
+        if ch == '"' and (i == 0 or text[i - 1] in _QUOTE_BEFORE):
+            i = _scan_tcl_quoted(text, i, out)
+            continue
+        i += 1
+    return "".join(out)
 
 
 def _word_end(text: str, i: int, stop: str) -> int:
@@ -51,49 +163,182 @@ def _skip_blank(text: str, i: int, newlines: bool) -> int:
     return i
 
 
-def _expose_switch_arms(text: str) -> str:
-    """`text` with each `switch` arm's label blanked and its braced body moved to its own line (same length)."""
+def _blank_span(out: list[str], start: int, end: int) -> None:
+    for q in range(start, end):
+        if out[q] != "\n":
+            out[q] = " "
+
+
+def _is_cmd_pos(text: str, at: int) -> bool:
+    before = text[:at].rstrip(" \t")[-1:]
+    return not before or before in "\n[{;"
+
+
+def _expose_braced_body(text: str, out: list[str], start: int, end: int) -> None:
+    if start < end and text[start] == "{" and end - 1 > start and text[end - 1] == "}":
+        out[start] = "\n"
+        out[end - 1] = " "
+
+
+def _join_line_continuations(text: str) -> str:
+    """Replace Tcl backslash-newline continuations (`\\\n`) with two spaces (same length)."""
+    if "\\\n" not in text:
+        return text
     out = list(text)
+    n = len(text)
+    i = 0
+    while i < n - 1:
+        if text[i] == "\\" and text[i + 1] == "\n":
+            # Count consecutive preceding backslashes: only an odd total continues the line.
+            bs = 1
+            j = i - 1
+            while j >= 0 and text[j] == "\\":
+                bs += 1
+                j -= 1
+            if bs % 2 == 1:
+                out[i] = " "
+                out[i + 1] = " "
+            i += 2
+        else:
+            i += 1
+    return "".join(out)
+
+
+def _rewrite_tcl_calls(text: str) -> str:
+    """Same-length structural rewrite for Tcl `calls_out` extraction."""
+    text = _join_line_continuations(text)
+    out = list(text)
+    n = len(text)
+
+    # 1. Blank `proc <name> {<args>}` parameter lists so default-value braces `{v ""}` never fire `} {`,
+    # and expose the proc's `{body}` so one-line procs (`proc f {args} { uplevel ... }`) stay at command position.
+    pos = 0
+    while True:
+        at = text.find("proc", pos)
+        if at < 0:
+            break
+        pos = at + 4
+        if not _is_cmd_pos(text, at) or text[pos : pos + 1] not in (" ", "\t"):
+            continue
+        i = _skip_blank(text, pos, False)
+        if i >= n or text[i] in "\n;]":
+            continue
+        i = _skip_blank(text, _word_end(text, i, _WS + ";]"), False)  # proc name
+        if i < n and text[i] == "{":
+            args_end = _word_end(text, i, _WS)
+            _blank_span(out, i, args_end)
+            body_i = _skip_blank(text, args_end, False)
+            if body_i < n and text[body_i] == "{":
+                body_end = _word_end(text, body_i, _WS)
+                _expose_braced_body(text, out, body_i, body_end)
+
+    # 2. `switch`: blank arm labels and expose braced arm bodies.
     pos = 0
     while True:
         at = text.find("switch", pos)
         if at < 0:
-            return "".join(out)
+            break
         pos = at + 6
-        before = text[:at].rstrip(" \t")[-1:]
-        if (before and before not in "\n[{;") or text[pos : pos + 1] not in (" ", "\t"):
+        if not _is_cmd_pos(text, at) or text[pos : pos + 1] not in (" ", "\t"):
             continue
         i = _skip_blank(text, pos, False)
-        while i < len(text) and text[i] == "-":  # options, then `--`
+        while i < n and text[i] == "-":  # options, then `--`
             i = _skip_blank(text, _word_end(text, i, _WS), False)
-        if i >= len(text) or text[i] in "\n;]":
+        if i >= n or text[i] in "\n;]":
             continue
         i = _skip_blank(text, _word_end(text, i, _WS + ";]"), False)  # the subject
         if text[i : i + 1] == "{":
             end = _word_end(text, i, _WS)
             i, newlines = i + 1, True
             end -= 1
+            word_stop = _WS  # inside `{ ... }`, `]` in a regex pattern does not end a label
         else:
-            end, newlines = len(text), False
+            end, newlines = n, False
+            word_stop = _WS + ";]"
         while True:
             i = _skip_blank(text, i, newlines)
             if i >= end or text[i] in "\n;]":
                 break
-            label_end = _word_end(text, i, _WS + ";]")
-            for q in range(i, label_end):
-                if out[q] != "\n":
-                    out[q] = " "
+            label_end = _word_end(text, i, word_stop)
+            _blank_span(out, i, label_end)
             i = _skip_blank(text, label_end, newlines)
             if i >= end or text[i] in "\n;]":
                 break
-            body_end = _word_end(text, i, _WS + ";]")
+            body_end = _word_end(text, i, word_stop)
             if text[i] == "{":
-                out[i] = "\n"
-                out[body_end - 1] = " "
-                for q in range(i + 1, body_end - 1):
-                    if out[q] == ";":
-                        out[q] = "\n"
+                _expose_braced_body(text, out, i, body_end)
             i = body_end
+
+    # 3. `foreach` / `lmap`: blank braced list arguments and expose the trailing braced body.
+    for kw in ("foreach", "lmap"):
+        klen = len(kw)
+        pos = 0
+        while True:
+            at = text.find(kw, pos)
+            if at < 0:
+                break
+            pos = at + klen
+            if not _is_cmd_pos(text, at) or text[pos : pos + 1] not in (" ", "\t"):
+                continue
+            words: list[tuple[int, int]] = []
+            i = _skip_blank(text, pos, False)
+            while i < n and text[i] not in "\n;]":
+                w_end = _word_end(text, i, _WS + ";]")
+                words.append((i, w_end))
+                i = _skip_blank(text, w_end, False)
+            if len(words) >= 3:
+                # Words are (varlist1, list1, [varlist2, list2, ...], body).
+                body_s, body_e = words[-1]
+                if text[body_s] == "{":
+                    _expose_braced_body(text, out, body_s, body_e)
+                for idx in range(1, len(words) - 1, 2):
+                    ls, le = words[idx]
+                    if text[ls] == "{":
+                        _blank_span(out, ls, le)
+
+    # 4. `after <ms|idle> {body}` and `uplevel <level> {body}`: expose braced script body.
+    for kw in ("after", "uplevel"):
+        klen = len(kw)
+        pos = 0
+        while True:
+            at = text.find(kw, pos)
+            if at < 0:
+                break
+            pos = at + klen
+            if not _is_cmd_pos(text, at) or text[pos : pos + 1] not in (" ", "\t"):
+                continue
+            i = _skip_blank(text, pos, False)
+            if i >= n or text[i] in "\n;]":
+                continue
+            w1_end = _word_end(text, i, _WS + ";]")
+            w1 = text[i:w1_end]
+            if kw == "after" and not (w1.isdigit() or w1 == "idle"):
+                continue
+            if kw == "uplevel" and not (w1.isdigit() or (w1.startswith("#") and w1[1:].isdigit())):
+                continue
+            i = _skip_blank(text, w1_end, False)
+            if i < n and text[i] == "{":
+                body_end = _word_end(text, i, _WS + ";]")
+                _expose_braced_body(text, out, i, body_end)
+
+    # 5. `set <var> {data}`: a braced value assigned by `set` is literal data, never executed here.
+    pos = 0
+    while True:
+        at = text.find("set", pos)
+        if at < 0:
+            break
+        pos = at + 3
+        if not _is_cmd_pos(text, at) or text[pos : pos + 1] not in (" ", "\t"):
+            continue
+        i = _skip_blank(text, pos, False)
+        if i >= n or text[i] in "\n;]":
+            continue
+        i = _skip_blank(text, _word_end(text, i, _WS + ";]"), False)  # varName
+        if i < n and text[i] == "{":
+            val_end = _word_end(text, i, _WS + ";]")
+            _blank_span(out, i, val_end)
+
+    return "".join(out)
 
 
 DEFINITION: dict[str, Any] = {
@@ -115,6 +360,7 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Tcl natively uses '#' exclusively for line-level comments. It does not
     # have native block comments (developers sometimes hack `if 0 { ... }`, but `#` is the standard).
     "lexical_family": "line_exclusive",
+    "calls_out_namespace_qualifiers": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3359 (contract C7): command position, minus the upper-case SQL keywords
@@ -122,22 +368,26 @@ DEFINITION: dict[str, Any] = {
         # WHERE ... }`). Tcl cannot shield braces, which are also code bodies, so
         # the SQL words are excluded by name, upper-case only: `set`/`update` are
         # real Tcl commands. The lookahead is one bounded alternation (Rule 5).
-        # #5640: a one-line brace body is command position too: after `} {` (`if {$a} {foo}`), after a
-        # script-taking word (`catch {qux}`) or a number (`after 10 {zed}`). Lookbehinds, not consumed
-        # words: the line-start branch has already eaten `catch`.
+        # #5640: a one-line brace body is command position too: after `} {` (`if {$a} {foo}`), after `;`
+        # (`set x 1; foo`), or after a script-taking word (`catch {qux}`). `after <ms|idle>`, `uplevel <level>`,
+        # `foreach`, `lmap`, and `switch` bodies are exposed by `_rewrite_tcl_calls`.
+        # Contract C6: `ns::cmd` / `::cmd` emits the leaf callee (`cmd`) with `ns` as its qualifier.
         "calls_out": re.compile(
-            r"(?m)(?:^[ \t]*|\[[ \t]*|\}[ \t]*\{[ \t]*"
-            r"|(?:(?<=\bcatch)|(?<=\belse)|(?<=\btry)|(?<=\bfinally)|(?<=\beval)|(?<=\buplevel)|(?<=[0-9]))[ \t]+\{[ \t]*)"
+            r"(?m)(?:^[ \t]*|\[[ \t]*|;[ \t]*|\}[ \t]*\{[ \t]*"
+            r"|(?:(?<=\bcatch)|(?<=\belse)|(?<=\btry)|(?<=\bfinally)|(?<=\beval)|(?<=\buplevel))[ \t]+\{[ \t]*)"
             r"(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
             r"|UNION|WITH|AS|ON|USING|JOIN|INNER|OUTER|LEFT|CROSS|NATURAL|ORDER|GROUP|HAVING|LIMIT|OFFSET"
             r"|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|TRIGGER|BEGIN|COMMIT|ROLLBACK|PRAGMA|COALESCE|CASE|WHEN"
             r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?!["
             + ID_CONTINUE
             + r":-]))"
-            r"([" + ID_START + r"][" + ID_CONTINUE + r":-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r"])"
+            r"(?:(?:::)?(?:[" + ID_START + r"][" + ID_CONTINUE + r"-]*::)+|::)?"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r":.$,=])"
         ),
-        # #5909: a one-line `switch` arm body and a label that is not a command.
-        "_calls_out_rewrite": _expose_switch_arms,
+        # Expose `[...]` command substitutions inside `"..."` before the literal shield blanks strings.
+        "_calls_out_pre_shield": _expose_tcl_quoted_substitutions,
+        # #5909: `switch` arms, `proc` param lists, `\` line continuations, `foreach`/`lmap`/`after`/`uplevel`/`set`.
+        "_calls_out_rewrite": _rewrite_tcl_calls,
         "_calls_out_ignore": frozenset(
             {
                 "proc",

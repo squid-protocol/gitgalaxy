@@ -69,7 +69,7 @@
     "id": "8f47a8f8ab",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 38,
+    "line": 41,
     "before": "\"ICAgICAgICA=\"));",
     "after": "\"XCAgICAgICA=\"));"
    },
@@ -77,7 +77,7 @@
     "id": "2b10553fcb",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 40,
+    "line": 43,
     "before": "\"AAg=\"));",
     "after": "\"XAg=\"));"
    },
@@ -85,7 +85,7 @@
     "id": "b21fd77b97",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 42,
+    "line": 45,
     "before": "\"ICAgIA==\"));",
     "after": "\"XCAgIA==\"));"
    },
@@ -93,7 +93,7 @@
     "id": "087c3b5346",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 44,
+    "line": 47,
     "before": "\"ICAgICAgICAgICAgICAAACAgICAAAAAAAAAAAAAA\"));",
     "after": "\"XCAgICAgICAgICAgICAAACAgICAAAAAAAAAAAAAA\"));"
    },
@@ -101,7 +101,7 @@
     "id": "51a1a22be0",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 46,
+    "line": 49,
     "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
     "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
    },
@@ -109,7 +109,7 @@
     "id": "38b53687af",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 60,
+    "line": 63,
     "before": "private final Field f7_CA_TRAIL = Field.alphanumeric(s_DFHCOMMAREA, 1, 9, false);",
     "after": "private final Field f7_CA_TRAIL = Field.alphanumeric(s_DFHCOMMAREA, 1, 10, false);"
    },
@@ -117,7 +117,7 @@
     "id": "9f1d4e5ca7",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 62,
+    "line": 65,
     "before": "private final Field f9_CA_COUNT = Field.binary(s_DFHCOMMAREA, 14, 4, 0, true, false);",
     "after": "private final Field f9_CA_COUNT = Field.binary(s_DFHCOMMAREA, 14, 4, 1, true, false);"
    },
@@ -125,7 +125,7 @@
     "id": "6adf06376b",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 66,
+    "line": 69,
     "before": "private final Field f15_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
     "after": "private final Field f15_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
    },
@@ -133,7 +133,7 @@
     "id": "319f54a0e0",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 69,
+    "line": 72,
     "before": "private final Field f40_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
     "after": "private final Field f40_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
    },
@@ -141,7 +141,7 @@
     "id": "e16208ce0a",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 70,
+    "line": 73,
     "before": "private final Field f41_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
     "after": "private final Field f41_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
    },
@@ -149,7 +149,7 @@
     "id": "743d1ec82b",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 84,
+    "line": 87,
     "before": "if (task.level() > 1) {",
     "after": "if (task.level() <= 1) {"
    },
@@ -157,7 +157,7 @@
     "id": "774423beaf",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 90,
+    "line": 93,
     "before": "@SuppressWarnings(\"unchecked\")",
     "after": "@SuppressWarnings(\"Xnchecked\")"
    },
@@ -165,7 +165,7 @@
     "id": "f3ea9384d5",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 92,
+    "line": 95,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
    },
@@ -173,7 +173,7 @@
     "id": "9d54420739",
     "op": "COR",
     "file": "service/HcsubService.java",
-    "line": 92,
+    "line": 95,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
    },
@@ -181,7 +181,7 @@
     "id": "abd273d75d",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 95,
+    "line": 98,
     "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
     "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
    },
@@ -189,7 +189,7 @@
     "id": "5ad96507d9",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 100,
+    "line": 103,
     "before": "java.util.Map.entry(\"SUB-MAIN\", 0)",
     "after": "java.util.Map.entry(\"XUB-MAIN\", 0)"
    },
@@ -197,7 +197,7 @@
     "id": "47bfe43db5",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 100,
+    "line": 103,
     "before": "java.util.Map.entry(\"SUB-MAIN\", 0)",
     "after": "java.util.Map.entry(\"SUB-MAIN\", 1)"
    },
@@ -205,7 +205,7 @@
     "id": "97110e93f7",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 143,
+    "line": 123,
     "before": "Cobol.move(d.getCaMode() == null ? \"\" : d.getCaMode(), Field.alphanumeric(s, base + 0, 1, false), CS);",
     "after": "Cobol.move(d.getCaMode() == null ? \"\" : d.getCaMode(), Field.alphanumeric(s, base - 0, 1, false), CS);"
    },
@@ -213,7 +213,7 @@
     "id": "813c10298b",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 144,
+    "line": 124,
     "before": "Cobol.move(d.getCaTrail() == null ? \"\" : d.getCaTrail(), Field.alphanumeric(s, base + 1, 9, false), CS);",
     "after": "Cobol.move(d.getCaTrail() != null ? \"\" : d.getCaTrail(), Field.alphanumeric(s, base + 1, 9, false), CS);"
    },
@@ -221,7 +221,7 @@
     "id": "b1dec3bc03",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 145,
+    "line": 125,
     "before": "Cobol.move(d.getCaResult() == null ? \"\" : d.getCaResult(), Field.alphanumeric(s, base + 10, 4, false), CS);",
     "after": "Cobol.move(d.getCaResult() != null ? \"\" : d.getCaResult(), Field.alphanumeric(s, base + 10, 4, false), CS);"
    },
@@ -229,7 +229,7 @@
     "id": "240317aaf0",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 145,
+    "line": 125,
     "before": "Cobol.move(d.getCaResult() == null ? \"\" : d.getCaResult(), Field.alphanumeric(s, base + 10, 4, false), CS);",
     "after": "Cobol.move(d.getCaResult() == null ? \"\" : d.getCaResult(), Field.alphanumeric(s, base + 11, 4, false), CS);"
    },
@@ -237,7 +237,7 @@
     "id": "79dbe7b7b7",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 146,
+    "line": 126,
     "before": "Cobol.move(d.getCaCount() == null ? BigDecimal.ZERO : new BigDecimal(d.getCaCount().toString()), Field.binary(s, base + 14, 4, 0, true, false), CS);",
     "after": "/* Cobol.move(d.getCaCount() == null ? BigDecimal.ZERO : new BigDecimal(d.getCaCount().toString()), Field.binary(s, base + 14, 4, 0, true, false), CS); */"
    },
@@ -245,7 +245,7 @@
     "id": "22158e4151",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 146,
+    "line": 126,
     "before": "Cobol.move(d.getCaCount() == null ? BigDecimal.ZERO : new BigDecimal(d.getCaCount().toString()), Field.binary(s, base + 14, 4, 0, true, false), CS);",
     "after": "Cobol.move(d.getCaCount() != null ? BigDecimal.ZERO : new BigDecimal(d.getCaCount().toString()), Field.binary(s, base + 14, 4, 0, true, false), CS);"
    },
@@ -253,7 +253,7 @@
     "id": "c66730dacb",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 151,
+    "line": 131,
     "before": "d.setCaMode(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
     "after": "d.setCaMode(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));"
    },
@@ -261,7 +261,7 @@
     "id": "629f52d617",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 152,
+    "line": 132,
     "before": "d.setCaTrail(Cobol.text(Field.alphanumeric(s, base + 1, 9, false), CS));",
     "after": "/* d.setCaTrail(Cobol.text(Field.alphanumeric(s, base + 1, 9, false), CS)); */"
    },
@@ -269,7 +269,7 @@
     "id": "3b3e1bb88f",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 152,
+    "line": 132,
     "before": "d.setCaTrail(Cobol.text(Field.alphanumeric(s, base + 1, 9, false), CS));",
     "after": "d.setCaTrail(Cobol.text(Field.alphanumeric(s, base + 1, 10, false), CS));"
    },
@@ -277,7 +277,7 @@
     "id": "24a5069c03",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 153,
+    "line": 133,
     "before": "d.setCaResult(Cobol.text(Field.alphanumeric(s, base + 10, 4, false), CS));",
     "after": "d.setCaResult(Cobol.text(Field.alphanumeric(s, base + 11, 4, false), CS));"
    },
@@ -285,7 +285,7 @@
     "id": "e18a050250",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 154,
+    "line": 134,
     "before": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 4, 0, true, false), CS).intValue());",
     "after": "d.setCaCount(Cobol.num(Field.binary(s, base + 15, 4, 0, true, false), CS).intValue());"
    },
@@ -293,7 +293,7 @@
     "id": "22833a8664",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 154,
+    "line": 134,
     "before": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 4, 0, true, false), CS).intValue());",
     "after": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 5, 0, true, false), CS).intValue());"
    },
@@ -301,7 +301,7 @@
     "id": "6316805913",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 154,
+    "line": 134,
     "before": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 4, 0, true, false), CS).intValue());",
     "after": "d.setCaCount(Cobol.num(Field.binary(s, base + 14, 4, 1, true, false), CS).intValue());"
    },
@@ -309,7 +309,7 @@
     "id": "f6b5b45be5",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 182,
+    "line": 154,
     "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
    },
@@ -317,7 +317,7 @@
     "id": "e5b1234c99",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 184,
+    "line": 156,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -325,7 +325,7 @@
     "id": "20fc8db49b",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 208,
+    "line": 180,
     "before": "handlers.clear();",
     "after": "/* handlers.clear(); */"
    },
@@ -333,7 +333,7 @@
     "id": "dd76827c19",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 213,
+    "line": 185,
     "before": "Cobol.store(f15_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f15_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
    },
@@ -341,7 +341,7 @@
     "id": "47ec83127d",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 215,
+    "line": 187,
     "before": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -349,7 +349,7 @@
     "id": "31bb731fb3",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 215,
+    "line": 187,
     "before": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -357,7 +357,7 @@
     "id": "304573d6af",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 215,
+    "line": 187,
     "before": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -365,7 +365,7 @@
     "id": "b62f62c372",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 215,
+    "line": 187,
     "before": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f13_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -373,7 +373,7 @@
     "id": "fcf0d4562b",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 216,
+    "line": 188,
     "before": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -381,7 +381,7 @@
     "id": "cda8eca646",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 216,
+    "line": 188,
     "before": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -389,7 +389,7 @@
     "id": "b03ad0b6b7",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 216,
+    "line": 188,
     "before": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -397,7 +397,7 @@
     "id": "3a3ed1cea1",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 216,
+    "line": 188,
     "before": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f12_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -405,7 +405,7 @@
     "id": "232a55a631",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 224,
+    "line": 196,
     "before": "caBack = () -> fill_HcsubDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "/* caBack = () -> fill_HcsubDfhcommarea(x, s_DFHCOMMAREA, 0); */"
    },
@@ -413,7 +413,7 @@
     "id": "e000fa855a",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 227,
+    "line": 199,
     "before": "s_DFHCOMMAREA.beyond = null;",
     "after": "/* s_DFHCOMMAREA.beyond = null; */"
    },
@@ -421,7 +421,7 @@
     "id": "4862fc3cad",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 242,
+    "line": 210,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */"
    },
@@ -429,7 +429,7 @@
     "id": "804f8fb920",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 242,
+    "line": 210,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -437,7 +437,7 @@
     "id": "dfaab9d179",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 242,
+    "line": 210,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -445,7 +445,7 @@
     "id": "b685fbf678",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 242,
+    "line": 210,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
    },
@@ -453,7 +453,7 @@
     "id": "b6b2745599",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 245,
+    "line": 213,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
    },
@@ -461,7 +461,7 @@
     "id": "b74087dd5e",
     "op": "COR",
     "file": "service/HcsubService.java",
-    "line": 245,
+    "line": 213,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
    },
@@ -469,7 +469,7 @@
     "id": "980246439c",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 245,
+    "line": 213,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -477,7 +477,7 @@
     "id": "276c9edb9b",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 245,
+    "line": 213,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -485,7 +485,7 @@
     "id": "4e152aa9a2",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 252,
+    "line": 220,
     "before": "Cobol.store(f19_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f19_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -493,7 +493,7 @@
     "id": "8f2145b944",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 255,
+    "line": 223,
     "before": "perform(0, 1);",
     "after": "perform(0, 2);"
    },
@@ -501,7 +501,7 @@
     "id": "11bc2a4535",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 260,
+    "line": 228,
     "before": "if (caWhole == null) {",
     "after": "if (caWhole != null) {"
    },
@@ -509,7 +509,7 @@
     "id": "2b34558c07",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 263,
+    "line": 231,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
    },
@@ -517,7 +517,7 @@
     "id": "6070845848",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 263,
+    "line": 231,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
    },
@@ -525,7 +525,7 @@
     "id": "1cb1ec1996",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 270,
+    "line": 238,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -533,7 +533,7 @@
     "id": "700744101a",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 274,
+    "line": 242,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -541,7 +541,7 @@
     "id": "e939f5b317",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 275,
+    "line": 243,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -549,7 +549,7 @@
     "id": "12561ffa0d",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 288,
+    "line": 256,
     "before": "CicsTask task = region.linked(\"HCSUB\", request, area);",
     "after": "CicsTask task = region.linked(\"XCSUB\", request, area);"
    },
@@ -557,7 +557,7 @@
     "id": "fac9a49d31",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 289,
+    "line": 257,
     "before": "region.run(task, \"HCSUB\", this::runTask);",
     "after": "region.run(task, \"XCSUB\", this::runTask);"
    },
@@ -565,7 +565,7 @@
     "id": "8228f30612",
     "op": "COR",
     "file": "service/HcsubService.java",
-    "line": 291,
+    "line": 259,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
@@ -573,7 +573,7 @@
     "id": "4a77f3b455",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 291,
+    "line": 259,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
@@ -581,7 +581,7 @@
     "id": "6428b430b9",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 316,
+    "line": 284,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -589,7 +589,7 @@
     "id": "d7f49f98e1",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 335,
+    "line": 303,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -597,7 +597,7 @@
     "id": "2b1627ac07",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 337,
+    "line": 305,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -605,7 +605,7 @@
     "id": "048c8c07c4",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 342,
+    "line": 310,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -613,7 +613,7 @@
     "id": "35a4917e96",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 344,
+    "line": 312,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -621,7 +621,7 @@
     "id": "ab1e355dc7",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 345,
+    "line": 313,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -629,7 +629,7 @@
     "id": "20ec72af6c",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 348,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -637,7 +637,7 @@
     "id": "167ddbfe76",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 348,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -645,7 +645,7 @@
     "id": "5ba974598e",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 348,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -653,7 +653,7 @@
     "id": "cb3475cc4a",
     "op": "AOR",
     "file": "service/HcsubService.java",
-    "line": 348,
+    "line": 316,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -661,7 +661,7 @@
     "id": "6181f972ab",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 349,
+    "line": 317,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -669,7 +669,7 @@
     "id": "2e28cf61c2",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 354,
+    "line": 322,
     "before": "if (next >= 2) {",
     "after": "if (next < 2) {"
    },
@@ -677,7 +677,7 @@
     "id": "c5b055b1de",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 360,
+    "line": 328,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -685,7 +685,7 @@
     "id": "d54d56bbcb",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 364,
+    "line": 332,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -693,7 +693,7 @@
     "id": "e4946a9480",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 372,
+    "line": 340,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -701,7 +701,7 @@
     "id": "1c6da9f1f2",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 379,
+    "line": 347,
     "before": "Cobol.move(\"s\", f7_CA_TRAIL.ref(1, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"X\", f7_CA_TRAIL.ref(1, Integer.valueOf(1)), CS);"
    },
@@ -709,7 +709,7 @@
     "id": "43bbc079a4",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 379,
+    "line": 347,
     "before": "Cobol.move(\"s\", f7_CA_TRAIL.ref(1, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"s\", f7_CA_TRAIL.ref(2, Integer.valueOf(1)), CS);"
    },
@@ -717,7 +717,7 @@
     "id": "51e10481ed",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 379,
+    "line": 347,
     "before": "Cobol.move(\"s\", f7_CA_TRAIL.ref(1, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"s\", f7_CA_TRAIL.ref(1, Integer.valueOf(2)), CS);"
    },
@@ -725,7 +725,7 @@
     "id": "354af3e8e6",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 382,
+    "line": 350,
     "before": "Cobol.store(f9_CA_COUNT, Cobol.receiverNum(f9_CA_COUNT, CS).add(t1), false, CS);",
     "after": "/* Cobol.store(f9_CA_COUNT, Cobol.receiverNum(f9_CA_COUNT, CS).add(t1), false, CS); */"
    },
@@ -733,7 +733,7 @@
     "id": "042d3aece0",
     "op": "BDM",
     "file": "service/HcsubService.java",
-    "line": 382,
+    "line": 350,
     "before": "Cobol.store(f9_CA_COUNT, Cobol.receiverNum(f9_CA_COUNT, CS).add(t1), false, CS);",
     "after": "Cobol.store(f9_CA_COUNT, Cobol.receiverNum(f9_CA_COUNT, CS).subtract(t1), false, CS);"
    },
@@ -741,7 +741,7 @@
     "id": "f083bc7bb0",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 388,
+    "line": 356,
     "before": "if (ts3.length() >= 0) Cobol.store(f2_WS_JLEN, BigDecimal.valueOf(ts3.length()), false, CS);",
     "after": "if (!(ts3.length() >= 0)) Cobol.store(f2_WS_JLEN, BigDecimal.valueOf(ts3.length()), false, CS);"
    },
@@ -749,7 +749,7 @@
     "id": "9317693bef",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 388,
+    "line": 356,
     "before": "if (ts3.length() >= 0) Cobol.store(f2_WS_JLEN, BigDecimal.valueOf(ts3.length()), false, CS);",
     "after": "if (ts3.length() > 0) Cobol.store(f2_WS_JLEN, BigDecimal.valueOf(ts3.length()), false, CS);"
    },
@@ -757,7 +757,7 @@
     "id": "c29d868c0b",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 389,
+    "line": 357,
     "before": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts3.resp())), false, CS);",
     "after": "/* Cobol.store(f40_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts3.resp())), false, CS); */"
    },
@@ -765,7 +765,7 @@
     "id": "31a9530835",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 390,
+    "line": 358,
     "before": "Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -773,7 +773,7 @@
     "id": "ca8ff89572",
     "op": "ROR",
     "file": "service/HcsubService.java",
-    "line": 393,
+    "line": 361,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -781,7 +781,7 @@
     "id": "1fd01a48bc",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 396,
+    "line": 364,
     "before": "Cobol.move(\"x\", f7_CA_TRAIL.ref(2, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"X\", f7_CA_TRAIL.ref(2, Integer.valueOf(1)), CS);"
    },
@@ -789,7 +789,7 @@
     "id": "c5b9a3258b",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 396,
+    "line": 364,
     "before": "Cobol.move(\"x\", f7_CA_TRAIL.ref(2, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"x\", f7_CA_TRAIL.ref(3, Integer.valueOf(1)), CS);"
    },
@@ -797,7 +797,7 @@
     "id": "71f74902ce",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 401,
+    "line": 369,
     "before": "Cobol.move(\"h\", f7_CA_TRAIL.ref(2, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"h\", f7_CA_TRAIL.ref(3, Integer.valueOf(1)), CS);"
    },
@@ -805,7 +805,7 @@
     "id": "21093fb932",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 405,
+    "line": 373,
     "before": "if (true) return GOTO | paragraph(exit4);",
     "after": "if (!(true)) return GOTO | paragraph(exit4);"
    },
@@ -813,7 +813,7 @@
     "id": "875e773b92",
     "op": "LIT",
     "file": "service/HcsubService.java",
-    "line": 407,
+    "line": 375,
     "before": "Cobol.move(\"x\", f7_CA_TRAIL.ref(3, Integer.valueOf(1)), CS);",
     "after": "Cobol.move(\"X\", f7_CA_TRAIL.ref(3, Integer.valueOf(1)), CS);"
    },
@@ -821,7 +821,7 @@
     "id": "a429cac841",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 414,
+    "line": 382,
     "before": "Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -829,7 +829,7 @@
     "id": "a8281ea66b",
     "op": "CON",
     "file": "service/HcsubService.java",
-    "line": 414,
+    "line": 382,
     "before": "Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -837,7 +837,7 @@
     "id": "6365aac062",
     "op": "NEG",
     "file": "service/HcsubService.java",
-    "line": 417,
+    "line": 385,
     "before": "if (f3_WS_RESP == 44L) {",
     "after": "if (!(f3_WS_RESP == 44L)) {"
    },
@@ -845,7 +845,7 @@
     "id": "0628907df3",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 425,
+    "line": 393,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -853,7 +853,7 @@
     "id": "8e6270c917",
     "op": "DEL",
     "file": "service/HcsubService.java",
-    "line": 441,
+    "line": 409,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -884,17 +884,17 @@
   ],
   "inputs": {
    "port": "bc698f188f23818d22e2939bc73e9404553e08dfbeab8d5877a1b6ae23bd93e6",
-   "runtime": "66bda5999b70689e073b040600cbed86b0b3da96422152b516d140fcf62a4af5",
-   "generator": "2de0781ffb970c646b70df3964fd4d648450edd2869a314418024c4380cd5099",
+   "runtime": "2b8ed5f77c93ed0a93de604138ede8b212b82a5c2c2c71efbf66886e8367e9ed",
+   "generator": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
    "case": "8a4a77f46dad4f2a4706d8e0835f3d95f74f506f70c3993d82981ae8580c1a94",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "bbe0b5c69920ce5f946f96767c46abd8f31b7d548515293b0a29e880a06fa4f0",
+   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "08f61aa78102fe8584901712b5839c57040498247382e17816053668e40421f6"
   },
   "components": {
    "generator": {
-    "generator:core": "5b5ee004f595a9311d1e894faf553f2d21972c109dc961fa998cb6efdb097309",
+    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -918,8 +918,8 @@
     "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:cics": "a087f5d0b585502485eec7ddf951b2c18be810732088641086f699ff3087848b",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "c45ae5594627db649e15c4a883089dba946d2c33f84ce20cd317149f13161413",
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
    },
    "oracle": {
     "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",

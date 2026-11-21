@@ -1164,7 +1164,7 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 16,
+      "csharp/roslyn/CSharpCompilation.cs": 2,
       "csharp/roslyn/CSharpSyntaxTree.cs": 1,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
       "csharp/roslyn/LanguageParser.cs": 46,
@@ -1445,9 +1445,9 @@
       "groovy/godot_android_gradle/java_settings.gradle": 0
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 3,
-      "groovy/gradle/DefaultProject.java": 5,
-      "groovy/gradle/DefaultTask.java": 3
+      "groovy/gradle/DefaultPluginManager.java": 0,
+      "groovy/gradle/DefaultProject.java": 0,
+      "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 2,
@@ -1909,17 +1909,17 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 2
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 0,
-      "java/springboot/Binder.java": 5,
+      "java/springboot/Binder.java": 0,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
       "java/springboot/OnClassCondition.java": 0,
       "java/springboot/ServletWebServerApplicationContext.java": 0,
-      "java/springboot/SpringApplication.java": 14,
-      "java/springboot/WebMvcAutoConfiguration.java": 4
+      "java/springboot/SpringApplication.java": 0,
+      "java/springboot/WebMvcAutoConfiguration.java": 0
     },
     "javascript": {
       "javascript/SOURCES.md": 0
@@ -3212,19 +3212,19 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 6,
-      "rust/bevy/bevy_ecs_query.rs": 44,
-      "rust/bevy/bevy_ecs_table.rs": 8,
-      "rust/bevy/bevy_ecs_world.rs": 31,
-      "rust/bevy/bevy_reflect_path.rs": 6,
+      "rust/bevy/bevy_ecs_macros.rs": 0,
+      "rust/bevy/bevy_ecs_query.rs": 9,
+      "rust/bevy/bevy_ecs_table.rs": 0,
+      "rust/bevy/bevy_ecs_world.rs": 1,
+      "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
-      "rust/bevy/bevy_schedule_graph.rs": 4
+      "rust/bevy/bevy_schedule_graph.rs": 1
     },
     "rust/bevy_asset_examples": {
       "rust/bevy_asset_examples/LICENSE-APACHE": 0,
       "rust/bevy_asset_examples/LICENSE-MIT": 0,
       "rust/bevy_asset_examples/image_node.rs": 0,
-      "rust/bevy_asset_examples/rotation.rs": 4
+      "rust/bevy_asset_examples/rotation.rs": 0
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
@@ -3232,26 +3232,26 @@
       "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
-      "rust/holylang/semantic.rs": 7,
+      "rust/holylang/semantic.rs": 0,
       "rust/holylang/transpiler.rs": 0
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 5,
-      "rust/serde/serde_core_de_mod.rs": 1,
-      "rust/serde/serde_core_macros.rs": 2,
+      "rust/serde/serde_core_de_impls.rs": 0,
+      "rust/serde/serde_core_de_mod.rs": 0,
+      "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
-      "rust/serde/serde_internals_ast.rs": 8,
-      "rust/serde/serde_internals_attr.rs": 17,
-      "rust/serde/test_annotations.rs": 3
+      "rust/serde/serde_internals_ast.rs": 0,
+      "rust/serde/serde_internals_attr.rs": 0,
+      "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0,
       "rust/syn/bigint.rs": 0,
-      "rust/syn/buffer.rs": 1,
+      "rust/syn/buffer.rs": 0,
       "rust/syn/classify.rs": 0,
-      "rust/syn/custom_keyword.rs": 1,
+      "rust/syn/custom_keyword.rs": 0,
       "rust/syn/custom_punctuation.rs": 7,
       "rust/syn/data.rs": 0,
       "rust/syn/derive.rs": 0
@@ -3259,27 +3259,27 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
-      "rust/tokio/blocking.rs": 2,
+      "rust/tokio/blocking.rs": 1,
       "rust/tokio/builder.rs": 0,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 2,
+      "rust/tokio/interval.rs": 0,
       "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,
-      "rust/tokio/tokio_mpsc_bounded.rs": 15,
-      "rust/tokio/tokio_named_pipe.rs": 14,
-      "rust/tokio/tokio_udp.rs": 11
+      "rust/tokio/tokio_mpsc_bounded.rs": 6,
+      "rust/tokio/tokio_named_pipe.rs": 10,
+      "rust/tokio/tokio_udp.rs": 4
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 9
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 9,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 7,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 6,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 22
+      "rust/wasmtime/wasmtime_instance.rs": 0,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 6,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 0,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 21
     },
     "scala": {
       "scala/SOURCES.md": 0
@@ -3863,7 +3863,7 @@
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 1,
       "typescript/assemblyscript/builtins.ts": 626,
-      "typescript/assemblyscript/compiler.ts": 33,
+      "typescript/assemblyscript/compiler.ts": 30,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
     },
@@ -3879,11 +3879,11 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 1
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 30,
+      "typescript/fp-ts/Either.ts": 0,
       "typescript/fp-ts/HKT.ts": 0,
-      "typescript/fp-ts/TaskEither.ts": 28,
+      "typescript/fp-ts/TaskEither.ts": 0,
       "typescript/fp-ts/package.json": 0,
-      "typescript/fp-ts/pipeable.ts": 138
+      "typescript/fp-ts/pipeable.ts": 0
     },
     "typescript/nx_util_ai": {
       "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 0,
@@ -3901,31 +3901,31 @@
       "typescript/playwright/bidiConnection.ts": 0,
       "typescript/playwright/connection.ts": 0,
       "typescript/playwright/crConnection.ts": 0,
-      "typescript/playwright/dispatcher.ts": 2,
-      "typescript/playwright/frames.ts": 6,
+      "typescript/playwright/dispatcher.ts": 0,
+      "typescript/playwright/frames.ts": 2,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 16,
-      "typescript/typescript_compiler/checker.ts": 132,
-      "typescript/typescript_compiler/emitter.ts": 7,
+      "typescript/typescript_compiler/checker.ts": 131,
+      "typescript/typescript_compiler/emitter.ts": 3,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 26,
-      "typescript/typescript_compiler/types.ts": 502
+      "typescript/typescript_compiler/parser.ts": 21,
+      "typescript/typescript_compiler/types.ts": 498
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 31,
+      "typescript/vscode/async.ts": 3,
       "typescript/vscode/codeEditorWidget.ts": 4,
       "typescript/vscode/eslint.config.js": 246,
-      "typescript/vscode/extHost.api.impl.ts": 7,
-      "typescript/vscode/gulpfile.vscode.ts": 2,
-      "typescript/vscode/instantiationService.ts": 6,
-      "typescript/vscode/ipc.ts": 20,
-      "typescript/vscode/lifecycle.ts": 5,
+      "typescript/vscode/extHost.api.impl.ts": 6,
+      "typescript/vscode/gulpfile.vscode.ts": 1,
+      "typescript/vscode/instantiationService.ts": 0,
+      "typescript/vscode/ipc.ts": 4,
+      "typescript/vscode/lifecycle.ts": 2,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 9
+      "typescript/vscode/vscode.d.ts": 0
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

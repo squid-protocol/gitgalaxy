@@ -1413,15 +1413,16 @@ class ApertureFilter:
         in_ci_tree = not self._CI_CONFIG_DIRS.isdisjoint(parts)
         for i, part in enumerate(parts):
             low_part = part.lower()
+            is_dir_part = i < len(parts) - 1 or is_dir
             if low_part in self.ignored_directories:
-                return f"Blocked (ignored directory: {part})"
+                # a file in the set (`.gitignore`, `LICENSE`) is excluded, but it is not a directory: generic reason
+                return f"Blocked (ignored directory: {part})" if is_dir_part else _GENERIC_IGNORE_REASON
             if low_part in EVIDENCE_DIRECTORY_NAMES:
                 # #8708: a directory part is pruned on evidence (no source in its tree); a file of that name is not a
                 # directory, so it keeps the by-name verdict it always had (a `LICENSE` file).
-                if i < len(parts) - 1 or is_dir:
-                    if self._is_noise_dir("/".join(parts[: i + 1])):
-                        return f"Blocked (ignored directory: {part})"
-                else:
+                if not is_dir_part:
+                    return _GENERIC_IGNORE_REASON
+                if self._is_noise_dir("/".join(parts[: i + 1])):
                     return f"Blocked (ignored directory: {part})"
             if low_part in VIRTUALENV_CANDIDATE_NAMES and self._is_virtualenv("/".join(parts[: i + 1])):
                 return _GENERIC_IGNORE_REASON

@@ -143,10 +143,7 @@
       "no_extension": {
         "Blocked (Machine-Generated Source Code Signature: 36288 LOC)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1,
-        "Blocked (ignored directory: .gitignore)": 1,
-        "Blocked (ignored directory: BUILD)": 1,
-        "Blocked (ignored directory: LICENSE)": 160,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 163,
         "Unsupported Format (.undeterminable)": 3
       }
     },

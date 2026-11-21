@@ -1038,8 +1038,9 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "MOVE statement: elementary moves"
+    "section": "MOVE statement: Elementary move rules, numeric receiver"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, MOVE statement, \"Elementary move rules\", receiver \"Numeric or numeric-edited\"): \"When the category of the sending item is alphanumeric, alphanumeric-edited, national, or national-edited, the data is moved as if the sending item were described as an unsigned integer.\" Usage note 2: \"If the receiving item is numeric and the sending field is an alphanumeric literal, a national literal, or an ALL literal, all characters of the literal must be numeric characters.\" IBM so defines only digit characters, aligned as an unsigned integer. It states no result for a sign, a decimal point, a space, a comma or a letter in an alphanumeric data item: the runtime's reading of those (a sign and one point read, spaces and the separator skipped, a stray character making the receiver zero, a packed or binary receiver reading the whole text) is libcob's, chosen because IBM leaves it open, so the rule stays ASSUMED. The digits-only case is IBM's. Checked against the 6.4 Language Reference text copy",
    "options": [
     "DECIMAL-POINT-COMMA"
    ],
@@ -2408,8 +2409,9 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "Intrinsic functions: CURRENT-DATE"
+    "section": "CURRENT-DATE (character positions 1-21)"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, \"CURRENT-DATE\"): \"The CURRENT-DATE function returns a 21-character alphanumeric value that represents the calendar date, time of day, and time differential from Greenwich mean time provided by the system on which the function is evaluated.\" Positions 1-16 are year, month, day, hours, minutes, seconds and hundredths of a second; position 17: \"The character '+' is returned if the local time indicated is the same as or ahead of Greenwich mean time\"; positions 18-21 are the hours and minutes of that difference. The runtime's 21 characters (yyyyMMddHHmmss, hundredths, then a fixed +0000) have IBM's layout, and +0000 is IBM's text only when the clock reads Greenwich mean time. The clock's value is the run's, which IBM cannot define; but the runtime writes +0000 whatever zone its clock is in, where IBM reports the actual differential. Stays ASSUMED, the offset a recorded gap, not hidden. Checked against the 6.4 Language Reference text copy",
    "options": [],
    "features": [
     "intrinsic_functions: CURRENT-DATE"
@@ -3184,8 +3186,9 @@
    "site": "reset",
    "ibm": {
     "doc": "db2-sql",
-    "section": "SQL communication area (SQLCA)"
+    "section": "Appendix F. SQL communication area (SQLCA), Description of SQLCA fields (Table 262)"
    },
+   "ibm_note": "IBM (Db2 13 for z/OS SQL Reference, Appendix F, \"Description of SQLCA fields\", Table 262): \"An SQLCA is a structure or collection of variables that is updated after each SQL statement executes.\" SQLCAID: \"containing the text 'SQLCA'\"; SQLCABC: \"Contains the length of the SQLCA: 136\"; SQLCODE: 0 \"Successful execution (though there might have been warning messages)\", positive \"Successful execution, but with a warning condition or other information\", negative \"Error condition\"; SQLERRMC: \"one or more tokens, separated by X'FF'\"; SQLERRP: \"In all cases, the first three characters are 'DSN' for Db2 for z/OS\"; SQLERRD(3): the number of rows that qualified for a DELETE, INSERT, UPDATE or MERGE, \"The value is 0 if the SQL statement fails\"; SQLWARN0: \"a W if at least one other indicator contains a W or Z\". The runtime's reset (SQLCAID 'SQLCA', 136, SQLCODE 0, SQLSTATE 00000, no warning) and the sign of SQLCODE follow that text. Not IBM's: SQLERRP is left blank by a statement that succeeds and is the Db2 for LUW driver's after an error, where IBM says it starts 'DSN' in all cases (register Q1 declares the oracle's engine is not z/OS), and the SQLERRMC, SQLERRD and SQLSTATE values after an error are the oracle engine's, which IBM defines for z/OS only: stays ASSUMED. Checked against the Db2 13 SQL Reference text copy",
    "options": [],
    "features": [
     "sql_forms: STATIC"
@@ -4243,8 +4246,9 @@
    "site": "Storage.java:of",
    "ibm": {
     "doc": "cics-apr",
-    "section": "EIB fields: EIBCALEN"
+    "section": "EIB fields: EIBCALEN; LINK, COMMAREA and LENGTH"
    },
+   "ibm_note": "IBM (CICS TS 6.x API Reference, EIB fields, EIBCALEN): \"Contains the length of the communication area that has been passed to the application program from the last program, using the COMMAREA and LENGTH options. If no communication area is passed, this field contains binary zeros.\" EXEC CICS LINK: \"When you use a COMMAREA to pass data, the program that is linked to must verify that the EIBCALEN field in the EIB of the task matches what the program expects. Discrepancies might result in storage violations or system failures.\" IBM so defines EIBCALEN as the passed length, and leaves a reference past it undefined (a storage violation or a failure, no stated result): the runtime's refusal past EIBCALEN is the harness's choice, register X23, so the rule stays ASSUMED. Checked against the CICS TS 6.x API Reference text copy",
    "options": [],
    "register": [
     "X23"

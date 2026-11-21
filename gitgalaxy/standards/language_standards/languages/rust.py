@@ -253,7 +253,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_RUST,  # #3643: macros, turbofish; patterns are not calls
         # #6454: the pattern operand of `matches!(expr, PATTERN [if guard])` (and the assert forms) names
@@ -298,8 +298,9 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES panic!/throw (bailout_hits).
         "branch": re.compile(
-            r"(?<!r#)(?<!')\b(if|else|match|for|while|loop|break|continue)\b|(?<=[a-zA-Z0-9_)\]}])\?(?!Sized\b)|&&|\|\|"
+            r"(?<!r#)(?<!')\b(if|else|match|for|while|loop|break|continue)\b|(?<=[a-zA-Z0-9_)\]}])\?(?!Sized\b)"
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of functions and closures. Bounded to prevent ReDoS on complex types.
         "args": re.compile(

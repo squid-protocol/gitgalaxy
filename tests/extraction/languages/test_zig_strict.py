@@ -394,8 +394,10 @@ def test_zig_deep_structural_signatures_ambiguity():
     assert not branch.search("try doSomething();")
     assert not branch.search("catch |err| return err;")
     assert branch.search("const a = b orelse c;")
-    assert branch.search("a && b")
-    assert branch.search("a || b")
+    # #8862: boolean operators are short_circuit; zig spells them `and`/`or`
+    assert not branch.search("a and b")
+    assert ZIG_RULES["short_circuit"].search("a and b") and ZIG_RULES["short_circuit"].search("a or b")
+    assert not ZIG_RULES["short_circuit"].search("a && b")  # not zig
 
     # Negative (exact identifier escapes)
     assert not branch.search('const @"if" = 5;')

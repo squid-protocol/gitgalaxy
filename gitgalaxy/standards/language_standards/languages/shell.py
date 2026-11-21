@@ -181,7 +181,8 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logic jumps. Includes test constructs [[ ]] and [ ].
         # CRITICAL: Excluded bare '((' and '))' to prevent ReDoS on massive subshell nesting.
-        "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select)\b|&&|\|\|"),
+        "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select)\b"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Positional parameters and expansion markers.
         # BUG FIX (epic #813/#835): the braced form only matched a bare

@@ -68,7 +68,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_KOTLIN,  # #3359 C1 annotation guard; #4124 `X<T>(`; #6266 `x.f { .. }`
         # #3359 (contract C2): keywords and special forms, never calls
@@ -93,7 +93,8 @@ DEFINITION: dict[str, Any] = {
         # java/c/rust/go/csharp's convention -- removing it here is a pure de-duplication,
         # not a signal loss. Corpus impact: kotlin branch 19 (planted 3, +280%) -> exact.
         # #8034: a `.when(` method call (e.g. a mocking DSL) is not the `when` expression.
-        "branch": re.compile(r"(?<!\.)\b(if|else|when|for|while|do)\b|\?:|&&|\|\|"),
+        "branch": re.compile(r"(?<!\.)\b(if|else|when|for|while|do)\b|\?:"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix Regex Sludge.
         "args": re.compile(

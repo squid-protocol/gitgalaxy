@@ -1198,6 +1198,7 @@ RECORDING_SCHEMAS: RecordingSchemas = {
     },
     "SIGNAL_SCHEMA": [
         "branch",
+        "short_circuit",
         "structural_boundaries",
         "args",
         "func_start",
@@ -1420,6 +1421,7 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "api_exposure": "Public API Surface Area",
         "state_flux": "State Mutation Exposure",
         "branch": "Control Flow Branches",
+        "short_circuit": "Short-Circuit Operators",
         "structural_boundaries": "Structural Keywords (return/def/void/export)",
         "args": "Calls & Signatures With Arguments",
         "func_start": "Function/Method Declarations",
@@ -1652,6 +1654,7 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     # --- structural-shape (11): substrate of code complexity/shape, not a
     # --- measurement surface in their own right ---
     "branch": "structural-shape: control-flow substrate, not a surface family",
+    "short_circuit": "structural-shape: control-flow substrate (boolean operators), not a surface family",
     "structural_boundaries": "structural-shape: sequential-logic substrate, not a surface family",
     "args": "structural-shape: function-signature substrate, not a surface family",
     "func_start": "structural-shape: unit-of-code substrate, not a surface family",
@@ -1738,6 +1741,7 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
 SIGNAL_DISPLAY_NAMES: dict[str, tuple[str, str]] = {
     # --- structure ---
     "branch": ("struct_branch", "Branches & Conditionals"),
+    "short_circuit": ("struct_short_circuit", "Short-Circuit Boolean Operators"),
     "structural_boundaries": ("struct_linear", "Structural Keywords (return/def/void/export)"),
     "args": ("struct_args", "Calls & Signatures With Arguments"),
     "func_start": ("struct_func_start", "Function Declarations"),

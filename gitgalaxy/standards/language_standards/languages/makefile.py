@@ -77,9 +77,10 @@ DEFINITION: dict[str, Any] = {
         # --------------------------------------------------------------------------
         # Captures Make conditionals and typical inline shell conditional branches.
         "branch": re.compile(
-            r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else)\b(?![ \t]*:)|(?:^[ \t]{0,64}(?:@|-|\+){0,8}[ \t]{0,64}|[;|&(][ \t]*)\b(?:if|elif|for|while|case)\b|&&|\|\|",
+            r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else)\b(?![ \t]*:)|(?:^[ \t]{0,64}(?:@|-|\+){0,8}[ \t]{0,64}|[;|&(][ \t]*)\b(?:if|elif|for|while|case)\b",
             re.M,
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # Make dynamically accesses arguments within $(call macro, args...) or positional $1, $2 inside recipes.
         # BUG FIX (epic #813/#844): had no awareness of Make's own `$$`
         # escaping convention (a doubled `$` means "a literal `$`,

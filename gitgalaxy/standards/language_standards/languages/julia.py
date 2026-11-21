@@ -49,7 +49,8 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"\b(?:if|elseif|else|for|while|try|catch|finally)\b|&&|\|\||[ \t]\?[ \t]"),
+        "branch": re.compile(r"\b(?:if|elseif|else|for|while|try|catch|finally)\b|[ \t]\?[ \t]"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: group 1 is the parenthesised parameter list of `function name(...)`.
         "args": re.compile(r"\bfunction[ \t]+(?:[\w.]*\.)?" + _NAME + r"(?:\{[^}\n]*\})?[ \t]*\(([^)\n]*)\)"),
         "structural_boundaries": re.compile(

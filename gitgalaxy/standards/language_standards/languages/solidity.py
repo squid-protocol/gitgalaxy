@@ -62,7 +62,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         "_calls_out_rewrite": _blank_solidity_non_calls,
@@ -98,6 +98,7 @@ DEFINITION: dict[str, Any] = {
         # since solidity had no other rule tracking it. Corpus impact: solidity branch 19
         # (planted 3, +280%) -> exact.
         "branch": re.compile(r"\b(if|else|for|while|do)\b|\?"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
         # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
         # #1209: parameter-list span wrapped in its own capture group in

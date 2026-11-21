@@ -39,7 +39,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         # #3359 (contract C2): keywords and special forms, never calls
@@ -67,7 +67,8 @@ DEFINITION: dict[str, Any] = {
         # same error-propagation-via-return idiom, doesn't count it either. Already tracked
         # under `structural_boundaries` below, so this is a pure de-duplication. Corpus
         # impact: zig branch 19 (planted 3, +280%) -> exact.
-        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|orelse)\b(?!\")|&&|\|\|"),
+        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|orelse)\b(?!\")"),
+        "short_circuit": re.compile(r"\b(?:and|or)\b"),
         # 2. args: Parameters / Coupling. Captures parameters in function signatures.
         "args": re.compile(
             r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"

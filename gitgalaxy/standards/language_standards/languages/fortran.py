@@ -130,9 +130,10 @@ DEFINITION: dict[str, Any] = {
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.
         # Includes standard conditional blocks, legacy computed GO TO, and modern SELECT TYPE / SELECT RANK.
         "branch": re.compile(
-            r"\b((?<!END[ \t])IF|ELSEIF|ELSE|(?<!END[ \t])DO|SELECT\s+CASE|CASE|DEFAULT|(?<!END[ \t])WHERE|ELSEWHERE|SELECT\s+TYPE|SELECT\s+RANK|EXIT|CYCLE)\b|\.AND\.|\.OR\.",
+            r"\b((?<!END[ \t])IF|ELSEIF|ELSE|(?<!END[ \t])DO|SELECT\s+CASE|CASE|DEFAULT|(?<!END[ \t])WHERE|ELSEWHERE|SELECT\s+TYPE|SELECT\s+RANK|EXIT|CYCLE)\b",
             re.I,
         ),
+        "short_circuit": re.compile(r"\.(?:AND|OR)\.", re.I),
         # 2. args (Parameters / Coupling)
         # Signatures defining input parameters. Drives the physical size/mass of the function.
         # Upgraded to capture both the declaration block and explicit INTENT binding markers

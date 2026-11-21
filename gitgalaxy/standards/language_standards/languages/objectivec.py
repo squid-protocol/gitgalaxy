@@ -76,7 +76,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #5639: three capture groups. Group 1 is a C call
         # `name(`; `@selector(` / `@synchronized(` are directives, not calls (`@` lookbehind).
@@ -116,7 +116,8 @@ DEFINITION: dict[str, Any] = {
         # java/c/rust/go/csharp/kotlin/apex/powershell/zig all use -- not just deleted,
         # since objc had no other rule tracking it. Corpus impact: objective-c branch 18
         # (planted 3, +260%) -> exact.
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|\?"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
         "args": re.compile(
             # =====================================================================

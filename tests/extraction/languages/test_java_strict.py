@@ -303,8 +303,8 @@ _JAVA_DEEP_CASES = [
     ("branch", "yield value;", "yields_value();"),
     ("branch", "when (true)", "whence();"),
     ("branch", "do {", "catch(Exception e)"),  # 2822 corollary 1
-    ("branch", "a && b", "int a = 1 & 2;"),  # 8867
-    ("branch", "a || b", "int a = 1 | 2;"),  # 8867
+    ("short_circuit", "a && b", "int a = 1 & 2;"),  # 8867
+    ("short_circuit", "a || b", "int a = 1 | 2;"),  # 8867
     # --- args ---
     ("args", "public void foo( @NonNull int x, String y) {", "foo(x, y);"),
     ("args", "@Override public <T extends List<String>> void genericMethod(T x) {", "genericMethod(x);"),

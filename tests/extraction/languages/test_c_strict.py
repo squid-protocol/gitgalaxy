@@ -86,7 +86,7 @@ _C_SIMPLE_CASES = [
     ("branch", "if(x) {", "ifdef FOO"),
     ("branch", "} else if (", "form_data = 1;"),
     ("branch", "case 1:", "case_name"),
-    ("branch", "x && y", "x & y"),
+    ("short_circuit", "x && y", "x & y"),
     ("branch", "a ? b : c", "int a = 1;"),
     # --- DEEP CASES FOR args ---
     ("args", "void myfunc(int (*cb)(int))", "foo(a, b);"),

@@ -108,9 +108,10 @@ DEFINITION: dict[str, Any] = {
         # `structural_boundaries` below (`(?:return|exit)\b`), so this is a pure
         # de-duplication. Corpus impact: powershell branch 10 (planted 3, +100%) -> exact.
         "branch": re.compile(
-            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|break|continue)\b|-and|-or|-not|-xor|\?\?|(?<=\s)\?(?=\s|\{)",
+            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|break|continue)\b|\?\?|(?<=\s)\?(?=\s|\{)",
             re.I,
         ),
+        "short_circuit": re.compile(r"(?<![-$.\w])-(?:and|or|xor)\b"),
         # args: Parameters / Coupling. Captures the param block mass of functions and script files.
         # RULE 11 FIX (epic #813/#834): both alternatives used the flat `\([^)]*\)`,
         # truncating at the FIRST `)` and breaking on a realistic default-value expression

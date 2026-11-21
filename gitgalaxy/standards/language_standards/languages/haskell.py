@@ -325,6 +325,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes guards (|) and modern \cases.
         "branch": re.compile(r"\b(if|else|case|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: Parameters / Coupling. Captures type signatures, lambda bindings, and explicit @type apps.
         # #1209: the type-signature and lambda-parameter spans wrapped in
         # their own capture groups (was only reachable via group(0), the

@@ -50,14 +50,15 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # A keyword inside a string literal is not a decision.
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: if / elif / else / when / case / of arms / loops / try-except-finally. An `of` counts only as a
         # case arm (line-leading): `object of RootObj` is inheritance.
         "branch": re.compile(
-            r"\b(?:if|elif|else|when|case|for|while|try|except|finally)\b|^[ \t]*of\b",
+            r"\b(?:if|elif|else|when|case|for|while)\b|^[ \t]*of\b",
             re.M,
         ),
+        "short_circuit": re.compile(r"\b(?:and|or)\b"),
         # args: group 1 is the parenthesised parameter list of a routine, after an optional `*` export mark and
         # generic parameters.
         "args": re.compile(

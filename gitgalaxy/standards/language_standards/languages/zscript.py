@@ -45,13 +45,14 @@ DEFINITION: dict[str, Any] = {
     # ZScript identifiers are case-insensitive (`Actor` == `actor`), as in apex.
     "identifier_case": "insensitive",
     "rules": {
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         "calls_out": CALLS_OUT_C_STYLE,
         # keywords and special forms, never calls
         "_calls_out_ignore": frozenset({"if", "while", "until", "for", "foreach", "switch", "return", "new", "states"}),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow (`?:`, `&&`, `||` included; `case` labels are arms).
-        "branch": re.compile(r"\b(?:if|else|switch|case|while|until|for|foreach|do)\b|&&|\|\||\?", re.I),
+        "branch": re.compile(r"\b(?:if|else|switch|case|while|until|for|foreach|do)\b|\?", re.I),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: the parameter list a method DECLARES (a call site consumes, it does not publish).
         "args": re.compile(
             r"^[ \t]*" + _MODS + _RET + r"([A-Za-z_]\w*)[ \t]*"

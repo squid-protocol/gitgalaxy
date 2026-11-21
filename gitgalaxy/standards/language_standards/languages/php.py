@@ -79,7 +79,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         # #3359 (contract C2): keywords and special forms, never calls
@@ -113,8 +113,9 @@ DEFINITION: dict[str, Any] = {
         # null-coalescing `??`/`??=` are unaffected: no valid PHP operator
         # use of `?` sits immediately after `<` or immediately before `>`.
         "branch": re.compile(
-            r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|break|continue|match)\b|&&|\|\||(?<!<)\?\?|(?<!<)\?(?!>)"
+            r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|break|continue|match)\b|(?<!<)\?\?|(?<!<)\?(?!>)"
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Signatures for functions and arrow functions. Bounded to prevent ReDoS.
         # #1209: parameter-list span wrapped in its own capture group (was

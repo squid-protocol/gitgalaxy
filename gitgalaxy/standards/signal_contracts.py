@@ -193,6 +193,15 @@ _ROWS = [
         planted=True,
     ),
     _c(
+        "short_circuit",
+        "structure",
+        "site",
+        "A boolean operator whose right operand is evaluated only when the left does not already decide the result: `&&`/`||`, `and`/`or`, `and then`/`or else`, and the shell's `&&`/`||` chaining",
+        status="declared",
+        doc="docs/short_circuit_rule_contract.md",
+        issue=8862,
+    ),
+    _c(
         "args",
         "structure",
         "declaration",

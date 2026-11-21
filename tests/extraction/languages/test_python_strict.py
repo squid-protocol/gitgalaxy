@@ -423,7 +423,7 @@ _BRANCH_COUNT_CASES = [
     ("match x:\n    case 1:\n        pass\n    case _:\n        pass", 3),
     ("match (a, b):\n    case [x, y]:\n        pass", 2),
     ("    match command.split():\n        case ['go', d] if d:\n            pass", 3),  # match, case, guard if
-    ("if p.match(t) and q:", 2),
+    ("if p.match(t) and q:", 1),  # `and` is short_circuit now (#8862)
     ("m = re.match(p, s)", 0),
     ("self.pat.match(t)", 0),
     ("match = re.match(p, s)", 0),
@@ -440,7 +440,7 @@ _BRANCH_COUNT_CASES = [
         "        pass\n"
         "    if text and self.machine_gen_pattern.match(text):\n"
         "        pass",
-        5,
+        3,  # for + the two ifs; `or`/`and` are short_circuit now
     ),
 ]
 

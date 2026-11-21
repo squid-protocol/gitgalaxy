@@ -21,6 +21,12 @@ it was the corpus's largest open-defect metric: 11 of 45 comparable cells
 
 ## Corollaries
 
+**0 · Boolean operators are `short_circuit`'s (#8862).** `&&`/`||`, `and`/`or`,
+`-and`/`-or` skip their right operand but open no construct with arms; they moved
+to the `short_circuit` family (`docs/short_circuit_rule_contract.md`), and the
+cyclomatic-style total is the computed composite `decision_points = branch +
+short_circuit`. Negation (`not`, `-not`) is neither.
+
 **1 · A handler is not a decision.** `catch`/`rescue`/`except`/`finally`/
 `ensure`/`trap`, the guarded-region opener (`try`, `@try`, ABAP `TRY.`, ruby
 `begin`, swift's do-catch `do`) and the raiser (`throw`) mark where control

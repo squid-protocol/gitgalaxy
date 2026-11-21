@@ -47,7 +47,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,  # #3359 C1 annotation guard; #4124 `X<T>(`
         # #3359 (contract C2): keywords and special forms, never calls
@@ -66,6 +66,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|\?"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Captures standard method arguments and Groovy closures (x, y ->)
         # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it

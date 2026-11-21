@@ -218,7 +218,8 @@ _CSHARP_SIMPLE_CASES = [
 _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     # --- DEEP ADVERSARIAL CASES ---
     # branch:
-    ("branch", "x is not null", "not_a_branch"),
+    # #8862: `not` is a negation, not a runtime choice (branch contract); `and`/`or` patterns are short_circuit
+    ("short_circuit", "x is a and b", "not_a_branch"),
     ("branch", "yield\nreturn 1;", "yields"),
     ("branch", "if(true)", "iffy"),
     ("branch", "foreach (var x in xs) {", "catch   (Exception)"),  # 2822 corollary 1

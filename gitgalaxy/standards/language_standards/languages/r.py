@@ -50,7 +50,8 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"(?<![\w.$@])(?:if|else|for|while|repeat|switch|ifelse)\b(?![\w.])|&&|\|\|"),
+        "branch": re.compile(r"(?<![\w.$@])(?:if|else|for|while|repeat|switch|ifelse)\b(?![\w.])"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: group 1 is the parameter list of a `function(...)` header.
         "args": re.compile(r"\bfunction[ \t]*\((" + _PARAMS + r")\)"),
         "structural_boundaries": re.compile(

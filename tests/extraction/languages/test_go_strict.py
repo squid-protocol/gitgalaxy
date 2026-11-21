@@ -404,6 +404,7 @@ def test_go_scope_filter_is_declared_for_globals():
     assert GO_RULES["_scope_filters"] == {
         "globals": "go_declaration_group",
         "branch": "outside_literals",
+        "short_circuit": "outside_literals",
         "encapsulation": "go_package_main",
     }
 

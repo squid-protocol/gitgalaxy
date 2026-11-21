@@ -29,10 +29,10 @@ DOCKERFILE_RULES = LANGUAGE_DEFINITIONS["dockerfile"]["rules"]
 
 _DOCKERFILE_DEEP_CASES = [
     # --- branch ---
-    ("branch", "RUN command1 \\\n && command2", "ENV MY_VAR=iffy"),
+    ("short_circuit", "RUN command1 \\\n && command2", "ENV MY_VAR=iffy"),
     ("branch", 'RUN if [ -z "$foo" ]; then \\', "RUN echo diff"),
     ("branch", "RUN while true; do sleep 1; done", 'LABEL specific="value"'),
-    ("branch", "RUN command || exit 1", "RUN echo '|'"),
+    ("short_circuit", "RUN command || exit 1", "RUN echo '|'"),
     ("branch", 'RUN case "$1" in start) ;; esac', "ENV casey=1"),
     # --- args ---
     ("args", "ARG VERSION=latest", "ENV ARG=1"),

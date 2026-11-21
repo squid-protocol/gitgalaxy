@@ -45,6 +45,9 @@ published history): those need explicit confirmation each time. Commit only file
 `git add -A`), check `main..HEAD` carries no unrelated work, and run the relevant baseline-gated audits /
 `crucible_check.py` before pushing anything that touches parsing logic.
 
+- **PR file cap: headless agents only.** A churn worker or any unattended session keeps a PR to at most 5 hand-written files (data-driven,
+  from squid-bot's PR-size dashboard). A headed session, with a person talking to you, has **no file cap**: structure the PR for clarity.
+  Details and how to tell which you are: `.claude/rules/pr-file-cap.md`.
 - `.gitignore` ignores `*.json` repo-wide: a new committed JSON (data, a baseline, generated package
   data) needs a `!path` whitelist line like the existing ones, or `git add -f`. Confirm with
   `git ls-files <path>` before pushing.

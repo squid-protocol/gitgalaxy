@@ -245,7 +245,7 @@ def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agr
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
     doc, scs = probe.restart_scenarios()
     assert [r["id"] for r in got["results"]] == [s["id"] for s in scs]
-    assert len(scs) == 11  # the 2026-11-21 box run; a scenario added later is a stated skip until a rerun
+    assert len(scs) == 17  # the 2026-11-21 box rerun (11 at #8837, six added by #8835); a scenario added later is a stated skip until a rerun
     assert set(got["skipped"]) == {s["id"] for s in doc["scenarios"]} - {s["id"] for s in scs}
     assert all(
         got["skipped"][s["id"]] == probe.RESTART_SKIP[s["job"]]

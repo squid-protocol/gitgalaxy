@@ -66,3 +66,16 @@ def test_an_input_override_is_checked_by_name():
         job["steps"][1]["inputs"] = bad
         with pytest.raises(ej.Unsupported, match=why):
             ej.check_job(job, cases)
+
+
+def test_the_posttran_intcalc_job_feeds_the_two_indexed_files_posttran_leaves():
+    """#8879: INTCALC's ACCTFILE / TCATBALF are POSTTRAN's compared KSDS outputs (same keys and record lengths); its
+    XREFFILE / DISCGRP are CardDemo's shipped files, so both steps agree on one data set."""
+    job = eq.load_case("carddemo-job-posttran-intcalc")
+    cases = {n: eq.load_case(n) for n in ej.step_names(job)}
+    ej.check_job(job, cases)
+    step = job["steps"][1]
+    assert step["feeds"] == {dd: {"step": "carddemo-posttran", "dd": dd} for dd in ("ACCTFILE", "TCATBALF")}
+    assert set(step["inputs"]) == {"XREFFILE", "DISCGRP"}
+    assert all(v.startswith(ej.CORPUS_PREFIX + "app/data/ASCII/") for v in step["inputs"].values())
+    assert cases["carddemo-intcalc"]["parm"] == "2022071800"

@@ -7,6 +7,7 @@ Internal use only until counsel answers Q16: the results file is never published
     probe.py proc [--printer FILE] [--out FILE] [--timeout S] [--dry]   # tests/equivalence/jcl/proc SYMJOB / OVRJOB / PCJOB
     probe.py flow [--printer FILE] [--out FILE] [--timeout S] [--dry]   # tests/equivalence/jcl/dataflow (&& temps, DISP, DD concat)
     probe.py gdg  [--printer FILE] [--out FILE] [--timeout S] [--dry]   # tests/equivalence/jcl/gdg (relative generations, catalog after)
+    probe.py restart [--printer FILE] [--out FILE] [--timeout S] [--dry]  # tests/equivalence/jcl/restart (JOB RESTART=, deferred step restart)
 
 For each scenario a deck is built from the fixture's own EXEC cards (their COND kept as written): a step whose `given` is
 `{rc: n}` runs IDCAMS with `SET MAXCC=n`; `{abend: ...}` runs a program 3.8J cannot find (S806, the abend seen live; the
@@ -42,6 +43,7 @@ from gitgalaxy.core.jcl_dataflow import resolve_dataflow  # noqa: E402
 from gitgalaxy.core.jcl_flow import JclFlow  # noqa: E402
 from gitgalaxy.core.jcl_gdg import JclGdgRefused, resolve_gdg  # noqa: E402
 from gitgalaxy.core.jcl_proc import expand_flow_rows, resolve_job  # noqa: E402
+from gitgalaxy.core.jcl_restart import restart_flow  # noqa: E402
 
 FIXTURE = REPO / "tests" / "equivalence" / "jcl" / "fixture"
 COND_JOBS = ("CONDJOB", "EVNJOB")  # IFJOB needs IF / THEN / ELSE, which 3.8J does not have (tier 1 only)
@@ -74,6 +76,21 @@ GDG_UNOBSERVED = [
     "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
     "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
     "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown",
+]
+RESTART_CASE = REPO / "tests" / "equivalence" / "jcl" / "restart"
+RESTART_RESULTS = RESTART_CASE / "mvs38j_probe.json"
+RESTART_SKIP = {  # job -> why it is not run here
+    "RSTJOB4": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+    "RSTJOB11": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+    "RSTJOB12": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+    "RSTJOB5": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+    "RSTJOB9": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+    "RSTJOB10": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
+}
+RESTART_UNOBSERVED = [
+    "what a program does (every step is IDCAMS with SET MAXCC)",
+    "a checkpoint restart (SYSCHK, checkid, RD=): not run",
+    "the restart rule for a bare COND=(code,op) over skipped steps (assumption A1): only its outcome on the box is compared",
 ]
 ABEND_PGM = "NOPGM001"  # not in any library: step abend S806 (IEF450I, no IEF142I)
 
@@ -785,9 +802,131 @@ def main_gdg(args):
     return 0 if all(r["verdict"] == "agree" for r in results) else 1
 
 
+def restart_deck(lines, job, given):
+    """The probe deck for one restart job: its JOB card (RESTART= kept), EXEC cards with COND as written, each program IDCAMS.
+
+    A procedure's steps get `SYSIN DD DUMMY` and the call overrides each `procstep.SYSIN` with `SET MAXCC=n` (key `CALL.PROCSTEP`).
+    """
+    block = _job_block(lines, job)
+    head = next(ln for ln in lines if ln.split()[:2] == [f"//{job}", "JOB"])
+    out = [head.replace(",CLASS=A", ",CLASS=A,MSGCLASS=A") if ",CLASS=A" in head else head + ",MSGCLASS=A"]
+    in_proc, proc_steps, call = False, [], None
+    for ln in block:
+        f = ln.split()
+        if len(f) > 1 and f[1] == "PROC":
+            in_proc = True
+        elif len(f) > 1 and f[1] == "PEND":
+            in_proc = False
+        elif in_proc and len(f) > 2 and f[1] == "EXEC":
+            proc_steps.append(f[0][2:])
+    for ln in block:
+        f = ln.split()
+        if len(f) < 2:
+            continue
+        if f[1] == "PROC":
+            out.append(ln)
+            in_proc = True
+        elif f[1] == "PEND":
+            out.append(ln)
+            in_proc = False
+        elif f[1] == "EXEC":
+            name = f[0][2:]
+            cond = re.search(r",COND=(\(.*\)|[A-Z]+)(?=,|$)", f[2])
+            cond = f",COND={cond.group(1)}" if cond else ""
+            if in_proc:
+                out += [f"//{name:<8} EXEC PGM=IDCAMS{cond}", "//SYSPRINT DD SYSOUT=A", "//SYSIN    DD DUMMY"]
+            elif f[2].startswith("PGM="):
+                rc = given.get(name, {"rc": 0})["rc"]
+                out += [
+                    f"//{name:<8} EXEC PGM=IDCAMS{cond}",
+                    "//SYSPRINT DD SYSOUT=A",
+                    "//SYSIN    DD *",
+                    f" SET MAXCC={rc}",
+                    "/*",
+                ]
+            else:  # a procedure call: one override per procedure step
+                call = name
+                out.append(ln)
+                for p in proc_steps:
+                    rc = given.get(f"{call}.{p}", {"rc": 0})["rc"]
+                    out += [f"//{p}.SYSIN DD *", f" SET MAXCC={rc}", "/*"]
+    return "\n".join(out) + "\n"
+
+
+def observed_restart(parsed, job, keys):
+    """skipped / run / bypass per step key from a parsed log: no step record = skipped, IEF142I executed = run, IEF202I = bypass."""
+    jobs = [j for j in parsed["jobs"] if j["job"] == job]
+    if not jobs:
+        return None
+    seen = {}
+    for s in jobs[-1]["steps"]:
+        seen[f"{s['step']}.{s['procstep']}" if s["procstep"] else s["step"]] = "run" if s["executed"] else "bypass"
+    for a in jobs[-1]["abends"]:
+        seen.setdefault(a["step"], "run")
+    return {k: seen.get(k, "skipped") for k in keys}
+
+
+def restart_scenarios():
+    doc = json.loads((RESTART_CASE / "scenarios.json").read_text(encoding="utf-8"))
+    return doc, [s for s in doc["scenarios"] if s["job"] not in RESTART_SKIP]
+
+
+def main_restart(args):
+    doc, scs = restart_scenarios()
+    lines = doc["flow_jcl"]
+    rows = job_flow.jcl_job_flow("\n".join(lines) + "\n")
+    if args.dry:
+        for sc in scs:
+            print(f"* {sc['id']}\n{restart_deck(lines, sc['job'], sc['given'])}")
+        return 0
+    if not args.printer:
+        print("probe: --printer FILE is required (the 1403 file of a started box)", file=sys.stderr)
+        return 2
+    results = []
+    for sc in scs:
+        with tempfile.TemporaryDirectory(prefix="mvs38j-probe-") as tmp:
+            path = Path(tmp) / f"{sc['id']}.jcl"
+            path.write_text(restart_deck(lines, sc["job"], sc["given"]))
+            before = Path(args.printer).stat().st_size if Path(args.printer).is_file() else 0
+            runner.submit(path, args.host, args.port)
+        parsed = None
+        if runner.wait_for_job(args.printer, sc["job"], args.timeout, before):
+            text = Path(args.printer).read_bytes()[before:].decode("utf-8", "backslashreplace")
+            parsed = runner.parse_log(text, sc["job"])
+        box = observed_restart(parsed, sc["job"], list(sc["expect"])) if parsed else None
+        engine = restart_flow(rows, sc["job"], sc["given"])
+        job = parsed["jobs"][-1] if parsed and parsed["jobs"] else None
+        results.append(
+            {
+                "id": sc["id"],
+                "job": sc["job"],
+                "expect": sc["expect"],
+                "engine": engine,
+                "box": box,
+                "verdict": verdict(sc["expect"], engine, box),
+                "box_steps": job["steps"] if job else None,
+                "box_abends": job["abends"] if job else None,
+                "jcl_error": job["jcl_error"] if job else None,
+                "unparsed_ief": parsed["unparsed_ief"] if parsed else None,
+                **({"assumed": sc["assumed"]} if "assumed" in sc else {}),
+            }
+        )
+        print(f"{sc['id']}: {results[-1]['verdict']}", flush=True)
+    out = {
+        "provenance": runner.PROVENANCE,
+        "internal_only": "Q16: MVS 3.8J results are not published",
+        "fixture": "tests/equivalence/jcl/restart/scenarios.json",
+        "skipped": {s["id"]: RESTART_SKIP[s["job"]] for s in doc["scenarios"] if s["job"] in RESTART_SKIP},
+        "unobserved": RESTART_UNOBSERVED,
+        "results": results,
+    }
+    Path(args.out if args.out != str(RESULTS) else RESTART_RESULTS).write_text(json.dumps(out, indent=1) + "\n")
+    return 0 if all(r["verdict"] == "agree" for r in results) else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("what", choices=["cond", "proc", "flow", "gdg"])
+    ap.add_argument("what", choices=["cond", "proc", "flow", "gdg", "restart"])
     ap.add_argument("--printer")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=3505)
@@ -801,6 +940,8 @@ def main(argv=None):
         return main_flow(args)
     if args.what == "gdg":
         return main_gdg(args)
+    if args.what == "restart":
+        return main_restart(args)
     doc = json.loads((FIXTURE / "scenarios.json").read_text(encoding="utf-8"))
     rows = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8"))
     flow = JclFlow(rows)

@@ -1043,16 +1043,16 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T13:26:18Z",
+  "as_of": "2026-11-21T13:32:08Z",
   "core": {
    "closed": 253,
-   "open": 21,
-   "total": 274
+   "open": 22,
+   "total": 275
   },
   "core_last_window": {
    "closed": 5,
-   "net_closed": -4,
-   "opened": 9
+   "net_closed": -5,
+   "opened": 10
   },
   "core_milestone": {
    "closed": 136,
@@ -1363,9 +1363,9 @@
    {
     "closed": 0,
     "number": 42,
-    "open": 6,
+    "open": 7,
     "title": "Graveyard Shift 2 \ud83c\udf19 \u2014 the whole CardDemo nightly",
-    "total": 6
+    "total": 7
    },
    {
     "closed": 0,

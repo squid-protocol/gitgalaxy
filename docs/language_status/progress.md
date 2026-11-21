@@ -134,11 +134,11 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T13:26:18Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T13:32:08Z.
 
-- `scope:core`: 21 open, 253 closed.
+- `scope:core`: 22 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.
-- Last 7 days: 9 opened, 5 closed, net -4 closed.
+- Last 7 days: 10 opened, 5 closed, net -5 closed.
 - ETA (open / net closure rate): **not converging**.
 
 ## 5. Gap Atlas

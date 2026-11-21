@@ -36,6 +36,12 @@ def _run(script, **extra):
         ("python -c 'from tree_sitter_language_pack import get_parser; get_parser(\"cobol\")'", "grammar"),
         ("cd x && pip install foo", "pip"),
         ("FOO=1 pip install foo", "pip"),
+        ("pipx install foo", "pip"),
+        ("uv sync --frozen", "pip"),
+        ("poetry install", "pip"),
+        ("gem install bundler", "os-packages"),
+        ("sudo brew install x", "os-packages"),
+        ("dotnet restore", "os-packages"),
     ],
 )
 def test_every_kind_is_recognised_and_bare_by_default(script, kind):
@@ -104,6 +110,9 @@ _FETCHES = [
     "docker pull x:1",
     "mvn -q package",
     "git clone https://example.invalid/r.git",
+    "pipx install foo",
+    "gem install bundler",
+    "dotnet restore",
     "curl -fsSL https://example.invalid/x",
     "gh release download v1 -R o/r",
     "gh api repos/o/r/issues/1",

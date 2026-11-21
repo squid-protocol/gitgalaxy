@@ -71,3 +71,14 @@ def test_what_is_not_answered_is_refused_by_name(r):
 def test_a_job_with_no_restart_skips_nothing():
     text = "//J JOB\n//A EXEC PGM=X\n//B EXEC PGM=Y\n"
     assert restart_flow(job_flow.jcl_job_flow(text), "J", {"A": {"rc": 0}, "B": {"rc": 0}}) == {"A": "run", "B": "run"}
+
+
+def test_an_unqualified_cond_with_a_procstep_cond_on_one_call_is_refused():
+    from gitgalaxy.core.jcl_proc import JclProcRefused
+
+    text = (
+        "//J JOB RESTART=C.K2\n//PR PROC\n//K1 EXEC PGM=A\n//K2 EXEC PGM=B\n//K3 EXEC PGM=C\n//  PEND\n"
+        "//C EXEC PR,COND=(0,NE),COND.K3=(4,LT,C.K2)\n"
+    )
+    with pytest.raises(JclProcRefused, match="COND.procstep"):
+        restart_flow(job_flow.jcl_job_flow(text), "J", {"C.K2": {"rc": 0}, "C.K3": {"rc": 0}})

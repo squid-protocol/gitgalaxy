@@ -87,6 +87,42 @@
     "//PAY      EXEC PAYPR",
     "//AFTER    EXEC PGM=PGMC",
     "//*",
+    "//RSTJOB13 JOB (ACCT),'RESTART COND OVR',CLASS=A,RESTART=CALL3.K2",
+    "//PR3      PROC",
+    "//K1       EXEC PGM=PGMA",
+    "//K2       EXEC PGM=PGMB,COND=(4,LT,K1)",
+    "//K3       EXEC PGM=PGMC,COND=(4,LT,K2)",
+    "//         PEND",
+    "//U0       EXEC PGM=PGMX",
+    "//CALL3    EXEC PR3,COND.K2=(0,LE)",
+    "//AFTER    EXEC PGM=PGMD",
+    "//*",
+    "//RSTJOB14 JOB (ACCT),'RESTART COND REF',CLASS=A,RESTART=CALL4.K2",
+    "//PR4      PROC",
+    "//K1       EXEC PGM=PGMA",
+    "//K2       EXEC PGM=PGMB",
+    "//K3       EXEC PGM=PGMC,COND=(8,LE,K1)",
+    "//         PEND",
+    "//CALL4    EXEC PR4,COND.K3=(4,LT,CALL4.K2)",
+    "//*",
+    "//RSTJOB15 JOB (ACCT),'RESTART COND SKIP',CLASS=A,RESTART=CALL5.K2",
+    "//PR5      PROC",
+    "//K1       EXEC PGM=PGMA",
+    "//K2       EXEC PGM=PGMB",
+    "//K3       EXEC PGM=PGMC,COND=(4,LT,K2)",
+    "//         PEND",
+    "//U0       EXEC PGM=PGMX",
+    "//CALL5    EXEC PR5,COND.K3=(0,NE,U0)",
+    "//*",
+    "//RSTJOB16 JOB (ACCT),'RESTART COND ALL',CLASS=A,RESTART=CALL6.K2",
+    "//PR6      PROC",
+    "//K1       EXEC PGM=PGMA",
+    "//K2       EXEC PGM=PGMB",
+    "//K3       EXEC PGM=PGMC,COND=(4,LT,K2)",
+    "//         PEND",
+    "//U0       EXEC PGM=PGMX",
+    "//CALL6    EXEC PR6,COND=(0,NE,U0)",
+    "//*",
     "//BADJOB6  JOB (ACCT),'DUPLICATE STEP',CLASS=A,RESTART=D1",
     "//D1       EXEC PGM=PGMA",
     "//D1       EXEC PGM=PGMB",
@@ -472,6 +508,120 @@
         "AFTER": "run"
       },
       "basis": "JOB RESTART Example 4: RESTART=(PAY.WEEKLY,CHECK8): PAY is the EXEC that calls the procedure, WEEKLY the procedure step holding checkpoint CHECK8. The steps before WEEKLY are skipped, WEEKLY and AFTER run."
+    },
+    {
+      "id": "procstep-restart-cond-override-on-restart-step",
+      "job": "RSTJOB13",
+      "given": {
+        "CALL3.K2": {
+          "rc": 0
+        },
+        "CALL3.K3": {
+          "rc": 0
+        },
+        "AFTER": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U0": "skipped",
+        "CALL3.K1": "skipped",
+        "CALL3.K2": "run",
+        "CALL3.K3": "run",
+        "AFTER": "run"
+      },
+      "basis": "JCL Reference, EXEC: COND, 'COND parameter on an EXEC statement that calls a procedure' and 'When the JOB statement contains a RESTART parameter': the restart step is the first step to execute and its COND is ignored, so the override COND.K2=(0,LE) (which would bypass any step that follows a return code) does not stop K2. K3's own COND=(4,LT,K2) is not overridden and K2 ended 0, so K3 runs."
+    },
+    {
+      "id": "procstep-restart-cond-override-on-restart-step-later-cond-kept",
+      "job": "RSTJOB13",
+      "given": {
+        "CALL3.K2": {
+          "rc": 8
+        },
+        "AFTER": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U0": "skipped",
+        "CALL3.K1": "skipped",
+        "CALL3.K2": "run",
+        "CALL3.K3": "bypass",
+        "AFTER": "run"
+      },
+      "basis": "JCL Reference, EXEC: COND, 'COND parameter on an EXEC statement that calls a procedure' and 'When the JOB statement contains a RESTART parameter': a COND.procstepname override changes only the named step; K3 keeps COND=(4,LT,K2), which names the restart step, and K2 ended 8, so K3 is bypassed. AFTER has no COND and runs."
+    },
+    {
+      "id": "procstep-restart-cond-override-names-restart-step",
+      "job": "RSTJOB14",
+      "given": {
+        "CALL4.K2": {
+          "rc": 8
+        }
+      },
+      "expect": {
+        "CALL4.K1": "skipped",
+        "CALL4.K2": "run",
+        "CALL4.K3": "bypass"
+      },
+      "basis": "JCL Reference, EXEC: COND, 'COND parameter on an EXEC statement that calls a procedure' and 'When the JOB statement contains a RESTART parameter': COND.K3=(4,LT,CALL4.K2) replaces K3's COND=(8,LE,K1) and names the restart step, which executed: rc 8 is above 4, so K3 is bypassed."
+    },
+    {
+      "id": "procstep-restart-cond-override-names-restart-step-run",
+      "job": "RSTJOB14",
+      "given": {
+        "CALL4.K2": {
+          "rc": 4
+        },
+        "CALL4.K3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL4.K1": "skipped",
+        "CALL4.K2": "run",
+        "CALL4.K3": "run"
+      },
+      "basis": "JCL Reference, EXEC: COND, 'COND parameter on an EXEC statement that calls a procedure' and 'When the JOB statement contains a RESTART parameter': the same override with K2 ending 4: (4,LT,CALL4.K2) is false (4 is not less than 4), so K3 runs."
+    },
+    {
+      "id": "procstep-restart-cond-override-names-skipped-step",
+      "job": "RSTJOB15",
+      "given": {
+        "CALL5.K2": {
+          "rc": 8
+        },
+        "CALL5.K3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U0": "skipped",
+        "CALL5.K1": "skipped",
+        "CALL5.K2": "run",
+        "CALL5.K3": "run"
+      },
+      "basis": "JCL Reference, EXEC: COND, 'COND parameter on an EXEC statement that calls a procedure' and 'When the JOB statement contains a RESTART parameter': COND.K3=(0,NE,U0) replaces K3's COND=(4,LT,K2), so K2's rc 8 no longer matters; the replacement names U0, a step before the restart step, and a COND test naming a step that did not execute in the restarted run is ignored (false), so K3 runs."
+    },
+    {
+      "id": "procstep-restart-cond-on-call-replaces-every-step",
+      "job": "RSTJOB16",
+      "given": {
+        "CALL6.K2": {
+          "rc": 8
+        },
+        "CALL6.K3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U0": "skipped",
+        "CALL6.K1": "skipped",
+        "CALL6.K2": "run",
+        "CALL6.K3": "run"
+      },
+      "basis": "JCL Reference, EXEC: COND, 'COND parameter on an EXEC statement that calls a procedure' and 'When the JOB statement contains a RESTART parameter': an unqualified COND=(0,NE,U0) on the EXEC that calls the procedure applies to every procedure step and replaces K3's own COND=(4,LT,K2). The restart step K2 ignores its COND; K3's names the skipped U0 and is false, so K3 runs although K2 ended 8."
     }
   ],
   "assumed": [

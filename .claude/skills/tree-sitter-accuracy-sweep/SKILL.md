@@ -93,7 +93,7 @@ git worktree add -b fix/<lang>-<issue#>-<short-slug> \
 cd ../gitgalaxy-worktrees/fix-<lang>-<issue#>
 python3 -m venv venv
 venv/bin/pip install -q -e ".[yaml]"
-venv/bin/pip install -q tree-sitter-language-pack networkx tiktoken pandas numpy xgboost pyyaml \
+venv/bin/pip install -q tree-sitter-language-pack networkx tiktoken pandas numpy pyyaml \
   pytest ruff mypy
 ```
 **Include `pytest ruff mypy` in that install line.** An earlier batch's prebuild step omitted

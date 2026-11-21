@@ -63,9 +63,9 @@ Enterprise repositories often suffer from "Bus Factor" risks, where massive file
 
 ### The Security Perimeter (Zero-Trust & X-Ray)
 
-For a core banking platform, the security perimeter is paramount. GitGalaxy's rule-based lenses and XGBoost models revealed a mixed security posture:
+For a core banking platform, the security perimeter is paramount. GitGalaxy's rule-based lenses revealed a mixed security posture:
 
-* **Autonomous AI Threats & Malware:** **0 detected**. The codebase is secure against recognized structural malware and Agentic RCE.
+* **Autonomous AI Threats:** **0 detected** by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.
 * **Import Policy Gate:** **0 Blacklisted / 0 Unknown Dependencies**. The dependency tree is immaculate, relying strictly on known, trusted packages.
 * **Binary Anomalies (X-Ray):** **8 hits**. Flagged for high entropy, likely tied to compressed test payloads or keystores.
 * **Weaponizable Surface Exposures:** * `LocalContentStorageUtil.java` and `ReportsTest.java` both triggered **100.0% Weaponizable Injection Vectors**, indicating external I/O flows directly into dynamic execution contexts without sufficient static safety nets.

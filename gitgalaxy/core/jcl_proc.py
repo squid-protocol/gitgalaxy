@@ -424,6 +424,13 @@ def expand_flow_rows(
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
                 cond = _COND_STEP.sub(rf"\g<1>{call}.\g<2>\g<3>", cond)
+            # EXEC COND on the call replaces every procedure step's COND; it names job steps as written
+            if r.get("cond"):
+                if over:
+                    raise JclProcRefused(
+                        "an unqualified COND= together with COND.procstep= on one call is not answered"
+                    )
+                cond = r["cond"]
             row = dict(ps, step_name=f"{r['step_name']}.{ps['step_name']}", cond=cond, if_cond=r["if_cond"])
             row.pop("if_chain", None)
             if r.get("if_chain"):

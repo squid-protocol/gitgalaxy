@@ -208,6 +208,15 @@ side, the worker now runs it after a passing `runTask` side, in the same session
 (`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
 named `<scenario> [java-facade]`; `killers` names those for a separate run too.
 
+**A baseline proof is kept in its `--work` dir (2026-11-21, #8599).** `mutation.run` proved the baseline every time: a
+`det_mutation.py refresh` or `run` after an earlier run in the same `--work`, or a re-run after a crash, paid it again
+(13-60 s a case). `baseline_proof` now writes `baseline.key.json` beside `baseline/` after a *proven* proof, and reuses the
+directory when the key matches: sha256 of the port's every file, the `--case-file` bytes, the case's evidence digest
+(harness, oracle, generator, case and corpus fingerprints) and the engine hash. A moved input, an unproven or missing
+report, or inputs that cannot be read prove it again; a refuted baseline is never kept. The proof is not loosened: a kept
+baseline is the one a fresh proof of the same inputs would make. Not shared *between* cases: each case has its own port
+and report, so the sharing is across runs of one case, not across a batch's cases.
+
 **`survivor_attack.py try` proves a CICS attack through the facades too (#8599).** It ran every proof with `--no-facades`
 while `live_methods` counts `handleLink` / `lastLinkBytes` as live, so an attack on a facade-only survivor could report
 `survived` where the facade side kills it. `attack_flags` now drops `--no-facades` for a CICS case (batch and the other
@@ -370,6 +379,18 @@ What it says:
   or whose generator / harness / oracle drifted, and a current one returns "nothing stale" before `_run_translate`.
   The cost that remains is by design: a drifted ledger is translated once to compare the port's bytes, then renewed.
   Pinned by `test_a_current_ledger_is_never_translated_or_proven_again_8599`.
+- **Hot-first in the CICS in-process path does not pay on UPDCUST: measured, not shipped (2026-11-21, #8599).** The
+  in-process runner sends all 64 scenarios to the session JVM in one call and judges afterwards. The candidate ran the
+  six scenarios with the most kills first (frozen after 10 scenario kills, and kills counted only after the unmutated
+  port passed the same subset in process), judged them, and ran the rest only for a survivor. `det_mutation.py run
+  cbsa-updcust --sample 0 --jobs 2`, fast+one-jvm, nyx, one run each against a control with the pass switched off:
+  **690 of 690 verdicts identical** (397 killed, 268 survived, 24 stillborn, 1 timeout), but the candidate was slower,
+  691 s against 545 s (box load 3.1 against 1.4, so the gap is partly load). The per-mutant seconds say why: killed
+  mutants took 329 s against 335 s (a 2% saving: a call's cost is the Spring context start, ~1 s, not the scenarios,
+  ~0.02 s each), while the 268 survivors paid a second session call each (614 s against 394 s). Early exit inside
+  one call needs the session JVM to stop at the first differing scenario, which means judging in Java; a second call
+  never wins while a call costs the context start. Not a gap in a case with few scenarios and a slow program; no such
+  CICS ledger is known. The change was dropped; the checklist line stays open for that Java-side form.
 
 ## Scores
 

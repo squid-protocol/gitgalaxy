@@ -1,0 +1,959 @@
+{
+ "cells": {
+  "c": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 28,
+    "n_family": 28,
+    "n_oracle": 28,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 597,
+    "n_oracle": 1129,
+    "pinned": false,
+    "precision": 0.878,
+    "recall": 0.464,
+    "status": "misses"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 28,
+    "n_family": 26,
+    "n_oracle": 26,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 207,
+    "n_oracle": 205,
+    "pinned": false,
+    "precision": 0.99,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 28,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "doc": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 29,
+    "n_oracle": 26,
+    "pinned": false,
+    "precision": 0.862,
+    "recall": 0.962,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 125,
+    "n_oracle": 137,
+    "pinned": false,
+    "precision": 0.848,
+    "recall": 0.774,
+    "status": "misses"
+   },
+   "panics_and_aborts": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 257,
+    "n_oracle": 125,
+    "pinned": false,
+    "precision": 0.479,
+    "recall": 0.984,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "thread_sleeps": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 33,
+    "n_oracle": 33,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 52,
+    "n_oracle": 65,
+    "pinned": false,
+    "precision": 0.654,
+    "recall": 0.523,
+    "status": "both"
+   }
+  },
+  "go": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 450,
+    "n_oracle": 450,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 115,
+    "n_oracle": 140,
+    "pinned": false,
+    "precision": 0.739,
+    "recall": 0.607,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 359,
+    "n_oracle": 359,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 259,
+    "n_oracle": 75,
+    "pinned": true,
+    "precision": 0.29,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 40,
+    "n_oracle": 40,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 19,
+    "n_oracle": 0,
+    "pinned": false,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 174,
+    "n_oracle": 208,
+    "pinned": true,
+    "precision": 0.914,
+    "recall": 0.764,
+    "status": "misses"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 32,
+    "n_oracle": 39,
+    "pinned": true,
+    "precision": 0.469,
+    "recall": 0.385,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 233,
+    "n_oracle": 229,
+    "pinned": false,
+    "precision": 0.979,
+    "recall": 0.996,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 41,
+    "n_oracle": 26,
+    "pinned": false,
+    "precision": 0.561,
+    "recall": 0.885,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 150,
+    "n_oracle": 167,
+    "pinned": false,
+    "precision": 0.993,
+    "recall": 0.892,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 479,
+    "n_oracle": 573,
+    "pinned": false,
+    "precision": 0.814,
+    "recall": 0.681,
+    "status": "misses"
+   }
+  },
+  "java": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 486,
+    "n_oracle": 489,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.994,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 18,
+    "n_oracle": 9,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": 0.0,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 211,
+    "n_oracle": 226,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.934,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 45,
+    "n_oracle": 28,
+    "pinned": true,
+    "precision": 0.622,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "retrofit",
+    "functions": 2616,
+    "n_family": 31,
+    "n_oracle": 20,
+    "pinned": false,
+    "precision": 0.645,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 421,
+    "n_oracle": 431,
+    "pinned": true,
+    "precision": 0.974,
+    "recall": 0.951,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 129,
+    "n_oracle": 115,
+    "pinned": true,
+    "precision": 0.891,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 36,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 29,
+    "n_oracle": 29,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 1,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "retrofit",
+    "functions": 2616,
+    "n_family": 6,
+    "n_oracle": 16,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.375,
+    "status": "misses"
+   }
+  },
+  "javascript": {
+   "args": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 264,
+    "n_oracle": 264,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 3,
+    "n_oracle": 2,
+    "pinned": false,
+    "precision": 0.667,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 120,
+    "n_oracle": 120,
+    "pinned": false,
+    "precision": 0.958,
+    "recall": 0.958,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 158,
+    "n_oracle": 57,
+    "pinned": false,
+    "precision": 0.323,
+    "recall": 0.895,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 7,
+    "n_oracle": 7,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 4,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 4,
+    "n_family": 4,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 0.25,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "io": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 5,
+    "n_oracle": 4,
+    "pinned": false,
+    "precision": 0.8,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "panics_and_aborts": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 38,
+    "n_oracle": 38,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 12,
+    "n_oracle": 3,
+    "pinned": false,
+    "precision": 0.25,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 0,
+    "n_oracle": 2,
+    "pinned": false,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "time_date_logic": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 2,
+    "n_oracle": 2,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
+  "python": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 390,
+    "n_oracle": 390,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 27,
+    "n_oracle": 110,
+    "pinned": true,
+    "precision": 0.704,
+    "recall": 0.173,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 231,
+    "n_oracle": 251,
+    "pinned": true,
+    "precision": 0.974,
+    "recall": 0.896,
+    "status": "ok"
+   },
+   "cleanup": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 10,
+    "n_oracle": 59,
+    "pinned": true,
+    "precision": 0.9,
+    "recall": 0.153,
+    "status": "misses"
+   },
+   "closures": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 4100,
+    "n_oracle": 4016,
+    "pinned": false,
+    "precision": 0.98,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "comprehensions": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 58,
+    "n_oracle": 51,
+    "pinned": true,
+    "precision": 0.741,
+    "recall": 0.843,
+    "status": "over-counts"
+   },
+   "concurrency": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 555,
+    "n_oracle": 371,
+    "pinned": false,
+    "precision": 0.477,
+    "recall": 0.714,
+    "status": "both"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 28,
+    "n_oracle": 28,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 2,
+    "n_oracle": 99,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": 0.0,
+    "status": "both"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 243,
+    "n_oracle": 296,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.821,
+    "status": "ok"
+   },
+   "explicit_casts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 75,
+    "n_oracle": 71,
+    "pinned": true,
+    "precision": 0.92,
+    "recall": 0.972,
+    "status": "ok"
+   },
+   "globals": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 508,
+    "n_oracle": 988,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.514,
+    "status": "misses"
+   },
+   "high_risk_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 18,
+    "n_oracle": 18,
+    "pinned": true,
+    "precision": 0.944,
+    "recall": 0.944,
+    "status": "ok"
+   },
+   "import": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 16,
+    "n_oracle": 16,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 47,
+    "n_oracle": 40,
+    "pinned": true,
+    "precision": 0.532,
+    "recall": 0.625,
+    "status": "both"
+   },
+   "lazy_evaluation": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 646,
+    "n_oracle": 613,
+    "pinned": false,
+    "precision": 0.949,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 57,
+    "n_oracle": 55,
+    "pinned": true,
+    "precision": 0.965,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 14,
+    "n_oracle": 18,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.778,
+    "status": "misses"
+   },
+   "serialization_parsing": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 0,
+    "n_oracle": 699,
+    "pinned": false,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "sync_locks": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 4,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "telemetry": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 2,
+    "n_oracle": 47,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.043,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 9,
+    "n_oracle": 9,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 7,
+    "n_oracle": 37,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.189,
+    "status": "misses"
+   }
+  },
+  "rust": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 866,
+    "n_oracle": 866,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 32,
+    "n_oracle": 34,
+    "pinned": true,
+    "precision": 0.594,
+    "recall": 0.559,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 399,
+    "n_oracle": 284,
+    "pinned": true,
+    "precision": 0.712,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 6,
+    "n_oracle": 110,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.055,
+    "status": "misses"
+   },
+   "debug_prints": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 55,
+    "n_oracle": 54,
+    "pinned": false,
+    "precision": 0.982,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 252,
+    "n_oracle": 245,
+    "pinned": true,
+    "precision": 0.972,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 139,
+    "n_oracle": 132,
+    "pinned": true,
+    "precision": 0.95,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 253,
+    "n_oracle": 129,
+    "pinned": false,
+    "precision": 0.249,
+    "recall": 0.488,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 6,
+    "n_oracle": 23,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.261,
+    "status": "misses"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "thread_sleeps": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 49,
+    "n_oracle": 114,
+    "pinned": false,
+    "precision": 0.837,
+    "recall": 0.36,
+    "status": "misses"
+   },
+   "time_date_logic": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 37,
+    "n_oracle": 287,
+    "pinned": false,
+    "precision": 0.919,
+    "recall": 0.118,
+    "status": "misses"
+   }
+  },
+  "typescript": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 4538,
+    "n_oracle": 4497,
+    "pinned": true,
+    "precision": 0.99,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 107,
+    "n_oracle": 1284,
+    "pinned": true,
+    "precision": 0.85,
+    "recall": 0.071,
+    "status": "misses"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 3589,
+    "n_oracle": 3467,
+    "pinned": true,
+    "precision": 0.965,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 424,
+    "n_oracle": 654,
+    "pinned": true,
+    "precision": 0.684,
+    "recall": 0.443,
+    "status": "both"
+   },
+   "debug_prints": {
+    "corpus": "vue",
+    "functions": 2142,
+    "n_family": 21,
+    "n_oracle": 18,
+    "pinned": false,
+    "precision": 0.857,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 1,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 539,
+    "n_oracle": 373,
+    "pinned": true,
+    "precision": 0.692,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 42,
+    "n_oracle": 5,
+    "pinned": true,
+    "precision": 0.024,
+    "recall": 0.2,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 46,
+    "n_oracle": 39,
+    "pinned": true,
+    "precision": 0.848,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 16,
+    "n_oracle": 19,
+    "pinned": true,
+    "precision": 0.875,
+    "recall": 0.737,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "vue",
+    "functions": 2142,
+    "n_family": 62,
+    "n_oracle": 59,
+    "pinned": false,
+    "precision": 0.935,
+    "recall": 0.983,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 6,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   }
+  }
+ },
+ "schema": 1
+}

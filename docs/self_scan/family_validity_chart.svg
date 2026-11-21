@@ -1,0 +1,3165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1084 1194" width="1084" height="1194" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<style>
+  .surface { fill: #0f1117; }  /* house style: dark, matching the other charts */
+  .u { fill: #3b3f4a; }
+  .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
+  .subtitle { font-size: 11px; fill: #c3c2b7; }
+  .legend { font-size: 10px; fill: #f0efec; }
+  .phase { font-size: 10px; font-weight: 700; fill: #f0efec; }
+  .fam { font-size: 9px; fill: #c3c2b7; }
+  .famd { font-size: 9px; fill: #77766f; font-style: italic; }
+  .lang { font-size: 9px; fill: #c3c2b7; }
+  .note { font-size: 10px; fill: #c3c2b7; }
+</style>
+<defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.7" fill="#8f8e86"/></pattern></defs>
+<rect class="surface" x="0" y="0" width="1084" height="1194"/>
+<text class="title" x="16" y="24">Keyword families: measured agreement with a parser, per language</text>
+<text class="subtitle" x="16" y="42">91 of 2893 defined cells scored (7 of 73 languages, 23 of 71 families); 2290 cells are N/A (no rule in that language). Colour is the weaker of recall and precision.</text>
+<rect x="16" y="54" width="5" height="9" fill="#f22c2c"/>
+<rect x="21" y="54" width="5" height="9" fill="#f22c2c"/>
+<rect x="26" y="54" width="5" height="9" fill="#f22c2c"/>
+<rect x="31" y="54" width="5" height="9" fill="#f22c2c"/>
+<rect x="36" y="54" width="5" height="9" fill="#f22c2c"/>
+<rect x="41" y="54" width="5" height="9" fill="#f22d2c"/>
+<rect x="46" y="54" width="5" height="9" fill="#f22e2c"/>
+<rect x="51" y="54" width="5" height="9" fill="#f2302c"/>
+<rect x="56" y="54" width="5" height="9" fill="#f2322c"/>
+<rect x="61" y="54" width="5" height="9" fill="#f2352c"/>
+<rect x="66" y="54" width="5" height="9" fill="#f2382c"/>
+<rect x="71" y="54" width="5" height="9" fill="#f23c2c"/>
+<rect x="76" y="54" width="5" height="9" fill="#f2412c"/>
+<rect x="81" y="54" width="5" height="9" fill="#f2472c"/>
+<rect x="86" y="54" width="5" height="9" fill="#f24e2c"/>
+<rect x="91" y="54" width="5" height="9" fill="#f2562c"/>
+<rect x="96" y="54" width="5" height="9" fill="#f25e2c"/>
+<rect x="101" y="54" width="5" height="9" fill="#f2692c"/>
+<rect x="106" y="54" width="5" height="9" fill="#f2742c"/>
+<rect x="111" y="54" width="5" height="9" fill="#f2812c"/>
+<rect x="116" y="54" width="5" height="9" fill="#f28f2c"/>
+<rect x="121" y="54" width="5" height="9" fill="#f29f2c"/>
+<rect x="126" y="54" width="5" height="9" fill="#f2b02c"/>
+<rect x="131" y="54" width="5" height="9" fill="#f2c32c"/>
+<rect x="136" y="54" width="5" height="9" fill="#f2d72c"/>
+<rect x="141" y="54" width="5" height="9" fill="#f2ee2c"/>
+<rect x="146" y="54" width="5" height="9" fill="#dff22c"/>
+<rect x="151" y="54" width="5" height="9" fill="#c5f22c"/>
+<rect x="156" y="54" width="5" height="9" fill="#a8f22c"/>
+<rect x="161" y="54" width="5" height="9" fill="#8af22c"/>
+<rect x="166" y="54" width="5" height="9" fill="#6af22c"/>
+<rect x="171" y="54" width="5" height="9" fill="#47f22c"/>
+<rect x="176" y="54" width="5" height="9" fill="#2cf235"/>
+<rect x="181" y="54" width="5" height="9" fill="#2cf25c"/>
+<rect x="186" y="54" width="5" height="9" fill="#2cf286"/>
+<rect x="191" y="54" width="5" height="9" fill="#2cf2b3"/>
+<rect x="196" y="54" width="5" height="9" fill="#2cf2e2"/>
+<rect x="201" y="54" width="5" height="9" fill="#2cd1f2"/>
+<rect x="206" y="54" width="5" height="9" fill="#2c9df2"/>
+<rect x="211" y="54" width="5" height="9" fill="#2c66f2"/>
+<rect x="216" y="54" width="5" height="9" fill="#2c2cf2"/>
+<text class="legend" x="16" y="75" text-anchor="middle">0%</text>
+<text class="legend" x="116" y="75" text-anchor="middle">50%</text>
+<text class="legend" x="176" y="75" text-anchor="middle">80%</text>
+<text class="legend" x="216" y="75" text-anchor="middle">100%</text>
+<rect x="266.0" y="54" width="11" height="11" fill="#3b3f4a" stroke="#2a2d36" stroke-width="0.5"/>
+<text class="legend" x="282.0" y="63">not yet tested</text>
+<rect x="363.6" y="54" width="11" height="11" fill="#4d5260" stroke="#2a2d36" stroke-width="0.5"/>
+<rect x="363.6" y="54" width="11" height="11" fill="url(#dots)"/>
+<text class="legend" x="379.6" y="63">scored, construct never seen</text>
+<rect x="536.8000000000001" y="54" width="11" height="11" fill="#12141a" stroke="#2a2d36" stroke-width="0.5"/>
+<text class="legend" x="552.8000000000001" y="63">N/A: no rule</text>
+<rect x="623.6000000000001" y="54" width="11" height="11" fill="#2cf2e2" opacity="0.5"/>
+<text class="legend" x="639.6000000000001" y="63">faded: fewer than 10 functions</text>
+<rect x="825.6000000000001" y="54" width="11" height="11" fill="#2cf2e2"/>
+<rect x="825.6000000000001" y="54" width="11" height="11" fill="url(#hatch)"/>
+<text class="legend" x="841.6000000000001" y="63">hatched: unpinned corpus (exploratory)</text>
+<rect x="192" y="150" width="876" height="960" fill="#12141a"/>
+<text class="lang" transform="translate(197.5,144) rotate(-90)">python</text>
+<text class="lang" transform="translate(209.5,144) rotate(-90)">go</text>
+<text class="lang" transform="translate(221.5,144) rotate(-90)">java</text>
+<text class="lang" transform="translate(233.5,144) rotate(-90)">typescript</text>
+<text class="lang" transform="translate(245.5,144) rotate(-90)">javascript</text>
+<text class="lang" transform="translate(257.5,144) rotate(-90)">rust</text>
+<text class="lang" transform="translate(269.5,144) rotate(-90)">c</text>
+<text class="lang" transform="translate(281.5,144) rotate(-90)">abap</text>
+<text class="lang" transform="translate(293.5,144) rotate(-90)">acs</text>
+<text class="lang" transform="translate(305.5,144) rotate(-90)">ada</text>
+<text class="lang" transform="translate(317.5,144) rotate(-90)">agc_assembly</text>
+<text class="lang" transform="translate(329.5,144) rotate(-90)">apex</text>
+<text class="lang" transform="translate(341.5,144) rotate(-90)">assembly</text>
+<text class="lang" transform="translate(353.5,144) rotate(-90)">batch</text>
+<text class="lang" transform="translate(365.5,144) rotate(-90)">blp</text>
+<text class="lang" transform="translate(377.5,144) rotate(-90)">bms</text>
+<text class="lang" transform="translate(389.5,144) rotate(-90)">clist</text>
+<text class="lang" transform="translate(401.5,144) rotate(-90)">cobol</text>
+<text class="lang" transform="translate(413.5,144) rotate(-90)">cpp</text>
+<text class="lang" transform="translate(425.5,144) rotate(-90)">crystal</text>
+<text class="lang" transform="translate(437.5,144) rotate(-90)">csd</text>
+<text class="lang" transform="translate(449.5,144) rotate(-90)">csharp</text>
+<text class="lang" transform="translate(461.5,144) rotate(-90)">css</text>
+<text class="lang" transform="translate(473.5,144) rotate(-90)">dart</text>
+<text class="lang" transform="translate(485.5,144) rotate(-90)">db2_sql</text>
+<text class="lang" transform="translate(497.5,144) rotate(-90)">dockerfile</text>
+<text class="lang" transform="translate(509.5,144) rotate(-90)">easytrieve</text>
+<text class="lang" transform="translate(521.5,144) rotate(-90)">elixir</text>
+<text class="lang" transform="translate(533.5,144) rotate(-90)">embedded_python</text>
+<text class="lang" transform="translate(545.5,144) rotate(-90)">erlang</text>
+<text class="lang" transform="translate(557.5,144) rotate(-90)">fortran</text>
+<text class="lang" transform="translate(569.5,144) rotate(-90)">fsharp</text>
+<text class="lang" transform="translate(581.5,144) rotate(-90)">glsl</text>
+<text class="lang" transform="translate(593.5,144) rotate(-90)">groovy</text>
+<text class="lang" transform="translate(605.5,144) rotate(-90)">haskell</text>
+<text class="lang" transform="translate(617.5,144) rotate(-90)">hcl</text>
+<text class="lang" transform="translate(629.5,144) rotate(-90)">hlasm</text>
+<text class="lang" transform="translate(641.5,144) rotate(-90)">hlo</text>
+<text class="lang" transform="translate(653.5,144) rotate(-90)">html</text>
+<text class="lang" transform="translate(665.5,144) rotate(-90)">jcl</text>
+<text class="lang" transform="translate(677.5,144) rotate(-90)">julia</text>
+<text class="lang" transform="translate(689.5,144) rotate(-90)">kotlin</text>
+<text class="lang" transform="translate(701.5,144) rotate(-90)">livecode</text>
+<text class="lang" transform="translate(713.5,144) rotate(-90)">lua</text>
+<text class="lang" transform="translate(725.5,144) rotate(-90)">m4</text>
+<text class="lang" transform="translate(737.5,144) rotate(-90)">makefile</text>
+<text class="lang" transform="translate(749.5,144) rotate(-90)">matlab</text>
+<text class="lang" transform="translate(761.5,144) rotate(-90)">mlir</text>
+<text class="lang" transform="translate(773.5,144) rotate(-90)">nim</text>
+<text class="lang" transform="translate(785.5,144) rotate(-90)">nix</text>
+<text class="lang" transform="translate(797.5,144) rotate(-90)">objective-c</text>
+<text class="lang" transform="translate(809.5,144) rotate(-90)">ocaml</text>
+<text class="lang" transform="translate(821.5,144) rotate(-90)">perl</text>
+<text class="lang" transform="translate(833.5,144) rotate(-90)">php</text>
+<text class="lang" transform="translate(845.5,144) rotate(-90)">pli</text>
+<text class="lang" transform="translate(857.5,144) rotate(-90)">postgresql</text>
+<text class="lang" transform="translate(869.5,144) rotate(-90)">powershell</text>
+<text class="lang" transform="translate(881.5,144) rotate(-90)">proto</text>
+<text class="lang" transform="translate(893.5,144) rotate(-90)">r</text>
+<text class="lang" transform="translate(905.5,144) rotate(-90)">rexx</text>
+<text class="lang" transform="translate(917.5,144) rotate(-90)">ruby</text>
+<text class="lang" transform="translate(929.5,144) rotate(-90)">scala</text>
+<text class="lang" transform="translate(941.5,144) rotate(-90)">scheme</text>
+<text class="lang" transform="translate(953.5,144) rotate(-90)">shell</text>
+<text class="lang" transform="translate(965.5,144) rotate(-90)">solidity</text>
+<text class="lang" transform="translate(977.5,144) rotate(-90)">sqlite</text>
+<text class="lang" transform="translate(989.5,144) rotate(-90)">swift</text>
+<text class="lang" transform="translate(1001.5,144) rotate(-90)">tcl</text>
+<text class="lang" transform="translate(1013.5,144) rotate(-90)">td</text>
+<text class="lang" transform="translate(1025.5,144) rotate(-90)">yacc</text>
+<text class="lang" transform="translate(1037.5,144) rotate(-90)">yaml</text>
+<text class="lang" transform="translate(1049.5,144) rotate(-90)">zig</text>
+<text class="lang" transform="translate(1061.5,144) rotate(-90)">zscript</text>
+<text class="phase" x="16" y="159">STRUCTURE</text>
+<text class="fam" x="24" y="171">calls_out</text>
+<use href="#c" x="192" y="162" class="u"/>
+<use href="#c" x="204" y="162" class="u"/>
+<use href="#c" x="216" y="162" class="u"/>
+<use href="#c" x="228" y="162" class="u"/>
+<use href="#c" x="240" y="162" class="u"/>
+<use href="#c" x="252" y="162" class="u"/>
+<use href="#c" x="264" y="162" class="u"/>
+<use href="#c" x="276" y="162" class="u"/>
+<use href="#c" x="288" y="162" class="u"/>
+<use href="#c" x="300" y="162" class="u"/>
+<use href="#c" x="312" y="162" class="u"/>
+<use href="#c" x="324" y="162" class="u"/>
+<use href="#c" x="336" y="162" class="u"/>
+<use href="#c" x="348" y="162" class="u"/>
+<use href="#c" x="384" y="162" class="u"/>
+<use href="#c" x="396" y="162" class="u"/>
+<use href="#c" x="408" y="162" class="u"/>
+<use href="#c" x="420" y="162" class="u"/>
+<use href="#c" x="444" y="162" class="u"/>
+<use href="#c" x="468" y="162" class="u"/>
+<use href="#c" x="480" y="162" class="u"/>
+<use href="#c" x="504" y="162" class="u"/>
+<use href="#c" x="528" y="162" class="u"/>
+<use href="#c" x="552" y="162" class="u"/>
+<use href="#c" x="564" y="162" class="u"/>
+<use href="#c" x="576" y="162" class="u"/>
+<use href="#c" x="588" y="162" class="u"/>
+<use href="#c" x="600" y="162" class="u"/>
+<use href="#c" x="624" y="162" class="u"/>
+<use href="#c" x="636" y="162" class="u"/>
+<use href="#c" x="660" y="162" class="u"/>
+<use href="#c" x="684" y="162" class="u"/>
+<use href="#c" x="696" y="162" class="u"/>
+<use href="#c" x="708" y="162" class="u"/>
+<use href="#c" x="720" y="162" class="u"/>
+<use href="#c" x="732" y="162" class="u"/>
+<use href="#c" x="744" y="162" class="u"/>
+<use href="#c" x="756" y="162" class="u"/>
+<use href="#c" x="792" y="162" class="u"/>
+<use href="#c" x="816" y="162" class="u"/>
+<use href="#c" x="828" y="162" class="u"/>
+<use href="#c" x="840" y="162" class="u"/>
+<use href="#c" x="852" y="162" class="u"/>
+<use href="#c" x="864" y="162" class="u"/>
+<use href="#c" x="900" y="162" class="u"/>
+<use href="#c" x="912" y="162" class="u"/>
+<use href="#c" x="924" y="162" class="u"/>
+<use href="#c" x="936" y="162" class="u"/>
+<use href="#c" x="948" y="162" class="u"/>
+<use href="#c" x="960" y="162" class="u"/>
+<use href="#c" x="984" y="162" class="u"/>
+<use href="#c" x="996" y="162" class="u"/>
+<use href="#c" x="1020" y="162" class="u"/>
+<use href="#c" x="1044" y="162" class="u"/>
+<use href="#c" x="1056" y="162" class="u"/>
+<text class="fam" x="24" y="183">branch</text>
+<rect x="192" y="174" width="11" height="11" fill="#2cf2da"><title>python / branch: recall 0.90, precision 0.97 (251 oracle, 231 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="174" width="11" height="11" fill="#2c2cf2"><title>go / branch: recall 1.00, precision 1.00 (359 oracle, 359 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="216" y="174" width="11" height="11" fill="#2cbff2"><title>java / branch: recall 0.93, precision 1.00 (226 oracle, 211 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="174" width="11" height="11" fill="#2c7cf2"><title>typescript / branch: recall 1.00, precision 0.96 (3467 oracle, 3589 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="174" width="11" height="11" fill="#2c8cf2"><title>javascript / branch: recall 0.96, precision 0.96 (120 oracle, 120 family functions; express (not pinned))</title></rect>
+<rect x="240" y="174" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="174" width="11" height="11" fill="#9af22c"><title>rust / branch: recall 1.00, precision 0.71 (284 oracle, 399 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="264" y="174" width="11" height="11" fill="#2c2cf2"><title>c / branch: recall 1.00, precision 1.00 (26 oracle, 26 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="276" y="174" class="u"/>
+<use href="#c" x="288" y="174" class="u"/>
+<use href="#c" x="300" y="174" class="u"/>
+<use href="#c" x="312" y="174" class="u"/>
+<use href="#c" x="324" y="174" class="u"/>
+<use href="#c" x="336" y="174" class="u"/>
+<use href="#c" x="384" y="174" class="u"/>
+<use href="#c" x="396" y="174" class="u"/>
+<use href="#c" x="408" y="174" class="u"/>
+<use href="#c" x="420" y="174" class="u"/>
+<use href="#c" x="444" y="174" class="u"/>
+<use href="#c" x="456" y="174" class="u"/>
+<use href="#c" x="468" y="174" class="u"/>
+<use href="#c" x="480" y="174" class="u"/>
+<use href="#c" x="492" y="174" class="u"/>
+<use href="#c" x="504" y="174" class="u"/>
+<use href="#c" x="516" y="174" class="u"/>
+<use href="#c" x="528" y="174" class="u"/>
+<use href="#c" x="540" y="174" class="u"/>
+<use href="#c" x="552" y="174" class="u"/>
+<use href="#c" x="564" y="174" class="u"/>
+<use href="#c" x="588" y="174" class="u"/>
+<use href="#c" x="600" y="174" class="u"/>
+<use href="#c" x="612" y="174" class="u"/>
+<use href="#c" x="624" y="174" class="u"/>
+<use href="#c" x="648" y="174" class="u"/>
+<use href="#c" x="660" y="174" class="u"/>
+<use href="#c" x="672" y="174" class="u"/>
+<use href="#c" x="684" y="174" class="u"/>
+<use href="#c" x="696" y="174" class="u"/>
+<use href="#c" x="708" y="174" class="u"/>
+<use href="#c" x="720" y="174" class="u"/>
+<use href="#c" x="732" y="174" class="u"/>
+<use href="#c" x="744" y="174" class="u"/>
+<use href="#c" x="768" y="174" class="u"/>
+<use href="#c" x="792" y="174" class="u"/>
+<use href="#c" x="804" y="174" class="u"/>
+<use href="#c" x="816" y="174" class="u"/>
+<use href="#c" x="828" y="174" class="u"/>
+<use href="#c" x="840" y="174" class="u"/>
+<use href="#c" x="852" y="174" class="u"/>
+<use href="#c" x="864" y="174" class="u"/>
+<use href="#c" x="888" y="174" class="u"/>
+<use href="#c" x="900" y="174" class="u"/>
+<use href="#c" x="912" y="174" class="u"/>
+<use href="#c" x="924" y="174" class="u"/>
+<use href="#c" x="936" y="174" class="u"/>
+<use href="#c" x="948" y="174" class="u"/>
+<use href="#c" x="960" y="174" class="u"/>
+<use href="#c" x="972" y="174" class="u"/>
+<use href="#c" x="984" y="174" class="u"/>
+<use href="#c" x="996" y="174" class="u"/>
+<use href="#c" x="1020" y="174" class="u"/>
+<use href="#c" x="1032" y="174" class="u"/>
+<use href="#c" x="1044" y="174" class="u"/>
+<use href="#c" x="1056" y="174" class="u"/>
+<text class="fam" x="24" y="195">args</text>
+<rect x="192" y="186" width="11" height="11" fill="#2c2cf2"><title>python / args: recall 1.00, precision 1.00 (390 oracle, 390 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="186" width="11" height="11" fill="#2c2cf2"><title>go / args: recall 1.00, precision 1.00 (450 oracle, 450 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="216" y="186" width="11" height="11" fill="#2c3af2"><title>java / args: recall 0.99, precision 1.00 (489 oracle, 486 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="186" width="11" height="11" fill="#2c43f2"><title>typescript / args: recall 1.00, precision 0.99 (4497 oracle, 4538 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="186" width="11" height="11" fill="#2c2cf2"><title>javascript / args: recall 1.00, precision 1.00 (264 oracle, 264 family functions; express (not pinned))</title></rect>
+<rect x="240" y="186" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="186" width="11" height="11" fill="#2c2cf2"><title>rust / args: recall 1.00, precision 1.00 (866 oracle, 866 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="264" y="186" width="11" height="11" fill="#2c2cf2"><title>c / args: recall 1.00, precision 1.00 (28 oracle, 28 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="276" y="186" class="u"/>
+<use href="#c" x="288" y="186" class="u"/>
+<use href="#c" x="300" y="186" class="u"/>
+<use href="#c" x="312" y="186" class="u"/>
+<use href="#c" x="324" y="186" class="u"/>
+<use href="#c" x="336" y="186" class="u"/>
+<use href="#c" x="372" y="186" class="u"/>
+<use href="#c" x="384" y="186" class="u"/>
+<use href="#c" x="396" y="186" class="u"/>
+<use href="#c" x="408" y="186" class="u"/>
+<use href="#c" x="420" y="186" class="u"/>
+<use href="#c" x="432" y="186" class="u"/>
+<use href="#c" x="444" y="186" class="u"/>
+<use href="#c" x="468" y="186" class="u"/>
+<use href="#c" x="480" y="186" class="u"/>
+<use href="#c" x="492" y="186" class="u"/>
+<use href="#c" x="516" y="186" class="u"/>
+<use href="#c" x="528" y="186" class="u"/>
+<use href="#c" x="540" y="186" class="u"/>
+<use href="#c" x="552" y="186" class="u"/>
+<use href="#c" x="564" y="186" class="u"/>
+<use href="#c" x="588" y="186" class="u"/>
+<use href="#c" x="600" y="186" class="u"/>
+<use href="#c" x="624" y="186" class="u"/>
+<use href="#c" x="648" y="186" class="u"/>
+<use href="#c" x="660" y="186" class="u"/>
+<use href="#c" x="672" y="186" class="u"/>
+<use href="#c" x="684" y="186" class="u"/>
+<use href="#c" x="696" y="186" class="u"/>
+<use href="#c" x="708" y="186" class="u"/>
+<use href="#c" x="720" y="186" class="u"/>
+<use href="#c" x="732" y="186" class="u"/>
+<use href="#c" x="744" y="186" class="u"/>
+<use href="#c" x="768" y="186" class="u"/>
+<use href="#c" x="792" y="186" class="u"/>
+<use href="#c" x="804" y="186" class="u"/>
+<use href="#c" x="816" y="186" class="u"/>
+<use href="#c" x="828" y="186" class="u"/>
+<use href="#c" x="840" y="186" class="u"/>
+<use href="#c" x="852" y="186" class="u"/>
+<use href="#c" x="864" y="186" class="u"/>
+<use href="#c" x="888" y="186" class="u"/>
+<use href="#c" x="900" y="186" class="u"/>
+<use href="#c" x="912" y="186" class="u"/>
+<use href="#c" x="924" y="186" class="u"/>
+<use href="#c" x="936" y="186" class="u"/>
+<use href="#c" x="948" y="186" class="u"/>
+<use href="#c" x="960" y="186" class="u"/>
+<use href="#c" x="972" y="186" class="u"/>
+<use href="#c" x="984" y="186" class="u"/>
+<use href="#c" x="996" y="186" class="u"/>
+<use href="#c" x="1020" y="186" class="u"/>
+<use href="#c" x="1032" y="186" class="u"/>
+<use href="#c" x="1044" y="186" class="u"/>
+<use href="#c" x="1056" y="186" class="u"/>
+<text class="fam" x="24" y="207">structural_boundaries</text>
+<use href="#c" x="192" y="198" class="u"/>
+<use href="#c" x="204" y="198" class="u"/>
+<use href="#c" x="216" y="198" class="u"/>
+<use href="#c" x="228" y="198" class="u"/>
+<use href="#c" x="240" y="198" class="u"/>
+<use href="#c" x="252" y="198" class="u"/>
+<use href="#c" x="264" y="198" class="u"/>
+<use href="#c" x="276" y="198" class="u"/>
+<use href="#c" x="288" y="198" class="u"/>
+<use href="#c" x="300" y="198" class="u"/>
+<use href="#c" x="312" y="198" class="u"/>
+<use href="#c" x="324" y="198" class="u"/>
+<use href="#c" x="336" y="198" class="u"/>
+<use href="#c" x="372" y="198" class="u"/>
+<use href="#c" x="384" y="198" class="u"/>
+<use href="#c" x="396" y="198" class="u"/>
+<use href="#c" x="408" y="198" class="u"/>
+<use href="#c" x="420" y="198" class="u"/>
+<use href="#c" x="432" y="198" class="u"/>
+<use href="#c" x="444" y="198" class="u"/>
+<use href="#c" x="456" y="198" class="u"/>
+<use href="#c" x="468" y="198" class="u"/>
+<use href="#c" x="480" y="198" class="u"/>
+<use href="#c" x="492" y="198" class="u"/>
+<use href="#c" x="504" y="198" class="u"/>
+<use href="#c" x="516" y="198" class="u"/>
+<use href="#c" x="528" y="198" class="u"/>
+<use href="#c" x="540" y="198" class="u"/>
+<use href="#c" x="552" y="198" class="u"/>
+<use href="#c" x="564" y="198" class="u"/>
+<use href="#c" x="588" y="198" class="u"/>
+<use href="#c" x="600" y="198" class="u"/>
+<use href="#c" x="612" y="198" class="u"/>
+<use href="#c" x="624" y="198" class="u"/>
+<use href="#c" x="648" y="198" class="u"/>
+<use href="#c" x="660" y="198" class="u"/>
+<use href="#c" x="672" y="198" class="u"/>
+<use href="#c" x="684" y="198" class="u"/>
+<use href="#c" x="696" y="198" class="u"/>
+<use href="#c" x="708" y="198" class="u"/>
+<use href="#c" x="720" y="198" class="u"/>
+<use href="#c" x="732" y="198" class="u"/>
+<use href="#c" x="744" y="198" class="u"/>
+<use href="#c" x="768" y="198" class="u"/>
+<use href="#c" x="792" y="198" class="u"/>
+<use href="#c" x="804" y="198" class="u"/>
+<use href="#c" x="816" y="198" class="u"/>
+<use href="#c" x="828" y="198" class="u"/>
+<use href="#c" x="840" y="198" class="u"/>
+<use href="#c" x="852" y="198" class="u"/>
+<use href="#c" x="864" y="198" class="u"/>
+<use href="#c" x="888" y="198" class="u"/>
+<use href="#c" x="900" y="198" class="u"/>
+<use href="#c" x="912" y="198" class="u"/>
+<use href="#c" x="924" y="198" class="u"/>
+<use href="#c" x="936" y="198" class="u"/>
+<use href="#c" x="948" y="198" class="u"/>
+<use href="#c" x="960" y="198" class="u"/>
+<use href="#c" x="972" y="198" class="u"/>
+<use href="#c" x="984" y="198" class="u"/>
+<use href="#c" x="996" y="198" class="u"/>
+<use href="#c" x="1020" y="198" class="u"/>
+<use href="#c" x="1032" y="198" class="u"/>
+<use href="#c" x="1044" y="198" class="u"/>
+<use href="#c" x="1056" y="198" class="u"/>
+<text class="fam" x="24" y="219">func_start</text>
+<use href="#c" x="192" y="210" class="u"/>
+<use href="#c" x="204" y="210" class="u"/>
+<use href="#c" x="216" y="210" class="u"/>
+<use href="#c" x="228" y="210" class="u"/>
+<use href="#c" x="240" y="210" class="u"/>
+<use href="#c" x="252" y="210" class="u"/>
+<use href="#c" x="264" y="210" class="u"/>
+<use href="#c" x="276" y="210" class="u"/>
+<use href="#c" x="288" y="210" class="u"/>
+<use href="#c" x="300" y="210" class="u"/>
+<use href="#c" x="312" y="210" class="u"/>
+<use href="#c" x="324" y="210" class="u"/>
+<use href="#c" x="336" y="210" class="u"/>
+<use href="#c" x="348" y="210" class="u"/>
+<use href="#c" x="372" y="210" class="u"/>
+<use href="#c" x="384" y="210" class="u"/>
+<use href="#c" x="396" y="210" class="u"/>
+<use href="#c" x="408" y="210" class="u"/>
+<use href="#c" x="420" y="210" class="u"/>
+<use href="#c" x="432" y="210" class="u"/>
+<use href="#c" x="444" y="210" class="u"/>
+<use href="#c" x="456" y="210" class="u"/>
+<use href="#c" x="468" y="210" class="u"/>
+<use href="#c" x="480" y="210" class="u"/>
+<use href="#c" x="492" y="210" class="u"/>
+<use href="#c" x="504" y="210" class="u"/>
+<use href="#c" x="516" y="210" class="u"/>
+<use href="#c" x="528" y="210" class="u"/>
+<use href="#c" x="540" y="210" class="u"/>
+<use href="#c" x="552" y="210" class="u"/>
+<use href="#c" x="564" y="210" class="u"/>
+<use href="#c" x="588" y="210" class="u"/>
+<use href="#c" x="600" y="210" class="u"/>
+<use href="#c" x="612" y="210" class="u"/>
+<use href="#c" x="624" y="210" class="u"/>
+<use href="#c" x="648" y="210" class="u"/>
+<use href="#c" x="660" y="210" class="u"/>
+<use href="#c" x="672" y="210" class="u"/>
+<use href="#c" x="684" y="210" class="u"/>
+<use href="#c" x="696" y="210" class="u"/>
+<use href="#c" x="708" y="210" class="u"/>
+<use href="#c" x="720" y="210" class="u"/>
+<use href="#c" x="732" y="210" class="u"/>
+<use href="#c" x="744" y="210" class="u"/>
+<use href="#c" x="768" y="210" class="u"/>
+<use href="#c" x="792" y="210" class="u"/>
+<use href="#c" x="804" y="210" class="u"/>
+<use href="#c" x="816" y="210" class="u"/>
+<use href="#c" x="828" y="210" class="u"/>
+<use href="#c" x="840" y="210" class="u"/>
+<use href="#c" x="852" y="210" class="u"/>
+<use href="#c" x="864" y="210" class="u"/>
+<use href="#c" x="888" y="210" class="u"/>
+<use href="#c" x="900" y="210" class="u"/>
+<use href="#c" x="912" y="210" class="u"/>
+<use href="#c" x="924" y="210" class="u"/>
+<use href="#c" x="936" y="210" class="u"/>
+<use href="#c" x="948" y="210" class="u"/>
+<use href="#c" x="960" y="210" class="u"/>
+<use href="#c" x="972" y="210" class="u"/>
+<use href="#c" x="984" y="210" class="u"/>
+<use href="#c" x="996" y="210" class="u"/>
+<use href="#c" x="1020" y="210" class="u"/>
+<use href="#c" x="1032" y="210" class="u"/>
+<use href="#c" x="1044" y="210" class="u"/>
+<use href="#c" x="1056" y="210" class="u"/>
+<text class="fam" x="24" y="231">class_start</text>
+<use href="#c" x="192" y="222" class="u"/>
+<use href="#c" x="204" y="222" class="u"/>
+<use href="#c" x="216" y="222" class="u"/>
+<use href="#c" x="228" y="222" class="u"/>
+<use href="#c" x="240" y="222" class="u"/>
+<use href="#c" x="252" y="222" class="u"/>
+<use href="#c" x="264" y="222" class="u"/>
+<use href="#c" x="276" y="222" class="u"/>
+<use href="#c" x="300" y="222" class="u"/>
+<use href="#c" x="324" y="222" class="u"/>
+<use href="#c" x="336" y="222" class="u"/>
+<use href="#c" x="372" y="222" class="u"/>
+<use href="#c" x="396" y="222" class="u"/>
+<use href="#c" x="408" y="222" class="u"/>
+<use href="#c" x="420" y="222" class="u"/>
+<use href="#c" x="432" y="222" class="u"/>
+<use href="#c" x="444" y="222" class="u"/>
+<use href="#c" x="456" y="222" class="u"/>
+<use href="#c" x="468" y="222" class="u"/>
+<use href="#c" x="480" y="222" class="u"/>
+<use href="#c" x="492" y="222" class="u"/>
+<use href="#c" x="516" y="222" class="u"/>
+<use href="#c" x="528" y="222" class="u"/>
+<use href="#c" x="540" y="222" class="u"/>
+<use href="#c" x="552" y="222" class="u"/>
+<use href="#c" x="564" y="222" class="u"/>
+<use href="#c" x="588" y="222" class="u"/>
+<use href="#c" x="600" y="222" class="u"/>
+<use href="#c" x="612" y="222" class="u"/>
+<use href="#c" x="624" y="222" class="u"/>
+<use href="#c" x="648" y="222" class="u"/>
+<use href="#c" x="660" y="222" class="u"/>
+<use href="#c" x="672" y="222" class="u"/>
+<use href="#c" x="684" y="222" class="u"/>
+<use href="#c" x="696" y="222" class="u"/>
+<use href="#c" x="708" y="222" class="u"/>
+<use href="#c" x="744" y="222" class="u"/>
+<use href="#c" x="768" y="222" class="u"/>
+<use href="#c" x="792" y="222" class="u"/>
+<use href="#c" x="804" y="222" class="u"/>
+<use href="#c" x="816" y="222" class="u"/>
+<use href="#c" x="828" y="222" class="u"/>
+<use href="#c" x="840" y="222" class="u"/>
+<use href="#c" x="852" y="222" class="u"/>
+<use href="#c" x="864" y="222" class="u"/>
+<use href="#c" x="888" y="222" class="u"/>
+<use href="#c" x="900" y="222" class="u"/>
+<use href="#c" x="912" y="222" class="u"/>
+<use href="#c" x="924" y="222" class="u"/>
+<use href="#c" x="936" y="222" class="u"/>
+<use href="#c" x="960" y="222" class="u"/>
+<use href="#c" x="972" y="222" class="u"/>
+<use href="#c" x="984" y="222" class="u"/>
+<use href="#c" x="996" y="222" class="u"/>
+<use href="#c" x="1020" y="222" class="u"/>
+<use href="#c" x="1032" y="222" class="u"/>
+<use href="#c" x="1044" y="222" class="u"/>
+<use href="#c" x="1056" y="222" class="u"/>
+<text class="phase" x="16" y="243">SAFETY</text>
+<text class="fam" x="24" y="255">safety</text>
+<use href="#c" x="192" y="246" class="u"/>
+<use href="#c" x="204" y="246" class="u"/>
+<use href="#c" x="216" y="246" class="u"/>
+<use href="#c" x="228" y="246" class="u"/>
+<use href="#c" x="240" y="246" class="u"/>
+<use href="#c" x="252" y="246" class="u"/>
+<use href="#c" x="264" y="246" class="u"/>
+<use href="#c" x="276" y="246" class="u"/>
+<use href="#c" x="288" y="246" class="u"/>
+<use href="#c" x="300" y="246" class="u"/>
+<use href="#c" x="312" y="246" class="u"/>
+<use href="#c" x="324" y="246" class="u"/>
+<use href="#c" x="336" y="246" class="u"/>
+<use href="#c" x="384" y="246" class="u"/>
+<use href="#c" x="396" y="246" class="u"/>
+<use href="#c" x="408" y="246" class="u"/>
+<use href="#c" x="420" y="246" class="u"/>
+<use href="#c" x="444" y="246" class="u"/>
+<use href="#c" x="456" y="246" class="u"/>
+<use href="#c" x="468" y="246" class="u"/>
+<use href="#c" x="480" y="246" class="u"/>
+<use href="#c" x="492" y="246" class="u"/>
+<use href="#c" x="516" y="246" class="u"/>
+<use href="#c" x="528" y="246" class="u"/>
+<use href="#c" x="540" y="246" class="u"/>
+<use href="#c" x="552" y="246" class="u"/>
+<use href="#c" x="564" y="246" class="u"/>
+<use href="#c" x="588" y="246" class="u"/>
+<use href="#c" x="600" y="246" class="u"/>
+<use href="#c" x="612" y="246" class="u"/>
+<use href="#c" x="624" y="246" class="u"/>
+<use href="#c" x="648" y="246" class="u"/>
+<use href="#c" x="660" y="246" class="u"/>
+<use href="#c" x="672" y="246" class="u"/>
+<use href="#c" x="684" y="246" class="u"/>
+<use href="#c" x="696" y="246" class="u"/>
+<use href="#c" x="708" y="246" class="u"/>
+<use href="#c" x="720" y="246" class="u"/>
+<use href="#c" x="732" y="246" class="u"/>
+<use href="#c" x="744" y="246" class="u"/>
+<use href="#c" x="768" y="246" class="u"/>
+<use href="#c" x="792" y="246" class="u"/>
+<use href="#c" x="804" y="246" class="u"/>
+<use href="#c" x="816" y="246" class="u"/>
+<use href="#c" x="828" y="246" class="u"/>
+<use href="#c" x="840" y="246" class="u"/>
+<use href="#c" x="852" y="246" class="u"/>
+<use href="#c" x="864" y="246" class="u"/>
+<use href="#c" x="888" y="246" class="u"/>
+<use href="#c" x="900" y="246" class="u"/>
+<use href="#c" x="912" y="246" class="u"/>
+<use href="#c" x="924" y="246" class="u"/>
+<use href="#c" x="936" y="246" class="u"/>
+<use href="#c" x="948" y="246" class="u"/>
+<use href="#c" x="960" y="246" class="u"/>
+<use href="#c" x="972" y="246" class="u"/>
+<use href="#c" x="984" y="246" class="u"/>
+<use href="#c" x="996" y="246" class="u"/>
+<use href="#c" x="1020" y="246" class="u"/>
+<use href="#c" x="1032" y="246" class="u"/>
+<use href="#c" x="1044" y="246" class="u"/>
+<use href="#c" x="1056" y="246" class="u"/>
+<text class="famd" x="24" y="267">safety_bypasses</text>
+<use href="#c" x="192" y="258" class="u"/>
+<use href="#c" x="204" y="258" class="u"/>
+<use href="#c" x="216" y="258" class="u"/>
+<use href="#c" x="228" y="258" class="u"/>
+<use href="#c" x="240" y="258" class="u"/>
+<use href="#c" x="252" y="258" class="u"/>
+<use href="#c" x="264" y="258" class="u"/>
+<use href="#c" x="276" y="258" class="u"/>
+<use href="#c" x="300" y="258" class="u"/>
+<use href="#c" x="312" y="258" class="u"/>
+<use href="#c" x="324" y="258" class="u"/>
+<use href="#c" x="336" y="258" class="u"/>
+<use href="#c" x="384" y="258" class="u"/>
+<use href="#c" x="396" y="258" class="u"/>
+<use href="#c" x="408" y="258" class="u"/>
+<use href="#c" x="420" y="258" class="u"/>
+<use href="#c" x="444" y="258" class="u"/>
+<use href="#c" x="456" y="258" class="u"/>
+<use href="#c" x="468" y="258" class="u"/>
+<use href="#c" x="480" y="258" class="u"/>
+<use href="#c" x="492" y="258" class="u"/>
+<use href="#c" x="516" y="258" class="u"/>
+<use href="#c" x="528" y="258" class="u"/>
+<use href="#c" x="540" y="258" class="u"/>
+<use href="#c" x="552" y="258" class="u"/>
+<use href="#c" x="564" y="258" class="u"/>
+<use href="#c" x="588" y="258" class="u"/>
+<use href="#c" x="600" y="258" class="u"/>
+<use href="#c" x="612" y="258" class="u"/>
+<use href="#c" x="624" y="258" class="u"/>
+<use href="#c" x="648" y="258" class="u"/>
+<use href="#c" x="660" y="258" class="u"/>
+<use href="#c" x="672" y="258" class="u"/>
+<use href="#c" x="684" y="258" class="u"/>
+<use href="#c" x="696" y="258" class="u"/>
+<use href="#c" x="708" y="258" class="u"/>
+<use href="#c" x="720" y="258" class="u"/>
+<use href="#c" x="732" y="258" class="u"/>
+<use href="#c" x="744" y="258" class="u"/>
+<use href="#c" x="768" y="258" class="u"/>
+<use href="#c" x="792" y="258" class="u"/>
+<use href="#c" x="804" y="258" class="u"/>
+<use href="#c" x="816" y="258" class="u"/>
+<use href="#c" x="828" y="258" class="u"/>
+<use href="#c" x="840" y="258" class="u"/>
+<use href="#c" x="852" y="258" class="u"/>
+<use href="#c" x="864" y="258" class="u"/>
+<use href="#c" x="888" y="258" class="u"/>
+<use href="#c" x="900" y="258" class="u"/>
+<use href="#c" x="912" y="258" class="u"/>
+<use href="#c" x="924" y="258" class="u"/>
+<use href="#c" x="936" y="258" class="u"/>
+<use href="#c" x="948" y="258" class="u"/>
+<use href="#c" x="960" y="258" class="u"/>
+<use href="#c" x="972" y="258" class="u"/>
+<use href="#c" x="984" y="258" class="u"/>
+<use href="#c" x="996" y="258" class="u"/>
+<use href="#c" x="1020" y="258" class="u"/>
+<use href="#c" x="1032" y="258" class="u"/>
+<use href="#c" x="1044" y="258" class="u"/>
+<use href="#c" x="1056" y="258" class="u"/>
+<text class="fam" x="24" y="279">high_risk_execution</text>
+<rect x="192" y="270" width="11" height="11" fill="#2caaf2"><title>python / high_risk_execution: recall 0.94, precision 0.94 (18 oracle, 18 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="270" class="u"/>
+<use href="#c" x="216" y="270" class="u"/>
+<use href="#c" x="228" y="270" class="u"/>
+<use href="#c" x="240" y="270" class="u"/>
+<use href="#c" x="252" y="270" class="u"/>
+<use href="#c" x="264" y="270" class="u"/>
+<use href="#c" x="276" y="270" class="u"/>
+<use href="#c" x="300" y="270" class="u"/>
+<use href="#c" x="312" y="270" class="u"/>
+<use href="#c" x="324" y="270" class="u"/>
+<use href="#c" x="336" y="270" class="u"/>
+<use href="#c" x="384" y="270" class="u"/>
+<use href="#c" x="396" y="270" class="u"/>
+<use href="#c" x="408" y="270" class="u"/>
+<use href="#c" x="420" y="270" class="u"/>
+<use href="#c" x="444" y="270" class="u"/>
+<use href="#c" x="456" y="270" class="u"/>
+<use href="#c" x="468" y="270" class="u"/>
+<use href="#c" x="480" y="270" class="u"/>
+<use href="#c" x="492" y="270" class="u"/>
+<use href="#c" x="504" y="270" class="u"/>
+<use href="#c" x="516" y="270" class="u"/>
+<use href="#c" x="528" y="270" class="u"/>
+<use href="#c" x="540" y="270" class="u"/>
+<use href="#c" x="552" y="270" class="u"/>
+<use href="#c" x="564" y="270" class="u"/>
+<use href="#c" x="588" y="270" class="u"/>
+<use href="#c" x="600" y="270" class="u"/>
+<use href="#c" x="612" y="270" class="u"/>
+<use href="#c" x="624" y="270" class="u"/>
+<use href="#c" x="648" y="270" class="u"/>
+<use href="#c" x="660" y="270" class="u"/>
+<use href="#c" x="672" y="270" class="u"/>
+<use href="#c" x="684" y="270" class="u"/>
+<use href="#c" x="696" y="270" class="u"/>
+<use href="#c" x="708" y="270" class="u"/>
+<use href="#c" x="720" y="270" class="u"/>
+<use href="#c" x="732" y="270" class="u"/>
+<use href="#c" x="744" y="270" class="u"/>
+<use href="#c" x="768" y="270" class="u"/>
+<use href="#c" x="792" y="270" class="u"/>
+<use href="#c" x="804" y="270" class="u"/>
+<use href="#c" x="816" y="270" class="u"/>
+<use href="#c" x="828" y="270" class="u"/>
+<use href="#c" x="840" y="270" class="u"/>
+<use href="#c" x="852" y="270" class="u"/>
+<use href="#c" x="864" y="270" class="u"/>
+<use href="#c" x="888" y="270" class="u"/>
+<use href="#c" x="900" y="270" class="u"/>
+<use href="#c" x="912" y="270" class="u"/>
+<use href="#c" x="924" y="270" class="u"/>
+<use href="#c" x="936" y="270" class="u"/>
+<use href="#c" x="948" y="270" class="u"/>
+<use href="#c" x="960" y="270" class="u"/>
+<use href="#c" x="972" y="270" class="u"/>
+<use href="#c" x="984" y="270" class="u"/>
+<use href="#c" x="996" y="270" class="u"/>
+<use href="#c" x="1020" y="270" class="u"/>
+<use href="#c" x="1032" y="270" class="u"/>
+<use href="#c" x="1044" y="270" class="u"/>
+<text class="fam" x="24" y="291">io</text>
+<rect x="192" y="282" width="11" height="11" fill="#f2a32c"><title>python / io: recall 0.62, precision 0.53 (40 oracle, 47 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="282" width="11" height="11" fill="#f2592c"><title>go / io: recall 0.39, precision 0.47 (39 oracle, 32 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="216" y="282" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>java / io: recall -, precision 0.00 (0 oracle, 36 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="282" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>typescript / io: recall 0.20, precision 0.02 (5 oracle, 42 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="282" width="11" height="11" fill="#2cf235" opacity="0.5"><title>javascript / io: recall 1.00, precision 0.80 (4 oracle, 5 family functions; express (not pinned))</title></rect>
+<rect x="240" y="282" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="282" width="11" height="11" fill="#f2382c"><title>rust / io: recall 0.49, precision 0.25 (129 oracle, 253 family functions; tokio (not pinned))</title></rect>
+<rect x="252" y="282" width="11" height="11" fill="url(#hatch)"/>
+<rect x="264" y="282" width="11" height="11" fill="#48f22c"><title>c / io: recall 0.77, precision 0.85 (137 oracle, 125 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="282" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="276" y="282" class="u"/>
+<use href="#c" x="288" y="282" class="u"/>
+<use href="#c" x="300" y="282" class="u"/>
+<use href="#c" x="312" y="282" class="u"/>
+<use href="#c" x="324" y="282" class="u"/>
+<use href="#c" x="336" y="282" class="u"/>
+<use href="#c" x="384" y="282" class="u"/>
+<use href="#c" x="396" y="282" class="u"/>
+<use href="#c" x="408" y="282" class="u"/>
+<use href="#c" x="420" y="282" class="u"/>
+<use href="#c" x="444" y="282" class="u"/>
+<use href="#c" x="456" y="282" class="u"/>
+<use href="#c" x="468" y="282" class="u"/>
+<use href="#c" x="480" y="282" class="u"/>
+<use href="#c" x="492" y="282" class="u"/>
+<use href="#c" x="504" y="282" class="u"/>
+<use href="#c" x="516" y="282" class="u"/>
+<use href="#c" x="528" y="282" class="u"/>
+<use href="#c" x="540" y="282" class="u"/>
+<use href="#c" x="552" y="282" class="u"/>
+<use href="#c" x="564" y="282" class="u"/>
+<use href="#c" x="588" y="282" class="u"/>
+<use href="#c" x="600" y="282" class="u"/>
+<use href="#c" x="612" y="282" class="u"/>
+<use href="#c" x="624" y="282" class="u"/>
+<use href="#c" x="648" y="282" class="u"/>
+<use href="#c" x="660" y="282" class="u"/>
+<use href="#c" x="672" y="282" class="u"/>
+<use href="#c" x="684" y="282" class="u"/>
+<use href="#c" x="696" y="282" class="u"/>
+<use href="#c" x="708" y="282" class="u"/>
+<use href="#c" x="720" y="282" class="u"/>
+<use href="#c" x="732" y="282" class="u"/>
+<use href="#c" x="744" y="282" class="u"/>
+<use href="#c" x="768" y="282" class="u"/>
+<use href="#c" x="792" y="282" class="u"/>
+<use href="#c" x="804" y="282" class="u"/>
+<use href="#c" x="816" y="282" class="u"/>
+<use href="#c" x="828" y="282" class="u"/>
+<use href="#c" x="840" y="282" class="u"/>
+<use href="#c" x="852" y="282" class="u"/>
+<use href="#c" x="864" y="282" class="u"/>
+<use href="#c" x="888" y="282" class="u"/>
+<use href="#c" x="900" y="282" class="u"/>
+<use href="#c" x="912" y="282" class="u"/>
+<use href="#c" x="924" y="282" class="u"/>
+<use href="#c" x="936" y="282" class="u"/>
+<use href="#c" x="948" y="282" class="u"/>
+<use href="#c" x="972" y="282" class="u"/>
+<use href="#c" x="984" y="282" class="u"/>
+<use href="#c" x="996" y="282" class="u"/>
+<use href="#c" x="1020" y="282" class="u"/>
+<use href="#c" x="1032" y="282" class="u"/>
+<use href="#c" x="1044" y="282" class="u"/>
+<use href="#c" x="1056" y="282" class="u"/>
+<text class="fam" x="24" y="303">api</text>
+<use href="#c" x="192" y="294" class="u"/>
+<use href="#c" x="204" y="294" class="u"/>
+<use href="#c" x="216" y="294" class="u"/>
+<use href="#c" x="228" y="294" class="u"/>
+<use href="#c" x="240" y="294" class="u"/>
+<use href="#c" x="252" y="294" class="u"/>
+<use href="#c" x="264" y="294" class="u"/>
+<use href="#c" x="276" y="294" class="u"/>
+<use href="#c" x="288" y="294" class="u"/>
+<use href="#c" x="300" y="294" class="u"/>
+<use href="#c" x="312" y="294" class="u"/>
+<use href="#c" x="324" y="294" class="u"/>
+<use href="#c" x="336" y="294" class="u"/>
+<use href="#c" x="372" y="294" class="u"/>
+<use href="#c" x="396" y="294" class="u"/>
+<use href="#c" x="408" y="294" class="u"/>
+<use href="#c" x="420" y="294" class="u"/>
+<use href="#c" x="432" y="294" class="u"/>
+<use href="#c" x="444" y="294" class="u"/>
+<use href="#c" x="456" y="294" class="u"/>
+<use href="#c" x="468" y="294" class="u"/>
+<use href="#c" x="480" y="294" class="u"/>
+<use href="#c" x="492" y="294" class="u"/>
+<use href="#c" x="516" y="294" class="u"/>
+<use href="#c" x="528" y="294" class="u"/>
+<use href="#c" x="540" y="294" class="u"/>
+<use href="#c" x="552" y="294" class="u"/>
+<use href="#c" x="564" y="294" class="u"/>
+<use href="#c" x="588" y="294" class="u"/>
+<use href="#c" x="600" y="294" class="u"/>
+<use href="#c" x="612" y="294" class="u"/>
+<use href="#c" x="624" y="294" class="u"/>
+<use href="#c" x="648" y="294" class="u"/>
+<use href="#c" x="660" y="294" class="u"/>
+<use href="#c" x="672" y="294" class="u"/>
+<use href="#c" x="684" y="294" class="u"/>
+<use href="#c" x="696" y="294" class="u"/>
+<use href="#c" x="708" y="294" class="u"/>
+<use href="#c" x="720" y="294" class="u"/>
+<use href="#c" x="732" y="294" class="u"/>
+<use href="#c" x="744" y="294" class="u"/>
+<use href="#c" x="768" y="294" class="u"/>
+<use href="#c" x="792" y="294" class="u"/>
+<use href="#c" x="804" y="294" class="u"/>
+<use href="#c" x="816" y="294" class="u"/>
+<use href="#c" x="828" y="294" class="u"/>
+<use href="#c" x="840" y="294" class="u"/>
+<use href="#c" x="852" y="294" class="u"/>
+<use href="#c" x="864" y="294" class="u"/>
+<use href="#c" x="888" y="294" class="u"/>
+<use href="#c" x="900" y="294" class="u"/>
+<use href="#c" x="912" y="294" class="u"/>
+<use href="#c" x="924" y="294" class="u"/>
+<use href="#c" x="936" y="294" class="u"/>
+<use href="#c" x="948" y="294" class="u"/>
+<use href="#c" x="960" y="294" class="u"/>
+<use href="#c" x="972" y="294" class="u"/>
+<use href="#c" x="984" y="294" class="u"/>
+<use href="#c" x="996" y="294" class="u"/>
+<use href="#c" x="1020" y="294" class="u"/>
+<use href="#c" x="1032" y="294" class="u"/>
+<use href="#c" x="1044" y="294" class="u"/>
+<use href="#c" x="1056" y="294" class="u"/>
+<text class="fam" x="24" y="315">state_mutation</text>
+<use href="#c" x="192" y="306" class="u"/>
+<use href="#c" x="204" y="306" class="u"/>
+<use href="#c" x="216" y="306" class="u"/>
+<use href="#c" x="228" y="306" class="u"/>
+<use href="#c" x="240" y="306" class="u"/>
+<use href="#c" x="252" y="306" class="u"/>
+<use href="#c" x="264" y="306" class="u"/>
+<use href="#c" x="276" y="306" class="u"/>
+<use href="#c" x="288" y="306" class="u"/>
+<use href="#c" x="300" y="306" class="u"/>
+<use href="#c" x="312" y="306" class="u"/>
+<use href="#c" x="324" y="306" class="u"/>
+<use href="#c" x="336" y="306" class="u"/>
+<use href="#c" x="384" y="306" class="u"/>
+<use href="#c" x="396" y="306" class="u"/>
+<use href="#c" x="408" y="306" class="u"/>
+<use href="#c" x="420" y="306" class="u"/>
+<use href="#c" x="444" y="306" class="u"/>
+<use href="#c" x="468" y="306" class="u"/>
+<use href="#c" x="480" y="306" class="u"/>
+<use href="#c" x="492" y="306" class="u"/>
+<use href="#c" x="504" y="306" class="u"/>
+<use href="#c" x="516" y="306" class="u"/>
+<use href="#c" x="528" y="306" class="u"/>
+<use href="#c" x="540" y="306" class="u"/>
+<use href="#c" x="552" y="306" class="u"/>
+<use href="#c" x="564" y="306" class="u"/>
+<use href="#c" x="588" y="306" class="u"/>
+<use href="#c" x="600" y="306" class="u"/>
+<use href="#c" x="612" y="306" class="u"/>
+<use href="#c" x="624" y="306" class="u"/>
+<use href="#c" x="660" y="306" class="u"/>
+<use href="#c" x="672" y="306" class="u"/>
+<use href="#c" x="684" y="306" class="u"/>
+<use href="#c" x="696" y="306" class="u"/>
+<use href="#c" x="708" y="306" class="u"/>
+<use href="#c" x="720" y="306" class="u"/>
+<use href="#c" x="732" y="306" class="u"/>
+<use href="#c" x="744" y="306" class="u"/>
+<use href="#c" x="768" y="306" class="u"/>
+<use href="#c" x="792" y="306" class="u"/>
+<use href="#c" x="804" y="306" class="u"/>
+<use href="#c" x="816" y="306" class="u"/>
+<use href="#c" x="828" y="306" class="u"/>
+<use href="#c" x="840" y="306" class="u"/>
+<use href="#c" x="852" y="306" class="u"/>
+<use href="#c" x="864" y="306" class="u"/>
+<use href="#c" x="888" y="306" class="u"/>
+<use href="#c" x="900" y="306" class="u"/>
+<use href="#c" x="912" y="306" class="u"/>
+<use href="#c" x="924" y="306" class="u"/>
+<use href="#c" x="936" y="306" class="u"/>
+<use href="#c" x="948" y="306" class="u"/>
+<use href="#c" x="960" y="306" class="u"/>
+<use href="#c" x="972" y="306" class="u"/>
+<use href="#c" x="984" y="306" class="u"/>
+<use href="#c" x="996" y="306" class="u"/>
+<use href="#c" x="1020" y="306" class="u"/>
+<use href="#c" x="1032" y="306" class="u"/>
+<use href="#c" x="1044" y="306" class="u"/>
+<use href="#c" x="1056" y="306" class="u"/>
+<text class="famd" x="24" y="327">dead_code</text>
+<use href="#c" x="192" y="318" class="u"/>
+<use href="#c" x="204" y="318" class="u"/>
+<use href="#c" x="216" y="318" class="u"/>
+<use href="#c" x="228" y="318" class="u"/>
+<use href="#c" x="240" y="318" class="u"/>
+<use href="#c" x="252" y="318" class="u"/>
+<use href="#c" x="264" y="318" class="u"/>
+<use href="#c" x="276" y="318" class="u"/>
+<use href="#c" x="288" y="318" class="u"/>
+<use href="#c" x="300" y="318" class="u"/>
+<use href="#c" x="312" y="318" class="u"/>
+<use href="#c" x="324" y="318" class="u"/>
+<use href="#c" x="336" y="318" class="u"/>
+<use href="#c" x="372" y="318" class="u"/>
+<use href="#c" x="384" y="318" class="u"/>
+<use href="#c" x="396" y="318" class="u"/>
+<use href="#c" x="408" y="318" class="u"/>
+<use href="#c" x="420" y="318" class="u"/>
+<use href="#c" x="432" y="318" class="u"/>
+<use href="#c" x="444" y="318" class="u"/>
+<use href="#c" x="456" y="318" class="u"/>
+<use href="#c" x="468" y="318" class="u"/>
+<use href="#c" x="480" y="318" class="u"/>
+<use href="#c" x="492" y="318" class="u"/>
+<use href="#c" x="504" y="318" class="u"/>
+<use href="#c" x="516" y="318" class="u"/>
+<use href="#c" x="528" y="318" class="u"/>
+<use href="#c" x="540" y="318" class="u"/>
+<use href="#c" x="552" y="318" class="u"/>
+<use href="#c" x="564" y="318" class="u"/>
+<use href="#c" x="588" y="318" class="u"/>
+<use href="#c" x="600" y="318" class="u"/>
+<use href="#c" x="612" y="318" class="u"/>
+<use href="#c" x="624" y="318" class="u"/>
+<use href="#c" x="648" y="318" class="u"/>
+<use href="#c" x="660" y="318" class="u"/>
+<use href="#c" x="672" y="318" class="u"/>
+<use href="#c" x="684" y="318" class="u"/>
+<use href="#c" x="696" y="318" class="u"/>
+<use href="#c" x="708" y="318" class="u"/>
+<use href="#c" x="720" y="318" class="u"/>
+<use href="#c" x="732" y="318" class="u"/>
+<use href="#c" x="744" y="318" class="u"/>
+<use href="#c" x="768" y="318" class="u"/>
+<use href="#c" x="792" y="318" class="u"/>
+<use href="#c" x="804" y="318" class="u"/>
+<use href="#c" x="816" y="318" class="u"/>
+<use href="#c" x="828" y="318" class="u"/>
+<use href="#c" x="840" y="318" class="u"/>
+<use href="#c" x="852" y="318" class="u"/>
+<use href="#c" x="864" y="318" class="u"/>
+<use href="#c" x="888" y="318" class="u"/>
+<use href="#c" x="900" y="318" class="u"/>
+<use href="#c" x="912" y="318" class="u"/>
+<use href="#c" x="924" y="318" class="u"/>
+<use href="#c" x="936" y="318" class="u"/>
+<use href="#c" x="948" y="318" class="u"/>
+<use href="#c" x="960" y="318" class="u"/>
+<use href="#c" x="972" y="318" class="u"/>
+<use href="#c" x="984" y="318" class="u"/>
+<use href="#c" x="996" y="318" class="u"/>
+<use href="#c" x="1020" y="318" class="u"/>
+<use href="#c" x="1032" y="318" class="u"/>
+<use href="#c" x="1044" y="318" class="u"/>
+<use href="#c" x="1056" y="318" class="u"/>
+<text class="famd" x="24" y="339">doc</text>
+<rect x="192" y="330" width="11" height="11" fill="#2cf256"><title>python / doc: recall 0.82, precision 1.00 (296 oracle, 243 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="330" width="11" height="11" fill="#57f22c"><title>go / doc: recall 0.76, precision 0.91 (208 oracle, 174 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="216" y="330" width="11" height="11" fill="#2cf2d0"><title>java / doc: recall 1.00, precision 0.89 (115 oracle, 129 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="330" width="11" height="11" fill="#b2f22c"><title>typescript / doc: recall 1.00, precision 0.69 (373 oracle, 539 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="330" width="11" height="11" fill="#f2382c" opacity="0.5"><title>javascript / doc: recall 1.00, precision 0.25 (1 oracle, 4 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="252" y="330" width="11" height="11" fill="#2c9df2"><title>rust / doc: recall 1.00, precision 0.95 (132 oracle, 139 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="264" y="330" width="11" height="11" fill="#2cf29b"><title>c / doc: recall 0.96, precision 0.86 (26 oracle, 29 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="330" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="276" y="330" class="u"/>
+<use href="#c" x="300" y="330" class="u"/>
+<use href="#c" x="312" y="330" class="u"/>
+<use href="#c" x="324" y="330" class="u"/>
+<use href="#c" x="336" y="330" class="u"/>
+<use href="#c" x="384" y="330" class="u"/>
+<use href="#c" x="396" y="330" class="u"/>
+<use href="#c" x="408" y="330" class="u"/>
+<use href="#c" x="420" y="330" class="u"/>
+<use href="#c" x="444" y="330" class="u"/>
+<use href="#c" x="456" y="330" class="u"/>
+<use href="#c" x="468" y="330" class="u"/>
+<use href="#c" x="480" y="330" class="u"/>
+<use href="#c" x="492" y="330" class="u"/>
+<use href="#c" x="516" y="330" class="u"/>
+<use href="#c" x="528" y="330" class="u"/>
+<use href="#c" x="540" y="330" class="u"/>
+<use href="#c" x="552" y="330" class="u"/>
+<use href="#c" x="564" y="330" class="u"/>
+<use href="#c" x="588" y="330" class="u"/>
+<use href="#c" x="600" y="330" class="u"/>
+<use href="#c" x="612" y="330" class="u"/>
+<use href="#c" x="624" y="330" class="u"/>
+<use href="#c" x="648" y="330" class="u"/>
+<use href="#c" x="672" y="330" class="u"/>
+<use href="#c" x="684" y="330" class="u"/>
+<use href="#c" x="696" y="330" class="u"/>
+<use href="#c" x="708" y="330" class="u"/>
+<use href="#c" x="720" y="330" class="u"/>
+<use href="#c" x="732" y="330" class="u"/>
+<use href="#c" x="744" y="330" class="u"/>
+<use href="#c" x="768" y="330" class="u"/>
+<use href="#c" x="792" y="330" class="u"/>
+<use href="#c" x="804" y="330" class="u"/>
+<use href="#c" x="816" y="330" class="u"/>
+<use href="#c" x="828" y="330" class="u"/>
+<use href="#c" x="840" y="330" class="u"/>
+<use href="#c" x="852" y="330" class="u"/>
+<use href="#c" x="864" y="330" class="u"/>
+<use href="#c" x="888" y="330" class="u"/>
+<use href="#c" x="900" y="330" class="u"/>
+<use href="#c" x="912" y="330" class="u"/>
+<use href="#c" x="924" y="330" class="u"/>
+<use href="#c" x="936" y="330" class="u"/>
+<use href="#c" x="948" y="330" class="u"/>
+<use href="#c" x="960" y="330" class="u"/>
+<use href="#c" x="972" y="330" class="u"/>
+<use href="#c" x="984" y="330" class="u"/>
+<use href="#c" x="996" y="330" class="u"/>
+<use href="#c" x="1020" y="330" class="u"/>
+<use href="#c" x="1032" y="330" class="u"/>
+<use href="#c" x="1044" y="330" class="u"/>
+<text class="fam" x="24" y="351">test</text>
+<use href="#c" x="192" y="342" class="u"/>
+<use href="#c" x="204" y="342" class="u"/>
+<use href="#c" x="216" y="342" class="u"/>
+<use href="#c" x="228" y="342" class="u"/>
+<use href="#c" x="240" y="342" class="u"/>
+<use href="#c" x="252" y="342" class="u"/>
+<use href="#c" x="264" y="342" class="u"/>
+<use href="#c" x="276" y="342" class="u"/>
+<use href="#c" x="300" y="342" class="u"/>
+<use href="#c" x="312" y="342" class="u"/>
+<use href="#c" x="324" y="342" class="u"/>
+<use href="#c" x="336" y="342" class="u"/>
+<use href="#c" x="396" y="342" class="u"/>
+<use href="#c" x="408" y="342" class="u"/>
+<use href="#c" x="420" y="342" class="u"/>
+<use href="#c" x="444" y="342" class="u"/>
+<use href="#c" x="456" y="342" class="u"/>
+<use href="#c" x="468" y="342" class="u"/>
+<use href="#c" x="480" y="342" class="u"/>
+<use href="#c" x="492" y="342" class="u"/>
+<use href="#c" x="516" y="342" class="u"/>
+<use href="#c" x="528" y="342" class="u"/>
+<use href="#c" x="540" y="342" class="u"/>
+<use href="#c" x="552" y="342" class="u"/>
+<use href="#c" x="564" y="342" class="u"/>
+<use href="#c" x="588" y="342" class="u"/>
+<use href="#c" x="600" y="342" class="u"/>
+<use href="#c" x="612" y="342" class="u"/>
+<use href="#c" x="648" y="342" class="u"/>
+<use href="#c" x="672" y="342" class="u"/>
+<use href="#c" x="684" y="342" class="u"/>
+<use href="#c" x="696" y="342" class="u"/>
+<use href="#c" x="708" y="342" class="u"/>
+<use href="#c" x="720" y="342" class="u"/>
+<use href="#c" x="732" y="342" class="u"/>
+<use href="#c" x="744" y="342" class="u"/>
+<use href="#c" x="768" y="342" class="u"/>
+<use href="#c" x="792" y="342" class="u"/>
+<use href="#c" x="804" y="342" class="u"/>
+<use href="#c" x="816" y="342" class="u"/>
+<use href="#c" x="828" y="342" class="u"/>
+<use href="#c" x="840" y="342" class="u"/>
+<use href="#c" x="852" y="342" class="u"/>
+<use href="#c" x="864" y="342" class="u"/>
+<use href="#c" x="888" y="342" class="u"/>
+<use href="#c" x="912" y="342" class="u"/>
+<use href="#c" x="924" y="342" class="u"/>
+<use href="#c" x="936" y="342" class="u"/>
+<use href="#c" x="948" y="342" class="u"/>
+<use href="#c" x="960" y="342" class="u"/>
+<use href="#c" x="972" y="342" class="u"/>
+<use href="#c" x="984" y="342" class="u"/>
+<use href="#c" x="996" y="342" class="u"/>
+<use href="#c" x="1032" y="342" class="u"/>
+<use href="#c" x="1044" y="342" class="u"/>
+<text class="phase" x="16" y="363">ARCHITECTURE</text>
+<text class="famd" x="24" y="375">concurrency</text>
+<rect x="192" y="366" width="11" height="11" fill="#f2822c"><title>python / concurrency: recall 0.71, precision 0.48 (371 oracle, 555 family functions; GitGalaxy engine code (not pinned))</title></rect>
+<rect x="192" y="366" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="204" y="366" class="u"/>
+<use href="#c" x="216" y="366" class="u"/>
+<use href="#c" x="228" y="366" class="u"/>
+<use href="#c" x="240" y="366" class="u"/>
+<use href="#c" x="252" y="366" class="u"/>
+<use href="#c" x="264" y="366" class="u"/>
+<use href="#c" x="276" y="366" class="u"/>
+<use href="#c" x="288" y="366" class="u"/>
+<use href="#c" x="300" y="366" class="u"/>
+<use href="#c" x="312" y="366" class="u"/>
+<use href="#c" x="324" y="366" class="u"/>
+<use href="#c" x="336" y="366" class="u"/>
+<use href="#c" x="396" y="366" class="u"/>
+<use href="#c" x="408" y="366" class="u"/>
+<use href="#c" x="420" y="366" class="u"/>
+<use href="#c" x="444" y="366" class="u"/>
+<use href="#c" x="468" y="366" class="u"/>
+<use href="#c" x="480" y="366" class="u"/>
+<use href="#c" x="492" y="366" class="u"/>
+<use href="#c" x="516" y="366" class="u"/>
+<use href="#c" x="528" y="366" class="u"/>
+<use href="#c" x="540" y="366" class="u"/>
+<use href="#c" x="552" y="366" class="u"/>
+<use href="#c" x="564" y="366" class="u"/>
+<use href="#c" x="588" y="366" class="u"/>
+<use href="#c" x="600" y="366" class="u"/>
+<use href="#c" x="612" y="366" class="u"/>
+<use href="#c" x="624" y="366" class="u"/>
+<use href="#c" x="648" y="366" class="u"/>
+<use href="#c" x="672" y="366" class="u"/>
+<use href="#c" x="684" y="366" class="u"/>
+<use href="#c" x="696" y="366" class="u"/>
+<use href="#c" x="708" y="366" class="u"/>
+<use href="#c" x="732" y="366" class="u"/>
+<use href="#c" x="744" y="366" class="u"/>
+<use href="#c" x="768" y="366" class="u"/>
+<use href="#c" x="792" y="366" class="u"/>
+<use href="#c" x="804" y="366" class="u"/>
+<use href="#c" x="816" y="366" class="u"/>
+<use href="#c" x="828" y="366" class="u"/>
+<use href="#c" x="840" y="366" class="u"/>
+<use href="#c" x="852" y="366" class="u"/>
+<use href="#c" x="864" y="366" class="u"/>
+<use href="#c" x="888" y="366" class="u"/>
+<use href="#c" x="912" y="366" class="u"/>
+<use href="#c" x="924" y="366" class="u"/>
+<use href="#c" x="936" y="366" class="u"/>
+<use href="#c" x="948" y="366" class="u"/>
+<use href="#c" x="972" y="366" class="u"/>
+<use href="#c" x="984" y="366" class="u"/>
+<use href="#c" x="996" y="366" class="u"/>
+<use href="#c" x="1032" y="366" class="u"/>
+<use href="#c" x="1044" y="366" class="u"/>
+<text class="fam" x="24" y="387">ui_framework</text>
+<use href="#c" x="192" y="378" class="u"/>
+<use href="#c" x="204" y="378" class="u"/>
+<use href="#c" x="216" y="378" class="u"/>
+<use href="#c" x="228" y="378" class="u"/>
+<use href="#c" x="240" y="378" class="u"/>
+<use href="#c" x="252" y="378" class="u"/>
+<use href="#c" x="264" y="378" class="u"/>
+<use href="#c" x="276" y="378" class="u"/>
+<use href="#c" x="288" y="378" class="u"/>
+<use href="#c" x="312" y="378" class="u"/>
+<use href="#c" x="324" y="378" class="u"/>
+<use href="#c" x="372" y="378" class="u"/>
+<use href="#c" x="384" y="378" class="u"/>
+<use href="#c" x="396" y="378" class="u"/>
+<use href="#c" x="408" y="378" class="u"/>
+<use href="#c" x="420" y="378" class="u"/>
+<use href="#c" x="444" y="378" class="u"/>
+<use href="#c" x="456" y="378" class="u"/>
+<use href="#c" x="468" y="378" class="u"/>
+<use href="#c" x="492" y="378" class="u"/>
+<use href="#c" x="516" y="378" class="u"/>
+<use href="#c" x="528" y="378" class="u"/>
+<use href="#c" x="540" y="378" class="u"/>
+<use href="#c" x="564" y="378" class="u"/>
+<use href="#c" x="588" y="378" class="u"/>
+<use href="#c" x="600" y="378" class="u"/>
+<use href="#c" x="612" y="378" class="u"/>
+<use href="#c" x="624" y="378" class="u"/>
+<use href="#c" x="648" y="378" class="u"/>
+<use href="#c" x="672" y="378" class="u"/>
+<use href="#c" x="684" y="378" class="u"/>
+<use href="#c" x="696" y="378" class="u"/>
+<use href="#c" x="708" y="378" class="u"/>
+<use href="#c" x="744" y="378" class="u"/>
+<use href="#c" x="768" y="378" class="u"/>
+<use href="#c" x="792" y="378" class="u"/>
+<use href="#c" x="804" y="378" class="u"/>
+<use href="#c" x="816" y="378" class="u"/>
+<use href="#c" x="828" y="378" class="u"/>
+<use href="#c" x="840" y="378" class="u"/>
+<use href="#c" x="864" y="378" class="u"/>
+<use href="#c" x="888" y="378" class="u"/>
+<use href="#c" x="900" y="378" class="u"/>
+<use href="#c" x="912" y="378" class="u"/>
+<use href="#c" x="924" y="378" class="u"/>
+<use href="#c" x="948" y="378" class="u"/>
+<use href="#c" x="984" y="378" class="u"/>
+<use href="#c" x="996" y="378" class="u"/>
+<use href="#c" x="1044" y="378" class="u"/>
+<use href="#c" x="1056" y="378" class="u"/>
+<text class="fam" x="24" y="399">closures</text>
+<rect x="192" y="390" width="11" height="11" fill="#2c5af2"><title>python / closures: recall 1.00, precision 0.98 (4016 oracle, 4100 family functions; GitGalaxy engine code (not pinned))</title></rect>
+<rect x="192" y="390" width="11" height="11" fill="url(#hatch)"/>
+<rect x="204" y="390" width="11" height="11" fill="#f23f2c"><title>go / closures: recall 1.00, precision 0.29 (75 oracle, 259 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="216" y="390" width="11" height="11" fill="#f2eb2c"><title>java / closures: recall 1.00, precision 0.62 (28 oracle, 45 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="390" width="11" height="11" fill="#f2712c"><title>typescript / closures: recall 0.44, precision 0.68 (654 oracle, 424 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="390" width="11" height="11" fill="#f2462c"><title>javascript / closures: recall 0.90, precision 0.32 (57 oracle, 158 family functions; express (not pinned))</title></rect>
+<rect x="240" y="390" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="390" width="11" height="11" fill="#f22c2c"><title>rust / closures: recall 0.06, precision 1.00 (110 oracle, 6 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="408" y="390" class="u"/>
+<use href="#c" x="420" y="390" class="u"/>
+<use href="#c" x="444" y="390" class="u"/>
+<use href="#c" x="456" y="390" class="u"/>
+<use href="#c" x="468" y="390" class="u"/>
+<use href="#c" x="516" y="390" class="u"/>
+<use href="#c" x="528" y="390" class="u"/>
+<use href="#c" x="540" y="390" class="u"/>
+<use href="#c" x="564" y="390" class="u"/>
+<use href="#c" x="588" y="390" class="u"/>
+<use href="#c" x="600" y="390" class="u"/>
+<use href="#c" x="648" y="390" class="u"/>
+<use href="#c" x="672" y="390" class="u"/>
+<use href="#c" x="684" y="390" class="u"/>
+<use href="#c" x="708" y="390" class="u"/>
+<use href="#c" x="744" y="390" class="u"/>
+<use href="#c" x="768" y="390" class="u"/>
+<use href="#c" x="792" y="390" class="u"/>
+<use href="#c" x="804" y="390" class="u"/>
+<use href="#c" x="816" y="390" class="u"/>
+<use href="#c" x="828" y="390" class="u"/>
+<use href="#c" x="852" y="390" class="u"/>
+<use href="#c" x="864" y="390" class="u"/>
+<use href="#c" x="888" y="390" class="u"/>
+<use href="#c" x="912" y="390" class="u"/>
+<use href="#c" x="924" y="390" class="u"/>
+<use href="#c" x="936" y="390" class="u"/>
+<use href="#c" x="984" y="390" class="u"/>
+<use href="#c" x="996" y="390" class="u"/>
+<text class="fam" x="24" y="411">globals</text>
+<rect x="192" y="402" width="11" height="11" fill="#f2982c"><title>python / globals: recall 0.51, precision 1.00 (988 oracle, 508 family functions; GitGalaxy engine code (not pinned))</title></rect>
+<rect x="192" y="402" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="204" y="402" class="u"/>
+<use href="#c" x="216" y="402" class="u"/>
+<use href="#c" x="228" y="402" class="u"/>
+<use href="#c" x="240" y="402" class="u"/>
+<use href="#c" x="252" y="402" class="u"/>
+<use href="#c" x="264" y="402" class="u"/>
+<use href="#c" x="276" y="402" class="u"/>
+<use href="#c" x="288" y="402" class="u"/>
+<use href="#c" x="300" y="402" class="u"/>
+<use href="#c" x="312" y="402" class="u"/>
+<use href="#c" x="324" y="402" class="u"/>
+<use href="#c" x="336" y="402" class="u"/>
+<use href="#c" x="384" y="402" class="u"/>
+<use href="#c" x="396" y="402" class="u"/>
+<use href="#c" x="408" y="402" class="u"/>
+<use href="#c" x="420" y="402" class="u"/>
+<use href="#c" x="444" y="402" class="u"/>
+<use href="#c" x="456" y="402" class="u"/>
+<use href="#c" x="468" y="402" class="u"/>
+<use href="#c" x="480" y="402" class="u"/>
+<use href="#c" x="492" y="402" class="u"/>
+<use href="#c" x="516" y="402" class="u"/>
+<use href="#c" x="528" y="402" class="u"/>
+<use href="#c" x="540" y="402" class="u"/>
+<use href="#c" x="552" y="402" class="u"/>
+<use href="#c" x="564" y="402" class="u"/>
+<use href="#c" x="588" y="402" class="u"/>
+<use href="#c" x="600" y="402" class="u"/>
+<use href="#c" x="612" y="402" class="u"/>
+<use href="#c" x="624" y="402" class="u"/>
+<use href="#c" x="660" y="402" class="u"/>
+<use href="#c" x="672" y="402" class="u"/>
+<use href="#c" x="684" y="402" class="u"/>
+<use href="#c" x="696" y="402" class="u"/>
+<use href="#c" x="708" y="402" class="u"/>
+<use href="#c" x="720" y="402" class="u"/>
+<use href="#c" x="732" y="402" class="u"/>
+<use href="#c" x="744" y="402" class="u"/>
+<use href="#c" x="768" y="402" class="u"/>
+<use href="#c" x="792" y="402" class="u"/>
+<use href="#c" x="804" y="402" class="u"/>
+<use href="#c" x="816" y="402" class="u"/>
+<use href="#c" x="828" y="402" class="u"/>
+<use href="#c" x="840" y="402" class="u"/>
+<use href="#c" x="852" y="402" class="u"/>
+<use href="#c" x="864" y="402" class="u"/>
+<use href="#c" x="888" y="402" class="u"/>
+<use href="#c" x="900" y="402" class="u"/>
+<use href="#c" x="912" y="402" class="u"/>
+<use href="#c" x="924" y="402" class="u"/>
+<use href="#c" x="936" y="402" class="u"/>
+<use href="#c" x="948" y="402" class="u"/>
+<use href="#c" x="960" y="402" class="u"/>
+<use href="#c" x="972" y="402" class="u"/>
+<use href="#c" x="984" y="402" class="u"/>
+<use href="#c" x="996" y="402" class="u"/>
+<use href="#c" x="1020" y="402" class="u"/>
+<use href="#c" x="1032" y="402" class="u"/>
+<use href="#c" x="1044" y="402" class="u"/>
+<use href="#c" x="1056" y="402" class="u"/>
+<text class="fam" x="24" y="423">decorators</text>
+<rect x="192" y="414" width="11" height="11" fill="#f22c2c"><title>python / decorators: recall 0.00, precision 0.00 (99 oracle, 2 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="414" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>go / decorators: recall -, precision 0.00 (0 oracle, 19 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="414" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="414" width="11" height="11" fill="#2c9bf2"><title>java / decorators: recall 0.95, precision 0.97 (431 oracle, 421 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="414" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>typescript / decorators: recall -, precision 0.00 (0 oracle, 1 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="414" width="11" height="11" fill="#4d5260"><title>javascript / decorators: scored, but the oracle sees no instance in language-crucible v1.7.0</title></rect>
+<rect x="240" y="414" width="11" height="11" fill="url(#dots)"/>
+<rect x="252" y="414" width="11" height="11" fill="#2c6cf2"><title>rust / decorators: recall 1.00, precision 0.97 (245 oracle, 252 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="264" y="414" width="11" height="11" fill="#4d5260"><title>c / decorators: scored, but the oracle sees no instance in language-crucible v1.7.0</title></rect>
+<rect x="264" y="414" width="11" height="11" fill="url(#dots)"/>
+<use href="#c" x="276" y="414" class="u"/>
+<use href="#c" x="300" y="414" class="u"/>
+<use href="#c" x="324" y="414" class="u"/>
+<use href="#c" x="396" y="414" class="u"/>
+<use href="#c" x="408" y="414" class="u"/>
+<use href="#c" x="420" y="414" class="u"/>
+<use href="#c" x="444" y="414" class="u"/>
+<use href="#c" x="468" y="414" class="u"/>
+<use href="#c" x="480" y="414" class="u"/>
+<use href="#c" x="516" y="414" class="u"/>
+<use href="#c" x="528" y="414" class="u"/>
+<use href="#c" x="540" y="414" class="u"/>
+<use href="#c" x="552" y="414" class="u"/>
+<use href="#c" x="564" y="414" class="u"/>
+<use href="#c" x="588" y="414" class="u"/>
+<use href="#c" x="600" y="414" class="u"/>
+<use href="#c" x="624" y="414" class="u"/>
+<use href="#c" x="648" y="414" class="u"/>
+<use href="#c" x="672" y="414" class="u"/>
+<use href="#c" x="684" y="414" class="u"/>
+<use href="#c" x="696" y="414" class="u"/>
+<use href="#c" x="708" y="414" class="u"/>
+<use href="#c" x="744" y="414" class="u"/>
+<use href="#c" x="768" y="414" class="u"/>
+<use href="#c" x="792" y="414" class="u"/>
+<use href="#c" x="804" y="414" class="u"/>
+<use href="#c" x="816" y="414" class="u"/>
+<use href="#c" x="828" y="414" class="u"/>
+<use href="#c" x="840" y="414" class="u"/>
+<use href="#c" x="852" y="414" class="u"/>
+<use href="#c" x="864" y="414" class="u"/>
+<use href="#c" x="888" y="414" class="u"/>
+<use href="#c" x="912" y="414" class="u"/>
+<use href="#c" x="924" y="414" class="u"/>
+<use href="#c" x="972" y="414" class="u"/>
+<use href="#c" x="984" y="414" class="u"/>
+<use href="#c" x="1056" y="414" class="u"/>
+<text class="fam" x="24" y="435">generics</text>
+<use href="#c" x="192" y="426" class="u"/>
+<use href="#c" x="204" y="426" class="u"/>
+<use href="#c" x="216" y="426" class="u"/>
+<use href="#c" x="228" y="426" class="u"/>
+<use href="#c" x="240" y="426" class="u"/>
+<use href="#c" x="252" y="426" class="u"/>
+<use href="#c" x="264" y="426" class="u"/>
+<use href="#c" x="276" y="426" class="u"/>
+<use href="#c" x="300" y="426" class="u"/>
+<use href="#c" x="324" y="426" class="u"/>
+<use href="#c" x="396" y="426" class="u"/>
+<use href="#c" x="408" y="426" class="u"/>
+<use href="#c" x="420" y="426" class="u"/>
+<use href="#c" x="444" y="426" class="u"/>
+<use href="#c" x="468" y="426" class="u"/>
+<use href="#c" x="516" y="426" class="u"/>
+<use href="#c" x="528" y="426" class="u"/>
+<use href="#c" x="540" y="426" class="u"/>
+<use href="#c" x="552" y="426" class="u"/>
+<use href="#c" x="564" y="426" class="u"/>
+<use href="#c" x="588" y="426" class="u"/>
+<use href="#c" x="600" y="426" class="u"/>
+<use href="#c" x="648" y="426" class="u"/>
+<use href="#c" x="672" y="426" class="u"/>
+<use href="#c" x="684" y="426" class="u"/>
+<use href="#c" x="708" y="426" class="u"/>
+<use href="#c" x="768" y="426" class="u"/>
+<use href="#c" x="792" y="426" class="u"/>
+<use href="#c" x="804" y="426" class="u"/>
+<use href="#c" x="816" y="426" class="u"/>
+<use href="#c" x="828" y="426" class="u"/>
+<use href="#c" x="852" y="426" class="u"/>
+<use href="#c" x="864" y="426" class="u"/>
+<use href="#c" x="888" y="426" class="u"/>
+<use href="#c" x="912" y="426" class="u"/>
+<use href="#c" x="924" y="426" class="u"/>
+<use href="#c" x="960" y="426" class="u"/>
+<use href="#c" x="972" y="426" class="u"/>
+<use href="#c" x="984" y="426" class="u"/>
+<use href="#c" x="1020" y="426" class="u"/>
+<use href="#c" x="1044" y="426" class="u"/>
+<use href="#c" x="1056" y="426" class="u"/>
+<text class="fam" x="24" y="447">comprehensions</text>
+<rect x="192" y="438" width="11" height="11" fill="#76f22c"><title>python / comprehensions: recall 0.84, precision 0.74 (51 oracle, 58 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="438" class="u"/>
+<use href="#c" x="216" y="438" class="u"/>
+<use href="#c" x="228" y="438" class="u"/>
+<use href="#c" x="240" y="438" class="u"/>
+<use href="#c" x="252" y="438" class="u"/>
+<use href="#c" x="276" y="438" class="u"/>
+<use href="#c" x="300" y="438" class="u"/>
+<use href="#c" x="324" y="438" class="u"/>
+<use href="#c" x="336" y="438" class="u"/>
+<use href="#c" x="408" y="438" class="u"/>
+<use href="#c" x="420" y="438" class="u"/>
+<use href="#c" x="444" y="438" class="u"/>
+<use href="#c" x="468" y="438" class="u"/>
+<use href="#c" x="480" y="438" class="u"/>
+<use href="#c" x="516" y="438" class="u"/>
+<use href="#c" x="528" y="438" class="u"/>
+<use href="#c" x="540" y="438" class="u"/>
+<use href="#c" x="552" y="438" class="u"/>
+<use href="#c" x="564" y="438" class="u"/>
+<use href="#c" x="588" y="438" class="u"/>
+<use href="#c" x="600" y="438" class="u"/>
+<use href="#c" x="612" y="438" class="u"/>
+<use href="#c" x="648" y="438" class="u"/>
+<use href="#c" x="672" y="438" class="u"/>
+<use href="#c" x="684" y="438" class="u"/>
+<use href="#c" x="696" y="438" class="u"/>
+<use href="#c" x="708" y="438" class="u"/>
+<use href="#c" x="720" y="438" class="u"/>
+<use href="#c" x="732" y="438" class="u"/>
+<use href="#c" x="744" y="438" class="u"/>
+<use href="#c" x="768" y="438" class="u"/>
+<use href="#c" x="792" y="438" class="u"/>
+<use href="#c" x="804" y="438" class="u"/>
+<use href="#c" x="816" y="438" class="u"/>
+<use href="#c" x="828" y="438" class="u"/>
+<use href="#c" x="852" y="438" class="u"/>
+<use href="#c" x="864" y="438" class="u"/>
+<use href="#c" x="888" y="438" class="u"/>
+<use href="#c" x="912" y="438" class="u"/>
+<use href="#c" x="924" y="438" class="u"/>
+<use href="#c" x="936" y="438" class="u"/>
+<use href="#c" x="948" y="438" class="u"/>
+<use href="#c" x="972" y="438" class="u"/>
+<use href="#c" x="984" y="438" class="u"/>
+<use href="#c" x="996" y="438" class="u"/>
+<use href="#c" x="1056" y="438" class="u"/>
+<text class="fam" x="24" y="459">scientific</text>
+<use href="#c" x="192" y="450" class="u"/>
+<use href="#c" x="204" y="450" class="u"/>
+<use href="#c" x="216" y="450" class="u"/>
+<use href="#c" x="228" y="450" class="u"/>
+<use href="#c" x="240" y="450" class="u"/>
+<use href="#c" x="252" y="450" class="u"/>
+<use href="#c" x="264" y="450" class="u"/>
+<use href="#c" x="276" y="450" class="u"/>
+<use href="#c" x="288" y="450" class="u"/>
+<use href="#c" x="300" y="450" class="u"/>
+<use href="#c" x="312" y="450" class="u"/>
+<use href="#c" x="324" y="450" class="u"/>
+<use href="#c" x="336" y="450" class="u"/>
+<use href="#c" x="396" y="450" class="u"/>
+<use href="#c" x="408" y="450" class="u"/>
+<use href="#c" x="420" y="450" class="u"/>
+<use href="#c" x="444" y="450" class="u"/>
+<use href="#c" x="456" y="450" class="u"/>
+<use href="#c" x="468" y="450" class="u"/>
+<use href="#c" x="480" y="450" class="u"/>
+<use href="#c" x="492" y="450" class="u"/>
+<use href="#c" x="516" y="450" class="u"/>
+<use href="#c" x="528" y="450" class="u"/>
+<use href="#c" x="540" y="450" class="u"/>
+<use href="#c" x="552" y="450" class="u"/>
+<use href="#c" x="564" y="450" class="u"/>
+<use href="#c" x="588" y="450" class="u"/>
+<use href="#c" x="600" y="450" class="u"/>
+<use href="#c" x="624" y="450" class="u"/>
+<use href="#c" x="648" y="450" class="u"/>
+<use href="#c" x="672" y="450" class="u"/>
+<use href="#c" x="684" y="450" class="u"/>
+<use href="#c" x="696" y="450" class="u"/>
+<use href="#c" x="708" y="450" class="u"/>
+<use href="#c" x="720" y="450" class="u"/>
+<use href="#c" x="732" y="450" class="u"/>
+<use href="#c" x="744" y="450" class="u"/>
+<use href="#c" x="768" y="450" class="u"/>
+<use href="#c" x="792" y="450" class="u"/>
+<use href="#c" x="804" y="450" class="u"/>
+<use href="#c" x="816" y="450" class="u"/>
+<use href="#c" x="828" y="450" class="u"/>
+<use href="#c" x="840" y="450" class="u"/>
+<use href="#c" x="852" y="450" class="u"/>
+<use href="#c" x="864" y="450" class="u"/>
+<use href="#c" x="888" y="450" class="u"/>
+<use href="#c" x="900" y="450" class="u"/>
+<use href="#c" x="912" y="450" class="u"/>
+<use href="#c" x="924" y="450" class="u"/>
+<use href="#c" x="936" y="450" class="u"/>
+<use href="#c" x="948" y="450" class="u"/>
+<use href="#c" x="960" y="450" class="u"/>
+<use href="#c" x="972" y="450" class="u"/>
+<use href="#c" x="984" y="450" class="u"/>
+<use href="#c" x="996" y="450" class="u"/>
+<use href="#c" x="1044" y="450" class="u"/>
+<use href="#c" x="1056" y="450" class="u"/>
+<text class="famd" x="24" y="471">reflection_metaprogramming</text>
+<use href="#c" x="192" y="462" class="u"/>
+<use href="#c" x="204" y="462" class="u"/>
+<use href="#c" x="216" y="462" class="u"/>
+<use href="#c" x="228" y="462" class="u"/>
+<use href="#c" x="240" y="462" class="u"/>
+<use href="#c" x="252" y="462" class="u"/>
+<use href="#c" x="264" y="462" class="u"/>
+<use href="#c" x="276" y="462" class="u"/>
+<use href="#c" x="288" y="462" class="u"/>
+<use href="#c" x="300" y="462" class="u"/>
+<use href="#c" x="312" y="462" class="u"/>
+<use href="#c" x="324" y="462" class="u"/>
+<use href="#c" x="336" y="462" class="u"/>
+<use href="#c" x="396" y="462" class="u"/>
+<use href="#c" x="408" y="462" class="u"/>
+<use href="#c" x="420" y="462" class="u"/>
+<use href="#c" x="444" y="462" class="u"/>
+<use href="#c" x="456" y="462" class="u"/>
+<use href="#c" x="468" y="462" class="u"/>
+<use href="#c" x="480" y="462" class="u"/>
+<use href="#c" x="492" y="462" class="u"/>
+<use href="#c" x="516" y="462" class="u"/>
+<use href="#c" x="528" y="462" class="u"/>
+<use href="#c" x="540" y="462" class="u"/>
+<use href="#c" x="552" y="462" class="u"/>
+<use href="#c" x="564" y="462" class="u"/>
+<use href="#c" x="588" y="462" class="u"/>
+<use href="#c" x="600" y="462" class="u"/>
+<use href="#c" x="612" y="462" class="u"/>
+<use href="#c" x="624" y="462" class="u"/>
+<use href="#c" x="648" y="462" class="u"/>
+<use href="#c" x="672" y="462" class="u"/>
+<use href="#c" x="684" y="462" class="u"/>
+<use href="#c" x="696" y="462" class="u"/>
+<use href="#c" x="708" y="462" class="u"/>
+<use href="#c" x="720" y="462" class="u"/>
+<use href="#c" x="732" y="462" class="u"/>
+<use href="#c" x="744" y="462" class="u"/>
+<use href="#c" x="768" y="462" class="u"/>
+<use href="#c" x="792" y="462" class="u"/>
+<use href="#c" x="804" y="462" class="u"/>
+<use href="#c" x="816" y="462" class="u"/>
+<use href="#c" x="828" y="462" class="u"/>
+<use href="#c" x="840" y="462" class="u"/>
+<use href="#c" x="852" y="462" class="u"/>
+<use href="#c" x="864" y="462" class="u"/>
+<use href="#c" x="888" y="462" class="u"/>
+<use href="#c" x="900" y="462" class="u"/>
+<use href="#c" x="912" y="462" class="u"/>
+<use href="#c" x="924" y="462" class="u"/>
+<use href="#c" x="936" y="462" class="u"/>
+<use href="#c" x="948" y="462" class="u"/>
+<use href="#c" x="960" y="462" class="u"/>
+<use href="#c" x="972" y="462" class="u"/>
+<use href="#c" x="984" y="462" class="u"/>
+<use href="#c" x="996" y="462" class="u"/>
+<use href="#c" x="1020" y="462" class="u"/>
+<use href="#c" x="1032" y="462" class="u"/>
+<use href="#c" x="1044" y="462" class="u"/>
+<use href="#c" x="1056" y="462" class="u"/>
+<text class="fam" x="24" y="483">import</text>
+<rect x="192" y="474" width="11" height="11" fill="#2c2cf2"><title>python / import: recall 1.00, precision 1.00 (16 oracle, 16 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="474" class="u"/>
+<use href="#c" x="216" y="474" class="u"/>
+<use href="#c" x="228" y="474" class="u"/>
+<use href="#c" x="240" y="474" class="u"/>
+<use href="#c" x="252" y="474" class="u"/>
+<use href="#c" x="264" y="474" class="u"/>
+<use href="#c" x="276" y="474" class="u"/>
+<use href="#c" x="288" y="474" class="u"/>
+<use href="#c" x="300" y="474" class="u"/>
+<use href="#c" x="312" y="474" class="u"/>
+<use href="#c" x="324" y="474" class="u"/>
+<use href="#c" x="336" y="474" class="u"/>
+<use href="#c" x="372" y="474" class="u"/>
+<use href="#c" x="396" y="474" class="u"/>
+<use href="#c" x="408" y="474" class="u"/>
+<use href="#c" x="420" y="474" class="u"/>
+<use href="#c" x="432" y="474" class="u"/>
+<use href="#c" x="444" y="474" class="u"/>
+<use href="#c" x="456" y="474" class="u"/>
+<use href="#c" x="468" y="474" class="u"/>
+<use href="#c" x="480" y="474" class="u"/>
+<use href="#c" x="492" y="474" class="u"/>
+<use href="#c" x="516" y="474" class="u"/>
+<use href="#c" x="528" y="474" class="u"/>
+<use href="#c" x="540" y="474" class="u"/>
+<use href="#c" x="552" y="474" class="u"/>
+<use href="#c" x="564" y="474" class="u"/>
+<use href="#c" x="588" y="474" class="u"/>
+<use href="#c" x="600" y="474" class="u"/>
+<use href="#c" x="612" y="474" class="u"/>
+<use href="#c" x="624" y="474" class="u"/>
+<use href="#c" x="648" y="474" class="u"/>
+<use href="#c" x="660" y="474" class="u"/>
+<use href="#c" x="672" y="474" class="u"/>
+<use href="#c" x="684" y="474" class="u"/>
+<use href="#c" x="696" y="474" class="u"/>
+<use href="#c" x="708" y="474" class="u"/>
+<use href="#c" x="720" y="474" class="u"/>
+<use href="#c" x="732" y="474" class="u"/>
+<use href="#c" x="744" y="474" class="u"/>
+<use href="#c" x="768" y="474" class="u"/>
+<use href="#c" x="792" y="474" class="u"/>
+<use href="#c" x="804" y="474" class="u"/>
+<use href="#c" x="816" y="474" class="u"/>
+<use href="#c" x="828" y="474" class="u"/>
+<use href="#c" x="840" y="474" class="u"/>
+<use href="#c" x="852" y="474" class="u"/>
+<use href="#c" x="864" y="474" class="u"/>
+<use href="#c" x="888" y="474" class="u"/>
+<use href="#c" x="900" y="474" class="u"/>
+<use href="#c" x="912" y="474" class="u"/>
+<use href="#c" x="924" y="474" class="u"/>
+<use href="#c" x="936" y="474" class="u"/>
+<use href="#c" x="948" y="474" class="u"/>
+<use href="#c" x="960" y="474" class="u"/>
+<use href="#c" x="972" y="474" class="u"/>
+<use href="#c" x="984" y="474" class="u"/>
+<use href="#c" x="996" y="474" class="u"/>
+<use href="#c" x="1020" y="474" class="u"/>
+<use href="#c" x="1032" y="474" class="u"/>
+<use href="#c" x="1044" y="474" class="u"/>
+<use href="#c" x="1056" y="474" class="u"/>
+<text class="fam" x="24" y="495">ownership</text>
+<use href="#c" x="192" y="486" class="u"/>
+<use href="#c" x="204" y="486" class="u"/>
+<use href="#c" x="216" y="486" class="u"/>
+<use href="#c" x="228" y="486" class="u"/>
+<use href="#c" x="240" y="486" class="u"/>
+<use href="#c" x="252" y="486" class="u"/>
+<use href="#c" x="264" y="486" class="u"/>
+<use href="#c" x="276" y="486" class="u"/>
+<use href="#c" x="288" y="486" class="u"/>
+<use href="#c" x="300" y="486" class="u"/>
+<use href="#c" x="312" y="486" class="u"/>
+<use href="#c" x="324" y="486" class="u"/>
+<use href="#c" x="336" y="486" class="u"/>
+<use href="#c" x="372" y="486" class="u"/>
+<use href="#c" x="384" y="486" class="u"/>
+<use href="#c" x="396" y="486" class="u"/>
+<use href="#c" x="408" y="486" class="u"/>
+<use href="#c" x="420" y="486" class="u"/>
+<use href="#c" x="432" y="486" class="u"/>
+<use href="#c" x="444" y="486" class="u"/>
+<use href="#c" x="456" y="486" class="u"/>
+<use href="#c" x="468" y="486" class="u"/>
+<use href="#c" x="480" y="486" class="u"/>
+<use href="#c" x="492" y="486" class="u"/>
+<use href="#c" x="516" y="486" class="u"/>
+<use href="#c" x="528" y="486" class="u"/>
+<use href="#c" x="540" y="486" class="u"/>
+<use href="#c" x="552" y="486" class="u"/>
+<use href="#c" x="564" y="486" class="u"/>
+<use href="#c" x="588" y="486" class="u"/>
+<use href="#c" x="600" y="486" class="u"/>
+<use href="#c" x="612" y="486" class="u"/>
+<use href="#c" x="624" y="486" class="u"/>
+<use href="#c" x="648" y="486" class="u"/>
+<use href="#c" x="660" y="486" class="u"/>
+<use href="#c" x="672" y="486" class="u"/>
+<use href="#c" x="684" y="486" class="u"/>
+<use href="#c" x="696" y="486" class="u"/>
+<use href="#c" x="708" y="486" class="u"/>
+<use href="#c" x="720" y="486" class="u"/>
+<use href="#c" x="732" y="486" class="u"/>
+<use href="#c" x="744" y="486" class="u"/>
+<use href="#c" x="768" y="486" class="u"/>
+<use href="#c" x="792" y="486" class="u"/>
+<use href="#c" x="804" y="486" class="u"/>
+<use href="#c" x="816" y="486" class="u"/>
+<use href="#c" x="828" y="486" class="u"/>
+<use href="#c" x="840" y="486" class="u"/>
+<use href="#c" x="852" y="486" class="u"/>
+<use href="#c" x="864" y="486" class="u"/>
+<use href="#c" x="888" y="486" class="u"/>
+<use href="#c" x="900" y="486" class="u"/>
+<use href="#c" x="912" y="486" class="u"/>
+<use href="#c" x="924" y="486" class="u"/>
+<use href="#c" x="936" y="486" class="u"/>
+<use href="#c" x="948" y="486" class="u"/>
+<use href="#c" x="960" y="486" class="u"/>
+<use href="#c" x="972" y="486" class="u"/>
+<use href="#c" x="984" y="486" class="u"/>
+<use href="#c" x="996" y="486" class="u"/>
+<use href="#c" x="1020" y="486" class="u"/>
+<use href="#c" x="1032" y="486" class="u"/>
+<use href="#c" x="1044" y="486" class="u"/>
+<use href="#c" x="1056" y="486" class="u"/>
+<text class="phase" x="16" y="507">SUBSYSTEMS</text>
+<text class="famd" x="24" y="519">planned_debt</text>
+<use href="#c" x="192" y="510" class="u"/>
+<use href="#c" x="204" y="510" class="u"/>
+<use href="#c" x="216" y="510" class="u"/>
+<use href="#c" x="228" y="510" class="u"/>
+<use href="#c" x="240" y="510" class="u"/>
+<use href="#c" x="252" y="510" class="u"/>
+<use href="#c" x="264" y="510" class="u"/>
+<use href="#c" x="276" y="510" class="u"/>
+<use href="#c" x="288" y="510" class="u"/>
+<use href="#c" x="300" y="510" class="u"/>
+<use href="#c" x="312" y="510" class="u"/>
+<use href="#c" x="324" y="510" class="u"/>
+<use href="#c" x="336" y="510" class="u"/>
+<use href="#c" x="372" y="510" class="u"/>
+<use href="#c" x="384" y="510" class="u"/>
+<use href="#c" x="396" y="510" class="u"/>
+<use href="#c" x="408" y="510" class="u"/>
+<use href="#c" x="420" y="510" class="u"/>
+<use href="#c" x="432" y="510" class="u"/>
+<use href="#c" x="444" y="510" class="u"/>
+<use href="#c" x="456" y="510" class="u"/>
+<use href="#c" x="468" y="510" class="u"/>
+<use href="#c" x="480" y="510" class="u"/>
+<use href="#c" x="492" y="510" class="u"/>
+<use href="#c" x="504" y="510" class="u"/>
+<use href="#c" x="516" y="510" class="u"/>
+<use href="#c" x="528" y="510" class="u"/>
+<use href="#c" x="540" y="510" class="u"/>
+<use href="#c" x="552" y="510" class="u"/>
+<use href="#c" x="564" y="510" class="u"/>
+<use href="#c" x="588" y="510" class="u"/>
+<use href="#c" x="600" y="510" class="u"/>
+<use href="#c" x="612" y="510" class="u"/>
+<use href="#c" x="624" y="510" class="u"/>
+<use href="#c" x="648" y="510" class="u"/>
+<use href="#c" x="660" y="510" class="u"/>
+<use href="#c" x="672" y="510" class="u"/>
+<use href="#c" x="684" y="510" class="u"/>
+<use href="#c" x="696" y="510" class="u"/>
+<use href="#c" x="708" y="510" class="u"/>
+<use href="#c" x="720" y="510" class="u"/>
+<use href="#c" x="732" y="510" class="u"/>
+<use href="#c" x="744" y="510" class="u"/>
+<use href="#c" x="768" y="510" class="u"/>
+<use href="#c" x="792" y="510" class="u"/>
+<use href="#c" x="804" y="510" class="u"/>
+<use href="#c" x="816" y="510" class="u"/>
+<use href="#c" x="828" y="510" class="u"/>
+<use href="#c" x="840" y="510" class="u"/>
+<use href="#c" x="852" y="510" class="u"/>
+<use href="#c" x="864" y="510" class="u"/>
+<use href="#c" x="888" y="510" class="u"/>
+<use href="#c" x="900" y="510" class="u"/>
+<use href="#c" x="912" y="510" class="u"/>
+<use href="#c" x="924" y="510" class="u"/>
+<use href="#c" x="936" y="510" class="u"/>
+<use href="#c" x="948" y="510" class="u"/>
+<use href="#c" x="960" y="510" class="u"/>
+<use href="#c" x="972" y="510" class="u"/>
+<use href="#c" x="984" y="510" class="u"/>
+<use href="#c" x="996" y="510" class="u"/>
+<use href="#c" x="1020" y="510" class="u"/>
+<use href="#c" x="1032" y="510" class="u"/>
+<use href="#c" x="1044" y="510" class="u"/>
+<use href="#c" x="1056" y="510" class="u"/>
+<text class="famd" x="24" y="531">fragile_debt</text>
+<use href="#c" x="192" y="522" class="u"/>
+<use href="#c" x="204" y="522" class="u"/>
+<use href="#c" x="216" y="522" class="u"/>
+<use href="#c" x="228" y="522" class="u"/>
+<use href="#c" x="240" y="522" class="u"/>
+<use href="#c" x="252" y="522" class="u"/>
+<use href="#c" x="264" y="522" class="u"/>
+<use href="#c" x="276" y="522" class="u"/>
+<use href="#c" x="288" y="522" class="u"/>
+<use href="#c" x="300" y="522" class="u"/>
+<use href="#c" x="312" y="522" class="u"/>
+<use href="#c" x="324" y="522" class="u"/>
+<use href="#c" x="336" y="522" class="u"/>
+<use href="#c" x="372" y="522" class="u"/>
+<use href="#c" x="384" y="522" class="u"/>
+<use href="#c" x="396" y="522" class="u"/>
+<use href="#c" x="408" y="522" class="u"/>
+<use href="#c" x="420" y="522" class="u"/>
+<use href="#c" x="432" y="522" class="u"/>
+<use href="#c" x="444" y="522" class="u"/>
+<use href="#c" x="456" y="522" class="u"/>
+<use href="#c" x="468" y="522" class="u"/>
+<use href="#c" x="480" y="522" class="u"/>
+<use href="#c" x="492" y="522" class="u"/>
+<use href="#c" x="516" y="522" class="u"/>
+<use href="#c" x="528" y="522" class="u"/>
+<use href="#c" x="540" y="522" class="u"/>
+<use href="#c" x="552" y="522" class="u"/>
+<use href="#c" x="564" y="522" class="u"/>
+<use href="#c" x="588" y="522" class="u"/>
+<use href="#c" x="600" y="522" class="u"/>
+<use href="#c" x="612" y="522" class="u"/>
+<use href="#c" x="624" y="522" class="u"/>
+<use href="#c" x="648" y="522" class="u"/>
+<use href="#c" x="660" y="522" class="u"/>
+<use href="#c" x="672" y="522" class="u"/>
+<use href="#c" x="684" y="522" class="u"/>
+<use href="#c" x="696" y="522" class="u"/>
+<use href="#c" x="708" y="522" class="u"/>
+<use href="#c" x="720" y="522" class="u"/>
+<use href="#c" x="732" y="522" class="u"/>
+<use href="#c" x="744" y="522" class="u"/>
+<use href="#c" x="768" y="522" class="u"/>
+<use href="#c" x="792" y="522" class="u"/>
+<use href="#c" x="804" y="522" class="u"/>
+<use href="#c" x="816" y="522" class="u"/>
+<use href="#c" x="828" y="522" class="u"/>
+<use href="#c" x="840" y="522" class="u"/>
+<use href="#c" x="852" y="522" class="u"/>
+<use href="#c" x="864" y="522" class="u"/>
+<use href="#c" x="888" y="522" class="u"/>
+<use href="#c" x="900" y="522" class="u"/>
+<use href="#c" x="912" y="522" class="u"/>
+<use href="#c" x="924" y="522" class="u"/>
+<use href="#c" x="936" y="522" class="u"/>
+<use href="#c" x="948" y="522" class="u"/>
+<use href="#c" x="960" y="522" class="u"/>
+<use href="#c" x="972" y="522" class="u"/>
+<use href="#c" x="984" y="522" class="u"/>
+<use href="#c" x="996" y="522" class="u"/>
+<use href="#c" x="1020" y="522" class="u"/>
+<use href="#c" x="1032" y="522" class="u"/>
+<use href="#c" x="1044" y="522" class="u"/>
+<use href="#c" x="1056" y="522" class="u"/>
+<text class="fam" x="24" y="543">hardcoded_secrets</text>
+<use href="#c" x="300" y="534" class="u"/>
+<use href="#c" x="504" y="534" class="u"/>
+<use href="#c" x="960" y="534" class="u"/>
+<use href="#c" x="1032" y="534" class="u"/>
+<text class="famd" x="24" y="555">spec_exposure</text>
+<use href="#c" x="192" y="546" class="u"/>
+<use href="#c" x="204" y="546" class="u"/>
+<use href="#c" x="216" y="546" class="u"/>
+<use href="#c" x="228" y="546" class="u"/>
+<use href="#c" x="240" y="546" class="u"/>
+<use href="#c" x="252" y="546" class="u"/>
+<use href="#c" x="264" y="546" class="u"/>
+<use href="#c" x="276" y="546" class="u"/>
+<use href="#c" x="288" y="546" class="u"/>
+<use href="#c" x="300" y="546" class="u"/>
+<use href="#c" x="312" y="546" class="u"/>
+<use href="#c" x="324" y="546" class="u"/>
+<use href="#c" x="336" y="546" class="u"/>
+<use href="#c" x="372" y="546" class="u"/>
+<use href="#c" x="384" y="546" class="u"/>
+<use href="#c" x="396" y="546" class="u"/>
+<use href="#c" x="408" y="546" class="u"/>
+<use href="#c" x="420" y="546" class="u"/>
+<use href="#c" x="432" y="546" class="u"/>
+<use href="#c" x="444" y="546" class="u"/>
+<use href="#c" x="456" y="546" class="u"/>
+<use href="#c" x="468" y="546" class="u"/>
+<use href="#c" x="480" y="546" class="u"/>
+<use href="#c" x="492" y="546" class="u"/>
+<use href="#c" x="516" y="546" class="u"/>
+<use href="#c" x="528" y="546" class="u"/>
+<use href="#c" x="540" y="546" class="u"/>
+<use href="#c" x="552" y="546" class="u"/>
+<use href="#c" x="564" y="546" class="u"/>
+<use href="#c" x="588" y="546" class="u"/>
+<use href="#c" x="600" y="546" class="u"/>
+<use href="#c" x="612" y="546" class="u"/>
+<use href="#c" x="624" y="546" class="u"/>
+<use href="#c" x="648" y="546" class="u"/>
+<use href="#c" x="660" y="546" class="u"/>
+<use href="#c" x="672" y="546" class="u"/>
+<use href="#c" x="684" y="546" class="u"/>
+<use href="#c" x="696" y="546" class="u"/>
+<use href="#c" x="708" y="546" class="u"/>
+<use href="#c" x="720" y="546" class="u"/>
+<use href="#c" x="732" y="546" class="u"/>
+<use href="#c" x="744" y="546" class="u"/>
+<use href="#c" x="768" y="546" class="u"/>
+<use href="#c" x="792" y="546" class="u"/>
+<use href="#c" x="804" y="546" class="u"/>
+<use href="#c" x="816" y="546" class="u"/>
+<use href="#c" x="828" y="546" class="u"/>
+<use href="#c" x="840" y="546" class="u"/>
+<use href="#c" x="852" y="546" class="u"/>
+<use href="#c" x="864" y="546" class="u"/>
+<use href="#c" x="888" y="546" class="u"/>
+<use href="#c" x="900" y="546" class="u"/>
+<use href="#c" x="912" y="546" class="u"/>
+<use href="#c" x="924" y="546" class="u"/>
+<use href="#c" x="936" y="546" class="u"/>
+<use href="#c" x="948" y="546" class="u"/>
+<use href="#c" x="960" y="546" class="u"/>
+<use href="#c" x="972" y="546" class="u"/>
+<use href="#c" x="984" y="546" class="u"/>
+<use href="#c" x="996" y="546" class="u"/>
+<use href="#c" x="1020" y="546" class="u"/>
+<use href="#c" x="1032" y="546" class="u"/>
+<use href="#c" x="1044" y="546" class="u"/>
+<use href="#c" x="1056" y="546" class="u"/>
+<text class="fam" x="24" y="567">ssr_boundaries</text>
+<use href="#c" x="192" y="558" class="u"/>
+<use href="#c" x="204" y="558" class="u"/>
+<use href="#c" x="216" y="558" class="u"/>
+<use href="#c" x="228" y="558" class="u"/>
+<use href="#c" x="240" y="558" class="u"/>
+<use href="#c" x="252" y="558" class="u"/>
+<use href="#c" x="264" y="558" class="u"/>
+<use href="#c" x="276" y="558" class="u"/>
+<use href="#c" x="324" y="558" class="u"/>
+<use href="#c" x="396" y="558" class="u"/>
+<use href="#c" x="408" y="558" class="u"/>
+<use href="#c" x="420" y="558" class="u"/>
+<use href="#c" x="444" y="558" class="u"/>
+<use href="#c" x="468" y="558" class="u"/>
+<use href="#c" x="516" y="558" class="u"/>
+<use href="#c" x="528" y="558" class="u"/>
+<use href="#c" x="564" y="558" class="u"/>
+<use href="#c" x="588" y="558" class="u"/>
+<use href="#c" x="600" y="558" class="u"/>
+<use href="#c" x="624" y="558" class="u"/>
+<use href="#c" x="648" y="558" class="u"/>
+<use href="#c" x="672" y="558" class="u"/>
+<use href="#c" x="684" y="558" class="u"/>
+<use href="#c" x="696" y="558" class="u"/>
+<use href="#c" x="708" y="558" class="u"/>
+<use href="#c" x="744" y="558" class="u"/>
+<use href="#c" x="792" y="558" class="u"/>
+<use href="#c" x="816" y="558" class="u"/>
+<use href="#c" x="828" y="558" class="u"/>
+<use href="#c" x="840" y="558" class="u"/>
+<use href="#c" x="864" y="558" class="u"/>
+<use href="#c" x="888" y="558" class="u"/>
+<use href="#c" x="912" y="558" class="u"/>
+<use href="#c" x="924" y="558" class="u"/>
+<use href="#c" x="948" y="558" class="u"/>
+<use href="#c" x="984" y="558" class="u"/>
+<use href="#c" x="1044" y="558" class="u"/>
+<text class="fam" x="24" y="579">events</text>
+<use href="#c" x="192" y="570" class="u"/>
+<use href="#c" x="204" y="570" class="u"/>
+<use href="#c" x="216" y="570" class="u"/>
+<use href="#c" x="228" y="570" class="u"/>
+<use href="#c" x="240" y="570" class="u"/>
+<use href="#c" x="252" y="570" class="u"/>
+<use href="#c" x="264" y="570" class="u"/>
+<use href="#c" x="276" y="570" class="u"/>
+<use href="#c" x="288" y="570" class="u"/>
+<use href="#c" x="300" y="570" class="u"/>
+<use href="#c" x="312" y="570" class="u"/>
+<use href="#c" x="324" y="570" class="u"/>
+<use href="#c" x="336" y="570" class="u"/>
+<use href="#c" x="396" y="570" class="u"/>
+<use href="#c" x="408" y="570" class="u"/>
+<use href="#c" x="420" y="570" class="u"/>
+<use href="#c" x="444" y="570" class="u"/>
+<use href="#c" x="456" y="570" class="u"/>
+<use href="#c" x="468" y="570" class="u"/>
+<use href="#c" x="480" y="570" class="u"/>
+<use href="#c" x="492" y="570" class="u"/>
+<use href="#c" x="516" y="570" class="u"/>
+<use href="#c" x="528" y="570" class="u"/>
+<use href="#c" x="540" y="570" class="u"/>
+<use href="#c" x="552" y="570" class="u"/>
+<use href="#c" x="564" y="570" class="u"/>
+<use href="#c" x="588" y="570" class="u"/>
+<use href="#c" x="600" y="570" class="u"/>
+<use href="#c" x="612" y="570" class="u"/>
+<use href="#c" x="624" y="570" class="u"/>
+<use href="#c" x="648" y="570" class="u"/>
+<use href="#c" x="672" y="570" class="u"/>
+<use href="#c" x="684" y="570" class="u"/>
+<use href="#c" x="696" y="570" class="u"/>
+<use href="#c" x="708" y="570" class="u"/>
+<use href="#c" x="744" y="570" class="u"/>
+<use href="#c" x="768" y="570" class="u"/>
+<use href="#c" x="792" y="570" class="u"/>
+<use href="#c" x="804" y="570" class="u"/>
+<use href="#c" x="816" y="570" class="u"/>
+<use href="#c" x="828" y="570" class="u"/>
+<use href="#c" x="840" y="570" class="u"/>
+<use href="#c" x="852" y="570" class="u"/>
+<use href="#c" x="864" y="570" class="u"/>
+<use href="#c" x="888" y="570" class="u"/>
+<use href="#c" x="912" y="570" class="u"/>
+<use href="#c" x="924" y="570" class="u"/>
+<use href="#c" x="936" y="570" class="u"/>
+<use href="#c" x="948" y="570" class="u"/>
+<use href="#c" x="960" y="570" class="u"/>
+<use href="#c" x="972" y="570" class="u"/>
+<use href="#c" x="984" y="570" class="u"/>
+<use href="#c" x="996" y="570" class="u"/>
+<use href="#c" x="1032" y="570" class="u"/>
+<use href="#c" x="1044" y="570" class="u"/>
+<use href="#c" x="1056" y="570" class="u"/>
+<text class="fam" x="24" y="591">dependency_injection</text>
+<use href="#c" x="192" y="582" class="u"/>
+<use href="#c" x="204" y="582" class="u"/>
+<use href="#c" x="216" y="582" class="u"/>
+<use href="#c" x="228" y="582" class="u"/>
+<use href="#c" x="240" y="582" class="u"/>
+<use href="#c" x="252" y="582" class="u"/>
+<use href="#c" x="264" y="582" class="u"/>
+<use href="#c" x="276" y="582" class="u"/>
+<use href="#c" x="324" y="582" class="u"/>
+<use href="#c" x="408" y="582" class="u"/>
+<use href="#c" x="420" y="582" class="u"/>
+<use href="#c" x="444" y="582" class="u"/>
+<use href="#c" x="468" y="582" class="u"/>
+<use href="#c" x="492" y="582" class="u"/>
+<use href="#c" x="516" y="582" class="u"/>
+<use href="#c" x="540" y="582" class="u"/>
+<use href="#c" x="564" y="582" class="u"/>
+<use href="#c" x="588" y="582" class="u"/>
+<use href="#c" x="600" y="582" class="u"/>
+<use href="#c" x="612" y="582" class="u"/>
+<use href="#c" x="648" y="582" class="u"/>
+<use href="#c" x="672" y="582" class="u"/>
+<use href="#c" x="684" y="582" class="u"/>
+<use href="#c" x="696" y="582" class="u"/>
+<use href="#c" x="708" y="582" class="u"/>
+<use href="#c" x="720" y="582" class="u"/>
+<use href="#c" x="768" y="582" class="u"/>
+<use href="#c" x="792" y="582" class="u"/>
+<use href="#c" x="804" y="582" class="u"/>
+<use href="#c" x="816" y="582" class="u"/>
+<use href="#c" x="828" y="582" class="u"/>
+<use href="#c" x="864" y="582" class="u"/>
+<use href="#c" x="888" y="582" class="u"/>
+<use href="#c" x="912" y="582" class="u"/>
+<use href="#c" x="924" y="582" class="u"/>
+<use href="#c" x="948" y="582" class="u"/>
+<use href="#c" x="972" y="582" class="u"/>
+<use href="#c" x="984" y="582" class="u"/>
+<use href="#c" x="1032" y="582" class="u"/>
+<text class="fam" x="24" y="603">macros</text>
+<use href="#c" x="204" y="594" class="u"/>
+<use href="#c" x="252" y="594" class="u"/>
+<use href="#c" x="264" y="594" class="u"/>
+<use href="#c" x="276" y="594" class="u"/>
+<use href="#c" x="288" y="594" class="u"/>
+<use href="#c" x="300" y="594" class="u"/>
+<use href="#c" x="312" y="594" class="u"/>
+<use href="#c" x="336" y="594" class="u"/>
+<use href="#c" x="372" y="594" class="u"/>
+<use href="#c" x="396" y="594" class="u"/>
+<use href="#c" x="408" y="594" class="u"/>
+<use href="#c" x="420" y="594" class="u"/>
+<use href="#c" x="444" y="594" class="u"/>
+<use href="#c" x="468" y="594" class="u"/>
+<use href="#c" x="492" y="594" class="u"/>
+<use href="#c" x="504" y="594" class="u"/>
+<use href="#c" x="516" y="594" class="u"/>
+<use href="#c" x="528" y="594" class="u"/>
+<use href="#c" x="540" y="594" class="u"/>
+<use href="#c" x="552" y="594" class="u"/>
+<use href="#c" x="564" y="594" class="u"/>
+<use href="#c" x="600" y="594" class="u"/>
+<use href="#c" x="612" y="594" class="u"/>
+<use href="#c" x="624" y="594" class="u"/>
+<use href="#c" x="648" y="594" class="u"/>
+<use href="#c" x="672" y="594" class="u"/>
+<use href="#c" x="684" y="594" class="u"/>
+<use href="#c" x="720" y="594" class="u"/>
+<use href="#c" x="732" y="594" class="u"/>
+<use href="#c" x="768" y="594" class="u"/>
+<use href="#c" x="792" y="594" class="u"/>
+<use href="#c" x="804" y="594" class="u"/>
+<use href="#c" x="816" y="594" class="u"/>
+<use href="#c" x="828" y="594" class="u"/>
+<use href="#c" x="840" y="594" class="u"/>
+<use href="#c" x="888" y="594" class="u"/>
+<use href="#c" x="912" y="594" class="u"/>
+<use href="#c" x="924" y="594" class="u"/>
+<use href="#c" x="936" y="594" class="u"/>
+<use href="#c" x="948" y="594" class="u"/>
+<use href="#c" x="972" y="594" class="u"/>
+<use href="#c" x="984" y="594" class="u"/>
+<use href="#c" x="1020" y="594" class="u"/>
+<text class="fam" x="24" y="615">pointers</text>
+<use href="#c" x="192" y="606" class="u"/>
+<use href="#c" x="204" y="606" class="u"/>
+<use href="#c" x="216" y="606" class="u"/>
+<use href="#c" x="252" y="606" class="u"/>
+<use href="#c" x="264" y="606" class="u"/>
+<use href="#c" x="276" y="606" class="u"/>
+<use href="#c" x="300" y="606" class="u"/>
+<use href="#c" x="312" y="606" class="u"/>
+<use href="#c" x="336" y="606" class="u"/>
+<use href="#c" x="396" y="606" class="u"/>
+<use href="#c" x="408" y="606" class="u"/>
+<use href="#c" x="420" y="606" class="u"/>
+<use href="#c" x="444" y="606" class="u"/>
+<use href="#c" x="468" y="606" class="u"/>
+<use href="#c" x="528" y="606" class="u"/>
+<use href="#c" x="540" y="606" class="u"/>
+<use href="#c" x="552" y="606" class="u"/>
+<use href="#c" x="564" y="606" class="u"/>
+<use href="#c" x="600" y="606" class="u"/>
+<use href="#c" x="624" y="606" class="u"/>
+<use href="#c" x="672" y="606" class="u"/>
+<use href="#c" x="684" y="606" class="u"/>
+<use href="#c" x="696" y="606" class="u"/>
+<use href="#c" x="708" y="606" class="u"/>
+<use href="#c" x="744" y="606" class="u"/>
+<use href="#c" x="768" y="606" class="u"/>
+<use href="#c" x="792" y="606" class="u"/>
+<use href="#c" x="804" y="606" class="u"/>
+<use href="#c" x="828" y="606" class="u"/>
+<use href="#c" x="840" y="606" class="u"/>
+<use href="#c" x="864" y="606" class="u"/>
+<use href="#c" x="888" y="606" class="u"/>
+<use href="#c" x="900" y="606" class="u"/>
+<use href="#c" x="912" y="606" class="u"/>
+<use href="#c" x="924" y="606" class="u"/>
+<use href="#c" x="948" y="606" class="u"/>
+<use href="#c" x="960" y="606" class="u"/>
+<use href="#c" x="984" y="606" class="u"/>
+<use href="#c" x="1020" y="606" class="u"/>
+<use href="#c" x="1044" y="606" class="u"/>
+<text class="fam" x="24" y="627">memory_alloc</text>
+<use href="#c" x="204" y="618" class="u"/>
+<use href="#c" x="216" y="618" class="u"/>
+<use href="#c" x="228" y="618" class="u"/>
+<use href="#c" x="240" y="618" class="u"/>
+<use href="#c" x="252" y="618" class="u"/>
+<use href="#c" x="264" y="618" class="u"/>
+<use href="#c" x="276" y="618" class="u"/>
+<use href="#c" x="300" y="618" class="u"/>
+<use href="#c" x="312" y="618" class="u"/>
+<use href="#c" x="324" y="618" class="u"/>
+<use href="#c" x="336" y="618" class="u"/>
+<use href="#c" x="396" y="618" class="u"/>
+<use href="#c" x="408" y="618" class="u"/>
+<use href="#c" x="420" y="618" class="u"/>
+<use href="#c" x="444" y="618" class="u"/>
+<use href="#c" x="468" y="618" class="u"/>
+<use href="#c" x="480" y="618" class="u"/>
+<use href="#c" x="492" y="618" class="u"/>
+<use href="#c" x="528" y="618" class="u"/>
+<use href="#c" x="540" y="618" class="u"/>
+<use href="#c" x="552" y="618" class="u"/>
+<use href="#c" x="564" y="618" class="u"/>
+<use href="#c" x="600" y="618" class="u"/>
+<use href="#c" x="612" y="618" class="u"/>
+<use href="#c" x="624" y="618" class="u"/>
+<use href="#c" x="672" y="618" class="u"/>
+<use href="#c" x="684" y="618" class="u"/>
+<use href="#c" x="708" y="618" class="u"/>
+<use href="#c" x="744" y="618" class="u"/>
+<use href="#c" x="768" y="618" class="u"/>
+<use href="#c" x="792" y="618" class="u"/>
+<use href="#c" x="804" y="618" class="u"/>
+<use href="#c" x="816" y="618" class="u"/>
+<use href="#c" x="828" y="618" class="u"/>
+<use href="#c" x="840" y="618" class="u"/>
+<use href="#c" x="852" y="618" class="u"/>
+<use href="#c" x="864" y="618" class="u"/>
+<use href="#c" x="888" y="618" class="u"/>
+<use href="#c" x="912" y="618" class="u"/>
+<use href="#c" x="924" y="618" class="u"/>
+<use href="#c" x="960" y="618" class="u"/>
+<use href="#c" x="972" y="618" class="u"/>
+<use href="#c" x="984" y="618" class="u"/>
+<use href="#c" x="1020" y="618" class="u"/>
+<use href="#c" x="1044" y="618" class="u"/>
+<use href="#c" x="1056" y="618" class="u"/>
+<text class="fam" x="24" y="639">inline_asm</text>
+<use href="#c" x="252" y="630" class="u"/>
+<use href="#c" x="264" y="630" class="u"/>
+<use href="#c" x="300" y="630" class="u"/>
+<use href="#c" x="408" y="630" class="u"/>
+<use href="#c" x="420" y="630" class="u"/>
+<use href="#c" x="528" y="630" class="u"/>
+<use href="#c" x="564" y="630" class="u"/>
+<use href="#c" x="600" y="630" class="u"/>
+<use href="#c" x="672" y="630" class="u"/>
+<use href="#c" x="792" y="630" class="u"/>
+<use href="#c" x="816" y="630" class="u"/>
+<use href="#c" x="888" y="630" class="u"/>
+<use href="#c" x="960" y="630" class="u"/>
+<use href="#c" x="1044" y="630" class="u"/>
+<text class="phase" x="16" y="651">RESOURCES</text>
+<text class="famd" x="24" y="663">telemetry</text>
+<rect x="192" y="654" width="11" height="11" fill="#f22c2c"><title>python / telemetry: recall 0.04, precision 1.00 (47 oracle, 2 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="654" class="u"/>
+<use href="#c" x="216" y="654" class="u"/>
+<use href="#c" x="228" y="654" class="u"/>
+<use href="#c" x="240" y="654" class="u"/>
+<use href="#c" x="252" y="654" class="u"/>
+<use href="#c" x="264" y="654" class="u"/>
+<use href="#c" x="276" y="654" class="u"/>
+<use href="#c" x="300" y="654" class="u"/>
+<use href="#c" x="312" y="654" class="u"/>
+<use href="#c" x="324" y="654" class="u"/>
+<use href="#c" x="336" y="654" class="u"/>
+<use href="#c" x="384" y="654" class="u"/>
+<use href="#c" x="396" y="654" class="u"/>
+<use href="#c" x="408" y="654" class="u"/>
+<use href="#c" x="420" y="654" class="u"/>
+<use href="#c" x="444" y="654" class="u"/>
+<use href="#c" x="468" y="654" class="u"/>
+<use href="#c" x="480" y="654" class="u"/>
+<use href="#c" x="492" y="654" class="u"/>
+<use href="#c" x="516" y="654" class="u"/>
+<use href="#c" x="528" y="654" class="u"/>
+<use href="#c" x="540" y="654" class="u"/>
+<use href="#c" x="552" y="654" class="u"/>
+<use href="#c" x="564" y="654" class="u"/>
+<use href="#c" x="588" y="654" class="u"/>
+<use href="#c" x="600" y="654" class="u"/>
+<use href="#c" x="612" y="654" class="u"/>
+<use href="#c" x="624" y="654" class="u"/>
+<use href="#c" x="648" y="654" class="u"/>
+<use href="#c" x="660" y="654" class="u"/>
+<use href="#c" x="672" y="654" class="u"/>
+<use href="#c" x="684" y="654" class="u"/>
+<use href="#c" x="696" y="654" class="u"/>
+<use href="#c" x="708" y="654" class="u"/>
+<use href="#c" x="720" y="654" class="u"/>
+<use href="#c" x="732" y="654" class="u"/>
+<use href="#c" x="744" y="654" class="u"/>
+<use href="#c" x="768" y="654" class="u"/>
+<use href="#c" x="792" y="654" class="u"/>
+<use href="#c" x="804" y="654" class="u"/>
+<use href="#c" x="816" y="654" class="u"/>
+<use href="#c" x="828" y="654" class="u"/>
+<use href="#c" x="840" y="654" class="u"/>
+<use href="#c" x="852" y="654" class="u"/>
+<use href="#c" x="864" y="654" class="u"/>
+<use href="#c" x="888" y="654" class="u"/>
+<use href="#c" x="900" y="654" class="u"/>
+<use href="#c" x="912" y="654" class="u"/>
+<use href="#c" x="924" y="654" class="u"/>
+<use href="#c" x="936" y="654" class="u"/>
+<use href="#c" x="948" y="654" class="u"/>
+<use href="#c" x="960" y="654" class="u"/>
+<use href="#c" x="972" y="654" class="u"/>
+<use href="#c" x="984" y="654" class="u"/>
+<use href="#c" x="996" y="654" class="u"/>
+<use href="#c" x="1020" y="654" class="u"/>
+<use href="#c" x="1032" y="654" class="u"/>
+<use href="#c" x="1044" y="654" class="u"/>
+<text class="famd" x="24" y="675">debug_prints</text>
+<rect x="192" y="666" width="11" height="11" fill="#2c2cf2"><title>python / debug_prints: recall 1.00, precision 1.00 (28 oracle, 28 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="666" width="11" height="11" fill="#2c2cf2"><title>go / debug_prints: recall 1.00, precision 1.00 (40 oracle, 40 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="666" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="666" width="11" height="11" fill="#e4f22c"><title>java / debug_prints: recall 1.00, precision 0.65 (20 oracle, 31 family functions; retrofit (not pinned))</title></rect>
+<rect x="216" y="666" width="11" height="11" fill="url(#hatch)"/>
+<rect x="228" y="666" width="11" height="11" fill="#2cf292"><title>typescript / debug_prints: recall 1.00, precision 0.86 (18 oracle, 21 family functions; vue (not pinned))</title></rect>
+<rect x="228" y="666" width="11" height="11" fill="url(#hatch)"/>
+<rect x="240" y="666" width="11" height="11" fill="#2c2cf2" opacity="0.5"><title>javascript / debug_prints: recall 1.00, precision 1.00 (7 oracle, 7 family functions; express (not pinned))</title></rect>
+<rect x="240" y="666" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="666" width="11" height="11" fill="#2c56f2"><title>rust / debug_prints: recall 1.00, precision 0.98 (54 oracle, 55 family functions; tokio (not pinned))</title></rect>
+<rect x="252" y="666" width="11" height="11" fill="url(#hatch)"/>
+<rect x="264" y="666" width="11" height="11" fill="#2c43f2"><title>c / debug_prints: recall 1.00, precision 0.99 (205 oracle, 207 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="666" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="276" y="666" class="u"/>
+<use href="#c" x="288" y="666" class="u"/>
+<use href="#c" x="300" y="666" class="u"/>
+<use href="#c" x="312" y="666" class="u"/>
+<use href="#c" x="324" y="666" class="u"/>
+<use href="#c" x="336" y="666" class="u"/>
+<use href="#c" x="384" y="666" class="u"/>
+<use href="#c" x="396" y="666" class="u"/>
+<use href="#c" x="408" y="666" class="u"/>
+<use href="#c" x="420" y="666" class="u"/>
+<use href="#c" x="444" y="666" class="u"/>
+<use href="#c" x="468" y="666" class="u"/>
+<use href="#c" x="480" y="666" class="u"/>
+<use href="#c" x="492" y="666" class="u"/>
+<use href="#c" x="516" y="666" class="u"/>
+<use href="#c" x="528" y="666" class="u"/>
+<use href="#c" x="540" y="666" class="u"/>
+<use href="#c" x="552" y="666" class="u"/>
+<use href="#c" x="564" y="666" class="u"/>
+<use href="#c" x="588" y="666" class="u"/>
+<use href="#c" x="600" y="666" class="u"/>
+<use href="#c" x="612" y="666" class="u"/>
+<use href="#c" x="624" y="666" class="u"/>
+<use href="#c" x="648" y="666" class="u"/>
+<use href="#c" x="672" y="666" class="u"/>
+<use href="#c" x="684" y="666" class="u"/>
+<use href="#c" x="696" y="666" class="u"/>
+<use href="#c" x="708" y="666" class="u"/>
+<use href="#c" x="720" y="666" class="u"/>
+<use href="#c" x="732" y="666" class="u"/>
+<use href="#c" x="744" y="666" class="u"/>
+<use href="#c" x="768" y="666" class="u"/>
+<use href="#c" x="792" y="666" class="u"/>
+<use href="#c" x="804" y="666" class="u"/>
+<use href="#c" x="816" y="666" class="u"/>
+<use href="#c" x="828" y="666" class="u"/>
+<use href="#c" x="840" y="666" class="u"/>
+<use href="#c" x="852" y="666" class="u"/>
+<use href="#c" x="864" y="666" class="u"/>
+<use href="#c" x="888" y="666" class="u"/>
+<use href="#c" x="900" y="666" class="u"/>
+<use href="#c" x="912" y="666" class="u"/>
+<use href="#c" x="924" y="666" class="u"/>
+<use href="#c" x="936" y="666" class="u"/>
+<use href="#c" x="948" y="666" class="u"/>
+<use href="#c" x="972" y="666" class="u"/>
+<use href="#c" x="984" y="666" class="u"/>
+<use href="#c" x="996" y="666" class="u"/>
+<use href="#c" x="1020" y="666" class="u"/>
+<use href="#c" x="1032" y="666" class="u"/>
+<use href="#c" x="1044" y="666" class="u"/>
+<use href="#c" x="1056" y="666" class="u"/>
+<text class="fam" x="24" y="687">explicit_casts</text>
+<rect x="192" y="678" width="11" height="11" fill="#2cdbf2"><title>python / explicit_casts: recall 0.97, precision 0.92 (71 oracle, 75 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="678" class="u"/>
+<use href="#c" x="216" y="678" class="u"/>
+<use href="#c" x="228" y="678" class="u"/>
+<use href="#c" x="240" y="678" class="u"/>
+<use href="#c" x="252" y="678" class="u"/>
+<use href="#c" x="264" y="678" class="u"/>
+<use href="#c" x="276" y="678" class="u"/>
+<use href="#c" x="300" y="678" class="u"/>
+<use href="#c" x="324" y="678" class="u"/>
+<use href="#c" x="336" y="678" class="u"/>
+<use href="#c" x="396" y="678" class="u"/>
+<use href="#c" x="408" y="678" class="u"/>
+<use href="#c" x="420" y="678" class="u"/>
+<use href="#c" x="444" y="678" class="u"/>
+<use href="#c" x="468" y="678" class="u"/>
+<use href="#c" x="480" y="678" class="u"/>
+<use href="#c" x="516" y="678" class="u"/>
+<use href="#c" x="528" y="678" class="u"/>
+<use href="#c" x="540" y="678" class="u"/>
+<use href="#c" x="552" y="678" class="u"/>
+<use href="#c" x="564" y="678" class="u"/>
+<use href="#c" x="588" y="678" class="u"/>
+<use href="#c" x="600" y="678" class="u"/>
+<use href="#c" x="612" y="678" class="u"/>
+<use href="#c" x="624" y="678" class="u"/>
+<use href="#c" x="672" y="678" class="u"/>
+<use href="#c" x="684" y="678" class="u"/>
+<use href="#c" x="696" y="678" class="u"/>
+<use href="#c" x="708" y="678" class="u"/>
+<use href="#c" x="744" y="678" class="u"/>
+<use href="#c" x="768" y="678" class="u"/>
+<use href="#c" x="792" y="678" class="u"/>
+<use href="#c" x="804" y="678" class="u"/>
+<use href="#c" x="816" y="678" class="u"/>
+<use href="#c" x="828" y="678" class="u"/>
+<use href="#c" x="840" y="678" class="u"/>
+<use href="#c" x="852" y="678" class="u"/>
+<use href="#c" x="864" y="678" class="u"/>
+<use href="#c" x="888" y="678" class="u"/>
+<use href="#c" x="900" y="678" class="u"/>
+<use href="#c" x="912" y="678" class="u"/>
+<use href="#c" x="924" y="678" class="u"/>
+<use href="#c" x="936" y="678" class="u"/>
+<use href="#c" x="960" y="678" class="u"/>
+<use href="#c" x="972" y="678" class="u"/>
+<use href="#c" x="984" y="678" class="u"/>
+<use href="#c" x="996" y="678" class="u"/>
+<use href="#c" x="1020" y="678" class="u"/>
+<use href="#c" x="1044" y="678" class="u"/>
+<use href="#c" x="1056" y="678" class="u"/>
+<text class="fam" x="24" y="699">panics_and_aborts</text>
+<rect x="192" y="690" width="11" height="11" fill="#2c7cf2"><title>python / panics_and_aborts: recall 1.00, precision 0.96 (55 oracle, 57 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="690" width="11" height="11" fill="#2c5df2"><title>go / panics_and_aborts: recall 1.00, precision 0.98 (229 oracle, 233 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="690" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="690" width="11" height="11" fill="#2c2cf2"><title>java / panics_and_aborts: recall 1.00, precision 1.00 (29 oracle, 29 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="690" width="11" height="11" fill="#2cf283"><title>typescript / panics_and_aborts: recall 1.00, precision 0.85 (39 oracle, 46 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="690" width="11" height="11" fill="#2c2cf2"><title>javascript / panics_and_aborts: recall 1.00, precision 1.00 (38 oracle, 38 family functions; express (not pinned))</title></rect>
+<rect x="240" y="690" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="690" width="11" height="11" fill="#f23a2c"><title>rust / panics_and_aborts: recall 0.26, precision 1.00 (23 oracle, 6 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="264" y="690" width="11" height="11" fill="#f2832c"><title>c / panics_and_aborts: recall 0.98, precision 0.48 (125 oracle, 257 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="690" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="276" y="690" class="u"/>
+<use href="#c" x="288" y="690" class="u"/>
+<use href="#c" x="300" y="690" class="u"/>
+<use href="#c" x="312" y="690" class="u"/>
+<use href="#c" x="324" y="690" class="u"/>
+<use href="#c" x="336" y="690" class="u"/>
+<use href="#c" x="384" y="690" class="u"/>
+<use href="#c" x="396" y="690" class="u"/>
+<use href="#c" x="408" y="690" class="u"/>
+<use href="#c" x="420" y="690" class="u"/>
+<use href="#c" x="444" y="690" class="u"/>
+<use href="#c" x="456" y="690" class="u"/>
+<use href="#c" x="468" y="690" class="u"/>
+<use href="#c" x="480" y="690" class="u"/>
+<use href="#c" x="492" y="690" class="u"/>
+<use href="#c" x="504" y="690" class="u"/>
+<use href="#c" x="516" y="690" class="u"/>
+<use href="#c" x="528" y="690" class="u"/>
+<use href="#c" x="540" y="690" class="u"/>
+<use href="#c" x="552" y="690" class="u"/>
+<use href="#c" x="564" y="690" class="u"/>
+<use href="#c" x="588" y="690" class="u"/>
+<use href="#c" x="600" y="690" class="u"/>
+<use href="#c" x="612" y="690" class="u"/>
+<use href="#c" x="624" y="690" class="u"/>
+<use href="#c" x="648" y="690" class="u"/>
+<use href="#c" x="672" y="690" class="u"/>
+<use href="#c" x="684" y="690" class="u"/>
+<use href="#c" x="696" y="690" class="u"/>
+<use href="#c" x="708" y="690" class="u"/>
+<use href="#c" x="720" y="690" class="u"/>
+<use href="#c" x="732" y="690" class="u"/>
+<use href="#c" x="744" y="690" class="u"/>
+<use href="#c" x="768" y="690" class="u"/>
+<use href="#c" x="792" y="690" class="u"/>
+<use href="#c" x="804" y="690" class="u"/>
+<use href="#c" x="816" y="690" class="u"/>
+<use href="#c" x="828" y="690" class="u"/>
+<use href="#c" x="840" y="690" class="u"/>
+<use href="#c" x="852" y="690" class="u"/>
+<use href="#c" x="864" y="690" class="u"/>
+<use href="#c" x="888" y="690" class="u"/>
+<use href="#c" x="900" y="690" class="u"/>
+<use href="#c" x="912" y="690" class="u"/>
+<use href="#c" x="924" y="690" class="u"/>
+<use href="#c" x="936" y="690" class="u"/>
+<use href="#c" x="948" y="690" class="u"/>
+<use href="#c" x="960" y="690" class="u"/>
+<use href="#c" x="972" y="690" class="u"/>
+<use href="#c" x="984" y="690" class="u"/>
+<use href="#c" x="996" y="690" class="u"/>
+<use href="#c" x="1020" y="690" class="u"/>
+<use href="#c" x="1032" y="690" class="u"/>
+<use href="#c" x="1044" y="690" class="u"/>
+<use href="#c" x="1056" y="690" class="u"/>
+<text class="fam" x="24" y="711">thread_sleeps</text>
+<rect x="192" y="702" width="11" height="11" fill="#2c2cf2" opacity="0.5"><title>python / thread_sleeps: recall 1.00, precision 1.00 (9 oracle, 9 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="702" width="11" height="11" fill="#2cf2d2"><title>go / thread_sleeps: recall 0.89, precision 0.99 (167 oracle, 150 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="702" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="702" width="11" height="11" fill="#2c2cf2" opacity="0.5"><title>java / thread_sleeps: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="702" width="11" height="11" fill="#2cbdf2"><title>typescript / thread_sleeps: recall 0.98, precision 0.94 (59 oracle, 62 family functions; vue (not pinned))</title></rect>
+<rect x="228" y="702" width="11" height="11" fill="url(#hatch)"/>
+<rect x="240" y="702" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>javascript / thread_sleeps: recall 0.00, precision - (2 oracle, 0 family functions; express (not pinned))</title></rect>
+<rect x="240" y="702" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="702" width="11" height="11" fill="#f2512c"><title>rust / thread_sleeps: recall 0.36, precision 0.84 (114 oracle, 49 family functions; tokio (not pinned))</title></rect>
+<rect x="252" y="702" width="11" height="11" fill="url(#hatch)"/>
+<rect x="264" y="702" width="11" height="11" fill="#2c2cf2"><title>c / thread_sleeps: recall 1.00, precision 1.00 (33 oracle, 33 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="702" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="276" y="702" class="u"/>
+<use href="#c" x="288" y="702" class="u"/>
+<use href="#c" x="300" y="702" class="u"/>
+<use href="#c" x="312" y="702" class="u"/>
+<use href="#c" x="336" y="702" class="u"/>
+<use href="#c" x="396" y="702" class="u"/>
+<use href="#c" x="408" y="702" class="u"/>
+<use href="#c" x="420" y="702" class="u"/>
+<use href="#c" x="444" y="702" class="u"/>
+<use href="#c" x="456" y="702" class="u"/>
+<use href="#c" x="468" y="702" class="u"/>
+<use href="#c" x="480" y="702" class="u"/>
+<use href="#c" x="492" y="702" class="u"/>
+<use href="#c" x="516" y="702" class="u"/>
+<use href="#c" x="528" y="702" class="u"/>
+<use href="#c" x="540" y="702" class="u"/>
+<use href="#c" x="552" y="702" class="u"/>
+<use href="#c" x="564" y="702" class="u"/>
+<use href="#c" x="588" y="702" class="u"/>
+<use href="#c" x="600" y="702" class="u"/>
+<use href="#c" x="612" y="702" class="u"/>
+<use href="#c" x="624" y="702" class="u"/>
+<use href="#c" x="648" y="702" class="u"/>
+<use href="#c" x="672" y="702" class="u"/>
+<use href="#c" x="684" y="702" class="u"/>
+<use href="#c" x="696" y="702" class="u"/>
+<use href="#c" x="708" y="702" class="u"/>
+<use href="#c" x="720" y="702" class="u"/>
+<use href="#c" x="732" y="702" class="u"/>
+<use href="#c" x="744" y="702" class="u"/>
+<use href="#c" x="768" y="702" class="u"/>
+<use href="#c" x="792" y="702" class="u"/>
+<use href="#c" x="804" y="702" class="u"/>
+<use href="#c" x="816" y="702" class="u"/>
+<use href="#c" x="828" y="702" class="u"/>
+<use href="#c" x="840" y="702" class="u"/>
+<use href="#c" x="852" y="702" class="u"/>
+<use href="#c" x="864" y="702" class="u"/>
+<use href="#c" x="888" y="702" class="u"/>
+<use href="#c" x="900" y="702" class="u"/>
+<use href="#c" x="912" y="702" class="u"/>
+<use href="#c" x="924" y="702" class="u"/>
+<use href="#c" x="936" y="702" class="u"/>
+<use href="#c" x="948" y="702" class="u"/>
+<use href="#c" x="972" y="702" class="u"/>
+<use href="#c" x="984" y="702" class="u"/>
+<use href="#c" x="996" y="702" class="u"/>
+<use href="#c" x="1032" y="702" class="u"/>
+<use href="#c" x="1044" y="702" class="u"/>
+<text class="fam" x="24" y="723">bitwise_ops</text>
+<rect x="192" y="714" width="11" height="11" fill="#f2302c"><title>python / bitwise_ops: recall 0.17, precision 0.70 (110 oracle, 27 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="714" width="11" height="11" fill="#f2dd2c"><title>go / bitwise_ops: recall 0.61, precision 0.74 (140 oracle, 115 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="714" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="714" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>java / bitwise_ops: recall 0.00, precision 0.00 (9 oracle, 18 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="714" width="11" height="11" fill="#f22c2c"><title>typescript / bitwise_ops: recall 0.07, precision 0.85 (1284 oracle, 107 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="714" width="11" height="11" fill="#cdf22c" opacity="0.5"><title>javascript / bitwise_ops: recall 1.00, precision 0.67 (2 oracle, 3 family functions; express (not pinned))</title></rect>
+<rect x="240" y="714" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="714" width="11" height="11" fill="#f2b62c"><title>rust / bitwise_ops: recall 0.56, precision 0.59 (34 oracle, 32 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="264" y="714" width="11" height="11" fill="#f27b2c"><title>c / bitwise_ops: recall 0.46, precision 0.88 (1129 oracle, 597 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="714" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="276" y="714" class="u"/>
+<use href="#c" x="288" y="714" class="u"/>
+<use href="#c" x="300" y="714" class="u"/>
+<use href="#c" x="312" y="714" class="u"/>
+<use href="#c" x="324" y="714" class="u"/>
+<use href="#c" x="336" y="714" class="u"/>
+<use href="#c" x="396" y="714" class="u"/>
+<use href="#c" x="408" y="714" class="u"/>
+<use href="#c" x="420" y="714" class="u"/>
+<use href="#c" x="444" y="714" class="u"/>
+<use href="#c" x="468" y="714" class="u"/>
+<use href="#c" x="480" y="714" class="u"/>
+<use href="#c" x="516" y="714" class="u"/>
+<use href="#c" x="528" y="714" class="u"/>
+<use href="#c" x="540" y="714" class="u"/>
+<use href="#c" x="552" y="714" class="u"/>
+<use href="#c" x="564" y="714" class="u"/>
+<use href="#c" x="588" y="714" class="u"/>
+<use href="#c" x="600" y="714" class="u"/>
+<use href="#c" x="624" y="714" class="u"/>
+<use href="#c" x="672" y="714" class="u"/>
+<use href="#c" x="684" y="714" class="u"/>
+<use href="#c" x="696" y="714" class="u"/>
+<use href="#c" x="708" y="714" class="u"/>
+<use href="#c" x="744" y="714" class="u"/>
+<use href="#c" x="768" y="714" class="u"/>
+<use href="#c" x="792" y="714" class="u"/>
+<use href="#c" x="804" y="714" class="u"/>
+<use href="#c" x="816" y="714" class="u"/>
+<use href="#c" x="828" y="714" class="u"/>
+<use href="#c" x="840" y="714" class="u"/>
+<use href="#c" x="852" y="714" class="u"/>
+<use href="#c" x="864" y="714" class="u"/>
+<use href="#c" x="888" y="714" class="u"/>
+<use href="#c" x="900" y="714" class="u"/>
+<use href="#c" x="912" y="714" class="u"/>
+<use href="#c" x="924" y="714" class="u"/>
+<use href="#c" x="936" y="714" class="u"/>
+<use href="#c" x="960" y="714" class="u"/>
+<use href="#c" x="972" y="714" class="u"/>
+<use href="#c" x="984" y="714" class="u"/>
+<use href="#c" x="996" y="714" class="u"/>
+<use href="#c" x="1020" y="714" class="u"/>
+<use href="#c" x="1044" y="714" class="u"/>
+<use href="#c" x="1056" y="714" class="u"/>
+<text class="famd" x="24" y="735">sync_locks</text>
+<rect x="192" y="726" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>python / sync_locks: recall -, precision 0.00 (0 oracle, 4 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="726" class="u"/>
+<use href="#c" x="216" y="726" class="u"/>
+<use href="#c" x="228" y="726" class="u"/>
+<use href="#c" x="240" y="726" class="u"/>
+<use href="#c" x="252" y="726" class="u"/>
+<use href="#c" x="264" y="726" class="u"/>
+<use href="#c" x="276" y="726" class="u"/>
+<use href="#c" x="300" y="726" class="u"/>
+<use href="#c" x="312" y="726" class="u"/>
+<use href="#c" x="324" y="726" class="u"/>
+<use href="#c" x="336" y="726" class="u"/>
+<use href="#c" x="396" y="726" class="u"/>
+<use href="#c" x="408" y="726" class="u"/>
+<use href="#c" x="420" y="726" class="u"/>
+<use href="#c" x="444" y="726" class="u"/>
+<use href="#c" x="468" y="726" class="u"/>
+<use href="#c" x="480" y="726" class="u"/>
+<use href="#c" x="492" y="726" class="u"/>
+<use href="#c" x="516" y="726" class="u"/>
+<use href="#c" x="528" y="726" class="u"/>
+<use href="#c" x="540" y="726" class="u"/>
+<use href="#c" x="552" y="726" class="u"/>
+<use href="#c" x="564" y="726" class="u"/>
+<use href="#c" x="588" y="726" class="u"/>
+<use href="#c" x="600" y="726" class="u"/>
+<use href="#c" x="612" y="726" class="u"/>
+<use href="#c" x="624" y="726" class="u"/>
+<use href="#c" x="660" y="726" class="u"/>
+<use href="#c" x="672" y="726" class="u"/>
+<use href="#c" x="684" y="726" class="u"/>
+<use href="#c" x="696" y="726" class="u"/>
+<use href="#c" x="708" y="726" class="u"/>
+<use href="#c" x="732" y="726" class="u"/>
+<use href="#c" x="744" y="726" class="u"/>
+<use href="#c" x="768" y="726" class="u"/>
+<use href="#c" x="792" y="726" class="u"/>
+<use href="#c" x="804" y="726" class="u"/>
+<use href="#c" x="816" y="726" class="u"/>
+<use href="#c" x="828" y="726" class="u"/>
+<use href="#c" x="840" y="726" class="u"/>
+<use href="#c" x="852" y="726" class="u"/>
+<use href="#c" x="864" y="726" class="u"/>
+<use href="#c" x="888" y="726" class="u"/>
+<use href="#c" x="912" y="726" class="u"/>
+<use href="#c" x="924" y="726" class="u"/>
+<use href="#c" x="936" y="726" class="u"/>
+<use href="#c" x="948" y="726" class="u"/>
+<use href="#c" x="960" y="726" class="u"/>
+<use href="#c" x="972" y="726" class="u"/>
+<use href="#c" x="984" y="726" class="u"/>
+<use href="#c" x="996" y="726" class="u"/>
+<use href="#c" x="1044" y="726" class="u"/>
+<text class="fam" x="24" y="747">immutability_locks</text>
+<use href="#c" x="192" y="738" class="u"/>
+<use href="#c" x="204" y="738" class="u"/>
+<use href="#c" x="216" y="738" class="u"/>
+<use href="#c" x="228" y="738" class="u"/>
+<use href="#c" x="240" y="738" class="u"/>
+<use href="#c" x="252" y="738" class="u"/>
+<use href="#c" x="264" y="738" class="u"/>
+<use href="#c" x="276" y="738" class="u"/>
+<use href="#c" x="300" y="738" class="u"/>
+<use href="#c" x="312" y="738" class="u"/>
+<use href="#c" x="324" y="738" class="u"/>
+<use href="#c" x="336" y="738" class="u"/>
+<use href="#c" x="396" y="738" class="u"/>
+<use href="#c" x="408" y="738" class="u"/>
+<use href="#c" x="420" y="738" class="u"/>
+<use href="#c" x="444" y="738" class="u"/>
+<use href="#c" x="456" y="738" class="u"/>
+<use href="#c" x="468" y="738" class="u"/>
+<use href="#c" x="480" y="738" class="u"/>
+<use href="#c" x="492" y="738" class="u"/>
+<use href="#c" x="516" y="738" class="u"/>
+<use href="#c" x="528" y="738" class="u"/>
+<use href="#c" x="540" y="738" class="u"/>
+<use href="#c" x="552" y="738" class="u"/>
+<use href="#c" x="564" y="738" class="u"/>
+<use href="#c" x="588" y="738" class="u"/>
+<use href="#c" x="612" y="738" class="u"/>
+<use href="#c" x="624" y="738" class="u"/>
+<use href="#c" x="648" y="738" class="u"/>
+<use href="#c" x="672" y="738" class="u"/>
+<use href="#c" x="684" y="738" class="u"/>
+<use href="#c" x="696" y="738" class="u"/>
+<use href="#c" x="708" y="738" class="u"/>
+<use href="#c" x="732" y="738" class="u"/>
+<use href="#c" x="744" y="738" class="u"/>
+<use href="#c" x="768" y="738" class="u"/>
+<use href="#c" x="792" y="738" class="u"/>
+<use href="#c" x="804" y="738" class="u"/>
+<use href="#c" x="816" y="738" class="u"/>
+<use href="#c" x="828" y="738" class="u"/>
+<use href="#c" x="840" y="738" class="u"/>
+<use href="#c" x="852" y="738" class="u"/>
+<use href="#c" x="864" y="738" class="u"/>
+<use href="#c" x="888" y="738" class="u"/>
+<use href="#c" x="900" y="738" class="u"/>
+<use href="#c" x="912" y="738" class="u"/>
+<use href="#c" x="924" y="738" class="u"/>
+<use href="#c" x="936" y="738" class="u"/>
+<use href="#c" x="948" y="738" class="u"/>
+<use href="#c" x="960" y="738" class="u"/>
+<use href="#c" x="972" y="738" class="u"/>
+<use href="#c" x="996" y="738" class="u"/>
+<use href="#c" x="1020" y="738" class="u"/>
+<use href="#c" x="1032" y="738" class="u"/>
+<use href="#c" x="1056" y="738" class="u"/>
+<text class="fam" x="24" y="759">cleanup</text>
+<rect x="192" y="750" width="11" height="11" fill="#f22e2c"><title>python / cleanup: recall 0.15, precision 0.90 (59 oracle, 10 family functions; language-crucible v1.7.0)</title></rect>
+<use href="#c" x="204" y="750" class="u"/>
+<use href="#c" x="216" y="750" class="u"/>
+<use href="#c" x="228" y="750" class="u"/>
+<use href="#c" x="240" y="750" class="u"/>
+<use href="#c" x="252" y="750" class="u"/>
+<use href="#c" x="264" y="750" class="u"/>
+<use href="#c" x="276" y="750" class="u"/>
+<use href="#c" x="288" y="750" class="u"/>
+<use href="#c" x="300" y="750" class="u"/>
+<use href="#c" x="312" y="750" class="u"/>
+<use href="#c" x="324" y="750" class="u"/>
+<use href="#c" x="336" y="750" class="u"/>
+<use href="#c" x="384" y="750" class="u"/>
+<use href="#c" x="396" y="750" class="u"/>
+<use href="#c" x="408" y="750" class="u"/>
+<use href="#c" x="420" y="750" class="u"/>
+<use href="#c" x="444" y="750" class="u"/>
+<use href="#c" x="468" y="750" class="u"/>
+<use href="#c" x="480" y="750" class="u"/>
+<use href="#c" x="492" y="750" class="u"/>
+<use href="#c" x="516" y="750" class="u"/>
+<use href="#c" x="528" y="750" class="u"/>
+<use href="#c" x="540" y="750" class="u"/>
+<use href="#c" x="552" y="750" class="u"/>
+<use href="#c" x="564" y="750" class="u"/>
+<use href="#c" x="588" y="750" class="u"/>
+<use href="#c" x="600" y="750" class="u"/>
+<use href="#c" x="612" y="750" class="u"/>
+<use href="#c" x="624" y="750" class="u"/>
+<use href="#c" x="648" y="750" class="u"/>
+<use href="#c" x="660" y="750" class="u"/>
+<use href="#c" x="672" y="750" class="u"/>
+<use href="#c" x="684" y="750" class="u"/>
+<use href="#c" x="696" y="750" class="u"/>
+<use href="#c" x="708" y="750" class="u"/>
+<use href="#c" x="720" y="750" class="u"/>
+<use href="#c" x="732" y="750" class="u"/>
+<use href="#c" x="744" y="750" class="u"/>
+<use href="#c" x="768" y="750" class="u"/>
+<use href="#c" x="792" y="750" class="u"/>
+<use href="#c" x="804" y="750" class="u"/>
+<use href="#c" x="816" y="750" class="u"/>
+<use href="#c" x="828" y="750" class="u"/>
+<use href="#c" x="840" y="750" class="u"/>
+<use href="#c" x="852" y="750" class="u"/>
+<use href="#c" x="864" y="750" class="u"/>
+<use href="#c" x="888" y="750" class="u"/>
+<use href="#c" x="900" y="750" class="u"/>
+<use href="#c" x="912" y="750" class="u"/>
+<use href="#c" x="924" y="750" class="u"/>
+<use href="#c" x="936" y="750" class="u"/>
+<use href="#c" x="948" y="750" class="u"/>
+<use href="#c" x="960" y="750" class="u"/>
+<use href="#c" x="972" y="750" class="u"/>
+<use href="#c" x="984" y="750" class="u"/>
+<use href="#c" x="996" y="750" class="u"/>
+<use href="#c" x="1020" y="750" class="u"/>
+<use href="#c" x="1032" y="750" class="u"/>
+<use href="#c" x="1044" y="750" class="u"/>
+<use href="#c" x="1056" y="750" class="u"/>
+<text class="fam" x="24" y="771">encapsulation</text>
+<use href="#c" x="192" y="762" class="u"/>
+<use href="#c" x="204" y="762" class="u"/>
+<use href="#c" x="216" y="762" class="u"/>
+<use href="#c" x="228" y="762" class="u"/>
+<use href="#c" x="240" y="762" class="u"/>
+<use href="#c" x="252" y="762" class="u"/>
+<use href="#c" x="264" y="762" class="u"/>
+<use href="#c" x="276" y="762" class="u"/>
+<use href="#c" x="300" y="762" class="u"/>
+<use href="#c" x="324" y="762" class="u"/>
+<use href="#c" x="336" y="762" class="u"/>
+<use href="#c" x="396" y="762" class="u"/>
+<use href="#c" x="408" y="762" class="u"/>
+<use href="#c" x="420" y="762" class="u"/>
+<use href="#c" x="444" y="762" class="u"/>
+<use href="#c" x="468" y="762" class="u"/>
+<use href="#c" x="480" y="762" class="u"/>
+<use href="#c" x="516" y="762" class="u"/>
+<use href="#c" x="528" y="762" class="u"/>
+<use href="#c" x="540" y="762" class="u"/>
+<use href="#c" x="552" y="762" class="u"/>
+<use href="#c" x="564" y="762" class="u"/>
+<use href="#c" x="588" y="762" class="u"/>
+<use href="#c" x="600" y="762" class="u"/>
+<use href="#c" x="612" y="762" class="u"/>
+<use href="#c" x="672" y="762" class="u"/>
+<use href="#c" x="684" y="762" class="u"/>
+<use href="#c" x="696" y="762" class="u"/>
+<use href="#c" x="732" y="762" class="u"/>
+<use href="#c" x="744" y="762" class="u"/>
+<use href="#c" x="768" y="762" class="u"/>
+<use href="#c" x="792" y="762" class="u"/>
+<use href="#c" x="804" y="762" class="u"/>
+<use href="#c" x="828" y="762" class="u"/>
+<use href="#c" x="840" y="762" class="u"/>
+<use href="#c" x="852" y="762" class="u"/>
+<use href="#c" x="864" y="762" class="u"/>
+<use href="#c" x="888" y="762" class="u"/>
+<use href="#c" x="900" y="762" class="u"/>
+<use href="#c" x="912" y="762" class="u"/>
+<use href="#c" x="924" y="762" class="u"/>
+<use href="#c" x="936" y="762" class="u"/>
+<use href="#c" x="960" y="762" class="u"/>
+<use href="#c" x="972" y="762" class="u"/>
+<use href="#c" x="984" y="762" class="u"/>
+<use href="#c" x="1020" y="762" class="u"/>
+<use href="#c" x="1056" y="762" class="u"/>
+<text class="fam" x="24" y="783">listeners</text>
+<use href="#c" x="192" y="774" class="u"/>
+<use href="#c" x="204" y="774" class="u"/>
+<use href="#c" x="216" y="774" class="u"/>
+<use href="#c" x="228" y="774" class="u"/>
+<use href="#c" x="240" y="774" class="u"/>
+<use href="#c" x="252" y="774" class="u"/>
+<use href="#c" x="264" y="774" class="u"/>
+<use href="#c" x="276" y="774" class="u"/>
+<use href="#c" x="288" y="774" class="u"/>
+<use href="#c" x="300" y="774" class="u"/>
+<use href="#c" x="312" y="774" class="u"/>
+<use href="#c" x="324" y="774" class="u"/>
+<use href="#c" x="396" y="774" class="u"/>
+<use href="#c" x="408" y="774" class="u"/>
+<use href="#c" x="420" y="774" class="u"/>
+<use href="#c" x="444" y="774" class="u"/>
+<use href="#c" x="456" y="774" class="u"/>
+<use href="#c" x="468" y="774" class="u"/>
+<use href="#c" x="480" y="774" class="u"/>
+<use href="#c" x="492" y="774" class="u"/>
+<use href="#c" x="516" y="774" class="u"/>
+<use href="#c" x="528" y="774" class="u"/>
+<use href="#c" x="540" y="774" class="u"/>
+<use href="#c" x="564" y="774" class="u"/>
+<use href="#c" x="588" y="774" class="u"/>
+<use href="#c" x="600" y="774" class="u"/>
+<use href="#c" x="612" y="774" class="u"/>
+<use href="#c" x="624" y="774" class="u"/>
+<use href="#c" x="648" y="774" class="u"/>
+<use href="#c" x="672" y="774" class="u"/>
+<use href="#c" x="684" y="774" class="u"/>
+<use href="#c" x="696" y="774" class="u"/>
+<use href="#c" x="708" y="774" class="u"/>
+<use href="#c" x="732" y="774" class="u"/>
+<use href="#c" x="744" y="774" class="u"/>
+<use href="#c" x="768" y="774" class="u"/>
+<use href="#c" x="792" y="774" class="u"/>
+<use href="#c" x="804" y="774" class="u"/>
+<use href="#c" x="816" y="774" class="u"/>
+<use href="#c" x="828" y="774" class="u"/>
+<use href="#c" x="840" y="774" class="u"/>
+<use href="#c" x="852" y="774" class="u"/>
+<use href="#c" x="864" y="774" class="u"/>
+<use href="#c" x="888" y="774" class="u"/>
+<use href="#c" x="912" y="774" class="u"/>
+<use href="#c" x="924" y="774" class="u"/>
+<use href="#c" x="936" y="774" class="u"/>
+<use href="#c" x="948" y="774" class="u"/>
+<use href="#c" x="972" y="774" class="u"/>
+<use href="#c" x="984" y="774" class="u"/>
+<use href="#c" x="996" y="774" class="u"/>
+<use href="#c" x="1032" y="774" class="u"/>
+<use href="#c" x="1056" y="774" class="u"/>
+<text class="fam" x="24" y="795">test_skip</text>
+<use href="#c" x="192" y="786" class="u"/>
+<use href="#c" x="204" y="786" class="u"/>
+<use href="#c" x="216" y="786" class="u"/>
+<use href="#c" x="228" y="786" class="u"/>
+<use href="#c" x="240" y="786" class="u"/>
+<use href="#c" x="252" y="786" class="u"/>
+<use href="#c" x="264" y="786" class="u"/>
+<use href="#c" x="276" y="786" class="u"/>
+<use href="#c" x="300" y="786" class="u"/>
+<use href="#c" x="324" y="786" class="u"/>
+<use href="#c" x="396" y="786" class="u"/>
+<use href="#c" x="408" y="786" class="u"/>
+<use href="#c" x="420" y="786" class="u"/>
+<use href="#c" x="444" y="786" class="u"/>
+<use href="#c" x="456" y="786" class="u"/>
+<use href="#c" x="468" y="786" class="u"/>
+<use href="#c" x="492" y="786" class="u"/>
+<use href="#c" x="516" y="786" class="u"/>
+<use href="#c" x="528" y="786" class="u"/>
+<use href="#c" x="540" y="786" class="u"/>
+<use href="#c" x="564" y="786" class="u"/>
+<use href="#c" x="588" y="786" class="u"/>
+<use href="#c" x="600" y="786" class="u"/>
+<use href="#c" x="612" y="786" class="u"/>
+<use href="#c" x="648" y="786" class="u"/>
+<use href="#c" x="672" y="786" class="u"/>
+<use href="#c" x="684" y="786" class="u"/>
+<use href="#c" x="696" y="786" class="u"/>
+<use href="#c" x="708" y="786" class="u"/>
+<use href="#c" x="720" y="786" class="u"/>
+<use href="#c" x="732" y="786" class="u"/>
+<use href="#c" x="744" y="786" class="u"/>
+<use href="#c" x="768" y="786" class="u"/>
+<use href="#c" x="792" y="786" class="u"/>
+<use href="#c" x="804" y="786" class="u"/>
+<use href="#c" x="816" y="786" class="u"/>
+<use href="#c" x="828" y="786" class="u"/>
+<use href="#c" x="864" y="786" class="u"/>
+<use href="#c" x="888" y="786" class="u"/>
+<use href="#c" x="912" y="786" class="u"/>
+<use href="#c" x="924" y="786" class="u"/>
+<use href="#c" x="936" y="786" class="u"/>
+<use href="#c" x="948" y="786" class="u"/>
+<use href="#c" x="972" y="786" class="u"/>
+<use href="#c" x="984" y="786" class="u"/>
+<use href="#c" x="996" y="786" class="u"/>
+<use href="#c" x="1032" y="786" class="u"/>
+<use href="#c" x="1044" y="786" class="u"/>
+<text class="phase" x="16" y="807">HYBRID</text>
+<text class="fam" x="24" y="819">auth_middleware</text>
+<use href="#c" x="192" y="810" class="u"/>
+<use href="#c" x="204" y="810" class="u"/>
+<use href="#c" x="216" y="810" class="u"/>
+<use href="#c" x="228" y="810" class="u"/>
+<use href="#c" x="240" y="810" class="u"/>
+<use href="#c" x="252" y="810" class="u"/>
+<use href="#c" x="264" y="810" class="u"/>
+<use href="#c" x="396" y="810" class="u"/>
+<use href="#c" x="408" y="810" class="u"/>
+<use href="#c" x="420" y="810" class="u"/>
+<use href="#c" x="444" y="810" class="u"/>
+<use href="#c" x="468" y="810" class="u"/>
+<use href="#c" x="480" y="810" class="u"/>
+<use href="#c" x="516" y="810" class="u"/>
+<use href="#c" x="540" y="810" class="u"/>
+<use href="#c" x="564" y="810" class="u"/>
+<use href="#c" x="600" y="810" class="u"/>
+<use href="#c" x="612" y="810" class="u"/>
+<use href="#c" x="624" y="810" class="u"/>
+<use href="#c" x="672" y="810" class="u"/>
+<use href="#c" x="684" y="810" class="u"/>
+<use href="#c" x="768" y="810" class="u"/>
+<use href="#c" x="792" y="810" class="u"/>
+<use href="#c" x="804" y="810" class="u"/>
+<use href="#c" x="816" y="810" class="u"/>
+<use href="#c" x="828" y="810" class="u"/>
+<use href="#c" x="840" y="810" class="u"/>
+<use href="#c" x="852" y="810" class="u"/>
+<use href="#c" x="864" y="810" class="u"/>
+<use href="#c" x="888" y="810" class="u"/>
+<use href="#c" x="912" y="810" class="u"/>
+<use href="#c" x="924" y="810" class="u"/>
+<use href="#c" x="948" y="810" class="u"/>
+<use href="#c" x="960" y="810" class="u"/>
+<use href="#c" x="984" y="810" class="u"/>
+<use href="#c" x="1044" y="810" class="u"/>
+<text class="fam" x="24" y="831">serialization_parsing</text>
+<rect x="192" y="822" width="11" height="11" fill="#f22c2c"><title>python / serialization_parsing: recall 0.00, precision - (699 oracle, 0 family functions; GitGalaxy engine code (not pinned))</title></rect>
+<rect x="192" y="822" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="204" y="822" class="u"/>
+<use href="#c" x="216" y="822" class="u"/>
+<use href="#c" x="228" y="822" class="u"/>
+<use href="#c" x="240" y="822" class="u"/>
+<use href="#c" x="252" y="822" class="u"/>
+<use href="#c" x="264" y="822" class="u"/>
+<use href="#c" x="300" y="822" class="u"/>
+<use href="#c" x="396" y="822" class="u"/>
+<use href="#c" x="408" y="822" class="u"/>
+<use href="#c" x="420" y="822" class="u"/>
+<use href="#c" x="444" y="822" class="u"/>
+<use href="#c" x="468" y="822" class="u"/>
+<use href="#c" x="480" y="822" class="u"/>
+<use href="#c" x="492" y="822" class="u"/>
+<use href="#c" x="516" y="822" class="u"/>
+<use href="#c" x="528" y="822" class="u"/>
+<use href="#c" x="540" y="822" class="u"/>
+<use href="#c" x="552" y="822" class="u"/>
+<use href="#c" x="564" y="822" class="u"/>
+<use href="#c" x="600" y="822" class="u"/>
+<use href="#c" x="612" y="822" class="u"/>
+<use href="#c" x="624" y="822" class="u"/>
+<use href="#c" x="672" y="822" class="u"/>
+<use href="#c" x="684" y="822" class="u"/>
+<use href="#c" x="696" y="822" class="u"/>
+<use href="#c" x="708" y="822" class="u"/>
+<use href="#c" x="732" y="822" class="u"/>
+<use href="#c" x="744" y="822" class="u"/>
+<use href="#c" x="768" y="822" class="u"/>
+<use href="#c" x="792" y="822" class="u"/>
+<use href="#c" x="804" y="822" class="u"/>
+<use href="#c" x="816" y="822" class="u"/>
+<use href="#c" x="828" y="822" class="u"/>
+<use href="#c" x="840" y="822" class="u"/>
+<use href="#c" x="852" y="822" class="u"/>
+<use href="#c" x="864" y="822" class="u"/>
+<use href="#c" x="888" y="822" class="u"/>
+<use href="#c" x="912" y="822" class="u"/>
+<use href="#c" x="924" y="822" class="u"/>
+<use href="#c" x="948" y="822" class="u"/>
+<use href="#c" x="960" y="822" class="u"/>
+<use href="#c" x="972" y="822" class="u"/>
+<use href="#c" x="984" y="822" class="u"/>
+<use href="#c" x="1044" y="822" class="u"/>
+<text class="fam" x="24" y="843">regex_execution</text>
+<rect x="192" y="834" width="11" height="11" fill="#43f22c"><title>python / regex_execution: recall 0.78, precision 1.00 (18 oracle, 14 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="834" width="11" height="11" fill="#f2b82c"><title>go / regex_execution: recall 0.89, precision 0.56 (26 oracle, 41 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="834" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="834" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>java / regex_execution: recall -, precision 0.00 (0 oracle, 1 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="228" y="834" width="11" height="11" fill="#7bf22c"><title>typescript / regex_execution: recall 0.74, precision 0.88 (19 oracle, 16 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="834" width="11" height="11" fill="#f2382c" opacity="0.5"><title>javascript / regex_execution: recall 1.00, precision 0.25 (3 oracle, 12 family functions; express (not pinned))</title></rect>
+<rect x="240" y="834" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="834" width="11" height="11" fill="#4d5260"><title>rust / regex_execution: scored, but the oracle sees no instance in language-crucible v1.7.0</title></rect>
+<rect x="252" y="834" width="11" height="11" fill="url(#dots)"/>
+<rect x="264" y="834" width="11" height="11" fill="#2c2cf2" opacity="0.5"><title>c / regex_execution: recall 1.00, precision 1.00 (1 oracle, 1 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="834" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="300" y="834" class="u"/>
+<use href="#c" x="336" y="834" class="u"/>
+<use href="#c" x="396" y="834" class="u"/>
+<use href="#c" x="408" y="834" class="u"/>
+<use href="#c" x="420" y="834" class="u"/>
+<use href="#c" x="444" y="834" class="u"/>
+<use href="#c" x="468" y="834" class="u"/>
+<use href="#c" x="480" y="834" class="u"/>
+<use href="#c" x="492" y="834" class="u"/>
+<use href="#c" x="516" y="834" class="u"/>
+<use href="#c" x="528" y="834" class="u"/>
+<use href="#c" x="540" y="834" class="u"/>
+<use href="#c" x="564" y="834" class="u"/>
+<use href="#c" x="600" y="834" class="u"/>
+<use href="#c" x="612" y="834" class="u"/>
+<use href="#c" x="672" y="834" class="u"/>
+<use href="#c" x="684" y="834" class="u"/>
+<use href="#c" x="696" y="834" class="u"/>
+<use href="#c" x="708" y="834" class="u"/>
+<use href="#c" x="732" y="834" class="u"/>
+<use href="#c" x="744" y="834" class="u"/>
+<use href="#c" x="768" y="834" class="u"/>
+<use href="#c" x="792" y="834" class="u"/>
+<use href="#c" x="804" y="834" class="u"/>
+<use href="#c" x="816" y="834" class="u"/>
+<use href="#c" x="828" y="834" class="u"/>
+<use href="#c" x="852" y="834" class="u"/>
+<use href="#c" x="864" y="834" class="u"/>
+<use href="#c" x="888" y="834" class="u"/>
+<use href="#c" x="912" y="834" class="u"/>
+<use href="#c" x="924" y="834" class="u"/>
+<use href="#c" x="948" y="834" class="u"/>
+<use href="#c" x="960" y="834" class="u"/>
+<use href="#c" x="972" y="834" class="u"/>
+<use href="#c" x="984" y="834" class="u"/>
+<use href="#c" x="1044" y="834" class="u"/>
+<text class="fam" x="24" y="855">time_date_logic</text>
+<rect x="192" y="846" width="11" height="11" fill="#f2312c"><title>python / time_date_logic: recall 0.19, precision 1.00 (37 oracle, 7 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="204" y="846" width="11" height="11" fill="#bef22c"><title>go / time_date_logic: recall 0.68, precision 0.81 (573 oracle, 479 family functions; prometheus (not pinned))</title></rect>
+<rect x="204" y="846" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="846" width="11" height="11" fill="#f2562c"><title>java / time_date_logic: recall 0.38, precision 1.00 (16 oracle, 6 family functions; retrofit (not pinned))</title></rect>
+<rect x="216" y="846" width="11" height="11" fill="url(#hatch)"/>
+<rect x="228" y="846" width="11" height="11" fill="#f22c2c" opacity="0.5"><title>typescript / time_date_logic: recall -, precision 0.00 (0 oracle, 6 family functions; language-crucible v1.7.0)</title></rect>
+<rect x="240" y="846" width="11" height="11" fill="#2c2cf2" opacity="0.5"><title>javascript / time_date_logic: recall 1.00, precision 1.00 (2 oracle, 2 family functions; express (not pinned))</title></rect>
+<rect x="240" y="846" width="11" height="11" fill="url(#hatch)"/>
+<rect x="252" y="846" width="11" height="11" fill="#f22d2c"><title>rust / time_date_logic: recall 0.12, precision 0.92 (287 oracle, 37 family functions; tokio (not pinned))</title></rect>
+<rect x="252" y="846" width="11" height="11" fill="url(#hatch)"/>
+<rect x="264" y="846" width="11" height="11" fill="#f29d2c"><title>c / time_date_logic: recall 0.52, precision 0.65 (65 oracle, 52 family functions; redis (not pinned))</title></rect>
+<rect x="264" y="846" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="288" y="846" class="u"/>
+<use href="#c" x="300" y="846" class="u"/>
+<use href="#c" x="336" y="846" class="u"/>
+<use href="#c" x="384" y="846" class="u"/>
+<use href="#c" x="396" y="846" class="u"/>
+<use href="#c" x="408" y="846" class="u"/>
+<use href="#c" x="420" y="846" class="u"/>
+<use href="#c" x="444" y="846" class="u"/>
+<use href="#c" x="468" y="846" class="u"/>
+<use href="#c" x="480" y="846" class="u"/>
+<use href="#c" x="492" y="846" class="u"/>
+<use href="#c" x="516" y="846" class="u"/>
+<use href="#c" x="528" y="846" class="u"/>
+<use href="#c" x="540" y="846" class="u"/>
+<use href="#c" x="552" y="846" class="u"/>
+<use href="#c" x="564" y="846" class="u"/>
+<use href="#c" x="600" y="846" class="u"/>
+<use href="#c" x="612" y="846" class="u"/>
+<use href="#c" x="624" y="846" class="u"/>
+<use href="#c" x="672" y="846" class="u"/>
+<use href="#c" x="684" y="846" class="u"/>
+<use href="#c" x="696" y="846" class="u"/>
+<use href="#c" x="708" y="846" class="u"/>
+<use href="#c" x="732" y="846" class="u"/>
+<use href="#c" x="744" y="846" class="u"/>
+<use href="#c" x="768" y="846" class="u"/>
+<use href="#c" x="792" y="846" class="u"/>
+<use href="#c" x="804" y="846" class="u"/>
+<use href="#c" x="816" y="846" class="u"/>
+<use href="#c" x="828" y="846" class="u"/>
+<use href="#c" x="840" y="846" class="u"/>
+<use href="#c" x="852" y="846" class="u"/>
+<use href="#c" x="864" y="846" class="u"/>
+<use href="#c" x="888" y="846" class="u"/>
+<use href="#c" x="900" y="846" class="u"/>
+<use href="#c" x="912" y="846" class="u"/>
+<use href="#c" x="924" y="846" class="u"/>
+<use href="#c" x="948" y="846" class="u"/>
+<use href="#c" x="960" y="846" class="u"/>
+<use href="#c" x="972" y="846" class="u"/>
+<use href="#c" x="984" y="846" class="u"/>
+<use href="#c" x="1044" y="846" class="u"/>
+<use href="#c" x="1056" y="846" class="u"/>
+<text class="fam" x="24" y="867">ipc_rpc_bridges</text>
+<use href="#c" x="192" y="858" class="u"/>
+<use href="#c" x="204" y="858" class="u"/>
+<use href="#c" x="216" y="858" class="u"/>
+<use href="#c" x="228" y="858" class="u"/>
+<use href="#c" x="240" y="858" class="u"/>
+<use href="#c" x="252" y="858" class="u"/>
+<use href="#c" x="264" y="858" class="u"/>
+<use href="#c" x="288" y="858" class="u"/>
+<use href="#c" x="300" y="858" class="u"/>
+<use href="#c" x="336" y="858" class="u"/>
+<use href="#c" x="384" y="858" class="u"/>
+<use href="#c" x="396" y="858" class="u"/>
+<use href="#c" x="408" y="858" class="u"/>
+<use href="#c" x="420" y="858" class="u"/>
+<use href="#c" x="444" y="858" class="u"/>
+<use href="#c" x="468" y="858" class="u"/>
+<use href="#c" x="480" y="858" class="u"/>
+<use href="#c" x="492" y="858" class="u"/>
+<use href="#c" x="516" y="858" class="u"/>
+<use href="#c" x="528" y="858" class="u"/>
+<use href="#c" x="540" y="858" class="u"/>
+<use href="#c" x="552" y="858" class="u"/>
+<use href="#c" x="564" y="858" class="u"/>
+<use href="#c" x="600" y="858" class="u"/>
+<use href="#c" x="612" y="858" class="u"/>
+<use href="#c" x="624" y="858" class="u"/>
+<use href="#c" x="672" y="858" class="u"/>
+<use href="#c" x="684" y="858" class="u"/>
+<use href="#c" x="696" y="858" class="u"/>
+<use href="#c" x="708" y="858" class="u"/>
+<use href="#c" x="732" y="858" class="u"/>
+<use href="#c" x="744" y="858" class="u"/>
+<use href="#c" x="768" y="858" class="u"/>
+<use href="#c" x="792" y="858" class="u"/>
+<use href="#c" x="804" y="858" class="u"/>
+<use href="#c" x="816" y="858" class="u"/>
+<use href="#c" x="828" y="858" class="u"/>
+<use href="#c" x="840" y="858" class="u"/>
+<use href="#c" x="852" y="858" class="u"/>
+<use href="#c" x="864" y="858" class="u"/>
+<use href="#c" x="888" y="858" class="u"/>
+<use href="#c" x="900" y="858" class="u"/>
+<use href="#c" x="912" y="858" class="u"/>
+<use href="#c" x="924" y="858" class="u"/>
+<use href="#c" x="948" y="858" class="u"/>
+<use href="#c" x="960" y="858" class="u"/>
+<use href="#c" x="972" y="858" class="u"/>
+<use href="#c" x="984" y="858" class="u"/>
+<use href="#c" x="1044" y="858" class="u"/>
+<use href="#c" x="1056" y="858" class="u"/>
+<text class="fam" x="24" y="879">system_config_mutation</text>
+<use href="#c" x="288" y="870" class="u"/>
+<use href="#c" x="420" y="870" class="u"/>
+<use href="#c" x="432" y="870" class="u"/>
+<use href="#c" x="516" y="870" class="u"/>
+<use href="#c" x="540" y="870" class="u"/>
+<use href="#c" x="564" y="870" class="u"/>
+<use href="#c" x="612" y="870" class="u"/>
+<use href="#c" x="660" y="870" class="u"/>
+<use href="#c" x="672" y="870" class="u"/>
+<use href="#c" x="768" y="870" class="u"/>
+<use href="#c" x="804" y="870" class="u"/>
+<use href="#c" x="852" y="870" class="u"/>
+<use href="#c" x="888" y="870" class="u"/>
+<use href="#c" x="1056" y="870" class="u"/>
+<text class="phase" x="16" y="891">AI-ML</text>
+<text class="famd" x="24" y="903">llm_api</text>
+<use href="#c" x="192" y="894" class="u"/>
+<use href="#c" x="228" y="894" class="u"/>
+<use href="#c" x="240" y="894" class="u"/>
+<text class="fam" x="24" y="915">llm_orchestrator</text>
+<use href="#c" x="192" y="906" class="u"/>
+<use href="#c" x="228" y="906" class="u"/>
+<use href="#c" x="240" y="906" class="u"/>
+<text class="fam" x="24" y="927">llm_vector_store</text>
+<use href="#c" x="192" y="918" class="u"/>
+<use href="#c" x="228" y="918" class="u"/>
+<use href="#c" x="240" y="918" class="u"/>
+<text class="fam" x="24" y="939">ml_traditional</text>
+<use href="#c" x="192" y="930" class="u"/>
+<text class="fam" x="24" y="951">dl_frameworks</text>
+<use href="#c" x="192" y="942" class="u"/>
+<use href="#c" x="228" y="942" class="u"/>
+<use href="#c" x="240" y="942" class="u"/>
+<text class="fam" x="24" y="963">hardware_bridge</text>
+<use href="#c" x="192" y="954" class="u"/>
+<use href="#c" x="228" y="954" class="u"/>
+<use href="#c" x="240" y="954" class="u"/>
+<text class="fam" x="24" y="975">cryptography</text>
+<use href="#c" x="192" y="966" class="u"/>
+<use href="#c" x="228" y="966" class="u"/>
+<use href="#c" x="240" y="966" class="u"/>
+<use href="#c" x="528" y="966" class="u"/>
+<text class="fam" x="24" y="987">lazy_evaluation</text>
+<rect x="192" y="978" width="11" height="11" fill="#2c9ff2"><title>python / lazy_evaluation: recall 1.00, precision 0.95 (613 oracle, 646 family functions; GitGalaxy engine code (not pinned))</title></rect>
+<rect x="192" y="978" width="11" height="11" fill="url(#hatch)"/>
+<use href="#c" x="228" y="978" class="u"/>
+<use href="#c" x="240" y="978" class="u"/>
+<text class="fam" x="24" y="999">vectorized_math</text>
+<use href="#c" x="192" y="990" class="u"/>
+<use href="#c" x="228" y="990" class="u"/>
+<use href="#c" x="240" y="990" class="u"/>
+<text class="phase" x="16" y="1011">APPSEC</text>
+<text class="fam" x="24" y="1023">rce_funnel</text>
+<use href="#c" x="228" y="1014" class="u"/>
+<use href="#c" x="240" y="1014" class="u"/>
+<text class="fam" x="24" y="1035">exfiltration_camouflage</text>
+<use href="#c" x="192" y="1026" class="u"/>
+<use href="#c" x="228" y="1026" class="u"/>
+<use href="#c" x="240" y="1026" class="u"/>
+<text class="fam" x="24" y="1047">memory_scraping</text>
+<use href="#c" x="192" y="1038" class="u"/>
+<text class="phase" x="16" y="1059">LITERATE</text>
+<text class="fam" x="24" y="1071">lit_code_blocks</text>
+<text class="fam" x="24" y="1083">lit_diagrams</text>
+<text class="fam" x="24" y="1095">lit_headers</text>
+<text class="fam" x="24" y="1107">lit_links</text>
+<text class="note" x="16" y="1128">Hover a cell for recall, precision, the number of functions and the corpus. A cell is agreement with the oracle's reading of the family's contract on one corpus, not proof the family is right everywhere.</text>
+<text class="note" x="16" y="1144">Oracles: Python ast and tree-sitter (tests/tools/family_oracle.py, family_oracle_ts.py). Families in italics have a draft contract. Languages without a tree-sitter grammar (COBOL, JCL, assembler, ...) need another oracle.</text>
+</svg>

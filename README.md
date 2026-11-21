@@ -146,6 +146,18 @@ the call graph.
 
 ![Graph accuracy coverage by language](docs/self_scan/graph_coverage_chart.svg)
 
+**Keyword families.** Every per-function signal (I/O, regex, time, decorators, bitwise, ...) is a keyword family with a
+written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.py): 71 families, 73 code languages).
+A parser (Python `ast`, tree-sitter) says what each function does, and each family is scored against that on recall and
+precision (the family-validity tool, [PR #8864](https://github.com/squid-protocol/gitgalaxy/pull/8864)). Each cell shows the weaker of the two, so a family that
+finds every construct but also fires on strings does not look good.
+- Scored so far (2026-11-21): 91 of 2,893 defined cells, in 7 languages. Gray cells are defined but not yet tested;
+  black cells are languages with no rule for that family.
+- Limit: one corpus per language, and the oracle is our reading of each contract, not ground truth. Hatched cells come
+  from repositories that are not pinned, so they are exploratory ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)).
+
+![Keyword-family accuracy by language](docs/self_scan/family_validity_chart.svg)
+
 **Same intent, same measurement.** The [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
 plants the same 12-probe program in every language. Any difference in what the engine measures is therefore language
 bias.

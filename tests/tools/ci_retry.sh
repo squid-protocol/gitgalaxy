@@ -5,6 +5,9 @@
 # the shepherd reruns the job instead of calling it a code defect -- and exits with the last status.
 # CI_RETRY_SLEEP overrides the sleep command (tests).
 # CI_RETRY_CACHED=<shell command>: a cache probe run first; when it succeeds the fetch is skipped (cache first).
+# CI_RETRY_CAPTURE=1 (capture-safe, for `x=$(ci_retry.sh ... gh api ...)`): stdout carries ONLY the successful attempt's
+# stdout (buffered per attempt, so a failed try never leaks); the command's stderr, the retry lines, the cause line and
+# the INFRASTRUCTURE marker all go to stderr. A final failure leaves stdout empty.
 # On the final failure the last output line of the failing command is printed as `ci_retry: cause: ...`.
 set -u
 [ $# -ge 4 ] && [ "$3" = "--" ] || { sed -n '2,3p' "$0" >&2; exit 2; }
@@ -28,7 +31,27 @@ if [ -n "${CI_RETRY_CACHED:-}" ] && bash -c "$CI_RETRY_CACHED" > /dev/null 2>&1;
   exit 0
 fi
 log=$(mktemp)
-trap 'rm -f "$log"' EXIT
+out=$(mktemp)
+trap 'rm -f "$log" "$out"' EXIT
+if [ -n "${CI_RETRY_CAPTURE:-}" ]; then
+  # Capture mode: every diagnostic line to stderr; the command's stdout is emitted once, on success.
+  for ((i = 1; i <= attempts; i++)); do
+    "$@" > "$out" 2> "$log"
+    status=$?
+    cat "$log" >&2
+    [ "$status" -eq 0 ] && { cat "$out"; exit 0; }
+    echo "ci_retry: attempt $i/$attempts failed (exit $status): $*" >&2
+    if [ "$i" -lt "$attempts" ]; then
+      $sleeper "$backoff"
+      backoff=$((backoff * 2))
+    fi
+  done
+  cause=$(grep -v '^[[:space:]]*$' "$log" | tail -n 1 | cut -c1-300)
+  [ -n "$cause" ] || cause=$(grep -v '^[[:space:]]*$' "$out" | tail -n 1 | cut -c1-300)
+  echo "ci_retry: cause: ${cause:-no output}" >&2
+  echo "::error::INFRASTRUCTURE (not a code defect): '$*' failed after $attempts attempts (exit $status); re-run the job." >&2
+  exit "$status"
+fi
 for ((i = 1; i <= attempts; i++)); do
   "$@" 2>&1 | tee "$log"
   status=${PIPESTATUS[0]}

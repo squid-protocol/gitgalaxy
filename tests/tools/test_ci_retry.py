@@ -102,6 +102,58 @@ def test_a_missing_command_still_has_a_cause(tmp_path):
     assert "ci_retry: cause:" in proc.stdout and "nonexistent" in proc.stdout
 
 
+CAPTURE = {"CI_RETRY_CAPTURE": "1"}
+
+
+@needs_linux_bash
+def test_capture_mode_stdout_is_only_the_command_stdout(tmp_path):
+    cmd = ["sh", "-c", "echo data; echo warn >&2"]
+    proc, _, _ = _run(tmp_path, 3, 0, cmd=cmd, extra_env=CAPTURE)
+    assert (proc.returncode, proc.stdout, proc.stderr) == (0, "data\n", "warn\n")
+
+
+@needs_linux_bash
+def test_capture_mode_a_failed_attempt_never_leaks_stdout(tmp_path):
+    flaky = tmp_path / "flaky2"
+    counter = tmp_path / "n"
+    flaky.write_text(
+        f'#!/bin/sh\necho x >> "{counter}"\necho "out$(wc -l < "{counter}")"\necho err >&2\n[ "$(wc -l < "{counter}")" -ge 3 ] && exit 0\nexit 5\n'
+    )
+    flaky.chmod(0o755)
+    proc, _, slept = _run(tmp_path, 4, 0, cmd=[str(flaky)], extra_env=CAPTURE)
+    assert proc.returncode == 0 and proc.stdout.strip() == "out3" and slept == ["3", "6"]
+    assert proc.stderr.count("attempt") == 2 and "INFRASTRUCTURE" not in proc.stderr
+
+
+@needs_linux_bash
+def test_capture_mode_final_failure_is_all_stderr_and_stdout_is_empty(tmp_path):
+    cmd = ["sh", "-c", "echo partial; echo 'HTTP 502 bad gateway' >&2; exit 9"]
+    proc, tries, slept = _run(tmp_path, 2, 0, cmd=cmd, extra_env=CAPTURE)
+    assert proc.returncode == 9 and proc.stdout == "" and slept == ["3"]
+    assert "ci_retry: cause: HTTP 502 bad gateway" in proc.stderr
+    assert "::error::INFRASTRUCTURE (not a code defect)" in proc.stderr
+
+
+@needs_linux_bash
+def test_capture_mode_cause_falls_back_to_stdout_and_missing_command(tmp_path):
+    proc, _, _ = _run(tmp_path, 1, 0, cmd=["sh", "-c", "echo only-out; exit 4"], extra_env=CAPTURE)
+    assert proc.stdout == "" and "cause: only-out" in proc.stderr
+    proc, _, _ = _run(tmp_path, 1, 0, cmd=["/nonexistent/gh", "api"], extra_env=CAPTURE)
+    assert proc.stdout == "" and "nonexistent" in proc.stderr
+
+
+@needs_linux_bash
+def test_capture_mode_cache_hit_keeps_stdout_empty(tmp_path):
+    proc, tries, _ = _run(tmp_path, 4, 0, extra_env={**CAPTURE, "CI_RETRY_CACHED": "true"})
+    assert (proc.returncode, proc.stdout, tries) == (0, "", 0)
+
+
+@needs_linux_bash
+def test_default_mode_still_merges_stderr_into_stdout(tmp_path):
+    proc, _, _ = _run(tmp_path, 1, 0, cmd=["sh", "-c", "echo data; echo warn >&2"])
+    assert sorted(proc.stdout.split()) == ["data", "warn"]
+
+
 # (workflow, a line that must go through ci_retry.sh, the pin that must survive)
 SITES = [
     ("tri-comparison-audit.yml", "apt-get", "universal-ctags"),

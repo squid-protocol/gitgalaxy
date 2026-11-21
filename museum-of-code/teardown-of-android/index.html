@@ -9594,7 +9594,7 @@
   <span class="md-ellipsis">
     
   
-    Security Auditor (XGBoost)
+    Security Auditor (classifier removed)
   
 
     
@@ -12694,7 +12694,7 @@ These files act as the system's control towers. They are highly coupled and frag
 * <strong><code>RopTranslator.java</code></strong> -&gt; Severity: 81.0 (Blast Radius: 0.81 * Doc Risk: 100.0%)</p>
 <p><em>Note on Anomalies:</em> The engine also detected <code>FillerMethod.java</code>, a massive 65,000 LOC file with 250 orphaned functions. While it appears as catastrophic design slop, contextual analysis reveals this is an intentional stress-test file used to validate the <code>128-multidex-option-overflow</code> limits.</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
-<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>. </p>
+<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. </p>
 <p>Furthermore, the rule-based X-Ray and Import Policy Gate confirmed an incredibly tight security perimeter:
 * <strong>Hardcoded Secrets:</strong> <code>0</code> instances found.
 * <strong>Blacklisted/Unknown Dependencies:</strong> <code>0</code> packages imported that bypass the Zero-Trust whitelist. The build environment is entirely self-contained.

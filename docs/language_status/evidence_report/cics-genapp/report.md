@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `f7f72a19cfec58f1a4e814b192d3bceffca118a8` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `6a683e4d0cfb`).
 
@@ -98,7 +98,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 | base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | 20% | raw 20% (106/517 caught; 527 of 527 mutants, seed 0); 350 of 411 survivors unaccounted | 3/7 |
 | base/src/lgdpdb01.cbl | L4 | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgdpol01.cbl | L4 | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 9/12 (75.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgdpvs01.cbl | L4 | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | 24% | raw 24% (249/1039 caught; 1064 of 1064 mutants, seed 0); 679 of 790 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh) | 2/5 |
+| base/src/lgdpvs01.cbl | L4 | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | 24% | raw 24% (237/983 caught; 1006 of 1006 mutants, seed 0); 641 of 746 survivors unaccounted | 2/5 |
 | base/src/lgicdb01.cbl | L4 | 44/44 | 0 | genapp-lgicdb01 | equal | 18 | shown equal, unapproved | 4/4 (100.0%) | 11/12 (91.7%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgicus01.cbl | L4 | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgicvs01.cbl | L4 | 51/51 | 0 | genapp-lgicvs01 | equal | 9 | none | 1/1 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | 28% | raw 28% (176/625 caught; 636 of 636 mutants, seed 0); 387 of 449 survivors unaccounted | 6/9 |
@@ -106,7 +106,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 | base/src/lgipol01.cbl | L4 | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgipvs01.cbl | L4 | 31/31 | 0 | genapp-lgipvs01 | equal | 7 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 27% | raw 27% (138/510 caught; 521 of 521 mutants, seed 0); 291 of 372 survivors unaccounted | 4/5 |
 | base/src/lgsetup.cbl | L4 | 91/91 | 0 | genapp-lgsetup | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 14% | raw 14% (149/1071 caught; 1118 of 1118 mutants, seed 0); 922 of 922 survivors unaccounted | 4/7 |
-| base/src/lgstsq.cbl | L4 | 26/26 | 0 | genapp-lgstsq | equal | 8 | shown equal, unapproved | 1/1 (100.0%) | 4/6 (66.7%) | 4/4 (100.0%) | 23% | raw 23% (106/455 caught; 466 of 466 mutants, seed 0); 263 of 349 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh) | 5/6 |
+| base/src/lgstsq.cbl | L4 | 26/26 | 0 | genapp-lgstsq | equal | 8 | shown equal, unapproved | 1/1 (100.0%) | 4/6 (66.7%) | 4/4 (100.0%) | 23% | raw 23% (100/427 caught; 437 of 437 mutants, seed 0); 246 of 327 survivors unaccounted | 5/6 |
 | base/src/lgtestc1.cbl | L4 | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 10/10 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 9/12 |
 | base/src/lgtestp1.cbl | L4 | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | base/src/lgtestp2.cbl | L4 | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
@@ -496,7 +496,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 ### base/src/lgdpvs01.cbl -- L4
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgdpvs01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 24% (249/1039 caught; 1064 of 1064 mutants, seed 0); 679 of 790 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 24% (237/983 caught; 1006 of 1006 mutants, seed 0); 641 of 746 survivors unaccounted)
 - **Translation:** 28/28 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
@@ -532,7 +532,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Assumptions relied on:** named by its commands' spec entries: X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:117:false (IF) -- `IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 77-79 move CA-Request-ID(4:1), CA-Policy-Num and CA-Customer-Num, items of the LINKAGE DFHCOMMAREA, into WF-Policy-Key for the DELETE, so with EIBCALEN 0 they are read from no storage. The only caller, LGDPDB01 (line 168), LINKs with Commarea(DFHCOMMAREA) LENGTH(32500) past its own `IF EIBCALEN IS EQUAL TO ZERO` ABEND LGCA, so EIBCALEN is never 0 on a call (the proof does not reach this line at all: the first LINK of WRITE-ERROR-MESSAGE, with the 102-byte ERROR-MSG, makes LGSTSQ write 107 bytes from a 95-byte WRITE-MSG and the oracle refuses it, X6); a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it).
-- **Det-port mutation:** raw 24% (249/1039 caught; 1064 of 1064 mutants, seed 0); 679 of 790 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)
+- **Det-port mutation:** raw 24% (237/983 caught; 1006 of 1006 mutants, seed 0); 641 of 746 survivors unaccounted
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X22, X27, X42, X46; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### base/src/lgicdb01.cbl -- L4
@@ -771,7 +771,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 ### base/src/lgstsq.cbl -- L4
 
 - **Executed equivalent** on the 8 scenarios of genapp-lgstsq against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 23% (106/455 caught; 466 of 466 mutants, seed 0); 263 of 349 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 23% (100/427 caught; 437 of 437 mutants, seed 0); 246 of 327 survivors unaccounted)
 - **Translation:** 26/26 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
@@ -876,7 +876,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:68:true (IF) -- `IF WS-INVOKEPROG NOT = SPACES` is true only when ASSIGN INVOKINGPROG names a program, i.e. the task reached LGSTSQ through an EXEC CICS LINK or XCTL (IBM CICS TS, ASSIGN INVOKINGPROG: blank for the first program of a task). This case starts LGSTSQ itself, as the first program of a task (transid LGSQ, STARTCODE TD or a terminal), so INVOKINGPROG is blank on every scenario it can state; the case format has no field naming a caller (equivalence_cics.py passes only the case's program as the task's first program), and no GenApp program in this case LINKs here. The arm is taken, with INVOKINGPROG LGAPDB01, by the LINKed LGSTSQ task of genapp-lgapdb01 (policy-insert-fk-violation) (its WS-FLAG test is not reached there: judging stops at the padded WRITEQ, X6); this entry is a statement about this standalone case, for owner review.
   - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:113:false (IF) -- `If WS-FLAG = 'R'` is false only when WS-FLAG is 'C', which line 70 sets in the `IF WS-INVOKEPROG NOT = SPACES` arm (the caller-LINKed task) and nothing else assigns: line 78 sets 'R' in the other arm, and WS-FLAG has no VALUE. This case starts LGSTSQ as the first program of a task, so INVOKINGPROG is blank (see the entry for line 68), WS-FLAG is always 'R', and the SEND TEXT always runs. The LINKed LGSTSQ task of genapp-lgapdb01 sets 'C' but is judged only up to the padded WRITEQ (X6), so it does not reach this test either; the false arm stays unproven anywhere (#6271). This entry is a statement about this standalone case, for owner review.
-- **Det-port mutation:** raw 23% (106/455 caught; 466 of 466 mutants, seed 0); 263 of 349 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)
+- **Det-port mutation:** raw 23% (100/427 caught; 437 of 437 mutants, seed 0); 246 of 327 survivors unaccounted
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X19, X27, X42; commands without oracle backing: WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### base/src/lgtestc1.cbl -- L4
@@ -1314,18 +1314,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e`
+- translator commit (the survey's): `f7f72a19cfec58f1a4e814b192d3bceffca118a8`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
-- crucible pins: cics `v0.19.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.19.0`, estate `v0.8.0`, language `v1.7.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a`, `sha256:3a867da89fb6ac3a605b8e70e6e89594711f0ab22dbbba070bd7ce8bdb7ced13`
+- oracle images the evidence records ran on: `sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a`, `sha256:de5a21344253b624896b1251db0bf0a7a2879e289edf5e6f778a1c514b201f79`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 36a75cadbe19d9a3e1bce543cbfb0c73dd64f85e
+python tests/tools/cics_census.py survey --baseline --sha f7f72a19cfec58f1a4e814b192d3bceffca118a8
+python tests/tools/evidence_report.py cics-genapp --baseline --sha f7f72a19cfec58f1a4e814b192d3bceffca118a8
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

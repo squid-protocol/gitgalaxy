@@ -19,8 +19,8 @@ These files are derived output, published on the `generated` branch and not comm
 | [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 | 0 |
 | [example-health-apis](example-health-apis/report.md) | 29 | 1 | 0 | 4 | 4 | 20 | 0 |
-| [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 5 | 2 |
-| total | 297 | 10 | 48 | 4 | 4 | 222 | 9 |
+| [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 6 | 1 |
+| total | 297 | 10 | 48 | 4 | 4 | 223 | 8 |
 
 ## Non-burned estates
 

@@ -1,5 +1,5 @@
 {
- "commit": "fd25e6c8a",
+ "commit": "b9ee91781",
  "components": {
   "capabilities": {
    "groups": [
@@ -478,7 +478,26 @@
       "built": 12,
       "built_pct": 92.3,
       "constructs": 13,
-      "first_run": null,
+      "first_run": {
+       "date": "2026-11-20",
+       "engine": "d4598ae21",
+       "key": "v0.8.0",
+       "scan": {
+        "fail": [],
+        "horrors": 12,
+        "pass": 12,
+        "why": "every AIXA horror (H-0076..H-0082, H-0106..H-0110) passes; outside the horrors, one phantom call edge in AIXARRS (2000-COPY to 2100-REPLACE)"
+       },
+       "source": "gitgalaxy#7065",
+       "translate": {
+        "detail": "whole: AIXAESD 16/16, AIXAESU 13/13, AIXAKS2 30/30. Holes: AIXACIC 9/11 (CICS READ RBA, READ RRN not modelled), AIXAKSD 42/43 (the alternate-key START), AIXARRD 8/12 and AIXARRS 11/20 (ORGANIZATION RELATIVE file verbs, START KEY NOT, DELETE). Translate only, onto the generated h2 project: nothing run or proven",
+        "engine": "d4598ae21",
+        "holes": 4,
+        "programs": 7,
+        "refused": 0,
+        "whole": 3
+       }
+      },
       "horrors": 12,
       "issues": [
        4894
@@ -970,7 +989,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T01:32:30Z",
+  "as_of": "2026-11-21T01:42:26Z",
   "core": {
    "closed": 253,
    "open": 13,

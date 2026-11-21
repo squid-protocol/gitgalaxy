@@ -2855,7 +2855,7 @@
       "python/fastapi/fastapi/params.py": 0.315,
       "python/fastapi/fastapi/requests.py": 0.0,
       "python/fastapi/fastapi/responses.py": -0.243,
-      "python/fastapi/fastapi/routing.py": 1.634,
+      "python/fastapi/fastapi/routing.py": 2.203,
       "python/fastapi/fastapi/sse.py": 1.713,
       "python/fastapi/fastapi/staticfiles.py": 0.0,
       "python/fastapi/fastapi/templating.py": 0.0,
@@ -3138,7 +3138,7 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -0.252
     },
     "python/twisted": {
-      "python/twisted/defer.py": 0.362,
+      "python/twisted/defer.py": 0.342,
       "python/twisted/http.py": 0.506,
       "python/twisted/reflect.py": -0.349,
       "python/twisted/transport.py": 0.374

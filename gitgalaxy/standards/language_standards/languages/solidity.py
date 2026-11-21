@@ -14,6 +14,22 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 
 from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, commented_keyword_statement
 
+# `emit EventName(...)` and `revert Pkg.ErrorName(...)` emit events / revert with custom errors
+# rather than calling a function; only the event/error name is blanked so argument calls stay.
+_SOLIDITY_EVENT_OR_ERROR = re.compile(
+    r"\b(?:emit|revert)[ \t]+(?:[A-Za-z_]\w*\.){0,4}(?P<pat>[A-Za-z_]\w*)(?=[ \t]*\()"
+)
+
+
+def _blank_solidity_non_calls(text: str) -> str:
+    def _blank(m: "re.Match[str]") -> str:
+        raw = m.group(0)
+        lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
+        return raw[:lo] + " " * (hi - lo) + raw[hi:]
+
+    return _SOLIDITY_EVENT_OR_ERROR.sub(_blank, text)
+
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Solidity 0.8.20+ (Smart Contracts / Foundry / Hardhat)",
@@ -49,7 +65,8 @@ DEFINITION: dict[str, Any] = {
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
-        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_rewrite": _blank_solidity_non_calls,
+        # #3359 (contract C2): keywords, special forms, and primitive type casts / `type(T)`, never calls
         "_calls_out_ignore": frozenset(
             {
                 "throw",  # #3645: a keyword here; a real function in go/matlab/haskell
@@ -57,6 +74,19 @@ DEFINITION: dict[str, Any] = {
                 "assembly",
                 "override",
                 "mapping",
+                "emit",
+                "revert",
+                "address",
+                "bool",
+                "string",
+                "bytes",
+                "payable",
+                "type",
+                "uint",
+                "int",
+                *(f"bytes{i}" for i in range(1, 33)),
+                *(f"uint{i}" for i in range(8, 257, 8)),
+                *(f"int{i}" for i in range(8, 257, 8)),
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

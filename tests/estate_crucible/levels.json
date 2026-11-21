@@ -46,7 +46,14 @@
       "app": "AIXA",
       "about": "VSAM AIX, ESDS, RRDS",
       "issues": [4894],
-      "first_run": null,
+      "first_run": {
+        "date": "2026-11-20",
+        "engine": "d4598ae21",
+        "key": "v0.8.0",
+        "scan": {"horrors": 12, "pass": 12, "fail": [], "why": "every AIXA horror (H-0076..H-0082, H-0106..H-0110) passes; outside the horrors, one phantom call edge in AIXARRS (2000-COPY to 2100-REPLACE)"},
+        "translate": {"engine": "d4598ae21", "programs": 7, "whole": 3, "holes": 4, "refused": 0, "detail": "whole: AIXAESD 16/16, AIXAESU 13/13, AIXAKS2 30/30. Holes: AIXACIC 9/11 (CICS READ RBA, READ RRN not modelled), AIXAKSD 42/43 (the alternate-key START), AIXARRD 8/12 and AIXARRS 11/20 (ORGANIZATION RELATIVE file verbs, START KEY NOT, DELETE). Translate only, onto the generated h2 project: nothing run or proven"},
+        "source": "gitgalaxy#7065"
+      },
       "members_at_pin": {"cobol": 7, "jcl": 5},
       "constructs": [
         {"name": "KSDS alternate key WITH DUPLICATES, START / READ NEXT", "horrors": ["H-0076"]},

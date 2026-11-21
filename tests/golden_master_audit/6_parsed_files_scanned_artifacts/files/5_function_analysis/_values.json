@@ -456410,6 +456410,20 @@
           "Structural Impact": 5.9
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "13.3%",
+          "End Line": 584,
+          "Function Name": "_sse_producer_cm",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 50,
+          "Reflection Hits": 0,
+          "Start Line": 535,
+          "Structural Impact": 5.5
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 1567,
@@ -456842,20 +456856,6 @@
           "Reflection Hits": 0,
           "Start Line": 624,
           "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 536,
-          "Function Name": "_sse_producer_cm",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 535,
-          "Structural Impact": 1.1
         }
       ],
       "python/fastapi/fastapi/sse.py": [
@@ -493767,6 +493767,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 1451,
+          "Function Name": "_DeferredList",
+          "Has Header Comment": 0,
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 1442,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 2212,
           "Function Name": "__aexit__",
           "Has Header Comment": 0,
@@ -493944,20 +493958,6 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 1434,
-          "Structural Impact": 2.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1449,
-          "Function Name": "_DeferredList",
-          "Has Header Comment": 0,
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
-          "Start Line": 1442,
           "Structural Impact": 2.6
         },
         {

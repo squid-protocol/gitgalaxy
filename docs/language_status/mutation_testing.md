@@ -208,6 +208,11 @@ side, the worker now runs it after a passing `runTask` side, in the same session
 (`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
 named `<scenario> [java-facade]`; `killers` names those for a separate run too.
 
+**`survivor_attack.py try` proves a CICS attack through the facades too (#8599).** It ran every proof with `--no-facades`
+while `live_methods` counts `handleLink` / `lastLinkBytes` as live, so an attack on a facade-only survivor could report
+`survived` where the facade side kills it. `attack_flags` now drops `--no-facades` for a CICS case (batch and the other
+kinds have no facade). Not re-run on the oracle here: the 360 survivors auto-triaged in #8485 are still to be re-attacked.
+
 cbsa-abndproc's 212 recorded survivors (fast+one-jvm, seed 0; 195 still in the port), re-judged in process: **8 now
 die**, 187 survive (2.2 s a survivor, the facade side included). The 8 and 6 random survivors, re-judged with
 `--no-one-jvm`: **14 of 14 agree**, with the same scenarios in `killed_by` (2 s in process, 31-54 s as separate runs).
@@ -359,6 +364,12 @@ What it says:
   never cached. The saving is that translation per case; the baseline proof (13-26 s a case) is not touched. Still
   open: sharing the baseline proof across cases, early exit in the CICS in-process path, and the other items in the
   #8599 checklist.
+- **Neither CI lane re-proves a current ledger (checked 2026-11-20, #8599).** The PR job `detmut` runs
+  `det_mutation.py stale-check --vs origin/main`, which only hashes fingerprints for the cases the PR changes (no
+  translation, no Docker, no `mutation.py run`). The nightly `refresh` selects only ledgers whose blocking inputs moved
+  or whose generator / harness / oracle drifted, and a current one returns "nothing stale" before `_run_translate`.
+  The cost that remains is by design: a drifted ledger is translated once to compare the port's bytes, then renewed.
+  Pinned by `test_a_current_ledger_is_never_translated_or_proven_again_8599`.
 
 ## Scores
 

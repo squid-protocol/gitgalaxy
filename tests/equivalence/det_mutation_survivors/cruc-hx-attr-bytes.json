@@ -594,20 +594,6 @@
    ]
   },
   {
-   "id": "3e8875cfd8",
-   "op": "CON",
-   "line": 86,
-   "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
-   "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
-   ]
-  },
-  {
    "id": "964935b739",
    "op": "CON",
    "line": 87,
@@ -645,6 +631,21 @@
     "full-stati",
     "full-twiddlei",
     "map-length-scale"
+   ]
+  },
+  {
+   "id": "3e8875cfd8",
+   "op": "CON",
+   "line": 89,
+   "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
+   "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
+   "verdict": "harness-gap",
+   "reason": "the field grows by one byte over the attribute byte's neighbour, which the program leaves NUL (LOW-VALUES) or space; the change turns a NUL into a space in a symbolic-map byte and DetCics.subfields reads both as not set while the comparator strips trailing blanks and NULs, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-all-fields-pf2",
+    "nul-clear-ca-x",
+    "nul-echo-empty-receive",
+    "nul-first-display-pf1"
    ]
   },
   {
@@ -2375,6 +2376,23 @@
    ]
   },
   {
+   "id": "930e702610",
+   "op": "ROR",
+   "line": 209,
+   "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "DTO/commarea plumbing, a sibling operator of the same line the ledger already states equivalent (40b9f6bece): the program never references DFHCOMMAREA, RETURN COMMAREA names WS-CA and a plain RETURN returns no commarea; a DTO entry with the WS-CA value absent, null and present (echo and CLEAR) survived on the oracle with the earlier entry, link-bytes and 1000-byte scenarios",
+   "tried": [
+    "dto-null-wsca-clear",
+    "dto-null-wsca-echo",
+    "nul-all-fields-pf2",
+    "nul-clear-ca-x",
+    "nul-echo-empty-receive",
+    "nul-first-display-pf1"
+   ]
+  },
+  {
    "id": "d283b2fcf5",
    "op": "AOR",
    "line": 209,
@@ -2420,20 +2438,6 @@
     "t-entry-1000",
     "t-link-1000",
     "t-link-30"
-   ]
-  },
-  {
-   "id": "930e702610",
-   "op": "ROR",
-   "line": 229,
-   "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
-   "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
-   "tried": [
-    "first-field-only-full",
-    "full-width-all",
-    "short-values"
    ]
   },
   {
@@ -3206,6 +3210,23 @@
    ]
   },
   {
+   "id": "0ace941cd9",
+   "op": "DEL",
+   "line": 314,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "equivalent",
+   "reason": "DFHCOMMAREA's beyond is read only inside the raw-link block (caBack), after DetCics.loadCommarea has just assigned it (null unless the area is longer than the 1-byte record); the storage starts with beyond null, so the clearing store before the loads is redundant on every path; typed DTO entries with the value absent and present, and the later PF-key / CLEAR / empty-receive tasks, survived on the oracle",
+   "tried": [
+    "dto-null-wsca-clear",
+    "dto-null-wsca-echo",
+    "nul-all-fields-pf2",
+    "nul-clear-ca-x",
+    "nul-echo-empty-receive",
+    "nul-first-display-pf1"
+   ]
+  },
+  {
    "id": "89ec64e527",
    "op": "LIT",
    "line": 314,
@@ -3685,15 +3706,6 @@
    ]
   },
   {
-   "id": "0ace941cd9",
-   "op": "DEL",
-   "line": 342,
-   "before": "s_DFHCOMMAREA.beyond = null;",
-   "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "603e4e0360",
    "op": "NEG",
    "line": 343,
@@ -4155,6 +4167,21 @@
    ]
   },
   {
+   "id": "722da01d4e",
+   "op": "DEL",
+   "line": 486,
+   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS); */",
+   "verdict": "harness-gap",
+   "reason": "without the LOW-VALUES move the map-out area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-all-fields-pf2",
+    "nul-clear-ca-x",
+    "nul-echo-empty-receive",
+    "nul-first-display-pf1"
+   ]
+  },
+  {
    "id": "567c9dee17",
    "op": "LIT",
    "line": 488,
@@ -4226,15 +4253,6 @@
    "tried": [
     "dead-after-throw"
    ]
-  },
-  {
-   "id": "722da01d4e",
-   "op": "DEL",
-   "line": 518,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "81606d71df",
@@ -4326,6 +4344,21 @@
    "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "subfield-unset"
+   ]
+  },
+  {
+   "id": "f2ec0dbb50",
+   "op": "DEL",
+   "line": 564,
+   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS); */",
+   "verdict": "harness-gap",
+   "reason": "without the LOW-VALUES move the map-in area keeps its initial spaces where the port writes NULs; the program then reads fields by typed text and DetCics.subfields reads NUL and space as not set, and the comparator strips both, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
+   "tried": [
+    "nul-all-fields-pf2",
+    "nul-clear-ca-x",
+    "nul-echo-empty-receive",
+    "nul-first-display-pf1"
    ]
   },
   {
@@ -4627,15 +4660,6 @@
     "s2-attr-name-only-long",
     "s2-attr-pf3"
    ]
-  },
-  {
-   "id": "f2ec0dbb50",
-   "op": "DEL",
-   "line": 596,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "7f696111c1",

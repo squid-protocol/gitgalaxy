@@ -14,7 +14,8 @@
 # is a position in the group's index; an EMPTY group at its LIMIT rolls off every generation when one is rolled in.
 # A DD naming the group itself with a deleting disposition removes every generation at that step's end, and DELETE of the
 # oldest (-n) removes that one; the relative / absolute relationship fixed at the job's first relative reference survives
-# both (User's Guide, Appendix A, 'Deleting and uncataloging generation data sets').
+# both (User's Guide, Appendix A, 'Deleting and uncataloging generation data sets'). A (NEW,PASS) generation no later step
+# receives is scratched and uncataloged at job end (p. 237); a number past G9999 wraps to G0001 (p. 237).
 # GDGBIAS=STEP (JOB statement; User's Guide, Appendix A, 'Relative generation numbers' pp. 235-237) re-fixes the relationship at
 # each step's first reference and rolls its new generations into the catalog at the end of that step. A procedure's step is
 # a job step for this (assumption A7). Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
@@ -88,7 +89,7 @@ def resolve_gdg(
             if base not in start:
                 raise JclGdgRefused(f"GDG base {base} has no catalog entry given")
             seen = anchor.setdefault(base, list(live[base]))
-            absolute = (seen[-1] if seen else 0) + _int_generation(dd["generation"])
+            absolute = _next_generation(seen, _int_generation(dd["generation"]))
             end = _step_end(dd, False)
             created[(base, absolute)] = _STATE[end] if end else "pending"
     unreceived: set[str] = (
@@ -125,7 +126,7 @@ def resolve_gdg(
             # the first relative reference fixes the relative / absolute relationship for the rest of the job
             seen = anchor.setdefault(base, list(live[base]))
             if n > 0:
-                absolute = (seen[-1] if seen else 0) + n
+                absolute = _next_generation(seen, n)
             elif len(seen) + n > 0:
                 absolute = seen[n - 1]  # (0) / (-n) is a position in the index: a skipped number is not counted
             else:
@@ -166,7 +167,7 @@ def resolve_gdg(
                 live[base].remove(absolute)
                 deleted.add((base, absolute))
         if bias == "STEP":  # the step's new generations are rolled into the catalog as it ends
-            for (base, absolute), state in sorted(created.items(), key=lambda kv: kv[0][1]):
+            for (base, absolute), state in sorted(created.items(), key=lambda kv: _since(anchor, *kv[0])):
                 if state == "cataloged":
                     _roll_in(live[base], absolute, catalogs[base])
                     created[(base, absolute)] = "rolled"
@@ -176,14 +177,23 @@ def resolve_gdg(
     for b in start:
         if catalogs[b].get("empty"):
             after[b]["empty"] = True
-    for (base, absolute), state in sorted(created.items(), key=lambda kv: kv[0][1]):
-        if state == "passed":
-            raise JclGdgRefused(f"{base} generation {absolute} is passed and never received")
-        if state == "cataloged":
+    for (base, absolute), state in sorted(created.items(), key=lambda kv: _since(anchor, *kv[0])):
+        if state == "cataloged":  # a generation still passed at the end of the job is scratched and uncataloged
             _roll_in(after[base]["generations"], absolute, catalogs[base])
         elif state == "deferred":
             after[base].setdefault("deferred_rollin", []).append(absolute)
     return names, after
+
+
+def _next_generation(seen: list[int], n: int) -> int:
+    """The absolute number (+n) takes: n past the newest, wrapping from G9999 to G0001 (User's Guide, Appendix A)."""
+    return ((seen[-1] if seen else 0) + n - 1) % 9999 + 1
+
+
+def _since(anchor: dict[str, list[int]], base: str, absolute: int) -> int:
+    """How far past the group's newest generation at the job's first reference a created generation is (wrap-safe)."""
+    seen = anchor.get(base) or []
+    return (absolute - (seen[-1] if seen else 0)) % 9999
 
 
 def _roll_in(gens: list[int], absolute: int, catalog: dict[str, Any]) -> None:

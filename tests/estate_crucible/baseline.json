@@ -127,7 +127,7 @@
   "H-0121": "PASS",
   "H-0122": "PASS",
   "H-0123": "PASS",
-  "H-0124": "FAIL",
+  "H-0124": "PASS",
   "H-0125": "PASS"
  },
  "channels": {
@@ -216,8 +216,8 @@
    "unscored": 0
   },
   "jcl_utility_cards": {
-   "pass": 75,
-   "fail": 1,
+   "pass": 76,
+   "fail": 0,
    "missing": 0,
    "phantom": 0,
    "unscored": 0
@@ -345,7 +345,6 @@
   "ims_gen|apps/HKEP/asm/HKEPPSB.asm|PSB HKEPPSB @5": "missing",
   "ims_gen|apps/HKEP/asm/HKEPPSB.asm|SENSEG KEEP @3": "missing",
   "ims_gen|apps/HKEP/asm/HKEPPSB.asm|SENSEG WALL @4": "missing",
-  "jcl_utility_cards|apps/BDLD/jcl/BDLDUT5.jcl|RUN030.SYSIN RUNSTATS @25": "fail",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|ACCT-OUT-REC @32 overlays": "unscored",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-ACCOUNT @46 overlays": "unscored",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-DATE-AREA @44 overlays": "unscored",

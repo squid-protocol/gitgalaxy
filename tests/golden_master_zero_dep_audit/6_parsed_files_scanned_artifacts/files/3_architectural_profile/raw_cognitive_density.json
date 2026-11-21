@@ -2855,7 +2855,7 @@
       "python/fastapi/fastapi/params.py": 0.24,
       "python/fastapi/fastapi/requests.py": 0.0,
       "python/fastapi/fastapi/responses.py": 0.24,
-      "python/fastapi/fastapi/routing.py": 1.048,
+      "python/fastapi/fastapi/routing.py": 1.047,
       "python/fastapi/fastapi/sse.py": 0.607,
       "python/fastapi/fastapi/staticfiles.py": 0.0,
       "python/fastapi/fastapi/templating.py": 0.0,

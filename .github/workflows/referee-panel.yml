@@ -60,7 +60,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e ".[full]"
+          tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ".[full]"
           # py-tree-sitter >= 0.22 for the tree-sitter-cobol-enterprise adapter
           tests/tools/ci_retry.sh 4 10 -- pip install "tree-sitter==0.26.0"
 

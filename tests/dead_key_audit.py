@@ -69,6 +69,10 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # state_rehydrator reads these from a sqlite3.Row of the baseline file_data / excluded_artifacts tables: they are
+    # COLUMN names, created by the recorder's CREATE TABLE SQL (record_keeper.py), never a dict literal the walker sees (#8774).
+    "raw_state_unreferenced": "file_data column read back from a sqlite3.Row by state_rehydrator (#8774)",
+    "exclusion_reason": "excluded_artifacts column read back from a sqlite3.Row by state_rehydrator (#8774)",
     # A scanned repo's own package.json `workspaces` field (core/package_self_reference.py, #4254): never a literal here.
     "workspaces": "scanned repo's package.json key, read by package_self_reference.workspace_packages (#4254)",
     # The equivalence harness (tests/tools/equivalence.py cobc_failure_report) writes it into report.json; port_runner

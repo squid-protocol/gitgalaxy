@@ -14,11 +14,27 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    CALLS_OUT_SCALA,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
     commented_keyword_statement,
 )
+
+# `case Some(x) =>` / `case Left(e) if guard(e) =>` pattern clauses bind values rather than
+# invoking calls (C3); guards after `if` keep their calls. Nested `class Foo(...)` declarations
+# inside function bodies are declarations (C5), not calls.
+_SCALA_CASE_PATTERN = re.compile(r"\bcase\b(?P<pat>(?:(?!\bif\b|=>)[^;{}\n]){1,240})(?=\s*=>|\s+if\b)")
+_SCALA_CLASS_DECL = re.compile(r"\bclass[ \t]+(?P<pat>[^\W\d]\w*)")
+
+
+def _blank_scala_patterns(text: str) -> str:
+    def _blank(m: "re.Match[str]") -> str:
+        raw = m.group(0)
+        lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
+        return raw[:lo] + " " * (hi - lo) + raw[hi:]
+
+    return _SCALA_CLASS_DECL.sub(_blank, _SCALA_CASE_PATTERN.sub(_blank, text))
+
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -68,8 +84,9 @@ DEFINITION: dict[str, Any] = {
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
-        # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
+        # Epic #3264 / ledger: `@Name(` is an annotation (C1); `f[T](...)` and `new pkg.T[A]` are calls
+        "calls_out": CALLS_OUT_SCALA,
+        "_calls_out_rewrite": _blank_scala_patterns,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

@@ -1110,6 +1110,40 @@ def _cards(body: str, plus: bool = False) -> list[tuple[int, str, str]]:
     return out
 
 
+# The statements a Db2 online utility job (DSNUTILB SYSIN) starts with. Db2 control statements are free-form: no
+# continuation mark, a statement runs until the next one begins (Db2 13 Utility Guide and Reference, "Control
+# statement coding rules"), so a line whose first word is not one of these continues the open statement.
+_DB2_UTILITY_VERBS = frozenset(
+    "BACKUP CATENFM CATMAINT CHECK COPY COPYTOCOPY DIAGNOSE EXEC LISTDEF LOAD MERGECOPY MODIFY OPTIONS QUIESCE "
+    "REBUILD RECOVER REORG REPAIR RESTORE RUNSTATS STOSPACE TEMPLATE UNLOAD".split()
+)
+_DB2_REPORT_TARGETS = frozenset({"TABLESPACE", "TABLESPACESET", "RECOVERY"})  # `REPORT YES` is a RUNSTATS option
+
+
+def _db2_utility_cards(body: str) -> list[tuple[int, str, str]]:
+    """The control statements of a DSNUTILB SYSIN body as (index of its first line, verb, operands): a statement
+    runs over every following line until one starts with a utility verb; `--` lines are comments."""
+    out: list[tuple[int, str, str]] = []
+    start, words = 0, []
+    for i, raw in enumerate(body.split("\n")):
+        line = raw.strip()
+        if not line or line.startswith("--"):
+            continue
+        first, _, rest = line.partition(" ")
+        first = first.upper()
+        begins = first in _DB2_UTILITY_VERBS or (
+            first == "REPORT" and rest.split(" ")[0].upper() in _DB2_REPORT_TARGETS
+        )
+        if begins or not words:
+            if words:
+                out.append((start, words[0].upper(), " ".join(words[1:])))
+            start, words = i, []
+        words += line.split()
+    if words:
+        out.append((start, words[0].upper(), " ".join(words[1:])))
+    return out
+
+
 def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     """Each keyed control statement against the INSTREAM row of its (step, DD): the engine keeps the body, not
     the statements, so a card passes when it is in the body at its line with the keyed operands."""
@@ -1130,7 +1164,10 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
         owner = next((x for x in steps if _u(x.step_name) == f["step"] and _u(x.in_proc) == _u(f.get("proc"))), None)
         program = _u(owner.program) if owner is not None else _u(f.get("utility"))
         plus = _u(f["dd"]) == "SYSTSIN" or program == "IDCAMS"
-        cards = parsed.setdefault((id(r), plus), _cards(r.instream or "", plus))
+        if program == "DSNUTILB":
+            cards = parsed.setdefault((id(r), False), _db2_utility_cards(r.instream or ""))
+        else:
+            cards = parsed.setdefault((id(r), plus), _cards(r.instream or "", plus))
         c = next((x for x in cards if r.line + 1 + x[0] == f["line"] and x[1] == f["verb"]), None)
         if c is None:
             sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no such statement at that line")

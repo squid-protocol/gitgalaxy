@@ -12860,7 +12860,7 @@
 <ul>
 <li><strong>Bi-Directional Dependency Graphing:</strong> Builds a reverse-dependency map to identify load-bearing modules (blast radius) and orchestrator modules (fragility index).</li>
 <li><strong>Token-Dense Markdown Brief:</strong> Produces <code>_galaxy_llm.md</code>, featuring:</li>
-<li>Security &amp; Malware Summary (XGBoost findings)</li>
+<li>Security summary (AI AppSec and ecosystem audit findings; no malware classification: the classifier was removed, #8430)</li>
 <li>Analysis Framing &amp; Guidelines (prompt instructions)</li>
 <li>Repository Architecture &amp; AI Topology</li>
 <li>Code Anomalies &amp; Architectural Drift</li>
@@ -12876,7 +12876,7 @@
 <ul>
 <li><strong>Inputs Received:</strong> Raw static analysis telemetry, file metrics, security findings, and dependency structures.</li>
 <li><strong>Outputs Produced:</strong> A markdown brief (<code>_galaxy_llm.md</code>) and a relational SQLite database (<code>_galaxy_graph.sqlite</code>).</li>
-<li><strong>Dependencies:</strong> Relies on AI AppSec findings, network topology metrics, and XGBoost threat intelligence.</li>
+<li><strong>Dependencies:</strong> Relies on AI AppSec findings, and network topology metrics. No malware-classifier output is consumed: it was removed on 2026-11-19 (research pending, #8430).</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>graph LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Raw Telemetry &amp; Findings] --&gt; B[LLM Recorder]

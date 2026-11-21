@@ -12860,7 +12860,7 @@
 <ul>
 <li><strong>Traceability Anchor:</strong> Encapsulates exact Git source control metadata (active branch, SHA-1 commit hash, remote URL, and last commit timestamp) alongside the analysis execution timestamp in the manifest header.</li>
 <li><strong>Hierarchical Module Mapping:</strong> Groups analyzed source files by directory path and orders them by total structural mass. Generates directory-level Architectural Fingerprints.</li>
-<li><strong>Security &amp; Vulnerability Triage:</strong> Integrates raw pattern signature hits with XGBoost Machine Learning Threat Confidence scores, decoupling active malware threats from general code quality risks.</li>
+<li><strong>Security &amp; Vulnerability Triage:</strong> Integrates raw pattern signature hits with the file's code quality risk. No malware-classification score is produced: the classifier was removed on 2026-11-19 (research pending, #8430).</li>
 <li><strong>Network &amp; AppSec Posture:</strong> Injects directed dependency network graph metrics (PageRank, blast radius) and autonomous AI security findings into each file's profile.</li>
 <li><strong>Composition Archetype Telemetry:</strong> Records each file's compositional archetype ("Composition Archetype") with its fit z-score ("Composition Fit (Z-Score)"), plus per-file function-archetype mix and repo-wide "Function Archetype Distribution", "File Composition Distribution", and "Repository Composition Archetype". See <a href="../03-05b-composition-archetypes/">03-05b: Composition Archetypes</a>.</li>
 <li><strong>Excluded Artifact Logging:</strong> Preserves excluded files (due to path filters, binary formats) with explicit diagnostic reasons and exact byte sizes.</li>
@@ -12871,7 +12871,7 @@
 </ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
-<li><strong>Inputs Received:</strong> Raw structural telemetry, XGBoost threat confidence scores, dependency network graph metrics, and raw pattern signature hits.</li>
+<li><strong>Inputs Received:</strong> Raw structural telemetry, dependency network graph metrics, and raw pattern signature hits.</li>
 <li><strong>Outputs Produced:</strong> A structured JSON manifest (<code>galaxy_audit.json</code>) detailing forensic traceability, global synthesis, security audits, high-value reports, and scanned/excluded artifacts.</li>
 <li><strong>Dependencies:</strong> Relies on upstream metrics from the network risk sensor and AI threat models.</li>
 </ul>
@@ -12887,7 +12887,7 @@
 <h2 id="limitations">Limitations</h2>
 <ul>
 <li><strong>Schema Rigidity:</strong> The deep nested JSON structure can be overly large for standard parsers on massive repositories.</li>
-<li><strong>Heuristic Boundaries:</strong> The security posture relies heavily on XGBoost ML scores and heuristic boundaries, which may produce false positives.</li>
+<li><strong>Heuristic Boundaries:</strong> The security posture relies on regex signature counts and heuristic boundaries, which may produce false positives.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <ul>

@@ -9480,6 +9480,10 @@ class StructuralExtractor:
                     seen = sat["decorated_by_qualifiers"].setdefault(leaf, [])
                     if qualifier not in seen:
                         seen.append(qualifier)
+                # #8857: the decorator lines sit above the def, outside the
+                # [start_idx, end_idx) span the hit_vector is bisected from.
+                if decorators:
+                    sat["hit_vector"]["decorators"] = len(decorators)
 
             satellites.append(sat)
             sum_fxn_impact += mag

@@ -3415,9 +3415,10 @@
         "Defensive Guards": 1
       },
       "cpp/NVDA/espeak.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 18,
-        "Parameter Forwarders": 4,
+        "Parameter Forwarders": 3,
         "Stateful Encapsulated Methods": 4
       },
       "cpp/NVDA/inProcess.cpp": {
@@ -5060,17 +5061,17 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": {
         "Annotated & Test Methods": 3,
-        "Encapsulated Accessors": 10,
+        "Encapsulated Accessors": 9,
         "State Mutators": 2,
-        "Stateful Encapsulated Methods": 11
+        "Stateful Encapsulated Methods": 12
       },
       "groovy/spock/SpecParser.java": {
         "Annotated & Test Methods": 4,
         "Compute Cores": 1,
-        "Encapsulated Accessors": 6,
+        "Encapsulated Accessors": 5,
         "Parameter Forwarders": 1,
         "State Mutators": 1,
-        "Stateful Encapsulated Methods": 6
+        "Stateful Encapsulated Methods": 7
       },
       "groovy/spock/SpecRewriter.java": {
         "Annotated & Test Methods": 10,
@@ -5703,11 +5704,12 @@
       "java/springboot/AutoConfigurationImportSelector.java": {
         "Annotated & Test Methods": 10,
         "Callbacks & Closures": 1,
+        "Defensive Guards": 1,
         "Encapsulated Accessors": 20,
         "Generic / Templated Code": 6,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 7,
-        "Type Conversions": 2
+        "Type Conversions": 1
       },
       "java/springboot/Binder.java": {
         "Annotated & Test Methods": 4,
@@ -8416,29 +8418,30 @@
     "python/airflow": {
       "python/airflow/NOTICE": {},
       "python/airflow/dag.py": {
+        "Annotated & Test Methods": 3,
         "Compute Cores": 4,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 17,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 6,
+        "Parameter Forwarders": 3,
         "Stateful Encapsulated Methods": 2
       },
       "python/airflow/s3.py": {
+        "Annotated & Test Methods": 2,
         "Compute Cores": 3,
-        "Defensive Guards": 4,
+        "Defensive Guards": 2,
         "Encapsulated Accessors": 1,
-        "Generic / Templated Code": 13,
+        "Generic / Templated Code": 15,
         "Many-Argument Workhorses": 28,
-        "Parameter Forwarders": 2,
         "Stateful Encapsulated Methods": 5
       },
       "python/airflow/scheduler_job_runner.py": {
         "Compute Cores": 1,
-        "Encapsulated Accessors": 8,
+        "Encapsulated Accessors": 10,
         "Generic / Templated Code": 4,
         "Many-Argument Workhorses": 15,
-        "Stateful Encapsulated Methods": 36
+        "Stateful Encapsulated Methods": 34
       }
     },
     "python/airflow_ai_providers": {
@@ -8449,10 +8452,9 @@
         "Type Conversions": 2
       },
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": {
-        "Encapsulated Accessors": 1,
+        "Encapsulated Accessors": 2,
         "Generic / Templated Code": 17,
         "Many-Argument Workhorses": 5,
-        "Stateful Encapsulated Methods": 1,
         "Type Conversions": 1
       },
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
@@ -8460,15 +8462,15 @@
         "Many-Argument Workhorses": 3
       },
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
-        "Interface Declarations": 1,
-        "Type Conversions": 1
+        "Annotated & Test Methods": 1,
+        "Generic / Templated Code": 1
       }
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": {},
       "python/airflow_opsgenie_tests/test_opsgenie.py": {
-        "Defensive Guards": 4,
-        "Parameter Forwarders": 5
+        "Annotated & Test Methods": 5,
+        "Defensive Guards": 4
       }
     },
     "python/cython": {
@@ -8478,39 +8480,43 @@
       },
       "python/cython/LICENSE.txt": {},
       "python/cython/MemoryView.pxd": {
-        "Defensive Guards": 2,
-        "State Mutators": 14
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 1,
+        "State Mutators": 12
       },
       "python/cython/MemoryView.pyx": {
+        "Annotated & Test Methods": 14,
         "Compute Cores": 8,
-        "Defensive Guards": 11,
-        "Interface Declarations": 1,
+        "Defensive Guards": 10,
         "Many-Argument Workhorses": 15,
-        "Parameter Forwarders": 32,
+        "Parameter Forwarders": 20,
         "State Mutators": 11,
         "Stateful Encapsulated Methods": 2,
         "Type Conversions": 4
       },
       "python/cython/Nodes.py": {
-        "Compute Cores": 155,
+        "Annotated & Test Methods": 6,
+        "Compute Cores": 153,
         "Defensive Guards": 28,
         "Encapsulated Accessors": 9,
         "Generic / Templated Code": 4,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 59,
-        "Parameter Forwarders": 210,
+        "Parameter Forwarders": 206,
         "Stateful Encapsulated Methods": 7,
         "Type Conversions": 3
       }
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_iterator.py": {
-        "Parameter Forwarders": 5
+        "Annotated & Test Methods": 1,
+        "Parameter Forwarders": 4
       },
       "python/django_db_tests/test_utils.py": {
+        "Annotated & Test Methods": 4,
         "Compute Cores": 1,
         "Encapsulated Accessors": 1,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 4
       }
     },
     "python/fastapi": {
@@ -8597,78 +8603,73 @@
     "python/fastapi/tests": {
       "python/fastapi/tests/__init__.py": {},
       "python/fastapi/tests/main.py": {
+        "Annotated & Test Methods": 35,
         "Generic / Templated Code": 2,
-        "Interface Declarations": 4,
-        "Parameter Forwarders": 32
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_additional_properties.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_properties_bool.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_response_extra.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_responses_bad.py": {
-        "Annotated & Test Methods": 1,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 2
       },
       "python/fastapi/tests/test_additional_responses_custom_model_in_callback.py": {
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 2,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_responses_custom_validationerror.py": {
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 1,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_responses_default_validationerror.py": {
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 1,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_responses_response_class.py": {
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 2
+        "Annotated & Test Methods": 2,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_responses_router.py": {
+        "Annotated & Test Methods": 4,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 4
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_additional_responses_union_duplicate_anyof.py": {
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 2
+        "Annotated & Test Methods": 2,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_allow_inf_nan_in_enforcing.py": {
-        "Defensive Guards": 4,
+        "Annotated & Test Methods": 4,
         "Generic / Templated Code": 1
       },
       "python/fastapi/tests/test_ambiguous_params.py": {
-        "Annotated & Test Methods": 2,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 5
+        "Annotated & Test Methods": 7,
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_annotated.py": {
-        "Annotated & Test Methods": 2,
-        "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 6
+        "Annotated & Test Methods": 9,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_application.py": {
-        "Defensive Guards": 5,
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 4,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_arbitrary_types.py": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 2,
-        "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 2
       },
@@ -8684,47 +8685,45 @@
         "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_computed_fields.py": {
-        "Defensive Guards": 1,
-        "Generic / Templated Code": 4,
+        "Annotated & Test Methods": 3,
+        "Generic / Templated Code": 2,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_custom_middleware_exception.py": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 2,
         "Defensive Guards": 2,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_custom_route_class.py": {
-        "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 3
+        "Annotated & Test Methods": 4,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_custom_schema_fields.py": {
-        "Defensive Guards": 2,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_custom_swagger_ui_redirect.py": {
-        "Defensive Guards": 3,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 3
       },
       "python/fastapi/tests/test_datastructures.py": {
-        "Annotated & Test Methods": 1,
-        "Defensive Guards": 4,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 4
       },
       "python/fastapi/tests/test_datetime_custom_encoder.py": {
-        "Annotated & Test Methods": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 3
       },
       "python/fastapi/tests/test_default_response_class.py": {
+        "Annotated & Test Methods": 14,
         "Defensive Guards": 14,
-        "Generic / Templated Code": 1,
-        "Interface Declarations": 14
+        "Generic / Templated Code": 1
       },
       "python/fastapi/tests/test_default_response_class_router.py": {
-        "Defensive Guards": 14,
-        "Interface Declarations": 14
+        "Annotated & Test Methods": 14,
+        "Defensive Guards": 14
       },
       "python/fastapi/tests/test_dependencies_utils.py": {
         "Defensive Guards": 1
@@ -8735,58 +8734,61 @@
         "Generic / Templated Code": 3
       },
       "python/fastapi/tests/test_dependency_after_yield_streaming.py": {
-        "Annotated & Test Methods": 1,
-        "Defensive Guards": 6,
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 5,
         "Generic / Templated Code": 7,
         "Interface Declarations": 4,
         "Type Conversions": 2
       },
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": {
-        "Defensive Guards": 2,
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 1,
         "Generic / Templated Code": 4,
+        "Interface Declarations": 1
+      },
+      "python/fastapi/tests/test_dependency_cache.py": {
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 4,
         "Interface Declarations": 1,
         "Parameter Forwarders": 2
       },
-      "python/fastapi/tests/test_dependency_cache.py": {
-        "Defensive Guards": 4,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 5
-      },
       "python/fastapi/tests/test_dependency_class.py": {
-        "Defensive Guards": 1,
-        "Generic / Templated Code": 8,
-        "Parameter Forwarders": 12
+        "Annotated & Test Methods": 13,
+        "Generic / Templated Code": 8
       },
       "python/fastapi/tests/test_dependency_contextmanager.py": {
+        "Annotated & Test Methods": 8,
         "Defensive Guards": 36,
         "Generic / Templated Code": 2,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 11
+        "Parameter Forwarders": 3
       },
       "python/fastapi/tests/test_dependency_contextvars.py": {
-        "Defensive Guards": 2,
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 1,
         "Generic / Templated Code": 1,
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_dependency_duplicates.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 4,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 3
       },
       "python/fastapi/tests/test_dependency_overrides.py": {
+        "Annotated & Test Methods": 4,
         "Defensive Guards": 25,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 6
+        "Parameter Forwarders": 4
       },
       "python/fastapi/tests/test_dependency_paramless.py": {
+        "Annotated & Test Methods": 3,
         "Compute Cores": 1,
-        "Defensive Guards": 4,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 1
+        "Defensive Guards": 4
       },
       "python/fastapi/tests/test_dependency_partial.py": {
-        "Generic / Templated Code": 25
+        "Annotated & Test Methods": 1,
+        "Generic / Templated Code": 24
       },
       "python/fastapi/tests/test_dependency_pep695.py": {
         "Annotated & Test Methods": 1,
@@ -8799,23 +8801,20 @@
         "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_dependency_wrapped.py": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 49,
         "Compute Cores": 2,
-        "Defensive Guards": 1,
-        "Generic / Templated Code": 8,
-        "Interface Declarations": 4,
-        "Parameter Forwarders": 40
+        "Parameter Forwarders": 5
       },
       "python/fastapi/tests/test_dependency_yield_except_httpexception.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 3,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_dependency_yield_scope.py": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 6,
         "Defensive Guards": 8,
         "Generic / Templated Code": 14,
-        "Interface Declarations": 9
+        "Interface Declarations": 6
       },
       "python/fastapi/tests/test_dependency_yield_scope_websockets.py": {
         "Annotated & Test Methods": 1,
@@ -8828,92 +8827,93 @@
         "Interface Declarations": 1
       },
       "python/fastapi/tests/test_deprecated_openapi_prefix.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_deprecated_responses.py": {
-        "Annotated & Test Methods": 2,
+        "Annotated & Test Methods": 4,
         "Defensive Guards": 2,
-        "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 2
+        "Encapsulated Accessors": 2
       },
       "python/fastapi/tests/test_dump_json_fast_path.py": {
-        "Defensive Guards": 2,
-        "Generic / Templated Code": 2
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_duplicate_models_openapi.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_empty_router.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "Interface Declarations": 2
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_enforce_once_required_parameter.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "Encapsulated Accessors": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_exception_handlers.py": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 5,
         "Defensive Guards": 3,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 4,
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 3,
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_extra_routes.py": {
+        "Annotated & Test Methods": 6,
         "Defensive Guards": 7,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 7
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_fastapi_cli.py": {
         "I/O & Config Routines": 1,
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_file_and_form_order_issue_9116.py": {
-        "Defensive Guards": 2,
-        "Generic / Templated Code": 4,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 4
       },
       "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": {
         "Annotated & Test Methods": 1,
-        "Defensive Guards": 2,
+        "Defensive Guards": 3,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
-      },
-      "python/fastapi/tests/test_form_default.py": {
-        "Defensive Guards": 2,
-        "Parameter Forwarders": 2
-      },
-      "python/fastapi/tests/test_forms_from_non_typing_sequences.py": {
-        "Defensive Guards": 2,
-        "Parameter Forwarders": 3,
-        "Type Conversions": 1
-      },
-      "python/fastapi/tests/test_forms_single_model.py": {
-        "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 2
-      },
-      "python/fastapi/tests/test_forms_single_param.py": {
-        "Defensive Guards": 1,
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
       },
-      "python/fastapi/tests/test_generate_unique_id_function.py": {
+      "python/fastapi/tests/test_form_default.py": {
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 2
+      },
+      "python/fastapi/tests/test_forms_from_non_typing_sequences.py": {
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 2,
+        "Type Conversions": 1
+      },
+      "python/fastapi/tests/test_forms_single_model.py": {
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1
+      },
+      "python/fastapi/tests/test_forms_single_param.py": {
         "Annotated & Test Methods": 1,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 1
+      },
+      "python/fastapi/tests/test_generate_unique_id_function.py": {
+        "Annotated & Test Methods": 20,
         "I/O & Config Routines": 7,
-        "Parameter Forwarders": 23
+        "Parameter Forwarders": 4
       },
       "python/fastapi/tests/test_generic_parameterless_depends.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": {
         "Annotated & Test Methods": 1,
@@ -8922,46 +8922,42 @@
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_get_request_body.py": {
-        "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
-      },
-      "python/fastapi/tests/test_http_connection_injection.py": {
-        "Defensive Guards": 2,
-        "Parameter Forwarders": 3
-      },
-      "python/fastapi/tests/test_include_route.py": {
-        "Defensive Guards": 1,
-        "Parameter Forwarders": 1
-      },
-      "python/fastapi/tests/test_include_router_defaults_overrides.py": {
-        "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 22
-      },
-      "python/fastapi/tests/test_infer_param_optionality.py": {
-        "Compute Cores": 2,
-        "Defensive Guards": 8,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 1
-      },
-      "python/fastapi/tests/test_inherited_custom_class.py": {
         "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 4,
+        "I/O & Config Routines": 1
+      },
+      "python/fastapi/tests/test_http_connection_injection.py": {
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 2,
+        "Parameter Forwarders": 1
+      },
+      "python/fastapi/tests/test_include_route.py": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 1
+      },
+      "python/fastapi/tests/test_include_router_defaults_overrides.py": {
+        "Annotated & Test Methods": 16,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 6
+      },
+      "python/fastapi/tests/test_infer_param_optionality.py": {
+        "Annotated & Test Methods": 4,
+        "Defensive Guards": 8,
+        "I/O & Config Routines": 1
+      },
+      "python/fastapi/tests/test_inherited_custom_class.py": {
+        "Annotated & Test Methods": 5,
+        "Parameter Forwarders": 2,
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_invalid_path_param.py": {
-        "Annotated & Test Methods": 7,
-        "Generic / Templated Code": 3,
-        "Parameter Forwarders": 4
+        "Annotated & Test Methods": 11,
+        "Generic / Templated Code": 3
       },
       "python/fastapi/tests/test_invalid_sequence_param.py": {
-        "Annotated & Test Methods": 4,
-        "Generic / Templated Code": 3,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 5,
+        "Generic / Templated Code": 3
       },
       "python/fastapi/tests/test_json_type.py": {
         "Defensive Guards": 3,
@@ -8969,11 +8965,11 @@
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_jsonable_encoder.py": {
-        "Annotated & Test Methods": 2,
+        "Annotated & Test Methods": 4,
         "Callbacks & Closures": 1,
         "Defensive Guards": 17,
         "Interface Declarations": 3,
-        "Parameter Forwarders": 8,
+        "Parameter Forwarders": 6,
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": {
@@ -8994,8 +8990,7 @@
         "Interface Declarations": 1
       },
       "python/fastapi/tests/test_multipart_installation.py": {
-        "Annotated & Test Methods": 11,
-        "Parameter Forwarders": 11
+        "Annotated & Test Methods": 22
       },
       "python/fastapi/tests/test_no_schema_split.py": {
         "Defensive Guards": 1,
@@ -9003,44 +8998,45 @@
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_no_swagger_ui_redirect.py": {
-        "Defensive Guards": 3,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 3
       },
       "python/fastapi/tests/test_openapi_cache_root_path.py": {
-        "Annotated & Test Methods": 4,
-        "Interface Declarations": 4
+        "Annotated & Test Methods": 8
       },
       "python/fastapi/tests/test_openapi_examples.py": {
+        "Annotated & Test Methods": 5,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 5
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_openapi_model_description_trim_on_formfeed.py": {
-        "Defensive Guards": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 1
       },
       "python/fastapi/tests/test_openapi_query_parameter_extension.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_openapi_route_extensions.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_openapi_schema_type.py": {
-        "Generic / Templated Code": 2
+        "Annotated & Test Methods": 1,
+        "Generic / Templated Code": 1
       },
       "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "Generic / Templated Code": 6,
+        "Generic / Templated Code": 5,
         "I/O & Config Routines": 5
       },
       "python/fastapi/tests/test_openapi_servers.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_operations_signatures.py": {
         "Defensive Guards": 1
@@ -9050,21 +9046,23 @@
         "Generic / Templated Code": 1
       },
       "python/fastapi/tests/test_orjson_response_class.py": {
-        "Interface Declarations": 2
+        "Annotated & Test Methods": 1,
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_param_class.py": {
-        "Defensive Guards": 2,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_param_in_path_and_dependency.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_param_include_in_schema.py": {
+        "Annotated & Test Methods": 4,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 4
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_params_repr.py": {
         "Defensive Guards": 26,
@@ -9074,56 +9072,52 @@
         "Defensive Guards": 75
       },
       "python/fastapi/tests/test_put_no_body.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_pydantic_v1_error.py": {
-        "Annotated & Test Methods": 6,
-        "Generic / Templated Code": 2,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 11,
+        "Generic / Templated Code": 1
       },
       "python/fastapi/tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py": {
-        "Defensive Guards": 1,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 1
       },
       "python/fastapi/tests/test_query.py": {
         "Defensive Guards": 29
       },
       "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": {
-        "Defensive Guards": 5,
-        "Parameter Forwarders": 3
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 5
       },
       "python/fastapi/tests/test_read_with_orm_mode.py": {
         "Annotated & Test Methods": 1,
         "Generic / Templated Code": 2
       },
       "python/fastapi/tests/test_regex_deprecated_body.py": {
-        "Annotated & Test Methods": 1,
-        "Compute Cores": 1,
-        "Defensive Guards": 3,
+        "Annotated & Test Methods": 5,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_regex_deprecated_params.py": {
-        "Annotated & Test Methods": 1,
-        "Compute Cores": 1,
-        "Defensive Guards": 3,
+        "Annotated & Test Methods": 5,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_repeated_cookie_headers.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 1,
-        "Parameter Forwarders": 4
+        "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_repeated_dependency_schema.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_repeated_parameter_alias.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": {
         "Defensive Guards": 1,
@@ -9131,295 +9125,299 @@
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_request_body_parameters_media_type.py": {
+        "Annotated & Test Methods": 1,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_request_param_model_by_alias.py": {
+        "Annotated & Test Methods": 3,
         "Defensive Guards": 4,
-        "Parameter Forwarders": 3,
         "Type Conversions": 2
       },
       "python/fastapi/tests/test_required_noneable.py": {
-        "Defensive Guards": 7,
-        "Parameter Forwarders": 3
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 7
       },
       "python/fastapi/tests/test_response_by_alias.py": {
+        "Annotated & Test Methods": 9,
         "Defensive Guards": 9,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 9
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_response_change_status_code.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
-        "Interface Declarations": 1,
         "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_response_class_no_mediatype.py": {
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 2
+        "Annotated & Test Methods": 2,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_response_code_no_body.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 2
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_response_dependency.py": {
-        "Annotated & Test Methods": 7,
+        "Annotated & Test Methods": 14,
         "Generic / Templated Code": 7,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_response_model_as_return_annotation.py": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 36,
         "Defensive Guards": 30,
-        "Generic / Templated Code": 26,
+        "Generic / Templated Code": 2,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 11,
         "Type Conversions": 6
       },
       "python/fastapi/tests/test_response_model_data_filter.py": {
-        "Defensive Guards": 3,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 3
       },
       "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": {
-        "Defensive Guards": 3,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 3
       },
       "python/fastapi/tests/test_response_model_default_factory.py": {
-        "Defensive Guards": 2,
-        "Interface Declarations": 2
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_response_model_include_exclude.py": {
-        "Defensive Guards": 6,
-        "Interface Declarations": 6
+        "Annotated & Test Methods": 6,
+        "Defensive Guards": 6
       },
       "python/fastapi/tests/test_response_model_invalid.py": {
-        "Annotated & Test Methods": 4,
-        "Interface Declarations": 4
+        "Annotated & Test Methods": 8
       },
       "python/fastapi/tests/test_response_model_sub_types.py": {
+        "Annotated & Test Methods": 4,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 4
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_return_none_stringified_annotations.py": {
-        "Annotated & Test Methods": 1,
-        "Generic / Templated Code": 1
+        "Annotated & Test Methods": 2
       },
       "python/fastapi/tests/test_route_scope.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 4,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 2
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_router_circular_import.py": {
         "Interface Declarations": 1
       },
       "python/fastapi/tests/test_router_events.py": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 11,
         "Defensive Guards": 6,
-        "Generic / Templated Code": 35
+        "Generic / Templated Code": 27
       },
       "python/fastapi/tests/test_router_prefix_with_template.py": {
-        "Defensive Guards": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 1
       },
       "python/fastapi/tests/test_router_redirect_slashes.py": {
-        "Annotated & Test Methods": 2,
-        "Generic / Templated Code": 2
+        "Annotated & Test Methods": 4
       },
       "python/fastapi/tests/test_schema_compat_pydantic_v2.py": {
-        "Annotated & Test Methods": 1,
-        "Defensive Guards": 1,
-        "Generic / Templated Code": 1,
+        "Annotated & Test Methods": 3,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_schema_extra_examples.py": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 17,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 16
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_schema_ref_pydantic_v2.py": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 1,
-        "Generic / Templated Code": 1,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_api_key_cookie.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_cookie_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_cookie_optional.py": {
-        "Compute Cores": 1,
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_header.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_header_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_header_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_query.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_query_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_api_key_query_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_http_base.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_base_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_base_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_basic_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_basic_realm.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_basic_realm_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_bearer.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_bearer_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_bearer_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_digest.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_digest_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_http_digest_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_oauth2.py": {
-        "Defensive Guards": 6,
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 5,
         "I/O & Config Routines": 2,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi.py": {
+        "Annotated & Test Methods": 5,
         "Defensive Guards": 5,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 3,
-        "Parameter Forwarders": 2
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi_simple.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 1,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_oauth2_optional.py": {
-        "Defensive Guards": 6,
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 5,
         "I/O & Config Routines": 2,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_oauth2_optional_description.py": {
-        "Defensive Guards": 6,
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 5,
         "I/O & Config Routines": 2,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_oauth2_password_bearer_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_security_oauth2_password_bearer_optional_description.py": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 1
+      },
+      "python/fastapi/tests/test_security_openid_connect.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
       },
-      "python/fastapi/tests/test_security_openid_connect.py": {
-        "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
-      },
       "python/fastapi/tests/test_security_openid_connect_description.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_openid_connect_optional.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 3,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_scopes.py": {
+        "Annotated & Test Methods": 3,
         "Defensive Guards": 1,
         "Generic / Templated Code": 1,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 3
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_security_scopes_dont_propagate.py": {
         "Defensive Guards": 1,
@@ -9427,66 +9425,68 @@
         "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_security_scopes_sub_dependency.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 1,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 6
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 5
       },
       "python/fastapi/tests/test_serialize_response.py": {
+        "Annotated & Test Methods": 3,
         "Defensive Guards": 2,
-        "Interface Declarations": 4
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_serialize_response_dataclass.py": {
+        "Annotated & Test Methods": 7,
         "I/O & Config Routines": 3,
-        "Interface Declarations": 11
+        "Interface Declarations": 4
       },
       "python/fastapi/tests/test_serialize_response_model.py": {
+        "Annotated & Test Methods": 8,
         "Defensive Guards": 3,
-        "Interface Declarations": 13
+        "Interface Declarations": 5
       },
       "python/fastapi/tests/test_skip_defaults.py": {
-        "Defensive Guards": 5,
-        "Generic / Templated Code": 5
+        "Annotated & Test Methods": 5,
+        "Defensive Guards": 5
       },
       "python/fastapi/tests/test_sse.py": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 17,
         "Defensive Guards": 14,
-        "Generic / Templated Code": 4,
-        "Interface Declarations": 11
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_starlette_exception.py": {
+        "Annotated & Test Methods": 4,
         "Defensive Guards": 6,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 2
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_starlette_urlconvertors.py": {
-        "Defensive Guards": 5,
-        "Parameter Forwarders": 4
+        "Annotated & Test Methods": 4,
+        "Defensive Guards": 5
       },
       "python/fastapi/tests/test_stream_bare_type.py": {
-        "Defensive Guards": 2,
-        "Generic / Templated Code": 2
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_stream_cancellation.py": {
-        "Generic / Templated Code": 5,
+        "Annotated & Test Methods": 2,
+        "Generic / Templated Code": 3,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_stream_json_validation_error.py": {
-        "Annotated & Test Methods": 2,
-        "Generic / Templated Code": 2
+        "Annotated & Test Methods": 4
       },
       "python/fastapi/tests/test_strict_content_type_app_level.py": {
-        "Defensive Guards": 4,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 4
       },
       "python/fastapi/tests/test_strict_content_type_nested.py": {
-        "Defensive Guards": 8,
-        "Parameter Forwarders": 4
+        "Annotated & Test Methods": 4,
+        "Defensive Guards": 8
       },
       "python/fastapi/tests/test_strict_content_type_router_level.py": {
-        "Defensive Guards": 6,
-        "Parameter Forwarders": 3
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 6
       },
       "python/fastapi/tests/test_stringified_annotation_dependency.py": {
         "Defensive Guards": 2,
@@ -9497,98 +9497,91 @@
         "Generic / Templated Code": 2
       },
       "python/fastapi/tests/test_stringified_annotations_simple.py": {
-        "Annotated & Test Methods": 1,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 2,
+        "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_swagger_ui_escape.py": {
         "Defensive Guards": 3
       },
       "python/fastapi/tests/test_swagger_ui_init_oauth.py": {
-        "Defensive Guards": 2,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_top_level_security_scheme_in_openapi.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_tuples.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 6,
         "Generic / Templated Code": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_typing_python39.py": {
-        "Annotated & Test Methods": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 2
       },
       "python/fastapi/tests/test_union_body.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_union_body_discriminator.py": {
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_union_body_discriminator_annotated.py": {
-        "Annotated & Test Methods": 1,
-        "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 2
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_union_forms.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_union_inherited_body.py": {
+        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_validate_response.py": {
-        "Annotated & Test Methods": 4,
-        "Compute Cores": 1,
-        "Defensive Guards": 2,
-        "Interface Declarations": 4
+        "Annotated & Test Methods": 9,
+        "Defensive Guards": 2
       },
       "python/fastapi/tests/test_validate_response_dataclass.py": {
-        "Annotated & Test Methods": 3,
-        "Interface Declarations": 3
+        "Annotated & Test Methods": 6
       },
       "python/fastapi/tests/test_validation_error_context.py": {
+        "Annotated & Test Methods": 8,
         "Defensive Guards": 5,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 8,
+        "Parameter Forwarders": 2,
         "Type Conversions": 2
       },
       "python/fastapi/tests/test_vibe.py": {
-        "Annotated & Test Methods": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 2
       },
       "python/fastapi/tests/test_webhooks_security.py": {
-        "Annotated & Test Methods": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 2,
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": {
-        "Annotated & Test Methods": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 1
+        "Annotated & Test Methods": 2,
+        "Interface Declarations": 1
       },
       "python/fastapi/tests/test_ws_dependencies.py": {
+        "Annotated & Test Methods": 3,
         "Defensive Guards": 3,
         "Generic / Templated Code": 1,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_ws_router.py": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 12,
         "Callbacks & Closures": 1,
         "Defensive Guards": 10,
         "Generic / Templated Code": 1,
         "Interface Declarations": 4,
-        "Parameter Forwarders": 14
+        "Parameter Forwarders": 5
       },
       "python/fastapi/tests/utils.py": {
         "Interface Declarations": 1
@@ -9626,7 +9619,7 @@
         "Many-Argument Workhorses": 3
       },
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": {
-        "Defensive Guards": 1,
+        "Annotated & Test Methods": 1,
         "Generic / Templated Code": 5
       }
     },
@@ -9646,11 +9639,12 @@
       "python/numpy/LICENSE.txt": {},
       "python/numpy/__init__.py": {},
       "python/numpy/_linalg.py": {
+        "Annotated & Test Methods": 2,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 39,
         "I/O & Config Routines": 6,
         "Many-Argument Workhorses": 23,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 1,
         "Stateful Encapsulated Methods": 8
       },
       "python/numpy/cfuncs.py": {
@@ -9659,12 +9653,13 @@
         "Interface Declarations": 1
       },
       "python/numpy/core.py": {
+        "Annotated & Test Methods": 9,
         "Compute Cores": 29,
         "Defensive Guards": 14,
         "Encapsulated Accessors": 13,
         "I/O & Config Routines": 15,
         "Many-Argument Workhorses": 84,
-        "Parameter Forwarders": 70,
+        "Parameter Forwarders": 61,
         "Stateful Encapsulated Methods": 36,
         "Type Conversions": 7
       },
@@ -9705,11 +9700,12 @@
         "Parameter Forwarders": 1
       },
       "python/numpy/generate_umath.py": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 4,
         "Defensive Guards": 1,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 4,
+        "Parameter Forwarders": 3,
         "Stateful Encapsulated Methods": 1
       },
       "python/numpy/generate_umath_doc.py": {
@@ -9724,11 +9720,12 @@
         "Interface Declarations": 1
       },
       "python/numpy/symbolic.py": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 12,
         "Defensive Guards": 23,
         "Encapsulated Accessors": 2,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 32,
+        "Parameter Forwarders": 31,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 4
       },
@@ -9767,8 +9764,9 @@
     },
     "python/tensorflow_ml_ops": {
       "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": {
         "Compute Cores": 1,
@@ -9803,15 +9801,16 @@
         "Type Conversions": 1
       },
       "python/twisted/http.py": {
+        "Annotated & Test Methods": 9,
         "Compute Cores": 14,
         "Defensive Guards": 9,
-        "Encapsulated Accessors": 20,
+        "Encapsulated Accessors": 21,
         "Generic / Templated Code": 12,
         "I/O & Config Routines": 1,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 8,
-        "Parameter Forwarders": 53,
-        "Stateful Encapsulated Methods": 31,
+        "Parameter Forwarders": 44,
+        "Stateful Encapsulated Methods": 30,
         "Type Conversions": 3
       },
       "python/twisted/reflect.py": {
@@ -9825,13 +9824,14 @@
         "Type Conversions": 3
       },
       "python/twisted/transport.py": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 15,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 4,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 11,
-        "Parameter Forwarders": 21,
+        "Parameter Forwarders": 20,
         "Stateful Encapsulated Methods": 21,
         "Type Conversions": 1
       }

@@ -14,9 +14,9 @@
   "chosen": 1033,
   "coverage": "proven on 8 scenarios, covering 7/7 paragraphs and 5/6 branches",
   "counts": {
-   "killed": 325,
+   "killed": 336,
    "timeout": 2,
-   "survived": 672,
+   "survived": 661,
    "stillborn": 34,
    "error": 0,
    "pending": 0
@@ -99,12 +99,14 @@
    "3c290f5d4d",
    "3c5b1becc8",
    "3e4f40bd49",
+   "3f48d54a1b",
    "3f8d77f5f5",
    "3ff43cf0a4",
    "41fb5dbaa0",
    "42e274e4f8",
    "4466dc2da7",
    "44dfc97ccc",
+   "453bacd5bc",
    "45a5c06523",
    "464c1be2fa",
    "499889ca93",
@@ -156,6 +158,7 @@
    "6d6c7d3a17",
    "6e087276c7",
    "6eb7383619",
+   "6edf9904a4",
    "70785e4b41",
    "70e0b4ea38",
    "71830def7e",
@@ -174,6 +177,7 @@
    "7c151449c5",
    "7c4467f416",
    "7d2972923c",
+   "7e3fbcfd12",
    "7e792b350a",
    "81e07071f2",
    "82331a0b63",
@@ -193,10 +197,13 @@
    "89aaaacbed",
    "8a30160185",
    "8a3584631f",
+   "8af51923c8",
    "8b74e59ae4",
    "8c037bc030",
    "8eb147b5dc",
+   "8fdcc5af7e",
    "901aaecf80",
+   "90a03bf3a7",
    "9149246908",
    "9304d688e7",
    "93483bf753",
@@ -218,6 +225,7 @@
    "9eb6697c58",
    "9f0c55cb10",
    "9fdb4e831d",
+   "a0a94c74d9",
    "a14e430c16",
    "a1a241438e",
    "a254eaeb0c",
@@ -302,6 +310,7 @@
    "dea7cd1f68",
    "dee4b3c4fc",
    "df334f12bd",
+   "dfc76bb6b5",
    "e27f1026d9",
    "e2e6016edc",
    "e3421e003d",
@@ -334,6 +343,7 @@
    "f38c5544e9",
    "f563110ec6",
    "f6f8471196",
+   "f73f8b6fa3",
    "f859d2b178",
    "f991fb1e66",
    "fa301c3693",
@@ -342,6 +352,7 @@
    "fbb5123b14",
    "fc3a647bd8",
    "fc5b176397",
+   "fd1bd727c8",
    "fd1c9f38d9",
    "fdb4fca591",
    "fe774507ea",
@@ -628,14 +639,6 @@
     "after": "\"XAA=\"));"
    },
    {
-    "id": "dfc76bb6b5",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 112,
-    "before": "private final Field f5_ABND_VSAM_KEY = Field.group(s_WS_ABND_AREA, 0, 12);",
-    "after": "private final Field f5_ABND_VSAM_KEY = Field.group(s_WS_ABND_AREA, 1, 12);"
-   },
-   {
     "id": "70a7338c87",
     "op": "CON",
     "file": "service/AbndprocService.java",
@@ -852,62 +855,6 @@
     "after": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
    {
-    "id": "453bacd5bc",
-    "op": "DEL",
-    "file": "service/AbndprocService.java",
-    "line": 128,
-    "before": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 15, 0, true), CS).longValue());",
-    "after": "/* k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 15, 0, true), CS).longValue()); */"
-   },
-   {
-    "id": "fd1bd727c8",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 128,
-    "before": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 15, 0, true), CS).longValue());",
-    "after": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 1, 15, 0, true), CS).longValue());"
-   },
-   {
-    "id": "f73f8b6fa3",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 128,
-    "before": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 15, 0, true), CS).longValue());",
-    "after": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 16, 0, true), CS).longValue());"
-   },
-   {
-    "id": "7e3fbcfd12",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 128,
-    "before": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 15, 0, true), CS).longValue());",
-    "after": "k.setAbndUtimeKey(Cobol.num(Field.packed(s, 0, 15, 1, true), CS).longValue());"
-   },
-   {
-    "id": "a0a94c74d9",
-    "op": "DEL",
-    "file": "service/AbndprocService.java",
-    "line": 129,
-    "before": "k.setAbndTasknoKey(Cobol.num(Field.zoned(s, 8, 4, 0, false, false, false), CS).intValue());",
-    "after": "/* k.setAbndTasknoKey(Cobol.num(Field.zoned(s, 8, 4, 0, false, false, false), CS).intValue()); */"
-   },
-   {
-    "id": "8fdcc5af7e",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 129,
-    "before": "k.setAbndTasknoKey(Cobol.num(Field.zoned(s, 8, 4, 0, false, false, false), CS).intValue());",
-    "after": "k.setAbndTasknoKey(Cobol.num(Field.zoned(s, 9, 4, 0, false, false, false), CS).intValue());"
-   },
-   {
-    "id": "90a03bf3a7",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 129,
-    "before": "k.setAbndTasknoKey(Cobol.num(Field.zoned(s, 8, 4, 0, false, false, false), CS).intValue());",
-    "after": "k.setAbndTasknoKey(Cobol.num(Field.zoned(s, 8, 5, 0, false, false, false), CS).intValue());"
-   },
-   {
     "id": "7963d5af53",
     "op": "CON",
     "file": "service/AbndprocService.java",
@@ -978,22 +925,6 @@
     "line": 154,
     "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
     "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"XBNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));"
-   },
-   {
-    "id": "8af51923c8",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 154,
-    "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
-    "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 1, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));"
-   },
-   {
-    "id": "3f48d54a1b",
-    "op": "CON",
-    "file": "service/AbndprocService.java",
-    "line": 154,
-    "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
-    "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 13, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));"
    },
    {
     "id": "0524192548",
@@ -2658,14 +2589,6 @@
     "line": 466,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
-   },
-   {
-    "id": "6edf9904a4",
-    "op": "LIT",
-    "file": "service/AbndprocService.java",
-    "line": 481,
-    "before": "int resp1 = task.write(\"ABNDFILE\".stripTrailing(), store(\"ABNDFILE\".stripTrailing()).exists(DetCics.bytes(f5_ABND_VSAM_KEY)), () -> store(\"ABNDFILE\".stripTrailing()).store(DetCics.bytes(f4_WS_ABND_AREA)));",
-    "after": "int resp1 = task.write(\"ABNDFILE\".stripTrailing(), store(\"XBNDFILE\".stripTrailing()).exists(DetCics.bytes(f5_ABND_VSAM_KEY)), () -> store(\"ABNDFILE\".stripTrailing()).store(DetCics.bytes(f4_WS_ABND_AREA)));"
    },
    {
     "id": "bd3aacd69b",
@@ -5904,6 +5827,24 @@
      "f09e76f60a",
      "ff1af37896",
      "ffa2c0d37e"
+    ],
+    "date": "2026-11-21"
+   },
+   "cbsa-crdtagy1-seeded": {
+    "case": "899a8290f4a7d7ba25812a84830e21be4730d9c7e1ab036cc36d4cc9cb44c084",
+    "ran": 672,
+    "killed": [
+     "3f48d54a1b",
+     "453bacd5bc",
+     "6edf9904a4",
+     "7e3fbcfd12",
+     "8af51923c8",
+     "8fdcc5af7e",
+     "90a03bf3a7",
+     "a0a94c74d9",
+     "dfc76bb6b5",
+     "f73f8b6fa3",
+     "fd1bd727c8"
     ],
     "date": "2026-11-21"
    }

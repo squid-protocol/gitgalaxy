@@ -1,0 +1,369 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "CRDTAGY3",
+ "program_source": "src/base/cobol_src/CRDTAGY3.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCR3",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "commarea": null,
+ "linked": true,
+ "screens": {},
+ "notes": "Fault scenarios for CRDTAGY3 (#7954): judged on the det port only, to kill det-mutation survivors that the main case cannot reach (the PUT CONTAINER failure branch, the ABNDPROC WRITE-failure path, and task numbers that move the RANDOM seed). Same program, region, datasets and channel as cbsa-crdtagy3; the scenarios inject IBM-listed RESP2 values (PUT CONTAINER INVREQ 4, ABNDFILE WRITE failures after a planned DELAY INVREQ 6). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "scenarios": [
+  {
+   "name": "atk-put-invreq",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "attack",
+   "faults": [
+    {
+     "cmd": "PUT-CONTAINER",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "atk-get-invreq",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "attack",
+   "faults": [
+    {
+     "cmd": "GET-CONTAINER",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "atk-link-pgmiderr",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    },
+    {
+     "cmd": "LINK",
+     "resp": "PGMIDERR",
+     "resp2": 1,
+     "program": "ABNDPROC"
+    }
+   ],
+   "why": "attack"
+  },
+  {
+   "name": "atk-wr-nospace",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    },
+    {
+     "cmd": "WRITE",
+     "resp": "NOSPACE",
+     "resp2": 0,
+     "file": "ABNDFILE"
+    }
+   ],
+   "why": "attack"
+  },
+  {
+   "name": "atk-wr-notopen",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    },
+    {
+     "cmd": "WRITE",
+     "resp": "NOTOPEN",
+     "resp2": 0,
+     "file": "ABNDFILE"
+    }
+   ],
+   "why": "attack"
+  },
+  {
+   "name": "atk-wr-disabled",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    },
+    {
+     "cmd": "WRITE",
+     "resp": "DISABLED",
+     "resp2": 0,
+     "file": "ABNDFILE"
+    }
+   ],
+   "why": "attack"
+  },
+  {
+   "name": "atk-wr-duprec",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    },
+    {
+     "cmd": "WRITE",
+     "resp": "DUPREC",
+     "resp2": 0,
+     "file": "ABNDFILE"
+    }
+   ],
+   "why": "attack"
+  },
+  {
+   "name": "atk-task-1",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "attack",
+   "taskn": 1
+  },
+  {
+   "name": "atk-task-77",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "attack",
+   "taskn": 77
+  },
+  {
+   "name": "atk-task-99999",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "why": "attack",
+   "taskn": 99999
+  }
+ ]
+}

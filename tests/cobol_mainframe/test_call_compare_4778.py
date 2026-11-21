@@ -260,7 +260,12 @@ def test_an_occurrences_attribute_is_a_subfield_of_its_own(tmp_path):
     data = bytearray(b"\x00" * 40)
     data[15 + 9] = 0xF1  # ROWC(2): the colour byte of the second line
     sub = ec.map_subfields(tmp_path, case, "M", bytes(data), "latin-1")
-    assert sub == {"ROW.2": {"color": 0xF1}}
+    # every attribute / colour byte is recorded, X'00' included (a NUL is a value, #7955)
+    assert sub == {
+        "ROW.1": {"attr": 0, "color": 0},
+        "ROW.2": {"attr": 0, "color": 0xF1},
+        "ROW.3": {"attr": 0, "color": 0},
+    }
 
 
 def test_a_symbolic_map_with_occurs_depending_on_is_refused(tmp_path):

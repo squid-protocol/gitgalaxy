@@ -8,6 +8,7 @@ Internal use only until counsel answers Q16: the results file is never published
     probe.py flow [--printer FILE] [--out FILE] [--timeout S] [--dry]   # tests/equivalence/jcl/dataflow (&& temps, DISP, DD concat)
     probe.py gdg  [--printer FILE] [--out FILE] [--timeout S] [--dry]   # tests/equivalence/jcl/gdg (relative generations, catalog after)
     probe.py restart [--printer FILE] [--out FILE] [--timeout S] [--dry]  # tests/equivalence/jcl/restart (JOB RESTART=, deferred step restart)
+    probe.py dsutil [--printer FILE] [--out FILE] [--timeout S] [--dry]   # fixture/dsutil_scenarios.json (IEFBR14, IEBGENER, IEBCOPY)
 
 For each scenario a deck is built from the fixture's own EXEC cards (their COND kept as written): a step whose `given` is
 `{rc: n}` runs IDCAMS with `SET MAXCC=n`; `{abend: ...}` runs a program 3.8J cannot find (S806, the abend seen live; the
@@ -94,6 +95,20 @@ RESTART_UNOBSERVED = [
     "a checkpoint restart (SYSCHK, checkid, RD=): not run",
     "the restart rule for a bare COND=(code,op) over skipped steps (assumption A1): only its outcome on the box is compared",
 ]
+DSUTIL_SCENARIOS = FIXTURE / "dsutil_scenarios.json"
+DSUTIL_RESULTS = FIXTURE / "dsutil_mvs38j_probe.json"
+DSUTIL_UNOBSERVED = [
+    "the engine's answer (no gitgalaxy evaluator models what IEBGENER / IEBCOPY / IEFBR14 do to a dataset: two columns, manual and box)",
+    "a dataset's record format, length or block size (no VTOC listing is taken)",
+    "which members a PDS holds (read back by IEBGENER, one member per step)",
+]
+_DSUTIL_STATE = {
+    "CATALOGED": "cataloged",
+    "KEPT": "kept",
+    "DELETED": "deleted",
+    "UNCATALOGED": "uncataloged",
+    "PASSED": "passed",
+}
 ABEND_PGM = "NOPGM001"  # not in any library: step abend S806 (IEF450I, no IEF142I)
 
 
@@ -926,9 +941,137 @@ def main_restart(args):
     return 0 if all(r["verdict"] == "agree" for r in results) else 1
 
 
+DSUTIL_ROOT = (
+    "PRB."  # the fixture's dataset root; the box re-roots it under the user catalog alias UCAT (IEC301A otherwise)
+)
+
+
+def dsutil_reroot(text):
+    return text.replace(DSUTIL_ROOT, UCAT)
+
+
+def dsutil_cleanup_deck(dsns):
+    """An IEFBR14 job that deletes every scratch dataset a scenario may leave (MOD,DELETE allocates a missing one, then deletes it)."""
+    out = ["//PRBCLEAN JOB (ACCT),'PROBE CLEANUP',CLASS=A,MSGCLASS=A", "//S1       EXEC PGM=IEFBR14"]
+    for i, d in enumerate(dsns, 1):
+        out += [f"//D{i:<7} DD DSN={dsutil_reroot(d)},DISP=(MOD,DELETE),UNIT=SYSDA,", "//            SPACE=(TRK,1)"]
+    return "\n".join(out) + "\n"
+
+
+def dsutil_deck(lines, job):
+    """The job's own cards from the fixture, unchanged: the programs are the real utilities."""
+    head = next(ln for ln in lines if ln.split()[:2] == [f"//{job}", "JOB"])
+    return dsutil_reroot("\n".join([head, *_job_block(lines, job)]) + "\n")
+
+
+def dsutil_events(dispositions, track):
+    """Ordered end states of the tracked datasets from IEF285I lines: KEPT then CATALOGED is one `cataloged`, DELETED beside
+    UNCATALOGED is one `deleted`, consecutive repeats collapse."""
+    named = [(d["dsn"].replace(UCAT, DSUTIL_ROOT, 1), d["disposition"]) for d in dispositions]
+    seq = [(dsn, _DSUTIL_STATE[word]) for dsn, word in named if dsn in track and word in _DSUTIL_STATE]
+    out = []
+    for i, (dsn, st) in enumerate(seq):
+        nxt = seq[i + 1] if i + 1 < len(seq) else None
+        prev = out[-1] if out else None
+        if st == "kept" and nxt == (dsn, "cataloged"):
+            continue
+        if st == "uncataloged" and (prev == (dsn, "deleted") or nxt == (dsn, "deleted")):
+            continue
+        if prev == (dsn, st):
+            continue
+        out.append((dsn, st))
+    return [list(e) for e in out]
+
+
+def dsutil_observe(text, job, sc):
+    """The box's answer in the shape of a scenario's `expect` / `events` / `sysout_count`, from a printer file's text."""
+    parsed = runner.parse_log(text, job)
+    jobs = [j for j in parsed["jobs"] if j["job"] == job]
+    if not jobs:
+        return None
+    j = jobs[-1]
+    steps = {}
+    for s in j["steps"]:
+        steps[s["step"]] = {"action": "run", "rc": s["cond_code"]} if s["executed"] else {"action": "bypass"}
+    for a in j["abends"]:
+        steps[a["step"]] = {"action": "run", "abend": a["system"]}
+    out = {"steps": {k: steps.get(k, {"action": "bypass"}) for k in sc["expect"]}}
+    if "events" in sc:
+        out["events"] = dsutil_events(j["dispositions"], sc["track"])
+    if "sysout_count" in sc:
+        out["sysout_count"] = {k: text.count(k) for k in sc["sysout_count"]}
+    return out, j, parsed
+
+
+def dsutil_expected(sc):
+    out = {"steps": sc["expect"]}
+    for k in ("events", "sysout_count"):
+        if k in sc:
+            out[k] = sc[k]
+    return out
+
+
+def main_dsutil(args):
+    doc = json.loads(DSUTIL_SCENARIOS.read_text(encoding="utf-8"))
+    lines, scs = doc["flow_jcl"], doc["cases"]
+    if args.dry:
+        print(f"* cleanup\n{dsutil_cleanup_deck(doc['cleanup_dsns'])}")
+        for sc in scs:
+            print(f"* {sc['id']}\n{dsutil_deck(lines, sc['job'])}")
+        return 0
+    if not args.printer:
+        print("probe: --printer FILE is required (the 1403 file of a started box)", file=sys.stderr)
+        return 2
+    results = []
+    for sc in scs:
+        submit_and_read(
+            dsutil_cleanup_deck(doc["cleanup_dsns"]), "PRBCLEAN", args.printer, args.host, args.port, args.timeout
+        )
+        with tempfile.TemporaryDirectory(prefix="mvs38j-probe-") as tmp:
+            path = Path(tmp) / f"{sc['id']}.jcl"
+            path.write_text(dsutil_deck(lines, sc["job"]))
+            before = Path(args.printer).stat().st_size if Path(args.printer).is_file() else 0
+            runner.submit(path, args.host, args.port)
+        seen = None
+        if runner.wait_for_job(args.printer, sc["job"], args.timeout, before):
+            text = Path(args.printer).read_bytes()[before:].decode("utf-8", "backslashreplace")
+            seen = dsutil_observe(text, sc["job"], sc)
+        box, job, parsed = seen if seen else (None, None, None)
+        expect = dsutil_expected(sc)
+        results.append(
+            {
+                "id": sc["id"],
+                "job": sc["job"],
+                "expect": expect,
+                "engine": None,
+                "box": box,
+                "verdict": "no-box-answer" if box is None else ("agree" if box == expect else "differ:box"),
+                "box_steps": job["steps"] if job else None,
+                "box_abends": job["abends"] if job else None,
+                "box_dispositions": job["dispositions"] if job else None,
+                "jcl_error": job["jcl_error"] if job else None,
+                "unparsed_ief": parsed["unparsed_ief"] if parsed else None,
+                **({"assumed": sc["assumed"]} if "assumed" in sc else {}),
+            }
+        )
+        print(f"{sc['id']}: {results[-1]['verdict']}", flush=True)
+    submit_and_read(
+        dsutil_cleanup_deck(doc["cleanup_dsns"]), "PRBCLEAN", args.printer, args.host, args.port, args.timeout
+    )
+    out = {
+        "provenance": runner.PROVENANCE,
+        "internal_only": "Q16: MVS 3.8J results are not published",
+        "fixture": "tests/equivalence/jcl/fixture/dsutil_scenarios.json",
+        "unobserved": DSUTIL_UNOBSERVED,
+        "results": results,
+    }
+    Path(args.out if args.out != str(RESULTS) else DSUTIL_RESULTS).write_text(json.dumps(out, indent=1) + "\n")
+    return 0 if all(r["verdict"] == "agree" for r in results) else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("what", choices=["cond", "proc", "flow", "gdg", "restart"])
+    ap.add_argument("what", choices=["cond", "proc", "flow", "gdg", "restart", "dsutil"])
     ap.add_argument("--printer")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=3505)
@@ -944,6 +1087,8 @@ def main(argv=None):
         return main_gdg(args)
     if args.what == "restart":
         return main_restart(args)
+    if args.what == "dsutil":
+        return main_dsutil(args)
     doc = json.loads((FIXTURE / "scenarios.json").read_text(encoding="utf-8"))
     rows = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8"))
     flow = JclFlow(rows)

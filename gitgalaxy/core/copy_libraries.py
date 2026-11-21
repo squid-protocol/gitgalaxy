@@ -457,3 +457,24 @@ def declared_library_dirs(root: str, importer: str, cache: dict[str, list[str]])
             break
         folder = parent
     return out
+
+
+def named_library_dirs(root: str, importer: str, library: str, cache: dict[str, dict[str, list[str]]]) -> list[str]:
+    """#8412: the scan-relative directories a zapp.yaml names `library` (`COPY x IN MYLIB`) for `importer`: the
+    nearest zapp.yaml's declaration only (a zapp.yaml is its workspace's whole declaration). `cache` is per folder."""
+    from gitgalaxy.standards.language_lens import named_zapp_dirs_in_folder
+
+    root_abs = os.path.abspath(root)
+    folder = os.path.abspath(os.path.join(root_abs, os.path.dirname(importer.replace("\\", "/"))))
+    for _ in range(12):
+        if os.path.isfile(os.path.join(folder, "zapp.yaml")):
+            if folder not in cache:
+                cache[folder] = named_zapp_dirs_in_folder(folder)
+            dirs = cache[folder].get(library.upper(), [])
+            rels = [os.path.relpath(d, root_abs).replace(os.sep, "/") for d in dirs]
+            return [r for r in rels if not r.startswith("..")]
+        parent = os.path.dirname(folder)
+        if parent == folder or folder == root_abs:
+            break
+        folder = parent
+    return []

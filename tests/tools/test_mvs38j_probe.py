@@ -255,3 +255,49 @@ def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agr
     assert {r["id"] for r in got["results"]}.isdisjoint(got["skipped"])
     for r in got["results"]:
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]) == "agree", r["id"]
+
+
+def _dsutil():
+    return json.loads(probe.DSUTIL_SCENARIOS.read_text(encoding="utf-8"))
+
+
+def test_the_dsutil_decks_run_the_real_utilities_and_re_root_every_dataset_under_the_user_catalog():
+    doc = _dsutil()
+    for sc in doc["cases"]:
+        deck = probe.dsutil_deck(doc["flow_jcl"], sc["job"])
+        assert deck.splitlines()[0].split()[:2] == [f"//{sc['job']}", "JOB"], sc["id"]
+        assert "PRB." not in deck, sc["id"]
+    cleanup = probe.dsutil_cleanup_deck(doc["cleanup_dsns"])
+    assert cleanup.count("DISP=(MOD,DELETE)") == len(doc["cleanup_dsns"]) and "PRB." not in cleanup
+    assert "PGM=IEBGENER" in probe.dsutil_deck(doc["flow_jcl"], "GENCPY") and "PGM=IEBCOPY" in probe.dsutil_deck(
+        doc["flow_jcl"], "CPYSEL"
+    )
+
+
+def test_the_dsutil_events_collapse_kept_cataloged_and_deleted_uncataloged_and_map_the_root_back():
+    disp = [
+        {"dsn": "JES2.JOB00012.SO0101", "disposition": "SYSOUT"},
+        {"dsn": "PUB001.UTIL.EMPTY", "disposition": "CATALOGED"},
+        {"dsn": "UCPUB001", "disposition": "KEPT"},
+        {"dsn": "PUB001.UTIL.EMPTY", "disposition": "UNCATALOGED"},
+        {"dsn": "PUB001.UTIL.EMPTY", "disposition": "DELETED"},
+    ]
+    assert probe.dsutil_events(disp, ["PRB.UTIL.EMPTY"]) == [
+        ["PRB.UTIL.EMPTY", "cataloged"],
+        ["PRB.UTIL.EMPTY", "deleted"],
+    ]
+
+
+def test_the_committed_dsutil_results_cover_every_scenario_and_name_the_one_disagreement():
+    got = json.loads(probe.DSUTIL_RESULTS.read_text(encoding="utf-8"))
+    assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in _dsutil()["cases"]]
+    assert all(r["engine"] is None and not r["jcl_error"] for r in got["results"])
+    # IEF453I / IEF212I (a missing OLD dataset is "JOB FAILED - JCL ERROR" on the box) are the only lines the log reader does not know
+    assert {r["id"]: r["unparsed_ief"] for r in got["results"] if r["unparsed_ief"]} == {
+        "iefbr14-old-dataset-not-cataloged": 2
+    }
+    differ = {r["id"]: r["verdict"] for r in got["results"] if r["verdict"] != "agree"}
+    assert differ == {"iebgener-dummy-input-empty-output": "differ:box"}
+    row = next(r for r in got["results"] if r["id"] in differ)
+    assert row["expect"]["steps"]["S1"]["rc"] == 0 and row["box"]["steps"]["S1"]["rc"] == 12

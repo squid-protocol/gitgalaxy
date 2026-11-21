@@ -61,6 +61,11 @@ def _counts(src: str) -> dict:
         ("def f(xs):\n    return (x for x in xs)", "lazy", 0),
         ("def f():\n    yield 1", "lazy", 1),
         ("def f(a):\n    if a and a > 1:\n        return 1\n    return 0", "branch", 2),
+        (
+            "def f():\n    try:\n        g()\n    except ValueError:\n        pass\n    assert g()",
+            "branch",
+            0,
+        ),  # handlers and assert are not decisions
         ("def f():\n    '''doc'''\n    return 1", "doc", 1),
     ],
 )
@@ -227,7 +232,14 @@ def _ts_counts(lang: str, src: str, name: str, line: int = 0) -> dict:
             0,
         ),  # closing generics are not a shift
         ("java", "class A {\n  int f(int a) { return a << 2; }\n}", "f", "bitwise", 1),
-        ("java", "class A {\n  int f() { try { return 1; } catch (Exception e) { return 2; } }\n}", "f", "branch", 1),
+        (
+            "java",
+            "class A {\n  int f() { try { return 1; } catch (Exception e) { return 2; } }\n}",
+            "f",
+            "branch",
+            0,
+        ),  # a handler is not a decision (branch contract corollary 1)
+        ("javascript", "function f() { try { g(); } catch (e) { h(); } }", "f", "branch", 0),
         ("java", "class A {\n  @Override @Deprecated\n  public int f() { return 1; }\n}", "f", "decorators", 2),
         ("java", "class A {\n  void f() { Thread.sleep(1); }\n}", "f", "sleep", 1),
         ("rust", 'fn f() { let s = ">> ^ ~ <<"; }', "f", "bitwise", 0),  # characters in a string

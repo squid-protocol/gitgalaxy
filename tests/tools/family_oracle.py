@@ -142,7 +142,7 @@ FAMILIES: tuple[Family, ...] = (
     Family(
         "struct_branch",
         "branch",
-        "decision points: if, loops, conditional expressions, except handlers, asserts, boolean operators, comprehension filters",
+        "decision points: if/elif arms, loops, conditional expressions, boolean operators, comprehension filters (not except handlers, assert, return or break: contract corollaries 1 and 3)",
         "branch",
     ),
     Family("args", "args", "declared parameters", "args"),
@@ -308,7 +308,9 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
         if ann is not None:
             annotation_nodes.update(id(x) for x in ast.walk(ann))
     for node in ast.walk(fn):
-        if isinstance(node, (ast.If, ast.For, ast.While, ast.AsyncFor, ast.IfExp, ast.ExceptHandler, ast.Assert)):
+        if isinstance(
+            node, (ast.If, ast.For, ast.While, ast.AsyncFor, ast.IfExp)
+        ):  # not handlers or assert: branch contract corollary 1
             c.add("branch")
         elif isinstance(node, ast.BoolOp):
             c.n["branch"] += len(node.values) - 1

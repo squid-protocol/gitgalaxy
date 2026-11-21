@@ -907,11 +907,11 @@
 <text class="n" x="324" y="937">n=2,101 imports</text>
 <text class="n" x="324" y="949">repos 3 · files 1,277</text>
 </g>
-<g><title>python callee names: precision 99.6% of 11,601, recall 99.7% of 11,599 (raw 99.6% / 99.7%; 6 shapes without a verdict)</title>
+<g><title>python callee names: precision 99.6% of 11,601, recall 99.7% of 11,599 (raw 99.6% / 99.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="936.5">Precision</text>
 <rect class="track" x="472" y="929" width="110" height="8" rx="2"/>
 <rect x="472" y="929" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="937">99.6%*</text>
+<text class="val" x="587" y="937">99.6%</text>
 <text class="pr" x="426" y="948.5">Recall</text>
 <rect class="track" x="472" y="941" width="110" height="8" rx="2"/>
 <rect x="472" y="941" width="109.7" height="8" rx="2" fill="#eda100"/>
@@ -1141,11 +1141,11 @@
 <text class="n" x="324" y="1141">n=812 imports</text>
 <text class="n" x="324" y="1153">repos 1 · files 395</text>
 </g>
-<g><title>solidity callee names: precision 74.8% of 226, recall 98.0% of 149 (raw 64.6% / 98.0%; 8 shapes without a verdict)</title>
+<g><title>solidity callee names: precision 64.6% of 226, recall 98.0% of 149 (raw 64.6% / 98.0%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="1140.5">Precision</text>
 <rect class="track" x="472" y="1133" width="110" height="8" rx="2"/>
-<rect x="472" y="1133" width="82.3" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="1141">74.8%*</text>
+<rect x="472" y="1133" width="71.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="1141">64.6%*</text>
 <text class="pr" x="426" y="1152.5">Recall</text>
 <rect class="track" x="472" y="1145" width="110" height="8" rx="2"/>
 <rect x="472" y="1145" width="107.8" height="8" rx="2" fill="#eda100"/>
@@ -1178,7 +1178,7 @@
 <text class="n" x="324" y="1175">n=510 imports</text>
 <text class="n" x="324" y="1187">repos 2 · files 2,019</text>
 </g>
-<g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 4 shapes without a verdict)</title>
+<g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 3 shapes without a verdict)</title>
 <text class="pr" x="426" y="1174.5">Precision</text>
 <rect class="track" x="472" y="1167" width="110" height="8" rx="2"/>
 <rect x="472" y="1167" width="108.9" height="8" rx="2" fill="#4a3aa7"/>

@@ -359,6 +359,12 @@ What it says:
   never cached. The saving is that translation per case; the baseline proof (13-26 s a case) is not touched. Still
   open: sharing the baseline proof across cases, early exit in the CICS in-process path, and the other items in the
   #8599 checklist.
+- **Neither CI lane re-proves a current ledger (checked 2026-11-20, #8599).** The PR job `detmut` runs
+  `det_mutation.py stale-check --vs origin/main`, which only hashes fingerprints for the cases the PR changes (no
+  translation, no Docker, no `mutation.py run`). The nightly `refresh` selects only ledgers whose blocking inputs moved
+  or whose generator / harness / oracle drifted, and a current one returns "nothing stale" before `_run_translate`.
+  The cost that remains is by design: a drifted ledger is translated once to compare the port's bytes, then renewed.
+  Pinned by `test_a_current_ledger_is_never_translated_or_proven_again_8599`.
 
 ## Scores
 

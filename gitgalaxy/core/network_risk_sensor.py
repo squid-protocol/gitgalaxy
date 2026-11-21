@@ -38,6 +38,7 @@ from gitgalaxy.core.package_self_reference import (
     export_targets,
     owning_package,
     split_specifier,
+    workspace_packages,
 )
 from gitgalaxy.core.path_proximity import proximity_rank
 from gitgalaxy.core.rust_modules import RustModules
@@ -269,6 +270,7 @@ class NetworkRiskSensor:
         self.root: str | None = None
         # #3789: scan-relative directory -> the package.json that owns it (None: none does)
         self._packages: dict[str, Package | None] = {}
+        self._workspace_pkgs: dict[str, Package] | None = None
         # #4265: the estate's declared COPY libraries (galaxyscope --copy-libraries), or None: the
         # default resolver. `copy_collisions` lists the members a program's search order finds in
         # more than one library (the first wins, as on z/OS) from the latest _resolve_edges pass.
@@ -300,6 +302,7 @@ class NetworkRiskSensor:
             if isinstance(imp, str) and "/" in imp and not imp.startswith((".", "/"))
         }
         self._packages = {}
+        self._workspace_pkgs = None
         self._declared_in = defaultdict(list)
         self._dir_tails = None
         for f in files:
@@ -589,8 +592,10 @@ class NetworkRiskSensor:
         # A JS/TS bare specifier names a package; only an aliased or multi-
         # segment one that mirrors a real file path is local (see the flag).
         if src_def.get("bare_import_names_package") and not is_relative and not target_token.startswith("/"):
-            return self._resolve_self_reference(target_token, curr_path) or self._resolve_path_mirror(
-                target_token, resolution_map, src_lang, file_facts
+            return (
+                self._resolve_self_reference(target_token, curr_path)
+                or self._resolve_workspace_sibling(target_token, curr_path)
+                or self._resolve_path_mirror(target_token, resolution_map, src_lang, file_facts)
             )
 
         # `#include <chrono>` names a file called exactly `chrono`, never chrono.h.
@@ -1021,6 +1026,24 @@ class NetworkRiskSensor:
             return None
         name, subpath = split_specifier(specifier.replace("\\", "/"))
         if name != pkg.name:
+            return None
+        for target in export_targets(pkg, subpath):
+            hit = self._declared_file(pkg.dir, target)
+            if hit is not None and hit != curr_path:
+                return hit
+        return None
+
+    def _resolve_workspace_sibling(self, specifier: str, curr_path: str) -> str | None:
+        """#4254: `from "@scope/other"` in a monorepo workspace -> the sibling package's declared entry."""
+        if self.root is None:
+            return None
+        if self._workspace_pkgs is None:
+            self._workspace_pkgs = workspace_packages(self.root)
+        if not self._workspace_pkgs:
+            return None
+        name, subpath = split_specifier(specifier.replace("\\", "/"))
+        pkg = self._workspace_pkgs.get(name)
+        if pkg is None:
             return None
         for target in export_targets(pkg, subpath):
             hit = self._declared_file(pkg.dir, target)

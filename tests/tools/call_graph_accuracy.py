@@ -95,12 +95,15 @@ LANGS = (
     "apex",
     "powershell",
     "tcl",
+    "objective-c",
+    "shell",
 )
 
 CALL_NODE_TYPES = frozenset(
     {
         "call",  # python, ruby
-        "call_expression",  # js/ts, c/cpp, go, rust, kotlin, scala, swift
+        "call_expression",  # js/ts, c/cpp, go, rust, kotlin, scala, swift, objc
+        "message_expression",  # objective-c `[obj msg:x]`
         "new_expression",  # js/ts constructor
         "method_invocation",  # java
         "object_creation_expression",  # java, c#, php
@@ -139,6 +142,41 @@ _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
 CONTRACT_NON_CALLS: dict[str, frozenset[str]] = {
     "php": frozenset({"isset", "empty", "unset", "die", "exit", "array", "list"}),
     "csharp": frozenset({"nameof"}),
+    # #5640: shell control-flow keywords and builtins excluded by shell.py's `_calls_out_ignore`,
+    # plus POSIX shell special builtins `:` / `[` / `.` (dot-sourcing).
+    "shell": frozenset(
+        {
+            ":",
+            "[",
+            ".",
+            "echo",
+            "printf",
+            "cd",
+            "read",
+            "test",
+            "eval",
+            "exec",
+            "exit",
+            "return",
+            "shift",
+            "set",
+            "unset",
+            "export",
+            "local",
+            "readonly",
+            "declare",
+            "typeset",
+            "source",
+            "true",
+            "false",
+            "trap",
+            "wait",
+            "break",
+            "continue",
+            "pushd",
+            "popd",
+        }
+    ),
 }
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -260,8 +298,12 @@ def _ps_tcl_callee(node: Any) -> str | None:
         has_args = any(c.type == "argument_list" for c in node.named_children)
         return member.text.decode("utf-8", "replace") if member is not None and has_args else None
     name = node.child_by_field_name("name")
-    if name is not None:  # tcl
-        return name.text.decode("utf-8", "replace").rsplit("::", 1)[-1] if name.type == "simple_word" else None
+    if name is not None:  # tcl, bash (shell)
+        if name.type == "simple_word":
+            return name.text.decode("utf-8", "replace").rsplit("::", 1)[-1]
+        if name.type == "command_name" and name.named_children and name.named_children[0].type == "word":
+            return name.named_children[0].text.decode("utf-8", "replace")
+        return None
     cname = node.child_by_field_name("command_name")
     if cname is not None and cname.type == "command_name":
         return cname.text.decode("utf-8", "replace")

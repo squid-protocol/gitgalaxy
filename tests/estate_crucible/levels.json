@@ -16,7 +16,7 @@
         "translate": {"engine": "a50e79393", "programs": 3, "whole": 1, "holes": 1, "refused": 1, "detail": "BDLDRPT 8/8 statements; BDLDDB2 15/16, the hole is its EXEC SQL (stub-only run, no generated Db2 repository); BDLDCKP refused, LayoutError: DATA DIVISION does not parse near expanded line 11 (the I-O-CONTROL RERUN program)"},
         "source": "gitgalaxy#7702 (scan), gitgalaxy#7065 (translate)"
       },
-      "members_at_pin": {"cobol": 5, "jcl": 17},
+      "members_at_pin": {"cobol": 5, "jcl": 19},
       "constructs": [
         {"name": "COND= tests and IF/THEN/ELSE step flow", "horrors": ["H-0064"]},
         {"name": "&& temporary datasets passed between steps", "horrors": ["H-0065"]},
@@ -36,8 +36,8 @@
         {"name": "a DD added to a procedure step", "horrors": ["H-0085"]},
         {"name": "OUTPUT JCL statements", "horrors": ["H-0094"]},
         {"name": "a program that takes checkpoints (RERUN / CHKPT)", "horrors": ["H-0095"]},
-        {"name": "BPXBATCH and IKJEFT01 DSNUTILB / BIND", "horrors": []},
-        {"name": "ADRDSSU and IEBIMAGE", "horrors": []}
+        {"name": "BPXBATCH and IKJEFT01 DSNUTILB / BIND", "horrors": ["H-0123", "H-0124", "H-0125"]},
+        {"name": "ADRDSSU and IEBIMAGE", "horrors": ["H-0121", "H-0122"]}
       ]
     },
     {
@@ -47,7 +47,7 @@
       "about": "VSAM AIX, ESDS, RRDS",
       "issues": [4894],
       "first_run": null,
-      "members_at_pin": {"cobol": 6, "jcl": 4},
+      "members_at_pin": {"cobol": 7, "jcl": 5},
       "constructs": [
         {"name": "KSDS alternate key WITH DUPLICATES, START / READ NEXT", "horrors": ["H-0076"]},
         {"name": "RRDS with a RELATIVE KEY outside the record", "horrors": ["H-0077"]},
@@ -59,9 +59,9 @@
         {"name": "RRDS sequential after START and random by number", "horrors": ["H-0106"]},
         {"name": "ESDS opened I-O and rewritten in place", "horrors": ["H-0107"]},
         {"name": "KSDS with a unique and a duplicate alternate key", "horrors": ["H-0108"]},
-        {"name": "RBA / RRN access (CICS RIDFLD)", "horrors": []},
+        {"name": "RBA / RRN access (CICS RIDFLD)", "horrors": ["H-0109"]},
         {"name": "alternate-index upgrade-set behaviour", "horrors": []},
-        {"name": "LINEAR and ZFS clusters", "horrors": []}
+        {"name": "LINEAR and ZFS clusters", "horrors": ["H-0110"]}
       ]
     },
     {
@@ -84,7 +84,7 @@
         {"name": "MQI verbs called through a data item", "horrors": ["H-0100"]},
         {"name": "a trigger monitor program", "horrors": ["H-0101"]},
         {"name": "RRS stubs (CSQBRSTB, CSQBSTUB link-edit)", "horrors": []},
-        {"name": "IMS and CICS-MQ bridge programs", "horrors": []},
+        {"name": "IMS and CICS-MQ bridge programs", "horrors": ["H-0114", "H-0115", "H-0116"]},
         {"name": "an MQ-only back-out fixture", "horrors": []},
         {"name": "trigger monitor start-up (MQTMC2)", "horrors": []}
       ]
@@ -96,14 +96,14 @@
       "about": "IMS DL/I and TM",
       "issues": [4893],
       "first_run": null,
-      "members_at_pin": {"cobol": 1, "jcl": 0},
+      "members_at_pin": {"cobol": 2, "jcl": 0},
       "constructs": [
         {"name": "DBD segments in hierarchic order", "horrors": ["H-0096"]},
         {"name": "unqualified GN repeated to GB", "horrors": ["H-0097"]},
         {"name": "a GN after GB", "horrors": ["H-0098"]},
-        {"name": "PSBGEN and SENSEG", "horrors": []},
-        {"name": "FIELD and LCHILD", "horrors": []},
-        {"name": "qualified SSAs", "horrors": []},
+        {"name": "PSBGEN and SENSEG", "horrors": ["H-0117"]},
+        {"name": "FIELD and LCHILD", "horrors": ["H-0118", "H-0119"]},
+        {"name": "qualified SSAs", "horrors": ["H-0120"]},
         {"name": "EXEC DLI", "horrors": []},
         {"name": "a DFSRRC00 batch step", "horrors": []},
         {"name": "IMS TM and MFS", "horrors": []}

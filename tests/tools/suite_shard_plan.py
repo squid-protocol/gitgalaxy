@@ -50,13 +50,14 @@ GATE_TARGET_S = 20 * 60
 GATE_MAX_PARTS = 4
 GATE_TIMEOUT_FLOOR, GATE_TIMEOUT_CEILING = 20, 35
 STEP_MARGIN_MIN = 3  # step_timeout = leg timeout - 3 (#5764): expressions have no arithmetic
+# #8572: windows 3.12 part 1 ran 25 min on 2026-11-19 (all tests passed, the 25-min step cap killed it); 3.11 reached 21.
 # #5764: the slowest minutes seen per (os, python) part on the Gate's runs of 2026-10-14..20 (windows 3.11 was 25 min as 2
 # parts; as 3 parts it is an estimate: re-measure). A leg's cap keeps SEEN_HEADROOM over it whatever the durations say: a
 # cache on another basis than the committed file (2026-10-26: the wall-calibrated nightly planned every leg at the floor)
 # must not plan a cap below a time a leg has actually taken.
 SLOWEST_SEEN_MIN = {
-    ("windows-latest", "3.11"): 18,
-    ("windows-latest", "3.12"): 19,
+    ("windows-latest", "3.11"): 21,
+    ("windows-latest", "3.12"): 25,
     ("macos-latest", "3.11"): 16,
     ("macos-latest", "3.12"): 17,
 }

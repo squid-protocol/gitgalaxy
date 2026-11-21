@@ -69,6 +69,8 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # A scanned repo's own package.json `workspaces` field (core/package_self_reference.py, #4254): never a literal here.
+    "workspaces": "scanned repo's package.json key, read by package_self_reference.workspace_packages (#4254)",
     # The equivalence harness (tests/tools/equivalence.py cobc_failure_report) writes it into report.json; port_runner
     # reads it back (#8325). The producer lives outside gitgalaxy/.
     "cobol_compile_failed": "report.json key written by tests/tools/equivalence.py, read by port_runner (#8325)",

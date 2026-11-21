@@ -267,9 +267,9 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       # #8100: the grammar pack downloads its manifest from GitHub on first use; a timeout there failed the 2026-11-08
       # run (15 Db2 cases translated nothing). Restore the pack, then fetch it once with retries.
@@ -496,8 +496,8 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e "./gitgalaxy"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e "./gitgalaxy"
 
       - name: Take the parts' results
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -615,11 +615,11 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       # #8100: the grammar pack downloads its manifest from GitHub on first use; a timeout there failed the 2026-11-08
       # run (15 Db2 cases translated nothing). Restore the pack, then fetch it once with retries.
@@ -789,11 +789,11 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       # #8100: the grammar pack downloads its manifest from GitHub on first use; a timeout there failed the 2026-11-08
       # run (15 Db2 cases translated nothing). Restore the pack, then fetch it once with retries.
@@ -983,11 +983,11 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       # #8100: the grammar pack downloads its manifest from GitHub on first use; a timeout there failed the 2026-11-08
       # run (15 Db2 cases translated nothing). Restore the pack, then fetch it once with retries.
@@ -1184,11 +1184,11 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       # #8100: the grammar pack downloads its manifest from GitHub on first use; a timeout there failed the 2026-11-08
       # run (15 Db2 cases translated nothing). Restore the pack, then fetch it once with retries.
@@ -1747,8 +1747,8 @@ jobs:
 
       - name: Install GitGalaxy
         run: |
-          python -m pip install --require-hashes -r main/ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e ./main
+          main/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r main/ci/requirements/bootstrap.txt
+          main/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./main
 
       - name: Take the refresh job's survey
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

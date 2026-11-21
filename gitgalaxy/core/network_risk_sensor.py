@@ -18,6 +18,7 @@ from gitgalaxy.core.copy_libraries import (
     MemberIndex,
     declared_library_dirs,
     jcl_syslib_orders,
+    named_library_dirs,
 )
 from gitgalaxy.core.go_modules import GoModules
 from gitgalaxy.core.graph_engine import (
@@ -281,6 +282,7 @@ class NetworkRiskSensor:
         self.copy_gaps: list[dict[str, Any]] = []
         # #8412: PROGRAM -> the library names its compile JCL's SYSLIB lists; read once per scan, on first use
         self._jcl_syslib: dict[str, list[str]] | None = None
+        self._named_cache: dict[str, dict[str, list[str]]] = {}
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -1539,6 +1541,7 @@ class NetworkRiskSensor:
         self.copy_collisions = []
         self.copy_gaps = []
         self._jcl_syslib = None
+        self._named_cache = {}
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
         # #8111 slice 6: with no declaration, a COPY library is the directory it is named after, and the
         # directories the workspace declares are searched first for an unqualified COPY
@@ -1667,6 +1670,13 @@ class NetworkRiskSensor:
         generated_from = LANGUAGE_DEFINITIONS.get(src_lang, {}).get("source_members_generated_from", ())
         if library:
             hits = self._pick_source_members(by_dir.named(library, member), src_lang, generated_from, file_facts)
+            if not hits and self.root:  # #8412: a zapp.yaml names the library's directories (`IN MYLIB`)
+                for directory in named_library_dirs(self.root, importer, library, self._named_cache):
+                    hits = self._pick_source_members(
+                        by_dir.in_dir(directory, member), src_lang, generated_from, file_facts
+                    )
+                    if hits:
+                        break
             return hits[0] if len(hits) == 1 else None
         if not self.root:
             return None

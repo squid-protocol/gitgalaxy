@@ -1,5 +1,5 @@
 {
- "commit": "9ac4a65f8",
+ "commit": "73e02ab05",
  "components": {
   "capabilities": {
    "groups": [
@@ -1043,7 +1043,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T14:37:31Z",
+  "as_of": "2026-11-21T15:45:40Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1347,11 +1347,11 @@
     "total": 5
    },
    {
-    "closed": 0,
+    "closed": 2,
     "number": 40,
-    "open": 15,
+    "open": 22,
     "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
-    "total": 15
+    "total": 24
    },
    {
     "closed": 0,

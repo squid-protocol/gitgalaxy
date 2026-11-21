@@ -140,3 +140,74 @@ def test_the_committed_proc_results_repeat_the_manual_answers_and_the_engine_and
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]
         assert r["unobserved"] == probe.PROC_UNOBSERVED and r["jcl_error"] is False, r["id"]
         assert [s["procstep"] for s in r["box_steps"]] == [k.split(".")[1] for k in sc["expect"]], r["id"]
+
+
+def _flow():
+    return probe.flow_scenarios()
+
+
+def test_the_flow_deck_runs_iefbr14_and_puts_each_permanent_dataset_under_the_user_catalog_alias():
+    doc, _ = _flow()
+    deck = probe.flow_deck(doc["flow_jcl"], "CATJOB", {})
+    lines = deck.splitlines()
+    assert "PGM=IEFBR14" in deck and "PGM=MERGE" not in deck
+    assert "//         DD DSN=PUB001.A.SECOND,DISP=SHR" in lines
+    assert "//         DD DSN=PUB001.PAY.GDG.GSTAND,DISP=SHR" in lines  # BASE(0) probed as a plain dataset
+    out = lines.index("//OUT      DD DSN=PUB001.A.OUT,DISP=(NEW,CATLG),")
+    assert lines[out + 1] == "//            UNIT=SYSDA,SPACE=(TRK,1)"  # 3.8J wants a UNIT
+    assert all(len(ln) <= 71 for ln in lines)  # past column 71 is IEF618I
+
+
+def test_a_temporary_keeps_its_name_in_the_deck_and_a_given_return_code_runs_idcams():
+    doc, _ = _flow()
+    deck = probe.flow_deck(doc["flow_jcl"], "BYPJOB", {"B1": {"rc": 8}})
+    assert "DSN=&&LOST" in deck and "PUB001.&&" not in deck
+    assert "//B1       EXEC PGM=IDCAMS" in deck and " SET MAXCC=8" in deck
+
+
+def test_the_support_decks_create_what_is_read_and_delete_it_with_idcams_so_a_missing_one_is_not_a_jcl_error():
+    doc, _ = _flow()
+    pre, post = probe.flow_support_decks(doc["flow_jcl"], "CATJOB")
+    assert "DSN=PUB001.B.ONE,DISP=(MOD,CATLG)," in pre and "PUB001.A.OUT" not in pre
+    assert " DELETE PUB001.A.OUT" in post and " SET MAXCC=0" in post and "OLD,DELETE" not in post
+    assert all(len(ln) <= 71 for ln in (pre + post).splitlines())
+    assert probe.flow_support_decks(doc["flow_jcl"], "TMPJOB") == ("", "")
+
+
+def test_a_system_named_temporary_prints_as_its_ampersand_name_and_the_catalog_and_gdg_standin_are_normalised():
+    assert probe.flow_dsn("SYS26324.T204022.RA000.DFLJOB.KEPT", "DFLJOB") == "&&KEPT"
+    assert probe.flow_dsn("SYS26324.T204022.RA000.DFLJOB.R0000001", "DFLJOB") == "&&(system-named)"
+    assert probe.flow_dsn("SYS26324.T204022.RA000.OTHER.KEPT", "DFLJOB").startswith("SYS26324")
+    assert probe.flow_dsn("PUB001.PAY.CTL", "DUMJOB") == "PAY.CTL"
+    assert probe.flow_dsn("PUB001.PAY.GDG.GSTAND", "CATJOB") == "PAY.GDG(0)"
+
+
+FLOW_LOG = """IEF236I ALLOC. FOR DFLJOB T1
+IEF237I DMY  ALLOCATED TO NUL
+IEF142I DFLJOB T1 - STEP WAS EXECUTED - COND CODE 0000
+IEF285I   SYS26324.T204022.RA000.DFLJOB.KEPT           PASSED        *--------0
+IEF285I   VOL SER NOS= WORK01.
+IEF285I   UCPUB001                                     KEPT          *--------0
+IEF374I STEP /T1      / STOP  26324.2040 CPU    0MIN 00.00SEC
+IEF237I 252  ALLOCATED TO SYS00001
+IEF285I   SYS26324.T204022.RA000.DFLJOB.KEPT           DELETED
+"""
+
+
+def test_the_log_reader_gives_each_step_its_datasets_and_keeps_what_follows_the_last_step_apart():
+    seen = probe.observe_flow(FLOW_LOG, "DFLJOB")
+    assert seen["T1"] == {"dsn": ["&&KEPT"], "disp": ["PASSED"], "dummy": ["NUL"]}  # the catalog line is not a dataset
+    assert seen[probe.JOB_END]["disp"] == ["DELETED"]
+    temps = probe.flow_box_temps({k: v for k, v in seen.items() if k != probe.JOB_END})
+    assert temps == {"&&KEPT": {"created": "T1", "received": [], "deleted_after": "JOB"}}
+
+
+def test_the_committed_flow_results_cover_every_flow_scenario_and_agree_three_ways():
+    got = json.loads(probe.FLOW_RESULTS.read_text(encoding="utf-8"))
+    assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
+    _, scs = _flow()
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 6
+    for r in got["results"]:
+        assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]
+        assert r["unobserved"] == probe.FLOW_UNOBSERVED, r["id"]
+    assert [r["id"] for r in got["results"] if r.get("substituted")] == ["concat-read-order"]

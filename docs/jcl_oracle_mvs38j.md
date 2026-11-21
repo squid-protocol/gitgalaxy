@@ -193,7 +193,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY and PROC slices are done, below): DD concatenation and `&&` temporaries (`dataflow`), GDG (`gdg`, needs a GDG base per scenario), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC and data-flow slices are done, below): GDG generations on 3.8J (`gdg`; the `(+1)` pattern-DSCB failure is recorded in the data-flow section), SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -226,6 +226,29 @@ therefore tier 1 only. Box traps found: the listing's `++` echo shows the proced
 not echoed, an overridden DD shows as `+/`); a substituted statement past column 71 is a JCL error (`IEF621I`), so the probe leaves DISP to
 default; a PROC statement parameter that no statement references gave `IEF657I SYMBOL NOT DEFINED IN PROCEDURE` in every trial (not
 isolated further: the scenarios reference all of theirs).
+
+## Probe run (#8414): data flow
+
+`probe.py flow --printer FILE` runs the six `tests/equivalence/jcl/dataflow` scenarios (concatenation, `&&` temporaries with
+`DISP=(,PASS)`, default dispositions, a bypassed creator, DUMMY) as IEFBR14 / IDCAMS decks and reads the allocation messages
+(`IEF236I`, `IEF237I`, `IEF285I`) per step. `tests/equivalence/jcl/dataflow/mvs38j_probe.json` holds `expect`, `engine`
+(`jcl_dataflow.resolve_dataflow`) and `box` side by side. Run 2026-11-20: **6 of 6 agree three ways**. Internal only (Q16): not linked
+from a published page. `SYSJOB` is skipped (its `OUTPUT` statement is not in 3.8J).
+
+Substituted, not claimed: the GDG `(0)` reference of the concatenation scenario ran against a plain dataset (`PAY.GDG.GSTAND`),
+recorded as `substituted` in the results. A real generation (`(+1)` in a new GDG base) failed on the box with `IEF218I PATTERN DSCB
+RECORD NOT FOUND IN VTOC` after four model-DSCB placements: a finding, not solved.
+
+Not observed (`FLOW_UNOBSERVED`): the read order of a concatenation (IEFBR14 reads nothing; the order is that of the allocation
+messages), the SYSOUT class, the DISP of a permanent dataset (names only), real GDG generations.
+
+Box traps found: a permanent dataset cataloged in the master catalog stops on `IEC301A` (SYSPROG password), so the deck re-roots it
+under the `PUB001.` alias (user catalog `UCPUB001`); a DD operand past column 71 is `IEF618I`, so long cards continue; a `DISP=NEW`
+without `UNIT` is `IEF210I` (the deck appends `UNIT=SYSDA,SPACE=(TRK,1)`); an `OLD` dataset that does not exist fails the whole job
+(`IEF212I`), so datasets a scenario reads are created by a PREP deck and removed by an IDCAMS `DELETE` with `SET MAXCC=0`; the
+`IEF285I` lines after the last step's `IEF374I` are job-end disposals, not the step's own, and `UCPUB001` is listed as a KEPT dataset
+(filtered). A job hung on a prompt is purged with a `/*$CJnn,P` card through the card reader (the driver owns the console); a stale
+`box.pid` blocks `start`.
 
 ## What this tier cannot test
 

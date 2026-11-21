@@ -1,0 +1,683 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "tests/equivalence/jcl/dataflow/scenarios.json (every job but SYSJOB)",
+ "results": [
+  {
+   "id": "temp-pass-chain",
+   "job": "TMPJOB",
+   "expect": {
+    "steps": {
+     "S1": {
+      "dsn": [
+       "&&SORTED",
+       "&&(system-named)"
+      ],
+      "dummy": []
+     },
+     "S2": {
+      "dsn": [
+       "&&SORTED"
+      ],
+      "dummy": []
+     },
+     "S3": {
+      "dsn": [
+       "&&SORTED"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&SORTED": {
+      "created": "S1",
+      "received": [
+       "S2",
+       "S3"
+      ],
+      "deleted_after": "S3"
+     }
+    }
+   },
+   "engine": {
+    "steps": {
+     "S1": {
+      "dsn": [
+       "&&SORTED",
+       "&&(system-named)"
+      ],
+      "dummy": []
+     },
+     "S2": {
+      "dsn": [
+       "&&SORTED"
+      ],
+      "dummy": []
+     },
+     "S3": {
+      "dsn": [
+       "&&SORTED"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&SORTED": {
+      "created": "S1",
+      "received": [
+       "S2",
+       "S3"
+      ],
+      "deleted_after": "S3"
+     }
+    }
+   },
+   "box": {
+    "steps": {
+     "S1": {
+      "dsn": [
+       "&&SORTED",
+       "&&(system-named)"
+      ],
+      "dummy": []
+     },
+     "S2": {
+      "dsn": [
+       "&&SORTED"
+      ],
+      "dummy": []
+     },
+     "S3": {
+      "dsn": [
+       "&&SORTED"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&SORTED": {
+      "created": "S1",
+      "received": [
+       "S2",
+       "S3"
+      ],
+      "deleted_after": "S3"
+     }
+    }
+   },
+   "box_dispositions": {
+    "S1": [
+     [
+      "&&SORTED",
+      "PASSED"
+     ],
+     [
+      "&&(system-named)",
+      "DELETED"
+     ]
+    ],
+    "S2": [
+     [
+      "&&SORTED",
+      "PASSED"
+     ]
+    ],
+    "S3": [
+     [
+      "&&SORTED",
+      "DELETED"
+     ]
+    ],
+    "(job end)": []
+   },
+   "verdict": "agree",
+   "unobserved": [
+    "read order of a concatenation as a program reads it (IEFBR14 reads nothing; the order is that of the allocation messages)",
+    "a SYSOUT class (SYSJOB is not run)",
+    "the DISP of a permanent dataset (only the names are compared)"
+   ],
+   "substituted": null
+  },
+  {
+   "id": "temp-default-dispositions",
+   "job": "DFLJOB",
+   "expect": {
+    "steps": {
+     "T1": {
+      "dsn": [
+       "&&KEPT",
+       "&&GONE"
+      ],
+      "dummy": []
+     },
+     "T2": {
+      "dsn": [
+       "&&KEPT"
+      ],
+      "dummy": []
+     },
+     "T3": {
+      "dsn": [
+       "&&KEPT"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&KEPT": {
+      "created": "T1",
+      "received": [
+       "T2",
+       "T3"
+      ],
+      "deleted_after": "JOB"
+     },
+     "&&GONE": {
+      "created": "T1",
+      "received": [],
+      "deleted_after": "T1"
+     }
+    }
+   },
+   "engine": {
+    "steps": {
+     "T1": {
+      "dsn": [
+       "&&KEPT",
+       "&&GONE"
+      ],
+      "dummy": []
+     },
+     "T2": {
+      "dsn": [
+       "&&KEPT"
+      ],
+      "dummy": []
+     },
+     "T3": {
+      "dsn": [
+       "&&KEPT"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&KEPT": {
+      "created": "T1",
+      "received": [
+       "T2",
+       "T3"
+      ],
+      "deleted_after": "JOB"
+     },
+     "&&GONE": {
+      "created": "T1",
+      "received": [],
+      "deleted_after": "T1"
+     }
+    }
+   },
+   "box": {
+    "steps": {
+     "T1": {
+      "dsn": [
+       "&&KEPT",
+       "&&GONE"
+      ],
+      "dummy": []
+     },
+     "T2": {
+      "dsn": [
+       "&&KEPT"
+      ],
+      "dummy": []
+     },
+     "T3": {
+      "dsn": [
+       "&&KEPT"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&KEPT": {
+      "created": "T1",
+      "received": [
+       "T2",
+       "T3"
+      ],
+      "deleted_after": "JOB"
+     },
+     "&&GONE": {
+      "created": "T1",
+      "received": [],
+      "deleted_after": "T1"
+     }
+    }
+   },
+   "box_dispositions": {
+    "T1": [
+     [
+      "&&KEPT",
+      "PASSED"
+     ],
+     [
+      "&&GONE",
+      "DELETED"
+     ]
+    ],
+    "T2": [
+     [
+      "&&KEPT",
+      "PASSED"
+     ]
+    ],
+    "T3": [
+     [
+      "&&KEPT",
+      "PASSED"
+     ]
+    ],
+    "(job end)": [
+     [
+      "&&(system-named)",
+      "KEPT"
+     ],
+     [
+      "&&KEPT",
+      "DELETED"
+     ]
+    ]
+   },
+   "verdict": "agree",
+   "unobserved": [
+    "read order of a concatenation as a program reads it (IEFBR14 reads nothing; the order is that of the allocation messages)",
+    "a SYSOUT class (SYSJOB is not run)",
+    "the DISP of a permanent dataset (only the names are compared)"
+   ],
+   "substituted": null
+  },
+  {
+   "id": "temp-bypassed-creator",
+   "job": "BYPJOB",
+   "expect": {
+    "steps": {
+     "B3": {
+      "dsn": [],
+      "dummy": []
+     }
+    },
+    "temporaries": {}
+   },
+   "engine": {
+    "steps": {
+     "B3": {
+      "dsn": [],
+      "dummy": []
+     }
+    },
+    "temporaries": {}
+   },
+   "box": {
+    "steps": {
+     "B3": {
+      "dsn": [],
+      "dummy": []
+     }
+    },
+    "temporaries": {}
+   },
+   "box_dispositions": {
+    "B1": [],
+    "B3": [],
+    "(job end)": []
+   },
+   "verdict": "agree",
+   "unobserved": [
+    "read order of a concatenation as a program reads it (IEFBR14 reads nothing; the order is that of the allocation messages)",
+    "a SYSOUT class (SYSJOB is not run)",
+    "the DISP of a permanent dataset (only the names are compared)"
+   ],
+   "substituted": null
+  },
+  {
+   "id": "dummy-and-nullfile",
+   "job": "DUMJOB",
+   "expect": {
+    "steps": {
+     "D1": {
+      "dsn": [
+       "PAY.CTL"
+      ],
+      "dummy": [
+       "SYSUT1",
+       "SYSUT2",
+       "SYSPRINT"
+      ]
+     }
+    },
+    "temporaries": {}
+   },
+   "engine": {
+    "steps": {
+     "D1": {
+      "dsn": [
+       "PAY.CTL"
+      ],
+      "dummy": [
+       "SYSUT1",
+       "SYSUT2",
+       "SYSPRINT"
+      ]
+     }
+    },
+    "temporaries": {}
+   },
+   "box": {
+    "steps": {
+     "D1": {
+      "dsn": [
+       "PAY.CTL"
+      ],
+      "dummy": [
+       "SYSUT1",
+       "SYSUT2",
+       "SYSPRINT"
+      ]
+     }
+    },
+    "temporaries": {}
+   },
+   "box_dispositions": {
+    "D1": [
+     [
+      "PAY.CTL",
+      "KEPT"
+     ]
+    ],
+    "(job end)": []
+   },
+   "verdict": "agree",
+   "unobserved": [
+    "read order of a concatenation as a program reads it (IEFBR14 reads nothing; the order is that of the allocation messages)",
+    "a SYSOUT class (SYSJOB is not run)",
+    "the DISP of a permanent dataset (only the names are compared)"
+   ],
+   "substituted": null
+  },
+  {
+   "id": "concat-read-order",
+   "job": "CATJOB",
+   "expect": {
+    "steps": {
+     "M1": {
+      "dsn": [
+       "A.FIRST",
+       "A.SECOND",
+       "A.THIRD",
+       "B.ONE",
+       "PAY.GDG(0)",
+       "A.OUT"
+      ],
+      "dummy": []
+     },
+     "M2": {
+      "dsn": [
+       "A.THIRD",
+       "A.FIRST"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {}
+   },
+   "engine": {
+    "steps": {
+     "M1": {
+      "dsn": [
+       "A.FIRST",
+       "A.SECOND",
+       "A.THIRD",
+       "B.ONE",
+       "PAY.GDG(0)",
+       "A.OUT"
+      ],
+      "dummy": []
+     },
+     "M2": {
+      "dsn": [
+       "A.THIRD",
+       "A.FIRST"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {}
+   },
+   "box": {
+    "steps": {
+     "M1": {
+      "dsn": [
+       "A.FIRST",
+       "A.SECOND",
+       "A.THIRD",
+       "B.ONE",
+       "PAY.GDG(0)",
+       "A.OUT"
+      ],
+      "dummy": []
+     },
+     "M2": {
+      "dsn": [
+       "A.THIRD",
+       "A.FIRST"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {}
+   },
+   "box_dispositions": {
+    "M1": [
+     [
+      "A.FIRST",
+      "KEPT"
+     ],
+     [
+      "A.SECOND",
+      "KEPT"
+     ],
+     [
+      "A.THIRD",
+      "KEPT"
+     ],
+     [
+      "B.ONE",
+      "KEPT"
+     ],
+     [
+      "PAY.GDG(0)",
+      "KEPT"
+     ],
+     [
+      "A.OUT",
+      "CATALOGED"
+     ]
+    ],
+    "M2": [
+     [
+      "A.THIRD",
+      "KEPT"
+     ],
+     [
+      "A.FIRST",
+      "KEPT"
+     ]
+    ],
+    "(job end)": []
+   },
+   "verdict": "agree",
+   "unobserved": [
+    "read order of a concatenation as a program reads it (IEFBR14 reads nothing; the order is that of the allocation messages)",
+    "a SYSOUT class (SYSJOB is not run)",
+    "the DISP of a permanent dataset (only the names are compared)"
+   ],
+   "substituted": {
+    "PAY.GDG(0)": "PAY.GDG.GSTAND (a plain dataset)"
+   }
+  },
+  {
+   "id": "concat-temporaries",
+   "job": "CATTMP",
+   "expect": {
+    "steps": {
+     "K1": {
+      "dsn": [
+       "&&PART1"
+      ],
+      "dummy": []
+     },
+     "K2": {
+      "dsn": [
+       "&&PART2"
+      ],
+      "dummy": []
+     },
+     "K3": {
+      "dsn": [
+       "&&PART2",
+       "&&PART1"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&PART1": {
+      "created": "K1",
+      "received": [
+       "K3"
+      ],
+      "deleted_after": "K3"
+     },
+     "&&PART2": {
+      "created": "K2",
+      "received": [
+       "K3"
+      ],
+      "deleted_after": "K3"
+     }
+    }
+   },
+   "engine": {
+    "steps": {
+     "K1": {
+      "dsn": [
+       "&&PART1"
+      ],
+      "dummy": []
+     },
+     "K2": {
+      "dsn": [
+       "&&PART2"
+      ],
+      "dummy": []
+     },
+     "K3": {
+      "dsn": [
+       "&&PART2",
+       "&&PART1"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&PART1": {
+      "created": "K1",
+      "received": [
+       "K3"
+      ],
+      "deleted_after": "K3"
+     },
+     "&&PART2": {
+      "created": "K2",
+      "received": [
+       "K3"
+      ],
+      "deleted_after": "K3"
+     }
+    }
+   },
+   "box": {
+    "steps": {
+     "K1": {
+      "dsn": [
+       "&&PART1"
+      ],
+      "dummy": []
+     },
+     "K2": {
+      "dsn": [
+       "&&PART2"
+      ],
+      "dummy": []
+     },
+     "K3": {
+      "dsn": [
+       "&&PART2",
+       "&&PART1"
+      ],
+      "dummy": []
+     }
+    },
+    "temporaries": {
+     "&&PART1": {
+      "created": "K1",
+      "received": [
+       "K3"
+      ],
+      "deleted_after": "K3"
+     },
+     "&&PART2": {
+      "created": "K2",
+      "received": [
+       "K3"
+      ],
+      "deleted_after": "K3"
+     }
+    }
+   },
+   "box_dispositions": {
+    "K1": [
+     [
+      "&&PART1",
+      "PASSED"
+     ]
+    ],
+    "K2": [
+     [
+      "&&PART2",
+      "PASSED"
+     ]
+    ],
+    "K3": [
+     [
+      "&&PART2",
+      "DELETED"
+     ],
+     [
+      "&&PART1",
+      "DELETED"
+     ]
+    ],
+    "(job end)": []
+   },
+   "verdict": "agree",
+   "unobserved": [
+    "read order of a concatenation as a program reads it (IEFBR14 reads nothing; the order is that of the allocation messages)",
+    "a SYSOUT class (SYSJOB is not run)",
+    "the DISP of a permanent dataset (only the names are compared)"
+   ],
+   "substituted": null
+  }
+ ]
+}

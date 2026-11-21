@@ -26,8 +26,6 @@ on:
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tree_sitter_accuracy_audit.py"
       - "tests/tree_sitter_accuracy_baseline_*.json"
-      - "ci/requirements/treesitter.*"  # #8481: the tree-sitter pack is the ground truth
-      - "ci/requirements/solver.*"  # #8481: pins the same pack
       - ".github/workflows/tree-sitter-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)

@@ -31,8 +31,6 @@ on:
       - "tests/tools/tri_comparison_reconcile.py"
       - "tests/tools/tri_comparison_ledger.py"
       - "tests/tri_comparison_baseline_*.json"
-      - "ci/requirements/treesitter.*"  # #8481: the tree-sitter pack is the ground truth
-      - "ci/requirements/solver.*"  # #8481: pins the same pack
       - "tests/tools/accuracy_audit_plan.py"  # #6501: the plan job's own code
       - "tests/tools/graph_accuracy_plan.py"  # #6501: imported by the planner
       - "tests/tools/change_classifier.py"  # #6501: imported by the planner

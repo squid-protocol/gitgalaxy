@@ -45,8 +45,6 @@ on:
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tree_sitter_accuracy_audit.py"
       - "tests/tree_sitter_accuracy_baseline_*.json"
-      - "ci/requirements/treesitter.*"  # #8481: the tree-sitter pack is the ground truth
-      - "ci/requirements/solver.*"  # #8481: pins the same pack
   workflow_dispatch:  # also how the first publish seeds `generated`
 
 permissions:

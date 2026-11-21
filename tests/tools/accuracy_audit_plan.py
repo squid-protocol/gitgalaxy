@@ -90,8 +90,6 @@ ALL_LANGS = "all"
 # The audits that gate a per-language baseline set and so emit `langs`, with the baseline file prefix that names the set.
 SELECTING = {TREE: TREE_BASELINE, HISTORY: TREE_BASELINE, TRI: TRI_BASELINE}
 
-# #8481: the tree-sitter pack is the ground truth of the audits below; a lockfile-only bump moves their baselines.
-_TS_PACK = ("ci/requirements/treesitter.*", "ci/requirements/solver.*")  # solver.* pins the pack too
 _COMMON = (
     "tests/crucible_pins.toml",
     T + "crucible_pins.py",
@@ -119,7 +117,6 @@ EVERYTHING = {
     ),
     TREE: (
         *_COMMON,
-        *_TS_PACK,
         "gitgalaxy/core/detector.py",
         "gitgalaxy/core/prism.py",
         T + "tree_sitter_accuracy_audit.py",
@@ -127,7 +124,6 @@ EVERYTHING = {
     ),
     HISTORY: (
         *_COMMON,
-        *_TS_PACK,
         "gitgalaxy/core/detector.py",
         "gitgalaxy/core/prism.py",
         T + "tree_sitter_accuracy_audit.py",
@@ -135,7 +131,6 @@ EVERYTHING = {
     ),
     TRI: (
         *_COMMON,
-        *_TS_PACK,
         "gitgalaxy/core/detector.py",
         "gitgalaxy/core/prism.py",
         T + "tri_comparison_chart.py",

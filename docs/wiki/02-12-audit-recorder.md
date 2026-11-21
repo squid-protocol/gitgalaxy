@@ -18,7 +18,7 @@ Traditional SBOMs lack deep structural health telemetry and traceability anchore
 ### Current Behavior
 - **Traceability Anchor:** Encapsulates exact Git source control metadata (active branch, SHA-1 commit hash, remote URL, and last commit timestamp) alongside the analysis execution timestamp in the manifest header.
 - **Hierarchical Module Mapping:** Groups analyzed source files by directory path and orders them by total structural mass. Generates directory-level Architectural Fingerprints.
-- **Security & Vulnerability Triage:** Integrates raw pattern signature hits with XGBoost Machine Learning Threat Confidence scores, decoupling active malware threats from general code quality risks.
+- **Security & Vulnerability Triage:** Integrates raw pattern signature hits with the file's code quality risk. No malware-classification score is produced: the classifier was removed on 2026-11-19 (research pending, #8430).
 - **Network & AppSec Posture:** Injects directed dependency network graph metrics (PageRank, blast radius) and autonomous AI security findings into each file's profile.
 - **Composition Archetype Telemetry:** Records each file's compositional archetype ("Composition Archetype") with its fit z-score ("Composition Fit (Z-Score)"), plus per-file function-archetype mix and repo-wide "Function Archetype Distribution", "File Composition Distribution", and "Repository Composition Archetype". See [03-05b: Composition Archetypes](03-05b-composition-archetypes.md).
 - **Excluded Artifact Logging:** Preserves excluded files (due to path filters, binary formats) with explicit diagnostic reasons and exact byte sizes.
@@ -27,7 +27,7 @@ Traditional SBOMs lack deep structural health telemetry and traceability anchore
 - Streamline the `galaxy_audit.json` schema for easier ingestion by external SIEM tools.
 
 ## Pipeline Integration
-- **Inputs Received:** Raw structural telemetry, XGBoost threat confidence scores, dependency network graph metrics, and raw pattern signature hits.
+- **Inputs Received:** Raw structural telemetry, dependency network graph metrics, and raw pattern signature hits.
 - **Outputs Produced:** A structured JSON manifest (`galaxy_audit.json`) detailing forensic traceability, global synthesis, security audits, high-value reports, and scanned/excluded artifacts.
 - **Dependencies:** Relies on upstream metrics from the network risk sensor and AI threat models.
 
@@ -43,7 +43,7 @@ graph LR
 
 ## Limitations
 - **Schema Rigidity:** The deep nested JSON structure can be overly large for standard parsers on massive repositories.
-- **Heuristic Boundaries:** The security posture relies heavily on XGBoost ML scores and heuristic boundaries, which may produce false positives.
+- **Heuristic Boundaries:** The security posture relies on regex signature counts and heuristic boundaries, which may produce false positives.
 
 ## Performance Notes
 - Operates purely on pre-computed in-memory structures, so execution time scales linearly $O(N)$ with the number of analyzed files. Memory consumption is proportional to the size of the repository.

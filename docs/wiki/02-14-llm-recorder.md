@@ -18,7 +18,7 @@ Raw structural telemetry JSON is often too large for LLM context windows and lac
 ### Current Behavior
 - **Bi-Directional Dependency Graphing:** Builds a reverse-dependency map to identify load-bearing modules (blast radius) and orchestrator modules (fragility index).
 - **Token-Dense Markdown Brief:** Produces `_galaxy_llm.md`, featuring:
-  - Security & Malware Summary (XGBoost findings)
+  - Security summary (AI AppSec and ecosystem audit findings; no malware classification: the classifier was removed, #8430)
   - Analysis Framing & Guidelines (prompt instructions)
   - Repository Architecture & AI Topology
   - Code Anomalies & Architectural Drift
@@ -32,7 +32,7 @@ Raw structural telemetry JSON is often too large for LLM context windows and lac
 ## Pipeline Integration
 - **Inputs Received:** Raw static analysis telemetry, file metrics, security findings, and dependency structures.
 - **Outputs Produced:** A markdown brief (`_galaxy_llm.md`) and a relational SQLite database (`_galaxy_graph.sqlite`).
-- **Dependencies:** Relies on AI AppSec findings, network topology metrics, and XGBoost threat intelligence.
+- **Dependencies:** Relies on AI AppSec findings, and network topology metrics. No malware-classifier output is consumed: it was removed on 2026-11-19 (research pending, #8430).
 
 ```mermaid
 graph LR

@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice. Read again 2026-11-21 for the rest of the checklist line (User's Guide, Appendix A): 'Disposition of SMS-managed generation data sets' p. 237 (DISP=(NEW,PASS): 'At job termination, the deferred generation data set is scratched and uncataloged'), the GDGBIAS=STEP note on wraparound p. 237 (G9999Vyy then G0001Vyy), and Examples 1 and 2 of 'Creating an SMS-managed generation data set' pp. 243-244 (three (+n) added in one step, retrieved by (-2) (-1) (0)).",
   "scenario_input": "catalog (or catalog_from: another scenario's catalog_after): per GDG base, limit and the cataloged absolute generations, oldest first. given: per step that starts, {rc: n} or {abend: code}.",
   "scenario_answer": "expect: per STEP.DDNAME of each step that runs, the absolute generation number the DD names. catalog_after: per base the cataloged generations, oldest first, after the job ends.",
   "flow_jcl": [
@@ -219,7 +219,38 @@
     "//A2       DD DSN=PAY.GDG(+2),DISP=SHR",
     "//N3       DD DSN=PAY.GDG(+3),DISP=(NEW,CATLG,KEEP)",
     "//STEP4    EXEC PGM=USE,COND=EVEN",
-    "//B3       DD DSN=PAY.GDG(+3),DISP=OLD"
+    "//B3       DD DSN=PAY.GDG(+3),DISP=OLD",
+    "//PASSNRJB JOB (ACCT),'GDG PASS UNRCVD',CLASS=A,MSGCLASS=X",
+    "//Q1       EXEC PGM=MAKE",
+    "//QOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//Q2       EXEC PGM=USE",
+    "//QCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//WRAPJOB  JOB (ACCT),'GDG WRAP',CLASS=A,MSGCLASS=X",
+    "//W1       EXEC PGM=MAKE",
+    "//WOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//W2       EXEC PGM=USE",
+    "//WNEW     DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//WCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//WPRV     DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//WRAPRD   JOB (ACCT),'GDG AFTER WRAP',CLASS=A,MSGCLASS=X",
+    "//X1       EXEC PGM=USE",
+    "//XCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//XPRV     DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//ADD3JOB  JOB (ACCT),'GDG ADD THREE',CLASS=A,MSGCLASS=X",
+    "//STEPA    EXEC PGM=PROCESS",
+    "//DD1      DD DSN=NEW.GDG(+1),DISP=(NEW,CATLG)",
+    "//DD2      DD DSN=NEW.GDG(+2),DISP=(NEW,CATLG)",
+    "//DD3      DD DSN=NEW.GDG(+3),DISP=(NEW,CATLG)",
+    "//*",
+    "//RD3JOB   JOB (ACCT),'GDG READ THREE',CLASS=A,MSGCLASS=X",
+    "//STEP1    EXEC PGM=REPORT9",
+    "//DDA      DD DSN=NEW.GDG(-2),DISP=OLD",
+    "//DDB      DD DSN=NEW.GDG(-1),DISP=OLD",
+    "//DDC      DD DSN=NEW.GDG(0),DISP=OLD",
+    "//*"
   ],
   "scenarios": [
     {
@@ -1455,6 +1486,165 @@
       },
       "assumed": "A9",
       "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243 'For checkpoint restart' and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART, 'Generation data sets in restarted jobs' p. 431 (p. 432): 'If generation data sets created in the restart step were kept instead of cataloged, that is, DISP=(NEW,CATLG,KEEP) was coded, then refer to them by the same relative generation numbers used to create them.' STEP3 abends, so its abnormal disposition KEEP applies (DISP) and generation 10 is kept, not cataloged (it stays in deferred roll-in, DFSMS Using Data Sets); STEP4 (COND=EVEN runs after the abend) names it by the number that created it, (+3) = 10. Generations 8 and 9 were cataloged by the steps before the restart step. ASSUMED A9 as for the previous scenario."
+    },
+    {
+      "id": "pass-never-received-is-scratched-at-job-end",
+      "job": "PASSNRJB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "Q1": {
+          "rc": 0
+        },
+        "Q2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "Q1.QOUT": 8,
+        "Q2.QCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "DISP=(NEW,PASS): 'At job termination, the deferred generation data set is scratched and uncataloged' (User's Guide, Appendix A, Disposition of SMS-managed generation data sets). Q1 creates (+1) = 8 and passes it; no later step receives it, so at the end of the job 8 is scratched and never rolled into the group: the catalog is unchanged and (0) in Q2 is still 7. This answers the old refusal of a PASSed generation never received."
+    },
+    {
+      "id": "wraparound-after-9999-takes-generation-1",
+      "job": "WRAPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            9998,
+            9999
+          ]
+        }
+      },
+      "given": {
+        "W1": {
+          "rc": 0
+        },
+        "W2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "W1.WOUT": 1,
+        "W2.WNEW": 1,
+        "W2.WCUR": 9999,
+        "W2.WPRV": 9998
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            9998,
+            9999,
+            1
+          ]
+        }
+      },
+      "basis": "User's Guide, Appendix A, DSNAME Parameter: 'If the relative generation number makes the absolute generation number exceed G9999Vyy, wraparound occurs ... if you create a new generation data set with a relative generation number, such as (+1), and an absolute generation number of G9999Vyy exists in the GDG base, the wraparound generates number G0001Vyy.' With 9998 and 9999 cataloged, (+1) = 1, read again by W2 as (+1); (0) and (-1) are still 9999 and 9998 as the job began. Generation 1 is cataloged after them."
+    },
+    {
+      "id": "after-a-wraparound-zero-is-the-wrapped-generation",
+      "job": "WRAPRD",
+      "catalog_from": "wraparound-after-9999-takes-generation-1",
+      "given": {
+        "X1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "X1.XCUR": 1,
+        "X1.XPRV": 9999
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            9998,
+            9999,
+            1
+          ]
+        }
+      },
+      "assumed": "A10",
+      "basis": "The wrapped generation 1 is the most recent one created, so (0) names it and (-1) names 9999 (assumption A10: the manual states the wrap number, not the order of the index across it). Reading changes nothing."
+    },
+    {
+      "id": "one-step-adds-three-generations-next-job-reads-them",
+      "job": "ADD3JOB",
+      "catalog": {
+        "NEW.GDG": {
+          "limit": 5,
+          "generations": []
+        }
+      },
+      "given": {
+        "STEPA": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEPA.DD1": 1,
+        "STEPA.DD2": 2,
+        "STEPA.DD3": 3
+      },
+      "catalog_after": {
+        "NEW.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "basis": "User's Guide, Appendix A, Example 1: 'DD statements that are used to add three SMS-managed data sets to a GDG', (+1), (+2), (+3) in one step. In a group that holds nothing the first addition is G0001, so they are 1, 2, 3, all rolled in at the end of the job, oldest first."
+    },
+    {
+      "id": "next-job-reads-minus-two-minus-one-zero",
+      "job": "RD3JOB",
+      "catalog_from": "one-step-adds-three-generations-next-job-reads-them",
+      "given": {
+        "STEP1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "STEP1.DDA": 1,
+        "STEP1.DDB": 2,
+        "STEP1.DDC": 3
+      },
+      "catalog_after": {
+        "NEW.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "basis": "User's Guide, Appendix A, Example 2: the DD statements 'needed to retrieve the SMS-managed generation data sets created in the first example, when the GDG contains no other generation data sets': (-2), (-1), (0) name the first, second and third generation, 1, 2, 3."
     }
   ],
   "assumed": [
@@ -1489,6 +1679,10 @@
     {
       "id": "A9",
       "text": "The same-relative-numbers rule the manuals state for checkpoint restart is applied to a deferred checkpoint restart, RESTART=(stepname,checkid) with a SYSCHK DD: the manuals give the deferred form only a volume-serial note under this heading. The catalog given for such a scenario is the catalog as the original run began, so the original relative numbers name the same generations; the steps before the restart step are taken as run to normal end."
+    },
+    {
+      "id": "A10",
+      "text": "After a wraparound the generations stay in the order they were created: G0001 made after G9999 is the most recent, so (0) names it and (-1) names G9999. The manual states the wraparound number (User's Guide p. 237) and that (0) is the most recent generation, but not the order of the index across the wrap."
     }
   ],
   "refused": [
@@ -1499,10 +1693,6 @@
     {
       "construct": "a (+n) read before any step creates it, or (0) / (-n) with no such cataloged generation",
       "why": "a JCL or catalog error, not a step-flow answer"
-    },
-    {
-      "construct": "a PASSed generation never received by a later step",
-      "why": "the manual's disposition of an unreceived passed dataset is not answered here"
     },
     {
       "construct": "UNCATLG generations, absolute names (G0007V00), the SCRATCH / NOSCRATCH fate of a rolled-off generation",

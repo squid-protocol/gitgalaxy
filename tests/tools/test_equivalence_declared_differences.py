@@ -223,3 +223,12 @@ def test_comp5_zos_text_reverses_only_a_sqlerrml_halfword_in_text_built_from_the
     assert common.comp5_zos_text("\x47\x00") == "\x47\x00"  # 71 is outside SQLERRML's range
     little_endian_port = oracle  # a port that kept the oracle's order is never made equal: only the oracle side is read
     assert little_endian_port != common.comp5_zos_text(oracle)
+
+
+def test_a_literal_before_an_empty_sqlerrm_is_not_read_as_a_halfword_7955():
+    """':' (0x3A) then a NUL is the STRING literal before SQLERRML = 0, not SQLERRML = 58."""
+    import equivalence_common as common
+
+    text = "SQLCODE :  100:\x00\x00" + " " * 20
+    assert common.comp5_zos_text(text) == text
+    assert common.comp5_zos_text("x\x05\x00hello\x00") == "x\x00\x05hello\x00"

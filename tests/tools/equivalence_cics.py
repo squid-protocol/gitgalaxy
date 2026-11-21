@@ -2837,7 +2837,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("links", []).append({"target": kv.get("target", ""), "data": data})
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
-            vals = decode_record(data, fields, enc)
+            vals = decode_record(data, fields, enc, exact=True)  # #7955: NUL is not a blank
             keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
             res["screens"].append({"map": kv["map"], **({"mapset": kv["mapset"]} if "mapset" in kv else {}),
                                    "fields": {keys[k][0]: (common.comp5_zos_text(v) if zos5 and isinstance(v, str) else v)
@@ -2948,18 +2948,20 @@ def map_subfields(
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if kind == "L" and f["bytes"] == 2 and int.from_bytes(raw, "big", signed=True) == -1:
             out.setdefault(name, {})["length"] = -1
-        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space, b"\x40"):
-            out.setdefault(name, {})[_SUBFIELDS[kind]] = raw[0]
+        elif kind in _SUBFIELDS and f["bytes"] == 1 and True:
+            out.setdefault(name, {})[_SUBFIELDS[kind]] = (
+                0x40 if raw == space else raw[0]
+            )  # #7955: X'00' and X'40' are values
     return out
 
 
 def java_subfields(sub: Any) -> dict[str, dict[str, int]]:
-    """CicsTask's recorded subfields in the same terms: the set ones only (X'00' and an EBCDIC space are not set,
-    as on the COBOL side), length only as -1."""
+    """CicsTask's recorded subfields in the same terms: every attribute / colour / highlight byte (#7955: X'00' and
+    the EBCDIC space X'40' are values), length only as -1."""
     out: dict[str, dict[str, int]] = {}
     for name, vals in (sub or {}).items():
         for key, v in (vals or {}).items():
-            if v is None or (key == "length" and v != -1) or (key != "length" and int(v) & 0xFF in (0x00, 0x40)):
+            if v is None or (key == "length" and v != -1):  # #7955: X'00' and X'40' are values, as on the COBOL side
                 continue
             out.setdefault(name, {})[key] = int(v) if key == "length" else int(v) & 0xFF
     return out
@@ -5236,7 +5238,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])
         cev, jev, x6 = x6_judged(sc, out, cev, jev)
         cev, jev = mask_absent_commarea(sc, cev, jev, [0])
-        d = cics_compare.compare_events(cev, jev)
+        d = cics_compare.compare_events(cev, jev, exact_bytes=bool(case.get("exact_bytes")))
         o: dict[str, Any] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"], "java": jev,
                              "entries": facade["entries"].get(name, []),
                              **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
@@ -5263,7 +5265,9 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
             o["caller_bytes"] = moved
             ok = False
             if not quiet:
-                print(f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}")
+                print(
+                    f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}"
+                )
         if not sc.get("prefix_link") and not x6:
             changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
             changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))
@@ -5288,6 +5292,15 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                              for m, sids in sorted(by_method.items())]}  # fmt: skip
 
 
+def with_exact_bytes(case: dict[str, Any], project: Path) -> dict[str, Any]:
+    """#7955: a det port's runtime (DetCics) records every attribute / colour / highlight byte, so its compare tells
+    X'00' from X'40'. A generated or model-written port records only what it set: its compare stays the loose one."""
+    src = project / "src"
+    if next((src if src.is_dir() else project).rglob("DetCics.java"), None) is None:
+        return case
+    return {**case, "exact_bytes": True}
+
+
 def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, java_out: Path,
                           files: list[dict[str, Any]], cobol: dict[str, Any], java: dict[str, list[dict[str, Any]]],
                           quiet: bool = False) -> tuple[bool, dict[str, dict[str, Any]]]:  # fmt: skip
@@ -5305,7 +5318,7 @@ def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, 
         cev, jev, x6 = x6_judged(sc, java_out, cev, jev)
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
-        d = cics_compare.compare_events(cev, jev)
+        d = cics_compare.compare_events(cev, jev, exact_bytes=bool(case.get("exact_bytes")))
         moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(java_out, name), case)
         outputs[name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                          "cobol": cev, "java": jev,
@@ -5452,6 +5465,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     linked = work / "java" / ej.LINKED_FILE
     if linked.is_file():  # #4188: where each LINKed program's Java came from
         report["linked_programs"] = json.loads(linked.read_text(encoding="utf-8"))
+    case = with_exact_bytes(case, work / "java")  # #7955: only a det port records every byte
     ok, report["outputs"] = evaluate_cics_outputs(
         case, corpus, work / "cobol", work / "java" / "out", files, cobol, java
     )

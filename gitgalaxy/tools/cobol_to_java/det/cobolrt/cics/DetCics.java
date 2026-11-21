@@ -584,7 +584,9 @@ public final class DetCics {
     }
 
     /** A symbolic map field's subfields as the program set them: the attribute (<f>A / <f>F), colour (<f>C),
-     *  highlight (<f>H) bytes -- X'00' and a space are "not set" -- and length -1 (<f>L: the cursor). */
+     *  highlight (<f>H) bytes and length -1 (<f>L: the cursor). #7955: a byte is recorded as it is -- X'00'
+     *  (LOW-VALUES) and the page's space (recorded as the EBCDIC space X'40') are values, not "not set": the
+     *  harness tells them apart from each other and from a byte never given. */
     // [rule RT-CICS-BMS-SUBFIELDS]
     public static void subfields(CicsTask.MapSubfields sub, String name, Field len, Field attr, Field color,
                                  Field hilight, Charset cs) {
@@ -593,23 +595,19 @@ public final class DetCics {
             sub.cursor(name);
         }
         if (attr != null) {
-            byte b = attr.storage().bytes[attr.offset()];
-            if (b != 0 && b != space) {
-                sub.attr(name, b & 0xFF);
-            }
+            sub.attr(name, subfieldByte(attr, space));
         }
         if (color != null) {
-            byte b = color.storage().bytes[color.offset()];
-            if (b != 0 && b != space) {
-                sub.color(name, b & 0xFF);
-            }
+            sub.color(name, subfieldByte(color, space));
         }
         if (hilight != null) {
-            byte b = hilight.storage().bytes[hilight.offset()];
-            if (b != 0 && b != space) {
-                sub.hilight(name, b & 0xFF);
-            }
+            sub.hilight(name, subfieldByte(hilight, space));
         }
+    }
+
+    private static int subfieldByte(Field f, byte space) {
+        byte b = f.storage().bytes[f.offset()];
+        return b == space ? 0x40 : b & 0xFF;
     }
 
     /** RECEIVE MAP: a typed field -- its text (padded with spaces) and its length (the text without trailing

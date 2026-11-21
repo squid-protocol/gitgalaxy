@@ -634,21 +634,6 @@
    ]
   },
   {
-   "id": "3e8875cfd8",
-   "op": "CON",
-   "line": 89,
-   "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
-   "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
-   "verdict": "harness-gap",
-   "reason": "the field grows by one byte over the attribute byte's neighbour, which the program leaves NUL (LOW-VALUES) or space; the change turns a NUL into a space in a symbolic-map byte and DetCics.subfields reads both as not set while the comparator strips trailing blanks and NULs, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-all-fields-pf2",
-    "nul-clear-ca-x",
-    "nul-echo-empty-receive",
-    "nul-first-display-pf1"
-   ]
-  },
-  {
    "id": "c23c5afee2",
    "op": "CON",
    "line": 89,
@@ -767,132 +752,6 @@
    ]
   },
   {
-   "id": "b173c53d8e",
-   "op": "CON",
-   "line": 99,
-   "before": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 12, false);",
-   "after": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 13, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "5b760e0076",
-   "op": "CON",
-   "line": 100,
-   "before": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 10, false);",
-   "after": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 11, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "599dca8b46",
-   "op": "CON",
-   "line": 101,
-   "before": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 8, false);",
-   "after": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "0868cfc1a2",
-   "op": "CON",
-   "line": 102,
-   "before": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 8, false);",
-   "after": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "a5a2ce5578",
-   "op": "CON",
-   "line": 103,
-   "before": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 8, false);",
-   "after": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "27d9c57ae1",
-   "op": "CON",
-   "line": 104,
-   "before": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 8, false);",
-   "after": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "4154bc147c",
-   "op": "CON",
-   "line": 105,
-   "before": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 8, false);",
-   "after": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
    "id": "ddffcd1760",
    "op": "CON",
    "line": 105,
@@ -902,24 +761,6 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: truncated: DFHBMUNP is only ever moved whole into alphanumeric items of at most 1 bytes, so its 1 or 2 bytes give them the same leading bytes (the line is `private final Field f79_DFHBMUNP = Field.alphanumeric(s_DFHBMSCA, 3, 1, false);`)",
    "tried": [
     "solver-unobservable"
-   ]
-  },
-  {
-   "id": "0e20717024",
-   "op": "CON",
-   "line": 106,
-   "before": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 8, false);",
-   "after": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
    ]
   },
   {
@@ -2438,6 +2279,18 @@
     "t-entry-1000",
     "t-link-1000",
     "t-link-30"
+   ]
+  },
+  {
+   "id": "8a3bd784be",
+   "op": "DEL",
+   "line": 229,
+   "before": "System.arraycopy(IMAGE_s_HXM1I, 0, s_HXM1I.bytes, 0, IMAGE_s_HXM1I.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HXM1I, 0, s_HXM1I.bytes, 0, IMAGE_s_HXM1I.length); */",
+   "verdict": "equivalent",
+   "reason": "HXM1I has no VALUE clause, so the initial image only matters if HXM1I is read before it is written. Every path writes it first: FIRST-SCREEN does MOVE LOW-VALUES TO HXM1O (HXM1O redefines the same storage), ECHO-SCREEN does MOVE LOW-VALUES TO HXM1I before RECEIVE, RESET-SCREEN sends MAPONLY and never reads it. One attempt (clear-then-enter) did not kill it.",
+   "tried": [
+    "atk-clear-then-enter"
    ]
   },
   {
@@ -4167,21 +4020,6 @@
    ]
   },
   {
-   "id": "722da01d4e",
-   "op": "DEL",
-   "line": 486,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without the LOW-VALUES move the map-out area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-all-fields-pf2",
-    "nul-clear-ca-x",
-    "nul-echo-empty-receive",
-    "nul-first-display-pf1"
-   ]
-  },
-  {
    "id": "567c9dee17",
    "op": "LIT",
    "line": 488,
@@ -4255,60 +4093,6 @@
    ]
   },
   {
-   "id": "81606d71df",
-   "op": "LIT",
-   "line": 529,
-   "before": "values3.put(\"NAME\", Cobol.text(f60_NAMEO, CS));",
-   "after": "values3.put(\"XAME\", Cobol.text(f60_NAMEO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXATTR first screen: only STATO, BRITEO, SECRETO, RAWO, BLINKYO, TWIDDLEO and NULATRO are given text, this field is not one of them.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "4c88cd12f4",
-   "op": "LIT",
-   "line": 539,
-   "before": "values3.put(\"LEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
-   "after": "values3.put(\"XEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXATTR first screen: only STATO, BRITEO, SECRETO, RAWO, BLINKYO, TWIDDLEO and NULATRO are given text, this field is not one of them.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "90ef2d1ba2",
-   "op": "LIT",
-   "line": 543,
-   "before": "values3.put(\"FSETF\", Cobol.text(f74_FSETFO, CS));",
-   "after": "values3.put(\"XSETF\", Cobol.text(f74_FSETFO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXATTR first screen: only STATO, BRITEO, SECRETO, RAWO, BLINKYO, TWIDDLEO and NULATRO are given text, this field is not one of them.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
    "id": "4225c2b798",
    "op": "DEL",
    "line": 555,
@@ -4332,33 +4116,6 @@
    "reason": "RETURN LENGTH(1) cuts the raw COMMAREA area to 1 byte (areaOf), so commarea size 2 instead of 1 carries the same bytes (return-area-cut)",
    "tried": [
     "return-area-cut"
-   ]
-  },
-  {
-   "id": "2f2fe95515",
-   "op": "LIT",
-   "line": 562,
-   "before": "DetCics.subfields(sub4, \"NAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "after": "DetCics.subfields(sub4, \"XAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
-   ]
-  },
-  {
-   "id": "f2ec0dbb50",
-   "op": "DEL",
-   "line": 564,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without the LOW-VALUES move the map-in area keeps its initial spaces where the port writes NULs; the program then reads fields by typed text and DetCics.subfields reads NUL and space as not set, and the comparator strips both, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-all-fields-pf2",
-    "nul-clear-ca-x",
-    "nul-echo-empty-receive",
-    "nul-first-display-pf1"
    ]
   },
   {
@@ -4429,30 +4186,6 @@
     "s2-attr-full-width",
     "s2-attr-name-only-long",
     "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "b04f104201",
-   "op": "LIT",
-   "line": 574,
-   "before": "DetCics.subfields(sub4, \"NULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "after": "DetCics.subfields(sub4, \"XULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "f43_NULATRL, f46_NULATRA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
-   ]
-  },
-  {
-   "id": "bbce14fce2",
-   "op": "LIT",
-   "line": 576,
-   "before": "DetCics.subfields(sub4, \"FSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "after": "DetCics.subfields(sub4, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
    ]
   },
   {
@@ -4694,114 +4427,6 @@
    ]
   },
   {
-   "id": "f7bb0fc16a",
-   "op": "LIT",
-   "line": 622,
-   "before": "DetCics.subfields(sub12, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "d1039e10b0",
-   "op": "LIT",
-   "line": 626,
-   "before": "DetCics.subfields(sub12, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "46e7c692be",
-   "op": "LIT",
-   "line": 628,
-   "before": "DetCics.subfields(sub12, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "9f3f2e515a",
-   "op": "LIT",
-   "line": 630,
-   "before": "DetCics.subfields(sub12, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "7f0d449603",
-   "op": "LIT",
-   "line": 632,
-   "before": "DetCics.subfields(sub12, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "90b50d531f",
-   "op": "LIT",
-   "line": 634,
-   "before": "DetCics.subfields(sub12, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show. (ECHO-SCREEN: HXM1I is zeroed, RECEIVE places only text and length, and only STATA is set, so every other attribute byte is X'00'.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
    "id": "93d94010c1",
    "op": "DEL",
    "line": 635,
@@ -4850,18 +4475,6 @@
     "ent-40-enter",
     "link-2-pf3",
     "link-41-enter"
-   ]
-  },
-  {
-   "id": "d107a43b40",
-   "op": "LIT",
-   "line": 656,
-   "before": "DetCics.subfields(sub12, \"NAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
    ]
   },
   {
@@ -4955,18 +4568,6 @@
    ]
   },
   {
-   "id": "15751d0dc6",
-   "op": "LIT",
-   "line": 668,
-   "before": "DetCics.subfields(sub12, \"NULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "f43_NULATRL, f46_NULATRA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
-   ]
-  },
-  {
    "id": "777669b767",
    "op": "LIT",
    "line": 669,
@@ -4982,18 +4583,6 @@
     "s2-attr-full-width",
     "s2-attr-name-only-long",
     "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "f93ac0da00",
-   "op": "LIT",
-   "line": 670,
-   "before": "DetCics.subfields(sub12, \"FSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "after": "DetCics.subfields(sub12, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "verdict": "equivalent",
-   "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
    ]
   },
   {

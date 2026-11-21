@@ -70,10 +70,13 @@ def test_a_send_missing_or_extra_is_a_diff():
     assert ec.compare_events([], [_send()])["diffs"][0]["cobol"] is None
 
 
-def test_cleared_and_unpainted_bytes_are_not_claimed():
-    java = _send(subfields={"MSG": {"attr": 0x00, "color": 0x40, "hilight": 0}, "NAME": {"length": -1}})
-    cobol = _send(subfields={"NAME": {"length": -1}})
-    assert ec.compare_events([cobol], [java])["equal"] == 1
+def test_a_cleared_byte_and_a_space_byte_are_different_values():
+    """#7955: X'00' and X'40' in an attribute / colour / highlight byte are both values, told apart on both sides."""
+    both = {"MSG": {"attr": 0x00, "color": 0x40, "hilight": 0}, "NAME": {"length": -1}}
+    assert ec.compare_events([_send(subfields=both)], [_send(subfields=both)], exact_bytes=True)["equal"] == 1
+    swapped = {"MSG": {"attr": 0x40, "color": 0x40, "hilight": 0}, "NAME": {"length": -1}}
+    assert ec.compare_events([_send(subfields=both)], [_send(subfields=swapped)], exact_bytes=True)["equal"] == 0
+    assert ec.compare_events([_send(subfields=both)], [_send(subfields=swapped)])["equal"] == 1  # loose lanes
 
 
 def test_the_report_says_what_is_compared():

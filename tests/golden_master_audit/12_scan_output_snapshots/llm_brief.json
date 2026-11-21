@@ -209,7 +209,7 @@
     "| danger | 28586 | 1487 | 18 | `fortran/wrf/regtest_hwrf.csh` |",
     "| concurrency | 5638 | 544 | 2 | `typescript/playwright/frames.ts` |",
     "| connectivity | 27261 | 1244 | 13 | `typescript/typescript_compiler/types.ts` |",
-    "| io | 16323 | 1044 | 7 | `fortran/wrf/regtest.csh` |",
+    "| io | 16311 | 1043 | 7 | `fortran/wrf/regtest.csh` |",
     "| crypto | 19 | 11 | 0 | `python/twisted/transport.py` |",
     "| ipc | 1579 | 306 | 0 | `cobol/gnucobol/numeric-dump.cob` |",
     "| time | 1057 | 277 | 0 | `lua/cosmopolitan/files.lua` |",

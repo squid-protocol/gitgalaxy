@@ -19,26 +19,37 @@ from typing import Any, NamedTuple
 
 _COMMON_FAMILIES = (
     (
-        "complexity",
+        "struct_branch",
         "branch",
         "decision points: if, loops, case clauses, catch handlers, conditional expressions, && and ||",
+        "branch",
     ),
-    ("struct_branch", "branch", "same count as complexity"),
-    ("args", "args", "declared parameters"),
-    ("struct_closures", "closures", "function literals, lambdas and closures defined inside the function"),
-    ("struct_decorators", "decorators", "annotations, attributes or decorators on the function"),
-    ("state_bailout_hits", "bailout", "throw / panic / process-exit"),
+    ("args", "args", "declared parameters", "args"),
+    (
+        "struct_closures",
+        "closures",
+        "anonymous callables: function literals, lambdas, arrow functions, closures",
+        "closures",
+    ),
+    ("struct_decorators", "decorators", "annotations, attributes or decorators on the function", "decorators"),
+    ("state_bailout_hits", "bailout", "throw / panic / unreachable marker / process exit", "panics_and_aborts"),
     (
         "bitwise_ops",
         "bitwise",
-        "bitwise operators in operator position: << >> ^ ~ (& and | are address-of, pipes, bounds and closures too, so left out)",
+        "bitwise operators in operator position: << >> ^ & | ~ (and the compound assignments)",
+        "bitwise_ops",
     ),
-    ("state_print_hits", "print", "output to the console"),
-    ("state_halt_hits", "sleep", "sleeps and timed waits"),
-    ("arch_regex", "regex", "executes or builds a regular expression"),
-    ("arch_time", "time", "reads a clock"),
-    ("arch_io", "io", "opens or reads/writes a file or a network connection"),
-    ("is_documented", "doc", "a doc comment directly above"),
+    ("state_print_hits", "print", "ad-hoc debug output to the console", "debug_prints"),
+    ("state_halt_hits", "sleep", "sleeps and timed waits", "thread_sleeps"),
+    ("arch_regex", "regex", "evaluates or builds a regular expression", "regex_execution"),
+    (
+        "arch_time",
+        "time",
+        "instantiates or computes with a clock or calendar value: now/time/date constructors, durations, formatting",
+        "time_date_logic",
+    ),
+    ("arch_io", "io", "opens or reads/writes a file or a network connection", "io"),
+    ("is_documented", "doc", "structured documentation directly above (/** */, ///, godoc)", "doc"),
 )
 
 
@@ -46,6 +57,7 @@ class Family(NamedTuple):
     column: str
     oracle: str
     sentence: str
+    rule: str
 
 
 @dataclass(frozen=True)
@@ -78,7 +90,17 @@ _JS_CALLS = {
     ),
     "sleep": ("setTimeout", "setInterval", "setImmediate", "sleep", "delay"),
     "regex": ("RegExp", "test", "exec", "match", "matchAll"),
-    "time": ("Date.now", "performance.now", "process.hrtime", "Date", "console.time", "console.timeEnd"),
+    "time": (
+        "Date.",
+        "Date",
+        "performance.now",
+        "process.hrtime",
+        "moment",
+        "dayjs",
+        "Intl.DateTimeFormat",
+        "console.time",
+        "console.timeEnd",
+    ),
     "io": (
         "fs.",
         "fetch",
@@ -106,22 +128,10 @@ SPECS: dict[str, Spec] = {
         _fs(),
         _fs("call_expression"),
         {
-            "print": (
-                "fmt.Print",
-                "fmt.Printf",
-                "fmt.Println",
-                "fmt.Fprint",
-                "fmt.Fprintf",
-                "fmt.Fprintln",
-                "log.Print",
-                "log.Printf",
-                "log.Println",
-                "println",
-                "print",
-            ),
+            "print": ("fmt.Print", "fmt.Printf", "fmt.Println", "println", "print"),
             "sleep": ("time.Sleep", "time.After", "time.Tick", "time.NewTimer", "time.NewTicker"),
             "regex": ("regexp.",),
-            "time": ("time.Now", "time.Since", "time.Until", "time.Parse", "time.Date", "time.Unix"),
+            "time": ("time.",),
             "io": (
                 "os.Open",
                 "os.Create",
@@ -159,12 +169,14 @@ SPECS: dict[str, Spec] = {
             "sleep": ("thread::sleep", "std::thread::sleep", "tokio::time::sleep", "time::sleep", "sleep"),
             "regex": ("Regex::new", "RegexSet::new", "RegexBuilder::new", "Regex::"),
             "time": (
-                "Instant::now",
-                "SystemTime::now",
-                "Utc::now",
-                "Local::now",
-                "Duration::from_secs",
-                "Duration::from_millis",
+                "Instant::",
+                "SystemTime::",
+                "Utc::",
+                "Local::",
+                "Duration::",
+                "chrono::",
+                "DateTime::",
+                "NaiveDate::",
             ),
             "io": (
                 "File::open",
@@ -274,12 +286,21 @@ SPECS: dict[str, Spec] = {
             "time": (
                 "System.currentTimeMillis",
                 "System.nanoTime",
-                "Instant.now",
-                "LocalDate.now",
-                "LocalDateTime.now",
-                "ZonedDateTime.now",
-                "Duration.between",
+                "Instant.",
+                "Duration.",
+                "LocalDate.",
+                "LocalDateTime.",
+                "LocalTime.",
+                "ZonedDateTime.",
+                "OffsetDateTime.",
+                "Period.",
                 "Clock.",
+                "TimeUnit.",
+                "ChronoUnit.",
+                "DateTimeFormatter.",
+                "Date",
+                "Calendar.",
+                "SimpleDateFormat",
             ),
             "io": (
                 "Files.",
@@ -337,8 +358,14 @@ SPECS: dict[str, Spec] = {
                 "localtime",
                 "gmtime",
                 "strftime",
+                "strptime",
                 "difftime",
                 "mktime",
+                "timegm",
+                "ctime",
+                "asctime",
+                "localtime_r",
+                "gmtime_r",
             ),
             "io": (
                 "fopen",
@@ -361,7 +388,7 @@ SPECS: dict[str, Spec] = {
                 "fseek",
                 "mmap",
             ),
-            "bailout": ("exit", "abort", "_exit", "_Exit", "quick_exit", "assert"),
+            "bailout": ("exit", "abort", "_exit", "_Exit", "quick_exit"),
         },
         skip_families=_fs("struct_closures"),
     ),
@@ -412,7 +439,7 @@ def _matches(full: str, patterns: tuple[str, ...]) -> str | None:
     last = full.replace("::", ".").split(".")[-1]
     for p in patterns:
         if p.endswith((".", "::")):
-            if full.startswith(p):
+            if full.startswith(p) or ("::" + p) in full or ("." + p) in full:
                 return p
         elif full == p or full.endswith(("." + p, "::" + p)) or (("." not in p and "::" not in p) and last == p):
             return p
@@ -478,11 +505,19 @@ def _decorators(node) -> list[str]:
     return out
 
 
-def _documented(node) -> bool:
+def _documented(spec: Spec, node) -> bool:
+    """A doc comment directly above, in the language's structured style: `/** */` (C, Java, JS, TS), `///` / `//!` / `/** */` (Rust), any comment (Go: godoc)."""
     prev = node.prev_named_sibling
     while prev is not None and prev.type in ("attribute_item", "decorator"):
         prev = prev.prev_named_sibling
-    return prev is not None and "comment" in prev.type and prev.end_point[0] >= node.start_point[0] - 1
+    if prev is None or "comment" not in prev.type or prev.end_point[0] < node.start_point[0] - 1:
+        return False
+    text = _text(prev).lstrip()
+    if spec.ts_name == "go":
+        return True
+    if spec.ts_name == "rust":
+        return text.startswith(("///", "//!", "/**", "/*!"))
+    return text.startswith(("/**", "/*!"))
 
 
 class TreeSitterOracle:
@@ -548,10 +583,19 @@ class TreeSitterOracle:
                 op = _text(node.child_by_field_name("operator"))
                 if op in ("&&", "||", "and", "or"):
                     add("branch", op)
-                if op in ("<<", ">>", "^", "&^"):
+                if op in ("<<", ">>", "^", "&^", "&", "|"):
                     add("bitwise", op)
             elif t == "unary_expression" and _text(node.child_by_field_name("operator")) == "~":
                 add("bitwise", "~")
+            elif "assignment" in t and _text(node.child_by_field_name("operator")) in (
+                "<<=",
+                ">>=",
+                "^=",
+                "&=",
+                "|=",
+                "&^=",
+            ):
+                add("bitwise", _text(node.child_by_field_name("operator")))
             if t in spec.closure_types:
                 add("closures")
             if t in spec.throw_types:
@@ -570,7 +614,7 @@ class TreeSitterOracle:
             n["decorators"] = len(deco)
             for d in deco:
                 tokens["decorators"][d] += 1
-        n["doc"] = 1 if _documented(fn) else 0
+        n["doc"] = 1 if _documented(spec, fn) else 0
         return n, tokens
 
 

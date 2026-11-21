@@ -36,12 +36,22 @@ def _counts(src: str) -> dict:
         ('def f():\n    return re.compile(r"^a|~b<<")', "bitwise", 0),
         ("def f(x):\n    return x << 2", "bitwise", 1),
         ("def f(x):\n    return ~x", "bitwise", 1),
-        ("def f(x):\n    return x & 3 | 1", "bitwise", 0),
+        ("def f(x):\n    return x & 3 | 1", "bitwise", 2),  # the contract counts and/or in operator position
+        ("def f(a, b, *c, d=1, **e):\n    pass", "args", 5),
         ("def f():\n    time.sleep(1)", "sleep", 1),
         ("def f():\n    subprocess.run(['ls'])", "danger", 1),
         ("def f(s):\n    return eval(s)", "danger", 1),
-        ("def f(s):\n    return json.loads(s)", "unsafe_deserialize", 0),
-        ("def f(s):\n    return pickle.loads(s)", "unsafe_deserialize", 1),
+        ("def f(s):\n    return json.loads(s)", "serialization", 1),  # json is a structured interchange format
+        ("def f(s):\n    return pickle.loads(s)", "serialization", 1),
+        ("def f(xs):\n    return [x for x in xs]", "closures", 0),
+        (
+            "def f(xs):\n    g = lambda x: x\n    def h(): pass",
+            "closures",
+            1,
+        ),  # a lambda is anonymous; a nested def is a declaration
+        ("def f(p):\n    p.close()", "cleanup", 1),
+        ("def f(xs):\n    return map(str, xs)", "comprehensions", 1),
+        ("def f() -> Generator[int, None, None]:\n    return g()", "lazy", 1),
         ("def f(xs):\n    return (x for x in xs)", "lazy", 0),
         ("def f():\n    yield 1", "lazy", 1),
         ("def f(a):\n    if a and a > 1:\n        return 1\n    return 0", "branch", 2),
@@ -176,7 +186,7 @@ def test_unknown_language_is_refused(tmp_path):
 def test_list_families(capsys):
     assert fo.main(["--list-families"]) == 0
     text = capsys.readouterr().out
-    assert "arch_regex" in text and "unsafe deserialization only" in text
+    assert "arch_regex" in text and "structured interchange format" in text
 
 
 # ---- tree-sitter oracles (#8863): one construct per case, per language ----
@@ -232,10 +242,50 @@ def _ts_counts(lang: str, src: str, name: str, line: int = 0) -> dict:
         ("javascript", "function f() { return 1; }", "f", "closures", 0),  # the `function` keyword is not a closure
         ("typescript", "function f(m: Map<string, Array<string>>) { return m; }", "f", "bitwise", 0),
         ("typescript", "function f(a: number) { throw new Error('x'); }", "f", "bailout", 1),
+        ("java", "class A {\n  int f(int a, int b) { return a & b | 1; }\n}", "f", "bitwise", 2),
+        ("java", "class A {\n  int f(int a) { a |= 4; return a; }\n}", "f", "bitwise", 1),  # compound assignment
+        (
+            "go",
+            "package m\nfunc F() time.Duration { return time.Duration(3) * time.Second }",
+            "F",
+            "time",
+            1,
+        ),  # duration arithmetic is time logic
+        (
+            "go",
+            'package m\nfunc F(w io.Writer) { fmt.Fprintf(w, "x") }',
+            "F",
+            "print",
+            0,
+        ),  # output to a writer is not a debug print
+        ("rust", "fn f() { let d = Instant::now(); }", "f", "time", 1),
+        (
+            "c",
+            "int f(int a) { assert(a); return a; }",
+            "f",
+            "bailout",
+            0,
+        ),  # assert is a conditional check, not an abort statement
     ],
 )
 def test_treesitter_oracle_reads_one_construct(lang, src, name, key, want):
     assert _ts_counts(lang, src, name).get(key, 0) == want
+
+
+@needs_ts
+@pytest.mark.parametrize(
+    ("lang", "src", "name", "want"),
+    [
+        ("c", "/* plain comment */\nint f(void) { return 1; }", "f", 0),
+        ("c", "/** Doxygen */\nint f(void) { return 1; }", "f", 1),
+        ("java", "class A {\n  /** javadoc */\n  int f() { return 1; }\n}", "f", 1),
+        ("rust", "/// doc\nfn f() {}", "f", 1),
+        ("rust", "// plain\nfn f() {}", "f", 0),
+        ("go", "package m\n// F does a thing.\nfunc F() {}", "F", 1),
+    ],
+)
+def test_documented_means_structured_documentation(lang, src, name, want):
+    assert _ts_counts(lang, src, name).get("doc", 0) == want
 
 
 @needs_ts
@@ -248,4 +298,38 @@ def test_decorated_rust_function_is_keyed_by_its_first_attribute_line():
 def test_every_spec_lists_families_the_tool_can_score():
     for lang in ts_oracle.languages():
         columns = {f.column for f in ts_oracle.get_oracle(lang).families}
-        assert {"complexity", "args", "bitwise_ops", "state_print_hits"} <= columns, lang
+        assert {"struct_branch", "args", "bitwise_ops", "state_print_hits"} <= columns, lang
+
+
+def test_update_baseline_merges_cells_and_never_demotes_a_pinned_one(tmp_path):
+    result = fo.score(_make_scan(tmp_path), tmp_path)
+    base = tmp_path / "baseline.json"
+    assert fo.update_baseline(base, result, "crucible v1", pinned=True) == 4
+    cells = json.loads(base.read_text(encoding="utf-8"))["cells"]["python"]
+    assert set(cells) == {"regex_execution", "time_date_logic", "io", "decorators"}
+    assert cells["regex_execution"]["status"] == "dead"
+    assert cells["regex_execution"]["pinned"] is True
+    # an exploratory rescan does not overwrite the pinned cells...
+    fo.update_baseline(base, result, "some repo", pinned=False)
+    assert json.loads(base.read_text(encoding="utf-8"))["cells"]["python"]["io"]["corpus"] == "crucible v1"
+    # ...but a pinned rescan does
+    fo.update_baseline(base, result, "crucible v2", pinned=True)
+    assert json.loads(base.read_text(encoding="utf-8"))["cells"]["python"]["io"]["corpus"] == "crucible v2"
+
+
+def test_a_no_instances_result_does_not_displace_an_informative_one_from_another_corpus():
+    informative = {"recall": 0.5, "precision": 1.0, "status": "misses", "corpus": "a", "pinned": False, "n_oracle": 50}
+    empty = {"recall": None, "precision": None, "status": "no-instances", "corpus": "b", "pinned": False, "n_oracle": 0}
+    assert fo._keeps_old(informative, empty) is True
+    assert fo._keeps_old(informative, {**empty, "corpus": "a"}) is False  # a rescan of the same corpus replaces itself
+    assert fo._keeps_old(None, empty) is False
+    thin_pinned = {"recall": 1.0, "precision": 1.0, "status": "ok", "corpus": "crucible", "pinned": True, "n_oracle": 3}
+    assert fo._keeps_old(informative, thin_pinned) is True  # three functions do not displace fifty
+    assert fo._keeps_old({**informative, "n_oracle": 4}, thin_pinned) is False  # both thin: the pinned one wins
+
+
+def test_cli_writes_the_baseline(tmp_path):
+    db = _make_scan(tmp_path)
+    base = tmp_path / "b.json"
+    assert fo.main([str(db), "--src", str(tmp_path), "--corpus", "x", "--update-baseline", str(base)]) == 0
+    assert "io" in json.loads(base.read_text(encoding="utf-8"))["cells"]["python"]

@@ -5,6 +5,7 @@
     python tests/tools/family_oracle.py SCAN_DB --src ROOT --lang go    # another language (go rust javascript typescript java c)
     python tests/tools/family_oracle.py SCAN_DB --src ROOT --json OUT   # the same, machine readable
     python tests/tools/family_oracle.py SCAN_DB --src ROOT --gate FLOORS.json   # exit 1 when a family falls below its floor
+    python tests/tools/family_oracle.py SCAN_DB --src ROOT --lang go --corpus NAME [--pinned] --update-baseline   # record the cells for the grid
     python tests/tools/family_oracle.py --list-families                 # each family and the sentence it is scored against
 
 GitGalaxy's per-function signals (`function_data.arch_io`, `arch_regex`, `bitwise_ops`, ...) are regex families, written per language in
@@ -41,11 +42,13 @@ import sqlite3
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from gitgalaxy.core.source_text import read_source  # noqa: E402
 
+SMALL_N = 10  # fewer oracle functions than this: a cell is too thin to quote
 RECALL_BAR = 0.8
 PRECISION_BAR = 0.8
 
@@ -86,6 +89,12 @@ _CLOCKS = frozenset(
         "strftime",
         "strptime",
         "timedelta",
+        "today",
+        "fromtimestamp",
+        "utcfromtimestamp",
+        "localtime",
+        "gmtime",
+        "timezone",
     }
 )
 _DANGER_CALLS = frozenset({"eval", "exec", "system", "popen", "Popen", "unsafe_load", "_exit", "abort", "exit"})
@@ -96,61 +105,125 @@ _THREAD_NAMES = frozenset(
     {"Thread", "Pool", "Process", "ThreadPoolExecutor", "ProcessPoolExecutor", "Queue", "submit", "imap", "apply_async"}
 )
 _LOCK_NAMES = frozenset({"Lock", "RLock", "Semaphore", "BoundedSemaphore", "acquire", "release"})
+_SERIAL_BASES = frozenset({"json", "yaml", "pickle", "marshal", "csv", "toml", "tomllib", "ET", "etree", "plistlib"})
+_SERIAL_CALLS = frozenset(
+    {
+        "dump",
+        "dumps",
+        "load",
+        "loads",
+        "safe_load",
+        "safe_dump",
+        "full_load",
+        "reader",
+        "writer",
+        "DictReader",
+        "DictWriter",
+        "parse",
+        "fromstring",
+        "tostring",
+        "Unpickler",
+    }
+)
+_LAZY_ANNOTATIONS = frozenset({"Generator", "AsyncGenerator", "Iterator", "AsyncIterator"})
 _CASTS = frozenset({"int", "str", "float", "bool", "bytes", "list", "dict", "set", "tuple", "cast", "bytearray"})
-_BITWISE_OPS = (ast.LShift, ast.RShift, ast.BitXor)
+_BITWISE_OPS = (ast.LShift, ast.RShift, ast.BitXor, ast.BitAnd, ast.BitOr)
 
 
 @dataclass(frozen=True)
 class Family:
     column: str  # function_data column
     oracle: str  # key in the oracle's counts
-    sentence: str  # the one sentence the family is scored against
+    sentence: str  # what the oracle counts: the family's contract (gitgalaxy/standards/signal_contracts.py) as the oracle reads it
+    rule: str = ""  # the contract family this column reports, so a result can be placed on the language x family grid
 
 
 FAMILIES: tuple[Family, ...] = (
     Family(
-        "complexity",
+        "struct_branch",
         "branch",
         "decision points: if, loops, conditional expressions, except handlers, asserts, boolean operators, comprehension filters",
+        "branch",
     ),
-    Family("struct_branch", "branch", "same count as complexity"),
-    Family("struct_closures", "closures", "functions and lambdas defined inside the function"),
-    Family("struct_comprehensions", "comprehensions", "list, set, dict comprehensions and generator expressions"),
-    Family("struct_decorators", "decorators", "decorators on the function itself"),
+    Family("args", "args", "declared parameters", "args"),
+    Family(
+        "struct_closures",
+        "closures",
+        "anonymous callables: lambdas (nested named functions are declarations, not closures)",
+        "closures",
+    ),
+    Family(
+        "struct_comprehensions",
+        "comprehensions",
+        "comprehensions, generator expressions and map/filter/reduce calls",
+        "comprehensions",
+    ),
+    Family("struct_decorators", "decorators", "decorators on the function itself", "decorators"),
     Family(
         "arch_io",
         "io",
         "opens or reads/writes a file, lists or globs a directory (not path string work, not process exit)",
+        "io",
     ),
     Family(
         "arch_regex",
         "regex",
-        "executes a regular expression: re.* module calls or a match/search/fullmatch/finditer/findall/sub/subn call",
+        "evaluates a regular expression: re.* module calls or a match/search/fullmatch/finditer/findall/sub/subn call",
+        "regex_execution",
     ),
-    Family("arch_time", "time", "reads a clock or formats/parses a time"),
+    Family(
+        "arch_time",
+        "time",
+        "instantiates or computes with a clock or calendar value: now/time/date constructors, durations, formatting and timezone calls",
+        "time_date_logic",
+    ),
     Family(
         "arch_serialization",
-        "unsafe_deserialize",
-        "unsafe deserialization only: pickle/marshal load(s), ast.literal_eval, yaml unsafe load (json is outside)",
+        "serialization",
+        "encodes to or decodes from a structured interchange format: json, yaml, csv, xml, pickle, marshal, protobuf calls",
+        "serialization_parsing",
     ),
-    Family("state_danger", "danger", "high-risk execution: eval, exec, subprocess calls, os.system, process exit"),
-    Family("state_halt_hits", "sleep", "sleeps and timed waits: sleep calls"),
-    Family("state_bailout_hits", "bailout", "raise statements and process-exit calls"),
-    Family("state_print_hits", "print", "print calls"),
-    Family("state_cast_hits", "cast", "builtin type casts: int, str, float, bool, bytes, list, dict, set, tuple"),
     Family(
-        "bitwise_ops",
-        "bitwise",
-        "bitwise operators in operator position: << >> ^ ~ (& and | are set operators too, so left out)",
+        "state_danger",
+        "danger",
+        "hands control out of the program's semantics: eval, exec, subprocess calls, os.system, process exit",
+        "high_risk_execution",
     ),
-    Family("lazy_evaluation", "lazy", "yield / yield from (generator expressions are a #8862 decision, left out)"),
-    Family("def_telemetry", "telemetry", "logger calls"),
-    Family("arch_concurrency", "threads", "threads, pools, processes, queues, executor submits"),
-    Family("def_sync_locks", "locks", "locks, semaphores, acquire and release"),
-    Family("arch_globals", "globals", "global / nonlocal statements and reads of os.environ, sys.argv, sys.path"),
-    Family("arch_import", "imports", "import statements inside the function"),
-    Family("def_cleanup", "cleanup", "with blocks and try/finally"),
-    Family("is_documented", "doc", "has a docstring"),
+    Family("state_halt_hits", "sleep", "blocks the thread or forces a delay: sleep calls", "thread_sleeps"),
+    Family(
+        "state_bailout_hits",
+        "bailout",
+        "ends the execution context: raise statements and process-exit calls",
+        "panics_and_aborts",
+    ),
+    Family("state_print_hits", "print", "ad-hoc debug output: print calls", "debug_prints"),
+    Family(
+        "state_cast_hits",
+        "cast",
+        "explicit type conversion: int, str, float, bool, bytes, list, dict, set, tuple calls",
+        "explicit_casts",
+    ),
+    Family("bitwise_ops", "bitwise", "bitwise operators in operator position: << >> ^ & | ~", "bitwise_ops"),
+    Family(
+        "lazy_evaluation",
+        "lazy",
+        "deferred execution: yield / yield from, or a Generator / Iterator annotation (generator expressions are not listed in the contract)",
+        "lazy_evaluation",
+    ),
+    Family("def_telemetry", "telemetry", "logger calls", "telemetry"),
+    Family("arch_concurrency", "threads", "threads, pools, processes, queues, executor submits", "concurrency"),
+    Family("def_sync_locks", "locks", "locks, semaphores, acquire and release", "sync_locks"),
+    Family(
+        "arch_globals", "globals", "global / nonlocal statements and reads of os.environ, sys.argv, sys.path", "globals"
+    ),
+    Family("arch_import", "imports", "import statements inside the function", "import"),
+    Family(
+        "def_cleanup",
+        "cleanup",
+        "destroys state or releases a held resource: with blocks, try/finally, close/remove/unlink/rmtree calls, del",
+        "cleanup",
+    ),
+    Family("is_documented", "doc", "has a docstring (structured documentation)", "doc"),
 )
 
 
@@ -190,11 +263,18 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("regex", name)
     if name in _CLOCKS or base in ("time", "datetime"):
         c.add("time", name)
-    if (base in ("pickle", "marshal") and name in ("load", "loads", "Unpickler")) or name in (
+    if (base in _SERIAL_BASES and name in _SERIAL_CALLS) or name in (
         "literal_eval",
         "unsafe_load",
+        "SerializeToString",
+        "ParseFromString",
+        "MessageToJson",
     ):
-        c.add("unsafe_deserialize", name)
+        c.add("serialization", name)
+    if name in ("map", "filter", "reduce", "starmap"):
+        c.add("comprehensions", name)
+    if name in ("close", "remove", "unlink", "rmtree", "rmdir", "removedirs"):
+        c.add("cleanup", name)
     if (
         name in _DANGER_CALLS
         or (base == "subprocess" and name in _SUBPROCESS_CALLS)
@@ -225,8 +305,8 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
             c.n["branch"] += len(node.values) - 1
         elif isinstance(node, ast.comprehension):
             c.n["branch"] += len(node.ifs)
-        if node is not fn and isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
-            c.add("closures")
+        if isinstance(node, ast.Lambda):
+            c.add("closures", "lambda")
         if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
             c.add("comprehensions")
         if isinstance(node, (ast.Yield, ast.YieldFrom)):
@@ -237,6 +317,8 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
             c.add("cleanup", "with")
         if isinstance(node, ast.Try) and node.finalbody:
             c.add("cleanup", "finally")
+        if isinstance(node, ast.Delete):
+            c.add("cleanup", "del")
         if isinstance(node, (ast.Global, ast.Nonlocal)):
             c.add("globals", "global")
         if (
@@ -258,8 +340,18 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
             c.add("bitwise", type(node.op).__name__)
         if isinstance(node, ast.Call):
             _count_call(node, c)
+    a = fn.args
+    c.n["args"] = len(a.posonlyargs) + len(a.args) + len(a.kwonlyargs) + (a.vararg is not None) + (a.kwarg is not None)
     for dec in fn.decorator_list:
         c.add("decorators", ast.unparse(dec).split("(")[0])
+    annotations = [
+        a.annotation for a in (*fn.args.posonlyargs, *fn.args.args, *fn.args.kwonlyargs) if a.annotation is not None
+    ]
+    for ann in (*annotations, *([fn.returns] if fn.returns is not None else [])):
+        for n in ast.walk(ann):
+            ident = n.id if isinstance(n, ast.Name) else n.attr if isinstance(n, ast.Attribute) else None
+            if ident in _LAZY_ANNOTATIONS:
+                c.add("lazy", ident)
     c.n["doc"] = 1 if ast.get_docstring(fn) else 0
     return c
 
@@ -417,6 +509,7 @@ def score(
         out.append(
             {
                 "family": fam.column,
+                "rule": fam.rule,
                 "definition": fam.sentence,
                 "oracle_functions": n_o,
                 "family_functions": n_f,
@@ -466,6 +559,52 @@ def check_gate(result: dict, floors: dict) -> list[str]:
     return bad
 
 
+BASELINE = ROOT / "tests" / "family_validity_baseline.json"
+BASELINE_SCHEMA = 1
+
+
+def _keeps_old(old: dict | None, new: dict) -> bool:
+    """An informative cell is not displaced by a `no-instances` or a too-thin (< SMALL_N functions) one from a different corpus, and a pinned
+    cell is not displaced by an unpinned one."""
+    if old is None:
+        return False
+    old_informative = old["status"] != "no-instances"
+    if old_informative and new["status"] == "no-instances" and old["corpus"] != new["corpus"]:
+        return True
+    if old_informative and old["n_oracle"] >= SMALL_N and new["n_oracle"] < SMALL_N and old["corpus"] != new["corpus"]:
+        return True  # too few functions to quote: keep the cell with real numbers behind it
+    return bool(old["pinned"] and old_informative and not new["pinned"])
+
+
+def update_baseline(path: Path, result: dict, corpus: str, *, pinned: bool) -> int:
+    """Merge one language's result into the committed baseline: cells[language][contract family] -> {recall, precision, n_oracle, n_family, status,
+    functions, corpus, pinned}. Returns the number of cells written."""
+    data: dict[str, Any] = (
+        json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"schema": BASELINE_SCHEMA, "cells": {}}
+    )
+    cells = data.setdefault("cells", {}).setdefault(result["language"], {})
+    wrote = 0
+    for fam in result["families"]:
+        if not fam["rule"]:
+            continue
+        cell = {
+            "recall": fam["recall"],
+            "precision": fam["precision"],
+            "n_oracle": fam["oracle_functions"],
+            "n_family": fam["family_functions"],
+            "status": fam["status"],
+            "functions": result["matched"],
+            "corpus": corpus,
+            "pinned": pinned,
+        }
+        if _keeps_old(cells.get(fam["rule"]), cell):
+            continue
+        cells[fam["rule"]] = cell
+        wrote += 1
+    path.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    return wrote
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Score each keyword family against a real parser's reading of the same function (#8863)."
@@ -476,6 +615,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--json", dest="json_out", help="also write the result here")
     ap.add_argument("--gate", help="JSON {family: {recall, precision}} floors; exit 1 when one is not met")
     ap.add_argument("--top", type=int, default=5, help="missed tokens listed per family")
+    ap.add_argument(
+        "--update-baseline",
+        nargs="?",
+        const=str(BASELINE),
+        metavar="PATH",
+        help="merge this result into the family-validity baseline (default tests/family_validity_baseline.json)",
+    )
+    ap.add_argument("--corpus", default="", help="name of the scanned corpus, recorded with each baseline cell")
+    ap.add_argument(
+        "--pinned", action="store_true", help="the corpus is a pinned crucible release (tests/crucible_pins.toml)"
+    )
     ap.add_argument(
         "--list-families", action="store_true", help="print each family and its scoring sentence, then exit"
     )
@@ -488,6 +638,13 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("SCAN_DB and --src are required")
     result = score(Path(args.db), Path(args.src), args.lang, top=args.top)
     print(render(result))
+    if args.update_baseline:
+        if not args.corpus:
+            ap.error("--update-baseline needs --corpus NAME")
+        n = update_baseline(Path(args.update_baseline), result, args.corpus, pinned=args.pinned)
+        print(
+            f"baseline: {n} cells written for {result['language']} ({args.corpus}{', pinned' if args.pinned else ', not pinned'})"
+        )
     if args.json_out:
         Path(args.json_out).write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
     if args.gate:

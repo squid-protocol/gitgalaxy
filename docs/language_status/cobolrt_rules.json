@@ -2596,6 +2596,7 @@
     "doc": "cics-apr",
     "section": "WRITEQ TS: FROM, LENGTH"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, WRITEQ TS, FROM and LENGTH, local manual text). FROM and LENGTH are quoted in X6: LENGTH is the length of the data to be written, and the data is taken from FROM. IBM is silent on a LENGTH past the FROM item, so which bytes follow FROM (the adjoining storage) is the runtime's choice and stays ASSUMED. No DIFFERS is claimed. Declared in X6",
    "options": [],
    "features": [
     "cics_commands: WRITEQ TS",
@@ -2621,6 +2622,7 @@
     "doc": "cics-apr",
     "section": "DOCUMENT CREATE, DOCUMENT RETRIEVE"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, DOCUMENT CREATE / DOCUMENT RETRIEVE, local manual text). MATCHED: a negative LENGTH is LENGERR with RESP2 1. The remaining behaviour (the stored form of the text, the template symbol list) is not stated to the depth the rule models, so the rule stays ASSUMED. No DIFFERS is claimed. Declared in X33",
    "options": [],
    "features": [
     "cics_commands: DOCUMENT CREATE",
@@ -2680,6 +2682,7 @@
     "doc": "cics-apr",
     "section": "XCTL"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, XCTL, COMMAREA and LENGTH, local manual text). MATCHED: the target's EIBCALEN is LENGTH and a LENGTH past the COMMAREA is LENGERR RESP2 11. How the area is passed as a DTO is not stated by IBM, so that representation stays ASSUMED. No DIFFERS is claimed. Declared in X23, X10",
    "options": [],
    "features": [
     "cics_commands: XCTL",
@@ -2704,6 +2707,7 @@
     "doc": "cics-apr",
     "section": "PUT CONTAINER (CHANNEL), GET CONTAINER (CHANNEL)"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, PUT CONTAINER (CHANNEL), GET CONTAINER (CHANNEL), local manual text). MATCHED: a GET CONTAINER INTO shorter than the container is truncated with LENGERR; PUT CONTAINER \"RESP2 1: A negative number was specified on the FLENGTH option\". DIFFERS (not declared in the register, so the rule stays ASSUMED): IBM treats a negative GET CONTAINER FLENGTH as zero, while DetCics.containerLimit refuses it. Declared in X17",
    "options": [],
    "features": [
     "cics_commands: GET",
@@ -2760,6 +2764,7 @@
     "doc": "cics-apr",
     "section": "RETRIEVE"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, RETRIEVE, INTO and LENGTH, local manual text). The area sizes and LENGTH are quoted in X18. Padding a shorter START data value with spaces in INTO is the runtime's reading; IBM does not state what INTO holds past the data. Stays ASSUMED. No DIFFERS is claimed. Declared in X18",
    "options": [],
    "features": [
     "cics_commands: RETRIEVE",
@@ -2782,6 +2787,7 @@
     "doc": "cics-apr",
     "section": "READ: INTO, LENGTH"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, READ, INTO and LENGTH, local manual text). MATCHED: a record longer than the area is truncated, LENGERR RESP 22 RESP2 11 is raised, and LENGTH is set to the record's length. IBM calls the remainder of INTO after a shorter record unpredictable, so the runtime's choice stays ASSUMED. Possible DIFFERS, not settled: LENGERR for a fixed-length file read into a longer area; IBM's text was not read to a conclusion, so the rule stays ASSUMED. Declared in X14",
    "options": [],
    "features": [
     "cics_commands: READ",
@@ -2806,6 +2812,7 @@
     "doc": "cics-apr",
     "section": "READQ TD: INTO, LENGTH"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, READQ TD, INTO and LENGTH, local manual text). MATCHED: a record longer than the area is truncated to LENGTH and LENGTH is set to the record's length (LENGERR). Still ASSUMED because IBM leaves it open: the bytes of INTO past a shorter record (the runtime leaves them unchanged), and a negative or zero LENGTH. No DIFFERS is claimed. Declared in X6, X57",
    "options": [],
    "register": [
     "X6",
@@ -2875,6 +2882,7 @@
     "doc": "cics-apr",
     "section": "ASSIGN"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, ASSIGN, local manual text). MATCHED: the option values ASSIGN returns. DIFFERS (not declared in the register, so the rule stays ASSUMED): after an INVREQ IBM says the other options are still populated, while cics_conditions.assign and the stub write nothing to the data areas. Declared in X19",
    "options": [],
    "features": [
     "cics_commands: ASSIGN",
@@ -2945,6 +2953,7 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: CURRENT-DATE"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, CURRENT-DATE). MATCHED: the 21-character layout, the hundredths in positions 15-16, and \"The character '+' is returned if the local time indicated is the same as or ahead of Greenwich mean time\" with a zero differential (+0000). Still ASSUMED: which clock a CICS task reads; IBM says \"the system on which the function is evaluated\" and gives no CICS region zone, so the task's clock at UTC is the choice. No DIFFERS is claimed. Declared in X4",
    "options": [],
    "register": [
     "X4"
@@ -3026,6 +3035,7 @@
     "doc": "cics-apr",
     "section": "RECEIVE"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, RECEIVE, LENGTH, MAXLENGTH, NOTRUNCATE and SET, local manual text). MATCHED: the LENGTH, MAXLENGTH and NOTRUNCATE behaviour and the length returned with SET. The rule's remaining choices are not stated by IBM and stay ASSUMED. No DIFFERS is claimed. Declared in X15",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",
@@ -3064,6 +3074,7 @@
     "doc": "cics-apr",
     "section": "GETMAIN"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, GETMAIN, local manual text). MATCHED: \"Sets the pointer reference to the address of the acquired main storage\"; \"A LENGERR condition that results from a zero or negative value that is specified for FLENGTH or LENGTH sets ptr-ref to zero\"; \"There is no default initialization\"; INITIMG: \"CICS sets every byte\". Still ASSUMED: the pointer as an 8-byte handle of a block of task storage (IBM defines an address; z/OS storage is not modelled), and the SET ADDRESS OF methods, which no CICS page covers. The FREEMAIN INVREQ and WEB RECEIVE SET text were not read here. No DIFFERS is claimed. Declared in X47",
    "options": [],
    "features": [
     "cics_commands: GETMAIN",
@@ -3098,6 +3109,7 @@
     "doc": "cics-apr",
     "section": "ADDRESS"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, ADDRESS, local manual text). MATCHED: \"If the COMMAREA does not exist, the pointer reference is set to the null value, X'FF000000'\"; the same for CWA, TCTUA and TWA. The runtime matches for CWA, TWA and TCTUA. For COMMAREA it refuses a task with no COMMAREA, a named refusal and not an IBM difference, so it stays ASSUMED. Declared in X59",
    "options": [],
    "register": [
     "X59"
@@ -3117,6 +3129,7 @@
     "doc": "cics-apr",
     "section": "READ"
    },
+   "ibm_note": "IBM (CICS TS 6 API Reference, READ, READNEXT / READPREV, READQ TS, RETRIEVE, RECEIVE, GET CONTAINER (CHANNEL), local manual text). MATCHED: each lifetime the rule names (READ \"until the next READ command for the same file or until completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET\"; READNEXT \"no longer valid after an ENDBR or SYNCPOINT\"; READQ TS \"until the next READQ TS command or the end of task\"; RECEIVE \"until the next receive command or the end of task\"; GET CONTAINER until the next GET with SET, DELETE, MOVE, end of channel scope or DELETE CHANNEL). Still ASSUMED: the new block of task storage per command (IBM says CICS supplies a buffer and does not say what it holds afterwards), and RETRIEVE, where IBM states no end for the pointer. No DIFFERS is claimed. Declared in X58",
    "options": [],
    "features": [
     "cics_commands: GET",

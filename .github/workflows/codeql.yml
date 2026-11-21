@@ -79,8 +79,8 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          id=$(gh api "repos/$REPO/code-scanning/analyses?ref=refs/heads/main&tool_name=CodeQL&per_page=1" --jq '.[0].id') || exit 0
-          gh api "repos/$REPO/code-scanning/analyses/$id" -H "Accept: application/sarif+json" > main.sarif || exit 0
-          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename' || true)
+          id=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/code-scanning/analyses?ref=refs/heads/main&tool_name=CodeQL&per_page=1" --jq '.[0].id') || exit 0
+          CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/code-scanning/analyses/$id" -H "Accept: application/sarif+json" > main.sarif || exit 0
+          mapfile -t files < <(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename' || true)
           python3 tests/tools/codeql_new_alerts.py --sarif codeql-results --baseline main.sarif \
             --summary "$GITHUB_STEP_SUMMARY" --enforce --files "${files[@]}"

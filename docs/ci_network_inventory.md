@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 10 | 0 | 0 | 0 | 17 |
+| gh-api | 14 | 0 | 0 | 0 | 13 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 112 | 84 | 54 | 208 | 33 |
+| **total** | 116 | 84 | 54 | 208 | 29 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -45,25 +45,15 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `docker` - measure / Load or build the oracle image, and check it against its pin (#4309)
 - `docker` - runner-tests / Load or build the oracle image, and check it against its pin (#4309)
 
-### codeql.yml
-
-- `gh-api` - analyze / Report the results this PR adds
-
 ### det-sweep.yml
 
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
-- `gh-api` - plan / Plan the sweep
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
-
-### doom-rosetta.yml
-
-- `gh-api` - callgraph / Scope
 
 ### equivalence-e2e.yml
 
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - equivalence-e2e / Every shard passed, or the plan proved none was needed
-- `gh-api` - plan / Plan the shards
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
 ### evidence-refresh.yml

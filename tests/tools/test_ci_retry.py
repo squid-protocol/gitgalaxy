@@ -352,3 +352,21 @@ def test_accuracy_history_gh_run_list_is_wrapped_and_fail_open(name):
     text = (WORKFLOWS / name).read_text(encoding="utf-8")
     assert "base=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh run list" in text
     assert "2>/dev/null || true" in text
+
+
+@pytest.mark.parametrize(
+    ("name", "wrapper", "expected"),
+    [
+        ("det-sweep.yml", "tests/tools/ci_retry.sh", 1),
+        ("equivalence-e2e.yml", "tests/tools/ci_retry.sh", 4),  # the plan only
+        ("doom-rosetta.yml", "gitgalaxy/tests/tools/ci_retry.sh", 1),  # checked out into gitgalaxy/
+        ("codeql.yml", "tests/tools/ci_retry.sh", 3),
+    ],
+)
+def test_planner_and_scope_gh_api_captures_are_wrapped_and_keep_their_tails(name, wrapper, expected):
+    lines = [ln for ln in _gh_api_lines(name) if "ci_retry.sh" in ln]
+    assert len(lines) == expected, lines
+    for ln in lines:
+        assert f"CI_RETRY_CAPTURE=1 {wrapper} 4 10 -- gh api" in ln, ln
+    if name != "doom-rosetta.yml":  # Scope stays fail-closed: a persistent API failure fails the step
+        assert all("||" in ln for ln in lines), lines

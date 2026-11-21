@@ -90,3 +90,20 @@ def test_7955_maponly_sends_no_symbolic_map_bytes():
         {"event": "SEND-MAP", "map": "M", "screen": None, "subfields": {"F": {"attr": 0x40}}, "options": ["MAPONLY"]}
     ]
     assert "subfields" not in str(ec.compare_events(cobol, java))
+
+
+def test_7955_a_byte_never_given_is_not_a_written_nul_or_space():
+    """#7955 slice 2: no write tracking is needed, because a missing subfield key is its own state.
+
+    The three states of an attribute / colour / highlight byte (never given, X'00', X'40') are pairwise different on the
+    compare, so an uncleared map (GnuCOBOL and the port both hold spaces, read X'40') can be told from a NUL or a field
+    the program never named.
+    """
+    for key in ("attr", "color", "hilight"):
+        states = [{}, {key: 0}, {key: 0x40}]
+        for i, a in enumerate(states):
+            for j, b in enumerate(states):
+                one = [{"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {"F": a}, "options": []}]
+                two = [{"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {"F": b}, "options": []}]
+                differs = "subfields" in str(ec.compare_events(one, two))
+                assert differs == (i != j), (key, a, b)

@@ -245,8 +245,8 @@ def test_an_explicit_probe_beats_the_inferred_one(tmp_path):
 
 
 # #8424: a `gh api` read captured into a variable / process substitution is wrapped in capture mode, so a failed try never
-# leaks into the captured value. The four planner workflows carry the same three-call step.
-GH_API_PLAN_WORKFLOWS = ["gitgalaxy.yml", "small-audits.yml", "mypy-audit.yml", "ruff-audit.yml"]
+# leaks into the captured value. The planner workflows (ruff-audit.yml is the next slice) carry the same three-call step.
+GH_API_PLAN_WORKFLOWS = ["gitgalaxy.yml", "small-audits.yml", "mypy-audit.yml"]
 
 
 def _gh_api_lines(name):

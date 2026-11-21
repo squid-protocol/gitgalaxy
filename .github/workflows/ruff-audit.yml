@@ -51,9 +51,9 @@ jobs:
         run: |
           # the merge queue: the PR's own run audited this code; nothing a sibling merge changes is read here
           if [ "$GITHUB_EVENT_NAME" = "merge_group" ]; then echo "mode=none" >> "$GITHUB_OUTPUT"; exit 0; fi
-          labels=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
-          mapfile -t files < <(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
-          count=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+          labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+          count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
           args=(--profile lint --event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --files)
           if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
           python3 tests/tools/audit_skip_plan.py "${args[@]}" || echo "mode=full" >> "$GITHUB_OUTPUT"

@@ -34,6 +34,7 @@
   "referee-panel.yml|panel|Install Cobrix|maven-gradle",
   "referee-panel.yml|panel|Install mapa|git-fetch",
   "referee-panel.yml|panel|Install tree-sitter-cobol-enterprise|git-fetch",
+  "ruff-audit.yml|ruff-audit|Plan the audit|gh-api",
   "smoke-test.yml|full-suite-part|Plan the ReDoS sweeps (#5166)|gh-api",
   "smoke-test.yml|suite-plan|Plan the suite|gh-api",
   "smoke-test.yml|suite-time|Total against the budget|gh-api",

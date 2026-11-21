@@ -489,6 +489,37 @@ def test_python_bitwise_ops_string_content_still_counts_documented():
     assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
 
 
+# #8865: every subprocess entry point that spawns a process counts as high_risk_execution;
+# a `global` statement is a globals signal; `nonlocal` stays open (definition call in #8862).
+@pytest.mark.parametrize(
+    "code",
+    [
+        "subprocess.call(a)",
+        "subprocess.Popen(a)",
+        "subprocess.run(a)",
+        "return subprocess.check_output(['ls'])",
+        "subprocess.check_call(['ls'])",
+        "subprocess.getoutput(cmd)",
+        "subprocess.getstatusoutput(cmd)",
+    ],
+)
+def test_subprocess_spawners_count_as_high_risk_execution_8865(code):
+    assert LANGUAGE_DEFINITIONS["python"]["rules"]["high_risk_execution"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code", ["check_output(['ls'])", "mysubprocess_check_output = 1", "subprocess.list2cmdline(a)"]
+)
+def test_non_spawning_subprocess_names_miss_high_risk_execution_8865(code):
+    assert not LANGUAGE_DEFINITIONS["python"]["rules"]["high_risk_execution"].search(code), code
+
+
+def test_global_statement_counts_as_globals_8865():
+    rule = LANGUAGE_DEFINITIONS["python"]["rules"]["globals"]
+    assert rule.search("def mutates():\n    global STATE\n    STATE += 1\n")
+    assert not rule.search("def f():\n    nonlocal x\n")  # #8862 owns the closure question
+
+
 # serialization_parsing (#8882): every interchange codec the contract names, encode and decode.
 @pytest.mark.parametrize(
     "code",

@@ -15,7 +15,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
-| git-fetch | 18 | 0 | 0 | 0 | 8 |
+| git-fetch | 13 | 0 | 0 | 0 | 13 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
 | gh-api | 0 | 0 | 0 | 0 | 27 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 90 | 84 | 54 | 208 | 54 |
+| **total** | 85 | 84 | 54 | 208 | 59 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -38,6 +38,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - prune / Cache usage before
 - `gh-api` - prune / Cache usage after
+
+### call-graph-accuracy-audit.yml
+
+- `git-fetch` - plan / Plan the audit
 
 ### cics-crucible.yml
 
@@ -55,6 +59,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - plan / Plan the sweep
 - `git-fetch` - plan / Plan the sweep
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
+
+### detection-accuracy-audit.yml
+
+- `git-fetch` - plan / Plan the audit
 
 ### doom-rosetta.yml
 
@@ -92,9 +100,17 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `gh-api` - pre-gate / Plan the gates
 
+### graph-accuracy-audit.yml
+
+- `git-fetch` - plan / Plan the gates
+
 ### graph-comparison-history.yml
 
 - `gh-api` - plan / Plan the run
+
+### mainframe-ground-truth.yml
+
+- `git-fetch` - plan / Plan the check
 
 ### mypy-audit.yml
 
@@ -137,6 +153,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### tree-sitter-accuracy-history.yml
 
 - `gh-api` - plan / Plan the run
+
+### tri-comparison-audit.yml
+
+- `git-fetch` - plan / Plan the audit
 
 ### tri-comparison-history.yml
 

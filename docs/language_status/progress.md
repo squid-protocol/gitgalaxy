@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `a87f57dec` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `8ee67d564` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -95,7 +95,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
 | Batch | JCL step flow | Works | 143 of 143 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's manuals before the evaluator ran; plus 25 ASSUMED scenarios (a stated assumption, not IBM text), 25 reproduced) |
-| Batch | JCL on MVS 3.8J (tier 2) | Works | 22 of 22 scenarios agreeing on the box | dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); proc/scenarios.json: 8 of 8 agree (file has 46); 146 scenarios in 7 answer files not run on the box (not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS) |
+| Batch | JCL on MVS 3.8J (tier 2) | Works | 40 of 42 scenarios agreeing on the box | dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 36); proc/scenarios.json: 8 of 8 agree (file has 46); 126 scenarios in 7 answer files not run on the box (not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS) |
 | Batch | JCL in the real codebases | Partial | 8 of 22 COND jobs answer-checked | 159 jobs read in 230 JCL members; 22 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
 | Batch | JCL job execution | Partial | no denominator | 1 multi-step job case (the programs' steps are wired by the case, not yet run from the JCL) |
 | Other languages | HLASM assembler | Partial | no denominator | 21 opcodes, the zECS subset |
@@ -134,7 +134,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T05:14:45Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-21T05:18:11Z.
 
 - `scope:core`: 13 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.

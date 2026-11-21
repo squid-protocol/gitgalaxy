@@ -193,7 +193,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC and data-flow slices are done, below): GDG generations on 3.8J (`gdg`; the `(+1)` pattern-DSCB failure is recorded in the data-flow section), SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow and GDG slices are done, below): SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -237,7 +237,8 @@ from a published page. `SYSJOB` is skipped (its `OUTPUT` statement is not in 3.8
 
 Substituted, not claimed: the GDG `(0)` reference of the concatenation scenario ran against a plain dataset (`PAY.GDG.GSTAND`),
 recorded as `substituted` in the results. A real generation (`(+1)` in a new GDG base) failed on the box with `IEF218I PATTERN DSCB
-RECORD NOT FOUND IN VTOC` after four model-DSCB placements: a finding, not solved.
+RECORD NOT FOUND IN VTOC` after four model-DSCB placements; the GDG probe below solved it (the model DSCB and every generation
+must sit on the volume the group is pinned to).
 
 Not observed (`FLOW_UNOBSERVED`): the read order of a concatenation (IEFBR14 reads nothing; the order is that of the allocation
 messages), the SYSOUT class, the DISP of a permanent dataset (names only), real GDG generations.
@@ -249,6 +250,41 @@ without `UNIT` is `IEF210I` (the deck appends `UNIT=SYSDA,SPACE=(TRK,1)`); an `O
 `IEF285I` lines after the last step's `IEF374I` are job-end disposals, not the step's own, and `UCPUB001` is listed as a KEPT dataset
 (filtered). A job hung on a prompt is purged with a `/*$CJnn,P` card through the card reader (the driver owns the console); a stale
 `box.pid` blocks `start`.
+
+## Probe run (#8414): GDG relative generations
+
+`probe.py gdg --printer FILE` runs the `tests/equivalence/jcl/gdg` scenarios 3.8J can express: 20 of 31, each as its own job against
+a base the probe defines first. 3.8J's GDG is a VSAM-catalog group: `IDCAMS DEFINE GDG (NAME(base) LIMIT(n) [EMPTY|NOEMPTY] SCRATCH)`
+plus a model DSCB (a dataset named exactly the base, made by IEFBR14 `DISP=(,KEEP)`, `SPACE=(TRK,0)`, DCB FB / 80). Each scenario's
+catalog is built by creating the absolute generations `base.GnnnnV00` (`DISP=(NEW,CATLG)`); a setup deck first deletes both bases and
+IEHPROGM-scratches the VTOC (`IDCAMS DELETE ... GDG FORCE PURGE` leaves the generations' VTOC entries, so a re-create is `IEF253I`
+otherwise). Then the job runs with its `(+n)` / `(0)` / `(-n)` DDs re-rooted under `PUB001.` (the master catalog stops on `IEC301A`),
+the log is read (`IEF237I` ddname against `IEF285I` / `IEF287I` dataset, in order, the catalog entry and the `SYSnnnnn` DDs taken
+out), and `LISTCAT ENTRIES(base) ALL` gives the catalog afterwards. `tests/equivalence/jcl/gdg/mvs38j_probe.json` holds `expect`
+(IBM text), `engine` (`jcl_gdg.resolve_gdg`) and `box` per scenario, plus the box's dispositions, its catalog and the steps it did not
+execute. Internal only (Q16).
+
+Run 2026-11-20: **18 of 20 agree three ways, 2 differ on the box** (below). Skipped, with the reason in the file: the six
+`step-bias-*` / `job-bias-*` / `proc-called-twice-under-step-bias` scenarios (GDGBIAS is a z/OS JOB keyword) and the five `restart-*`
+scenarios (restart is a later slice). Both groups stay tier 1.
+
+Box traps found: the model DSCB and every generation must be on one volume (`VOL=SER=PUB001`; a model elsewhere is `IEF218I`);
+IEHPROGM / IEHLIST take `VOL=3390=PUB001`; a `DISP=(MOD,CATLG)` on a generation the catalog already holds prints `IEF287I ... NOT
+RECTLGD` where a new one prints `IEF285I ... CATALOGED`; a DD naming the base prints one nameless `IEF237I` per generation and the
+disposition lines come as `UNCATALOGED` then `DELETED` for each, so the parser merges those.
+
+Findings (register entries, not edits of `expect` or the evaluator):
+
+1. `empty-rolls-off-every-generation-at-limit`: the manual and the evaluator read `(0)` and `(-1)` in later steps as the pre-roll
+   generations 7 and 6. On 3.8J, with EMPTY at the limit, the `(+1)` in step C1 uncatalogs all of them at that step, so step C2's
+   `(0)` fails `IEF212I C2 CUR - DATA SET NOT FOUND` and the step does not run. The catalog afterwards ([8]) agrees.
+2. `new-keep-is-a-deferred-roll-in`: a `(+1)` created `DISP=(NEW,KEEP)` is not cataloged, so a later step's `(+1) DISP=SHR` is a JCL
+   error on 3.8J (`IEF286I K2 KIN - DISP FIELD INCOMPATIBLE WITH DSNAME`); the answer text and the evaluator resolve it to 8. The
+   catalog afterwards ([5, 6, 7]) agrees.
+
+Not observed (`GDG_UNOBSERVED`): what a program reads (every `PGM=` is IEFBR14), the fate of a generation rolled off at LIMIT
+(SCRATCH / NOSCRATCH: only catalog membership is compared), the deferred roll-in state itself, a system-managed group (assumption
+A5: 3.8J has the VSAM-catalog form), and the model DSCB after a base-name delete.
 
 ## What this tier cannot test
 

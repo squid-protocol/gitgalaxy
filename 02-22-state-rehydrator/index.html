@@ -12881,6 +12881,7 @@
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
 <li><strong>Stale State Risk vs. Speed:</strong> Relies entirely on the accuracy of the baseline database. If the <code>.sqlite</code> file is corrupted or out of sync with the true parent commit, the resulting delta analysis will be flawed, sacrificing strict absolute correctness for speed.</li>
+<li><strong>Delta vs. full scan (#8774):</strong> A delta scan rebuilds the census from the tree exactly as a full scan does, carries the baseline's excluded artifacts, and runs the spatial mapper and ecosystem audits, so file set, <code>directory_group</code>, excluded artifacts and repo totals match a full scan of the same commit. Per-file flags decided at scan time and not persisted (<code>is_minified</code>, the literature override, <code>api_declared_orphans</code>) are not restored, so a few rehydrated files, and the percentile columns that read them, can differ from a full scan.</li>
 <li><strong>Memory Spikes:</strong> Requires loading the entire previous repository state into RAM before parsing the new delta files.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>

@@ -5238,7 +5238,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])
         cev, jev, x6 = x6_judged(sc, out, cev, jev)
         cev, jev = mask_absent_commarea(sc, cev, jev, [0])
-        d = cics_compare.compare_events(cev, jev)
+        d = cics_compare.compare_events(cev, jev, exact_bytes=bool(case.get("exact_bytes")))
         o: dict[str, Any] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"], "java": jev,
                              "entries": facade["entries"].get(name, []),
                              **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
@@ -5292,6 +5292,15 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                              for m, sids in sorted(by_method.items())]}  # fmt: skip
 
 
+def with_exact_bytes(case: dict[str, Any], project: Path) -> dict[str, Any]:
+    """#7955: a det port's runtime (DetCics) records every attribute / colour / highlight byte, so its compare tells
+    X'00' from X'40'. A generated or model-written port records only what it set: its compare stays the loose one."""
+    src = project / "src"
+    if next((src if src.is_dir() else project).rglob("DetCics.java"), None) is None:
+        return case
+    return {**case, "exact_bytes": True}
+
+
 def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, java_out: Path,
                           files: list[dict[str, Any]], cobol: dict[str, Any], java: dict[str, list[dict[str, Any]]],
                           quiet: bool = False) -> tuple[bool, dict[str, dict[str, Any]]]:  # fmt: skip
@@ -5309,7 +5318,7 @@ def evaluate_cics_outputs(case: dict[str, Any], corpus: Path, cobol_work: Path, 
         cev, jev, x6 = x6_judged(sc, java_out, cev, jev)
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
-        d = cics_compare.compare_events(cev, jev)
+        d = cics_compare.compare_events(cev, jev, exact_bytes=bool(case.get("exact_bytes")))
         moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(java_out, name), case)
         outputs[name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                          "cobol": cev, "java": jev,
@@ -5456,6 +5465,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     linked = work / "java" / ej.LINKED_FILE
     if linked.is_file():  # #4188: where each LINKed program's Java came from
         report["linked_programs"] = json.loads(linked.read_text(encoding="utf-8"))
+    case = with_exact_bytes(case, work / "java")  # #7955: only a det port records every byte
     ok, report["outputs"] = evaluate_cics_outputs(
         case, corpus, work / "cobol", work / "java" / "out", files, cobol, java
     )

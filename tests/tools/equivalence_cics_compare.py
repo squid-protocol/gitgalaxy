@@ -207,6 +207,13 @@ def _same(a: Any, b: Any) -> bool:
         return str(a).rstrip(" \x00") == str(b).rstrip(" \x00")
 
 
+def _same_loose(a: Any, b: Any) -> bool:
+    """`_same` for a port that records only what it set: the COBOL side keeps a LOW-VALUES run as bytes (#7955), which
+    that port's absent / blank value does not claim, so trailing NULs go with the blanks."""
+    strip = lambda v: v.rstrip(" \x00") if isinstance(v, str) else v  # noqa: E731
+    return _same(strip(a), strip(b))
+
+
 def _same_commarea(a: Any, b: Any) -> bool:
     """#4635: a COMMAREA field as the next program reads it -- like `_same`, except that LOW-VALUES are not blanks:
     only trailing spaces are dropped, so X'00' bytes and spaces differ."""
@@ -222,7 +229,13 @@ def _same_commarea(a: Any, b: Any) -> bool:
         return str(a).rstrip(" ") == str(b).rstrip(" ")
 
 
-def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:
+def _set_only(sub: dict[str, int]) -> dict[str, int]:
+    return {k: v for k, v in sub.items() if k == "length" or v not in (0x00, 0x40)}
+
+
+def compare_events(
+    cobol: list[dict[str, Any]], java: list[dict[str, Any]], exact_bytes: bool = False
+) -> dict[str, Any]:
     """Events paired in order; per pair, every differing field. {events, equal, diffs}, and #4778 `not_compared`:
     a COMMAREA's FILLER bytes (decode_record `unnamed`) when the Java side gave back a DTO, which has no property for
     them -- listed with that reason, never counted equal."""
@@ -300,8 +313,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
         for part in ("screen", "commarea"):
             cv, jv = c.get(part) or {}, j.get(part) or {}
             same = (
-                _same_commarea if part == "commarea" or c["event"] == "SEND-MAP" else _same
-            )  # #7955: NUL is not a blank
+                _same_commarea if part == "commarea" or (exact_bytes and c["event"] == "SEND-MAP") else _same_loose
+            )  # #7955: a det port's NUL is not a blank
             for name in cv:
                 if part == "commarea" and name.startswith("FILLER@") and j.get("commarea_dto"):
                     not_compared[f"commarea.{name}"] = UNNAMED_IN_A_DTO
@@ -326,6 +339,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             # #7955: MAPONLY sends no symbolic map: the bytes the port left in it are no claim (the COBOL side holds none)
             maponly = "MAPONLY" in (j.get("options") or [])
             cs, js = c["subfields"], ec.java_subfields(None if maponly else j.get("subfields"))
+            if not exact_bytes:  # a port that records only what it set claims no X'00' / X'40' byte
+                cs = {k: _set_only(v) for k, v in cs.items()}
+                js = {k: _set_only(v) for k, v in js.items()}
             for name in sorted(set(cs) | set(js)):
                 if cs.get(name, {}) != js.get(name, {}):
                     bad.append({"field": f"subfields.{name}", "cobol": cs.get(name, {}), "java": js.get(name, {})})
@@ -341,7 +357,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("child", "transid"):
                 if c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-            sub = compare_events(c.get("events") or [], [_link_as_compared(x) for x in j.get("events") or []])  # #6967
+            sub = compare_events(
+                c.get("events") or [], [_link_as_compared(x) for x in j.get("events") or []], exact_bytes
+            )  # #6967
             if sub["diffs"]:
                 bad.append({"field": "events", "cobol": sub["diffs"], "java": None})
         if bad:

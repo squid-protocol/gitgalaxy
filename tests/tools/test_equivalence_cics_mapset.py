@@ -71,8 +71,9 @@ def test_7955_nul_and_space_attribute_bytes_are_different_values():
         assert ec.java_subfields({"F": {key: 0xF2}}) == {"F": {key: 0xF2}}
         nul = {"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {"F": {key: 0}}, "options": []}
         java = _sent(**{key: 0x40})
-        assert "subfields.F" in str(ec.compare_events([nul], [java]))
-        assert "subfields.F" not in str(ec.compare_events([nul], [_sent(**{key: 0})]))
+        assert "subfields.F" in str(ec.compare_events([nul], [java], exact_bytes=True))
+        assert "subfields.F" not in str(ec.compare_events([nul], [_sent(**{key: 0})], exact_bytes=True))
+        assert "subfields.F" not in str(ec.compare_events([nul], [java]))  # a port that records what it set: loose
 
 
 def test_7955_map_data_nul_is_not_a_blank():
@@ -80,8 +81,9 @@ def test_7955_map_data_nul_is_not_a_blank():
         {"event": "SEND-MAP", "map": "M", "screen": {"F": ec.AlnumText("\x00\x00")}, "subfields": {}, "options": []}
     ]
     blank = [{"event": "SEND-MAP", "map": "M", "screen": {"F": "  "}, "subfields": {}, "options": []}]
-    assert "screen.F" in str(ec.compare_events(cobol, blank))
-    assert "screen.F" not in str(ec.compare_events(blank, blank))
+    assert "screen.F" in str(ec.compare_events(cobol, blank, exact_bytes=True))
+    assert "screen.F" not in str(ec.compare_events(blank, blank, exact_bytes=True))
+    assert "screen.F" not in str(ec.compare_events(cobol, blank))  # a generated / model-written port: loose
 
 
 def test_7955_maponly_sends_no_symbolic_map_bytes():

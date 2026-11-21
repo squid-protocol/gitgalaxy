@@ -748,8 +748,8 @@ def test_low_values_and_spaces_in_a_commarea_are_different_values():
     assert ec.compare_events(ret(sp), ret(""))["equal"] == 1
     # a SEND MAP's data tells them apart too (#7955); trailing spaces alone are still not data
     scr = lambda v: [{"event": "SEND-MAP", "map": "M", "screen": {"F": v}}]  # noqa: E731
-    assert ec.compare_events(scr(lv), scr(sp))["equal"] == 0
-    assert ec.compare_events(scr("AB"), scr("AB   "))["equal"] == 1
+    assert ec.compare_events(scr(lv), scr(sp), exact_bytes=True)["equal"] == 0
+    assert ec.compare_events(scr("AB"), scr("AB   "), exact_bytes=True)["equal"] == 1
 
 
 def test_storage_a_task_without_a_commarea_never_set_stays_undefined_text_too():

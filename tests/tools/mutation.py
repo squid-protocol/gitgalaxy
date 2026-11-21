@@ -781,7 +781,7 @@ class _DirectContext:
                     sc["prefix_x6"] = ec.PERFORM_DEPTH
                 elif rc_text == "98" and (x6 := ec.judged_refusal(said)):
                     sc["prefix_x6"] = x6
-            case = {**case, "scenarios": kept}
+            case = ec.with_exact_bytes({**case, "scenarios": kept}, project)  # #7955
             src = project / "src/main/java"
             svc = ej._service_class(case["program"])
             svc_file = next(src.rglob(f"{svc}.java"))

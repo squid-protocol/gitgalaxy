@@ -239,7 +239,7 @@ def step_cases_live() -> dict[str, tuple[int, int]]:
     from gitgalaxy.core.jcl_flow import JclFlow
     from gitgalaxy.core.jcl_gdg import resolve_gdg
     from gitgalaxy.core.jcl_proc import expand_flow_rows
-    from gitgalaxy.core.jcl_restart import restart_flow
+    from gitgalaxy.core.jcl_restart import resolve_gdg_restart, restart_flow
 
     out: dict[str, tuple[int, int]] = {}
     for case in ("gdg", "restart", "dataflow"):
@@ -251,6 +251,11 @@ def step_cases_live() -> dict[str, tuple[int, int]]:
             job = sc["job"]
             if case == "restart":
                 ok += restart_flow(rows, job, sc["given"]) == sc["expect"]
+                continue
+            if case == "gdg" and sc.get("restart"):  # a restarted run: steps before the restart step do not start
+                catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
+                names, after = resolve_gdg_restart(all_rows, job, catalog, sc["given"])
+                ok += names == sc["expect"] and after == sc["catalog_after"]
                 continue
             if case == "gdg":  # a procedure step's GDG DD is read from the expanded CALL.PROCSTEP rows
                 rows = expand_flow_rows(all_rows, job)
@@ -440,7 +445,8 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             db2_of,
             "rules match IBM",
             note=f"{sql_keywords} more IBM statement keywords, beyond the modelled ones, each refused by name, never dropped"
-            if sql_keywords else "",
+            if sql_keywords
+            else "",
             found="Tested by Blind 1: its 17 SQL statements all translated at first contact; the rest pinned (#8075, #8146)",
         ),  # fmt: skip
         row(

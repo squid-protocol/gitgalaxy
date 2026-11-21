@@ -18,6 +18,7 @@ from __future__ import annotations
 from typing import Any
 
 from gitgalaxy.core.jcl_flow import JclFlow
+from gitgalaxy.core.jcl_gdg import resolve_gdg
 from gitgalaxy.core.jcl_proc import expand_flow_rows
 
 
@@ -27,6 +28,30 @@ class JclRestartRefused(ValueError):
 
 def restart_flow(rows: list[dict[str, Any]], job: str, given: dict[str, dict[str, Any]]) -> dict[str, str]:
     """Per step of `job` (in order): "skipped", "run" or "bypass". `given`: per step that starts, its outcome."""
+    names, skipped, _flat, run, _checkid = _restart_run(rows, job, given)
+    return {n: ("skipped" if n in skipped else run.actions[n]) for n in names}
+
+
+def resolve_gdg_restart(
+    rows: list[dict[str, Any]], job: str, catalogs: dict[str, dict[str, Any]], given: dict[str, dict[str, Any]]
+) -> tuple[dict[str, int], dict[str, dict[str, Any]]]:
+    """The absolute generation each GDG DD of the restarted run names, and the catalog after it (#8413).
+    Step restart (no checkid): `catalogs` is the catalog as the restart finds it, after the steps before the restart
+    step rolled their generations in, and the relative numbers are the PRESENT ones (User's Guide p. 243, JCL Reference
+    p. 431). Checkpoint restart (a checkid): `catalogs` is the catalog as the ORIGINAL run began, the steps before the
+    restart step are taken as run (their generations created and cataloged) and the relative numbers are the ones that
+    created them (User's Guide p. 243; ASSUMED A9 that this holds for the deferred form RESTART=(step,checkid))."""
+    _names, skipped, flat, run, checkid = _restart_run(rows, job, given)
+    if checkid:
+        return resolve_gdg(flat, job.upper(), catalogs, run, skipped=skipped)
+    # a step restart: the steps before the restart step are not in the run, their DDs allocate nothing
+    return resolve_gdg([r for r in flat if r.get("step_name") not in skipped], job.upper(), catalogs, run)
+
+
+def _restart_run(
+    rows: list[dict[str, Any]], job: str, given: dict[str, dict[str, Any]]
+) -> tuple[list[str], set[str], list[dict[str, Any]], Any, str | None]:
+    """-> (step names in order, the skipped step names, the expanded rows, the restarted run, the checkid)."""
     job = job.upper()
     mine: list[dict[str, Any]] = []
     inside = False
@@ -63,4 +88,4 @@ def restart_flow(rows: list[dict[str, Any]], job: str, given: dict[str, dict[str
     if first is not None and first.get("cond"):
         flow_rows = [({**r, "cond": None} if r is first else r) for r in flow_rows]
     run = JclFlow(flow_rows).run(job, given)
-    return {n: ("skipped" if n in skipped else run.actions[n]) for n in names}
+    return names, skipped, flat, run, head.get("restart_checkid")

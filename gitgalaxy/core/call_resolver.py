@@ -152,7 +152,7 @@ _PATH_QUALIFIED_LANGS = frozenset({"rust"})
 # `::f()`). A scope qualifier that is no known class is usually a NAMESPACE, which reaches free functions
 # first: neither the import-stem step nor the untyped-receiver method ladder lands on a same-name member
 # (`formatter<T>::format`) before a free `fmt::format` is tried.
-_NAMESPACE_QUALIFIED_LANGS = frozenset({"cpp"})
+_NAMESPACE_QUALIFIED_LANGS = frozenset({"cpp", "tcl"})
 
 # #3401: names a BARE call always means as the language's built-in, whatever
 # the repository defines. Perl's named operators and built-in functions take

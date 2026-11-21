@@ -178,6 +178,41 @@ CONTRACT_NON_CALLS: dict[str, frozenset[str]] = {
             "popd",
         }
     ),
+    # Tcl control-flow and declaration keywords excluded by tcl.py's `_calls_out_ignore` and
+    # `_CALLS_OUT_GLOBAL_IGNORE` (C2).
+    "tcl": frozenset(
+        {
+            "proc",
+            "namespace",
+            "source",
+            "if",
+            "elseif",
+            "else",
+            "for",
+            "foreach",
+            "while",
+            "switch",
+            "return",
+            "variable",
+            "package",
+            "global",
+            "then",
+            "break",
+            "continue",
+            "error",
+            "try",
+            "catch",
+            "finally",
+        }
+    ),
+}
+
+# tree-sitter-tcl gives these built-in commands dedicated AST node types instead of `command`;
+# scoped to `tcl` only so `set` never collides with Python's set literal node (C3 / #3361).
+_TCL_BUILTIN_NODE_TYPES: dict[str, str] = {
+    "set": "set",
+    "expr_cmd": "expr",
+    "regexp": "regexp",
 }
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -440,8 +475,12 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
                 owners = [*owners, (name, calls)]
                 for body in _bodies_of(node):
                     body_owners[body.id] = owners
-        elif node.type in CALL_NODE_TYPES and owners:
-            name = _callee(node)
+        elif (node.type in CALL_NODE_TYPES or (lang == "tcl" and node.type in _TCL_BUILTIN_NODE_TYPES)) and owners:
+            name = (
+                _TCL_BUILTIN_NODE_TYPES[node.type]
+                if lang == "tcl" and node.type in _TCL_BUILTIN_NODE_TYPES
+                else _callee(node)
+            )
             owner, calls = owners[-1]
             if lang == "haskell" and node.type == "apply" and _hs_is_pattern(node):
                 name = None

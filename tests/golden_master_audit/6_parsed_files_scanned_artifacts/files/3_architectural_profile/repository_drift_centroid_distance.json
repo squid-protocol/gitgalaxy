@@ -3779,8 +3779,8 @@
       "tcl/SOURCES.md": 0.0
     },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": 8.01,
-      "tcl/macports_port_api/library.tcl": 6.742,
+      "tcl/macports_port_api/fetch_common.tcl": 7.993,
+      "tcl/macports_port_api/library.tcl": 6.653,
       "tcl/macports_port_api/portactivate.tcl": 6.147,
       "tcl/macports_port_api/portbuild.tcl": 5.661,
       "tcl/macports_port_api/portbump.tcl": 6.296,
@@ -3789,8 +3789,8 @@
       "tcl/macports_port_api/portdeactivate.tcl": 7.494,
       "tcl/macports_port_api/portdepends.tcl": 6.095,
       "tcl/macports_port_api/portdestroot.tcl": 8.889,
-      "tcl/macports_port_api/portdistcheck.tcl": 5.558,
-      "tcl/macports_port_api/portdistfiles.tcl": 7.493,
+      "tcl/macports_port_api/portdistcheck.tcl": 5.557,
+      "tcl/macports_port_api/portdistfiles.tcl": 7.633,
       "tcl/macports_port_api/portextract.tcl": 6.705,
       "tcl/macports_port_api/portfetch.tcl": 7.089,
       "tcl/macports_port_api/portinstall.tcl": 6.359,
@@ -3800,7 +3800,7 @@
       "tcl/macports_port_api/portmain.tcl": 7.853
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": 8.488,
+      "tcl/macports_registry/common.tcl": 8.5,
       "tcl/macports_registry/depends.tcl": 4.709,
       "tcl/macports_registry/entry.tcl": 4.875,
       "tcl/macports_registry/portimage.tcl": 6.497,

@@ -3779,25 +3779,25 @@
       "tcl/SOURCES.md": 0.0
     },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": -0.069,
+      "tcl/macports_port_api/fetch_common.tcl": 0.03,
       "tcl/macports_port_api/library.tcl": 2.976,
       "tcl/macports_port_api/portactivate.tcl": 0.954,
       "tcl/macports_port_api/portbuild.tcl": 1.355,
       "tcl/macports_port_api/portbump.tcl": 1.33,
-      "tcl/macports_port_api/portchecksum.tcl": 2.078,
+      "tcl/macports_port_api/portchecksum.tcl": 2.061,
       "tcl/macports_port_api/portclean.tcl": 0.085,
       "tcl/macports_port_api/portdeactivate.tcl": 2.18,
       "tcl/macports_port_api/portdepends.tcl": 2.125,
       "tcl/macports_port_api/portdestroot.tcl": 1.176,
       "tcl/macports_port_api/portdistcheck.tcl": 0.208,
       "tcl/macports_port_api/portdistfiles.tcl": 1.902,
-      "tcl/macports_port_api/portextract.tcl": 0.84,
-      "tcl/macports_port_api/portfetch.tcl": -0.233,
+      "tcl/macports_port_api/portextract.tcl": 0.906,
+      "tcl/macports_port_api/portfetch.tcl": -0.157,
       "tcl/macports_port_api/portinstall.tcl": 0.898,
       "tcl/macports_port_api/portlint.tcl": 1.633,
       "tcl/macports_port_api/portlivecheck.tcl": 0.847,
       "tcl/macports_port_api/portload.tcl": 2.136,
-      "tcl/macports_port_api/portmain.tcl": 1.205
+      "tcl/macports_port_api/portmain.tcl": 1.307
     },
     "tcl/macports_registry": {
       "tcl/macports_registry/common.tcl": 2.068,
@@ -3813,7 +3813,7 @@
     "tcl/sqlite": {
       "tcl/sqlite/LICENSE.md": 0.0,
       "tcl/sqlite/README.md": 0.0,
-      "tcl/sqlite/malloc_common.tcl": 1.648,
+      "tcl/sqlite/malloc_common.tcl": 1.626,
       "tcl/sqlite/speedtest.tcl": 0.389,
       "tcl/sqlite/tester.tcl": 0.741,
       "tcl/sqlite/testrunner.tcl": -0.109

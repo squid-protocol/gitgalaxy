@@ -43,10 +43,10 @@ def test_powershell_cmdlets_methods_and_static_calls():
 
 
 def test_tcl_commands_substitutions_and_namespaced_commands():
-    """a command, a `[subst]` inside `set`, and `ns::k` (rightmost segment) are calls; `set` is no call;
-    a command after an ERROR node (`puts "x $a"`) is still seen."""
+    """a command, `set` (built-in command per #3361), a `[subst]` inside `set`, and `ns::k` (rightmost segment)
+    are calls; a command after an ERROR node (`puts "x $a"`) is still seen."""
     src = 'proc foo {a} {\n  set x [bar $a]\n  ns::k 1\n  puts "x $a"\n  baz\n}\n'
-    assert _calls("tcl", src) == {"foo": {"bar", "k", "puts", "baz"}}
+    assert _calls("tcl", src) == {"foo": {"set", "bar", "k", "puts", "baz"}}
 
 
 def test_powershell_and_tcl_are_measured():

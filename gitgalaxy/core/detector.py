@@ -12386,10 +12386,36 @@ class StructuralExtractor:
                 # #5909: a context a regex cannot carry (balanced braces / parens): the language's own
                 # same-length rewrite blanks what is not a call and puts a hidden body in command position.
                 safe_block = _rewrite_for_calls(rules, safe_block)
-                raw_calls = invocation_pattern.findall(safe_block)
-                if invocation_pattern.groups > 1:
-                    # #5639: one group per alternative (Objective-C: C call, message selector)
-                    raw_calls = [next((g for g in m if g), "") for m in raw_calls]
+                if self.languages.get(self.primary_lang_id, {}).get("calls_out_namespace_qualifiers"):
+                    own_ns_leaf = name.rpartition("::")[2] if "::" in name else None
+                    own_ns = name.rpartition("::")[0].strip(":").rsplit("::", 1)[-1] if "::" in name else ""
+                    for m in invocation_pattern.finditer(safe_block):
+                        callee = m.group(1)
+                        if not callee:
+                            continue
+                        callee_pos = m.start(1)
+                        qual = ""
+                        if callee_pos >= 2 and safe_block[callee_pos - 2 : callee_pos] == "::":
+                            q_end = callee_pos - 2
+                            q_start = q_end
+                            while q_start > 0 and (
+                                safe_block[q_start - 1].isalnum() or safe_block[q_start - 1] in "_-:"
+                            ):
+                                q_start -= 1
+                            raw_qual = safe_block[q_start:q_end].strip(":")
+                            qual = raw_qual.rsplit("::", 1)[-1] if raw_qual else ""
+                        if own_ns_leaf and callee == own_ns_leaf and qual in ("", own_ns):
+                            continue
+                        marked = (_SCOPE_QUALIFIER_PREFIX + qual) if qual else ""
+                        raw_calls.append(callee)
+                        seen = qualifiers_seen.setdefault(callee, [])
+                        if marked not in seen:
+                            seen.append(marked)
+                else:
+                    raw_calls = invocation_pattern.findall(safe_block)
+                    if invocation_pattern.groups > 1:
+                        # #5639: one group per alternative (Objective-C: C call, message selector)
+                        raw_calls = [next((g for g in m if g), "") for m in raw_calls]
                 # #5638: a Fortran function reference `x = F(a)` has no verb; the statement scan
                 # also keeps `CALL F` in source order, and the verb regex's finds stay as a floor.
                 if self.languages.get(self.primary_lang_id, {}).get("calls_out_function_refs"):

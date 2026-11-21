@@ -103,6 +103,7 @@ CALL_NODE_TYPES = frozenset(
     {
         "call",  # python, ruby
         "call_expression",  # js/ts, c/cpp, go, rust, kotlin, scala, swift, objc
+        "constructor_expression",  # swift generic constructor `DownloadResponse<T, E>(...)`
         "message_expression",  # objective-c `[obj msg:x]`
         "new_expression",  # js/ts constructor
         "method_invocation",  # java
@@ -192,7 +193,11 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
         return None
     if node.type == "generic_function":  # rust `collect::<Vec<_>>()`: the function, not the type
         return _leaf_name(node.child_by_field_name("function"), depth + 1)
-    if node.type in ("generic_name", "generic_type"):  # c# `OfType<T>()`, java `new HashMap<K, V>()`
+    if node.type in (
+        "generic_name",
+        "generic_type",
+        "user_type",
+    ):  # c# `OfType<T>()`, java `new HashMap<K, V>()`, swift `DownloadResponse<T, E>()`
         return _leaf_name(node.named_children[0], depth + 1) if node.named_children else None
     if node.type == "stable_type_identifier" and node.named_children:  # scala `new util.HashSet[T]()`
         return _leaf_name(node.named_children[-1], depth + 1)
@@ -335,8 +340,8 @@ def _callee(node: Any) -> str | None:
         child = node.child_by_field_name(field)
         if child is not None:
             return _leaf_name(child)
-    if node.type in ("call_expression", "instance_expression") and node.named_children:
-        # kotlin, swift `f(x)` and scala `new Foo(x)` carry no callee field: the callee comes first
+    if node.type in ("call_expression", "instance_expression", "constructor_expression") and node.named_children:
+        # kotlin, swift `f(x)` / `Foo<T>(x)` and scala `new Foo(x)` carry no callee field: the callee comes first
         return _leaf_name(node.named_children[0])
     if node.type == "object_creation_expression":  # php: `new Foo(...)` has no field
         for child in node.named_children:

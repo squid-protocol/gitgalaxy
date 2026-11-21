@@ -4467,7 +4467,7 @@
         "verification": 15.79
       },
       "file_count": 23,
-      "total_mass": 3833.4
+      "total_mass": 3837.8
     },
     "python/fastapi/tests": {
       "avg_exposures": {
@@ -4714,7 +4714,7 @@
         "verification": 80.0
       },
       "file_count": 4,
-      "total_mass": 4490.28
+      "total_mass": 4490.38
     },
     "python/wtfpython": {
       "avg_exposures": {

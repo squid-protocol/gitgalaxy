@@ -14,7 +14,7 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE,
+    CALLS_OUT_PYTHON,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
     PY_CRYPTOGRAPHY,
@@ -103,8 +103,9 @@ DEFINITION: dict[str, Any] = {
     # galaxyscope records each name as `<dots>a` (see the rule's comment).
     "relative_import_groups": (1, 2, 3),
     "rules": {
-        # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        # Epic #3264 / ledger: CALLS_OUT_PYTHON uses same-line `[ \t]*\(` (no cross-statement
+        # matches like `x\n(a, b) = ...`) and guards `class Name(` inside functions.
+        "calls_out": CALLS_OUT_PYTHON,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {
@@ -122,6 +123,9 @@ DEFINITION: dict[str, Any] = {
                 "from",
                 "as",
                 "else",
+                "True",
+                "False",
+                "None",
                 # #3361: `assert` is a statement keyword here; it left the global
                 # set because C's assert macro IS a call.
                 "assert",

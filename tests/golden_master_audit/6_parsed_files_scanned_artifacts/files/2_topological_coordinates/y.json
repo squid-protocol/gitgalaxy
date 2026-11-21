@@ -2850,8 +2850,8 @@
       "python/fastapi/fastapi/encoders.py": -216.97,
       "python/fastapi/fastapi/exception_handlers.py": -202.42,
       "python/fastapi/fastapi/exceptions.py": -283.46,
-      "python/fastapi/fastapi/logger.py": -207.34,
-      "python/fastapi/fastapi/param_functions.py": -189.06,
+      "python/fastapi/fastapi/logger.py": -207.33,
+      "python/fastapi/fastapi/param_functions.py": -189.05,
       "python/fastapi/fastapi/params.py": -211.03,
       "python/fastapi/fastapi/requests.py": -174.86,
       "python/fastapi/fastapi/responses.py": -254.65,
@@ -2862,7 +2862,7 @@
       "python/fastapi/fastapi/testclient.py": -253.36,
       "python/fastapi/fastapi/types.py": -263.63,
       "python/fastapi/fastapi/utils.py": -231.39,
-      "python/fastapi/fastapi/websockets.py": -269.41
+      "python/fastapi/fastapi/websockets.py": -269.42
     },
     "python/fastapi/tests": {
       "python/fastapi/tests/__init__.py": -196.91,

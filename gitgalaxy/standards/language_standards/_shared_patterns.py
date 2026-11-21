@@ -477,7 +477,7 @@ _RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b
 CALLS_OUT_RUST = re.compile(
     r"\b(?![A-Z][" + ID_CONTINUE + r"]{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
     rf"([{ID_START}][{ID_CONTINUE}]*)"
-    r"(?:![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
+    r"(?=![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
 )
 
 # #3645 (contract C3): Go writes a conversion to a pointer or qualified type in
@@ -534,6 +534,42 @@ CALLS_OUT_GO = re.compile(
     + r")?\s*\())"
 )
 
+# Python calls: same-line `[ \t]*\(` (a newline starts a new statement in Python,
+# so `False\n\n(l, rl) = ...` or `m1\n(a, b) = ...` is not a call) and a `class `
+# lookbehind so nested `class Model(BaseModel):` inside a function body is not
+# captured as a call to `Model`. Group 1 is the callee, so detector.py treats it
+# like CALLS_OUT_C_STYLE (qualifier capture, C5 header drop, nested-unit blanking).
+CALLS_OUT_PYTHON = re.compile(rf"(?<!\bclass )(?<!\bclass\t)\b([{ID_START}][{ID_CONTINUE}]*)[ \t]*\(")
+
+# Swift calls: `@Name(` is an attribute (C1), generic `<T>` arguments may sit before `(` or `{`,
+# and trailing-closure calls omit `(` after a receiver dot (`queue.async { ... }`,
+# `mutableState.write { ... }`, `xs.map { ... }`). Only dotted trailing closures are matched so
+# `if cond {`, `else {`, `class C {`, `switch x {`, `do {`, `catch {` are never calls.
+CALLS_OUT_SWIFT = re.compile(
+    rf"(?<!@)\b((?P<closure_ok>(?<=\.))?[{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){0,200}>[ \t]*)?"
+    r"(?:\s*\(|(?(closure_ok)[ \t]*\{|(?!)))"
+)
+
+# Scala calls: `@Name(` is an annotation (C1); bracket type arguments `f[A, B](...)` sit between
+# the name and `(`; and `new pkg.Type[T]` without `(` is a constructor call (C3).
+_SCALA_TYPE_ARGS = r"\[(?:[^\[\]\n()]|\[[^\[\]\n()]{0,80}\]|\([^()\n]{0,80}\)){1,160}\]"
+_SCALA_NEW_PREFIX = r"\bnew[ \t]+(?:[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}\.){0,4}"
+CALLS_OUT_SCALA = re.compile(
+    r"(?=(?:" + _SCALA_NEW_PREFIX + r")?(?<!@)\b([" + ID_START + r"][" + ID_CONTINUE + r"]*))"
+    r"(?:"
+    + _SCALA_NEW_PREFIX
+    + r"["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]{0,63}(?:"
+    + _SCALA_TYPE_ARGS
+    + r")?(?![ \t]*\()"
+    r"|(?<!@)\b[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:" + _SCALA_TYPE_ARGS + r")?\s*\("
+    r")"
+)
+
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
@@ -544,10 +580,13 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_DART,
     CALLS_OUT_KOTLIN,
+    CALLS_OUT_SWIFT,
+    CALLS_OUT_SCALA,
     CALLS_OUT_RUBY,
     CALLS_OUT_PERL,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,
+    CALLS_OUT_PYTHON,
 )
 
 # Unsupported / AST-Required (Shell, Markup, Data, Config)

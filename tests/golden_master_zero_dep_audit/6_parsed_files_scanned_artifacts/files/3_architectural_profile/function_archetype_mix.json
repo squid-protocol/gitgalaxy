@@ -8571,11 +8571,11 @@
       "python/fastapi/fastapi/routing.py": {
         "Compute Cores": 1,
         "Defensive Guards": 2,
-        "Encapsulated Accessors": 9,
+        "Encapsulated Accessors": 8,
         "Generic / Templated Code": 25,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 17,
-        "Stateful Encapsulated Methods": 10
+        "Stateful Encapsulated Methods": 11
       },
       "python/fastapi/fastapi/sse.py": {
         "Encapsulated Accessors": 1,
@@ -9794,12 +9794,12 @@
       "python/twisted/defer.py": {
         "Compute Cores": 4,
         "Defensive Guards": 8,
-        "Encapsulated Accessors": 7,
+        "Encapsulated Accessors": 6,
         "Generic / Templated Code": 70,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 7,
         "Parameter Forwarders": 1,
-        "Stateful Encapsulated Methods": 17,
+        "Stateful Encapsulated Methods": 18,
         "Type Conversions": 1
       },
       "python/twisted/http.py": {

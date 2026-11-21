@@ -112,6 +112,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IEBGENER, an IDCAMS REPRO copy and a lowered SORT / MERGE step run in a generated job, the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
 | F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
+| F6 | files | GnuCOBOL has no IDCAMS, so det/idcams_model.py models a step (REPRO seq <-> KSDS / ESDS, DELETE, DEFINE CLUSTER, SET MAXCC, IF LASTCC / MAXCC) and its condition code; every other command or keyword is refused by name (#8880) | PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER, SET MAXCC, IF; Java runtime and job harness not yet) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -2360,6 +2361,35 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   Never translated: the port does not guess which bytes of the record the author meant.
 - RELATIVE KEY has the opposite placement rule in IBM's reference (not in the file's own record); `ORGANIZATION
   IS RELATIVE` is refused by name as a whole, so that rule is not reached.
+
+### F6. IDCAMS step in a job case — the oracle is our own model of the step
+- `gitgalaxy/tools/cobol_to_java/det/idcams_model.py` (`run(sysin, catalog, dds)`, tests `test_idcams_model_8880.py`) runs a
+  step's commands against a catalog of clusters and the step's sequential DDs and returns the step's return code (MAXCC at
+  its end). It is the oracle for an IDCAMS step in a job case; `det/idcams.py` (one REPRO lowered onto COBOL, F4) is
+  unchanged. **Not wired yet (#8880 slices 2 and 3):** the Java runtime and the job harness do not run an IDCAMS step, so no
+  job case compares one. Evidence level: modelled and unit-tested on authored decks; nothing is executed-equivalent.
+- **IBM.** z/OS DFSMS Access Method Services Commands (SC23-6846-60), read by section from memory of the text, not re-read
+  against the box copy (ibm-manuals idai200): "REPRO", "DELETE", "DEFINE CLUSTER", "SET", "IF-THEN-ELSE command sequence",
+  "Condition codes", "Modal commands", "Continuing commands and comments".
+  - Condition codes: LASTCC is the last command's code, MAXCC the highest so far, the step returns MAXCC; `SET MAXCC = n`
+    replaces it; a failing command does not stop the next. DELETE of an entry not in the catalog is 8 (entry not found);
+    DEFINE of a name already cataloged is 12 (duplicate data set name) and changes nothing. **ASSUMED:** those two codes,
+    and that a command after a code-8 or code-12 command still runs (the DELETE-then-DEFINE idiom).
+  - REPRO copies fixed-length records; a KSDS reads in key order and is loaded into an EMPTY KSDS in ascending key order;
+    an ESDS reads in arrival order and is appended to; a sequential output is rewritten from its start.
+  - DEFINE CLUSTER: INDEXED (default) is a KSDS with `KEYS(length offset)`, NONINDEXED an ESDS, `RECORDSIZE(avg max)`.
+    **ASSUMED:** allocation (VOLUMES, CYLINDERS, TRACKS, RECORDS, MEGABYTES, KILOBYTES, SHAREOPTIONS, FREESPACE, SPEED,
+    RECOVERY, UNIQUE, SUBALLOCATION) always succeeds and changes no byte the model reads; DELETE has no retention
+    period, so PURGE / NOPURGE are the same.
+- **Refused by name** (`Refused`, never a silent success): every other command (ALTER, LISTCAT, PRINT, VERIFY, EXPORT,
+  IMPORT, BLDINDEX, ...), DEFINE of anything but a CLUSTER, DATA / INDEX / CATALOG components, NUMBERED / LINEAR / REUSE /
+  SPANNED, INDEXED without KEYS, no RECORDSIZE, a key outside the shortest record, DELETE of an entry list or with GDG /
+  NONVSAM / other parameters, a password or quoted string, `SET LASTCC`, a SET value over 16, REPRO FROMKEY / TOKEY / SKIP /
+  COUNT / REPLACE / REUSE, REPRO of variable-length records, of zero records (its code is not stated), into a non-empty
+  KSDS (insert mode), from a source out of key order or with a duplicate key, between two record lengths, onto itself, a DD
+  that is not a dataset of the step or whose cluster was deleted in the step, DISP=MOD on an output.
+- Residual risk: the oracle is this model, not z/OS; the two condition codes and the empty-input and out-of-order cases
+  above are what a real IDCAMS run on z/OS would confirm or refute.
 
 ## CICS (`ggcics.c`)
 
@@ -7448,4 +7478,4 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
   render` writes a local copy to read.
 
 ### z/OS calibration
-0 of 148 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).
+0 of 149 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).

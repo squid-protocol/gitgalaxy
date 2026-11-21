@@ -1461,6 +1461,39 @@ def test_a_utility_control_deck_is_scored_pass_not_unscored(program, dd, body, l
     assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
 
 
+_DB2_DECK = (
+    "RUNSTATS TABLESPACE DB1.TS1\n"
+    "      UPDATE SPACE\n"
+    "-- the next statement\n"
+    "  REORG TABLESPACE DB1.TS2\n"
+    "      SHRLEVEL CHANGE\n"
+    "      REPORT YES\n"
+    "  REPORT RECOVERY TABLESPACE DB1.TS3"
+)
+
+
+@pytest.mark.parametrize(
+    "line,verb,operands",
+    [
+        (11, "RUNSTATS", "TABLESPACE DB1.TS1 UPDATE SPACE"),  # a free-form statement, no continuation hyphen
+        (14, "REORG", "TABLESPACE DB1.TS2 SHRLEVEL CHANGE REPORT YES"),  # `REPORT YES` is an option, not a statement
+        (17, "REPORT", "RECOVERY TABLESPACE DB1.TS3"),  # `REPORT RECOVERY` starts one
+    ],
+)
+def test_a_db2_utility_statement_runs_until_the_next_utility_verb(line, verb, operands):
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_DB2_DECK)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program="DSNUTILB", line=9), row]
+    card = dict(_card(verb, operands, line), dd="SYSIN", utility="DSNUTILB")
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
+
+
+def test_a_db2_utility_statement_cut_at_its_first_line_is_not_a_pass():
+    row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_DB2_DECK)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program="DSNUTILB", line=9), row]
+    card = dict(_card("RUNSTATS", "TABLESPACE DB1.TS1", 11), dd="SYSIN", utility="DSNUTILB")
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["fail"]
+
+
 def test_a_card_in_a_dd_whose_statement_continues_is_scored_on_the_engines_own_row():
     """The engine's INSTREAM row for `//SYSIN DD *,` + `// DLM=ZZ` carries the statement's last line, so the card keyed
     on its real source line passes (#7065)."""

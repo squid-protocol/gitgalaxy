@@ -227,7 +227,13 @@ def _proc_results() -> list[tuple[dict[str, Any], bool]]:
                     and [k for k in got if k.split(".")[0] == sc["call"]] == list(sc["expect"])))  # fmt: skip
     rows = job_flow.jcl_job_flow(text)
     for sc in doc["flow"]:
-        out.append((sc, JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions == sc["expect"]))
+        out.append(
+            (
+                sc,
+                JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions
+                == sc["expect"],
+            )
+        )
     return out
 
 
@@ -256,7 +262,13 @@ def _step_results() -> dict[str, list[tuple[dict[str, Any], bool]]]:
         for sc in doc["scenarios"]:
             job = sc["job"]
             if case == "restart":
-                res.append((sc, restart_flow(rows, job, sc["given"]) == sc["expect"]))
+                if sc.get("library"):  # a procedure that is a JCLLIB member, read from the answer file's `libraries`
+                    lib_text = "\n".join(doc["library_jcl"]) + "\n"
+                    libs = {lb: {m: "\n".join(x) + "\n" for m, x in ms.items()} for lb, ms in doc["libraries"].items()}
+                    got = restart_flow(job_flow.jcl_job_flow(lib_text), job, sc["given"], lib_text, libs)
+                else:
+                    got = restart_flow(rows, job, sc["given"])
+                res.append((sc, got == sc["expect"]))
                 continue
             if case == "gdg" and sc.get("restart"):  # a restarted run: steps before the restart step do not start
                 catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
@@ -408,8 +420,13 @@ def jcl_step_flow() -> dict[str, Any]:
         rec = json.loads(JCL_MEASURED.read_text(encoding="utf-8"))
         if rec.get("answers_sha256") == _sha(JCL_CASES / "carddemo" / "scenarios.json") and rec.get("of") == n_cd:
             cd_ok = rec["matched"]
-    return {"fixture": (fx_ok, fx_n), "assumed": (as_ok, as_n), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"]),
-            "tier2": mvs38j_tier2()}
+    return {
+        "fixture": (fx_ok, fx_n),
+        "assumed": (as_ok, as_n),
+        "carddemo": (cd_ok, n_cd),
+        "carddemo_jobs": len(cd["jobs"]),
+        "tier2": mvs38j_tier2(),
+    }
 
 
 def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:

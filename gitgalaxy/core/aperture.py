@@ -53,6 +53,67 @@ def declared_port(content: str | None, rel_path: str) -> str | None:
 # 3,646 lines of doors, floors and lights; pypa/virtualenv's package is `src/virtualenv/`), so a
 # directory with one of them is a virtualenv only when it carries a virtualenv's markers.
 VIRTUALENV_CANDIDATE_NAMES = frozenset({"env", ".env", "virtualenv"})
+_GENERIC_IGNORE_REASON = "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)"
+
+
+# --- AMBIGUOUS DIRECTORY NAMES (#8708) ---
+# These names are also ordinary source directory names (DPDK `lib/log/`, mesa `.../nvidia/classes/`, curl
+# `docs/examples/`), so a directory with one of them is pruned only when its tree holds no source files (a
+# runtime-log directory, a license folder, generated site output).
+EVIDENCE_DIRECTORY_NAMES = frozenset(
+    {"log", "logs", "classes", "tmp", "temp", "docs", "site", "legal", "license", "licenses"}
+)
+# #5458: assets a Doxygen/Sphinx/JSDoc output directory holds besides its HTML.
+DOC_ASSET_EXTENSIONS = frozenset(
+    {".html", ".htm", ".xml", ".css", ".js", ".json", ".md", ".txt", ".map", ".php", ".hhc", ".hhk", ".hhp"}
+)
+# #6266: a build manifest is a build file whatever its extension (`CMakeLists.txt` reads as a `.txt` doc asset).
+BUILD_MANIFEST_NAMES = frozenset({"cmakelists.txt", "makefile", "gnumakefile", "meson.build", "build.bazel"})
+# `.log` is a plaintext-language extension but a runtime log is the very noise the probe looks for.
+_NOT_SOURCE_EXTENSIONS = DOC_ASSET_EXTENSIONS | {".log"}
+_EVIDENCE_WALK_MAX_DIRS = 2000
+_default_source_extensions: frozenset[str] | None = None
+
+
+def default_source_extensions() -> frozenset[str]:
+    """Every extension some registered language claims (for callers that hold no ApertureFilter)."""
+    global _default_source_extensions
+    if _default_source_extensions is None:
+        from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+        exts: set[str] = set()
+        for data in LANGUAGE_DEFINITIONS.values():
+            exts.update(data.get("extensions", []))
+        _default_source_extensions = frozenset(exts)
+    return _default_source_extensions
+
+
+def is_noise_directory(directory: Path, ignored_names: Any, extensions: Any = None) -> bool:
+    """#8708: True when `directory` (named in EVIDENCE_DIRECTORY_NAMES) holds no source file anywhere in its tree.
+
+    `ignored_names` (lowercase) are by-name pruned subdirectories the probe does not enter, as the scan would not."""
+    if not directory.is_dir():
+        return False  # nothing on disk to judge (a path-only query): not proven noise
+    exts = extensions if extensions is not None else default_source_extensions()
+    seen = 0
+    stack = [directory]
+    while stack and seen < _EVIDENCE_WALK_MAX_DIRS:
+        current = stack.pop()
+        seen += 1
+        try:
+            with os.scandir(current) as it:
+                for e in it:
+                    if e.is_dir(follow_symlinks=False):
+                        if e.name.lower() not in ignored_names and not e.name.startswith("."):
+                            stack.append(Path(e.path))
+                    elif e.is_file():
+                        low = e.name.lower()
+                        ext = os.path.splitext(low)[1]
+                        if low in BUILD_MANIFEST_NAMES or (ext in exts and ext not in _NOT_SOURCE_EXTENSIONS):
+                            return False
+        except OSError:
+            continue
+    return not stack
 
 
 def looks_like_virtualenv(directory: Path) -> bool:
@@ -533,6 +594,8 @@ class ApertureFilter:
 
         # #4542: candidate-named directories (rel path -> is it a virtualenv), probed once each.
         self._virtualenv_cache: dict[str, bool] = {}
+        # #8708: ambiguous-named directories (rel path -> holds no source), probed once each.
+        self._noise_dir_cache: dict[str, bool] = {}
         # #4545: vendored copies of other projects under non-reserved names.
         self._vendor_dirs = VendorDirectoryDetector(self.root)
         # #4543: extension -> the comment syntax every language claiming it agrees on.
@@ -638,9 +701,9 @@ class ApertureFilter:
             self._intent_cache.add(normalized_path)
 
         # --- Gate 1.4: Ecosystem Ignore Resolver (.gitignore, node_modules, etc.) ---
-        if not self._check_ignore_rules(relative_path, has_intent=active_intent):
-            reason = "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)"
-            return False, size_bytes, reason
+        ignore_reason = self._ignore_verdict(relative_path, has_intent=active_intent)
+        if ignore_reason is not None:
+            return False, size_bytes, ignore_reason
 
         # --- Gate 1.5: Language Registry Validation ---
         if active_intent:
@@ -1122,6 +1185,15 @@ class ApertureFilter:
             hit = self._virtualenv_cache[rel_dir] = looks_like_virtualenv(self.root.joinpath(*rel_dir.split("/")))
         return hit
 
+    def _is_noise_dir(self, rel_dir: str) -> bool:
+        """#8708: an ambiguous-named directory is pruned only when its tree holds no source file."""
+        hit = self._noise_dir_cache.get(rel_dir)
+        if hit is None:
+            hit = self._noise_dir_cache[rel_dir] = is_noise_directory(
+                self.root.joinpath(*rel_dir.split("/")), self.ignored_directories, self.whitelisted_extensions
+            )
+        return hit
+
     def _log_exclusion(self, relative_path: str, reason: str | None) -> None:
         """#4917: a heuristic exclusion that can hide real code (a "Static Asset Blob") is a WARNING, so it is never
         silent; the bulk exclusions (binaries, minified / generated noise) stay at DEBUG, or a large repo floods the console."""
@@ -1268,13 +1340,10 @@ class ApertureFilter:
             return False
         return line.count(" ") * _PROSE_CHARS_PER_SPACE >= len(line)
 
-    # #5458: assets a Doxygen/Sphinx/JSDoc output directory holds besides its HTML.
-    _DOC_ASSET_EXTENSIONS = frozenset(
-        {".html", ".htm", ".xml", ".css", ".js", ".json", ".md", ".txt", ".map", ".php", ".hhc", ".hhk", ".hhp"}
-    )
+    _DOC_ASSET_EXTENSIONS = DOC_ASSET_EXTENSIONS
     # #6266: a build manifest is a build file whatever its extension (`CMakeLists.txt` reads as a `.txt` doc asset), so
     # a directory holding one is not a generated-docs dir and its feature-toggle `-DX` definitions reach the scan.
-    _BUILD_MANIFEST_NAMES = frozenset({"cmakelists.txt", "makefile", "gnumakefile", "meson.build", "build.bazel"})
+    _BUILD_MANIFEST_NAMES = BUILD_MANIFEST_NAMES
     _DOC_PROBE_BYTES = 8192
     _DOC_PROBE_MAX_FILES = 64
 
@@ -1329,6 +1398,10 @@ class ApertureFilter:
         return verdict
 
     def _check_ignore_rules(self, rel_path: str, has_intent: bool = False, is_dir: bool = False) -> bool:
+        """True when the path is not in a blocked, ignored, or dynamically infected sector."""
+        return self._ignore_verdict(rel_path, has_intent, is_dir) is None
+
+    def _ignore_verdict(self, rel_path: str, has_intent: bool = False, is_dir: bool = False) -> str | None:
         """
         Determines if the path is in a blocked, ignored, or dynamically
         infected sector. Implements standard .gitignore functionality alongside
@@ -1341,12 +1414,20 @@ class ApertureFilter:
         for i, part in enumerate(parts):
             low_part = part.lower()
             if low_part in self.ignored_directories:
-                return False
+                return f"Blocked (ignored directory: {part})"
+            if low_part in EVIDENCE_DIRECTORY_NAMES:
+                # #8708: a directory part is pruned on evidence (no source in its tree); a file of that name is not a
+                # directory, so it keeps the by-name verdict it always had (a `LICENSE` file).
+                if i < len(parts) - 1 or is_dir:
+                    if self._is_noise_dir("/".join(parts[: i + 1])):
+                        return f"Blocked (ignored directory: {part})"
+                else:
+                    return f"Blocked (ignored directory: {part})"
             if low_part in VIRTUALENV_CANDIDATE_NAMES and self._is_virtualenv("/".join(parts[: i + 1])):
-                return False
+                return _GENERIC_IGNORE_REASON
             # the last part is the file itself: only directories are probed (no stat per file)
             if i < len(parts) - 1 and self._vendor_dirs.is_vendored("/".join(parts[: i + 1])):
-                return False
+                return _GENERIC_IGNORE_REASON
 
             if (
                 part.startswith(".")
@@ -1356,7 +1437,7 @@ class ApertureFilter:
                 and not has_intent
                 and not (part in self._COPY_LIBRARY_DIRS and (is_dir or i < len(parts) - 1))
             ):
-                return False
+                return _GENERIC_IGNORE_REASON
 
         # 2. Dynamic Documentation Debris Shield
         path_obj = Path(rel_path)
@@ -1369,7 +1450,7 @@ class ApertureFilter:
                 break
         if flagged_ancestor and not self._holds_source_files(str(path_obj.parent)):
             self.logger.debug(f"Dynamic Deflection: Asset '{rel_path}' blocked in auto-generated directory.")
-            return False
+            return _GENERIC_IGNORE_REASON
 
         # 3. (removed, #3278) The "Semantic Infrastructure & Test Target Shield" dropped
         # any path containing a word like lib/spec/test/build/out/docs/scripts. Since
@@ -1382,18 +1463,18 @@ class ApertureFilter:
         filename = parts[-1]
         for pattern in self.denylist_patterns:
             if fnmatch.fnmatch(filename, pattern):
-                return False
+                return _GENERIC_IGNORE_REASON
 
         # 5. Standard Iterative .gitignore Logic
         for pattern in self.ignore_patterns:
             if pattern.endswith("/"):
                 if any(fnmatch.fnmatch(p + "/", pattern) for p in parts):
-                    return False
+                    return _GENERIC_IGNORE_REASON
             else:
                 if fnmatch.fnmatch(rel_path, pattern) or fnmatch.fnmatch(filename, pattern):
-                    return False
+                    return _GENERIC_IGNORE_REASON
 
-        return True
+        return None
 
     def _load_gitignore_patterns(self) -> list[str]:
         """Reads local .gitignore files to identify un-tracked noise."""

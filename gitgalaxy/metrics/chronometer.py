@@ -23,7 +23,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, VendorDirectoryDetector, looks_like_virtualenv
+from gitgalaxy.core.aperture import (
+    EVIDENCE_DIRECTORY_NAMES,
+    VIRTUALENV_CANDIDATE_NAMES,
+    VendorDirectoryDetector,
+    is_noise_directory,
+    looks_like_virtualenv,
+)
 from gitgalaxy.core.source_text import open_source
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.config_resolver import resolve_config
@@ -300,6 +306,7 @@ class Chronometer:
 
         # Fallback: OS Walk for boundaries utilizing global Aperture configs
         ignored_dirs = self.aperture_config.get("IGNORED_DIRECTORIES", set())
+        ignored_lower = {d.lower() for d in ignored_dirs}
         scan_limit = self.chrono_config.get("FALLBACK_SCAN_LIMIT", 25000)
 
         min_t, max_t = float("inf"), 0.0
@@ -313,6 +320,7 @@ class Chronometer:
                 if not d.startswith(".")
                 and d not in ignored_dirs
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root) / d))
+                and not (d.lower() in EVIDENCE_DIRECTORY_NAMES and is_noise_directory(Path(root) / d, ignored_lower))
                 and not vendor_dirs.is_vendored((Path(root) / d).relative_to(self.root).as_posix())
             ]
             for f in files:

@@ -80,7 +80,6 @@ GDG_UNOBSERVED = [
 ]
 RESTART_CASE = REPO / "tests" / "equivalence" / "jcl" / "restart"
 RESTART_RESULTS = RESTART_CASE / "mvs38j_probe.json"
-PENDING_RERUN = "added by #8835 after the #8837 box run; needs a box rerun (a later slice)"
 RESTART_SKIP = {  # job -> why it is not run here
     "RSTJOB4": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
     "RSTJOB11": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
@@ -88,7 +87,6 @@ RESTART_SKIP = {  # job -> why it is not run here
     "RSTJOB5": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
     "RSTJOB9": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
     "RSTJOB10": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
-    **dict.fromkeys(["RSTJOB13", "RSTJOB14", "RSTJOB15", "RSTJOB16"], PENDING_RERUN),
 }
 RESTART_UNOBSERVED = [
     "what a program does (every step is IDCAMS with SET MAXCC)",

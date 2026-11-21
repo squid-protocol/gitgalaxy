@@ -1,5 +1,5 @@
 {
- "commit": "8983a8f48",
+ "commit": "422252c63",
  "components": {
   "capabilities": {
    "groups": [
@@ -613,7 +613,7 @@
      "sampled": 4388,
      "sampled_pct": 100.0,
      "survived": 2249,
-     "unreachable": 411
+     "unreachable": 423
     },
     "cics-genapp": {
      "caught": 2711,
@@ -684,7 +684,7 @@
     "sampled": 37396,
     "sampled_pct": 67.7,
     "survived": 17985,
-    "unreachable": 1042
+    "unreachable": 1054
    }
   },
   "mutation": {
@@ -1000,7 +1000,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T04:00:59Z",
+  "as_of": "2026-11-21T04:28:09Z",
   "core": {
    "closed": 253,
    "open": 13,

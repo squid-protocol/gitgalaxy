@@ -208,7 +208,7 @@ def test_a_recorded_first_run_is_complete_and_consistent():
     plan = json.loads(pr.ESTATE_LEVELS.read_text())
     pinned = json.loads(pr.ESTATE_CRUCIBLE.read_text())["horrors"]
     recorded = [lv for lv in plan["levels"] if lv["first_run"]]
-    assert any(lv["name"] == "Batch Badlands" for lv in recorded)
+    assert {"Batch Badlands", "Alternate Index Archipelago"} <= {lv["name"] for lv in recorded}
     for lv in recorded:
         fr = lv["first_run"]
         assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", fr["date"]), lv["name"]

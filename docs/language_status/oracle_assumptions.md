@@ -2369,11 +2369,12 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   - **DIFFERS (declared here, `RT-CICS-BMS-SUBFIELDS`):** `DetCics.subfields` also drops a space, which IBM sends (a field attribute
     of X'40' is present), and sets X'80' / X'02' / X'82', which IBM treats as absent. The receiving side's `<f>L` is the text without
     trailing blanks; IBM does not say it counts the blanks keyed, so that half stays with X54's blank-field note.
-  - **Tried, not landed (#7955):** making both sides record a space (drop only X'00') kills HXATTR `722da01d4e` and HXEXT
-    `2f61febdd4`, but refutes the HXATTR baseline: on an uncleared map (`ca-bytes-entry-clear`) the port holds an attribute byte
-    of X'20' where GnuCOBOL holds none, so a program-written space cannot be told from a never-written one without write tracking
-    (a runtime and forge slice). The 9 other open HXATTR / HXEXT survivors differ only as NUL against space in a data first byte,
-    which the comparator also strips and the port's DTO strings lose. They stay open harness gaps.
+  - **Landed (#7955, PR #8827):** both sides now record a space (X'40') and a NUL (X'00') as values. This kills HXATTR `722da01d4e`
+    and HXEXT `2f61febdd4`. The earlier "tried, not landed" premise was wrong: on an uncleared map (`ca-bytes-entry-clear`)
+    GnuCOBOL holds spaces, not nothing, so the port and the oracle agree and no write tracking in the runtime is needed.
+    A subfield never given, a written X'00' and a written X'40' are three different states on the compare
+    (pinned once #8827 merges, see the PR's Remaining slices). HXEXT `8ec71a9459` (a repeat of the `MOVE LOW-VALUES TO HXM2I`
+    just before it) survives seven oracle inputs and carries no stated verdict until a seed samples it.
   - **Still ASSUMED:** the symbolic-map comparison itself (the paragraphs above).
 
 ### X3. Backout and recoverable files — MATCHED

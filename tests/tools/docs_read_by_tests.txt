@@ -149,6 +149,7 @@
 /gnucobol-db2.Dockerfile	tests/cobol_mainframe
 /gnucobol.Dockerfile	tests/cobol_mainframe
 /hidden_exe.jpg	tests/security_auditing
+/icon.gif	tests/core_engine
 /inc	tests/cobol_mainframe
 /include	tests/cobol_mainframe
 /java-21-openjdk-amd64	tests/tools/test_equivalence_env.py
@@ -156,7 +157,7 @@
 /lib	tests/cobol_mainframe,tests/core_engine
 /libdir	tests/cobol_mainframe
 /locked.dat	tests/security_auditing
-/logo.png	tests/security_auditing
+/logo.png	tests/core_engine,tests/security_auditing
 /m.c	tests/tools/test_callgraph_oracle.py
 /main.c	tests/core_engine
 /main.go	tests/security_auditing
@@ -336,6 +337,7 @@ docs/high_risk_execution_rule_contract.md	gitgalaxy
 docs/immutability_locks_rule_contract.md	gitgalaxy
 docs/import_rule_contract.md	gitgalaxy
 docs/io_rule_contract.md	gitgalaxy
+docs/jcl_oracle_mvs38j.md	tests/tools/capability_ledger.py
 docs/language_status	tests/tools/test_progress_report.py
 docs/language_status/	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
@@ -543,6 +545,7 @@ how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/core_engine,tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
 indented4.md	tests/core_engine
 issue.md	tests/tools/test_context_pack.py
+jcl_oracle_mvs38j.md	tests/tools/capability_ledger.py
 journey.json	tests/tools/estate_journey.py,tests/tools/progress_report.py
 language_status/register/probe_a.md	tests/tools/test_pr_runner_cost.py
 ledger.md	tests/tools/bugfix_kit.py

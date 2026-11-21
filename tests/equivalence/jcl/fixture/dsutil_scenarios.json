@@ -182,7 +182,7 @@
   "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMB),DISP=SHR",
   "//SYSUT2   DD SYSOUT=A"
  ],
- "scenarios": [
+ "cases": [
   {
    "id": "iefbr14-catlg-then-delete",
    "job": "BR14CAT",

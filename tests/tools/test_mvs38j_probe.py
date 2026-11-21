@@ -256,7 +256,7 @@ def _dsutil():
 
 def test_the_dsutil_decks_run_the_real_utilities_and_re_root_every_dataset_under_the_user_catalog():
     doc = _dsutil()
-    for sc in doc["scenarios"]:
+    for sc in doc["cases"]:
         deck = probe.dsutil_deck(doc["flow_jcl"], sc["job"])
         assert deck.splitlines()[0].split()[:2] == [f"//{sc['job']}", "JOB"], sc["id"]
         assert "PRB." not in deck, sc["id"]
@@ -284,7 +284,7 @@ def test_the_dsutil_events_collapse_kept_cataloged_and_deleted_uncataloged_and_m
 def test_the_committed_dsutil_results_cover_every_scenario_and_name_the_one_disagreement():
     got = json.loads(probe.DSUTIL_RESULTS.read_text(encoding="utf-8"))
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
-    assert [r["id"] for r in got["results"]] == [s["id"] for s in _dsutil()["scenarios"]]
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in _dsutil()["cases"]]
     assert all(r["engine"] is None and not r["jcl_error"] for r in got["results"])
     # IEF453I / IEF212I (a missing OLD dataset is "JOB FAILED - JCL ERROR" on the box) are the only lines the log reader does not know
     assert {r["id"]: r["unparsed_ief"] for r in got["results"] if r["unparsed_ief"]} == {

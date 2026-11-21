@@ -302,13 +302,14 @@ IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. Not observed: wh
 
 ## Probe run (#8414): IEBGENER / IEBCOPY / IEFBR14
 
-`probe.py dsutil --printer FILE` runs the nine scenarios of `tests/equivalence/jcl/fixture/dsutil_scenarios.json` with the **real utilities**
+`probe.py dsutil --printer FILE` runs the nine `cases` of `tests/equivalence/jcl/fixture/dsutil_scenarios.json` with the **real utilities**
 (nothing is swapped for IDCAMS): IEFBR14 allocation and disposition (`NEW,CATLG` then `OLD,DELETE`; `NEW` with no disposition; `OLD` on an
 uncataloged name), IEBGENER (instream to a new dataset, no `SYSUT1`, a `DUMMY` `SYSUT1`) and IEBCOPY (`SELECT`, `EXCLUDE`, no member statement)
 on a two-member PDS read back member by member. The manual answers were committed before the run (dfd68b486). The fixture's `PRB.UTIL.*` names are
 re-rooted to `PUB001.UTIL.*` at run time (see the trap below) and mapped back when the dispositions are read. A `PRBCLEAN` IEFBR14 job
 (`MOD,DELETE`) runs before each scenario and at the end. `tests/equivalence/jcl/fixture/dsutil_mvs38j_probe.json` holds `expect` and `box`; `engine`
 is null (no gitgalaxy evaluator models what a utility does to a dataset: two columns, not three).
+(The list key is `cases`, not `scenarios`: the capability ledger reads every `scenarios` file in `tests/equivalence/jcl/*/` as an engine answer set and needs a `given` the utilities do not have.)
 Run 2026-11-21: **8 of 9 agree manual / box**. `unparsed_ief` is 0 except A1's scenario (2: `IEF453I JOB FAILED - JCL ERROR` and `IEF212I DATA SET NOT FOUND`: the box calls a missing `OLD` dataset a JCL error, a message `runner.parse_log` does not read, so `jcl_error` stays false; the step is `IEF272I` not executed). The two assumptions agree: A1 (an `OLD` dataset that is not cataloged fails
 allocation and flushes the later steps) and A2 (IEBGENER with no `SYSUT1` ends RC 12). Internal only (Q16).
 

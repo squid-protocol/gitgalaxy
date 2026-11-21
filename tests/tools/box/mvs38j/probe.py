@@ -1011,7 +1011,7 @@ def dsutil_expected(sc):
 
 def main_dsutil(args):
     doc = json.loads(DSUTIL_SCENARIOS.read_text(encoding="utf-8"))
-    lines, scs = doc["flow_jcl"], doc["scenarios"]
+    lines, scs = doc["flow_jcl"], doc["cases"]
     if args.dry:
         print(f"* cleanup\n{dsutil_cleanup_deck(doc['cleanup_dsns'])}")
         for sc in scs:

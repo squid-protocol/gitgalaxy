@@ -566,3 +566,10 @@ footer#status-line { font-size: 10px; opacity: 0.8; margin-top: 15px; border-top
     margin-right: -15px; 
     flex-grow: 1;
 }
+
+/* Site intro under the brand: real, visible text for visitors and search engines. */
+#site-intro p { font-size: 11px; line-height: 1.55; margin: 0 0 10px 0; opacity: 0.85; }
+#site-intro code { font-family: 'Space Mono', monospace; color: var(--accent); }
+#site-intro nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+#site-intro a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(0, 243, 255, 0.35); }
+#site-intro a:hover { border-bottom-color: var(--accent); }

@@ -350,10 +350,21 @@ What it says:
 - **A loaded box stretches every phase about 2x (82.6 s against 39.4 s at load 7-12), not one phase**: the baseline
   proof 2.2x, the javac check 2.0x, the proof 2.2x. The split is stable, so the quiet-box numbers can be compared
   across changes; wall time on a busy box cannot (compare phases, not totals).
-- **Re-translating an unchanged case is already skipped**: `equivalence_cache` hits, a warm translate is 2.7-2.8 s on
-  UPDCUST (the 15.8 s on readcust is its first translate in this checkout), so a fingerprint skip in `refresh` would save
-  about 3 s a case. The checklist item is closed by this finding, not by new code. Still open: sharing the baseline proof
-  across cases (13-26 s a case), early exit in the CICS in-process path, and the other items in the #8599 checklist.
+- **Re-translating an unchanged case was only half skipped, now it is skipped (#8599).** The estate scan and the
+  refactor were already cached (`equivalence_cache`), but the program's own translation (2.7-2.8 s warm on UPDCUST,
+  15.8 s cold on readcust) ran again for every case of a `refresh` batch, including a case-only change (its
+  scenarios or notes). `det_port.port_case` now keeps the translated port under `~/.cache/gitgalaxy-equivalence/port`
+  keyed by the corpus state, every engine file, the case without its `scenarios` and `notes`, the layers and the
+  bytes of the four tools that shape the port; an unchanged fingerprint copies the port in, a failed translation is
+  never cached. The saving is that translation per case; the baseline proof (13-26 s a case) is not touched. Still
+  open: sharing the baseline proof across cases, early exit in the CICS in-process path, and the other items in the
+  #8599 checklist.
+- **Neither CI lane re-proves a current ledger (checked 2026-11-20, #8599).** The PR job `detmut` runs
+  `det_mutation.py stale-check --vs origin/main`, which only hashes fingerprints for the cases the PR changes (no
+  translation, no Docker, no `mutation.py run`). The nightly `refresh` selects only ledgers whose blocking inputs moved
+  or whose generator / harness / oracle drifted, and a current one returns "nothing stale" before `_run_translate`.
+  The cost that remains is by design: a drifted ledger is translated once to compare the port's bytes, then renewed.
+  Pinned by `test_a_current_ledger_is_never_translated_or_proven_again_8599`.
 
 ## Scores
 

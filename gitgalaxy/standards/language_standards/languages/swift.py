@@ -14,11 +14,44 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    CALLS_OUT_SWIFT,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
     commented_keyword_statement,
 )
+
+# Switch `case` patterns (`case .doNotRetryWithError(let err):`, `case let .resumeData(d):`)
+# bind associated values rather than invoking calls (C3); `where` guard expressions keep their calls.
+_SWIFT_CASE_PATTERN = re.compile(
+    r"^[ \t]*case\b(?P<pat>(?:(?!\bwhere\b)[^:\n]){1,300})(?=:|\bwhere\b)",
+    re.M,
+)
+# Control-flow & declaration lines ending in `{` (`if let x = a.b {`, `switch req.downloadable {`,
+# `for x in map.requests {`, `func f() -> A.B {`, `guard ... else {`): the `{` opens a block,
+# never a trailing closure on the preceding dotted property. Replacing only the `{` keeps calls
+# inside the condition intact at the exact same length.
+_SWIFT_BLOCK_HEADER_BRACE = re.compile(
+    r"^([ \t]*(?:(?:public|private|internal|fileprivate|open|static|class|final|override|mutating|nonmutating|async|convenience|required|indirect|@[\w.]+)[ \t]+){0,6}\b(?:func|init|subscript|if|else[ \t]+if|while|switch|for|guard)\b[^\n{]{0,400})\{",
+    re.M,
+)
+# Multi-line `if let ..., !cookies.isEmpty {` continuation lines where a `,`-joined condition or
+# `!expr.prop {` ends with a block `{` (and does not assign `= a.b {`).
+_SWIFT_COND_CONT_BRACE = re.compile(
+    r"^([ \t]*(?:let\b[^\n={]{1,200},|!)[^\n{]{0,200})\{",
+    re.M,
+)
+
+
+def _blank_swift_patterns(text: str) -> str:
+    def _blank(m: "re.Match[str]") -> str:
+        raw = m.group(0)
+        lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
+        return raw[:lo] + " " * (hi - lo) + raw[hi:]
+
+    text = _SWIFT_CASE_PATTERN.sub(_blank, text)
+    text = _SWIFT_BLOCK_HEADER_BRACE.sub(r"\1 ", text)
+    return _SWIFT_COND_CONT_BRACE.sub(r"\1 ", text)
+
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -47,8 +80,9 @@ DEFINITION: dict[str, Any] = {
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
-        # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
+        # Epic #3264 / ledger: `@Name(` is an attribute (C1); dotted trailing closures (`q.async { }`) are calls
+        "calls_out": CALLS_OUT_SWIFT,
+        "_calls_out_rewrite": _blank_swift_patterns,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

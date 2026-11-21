@@ -21,6 +21,18 @@ from .._shared_patterns import (
     commented_keyword_statement,
 )
 
+# Standalone C# attribute lines (`[Obsolete("...", true)]`, `[Experimental(...)]`,
+# `[return: NotNullIfNotNull("x")]`) are metadata declarations (C1), not calls.
+_CSHARP_ATTRIBUTE_LINE = re.compile(
+    r"^[ \t]*\[(?:[^\[\]\n]|\((?:[^()\n]|\([^()\n]{0,100}\)){0,100}\)){1,600}\](?=[ \t]*(?://|$))",
+    re.M,
+)
+
+
+def _blank_csharp_attributes(text: str) -> str:
+    return _CSHARP_ATTRIBUTE_LINE.sub(lambda m: " " * len(m.group(0)), text)
+
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "C# 14 / .NET 10 / Modern ASP.NET Core & Blazor",
@@ -78,6 +90,7 @@ DEFINITION: dict[str, Any] = {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
         "calls_out": CALLS_OUT_C_STYLE_GENERIC,
+        "_calls_out_rewrite": _blank_csharp_attributes,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

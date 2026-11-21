@@ -9340,6 +9340,19 @@ class StructuralExtractor:
             # bracket depth so such a line is a continuation, not a dedent.
             bracket_depth = 0
             track_brackets = lang_id in _BRACKET_CONTINUATION_LANGS
+            if track_brackets:
+                # Multi-line return annotations (`def f() -> AsyncIterator[\n  T\n]:`) leave an open
+                # bracket after `)` on the signature line; carry it so the closing `]:` isn't a dedent.
+                sig_tail = safe_code[sig_scan:scan_pos]
+                bracket_depth = max(
+                    0,
+                    sig_tail.count("(")
+                    + sig_tail.count("[")
+                    + sig_tail.count("{")
+                    - sig_tail.count(")")
+                    - sig_tail.count("]")
+                    - sig_tail.count("}"),
+                )
 
             # --- FAST O(N) INDENT TRACKER ---
             # Replaced O(N^2) array allocations with zero-copy index jumping

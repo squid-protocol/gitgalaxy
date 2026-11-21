@@ -1,0 +1,48 @@
+/* gitgalaxy.io blog: matches the viewer's palette, system fonts only (no third-party requests). */
+:root {
+  --bg: #010103;
+  --panel: #07080d;
+  --text: #e8eef2;
+  --muted: #8a97a3;
+  --accent: #00f3ff;
+  --border: rgba(0, 243, 255, 0.25);
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: #fff; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 16px; top: 16px; background: var(--accent); color: #000; padding: 8px 12px; z-index: 10; }
+.site-header {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--panel);
+}
+.brand { font: 700 18px var(--mono); letter-spacing: 2px; text-transform: uppercase; text-decoration: none; text-shadow: 0 0 14px rgba(0, 243, 255, 0.5); }
+.site-header nav { display: flex; gap: 18px; flex-wrap: wrap; font: 12px var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+.site-header nav a { text-decoration: none; color: var(--text); }
+.site-header nav a:hover, .site-header nav a[aria-current] { color: var(--accent); }
+main { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 8px; }
+h2 { font-size: 1.25rem; margin: 2.4em 0 0.6em; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.05rem; margin: 1.8em 0 0.4em; }
+.lede { color: var(--muted); margin: 0 0 24px; }
+.meta { font: 13px var(--mono); color: var(--muted); margin: 0 0 28px; }
+ul.entries { list-style: none; padding: 0; margin: 0; }
+ul.entries li { padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+ul.entries .title { font-weight: 600; }
+ul.entries .desc { display: block; color: var(--muted); font-size: 15px; }
+ul.entries .date { font: 12px var(--mono); color: var(--muted); }
+pre, code { font-family: var(--mono); font-size: 0.9em; }
+pre { background: var(--panel); border: 1px solid var(--border); padding: 14px 16px; overflow-x: auto; border-radius: 6px; }
+:not(pre) > code { background: var(--panel); padding: 2px 6px; border-radius: 4px; }
+blockquote { margin: 1.4em 0; padding: 2px 18px; border-left: 3px solid var(--accent); color: var(--muted); }
+img { max-width: 100%; height: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+.site-footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; font: 12px var(--mono); color: var(--muted); }
+@media (max-width: 520px) { body { font-size: 16px; } main { padding: 28px 16px 60px; } h1 { font-size: 1.6rem; } }

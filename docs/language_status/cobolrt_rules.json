@@ -682,6 +682,7 @@
     "doc": "cobol-lr",
     "section": "JSON GENERATE statement"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, JSON GENERATE statement, Operation of JSON GENERATE, Format conversion of elementary data, Trimming of generated JSON data; Programming Guide SC27-8714-03, Appendix D, Table 109). MATCHED parts: names \"exact mixed-case spelling of data-names\"; trailing spaces trimmed and \"If a character value consists solely of spaces, one space remains\"; fixed-point numbers \"converted as if they were moved to a numeric-edited item\" with \"leading zeroes ... up to but not including the digit immediately before the actual or implied decimal point are eliminated. Trailing zeroes after a decimal point are retained\" (0000 -> 0, -012.340 -> -12.340); COMP-1 as \"an external floating-point data item with PICTURE -9.9(8)E+99\"; \"A table item that has zero element occurrences is included in the JSON text as an empty array\"; SUPPRESS group and ZERO / SPACE / LOW-VALUE / HIGH-VALUE selection and \"{\\\"identifier-2\\\":{}}\"; \" is escaped as \\\" and \\ as \\\\, with \\b \\t \\n \\f \\r and \\uhhhh for the rest of NX'0000'-NX'001F'; \"If the receiving area ... is not large enough ... an exception condition exists\" and Table 109 code 1. DIFFERS (not declared in the register, so the rule stays ASSUMED): Table 109 code 1 says \"The COUNT IN data item, if specified, contains the count of character positions that were actually generated\" and the ON EXCEPTION text says the same, while tryGenerate leaves COUNT IN unchanged (X76 says IBM leaves it undefined: it does not). Still ASSUMED because IBM leaves it open: a negative zero, COMP-1 zero (the trimming of 0.00000000E+00 is not stated), the hex-digit case of \\uhhhh, and the bytes past the text on an exception (\"the content of the receiver ... is undefined\"). Declared in X76",
    "options": [],
    "register": [
     "X76"
@@ -701,6 +702,7 @@
     "doc": "cobol-lr",
     "section": "JSON PARSE statement"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, JSON PARSE statement, Operation of JSON PARSE, Table 46; Programming Guide SC27-8714-03, Appendix D, Tables 110 and 111). MATCHED parts: \"The JSON text must be valid. Otherwise the statement terminates with an exception condition\" (100, 101, 102); superfluous pairs \"are tolerated\" (JSON-STATUS 2); \"If there are no matching items, the statement terminates with an exception condition, and identifier-2 is unmodified\" (106); a NAME phrase literal \"must match the JSON name exactly in a case sensitive match\"; \"identifier-2 might be partially modified\"; 104 for an incompatible value; 128 and 256 are nonexception, \"modified anyway\". DIFFERS (not declared in the register, so the rule stays ASSUMED; each needs its own code PR): (a) IBM: \"the name-matching between JSON names and COBOL data names is case insensitive\" (a-z equals A-Z), the example matches {\"g\": {\"H\": {\"A\": ...}}} to G / h / a; the runtime matches data names case-sensitively (JsonParse.Group.fill uses String.equals) and the rule title says case-sensitive. (b) IBM's own examples wrap the text in the receiving group's name ({\"GRP\":{...}} INTO GRP) and \"the level (qualification) must match\" (an omitted level is an exception, 106); the runtime reads the text as the members of the group with no wrapper. (c) Table 46: a JSON string \"must consist only of decimal digits\" to a numeric item is YES and an integer number to an alphanumeric item is YES; both raise 104 in the runtime. Runtime refusals where IBM states a result (Holes, not guesses): null (\"skip assignment\", JSON-STATUS 32), an array longer or shorter than its table (8 / 16), a repeated name (4 or 103), true / false (105 / 107), an exponent, more decimals than the item, a negative for an unsigned item. Still ASSUMED because IBM leaves it open: the stored form of a SIZE ERROR number or an over-long string, whether a failing parse leaves earlier items stored, and whether JSON-STATUS is reset per statement. Declared in X77",
    "options": [],
    "register": [
     "X77"
@@ -1036,8 +1038,9 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "MOVE statement: elementary moves"
+    "section": "MOVE statement: Elementary move rules, numeric receiver"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, MOVE statement, \"Elementary move rules\", receiver \"Numeric or numeric-edited\"): \"When the category of the sending item is alphanumeric, alphanumeric-edited, national, or national-edited, the data is moved as if the sending item were described as an unsigned integer.\" Usage note 2: \"If the receiving item is numeric and the sending field is an alphanumeric literal, a national literal, or an ALL literal, all characters of the literal must be numeric characters.\" IBM so defines only digit characters, aligned as an unsigned integer. It states no result for a sign, a decimal point, a space, a comma or a letter in an alphanumeric data item: the runtime's reading of those (a sign and one point read, spaces and the separator skipped, a stray character making the receiver zero, a packed or binary receiver reading the whole text) is libcob's, chosen because IBM leaves it open, so the rule stays ASSUMED. The digits-only case is IBM's. Checked against the 6.4 Language Reference text copy",
    "options": [
     "DECIMAL-POINT-COMMA"
    ],
@@ -2406,8 +2409,9 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "Intrinsic functions: CURRENT-DATE"
+    "section": "CURRENT-DATE (character positions 1-21)"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, \"CURRENT-DATE\"): \"The CURRENT-DATE function returns a 21-character alphanumeric value that represents the calendar date, time of day, and time differential from Greenwich mean time provided by the system on which the function is evaluated.\" Positions 1-16 are year, month, day, hours, minutes, seconds and hundredths of a second; position 17: \"The character '+' is returned if the local time indicated is the same as or ahead of Greenwich mean time\"; positions 18-21 are the hours and minutes of that difference. The runtime's 21 characters (yyyyMMddHHmmss, hundredths, then a fixed +0000) have IBM's layout, and +0000 is IBM's text only when the clock reads Greenwich mean time. The clock's value is the run's, which IBM cannot define; but the runtime writes +0000 whatever zone its clock is in, where IBM reports the actual differential. Stays ASSUMED, the offset a recorded gap, not hidden. Checked against the 6.4 Language Reference text copy",
    "options": [],
    "features": [
     "intrinsic_functions: CURRENT-DATE"
@@ -3182,8 +3186,9 @@
    "site": "reset",
    "ibm": {
     "doc": "db2-sql",
-    "section": "SQL communication area (SQLCA)"
+    "section": "Appendix F. SQL communication area (SQLCA), Description of SQLCA fields (Table 262)"
    },
+   "ibm_note": "IBM (Db2 13 for z/OS SQL Reference, Appendix F, \"Description of SQLCA fields\", Table 262): \"An SQLCA is a structure or collection of variables that is updated after each SQL statement executes.\" SQLCAID: \"containing the text 'SQLCA'\"; SQLCABC: \"Contains the length of the SQLCA: 136\"; SQLCODE: 0 \"Successful execution (though there might have been warning messages)\", positive \"Successful execution, but with a warning condition or other information\", negative \"Error condition\"; SQLERRMC: \"one or more tokens, separated by X'FF'\"; SQLERRP: \"In all cases, the first three characters are 'DSN' for Db2 for z/OS\"; SQLERRD(3): the number of rows that qualified for a DELETE, INSERT, UPDATE or MERGE, \"The value is 0 if the SQL statement fails\"; SQLWARN0: \"a W if at least one other indicator contains a W or Z\". The runtime's reset (SQLCAID 'SQLCA', 136, SQLCODE 0, SQLSTATE 00000, no warning) and the sign of SQLCODE follow that text. Not IBM's: SQLERRP is left blank by a statement that succeeds and is the Db2 for LUW driver's after an error, where IBM says it starts 'DSN' in all cases (register Q1 declares the oracle's engine is not z/OS), and the SQLERRMC, SQLERRD and SQLSTATE values after an error are the oracle engine's, which IBM defines for z/OS only: stays ASSUMED. Checked against the Db2 13 SQL Reference text copy",
    "options": [],
    "features": [
     "sql_forms: STATIC"
@@ -4241,8 +4246,9 @@
    "site": "Storage.java:of",
    "ibm": {
     "doc": "cics-apr",
-    "section": "EIB fields: EIBCALEN"
+    "section": "EIB fields: EIBCALEN; LINK, COMMAREA and LENGTH"
    },
+   "ibm_note": "IBM (CICS TS 6.x API Reference, EIB fields, EIBCALEN): \"Contains the length of the communication area that has been passed to the application program from the last program, using the COMMAREA and LENGTH options. If no communication area is passed, this field contains binary zeros.\" EXEC CICS LINK: \"When you use a COMMAREA to pass data, the program that is linked to must verify that the EIBCALEN field in the EIB of the task matches what the program expects. Discrepancies might result in storage violations or system failures.\" IBM so defines EIBCALEN as the passed length, and leaves a reference past it undefined (a storage violation or a failure, no stated result): the runtime's refusal past EIBCALEN is the harness's choice, register X23, so the rule stays ASSUMED. Checked against the CICS TS 6.x API Reference text copy",
    "options": [],
    "register": [
     "X23"

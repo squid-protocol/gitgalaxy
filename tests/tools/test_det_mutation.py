@@ -273,6 +273,25 @@ def test_refresh_leaves_a_current_entry_alone(monkeypatch, tmp_path, capsys):
     assert "nothing stale" in capsys.readouterr().out
 
 
+def test_a_current_ledger_is_never_translated_or_proven_again_8599(monkeypatch, tmp_path, capsys):
+    """#8599: the detmut PR job (`stale-check`) only fingerprints, and the nightly `refresh` skips a current ledger before
+    it translates: neither re-proves anything its fingerprints say has not changed."""
+    import mutation as mu
+
+    refresh_env(monkeypatch, tmp_path, True, dict(FP), ("killed", "killed"))
+    boom = []
+    monkeypatch.setattr(dm, "translate", lambda *a, **k: boom.append("translate"))
+    monkeypatch.setattr(dm, "_run_translate", lambda *a, **k: boom.append("_run_translate"))
+    monkeypatch.setattr(mu, "run", lambda *a, **k: boom.append("run"))
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {k: {"sha256": v} for k, v in FP.items()})
+    monkeypatch.setattr(dm, "CASES", tmp_path)
+    (tmp_path / CASE).mkdir()
+    (tmp_path / CASE / "case.json").write_text("{}", encoding="utf-8")
+    assert dm.refresh([CASE], tmp_path) == 0
+    assert dm.stale_check() == 0
+    assert boom == [] and "nothing stale" in capsys.readouterr().out
+
+
 def test_refresh_refuses_when_the_port_moved(monkeypatch, tmp_path):
     written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
     assert dm.refresh([CASE], tmp_path) == 2

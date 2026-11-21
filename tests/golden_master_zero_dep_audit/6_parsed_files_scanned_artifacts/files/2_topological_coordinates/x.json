@@ -125,28 +125,28 @@
       "assembly/bootos/os.asm": 11180.03
     },
     "assembly/cosmopolitan": {
-      "assembly/cosmopolitan/BUILD.mk": 9911.6,
-      "assembly/cosmopolitan/ape.S": 9638.05,
-      "assembly/cosmopolitan/loader.c": 9916.71,
-      "assembly/cosmopolitan/notice.inc": 10181.44,
-      "assembly/cosmopolitan/start.S": 9372.62
+      "assembly/cosmopolitan/BUILD.mk": 9911.75,
+      "assembly/cosmopolitan/ape.S": 9638.19,
+      "assembly/cosmopolitan/loader.c": 9916.86,
+      "assembly/cosmopolitan/notice.inc": 10181.59,
+      "assembly/cosmopolitan/start.S": 9372.77
     },
     "assembly/cosmopolitan_runtime": {
-      "assembly/cosmopolitan_runtime/argc.S": 7182.41,
-      "assembly/cosmopolitan_runtime/argv.S": 7910.31,
-      "assembly/cosmopolitan_runtime/auxv.S": 6850.05,
-      "assembly/cosmopolitan_runtime/checkstackalign.S": 6794.61,
-      "assembly/cosmopolitan_runtime/environ.S": 7261.96,
-      "assembly/cosmopolitan_runtime/identity.S": 8104.66,
-      "assembly/cosmopolitan_runtime/kcp437.S": 7426.83,
-      "assembly/cosmopolitan_runtime/kcpuids.S": 7404.9,
-      "assembly/cosmopolitan_runtime/khalfcache3.S": 7197.87,
-      "assembly/cosmopolitan_runtime/ksha256.S": 6970.44,
-      "assembly/cosmopolitan_runtime/ksha512.S": 7664.0,
-      "assembly/cosmopolitan_runtime/ktensindex.S": 7816.36,
-      "assembly/cosmopolitan_runtime/longjmp.S": 7649.15,
-      "assembly/cosmopolitan_runtime/mcount.S": 7027.32,
-      "assembly/cosmopolitan_runtime/mul4x4adx.S": 7586.35
+      "assembly/cosmopolitan_runtime/argc.S": 7182.57,
+      "assembly/cosmopolitan_runtime/argv.S": 7910.47,
+      "assembly/cosmopolitan_runtime/auxv.S": 6850.21,
+      "assembly/cosmopolitan_runtime/checkstackalign.S": 6794.77,
+      "assembly/cosmopolitan_runtime/environ.S": 7262.12,
+      "assembly/cosmopolitan_runtime/identity.S": 8104.82,
+      "assembly/cosmopolitan_runtime/kcp437.S": 7426.99,
+      "assembly/cosmopolitan_runtime/kcpuids.S": 7405.06,
+      "assembly/cosmopolitan_runtime/khalfcache3.S": 7198.03,
+      "assembly/cosmopolitan_runtime/ksha256.S": 6970.6,
+      "assembly/cosmopolitan_runtime/ksha512.S": 7664.16,
+      "assembly/cosmopolitan_runtime/ktensindex.S": 7816.52,
+      "assembly/cosmopolitan_runtime/longjmp.S": 7649.31,
+      "assembly/cosmopolitan_runtime/mcount.S": 7027.48,
+      "assembly/cosmopolitan_runtime/mul4x4adx.S": 7586.51
     },
     "assembly/cosmopolitan_syscalls": {
       "assembly/cosmopolitan_syscalls/calls___bsd_setegid.S": -8659.95,
@@ -363,13 +363,13 @@
       "assembly/x86_bare_metal/c_hello_world_entry.S": -8303.62
     },
     "assembly/xv6_x86_kernel": {
-      "assembly/xv6_x86_kernel/bootasm.S": 9470.64,
-      "assembly/xv6_x86_kernel/entry.S": 9686.96,
-      "assembly/xv6_x86_kernel/entryother.S": 9237.77,
-      "assembly/xv6_x86_kernel/initcode.S": 9854.36,
-      "assembly/xv6_x86_kernel/swtch.S": 9068.01,
-      "assembly/xv6_x86_kernel/trapasm.S": 9545.69,
-      "assembly/xv6_x86_kernel/usys.S": 9309.67
+      "assembly/xv6_x86_kernel/bootasm.S": 9470.78,
+      "assembly/xv6_x86_kernel/entry.S": 9687.1,
+      "assembly/xv6_x86_kernel/entryother.S": 9237.9,
+      "assembly/xv6_x86_kernel/initcode.S": 9854.49,
+      "assembly/xv6_x86_kernel/swtch.S": 9068.15,
+      "assembly/xv6_x86_kernel/trapasm.S": 9545.83,
+      "assembly/xv6_x86_kernel/usys.S": 9309.81
     },
     "batch": {
       "batch/SOURCES.md": 3302.22
@@ -444,18 +444,18 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": -9554.71
     },
     "c/micropython": {
-      "c/micropython/compile.c": 8036.46,
-      "c/micropython/compile.h": 8185.69,
-      "c/micropython/emitnative.c": 7734.06,
-      "c/micropython/gc.c": 8283.08,
-      "c/micropython/gc.h": 8627.26,
-      "c/micropython/modmachine.c": 7419.08,
-      "c/micropython/modmachine.h": 7886.2,
-      "c/micropython/objtype.c": 8065.73,
-      "c/micropython/objtype.h": 8302.28,
-      "c/micropython/vfs.c": 8462.06,
-      "c/micropython/vfs.h": 7723.74,
-      "c/micropython/vm.c": 7523.19
+      "c/micropython/compile.c": 8036.65,
+      "c/micropython/compile.h": 8185.87,
+      "c/micropython/emitnative.c": 7734.24,
+      "c/micropython/gc.c": 8283.26,
+      "c/micropython/gc.h": 8627.44,
+      "c/micropython/modmachine.c": 7419.27,
+      "c/micropython/modmachine.h": 7886.38,
+      "c/micropython/objtype.c": 8065.92,
+      "c/micropython/objtype.h": 8302.46,
+      "c/micropython/vfs.c": 8462.25,
+      "c/micropython/vfs.h": 7723.92,
+      "c/micropython/vm.c": 7523.37
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 11655.13,
@@ -1205,8 +1205,8 @@
       "css/mediawiki_resources/toc.css": 2044.13
     },
     "css/odoo": {
-      "css/odoo/control_panel_mobile.css": 10106.02,
-      "css/odoo/icons-baseline.css": 10238.54
+      "css/odoo/control_panel_mobile.css": 10106.15,
+      "css/odoo/icons-baseline.css": 10238.67
     },
     "css/tailwindcss_atrules": {
       "css/tailwindcss_atrules/index.css": 5749.24,
@@ -1844,10 +1844,10 @@
       "html/jquery_test_fixtures/trusted-html.html": 660.66
     },
     "html/odoo_mako": {
-      "html/odoo_mako/LICENSE.txt": 9277.3,
-      "html/odoo_mako/mako_footer.html": 9087.72,
-      "html/odoo_mako/mako_header.html": 9387.79,
-      "html/odoo_mako/status_display.html": 9540.14
+      "html/odoo_mako/LICENSE.txt": 9277.45,
+      "html/odoo_mako/mako_footer.html": 9087.87,
+      "html/odoo_mako/mako_header.html": 9387.94,
+      "html/odoo_mako/status_display.html": 9540.28
     },
     "html/playwright_dom_fixtures": {
       "html/playwright_dom_fixtures/csp.html": 4433.57,
@@ -1892,10 +1892,10 @@
       "html/vscode_webviews/workbench.html": -10698.74
     },
     "html/wordpress_blocks": {
-      "html/wordpress_blocks/LICENSE.txt": 9888.62,
-      "html/wordpress_blocks/index.html": 9745.8,
-      "html/wordpress_blocks/page.html": 10000.34,
-      "html/wordpress_blocks/search.html": 10126.08
+      "html/wordpress_blocks/LICENSE.txt": 9888.79,
+      "html/wordpress_blocks/index.html": 9745.97,
+      "html/wordpress_blocks/page.html": 10000.51,
+      "html/wordpress_blocks/search.html": 10126.24
     },
     "java": {
       "java/SOURCES.md": -8893.53
@@ -1912,14 +1912,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": -9693.8
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 9473.44,
-      "java/springboot/Binder.java": 8876.88,
-      "java/springboot/JarLauncher.java": 9005.94,
-      "java/springboot/LICENSE.txt": 8861.73,
-      "java/springboot/OnClassCondition.java": 8635.4,
-      "java/springboot/ServletWebServerApplicationContext.java": 9651.93,
-      "java/springboot/SpringApplication.java": 9163.17,
-      "java/springboot/WebMvcAutoConfiguration.java": 9195.55
+      "java/springboot/AutoConfigurationImportSelector.java": 9473.61,
+      "java/springboot/Binder.java": 8877.06,
+      "java/springboot/JarLauncher.java": 9006.12,
+      "java/springboot/LICENSE.txt": 8861.9,
+      "java/springboot/OnClassCondition.java": 8635.57,
+      "java/springboot/ServletWebServerApplicationContext.java": 9652.11,
+      "java/springboot/SpringApplication.java": 9163.34,
+      "java/springboot/WebMvcAutoConfiguration.java": 9195.73
     },
     "javascript": {
       "javascript/SOURCES.md": -5349.83
@@ -2298,7 +2298,7 @@
       "livecode/livecode/trivial.livecodescript": -898.4
     },
     "lua": {
-      "lua/SOURCES.md": 10507.66
+      "lua/SOURCES.md": 10507.78
     },
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": -2447.23,
@@ -2459,10 +2459,10 @@
       "markdown/airflow_job_lifecycle/NOTICE": -6562.15
     },
     "markdown/kubernetes_client_go": {
-      "markdown/kubernetes_client_go/ARCHITECTURE.md": 9935.81
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": 9935.96
     },
     "matlab": {
-      "matlab/SOURCES.md": 10934.1
+      "matlab/SOURCES.md": 10934.24
     },
     "matlab/eeglab": {
       "matlab/eeglab/README.md": 1243.98,
@@ -2560,14 +2560,14 @@
       "php/guzzle/StreamHandler.php": 6384.13
     },
     "php/laravel_core": {
-      "php/laravel_core/Application.php": 8115.54,
-      "php/laravel_core/BladeCompiler.php": 9133.09,
-      "php/laravel_core/Collection.php": 8588.32,
-      "php/laravel_core/Container.php": 8653.07,
-      "php/laravel_core/Facade.php": 8440.71,
-      "php/laravel_core/LICENSE.md": 8341.8,
-      "php/laravel_core/Model.php": 8362.36,
-      "php/laravel_core/Router.php": 8946.97
+      "php/laravel_core/Application.php": 8115.69,
+      "php/laravel_core/BladeCompiler.php": 9133.24,
+      "php/laravel_core/Collection.php": 8588.47,
+      "php/laravel_core/Container.php": 8653.23,
+      "php/laravel_core/Facade.php": 8440.87,
+      "php/laravel_core/LICENSE.md": 8341.96,
+      "php/laravel_core/Model.php": 8362.52,
+      "php/laravel_core/Router.php": 8947.12
     },
     "php/laravel_validation_rules": {
       "php/laravel_validation_rules/Can.php": 1762.87,
@@ -2841,28 +2841,28 @@
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 4560.99,
-      "python/fastapi/fastapi/__main__.py": 5128.18,
-      "python/fastapi/fastapi/applications.py": 4893.34,
+      "python/fastapi/fastapi/__main__.py": 5128.21,
+      "python/fastapi/fastapi/applications.py": 4893.35,
       "python/fastapi/fastapi/background.py": 4478.53,
-      "python/fastapi/fastapi/cli.py": 6075.09,
+      "python/fastapi/fastapi/cli.py": 6075.16,
       "python/fastapi/fastapi/concurrency.py": 4554.07,
-      "python/fastapi/fastapi/datastructures.py": 5786.85,
+      "python/fastapi/fastapi/datastructures.py": 5786.91,
       "python/fastapi/fastapi/encoders.py": 4625.66,
-      "python/fastapi/fastapi/exception_handlers.py": 5463.47,
-      "python/fastapi/fastapi/exceptions.py": 5068.04,
-      "python/fastapi/fastapi/logger.py": 5869.3,
-      "python/fastapi/fastapi/param_functions.py": 5510.61,
-      "python/fastapi/fastapi/params.py": 5197.32,
-      "python/fastapi/fastapi/requests.py": 5773.93,
-      "python/fastapi/fastapi/responses.py": 4353.97,
-      "python/fastapi/fastapi/routing.py": 5170.98,
-      "python/fastapi/fastapi/sse.py": 4933.42,
-      "python/fastapi/fastapi/staticfiles.py": 5759.9,
-      "python/fastapi/fastapi/templating.py": 5130.63,
-      "python/fastapi/fastapi/testclient.py": 4628.04,
-      "python/fastapi/fastapi/types.py": 5432.26,
-      "python/fastapi/fastapi/utils.py": 5671.77,
-      "python/fastapi/fastapi/websockets.py": 4718.93
+      "python/fastapi/fastapi/exception_handlers.py": 5463.51,
+      "python/fastapi/fastapi/exceptions.py": 5068.06,
+      "python/fastapi/fastapi/logger.py": 5869.37,
+      "python/fastapi/fastapi/param_functions.py": 5510.66,
+      "python/fastapi/fastapi/params.py": 5197.35,
+      "python/fastapi/fastapi/requests.py": 5773.99,
+      "python/fastapi/fastapi/responses.py": 4353.96,
+      "python/fastapi/fastapi/routing.py": 5171.01,
+      "python/fastapi/fastapi/sse.py": 4933.44,
+      "python/fastapi/fastapi/staticfiles.py": 5759.96,
+      "python/fastapi/fastapi/templating.py": 5130.66,
+      "python/fastapi/fastapi/testclient.py": 4628.05,
+      "python/fastapi/fastapi/types.py": 5432.3,
+      "python/fastapi/fastapi/utils.py": 5671.83,
+      "python/fastapi/fastapi/websockets.py": 4718.94
     },
     "python/fastapi/tests": {
       "python/fastapi/tests/__init__.py": 1688.92,
@@ -3116,8 +3116,8 @@
       "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -8020.35
     },
     "python/pip_vendored_requests": {
-      "python/pip_vendored_requests/LICENSE.txt": 10193.04,
-      "python/pip_vendored_requests/packages.py": 10422.12
+      "python/pip_vendored_requests/LICENSE.txt": 10193.17,
+      "python/pip_vendored_requests/packages.py": 10422.26
     },
     "python/scikit-learn_examples": {
       "python/scikit-learn_examples/COPYING": 2928.86,
@@ -3343,29 +3343,29 @@
       "shell/brew/sandbox.rb": -6948.85
     },
     "shell/curl": {
-      "shell/curl/COPYING": 5700.92,
-      "shell/curl/appveyor.sh": 6448.16,
-      "shell/curl/cmakelint.sh": 6035.54,
-      "shell/curl/cmp-pkg-config.sh": 6187.92,
-      "shell/curl/codespell.sh": 6430.25,
-      "shell/curl/contributors.sh": 6682.6,
-      "shell/curl/contrithanks.sh": 5828.29,
-      "shell/curl/coverage.sh": 6983.55,
-      "shell/curl/distfiles.sh": 5811.44,
-      "shell/curl/ech_tests.sh": 6406.14,
-      "shell/curl/firefox-db2pem.sh": 6640.08,
-      "shell/curl/gnv_curl_configure.sh": 5630.88,
-      "shell/curl/initscript.sh": 6169.3,
-      "shell/curl/make-docs.sh": 7179.2,
-      "shell/curl/make-include.sh": 7017.65,
-      "shell/curl/make-lib.sh": 6677.66,
-      "shell/curl/make-src.sh": 6315.68,
-      "shell/curl/make-tests.sh": 6897.38,
-      "shell/curl/make_gnv_curl_install.sh": 7014.21,
-      "shell/curl/shellcheck-ci.sh": 6375.26,
-      "shell/curl/shellcheck.sh": 7254.66,
-      "shell/curl/test.sh": 5987.14,
-      "shell/curl/typos.sh": 5948.41
+      "shell/curl/COPYING": 5701.11,
+      "shell/curl/appveyor.sh": 6448.34,
+      "shell/curl/cmakelint.sh": 6035.73,
+      "shell/curl/cmp-pkg-config.sh": 6188.11,
+      "shell/curl/codespell.sh": 6430.44,
+      "shell/curl/contributors.sh": 6682.78,
+      "shell/curl/contrithanks.sh": 5828.48,
+      "shell/curl/coverage.sh": 6983.74,
+      "shell/curl/distfiles.sh": 5811.63,
+      "shell/curl/ech_tests.sh": 6406.33,
+      "shell/curl/firefox-db2pem.sh": 6640.27,
+      "shell/curl/gnv_curl_configure.sh": 5631.07,
+      "shell/curl/initscript.sh": 6169.49,
+      "shell/curl/make-docs.sh": 7179.38,
+      "shell/curl/make-include.sh": 7017.83,
+      "shell/curl/make-lib.sh": 6677.85,
+      "shell/curl/make-src.sh": 6315.87,
+      "shell/curl/make-tests.sh": 6897.57,
+      "shell/curl/make_gnv_curl_install.sh": 7014.4,
+      "shell/curl/shellcheck-ci.sh": 6375.45,
+      "shell/curl/shellcheck.sh": 7254.84,
+      "shell/curl/test.sh": 5987.33,
+      "shell/curl/typos.sh": 5948.59
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": 10626.97,
@@ -3825,7 +3825,7 @@
       "tcl/sqlite_cte_window/LICENSE.md": -2175.46
     },
     "tcl/sqlite_fts5": {
-      "tcl/sqlite_fts5/LICENSE.md": 10507.61
+      "tcl/sqlite_fts5/LICENSE.md": 10507.77
     },
     "tcl/sqlite_json_triggers": {
       "tcl/sqlite_json_triggers/LICENSE.md": 1269.95
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 811.17
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10675.9
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10676.04
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": -10035.34,
@@ -3958,8 +3958,8 @@
       "xml/odoo/views/views.xml": 9043.6
     },
     "xml/powertoys": {
-      "xml/powertoys/App.xaml.cs": 9739.61,
-      "xml/powertoys/MainWindow.xaml.cs": 9953.84
+      "xml/powertoys/App.xaml.cs": 9739.74,
+      "xml/powertoys/MainWindow.xaml.cs": 9953.96
     },
     "xml/springboot": {
       "xml/springboot/LICENSE.txt": -3562.6

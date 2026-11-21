@@ -20,6 +20,7 @@
 # a job step for this (assumption A7). Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
 from __future__ import annotations
 
+from collections.abc import Collection
 from typing import Any
 
 from gitgalaxy.core.jcl_flow import FlowResult
@@ -41,6 +42,7 @@ def resolve_gdg(
     job: str,
     catalogs: dict[str, dict[str, Any]],
     flow: FlowResult,
+    skipped: Collection[str] = (),
 ) -> tuple[dict[str, int], dict[str, dict[str, Any]]]:
     """-> ({"STEP.DDNAME": absolute generation} for each GDG DD of a step that ran, the catalog after the job)."""
     start = {b: list(c["generations"]) for b, c in catalogs.items()}
@@ -71,8 +73,24 @@ def resolve_gdg(
             else:
                 dds.setdefault(row["step_name"], []).append(row)
     for step in dds:
-        if step not in flow.steps and any(d.get("generation") is not None for d in dds[step]):
+        if step not in flow.steps and step not in skipped and any(d.get("generation") is not None for d in dds[step]):
             raise JclGdgRefused(f"{step}: a GDG DD that overrides a procedure step's DD is not answered here")
+    for step in skipped:  # a checkpoint restart: the steps before the restart step ran and cataloged their generations
+        step_dds = proc_dds.get((proc_of[step], step.split(".", 1)[1]), []) if step in proc_of else dds.get(step, [])
+        for dd in step_dds:
+            if dd.get("generation") is None or _int_generation(dd["generation"]) <= 0:
+                continue
+            if bias == "STEP" or dd["disp"] not in ("NEW", "MOD"):
+                raise JclGdgRefused(
+                    f"{step}.{dd['dd_name']}: a restart over a skipped step is answered for GDGBIAS=JOB"
+                )
+            base = dd["dsn"]
+            if base not in start:
+                raise JclGdgRefused(f"GDG base {base} has no catalog entry given")
+            seen = anchor.setdefault(base, list(live[base]))
+            absolute = (seen[-1] if seen else 0) + _int_generation(dd["generation"])
+            end = _step_end(dd, False)
+            created[(base, absolute)] = _STATE[end] if end else "pending"
     unreceived: set[str] = (
         set()
     )  # STEP bias: groups with a passed / deferred generation, which no later step may reference

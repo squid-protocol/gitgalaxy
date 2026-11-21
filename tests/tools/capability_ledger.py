@@ -174,7 +174,8 @@ def proved_organizations() -> dict[str, int]:
 
 
 JCL_CASES = REPO / "tests" / "equivalence" / "jcl"
-IBM_WRITTEN_JCL_LEVELS = ("fixture", "ifelse")  # #4891 COND / IF; #8413 slice 1 IF / THEN / ELSE
+PROBE_FILE = "mvs38j_probe.json"  # a tier-2 (MVS 3.8J) result file, sitting beside the answers it ran
+MVS38J_DOC = REPO / "docs" / "jcl_oracle_mvs38j.md"
 JCL_MEASURED = JCL_CASES / "carddemo" / "measured.json"  # the last CardDemo run, for runs without the corpus
 
 
@@ -209,9 +210,9 @@ def write_carddemo_measured(corpus: Path) -> Path:
     return JCL_MEASURED
 
 
-def proc_scenarios_live() -> tuple[int, int]:
-    """(answers reproduced, answers) of the PROC case (#8413 slice 2): each `resolve` scenario (the step list a call
-    step ends up with) and each `flow` scenario (run or bypass over procedure steps), run live."""
+def _proc_results() -> list[tuple[dict[str, Any], bool]]:
+    """Each scenario of the PROC case (#8413 slice 2) with whether the engine reproduced its answer: each `resolve`
+    scenario (the step list a call step ends up with) and each `flow` scenario (run or bypass over procedure steps)."""
     from gitgalaxy.core import job_flow
     from gitgalaxy.core.jcl_flow import JclFlow
     from gitgalaxy.core.jcl_proc import expand_flow_rows, resolve_job
@@ -219,38 +220,48 @@ def proc_scenarios_live() -> tuple[int, int]:
     doc = json.loads((JCL_CASES / "proc" / "scenarios.json").read_text(encoding="utf-8"))
     text = "\n".join(doc["flow_jcl"]) + "\n"
     libs = {lib: {m: "\n".join(lines) + "\n" for m, lines in ms.items()} for lib, ms in doc["libraries"].items()}
-    ok = 0
+    out: list[tuple[dict[str, Any], bool]] = []
     for sc in doc["resolve"]:
         got = resolve_job(text, libs, sc["job"])
-        ok += all(k in got and all(got[k][f] == v for f, v in want.items()) for k, want in sc["expect"].items()) and [
-            k for k in got if k.split(".")[0] == sc["call"]
-        ] == list(sc["expect"])
+        out.append((sc, all(k in got and all(got[k][f] == v for f, v in want.items()) for k, want in sc["expect"].items())
+                    and [k for k in got if k.split(".")[0] == sc["call"]] == list(sc["expect"])))  # fmt: skip
     rows = job_flow.jcl_job_flow(text)
     for sc in doc["flow"]:
-        ok += JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions == sc["expect"]
-    return ok, len(doc["resolve"]) + len(doc["flow"])
+        out.append((sc, JclFlow(expand_flow_rows(rows, sc["job"], text, libs)).run(sc["job"], sc["given"]).actions == sc["expect"]))
+    return out
 
 
-def step_cases_live() -> dict[str, tuple[int, int]]:
-    """(answers reproduced, answers) of the GDG, restart and data-flow cases (#8413), each run live. Every case holds
-    `flow_jcl` and `scenarios`; the answers were written from IBM's manuals before the resolver ran on them."""
+def proc_scenarios_live() -> tuple[int, int]:
+    """(answers reproduced, answers) of the PROC case, run live."""
+    res = _proc_results()
+    return sum(ok for _, ok in res), len(res)
+
+
+def _step_results() -> dict[str, list[tuple[dict[str, Any], bool]]]:
+    """Each scenario of the GDG, restart and data-flow cases (#8413) with whether its resolver reproduced the answer. Every
+    case holds `flow_jcl` and `scenarios`; the answers were written from IBM's manuals before the resolver ran on them."""
     from gitgalaxy.core import job_flow
     from gitgalaxy.core.jcl_dataflow import resolve_dataflow
     from gitgalaxy.core.jcl_flow import JclFlow
     from gitgalaxy.core.jcl_gdg import resolve_gdg
     from gitgalaxy.core.jcl_proc import expand_flow_rows
-    from gitgalaxy.core.jcl_restart import restart_flow
+    from gitgalaxy.core.jcl_restart import resolve_gdg_restart, restart_flow
 
-    out: dict[str, tuple[int, int]] = {}
+    out: dict[str, list[tuple[dict[str, Any], bool]]] = {}
     for case in ("gdg", "restart", "dataflow"):
         doc = json.loads((JCL_CASES / case / "scenarios.json").read_text(encoding="utf-8"))
         all_rows = rows = job_flow.jcl_job_flow("\n".join(doc["flow_jcl"]) + "\n")
         by_id = {s["id"]: s for s in doc["scenarios"]}
-        ok = 0
+        res: list[tuple[dict[str, Any], bool]] = []
         for sc in doc["scenarios"]:
             job = sc["job"]
             if case == "restart":
-                ok += restart_flow(rows, job, sc["given"]) == sc["expect"]
+                res.append((sc, restart_flow(rows, job, sc["given"]) == sc["expect"]))
+                continue
+            if case == "gdg" and sc.get("restart"):  # a restarted run: steps before the restart step do not start
+                catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
+                names, after = resolve_gdg_restart(all_rows, job, catalog, sc["given"])
+                res.append((sc, names == sc["expect"] and after == sc["catalog_after"]))
                 continue
             if case == "gdg":  # a procedure step's GDG DD is read from the expanded CALL.PROCSTEP rows
                 rows = expand_flow_rows(all_rows, job)
@@ -258,36 +269,135 @@ def step_cases_live() -> dict[str, tuple[int, int]]:
             if case == "gdg":
                 catalog = by_id[sc["catalog_from"]]["catalog_after"] if "catalog_from" in sc else sc["catalog"]
                 names, after = resolve_gdg(rows, job, catalog, flow)
-                ok += names == sc["expect"] and after == sc["catalog_after"]
+                res.append((sc, names == sc["expect"] and after == sc["catalog_after"]))
             else:
                 answers, temps = resolve_dataflow(rows, job, flow, sc.get("msgclass"))
-                ok += answers == sc["expect"] and temps == sc["temporaries"]
-        out[case] = (ok, len(doc["scenarios"]))
+                res.append((sc, answers == sc["expect"] and temps == sc["temporaries"]))
+        out[case] = res
     return out
 
 
-def jcl_step_flow() -> dict[str, Any]:
-    """The JCL step-flow evaluator (gitgalaxy.core.jcl_flow) run live on its answer sets: the IBM-written FLOW fixture
-    (in the repo, always run) and the CardDemo case (8 jobs with EXEC COND; run only when the pinned CardDemo corpus is
-    checked out, else `carddemo_matched` is None). The answers were written from IBM's JCL Reference before the
-    evaluator ran on them (#7654, #7676)."""
-    import os
+def step_cases_live() -> dict[str, tuple[int, int]]:
+    """(answers reproduced, answers) of the GDG, restart and data-flow cases, each run live."""
+    return {c: (sum(ok for _, ok in r), len(r)) for c, r in _step_results().items()}
 
+
+def _answer_files() -> list[Path]:
+    """Every IBM-written JCL answer file on main: a `*.json` with `scenarios` (or the PROC case's `resolve` / `flow`) in
+    a case directory under tests/equivalence/jcl, found by walking the tree so a new case directory is counted with no
+    edit here. `carddemo` is the measured corpus row, and a `mvs38j_probe.json` holds tier-2 results, not answers."""
+    out = []
+    for d in sorted(p for p in JCL_CASES.iterdir() if p.is_dir() and p.name != "carddemo"):
+        for f in sorted(d.glob("*.json")):
+            if f.name != PROBE_FILE and f.name != "measured.json":
+                out.append(f)
+    return out
+
+
+def _is_assumed(sc: dict[str, Any]) -> bool:
+    """A scenario whose answer rests on a stated assumption (an `assumed` key, or ASSUMED in its basis)."""
+    return "assumed" in sc or "ASSUMED" in str(sc.get("basis", ""))
+
+
+def _flow_results(f: Path, doc: dict[str, Any]) -> list[tuple[dict[str, Any], bool]]:
+    """A plain run-or-bypass answer file: `scenarios` of {job, given, expect} over the JCL it names (a `.jcl` file beside
+    it in `fixture`, else the lines of `flow_jcl`)."""
     from gitgalaxy.core import job_flow
     from gitgalaxy.core.jcl_flow import JclFlow
 
-    fx_ok = fx_n = 0
-    for level in IBM_WRITTEN_JCL_LEVELS:  # each directory: FLOW.jcl + scenarios.json, answers written from the manual
-        fx = json.loads((JCL_CASES / level / "scenarios.json").read_text(encoding="utf-8"))
-        flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / level / "FLOW.jcl").read_text(encoding="latin-1")))
-        fx_ok += sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
-        fx_n += len(fx["scenarios"])
-    px_ok, px_n = proc_scenarios_live()  # PROC resolution and procstep flow (#8413 slice 2)
-    fx_ok += px_ok
-    fx_n += px_n
-    for case_ok, case_n in step_cases_live().values():  # GDG generations, restart, data flow (#8413)
-        fx_ok += case_ok
-        fx_n += case_n
+    if (f.parent / str(doc.get("fixture", ""))).is_file():
+        raw = (f.parent / doc["fixture"]).read_bytes()  # IFFLOW.jcl is UTF-8 (the not sign), FLOW.jcl is latin-1
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            text = raw.decode("latin-1")
+    elif "flow_jcl" in doc:
+        text = "\n".join(doc["flow_jcl"]) + "\n"
+    else:
+        raise ValueError(f"{f}: neither a `fixture` .jcl file beside it nor `flow_jcl`")
+    from gitgalaxy.core.jcl_proc import JclProcRefused, expand_flow_rows
+
+    rows = job_flow.jcl_job_flow(text)
+
+    def flow_rows(job: str) -> list[dict[str, Any]]:
+        try:  # in-stream procedure steps become CALL.PROCSTEP rows
+            return expand_flow_rows(rows, job)
+        except JclProcRefused:  # a call to a library procedure: the reader's rows, as the fixture answers were written
+            return rows
+
+    return [(sc, JclFlow(flow_rows(sc["job"])).run(sc["job"], sc["given"]).actions == sc["expect"])
+            for sc in doc["scenarios"]]  # fmt: skip
+
+
+def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
+    """Each answer file (`case/file.json`) with its scenarios and whether the evaluator reproduced each, run live."""
+    steps = _step_results()
+    out: dict[str, list[tuple[dict[str, Any], bool]]] = {}
+    for f in _answer_files():
+        doc = json.loads(f.read_text(encoding="utf-8"))
+        case = f.parent.name
+        if "scenarios" not in doc and "resolve" not in doc:
+            continue
+        if case == "proc":
+            res = _proc_results()
+        elif case in steps and f.name == "scenarios.json":
+            res = steps[case]
+        else:
+            res = _flow_results(f, doc)
+        out[f"{case}/{f.name}"] = res
+    return out
+
+
+def mvs38j_tier2() -> dict[str, Any]:
+    """What tier 2 (MVS 3.8J, the live box) checked, read from the data: each `mvs38j_probe.json` beside its answer file
+    gives the scenarios it ran and their verdicts; every other scenario on main is not checked there. `cannot_test` is
+    the list in docs/jcl_oracle_mvs38j.md ("What this tier cannot test")."""
+    import re
+
+    sets = jcl_answer_sets()
+    checked: dict[str, dict[str, int]] = {}
+    unchecked: dict[str, int] = {}
+    for name, res in sets.items():
+        probe = JCL_CASES / name.split("/")[0] / PROBE_FILE
+        ids: dict[str, str] = {}
+        if probe.is_file():
+            ids = {r["id"]: r["verdict"] for r in json.loads(probe.read_text(encoding="utf-8"))["results"]}
+        known = [sc for sc, _ in res if sc["id"] in ids]
+        if known:
+            checked[name] = {"ran": len(known), "agree": sum(ids[sc["id"]] == "agree" for sc in known), "of": len(res)}
+        if len(res) - len(known):
+            unchecked[name] = len(res) - len(known)
+    text = MVS38J_DOC.read_text(encoding="utf-8") if MVS38J_DOC.is_file() else ""
+    m = re.search(r"## What this tier cannot test\s+(.+?) do(?:es)? not exist", text, re.S)
+    cannot = [c.strip() for c in re.split(r",| and ", m.group(1).replace("\n", " ")) if c.strip()] if m else []
+    return {"checked": checked, "unchecked": unchecked, "cannot_test": cannot}
+
+
+def tier2_have(t: dict[str, Any]) -> str:
+    """The tier-2 row text: per answer file what the box ran, and the scenarios on main it did not."""
+    ran = "; ".join(f"{k}: {v['agree']} of {v['ran']} agree (file has {v['of']})" for k, v in t["checked"].items())
+    rest = sum(t["unchecked"].values())
+    return f"{ran or 'nothing run'}; {rest} scenarios in {len(t['unchecked'])} answer files not run on the box"
+
+
+def jcl_step_flow() -> dict[str, Any]:
+    """The JCL step-flow evaluator (gitgalaxy.core.jcl_flow and its siblings) run live on every IBM-written answer set on
+    main (`jcl_answer_sets`: FLOW fixtures, IF / THEN / ELSE, PROC resolution, GDG, restart, data flow) and on the
+    CardDemo case (8 jobs with EXEC COND; run only when the pinned CardDemo corpus is checked out, else
+    `carddemo_matched` is None). The answers were written from IBM's manuals before the evaluator ran on them (#7654,
+    #7676). Scenarios that rest on a stated assumption are counted apart: `fixture` is the manual-backed answers,
+    `assumed` the assumed ones."""
+    import os
+
+    fx_ok = fx_n = as_ok = as_n = 0
+    for res in jcl_answer_sets().values():
+        for sc, ok in res:
+            if _is_assumed(sc):
+                as_n += 1
+                as_ok += ok
+            else:
+                fx_n += 1
+                fx_ok += ok
     cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
     n_cd = sum(len(j["scenarios"]) for j in cd["jobs"])
     corpus = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / cd["corpus"]
@@ -298,7 +408,8 @@ def jcl_step_flow() -> dict[str, Any]:
         rec = json.loads(JCL_MEASURED.read_text(encoding="utf-8"))
         if rec.get("answers_sha256") == _sha(JCL_CASES / "carddemo" / "scenarios.json") and rec.get("of") == n_cd:
             cd_ok = rec["matched"]
-    return {"fixture": (fx_ok, fx_n), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"])}
+    return {"fixture": (fx_ok, fx_n), "assumed": (as_ok, as_n), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"]),
+            "tier2": mvs38j_tier2()}
 
 
 def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
@@ -440,7 +551,8 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             db2_of,
             "rules match IBM",
             note=f"{sql_keywords} more IBM statement keywords, beyond the modelled ones, each refused by name, never dropped"
-            if sql_keywords else "",
+            if sql_keywords
+            else "",
             found="Tested by Blind 1: its 17 SQL statements all translated at first contact; the rest pinned (#8075, #8146)",
         ),  # fmt: skip
         row(
@@ -521,7 +633,18 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             done=jf["fixture"][0],
             of=jf["fixture"][1],
             unit="IBM-written scenarios",
-            note="answers written from IBM's JCL Reference before the evaluator ran",
+            note="answers written from IBM's manuals before the evaluator ran; "
+            f"plus {jf['assumed'][1]} ASSUMED scenarios (a stated assumption, not IBM text), {jf['assumed'][0]} reproduced",
+        ),
+        row(
+            "Batch",
+            "JCL on MVS 3.8J (tier 2)",
+            tier2_have(jf["tier2"]),
+            "works" if jf["tier2"]["checked"] else "none",
+            done=sum(v["agree"] for v in jf["tier2"]["checked"].values()),
+            of=sum(v["ran"] for v in jf["tier2"]["checked"].values()),
+            unit="scenarios agreeing on the box",
+            note="not checked on 3.8J: " + ", ".join(jf["tier2"]["cannot_test"]),
         ),
         row(
             "Batch",

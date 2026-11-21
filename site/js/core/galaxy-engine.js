@@ -540,7 +540,9 @@ export class GalaxyEngine {
             if (cId !== -1) {
                 const cName = raw.meta.schemas.lookups.constellations[cId];
                 // Clone stats to avoid mutating the original JSON object
-                const stats = JSON.parse(JSON.stringify(raw.global_summary.constellations[cName] || {}));
+                // Current engine output has no global_summary.constellations; the panel derives what it needs from the arrays below.
+                const stats = JSON.parse(JSON.stringify(raw.global_summary?.constellations?.[cName] || {}));
+                let derivedMass = 0;
                 const files = [];
                 
                 // --- THE FIX: Dynamically recalculate averages, explicitly excluding unscanned (-10) files ---
@@ -553,6 +555,7 @@ export class GalaxyEngine {
                     if (raw.galaxy.c_ids[i] === cId) {
                         const langStr = raw.meta.schemas.lookups.languages[raw.galaxy.lang_ids[i]] || "UNKNOWN";
                         files.push({ name: raw.galaxy.names[i], lang: langStr });
+                        derivedMass += raw.galaxy.mass ? raw.galaxy.mass[i] : 0;
 
                         // Aggregate risks strictly for this constellation
                         const rStart = i * RISK_LENGTH;
@@ -572,6 +575,10 @@ export class GalaxyEngine {
                         }
                     }
                 }
+
+                // Older scans carry these in global_summary.constellations; newer ones do not.
+                if (stats.file_count === undefined) stats.file_count = files.length;
+                if (stats.total_mass === undefined) stats.total_mass = derivedMass / (raw.meta?.scalars?.physics || 10);
 
                 // Apply the true averages
                 stats.avg_exposures = {};

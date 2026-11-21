@@ -186,14 +186,14 @@ Live `IEF285I` (2026-11-19, a NEW,CATLG then OLD,DELETE deck): a disposition lin
 regex rejected (only the marker-less line parsed); `VOL SER NOS=` lines are not dispositions. Live findings (2026-11-19, four probe decks through `run`): the JCL-error line is `IEF452I NAME    JOB NOT RUN - JCL ERROR` with no
 ` - ` after the job name (the first regex needed it, so the job never read as ended); the abended step has an `IEF450I` and no
 `IEF142I` (its record is the abend, not a step with a code); the printer file also carries `IEF236I/237I/373I/374I/375I/376I/472I/643I`,
-now known informational lines (`unparsed_ief` is 0 on all four decks). PROC steps: a step line may carry a PROCSTEP name after the job step (`IEF142I JOB STEP PROCSTEP - STEP WAS EXECUTED ...`); the runner keeps both (`step`, `procstep`; `procstep` is null for a plain step), pinned offline on fixture text (`test_proc_steps_keep_the_step_and_procstep_names_apart`), not yet seen in a live log. `IEF202I` (`STEP WAS NOT RUN BECAUSE OF CONDITION CODES`) is verified live too: every COND-bypassed step prints it followed by `IEF272I` (probe run below). Trap: wrapping `stop` in `heavy-run.sh` queued it behind
+now known informational lines (`unparsed_ief` is 0 on all four decks). PROC steps: a step line of a procedure call carries two names, the procedure step FIRST and the calling job step second (`IEF142I NPJOB A1 O2 - STEP WAS EXECUTED ...` is step `A1` of `//O2 EXEC BASE`; seen live 2026-11-20). The runner keeps both (`step` = the calling step, `procstep` = the procedure step, null for a plain step); it had them the other way round until #8414 slice 2 (pinned on fixture text, `test_proc_steps_keep_the_step_and_procstep_names_apart`). An `IEF450I` abend line is assumed to follow the same order: not seen live. `IEF202I` (`STEP WAS NOT RUN BECAUSE OF CONDITION CODES`) is verified live too: every COND-bypassed step prints it followed by `IEF272I` (probe run below). Trap: wrapping `stop` in `heavy-run.sh` queued it behind
 another worker's slot and the box ran on.
 
 ### Remaining slices (#8414)
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY slice is done, below): PROC symbolics and overrides (`tests/equivalence/jcl/proc`, a PROC step's live `PROCSTEP` field), DD concatenation and `&&` temporaries (`dataflow`), GDG (`gdg`, needs a GDG base per scenario), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC and data-flow slices are done, below): GDG generations on 3.8J (`gdg`; the `(+1)` pattern-DSCB failure is recorded in the data-flow section), SYSOUT class (`SYSJOB`), IEBGENER / IEBCOPY / IEFBR14 dataset scenarios, and `restart` / `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -209,6 +209,46 @@ is not linked from any published page.
 
 Not covered by this deck shape (and so not claimed): a COND on a step that follows a step bypassed by an EVEN / ONLY chain deeper than
 the fixture's; an abend code other than S806 (a user abend would need a program 3.8J ships that issues one).
+
+## Probe run (#8414): PROC symbolics and overrides
+
+`probe.py proc --printer FILE` runs the eight `tests/equivalence/jcl/proc` scenarios 3.8J can express: `SYMJOB` S1 to S3 (symbolics and
+defaults), `OVRJOB` O1 to O3 (EXEC `PARM.` / `COND.` overrides, a DD override, an added DD), `PCJOB` C1 and C2 (PARM / COND on the call). The
+SET, JCLLIB, INCLUDE and nested-procedure jobs have no 3.8J form. The deck keeps the job's procedure and that one call with its override
+DDs; every `PGM=` becomes IEFBR14 and every DD keeps its DSN, allocated new on SYSDA (so the log names it). The observation channel is the
+job log itself: `IEF236I` (the step, `procstep call`), `IEF237I` (each ddname), `IEF285I` (each DSN, in DD order) and `IEF653I`
+(a symbol's substituted PARM). `tests/equivalence/jcl/proc/mvs38j_probe.json` holds `expect`, `engine` (`jcl_proc.resolve_job`) and `box`
+per scenario. Run 2026-11-20: **8 of 8 agree**, and the first live `PROCSTEP` lines (`IEF142I OVRJOB A1 O3`, `A2 O3`) came from it.
+
+What the box cannot show, so it is listed as `unobserved` in every result and not compared: the resolved `PGM` (replaced by IEFBR14), a
+`PARM` that is not symbolic and every `COND` (IEFBR14 ends 0 and each COND here runs the step). The override rules for PARM / COND are
+therefore tier 1 only. Box traps found: the listing's `++` echo shows the procedure's statements as written (an `EXEC PARM.A2=` override is
+not echoed, an overridden DD shows as `+/`); a substituted statement past column 71 is a JCL error (`IEF621I`), so the probe leaves DISP to
+default; a PROC statement parameter that no statement references gave `IEF657I SYMBOL NOT DEFINED IN PROCEDURE` in every trial (not
+isolated further: the scenarios reference all of theirs).
+
+## Probe run (#8414): data flow
+
+`probe.py flow --printer FILE` runs the six `tests/equivalence/jcl/dataflow` scenarios (concatenation, `&&` temporaries with
+`DISP=(,PASS)`, default dispositions, a bypassed creator, DUMMY) as IEFBR14 / IDCAMS decks and reads the allocation messages
+(`IEF236I`, `IEF237I`, `IEF285I`) per step. `tests/equivalence/jcl/dataflow/mvs38j_probe.json` holds `expect`, `engine`
+(`jcl_dataflow.resolve_dataflow`) and `box` side by side. Run 2026-11-20: **6 of 6 agree three ways**. Internal only (Q16): not linked
+from a published page. `SYSJOB` is skipped (its `OUTPUT` statement is not in 3.8J).
+
+Substituted, not claimed: the GDG `(0)` reference of the concatenation scenario ran against a plain dataset (`PAY.GDG.GSTAND`),
+recorded as `substituted` in the results. A real generation (`(+1)` in a new GDG base) failed on the box with `IEF218I PATTERN DSCB
+RECORD NOT FOUND IN VTOC` after four model-DSCB placements: a finding, not solved.
+
+Not observed (`FLOW_UNOBSERVED`): the read order of a concatenation (IEFBR14 reads nothing; the order is that of the allocation
+messages), the SYSOUT class, the DISP of a permanent dataset (names only), real GDG generations.
+
+Box traps found: a permanent dataset cataloged in the master catalog stops on `IEC301A` (SYSPROG password), so the deck re-roots it
+under the `PUB001.` alias (user catalog `UCPUB001`); a DD operand past column 71 is `IEF618I`, so long cards continue; a `DISP=NEW`
+without `UNIT` is `IEF210I` (the deck appends `UNIT=SYSDA,SPACE=(TRK,1)`); an `OLD` dataset that does not exist fails the whole job
+(`IEF212I`), so datasets a scenario reads are created by a PREP deck and removed by an IDCAMS `DELETE` with `SET MAXCC=0`; the
+`IEF285I` lines after the last step's `IEF374I` are job-end disposals, not the step's own, and `UCPUB001` is listed as a KEPT dataset
+(filtered). A job hung on a prompt is purged with a `/*$CJnn,P` card through the card reader (the driver owns the console); a stale
+`box.pid` blocks `start`.
 
 ## What this tier cannot test
 

@@ -382,7 +382,7 @@ drive it; its `report`, `adopt` and `tidy` run under the guard. `strengthen run`
 
 ``` bash
 pip install gitgalaxy            # zero install dependencies
-pip install "gitgalaxy[full]"    # + tiktoken, xgboost, scikit-learn, pandas, numpy, pyyaml
+pip install "gitgalaxy[full]"    # + tiktoken, pyyaml
 pip install "gitgalaxy[translator]"  # + tree-sitter-language-pack, for the CICS-to-Java translator
 ```
 
@@ -398,10 +398,8 @@ radius, betweenness, closeness, average path length, modularity, cyclic
 density, articulation points and assortativity is measured exactly as in full
 precision (these are computed natively). What needs the optional engines is
 token mass and read cost (`tiktoken`) and YAML config/OpenAPI parsing
-(`pyyaml`). `[full]` also installs the ML threat classifier's packages
-(`xgboost`/`scikit-learn`/`pandas`/`numpy`), but no trained model ships, so that
-classifier does not run in any install
-([#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430)). A metric that was not computed is reported as absent (`n/a` /
+(`pyyaml`). There is no malware classifier: it was removed on 2026-11-19 (research pending,
+[#8430](https://github.com/squid-protocol/gitgalaxy/issues/8430), [#96](https://github.com/squid-protocol/gitgalaxy/issues/96)). A metric that was not computed is reported as absent (`n/a` /
 NULL), never as a zero. Each output says when a scan ran in this mode, and
 [`docs/zero_dependency_mode.md`](docs/zero_dependency_mode.md) lists, field by
 field, what is identical and what is unavailable.

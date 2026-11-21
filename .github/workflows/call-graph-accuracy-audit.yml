@@ -52,7 +52,7 @@ jobs:
       - name: Plan the audit
         id: plan
         run: |
-          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          tests/tools/ci_retry.sh 3 5 -- git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
           python3 tests/tools/accuracy_audit_plan.py --audit call-graph --event "$GITHUB_EVENT_NAME" --base origin/main \
             --github-output "$GITHUB_OUTPUT" | tee plan.json
           {

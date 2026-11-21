@@ -192,6 +192,267 @@
    "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D",
    "entry_only": true,
    "why": "299 raw bytes, no link area (entry_only) (#7954 slice 2: kills the byte[] entry-copy rows of the det port)"
+  },
+  {
+   "name": "dto-entry-control-record",
+   "commarea": {},
+   "why": "as control-record, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-caller-data-overwritten",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "why": "as caller-data-overwritten, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-control-record-not-found",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "CTRL",
+    "NUMBER-OF-CUSTOMERS": "0000000005",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y"
+   },
+   "why": "as control-record-not-found, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "why": "13 on the READ: no control record"
+    }
+   ],
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-read-io-error",
+   "commarea": {},
+   "why": "as read-io-error, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "why": "17 on the READ"
+    }
+   ],
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-file-not-open",
+   "commarea": {},
+   "why": "as file-not-open, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTOPEN",
+     "why": "19 on the READ"
+    }
+   ],
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-file-disabled",
+   "commarea": {},
+   "why": "as file-disabled, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "DISABLED",
+     "why": "84 on the READ"
+    }
+   ],
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-read-sysiderr-retried",
+   "commarea": {},
+   "why": "as read-sysiderr-retried, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first READ: DELAY 3 seconds, READ again"
+    }
+   ],
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-sysiderr-persistent",
+   "commarea": {},
+   "why": "as sysiderr-persistent, through the typed DTO alone: in_ reads the caller's values, fill_ gives back what the program left (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": "*",
+     "why": "53 on every READ"
+    }
+   ],
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-eibcalen-0",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 0,
+   "dto_entry": true,
+   "why": "caller's values with EIBCALEN 0 of the 259-byte record, through the typed DTO alone (#7954)"
+  },
+  {
+   "name": "dto-entry-eibcalen-20",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 20,
+   "dto_entry": true,
+   "why": "caller's values with EIBCALEN 20 of the 259-byte record, through the typed DTO alone (#7954)"
+  },
+  {
+   "name": "dto-entry-eibcalen-258",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 258,
+   "dto_entry": true,
+   "why": "caller's values with EIBCALEN 258 of the 259-byte record, through the typed DTO alone (#7954)"
+  },
+  {
+   "name": "dto-entry-eibcalen-259",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 259,
+   "dto_entry": true,
+   "why": "caller's values with EIBCALEN 259 of the 259-byte record, through the typed DTO alone (#7954)"
+  },
+  {
+   "name": "dto-entry-no-commarea",
+   "commarea": null,
+   "dto_entry": true,
+   "why": "no COMMAREA, through the typed DTO alone (#7954)"
+  },
+  {
+   "name": "link-bytes-tail-1",
+   "commarea": {},
+   "link_bytes": true,
+   "commarea_tail_hex": "41",
+   "why": "the control-record scenario passed through the byte entry with a 1-byte tail past the 259-byte record: the tail travels in `beyond` and the whole area is compared (#7954)"
+  },
+  {
+   "name": "link-bytes-tail-10",
+   "commarea": {},
+   "link_bytes": true,
+   "commarea_tail_hex": "41424344454647484950",
+   "why": "the control-record scenario passed through the byte entry with a 10-byte tail past the 259-byte record: the tail travels in `beyond` and the whole area is compared (#7954)"
+  },
+  {
+   "name": "link-bytes-tail-40",
+   "commarea": {},
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4142434445464748494A4142434445464748494A4142434445464748494A",
+   "why": "the control-record scenario passed through the byte entry with a 40-byte tail past the 259-byte record: the tail travels in `beyond` and the whole area is compared (#7954)"
+  },
+  {
+   "name": "link-bytes-caller-data-overwritten",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "why": "as caller-data-overwritten, the COMMAREA passed to the program's byte entry (#7954)",
+   "link_bytes": true
+  },
+  {
+   "name": "link-bytes-control-record-not-found",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "CTRL",
+    "NUMBER-OF-CUSTOMERS": "0000000005",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y"
+   },
+   "why": "as control-record-not-found, the COMMAREA passed to the program's byte entry (#7954)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "why": "13 on the READ: no control record"
+    }
+   ],
+   "link_bytes": true
+  },
+  {
+   "name": "notfound-every-named-field-set",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "ABCD",
+    "CUSTOMER-CONTROL-SORTCODE": "123456",
+    "CUSTOMER-CONTROL-NUMBER": "1234567890",
+    "NUMBER-OF-CUSTOMERS": "2345678901",
+    "LAST-CUSTOMER-NUMBER": "3456789012",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "7"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND"
+    }
+   ],
+   "why": "READ NOTFND with every named COMMAREA field non-initial: INITIALIZE must clear each of them, key included (#7954)"
+  },
+  {
+   "name": "notfound-raw-259-filler-kept",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F50515253545556575859",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND"
+    }
+   ],
+   "why": "READ NOTFND on 259 raw caller bytes: INITIALIZE clears the named items and leaves FILLER (bytes 42-258) as the caller sent it (#7954)"
   }
  ],
  "notes": "CBSA's customer-control service (CUSTCTRL; no program in the corpus LINKs it, so the COMMAREA is its own DFHCOMMAREA, the CUSTCTRL copybook). It INITIALIZEs the COMMAREA, sets the key to sort code 000000 and customer number 9999999999 (CUSTOMER-CONTROL-KEY) and READs the CUSTOMER file INTO the COMMAREA with that 16-byte key: the control record BANKDATA writes into the CUSTOMER file (eyecatcher CTRL, NUMBER-OF-CUSTOMERS, LAST-CUSTOMER-NUMBER). On NORMAL the record is returned as stored, success flag included (the program never sets 'Y'); any other RESP gives CUSTOMER-CONTROL-SUCCESS-FLAG 'N' and FAIL-CODE '1'. The SYSIDERR retry loop (l.171-187: up to 100 READs, a 3-second DELAY each) is reached by read-sysiderr-retried (one SYSIDERR, then NORMAL); its 100-retry end by sysiderr-persistent (SYSIDERR on every READ: 100 DELAY+READ rounds, then 'N' '1'). The file is compared after every scenario. customer.txt holds the control record, a decoy with the same customer number 9999999999 under sort code 123456, and two customers; the control record's FILLERs are spaces then zeros, which the CUSTOMER layout reads as name/address, date of birth, credit score and review date. The program is precompiled with CBL SQL and INCLUDEs SQLCA but runs no SQL statement: the empty \"db2\" section only lets the harness precompile it (no tables, nothing compared)."

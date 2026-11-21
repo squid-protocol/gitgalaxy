@@ -28,7 +28,7 @@ git rev-parse HEAD
 A full scan takes about 75s (about 2,200 files as of 2026-11); an incremental rerun is faster. `PYTHONPATH=$PWD` makes `galaxyscope` scan with *this* worktree's
 engine. Check with `python -c "import os,gitgalaxy;print(os.path.dirname(gitgalaxy.__file__))"`.
 It needs the full-precision packages importable (`self_scan.py`'s `FULL_PRECISION_PACKAGES`:
-`pyyaml`, `tiktoken`, `numpy`, `pandas`, `xgboost`; the engine no longer uses networkx, #3041). The script checks them and aborts loudly with an install
+`tiktoken`, `yaml`; the engine no longer uses networkx, #3041). The script checks them and aborts loudly with an install
 hint rather than silently producing a degraded (NULL pagerank/blast-radius) DB. After you edit
 files, regenerate again before asking about them. If regeneration fails, don't query a stale DB
 for a file-specific question: fall back to grep/Read and say why.

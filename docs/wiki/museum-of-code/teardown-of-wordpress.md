@@ -69,7 +69,7 @@ Perhaps the most dangerous form of technical debt is isolated human knowledge. B
 
 ### The Security Perimeter: Zero-Trust & X-Ray Audits
 
-A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as **✅ SECURE (No Malware Detected)**. There are no autonomous AI vulnerabilities (Agentic RCE) detected despite the new AI client integrations.
+A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. There are no autonomous AI vulnerabilities (Agentic RCE) detected despite the new AI client integrations.
 
 However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:
 * **Hardcoded Secrets & Artifacts:** `3` instances found, including exposed `.npmrc` files in the TwentyTwenty and TwentyTwentyOne themes, and a `ca-bundle.crt`.

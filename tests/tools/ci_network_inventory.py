@@ -36,7 +36,19 @@ _START = (
 _PY = r"(?:(?:python3?|py)\s+-m\s+|\S*/)?"
 # (kind, regex) in match order; one line yields every kind that matches
 LINE_KINDS: list[tuple[str, re.Pattern[str]]] = [
-    ("pip", re.compile(_START + r"(?:uv\s+)?" + _PY + r"pip3?\s+(?:install|download|wheel)\b")),
+    (
+        "pip",
+        re.compile(
+            _START
+            + r"(?:(?:uv\s+)?"
+            + _PY
+            + r"pip3?\s+(?:install|download|wheel)|pipx\s+install|uv\s+(?:sync|tool\s+install)|poetry\s+(?:install|add))\b"
+        ),
+    ),
+    (
+        "os-packages",
+        re.compile(_START + r"(?:gem\s+install|brew\s+install|apk\s+add|dotnet\s+(?:restore|tool\s+install))\b"),
+    ),
     ("apt", re.compile(_START + r"apt(?:-get)?\s+(?:install|update)\b")),
     ("node-packages", re.compile(_START + r"(?:npm|pnpm|yarn)\s+(?:ci|install|add)\b")),
     (

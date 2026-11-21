@@ -66,7 +66,7 @@ Perhaps the most dangerous form of technical debt is isolated human knowledge. B
 
 ### The Security Perimeter: Zero-Trust & X-Ray Audits
 
-A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as **SECURE (No Malware Detected)**. However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:
+A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. The X-Ray and Import Policy Gate identified several perimeter exposures:
 
 * **Hardcoded Secrets:** `4` instances found. The Vault Sentinel caught `key1.pem` and `key2.pem` (and their public counterparts) exposed in the `tests/phpunit/integration/includes/Json/` directory.
 * **Binary Anomalies (X-Ray):** `42` anomalies detected. These represent high-entropy strings, packed payloads, or magic byte mismatches that warrant deeper forensic review.

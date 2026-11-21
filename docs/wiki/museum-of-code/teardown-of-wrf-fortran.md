@@ -70,7 +70,7 @@ A massive risk in scientific systems is the "Blind Bottleneck"—files that poss
 
 ### The Security Perimeter: Zero-Trust & X-Ray Audits
 
-A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as **✅ SECURE (No Malware Detected)**. 
+A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. 
 
 Furthermore, the rule-based X-Ray and Import Policy Gate confirmed an incredibly tight security perimeter:
 * **Hardcoded Secrets:** `0` instances found.

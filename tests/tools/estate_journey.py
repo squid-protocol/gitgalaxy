@@ -19,10 +19,12 @@ because rule 2 forbids cases on them. The two measures are never drawn on one ax
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import json
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -33,7 +35,10 @@ CHARTS = REPO / "docs" / "language_status" / "estate_journey"
 CANDIDATES = REPO / "docs" / "language_status" / "estate4_candidates.json"
 TRIALS = REPO / "tests" / "cobol_mainframe" / "trials.json"
 REPO_SLUG = "squid-protocol/gitgalaxy"
-REMAIN = re.compile(r"\b(\d+) draws (?:remain|left)\b")
+REMAIN = re.compile(r"\b(\d+) draws? (?:remain|left)s?\b")
+UTC_STAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z?$")
+T0_DATE = re.compile(r"^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2} [AP]M$")
+FETCH_CAP = 200  # `gh pr list --limit`: a query returning this many rows may have been cut off
 CASE_TITLE = re.compile(r"\bcases?\b", re.I)
 COLORS = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948")  # trial.py's
 OTHER = "#9a9a95"
@@ -58,7 +63,21 @@ def load(path: Path = DATA) -> dict[str, Any]:
 
 def planned_draws() -> int:
     """The pre-registered blind draws: the committed candidate list's length (names are never read here)."""
-    return len(json.loads(CANDIDATES.read_text(encoding="utf-8")).get("candidates", [])) if CANDIDATES.is_file() else 0
+    if not CANDIDATES.is_file():
+        raise ValueError(f"{CANDIDATES.name} is missing: the draw count and the prose checks cannot run")
+    return len(json.loads(CANDIDATES.read_text(encoding="utf-8")).get("candidates", []))
+
+
+def parse_utc(text: str) -> str:
+    """A UTC timestamp as `YYYY-MM-DDTHH:MM[:SS]Z`-comparable text; refuses a space separator, an offset or a local time
+    (a raw string compare let `2026-11-08 03:32` and an Eastern time through)."""
+    if not UTC_STAMP.match(text):
+        raise ValueError(f"{text!r} is not a UTC timestamp: use YYYY-MM-DDTHH:MM[:SS][Z], e.g. 2026-11-08T03:32")
+    try:
+        datetime.fromisoformat(text.rstrip("Z"))
+    except ValueError as exc:
+        raise ValueError(f"{text!r} is not a real UTC timestamp ({exc})") from exc
+    return text.rstrip("Z")
 
 
 def _points(e: dict[str, Any], field: str, out: list[str]) -> None:
@@ -317,6 +336,10 @@ def add_draw(data: dict[str, Any], *, draw: int, repo: str, issue: int, estate: 
         raise ValueError(f"draw {draw} is outside the {planned} pre-registered draws")
     if not source:
         raise ValueError("first contact needs a source (the T0 comment on the trial issue)")
+    if not T0_DATE.match(date):
+        raise ValueError(f"date {date!r} is not 'YYYY-MM-DD h:mm AM/PM' ET")
+    if whole > basis or (accounted is not None and accounted > basis):
+        raise ValueError(f"whole {whole} / accounted {accounted} cannot exceed the basis {basis}")
     point = {"date": date, "prs": 0, "value": whole, "accounted": accounted, "total": basis, "source": source}
     data["estates"].append({
         "key": key, "name": f"Blind estate {draw} of {planned}: {repo} (#{issue})", "kind": "blind", "draw": draw,
@@ -355,6 +378,8 @@ def add_point(data: dict[str, Any], *, key: str, measure: str, prs: int, value: 
         raise ValueError(f"value {value} > total {total}")
     field = "series" if measure == "L1" else "l2_series"
     if measure == "L2" and e.get("kind") == "blind":
+        if l2_note and e.get("l2_measure_note") and l2_note != e["l2_measure_note"]:
+            raise ValueError("an owner amendment is already recorded for this draw: edit journey.json to amend it")
         if l2_note:
             e["l2_measure_note"] = l2_note
         if not e.get("l2_measure_note"):
@@ -373,23 +398,41 @@ def add_point(data: dict[str, Any], *, key: str, measure: str, prs: int, value: 
 
 
 def trial_prs(rows: list[tuple[str, int, str]], since_utc: str, trial_issues: list[int], estate: str,
-              causes: list[int] | None = None) -> list[tuple[str, int, str]]:  # fmt: skip
+              causes: list[int] | None = None, until_utc: str | None = None) -> list[tuple[str, int, str]]:  # fmt: skip
     """The trial's merged PRs since first contact, in merge order: a title citing one of the trial's issues, naming the
-    estate, or a fix the trial booked as a cause. `rows` are (merged_at UTC ISO, number, title)."""
+    estate, or a fix the trial booked as a cause. `rows` are (merged_at UTC ISO, number, title). Both bounds are
+    UTC and strict (`parse_utc`); `until_utc` is the trial's close, so later matching PRs do not move the count."""
+    since_utc = parse_utc(since_utc)
+    until_utc = parse_utc(until_utc) if until_utc else None
     issues = {str(n) for n in trial_issues}
     keep = []
     for ts, n, title in sorted(set(rows)):
-        if ts < since_utc:
+        stamp = ts.rstrip("Z")
+        if stamp < since_utc or (until_utc and stamp > until_utc):
             continue
         if set(re.findall(r"#(\d+)", title)) & issues or estate.lower() in title.lower() or n in (causes or []):
             keep.append((ts, n, title))
     return keep
 
 
+def case_programs_at(sha: str) -> set[str]:
+    """The programs with a committed equivalence case at commit `sha` (upper case), from `case.json` "program" fields."""
+    out = subprocess.run(
+        ["git", "-C", str(REPO), "grep", "-h", "-E", r'^\s*"program":', sha, "--", "tests/equivalence/*/case.json"],
+        capture_output=True, text=True, check=False,
+    )  # fmt: skip
+    if out.returncode not in (0, 1):
+        raise ValueError(f"git grep at {sha[:10]} failed (fetch the merge commit?): {out.stderr.strip()[:200]}")
+    return {m.upper() for m in re.findall(r'"program":\s*"([^"]+)"', out.stdout)}
+
+
 def l2_series_from_prs(prs: list[tuple[str, int, str]], eligible: list[str], basis: int,
-                       first_contact_date: str) -> list[dict[str, Any]]:  # fmt: skip
+                       first_contact_date: str,
+                       cases_at: Callable[[int], set[str]] | None = None) -> list[dict[str, Any]]:  # fmt: skip
     """L2 after each case PR: a PR whose title says "case(s)" and names eligible programs adds those it names first
-    (the CI det-sweep ratchet holds a merged case's det port equal on every scenario). x = the PR's index in `prs`."""
+    (the CI det-sweep ratchet holds a merged case's det port equal on every scenario). x = the PR's index in `prs`.
+    With `cases_at(pr_number)` (the programs having a committed case at that PR's merge commit) a title alone credits
+    nothing: only a named program that has a case does; the rest are reported on stderr."""
     if not eligible:
         raise ValueError("the trial declares no eligible programs yet: nothing can be credited")
     names = re.compile(r"\b(" + "|".join(map(re.escape, sorted(eligible, key=len, reverse=True))) + r")\b")
@@ -400,6 +443,13 @@ def l2_series_from_prs(prs: list[tuple[str, int, str]], eligible: list[str], bas
         if not CASE_TITLE.search(title):
             continue
         new = [p for p in dict.fromkeys(names.findall(title)) if p not in seen]
+        if cases_at is not None and new:
+            have = {c.upper() for c in cases_at(n)}
+            skipped = [p for p in new if p.upper() not in have]
+            if skipped:
+                print(f"PR #{n}: not credited, no committed case at its merge commit: {', '.join(skipped)}",
+                      file=sys.stderr)  # fmt: skip
+            new = [p for p in new if p.upper() in have]
         if not new:
             continue
         seen.update(new)
@@ -423,20 +473,32 @@ def keep_recorded_points(rebuilt: list[dict[str, Any]], committed: list[dict[str
     return sorted([*rebuilt, *kept], key=lambda p: int(p.get("prs") or 0))
 
 
-def fetch_prs(trial_issues: list[int], estate: str, since_day: str) -> list[tuple[str, int, str]]:
-    """Merged PRs mentioning any of the trial's issues or the estate, via `gh` (needs auth; never run in CI)."""
-    rows = []
+def fetch_prs(trial_issues: list[int], estate: str, since_day: str,
+              until_day: str | None = None) -> tuple[list[tuple[str, int, str]], dict[int, str]]:  # fmt: skip
+    """Merged PRs mentioning any of the trial's issues or the estate, via `gh` (needs auth; never run in CI), and each
+    PR's merge-commit sha. Refuses a query that fills the cap (a silent cut shifts every x) or a failing `gh`."""
+    rows: list[tuple[str, int, str]] = []
+    shas: dict[int, str] = {}
+    window = f"{since_day}..{until_day}" if until_day else f">={since_day}"
     for q in [*map(str, trial_issues), estate]:
-        out = subprocess.run(
-            ["gh", "pr", "list", "-R", REPO_SLUG, "--state", "merged", "--limit", "200", "--search",
-             f"{q} merged:>={since_day}", "--json", "number,mergedAt,title",
-             "-q", '.[] | "\\(.mergedAt)\\t\\(.number)\\t\\(.title)"'],
-            capture_output=True, text=True, check=True,
-        ).stdout  # fmt: skip
-        for line in out.splitlines():
-            ts, n, title = line.split("\t", 2)
+        try:
+            out = subprocess.run(
+                ["gh", "pr", "list", "-R", REPO_SLUG, "--state", "merged", "--limit", str(FETCH_CAP), "--search",
+                 f"{q} merged:{window}", "--json", "number,mergedAt,title,mergeCommit",
+                 "-q", '.[] | "\\(.mergedAt)\\t\\(.number)\\t\\(.mergeCommit.oid)\\t\\(.title)"'],
+                capture_output=True, text=True, check=True,
+            ).stdout  # fmt: skip
+        except (subprocess.CalledProcessError, OSError) as exc:
+            detail = getattr(exc, "stderr", "") or exc
+            raise ValueError(f"gh pr list failed for {q!r}: {str(detail).strip()[:200]}") from exc
+        lines = out.splitlines()
+        if len(lines) >= FETCH_CAP:
+            raise ValueError(f"the query for {q!r} returned {len(lines)} PRs (the cap): narrow it with --until")
+        for line in lines:
+            ts, n, sha, title = line.split("\t", 3)
             rows.append((ts, int(n), title))
-    return rows
+            shas[int(n)] = sha
+    return rows, shas
 
 
 def save(data: dict[str, Any], path: Path = DATA) -> None:
@@ -445,8 +507,8 @@ def save(data: dict[str, Any], path: Path = DATA) -> None:
 
 def _record(args: argparse.Namespace) -> int:
     data = load()
-    planned = planned_draws()
     try:
+        planned = planned_draws()
         if args.cmd == "add-draw":
             add_draw(data, draw=args.draw, repo=args.repo, issue=args.issue, estate=args.estate, basis=args.basis,
                      date=args.date, whole=args.whole, accounted=args.accounted, source=args.source, planned=planned,
@@ -470,9 +532,29 @@ def _record(args: argparse.Namespace) -> int:
                 raise ValueError(
                     f"no trial {e.get('trial')!r} in trials.json: pass --trial ID once trial.py start has run"
                 )
-            rows = trial_prs(fetch_prs(e["trial_issues"], e["estate"], args.since[:10]), args.since,
-                             e["trial_issues"], e["estate"], args.causes)  # fmt: skip
-            series = l2_series_from_prs(rows, tr["eligible"], e["program_basis"], e["first_contact"]["date"])
+            since = parse_utc(args.since)
+            until = parse_utc(args.until) if args.until else None
+            fetched, shas = fetch_prs(e["trial_issues"], e["estate"], since[:10], until[:10] if until else None)
+            rows = trial_prs(fetched, since, e["trial_issues"], e["estate"], args.causes, until)
+            cache: dict[str, set[str]] = {}
+
+            def cases_at(n: int) -> set[str]:
+                sha = shas[n] if n in shas else ""
+                if not sha or sha == "null":
+                    return set()  # no merge commit to read: nothing to credit
+                if sha not in cache:
+                    cache[sha] = case_programs_at(sha)
+                return cache[sha]
+
+            series = l2_series_from_prs(rows, tr["eligible"], e["program_basis"], e["first_contact"]["date"], cases_at)
+            if args.evidence_l2 is not None and args.evidence_l2 != series[-1]["value"]:
+                raise ValueError(
+                    f"the evidence report says L2+ {args.evidence_l2}, the rebuilt series ends at {series[-1]['value']}"
+                )
+            if args.evidence_l2 is None:
+                print(
+                    "check: the evidence report's L2+ must match the last value (pass --evidence-l2 N)", file=sys.stderr
+                )
             print(json.dumps(series, indent=1))
             print(f"{len(rows)} trial PRs; L2 {series[-1]['value']} / {e['program_basis']}", file=sys.stderr)
             if not args.write:
@@ -520,6 +602,8 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("l2-from-prs", help="rebuild a blind draw's L2 series from its merged case PRs (needs gh)")
     r.add_argument("--key", required=True)
     r.add_argument("--since", required=True, help="first contact, UTC ISO (e.g. 2026-11-08T03:32)")
+    r.add_argument("--until", help="the trial's close, UTC ISO: later matching PRs do not count (default: no bound)")
+    r.add_argument("--evidence-l2", type=int, help="the evidence report's L2+ count; refuse to write if it differs")
     r.add_argument("--causes", type=lambda s: [int(x) for x in s.split(",")], default=[],
                    help="comma-separated fix PRs the trial booked as causes")  # fmt: skip
     r.add_argument("--trial", help="the trials.json id, when add-draw ran before trial.py start (recorded on --write)")
@@ -531,7 +615,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd:
         return _record(args)
     data = load()
-    bad = problems(data, planned_draws())
+    try:
+        bad = problems(data, planned_draws())
+    except ValueError as exc:
+        print(f"refused: {exc}", file=sys.stderr)
+        return 1
     if bad:
         print("\n".join(bad), file=sys.stderr)
         return 1

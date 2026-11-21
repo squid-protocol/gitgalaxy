@@ -20,6 +20,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -134,6 +135,22 @@ def _git(repo, *args, timeout=900):
     )
 
 
+FETCH_ATTEMPTS = 4  # #8424: a corpus fetch that fails once (a 403 / rate limit, a reset) is tried again
+FETCH_BACKOFF_S = 10  # then 20 s, 40 s between tries
+
+
+def _fetch_with_retry(dest, *args):
+    """``git <args>`` (a network fetch) up to FETCH_ATTEMPTS times with doubling backoff; the last result is returned."""
+    delay = FETCH_BACKOFF_S
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        r = _git(dest, *args)
+        if not r.returncode or attempt == FETCH_ATTEMPTS:
+            return r
+        print(f"fetch_port: attempt {attempt}/{FETCH_ATTEMPTS} failed: {r.stderr.strip()[:200]}", file=sys.stderr)
+        time.sleep(delay)
+        delay *= 2
+
+
 def _writable_retry(func, path, *_exc):
     """rmtree error hook: git's pack and object files are read-only, which Windows refuses to delete."""
     try:
@@ -173,7 +190,7 @@ def fetch_port(row, repos, scope=None):
     dest.mkdir(parents=True)
     for args in (["init", "-q"], ["remote", "add", "origin", row["upstream"]],
                  ["fetch", "-q", "--depth", "1", "origin", row["sha"]], ["checkout", "-q", "FETCH_HEAD"]):  # fmt: skip
-        r = _git(dest, *args)
+        r = _fetch_with_retry(dest, *args) if args[0] == "fetch" else _git(dest, *args)
         if r.returncode:
             _rmtree(dest)
             return f"git {args[0]}: {r.stderr.strip()[:200]}"

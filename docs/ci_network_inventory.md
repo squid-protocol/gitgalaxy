@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 13 | 0 | 0 | 0 | 14 |
+| gh-api | 12 | 0 | 0 | 0 | 15 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 115 | 84 | 54 | 208 | 30 |
+| **total** | 114 | 84 | 54 | 208 | 31 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -52,6 +52,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### det-sweep.yml
 
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
+- `gh-api` - plan / Plan the sweep
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
 ### equivalence-e2e.yml

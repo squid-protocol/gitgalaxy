@@ -135,7 +135,7 @@ jobs:
         run: |
           tests/tools/ci_retry.sh 3 5 -- git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
           labels=""
-          if [ -n "$PR" ]; then labels=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
+          if [ -n "$PR" ]; then labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
           # #5919: the queue depth is read here, not by the planner; empty (not a PR, or unreadable) plans calm
           waiting=""
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi

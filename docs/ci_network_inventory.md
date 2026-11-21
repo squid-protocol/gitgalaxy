@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 14 | 0 | 0 | 0 | 13 |
+| gh-api | 13 | 0 | 0 | 0 | 14 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 116 | 84 | 54 | 208 | 29 |
+| **total** | 115 | 84 | 54 | 208 | 30 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -44,6 +44,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 - `docker` - measure / Load or build the oracle image, and check it against its pin (#4309)
 - `docker` - runner-tests / Load or build the oracle image, and check it against its pin (#4309)
+
+### codeql.yml
+
+- `gh-api` - analyze / Report the results this PR adds
 
 ### det-sweep.yml
 

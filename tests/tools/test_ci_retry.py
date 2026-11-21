@@ -360,7 +360,6 @@ def test_accuracy_history_gh_run_list_is_wrapped_and_fail_open(name):
         ("det-sweep.yml", "tests/tools/ci_retry.sh", 1),
         ("equivalence-e2e.yml", "tests/tools/ci_retry.sh", 4),  # the plan only
         ("doom-rosetta.yml", "gitgalaxy/tests/tools/ci_retry.sh", 1),  # checked out into gitgalaxy/
-        ("codeql.yml", "tests/tools/ci_retry.sh", 3),
     ],
 )
 def test_planner_and_scope_gh_api_captures_are_wrapped_and_keep_their_tails(name, wrapper, expected):

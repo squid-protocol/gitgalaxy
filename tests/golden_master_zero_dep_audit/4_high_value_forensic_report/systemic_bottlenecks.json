@@ -8,14 +8,14 @@
       {
         "btw": 0.0001,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 0.005,
-        "state_mutation": 39.0154
+        "score": 0.004,
+        "state_mutation": 32.0709
       },
       {
         "btw": 0.0,
         "path": "python/fastapi/fastapi/routing.py",
         "score": 0.003,
-        "state_mutation": 99.7525
+        "state_mutation": 99.5611
       },
       {
         "btw": 0.0001,
@@ -39,9 +39,9 @@
     "fragile_dependency_chain": [
       {
         "close": 0.0562,
-        "err": 55.501,
+        "err": 55.1295,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.118
+        "score": 3.097
       },
       {
         "close": 0.0591,

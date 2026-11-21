@@ -48,10 +48,10 @@
     "ada/alire": {
       "ada/alire/LICENSE.txt": {},
       "ada/alire/alire-conditional_trees.adb": {
-        "Compute Cores": 16,
+        "Compute Cores": 17,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 19,
+        "Parameter Forwarders": 18,
         "Type Conversions": 2
       },
       "ada/alire/alire-crate_configuration.adb": {
@@ -65,8 +65,8 @@
       "ada/alire/alire-dependencies-states.ads": {
         "Annotated & Test Methods": 5,
         "C Struct Operations": 1,
-        "Compute Cores": 7,
-        "Parameter Forwarders": 31,
+        "Compute Cores": 8,
+        "Parameter Forwarders": 30,
         "Type Conversions": 1
       },
       "ada/alire/alire-directories.adb": {
@@ -101,10 +101,10 @@
         "Type Conversions": 1
       },
       "ada/alire/alire-publish.adb": {
-        "Compute Cores": 14,
+        "Compute Cores": 15,
         "Defensive Guards": 2,
         "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 5,
+        "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 12,
         "Stateful Encapsulated Methods": 1
       },
@@ -144,14 +144,14 @@
       },
       "ada/alire/alire-solutions-diffs.adb": {
         "Compute Cores": 4,
-        "I/O & Config Routines": 7,
-        "Interface Declarations": 4,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 5,
         "Parameter Forwarders": 7
       },
       "ada/alire/alire-solutions.adb": {
-        "Compute Cores": 17,
+        "Compute Cores": 18,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 5,
+        "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 47
       },
       "ada/alire/alire-solutions.ads": {
@@ -192,9 +192,8 @@
         "Parameter Forwarders": 8
       },
       "ada/alire/alire-user_pins.adb": {
-        "Compute Cores": 7,
+        "Compute Cores": 8,
         "I/O & Config Routines": 3,
-        "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 9
       },
       "ada/alire/alire-vcss-git.adb": {
@@ -237,19 +236,19 @@
     },
     "ada/functional": {
       "ada/functional/functional-either.adb": {
-        "Compute Cores": 11,
-        "Parameter Forwarders": 11
+        "Compute Cores": 13,
+        "Parameter Forwarders": 9
       },
       "ada/functional/functional-either.ads": {},
       "ada/functional/functional-option.adb": {
-        "Compute Cores": 13,
+        "Compute Cores": 14,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 7
       },
       "ada/functional/functional-option.ads": {},
       "ada/functional/functional-result.adb": {
-        "Compute Cores": 19,
-        "Parameter Forwarders": 13
+        "Compute Cores": 21,
+        "Parameter Forwarders": 11
       },
       "ada/functional/functional-result.ads": {},
       "ada/functional/functional-scoped.adb": {
@@ -1298,12 +1297,12 @@
         "C Struct Operations": 2,
         "Compute Cores": 26,
         "Defensive Guards": 11,
-        "Encapsulated Accessors": 51,
+        "Encapsulated Accessors": 53,
         "I/O & Config Routines": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 51,
         "Parameter Forwarders": 39,
-        "Stateful Encapsulated Methods": 231,
+        "Stateful Encapsulated Methods": 229,
         "Type Conversions": 4
       }
     },
@@ -1422,11 +1421,11 @@
       "c/sqlite/README.md": {},
       "c/sqlite/lemon.c": {
         "C Struct Operations": 7,
-        "Compute Cores": 55,
+        "Compute Cores": 54,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 10,
         "Interface Declarations": 9,
-        "Many-Argument Workhorses": 16,
+        "Many-Argument Workhorses": 17,
         "Parameter Forwarders": 14,
         "Stateful Encapsulated Methods": 14,
         "Type Conversions": 4
@@ -3379,11 +3378,11 @@
       "cpp/NVDA/__init__.py": {
         "Compute Cores": 9,
         "Defensive Guards": 7,
-        "Encapsulated Accessors": 56,
+        "Encapsulated Accessors": 57,
         "Generic / Templated Code": 4,
         "Many-Argument Workhorses": 10,
         "Parameter Forwarders": 15,
-        "Stateful Encapsulated Methods": 45,
+        "Stateful Encapsulated Methods": 44,
         "Type Conversions": 1
       },
       "cpp/NVDA/braille.py": {
@@ -3449,9 +3448,9 @@
       "cpp/godot/DONORS.md": {},
       "cpp/godot/LICENSE.txt": {},
       "cpp/godot/editor_node.cpp": {
-        "Compute Cores": 113,
+        "Compute Cores": 112,
         "I/O & Config Routines": 48,
-        "Interface Declarations": 56,
+        "Interface Declarations": 57,
         "Many-Argument Workhorses": 23,
         "Parameter Forwarders": 56,
         "Type Conversions": 4
@@ -3478,9 +3477,9 @@
       },
       "cpp/godot/main.h": {},
       "cpp/godot/node.cpp": {
-        "Compute Cores": 80,
+        "Compute Cores": 79,
         "I/O & Config Routines": 26,
-        "Interface Declarations": 60,
+        "Interface Declarations": 61,
         "Many-Argument Workhorses": 17,
         "Parameter Forwarders": 47,
         "Type Conversions": 6
@@ -3524,14 +3523,14 @@
         "Interface Declarations": 3
       },
       "cpp/godot/variant.cpp": {
-        "Compute Cores": 21,
+        "Compute Cores": 20,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 10,
         "Interface Declarations": 15,
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 6,
         "State Mutators": 54,
-        "Type Conversions": 45
+        "Type Conversions": 46
       },
       "cpp/godot/variant.h": {
         "Annotated & Test Methods": 4,
@@ -3671,11 +3670,11 @@
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 7,
-        "Defensive Guards": 19,
+        "Compute Cores": 8,
+        "Defensive Guards": 20,
         "Encapsulated Accessors": 73,
         "Generic / Templated Code": 17,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 16,
         "Parameter Forwarders": 7,
@@ -3704,24 +3703,23 @@
       },
       "csharp/roslyn/LanguageParser.cs": {
         "Callbacks & Closures": 21,
-        "Compute Cores": 35,
+        "Compute Cores": 37,
         "Defensive Guards": 13,
-        "Encapsulated Accessors": 142,
+        "Encapsulated Accessors": 140,
         "Generic / Templated Code": 12,
         "I/O & Config Routines": 46,
         "Interface Declarations": 7,
-        "Many-Argument Workhorses": 46,
+        "Many-Argument Workhorses": 45,
         "State Mutators": 3,
-        "Stateful Encapsulated Methods": 148,
-        "Type Conversions": 1
+        "Stateful Encapsulated Methods": 150
       },
       "csharp/roslyn/License.txt": {},
       "csharp/roslyn/MethodCompiler.cs": {
-        "Compute Cores": 3,
+        "Compute Cores": 4,
         "Defensive Guards": 4,
         "Encapsulated Accessors": 10,
         "Many-Argument Workhorses": 10,
-        "Parameter Forwarders": 8,
+        "Parameter Forwarders": 7,
         "State Mutators": 5,
         "Stateful Encapsulated Methods": 15
       },
@@ -3821,17 +3819,17 @@
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": {
-        "Annotated & Test Methods": 19,
+        "Annotated & Test Methods": 20,
         "Callbacks & Closures": 14,
         "Compute Cores": 10,
         "Defensive Guards": 61,
-        "Encapsulated Accessors": 41,
+        "Encapsulated Accessors": 43,
         "Generic / Templated Code": 2,
-        "I/O & Config Routines": 18,
+        "I/O & Config Routines": 17,
         "Interface Declarations": 6,
         "Many-Argument Workhorses": 8,
         "State Mutators": 20,
-        "Stateful Encapsulated Methods": 45
+        "Stateful Encapsulated Methods": 43
       },
       "dart/flutter/events.dart": {
         "Annotated & Test Methods": 37,
@@ -3863,14 +3861,14 @@
         "Annotated & Test Methods": 15,
         "Callbacks & Closures": 16,
         "Defensive Guards": 120,
-        "Encapsulated Accessors": 30,
+        "Encapsulated Accessors": 31,
         "Generic / Templated Code": 13,
         "I/O & Config Routines": 5,
         "Interface Declarations": 7,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 4,
         "State Mutators": 31,
-        "Stateful Encapsulated Methods": 27,
+        "Stateful Encapsulated Methods": 26,
         "Type Conversions": 1
       },
       "dart/flutter/object.dart": {
@@ -3891,15 +3889,15 @@
       "dart/flutter/semantics.dart": {
         "Annotated & Test Methods": 14,
         "Callbacks & Closures": 87,
-        "Compute Cores": 8,
+        "Compute Cores": 7,
         "Defensive Guards": 182,
-        "Encapsulated Accessors": 18,
+        "Encapsulated Accessors": 19,
         "Generic / Templated Code": 5,
-        "I/O & Config Routines": 7,
+        "I/O & Config Routines": 8,
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 1,
         "State Mutators": 46,
-        "Stateful Encapsulated Methods": 37
+        "Stateful Encapsulated Methods": 36
       },
       "dart/flutter/theme_data.dart": {
         "Annotated & Test Methods": 5,
@@ -4384,8 +4382,7 @@
         "Stateful Encapsulated Methods": 3
       },
       "fortran/wrf/wrf_timeseries.F": {
-        "Compute Cores": 1,
-        "Many-Argument Workhorses": 3
+        "Many-Argument Workhorses": 4
       }
     },
     "go": {
@@ -4691,8 +4688,8 @@
         "Stateful Encapsulated Methods": 3
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": {
+        "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
-        "Generic / Templated Code": 1,
         "Stateful Encapsulated Methods": 1
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": {
@@ -4705,9 +4702,9 @@
         "Stateful Encapsulated Methods": 2
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": {
+        "Compute Cores": 1,
         "Encapsulated Accessors": 1,
-        "Generic / Templated Code": 1,
-        "Type Conversions": 1
+        "Generic / Templated Code": 1
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": {
         "Encapsulated Accessors": 7,
@@ -5306,13 +5303,13 @@
         "Parameter Forwarders": 1
       },
       "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": {
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": {
         "Annotated & Test Methods": 1
       },
       "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": {
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": {
         "Interface Declarations": 1
@@ -5473,10 +5470,9 @@
       "haskell/pandoc/Parsing.hs": {},
       "haskell/pandoc/Shared.hs": {
         "Callbacks & Closures": 6,
-        "Compute Cores": 16,
+        "Compute Cores": 17,
         "Defensive Guards": 1,
         "Generic / Templated Code": 7,
-        "I/O & Config Routines": 1,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 20,
@@ -5704,12 +5700,11 @@
       "java/springboot/AutoConfigurationImportSelector.java": {
         "Annotated & Test Methods": 10,
         "Callbacks & Closures": 1,
-        "Defensive Guards": 1,
         "Encapsulated Accessors": 20,
         "Generic / Templated Code": 6,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 7,
-        "Type Conversions": 1
+        "Type Conversions": 2
       },
       "java/springboot/Binder.java": {
         "Annotated & Test Methods": 4,
@@ -5793,8 +5788,7 @@
         "Many-Argument Workhorses": 1
       },
       "javascript/jquery/core.js": {
-        "Callbacks & Closures": 19,
-        "Compute Cores": 1,
+        "Callbacks & Closures": 20,
         "Defensive Guards": 7,
         "Many-Argument Workhorses": 1
       },
@@ -5804,16 +5798,15 @@
         "Many-Argument Workhorses": 4
       },
       "javascript/jquery/deferred.js": {
-        "Callbacks & Closures": 5,
-        "Defensive Guards": 4,
+        "Callbacks & Closures": 6,
+        "Defensive Guards": 3,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 1,
         "State Mutators": 1
       },
       "javascript/jquery/event.js": {
-        "Callbacks & Closures": 12,
-        "Compute Cores": 2,
+        "Callbacks & Closures": 14,
         "Defensive Guards": 7,
         "I/O & Config Routines": 1,
         "Interface Declarations": 2,
@@ -6625,7 +6618,8 @@
       "livecode/livecode/array.livecodescript": {
         "Compute Cores": 1,
         "Encapsulated Accessors": 2,
-        "I/O & Config Routines": 8,
+        "I/O & Config Routines": 7,
+        "Interface Declarations": 1,
         "Stateful Encapsulated Methods": 5
       },
       "livecode/livecode/assert.lcb": {
@@ -6636,10 +6630,9 @@
         "I/O & Config Routines": 2
       },
       "livecode/livecode/automaticactivationactivationgroupbehavior.livecodescript": {
-        "Compute Cores": 1,
         "Defensive Guards": 1,
         "I/O & Config Routines": 2,
-        "Interface Declarations": 4,
+        "Interface Declarations": 5,
         "Parameter Forwarders": 2
       },
       "livecode/livecode/automaticactivationactivationinputpassfieldbehavior.livecodescript": {
@@ -6672,13 +6665,13 @@
         "Parameter Forwarders": 1
       },
       "livecode/livecode/builder_utilities.livecodescript": {
-        "Compute Cores": 9,
+        "Compute Cores": 6,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 3,
         "I/O & Config Routines": 3,
         "Interface Declarations": 42,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 14,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 16,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 4,
         "Type Conversions": 3
@@ -6708,7 +6701,8 @@
         "Interface Declarations": 4
       },
       "livecode/livecode/code.livecodescript": {
-        "I/O & Config Routines": 2
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1
       },
       "livecode/livecode/codeunit.lcb": {},
       "livecode/livecode/combine.livecodescript": {
@@ -6742,12 +6736,13 @@
         "I/O & Config Routines": 9
       },
       "livecode/livecode/docs_builder.livecodescript": {
-        "Compute Cores": 4,
+        "Compute Cores": 3,
         "Encapsulated Accessors": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 1,
         "State Mutators": 3,
-        "Stateful Encapsulated Methods": 7
+        "Stateful Encapsulated Methods": 7,
+        "Type Conversions": 1
       },
       "livecode/livecode/docsparser.livecodescript": {
         "I/O & Config Routines": 1,
@@ -6804,13 +6799,13 @@
         "I/O & Config Routines": 1
       },
       "livecode/livecode/installer_utilities.livecodescript": {
-        "Compute Cores": 4,
+        "Compute Cores": 3,
         "Defensive Guards": 2,
         "Encapsulated Accessors": 8,
         "I/O & Config Routines": 5,
         "Interface Declarations": 4,
         "Many-Argument Workhorses": 6,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 4,
         "Stateful Encapsulated Methods": 28
       },
       "livecode/livecode/installeruiconfirmcardbehavior.livecodescript": {
@@ -6819,11 +6814,10 @@
       },
       "livecode/livecode/installeruicustomizecardbehavior.livecodescript": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1
+        "Interface Declarations": 2
       },
       "livecode/livecode/installeruicustomizechangelocationbuttonbehavior.livecodescript": {
-        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
         "State Mutators": 1
       },
       "livecode/livecode/installeruifinishcardbehavior.livecodescript": {
@@ -6889,14 +6883,14 @@
         "Interface Declarations": 1
       },
       "livecode/livecode/revdeploylibraryandroid.livecodescript": {
-        "Compute Cores": 8,
+        "Compute Cores": 6,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 4,
-        "Interface Declarations": 7,
+        "Interface Declarations": 8,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 10,
         "Stateful Encapsulated Methods": 8,
-        "Type Conversions": 1
+        "Type Conversions": 2
       },
       "livecode/livecode/revdeploylibraryemscripten.livecodescript": {
         "Compute Cores": 1,
@@ -6907,8 +6901,8 @@
         "Stateful Encapsulated Methods": 2
       },
       "livecode/livecode/revdeploylibraryios.livecodescript": {
-        "Compute Cores": 7,
-        "I/O & Config Routines": 3,
+        "Compute Cores": 6,
+        "I/O & Config Routines": 4,
         "Interface Declarations": 4,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2,
@@ -6916,34 +6910,33 @@
         "Stateful Encapsulated Methods": 3
       },
       "livecode/livecode/revdocsparser.livecodescript": {
-        "Compute Cores": 30,
+        "Compute Cores": 29,
         "Encapsulated Accessors": 10,
-        "Many-Argument Workhorses": 13,
-        "Parameter Forwarders": 26,
+        "Many-Argument Workhorses": 12,
+        "Parameter Forwarders": 28,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 9,
         "Type Conversions": 2
       },
       "livecode/livecode/revhtml5urllibrary.livecodescript": {
-        "Compute Cores": 2,
         "Encapsulated Accessors": 16,
         "I/O & Config Routines": 4,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 5,
         "State Mutators": 2,
         "Stateful Encapsulated Methods": 3
       },
       "livecode/livecode/revliburl.livecodescript": {
-        "Compute Cores": 81,
+        "Compute Cores": 79,
         "Defensive Guards": 4,
         "Encapsulated Accessors": 5,
-        "I/O & Config Routines": 14,
+        "I/O & Config Routines": 15,
         "Interface Declarations": 9,
-        "Many-Argument Workhorses": 9,
+        "Many-Argument Workhorses": 11,
         "Parameter Forwarders": 18,
         "State Mutators": 4,
-        "Stateful Encapsulated Methods": 12,
+        "Stateful Encapsulated Methods": 11,
         "Type Conversions": 3
       },
       "livecode/livecode/revsaveasandroidstandalone.livecodescript": {
@@ -6975,8 +6968,7 @@
         "Interface Declarations": 4
       },
       "livecode/livecode/stdlib__bitwise.lcb": {
-        "Compute Cores": 2,
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 4,
         "Interface Declarations": 2
       },
       "livecode/livecode/stdlib__byte.lcb": {
@@ -6997,8 +6989,8 @@
     },
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": {
-        "Compute Cores": 2,
-        "Parameter Forwarders": 2
+        "Compute Cores": 1,
+        "Parameter Forwarders": 3
       },
       "lua/cosmopolitan/api.lua": {
         "Callbacks & Closures": 2,
@@ -7009,9 +7001,8 @@
       },
       "lua/cosmopolitan/attrib.lua": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 1,
         "Interface Declarations": 5,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 6
       },
       "lua/cosmopolitan/big.lua": {},
       "lua/cosmopolitan/binarytrees.lua": {
@@ -7166,9 +7157,8 @@
       "lua/cosmopolitan/opensource.lua": {},
       "lua/cosmopolitan/pm.lua": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 1,
         "Defensive Guards": 2,
-        "Parameter Forwarders": 5,
+        "Parameter Forwarders": 6,
         "Type Conversions": 1
       },
       "lua/cosmopolitan/printpayload.lua": {
@@ -7224,16 +7214,16 @@
         "Parameter Forwarders": 3
       },
       "lua/freebsd-src/config.lua": {
-        "Compute Cores": 17,
+        "Compute Cores": 15,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 8
+        "Interface Declarations": 6,
+        "Parameter Forwarders": 9
       },
       "lua/freebsd-src/core.lua": {
-        "Compute Cores": 11,
+        "Compute Cores": 10,
         "I/O & Config Routines": 1,
         "Interface Declarations": 19,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 4,
         "Type Conversions": 1
       },
       "lua/freebsd-src/drawer.lua": {
@@ -7552,10 +7542,10 @@
       },
       "perl/bugzilla/Bug.pm": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 80,
+        "Compute Cores": 79,
         "I/O & Config Routines": 5,
         "Interface Declarations": 45,
-        "Many-Argument Workhorses": 28,
+        "Many-Argument Workhorses": 29,
         "Parameter Forwarders": 20,
         "Type Conversions": 14
       },
@@ -7622,11 +7612,11 @@
       "perl/mojo/Makefile.PL": {},
       "perl/mojo/Promise.pm": {
         "Callbacks & Closures": 7,
-        "Compute Cores": 2,
+        "Compute Cores": 1,
         "Defensive Guards": 6,
         "Interface Declarations": 13,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 6,
+        "Parameter Forwarders": 7,
         "Type Conversions": 1
       },
       "perl/mojo/Template.pm": {
@@ -7656,8 +7646,8 @@
       },
       "perl/spamassassin/HTML.pm": {
         "Compute Cores": 17,
-        "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 4
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 5
       },
       "perl/spamassassin/Makefile.PL": {
         "Compute Cores": 10,
@@ -7674,27 +7664,28 @@
         "Parameter Forwarders": 10
       },
       "perl/spamassassin/Parser.pm": {
-        "Compute Cores": 27,
+        "Compute Cores": 23,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 8,
+        "Many-Argument Workhorses": 10,
+        "Parameter Forwarders": 11,
         "Type Conversions": 1
       },
       "perl/spamassassin/PerMsgStatus.pm": {
-        "Compute Cores": 46,
+        "Compute Cores": 45,
         "I/O & Config Routines": 1,
         "Interface Declarations": 6,
         "Many-Argument Workhorses": 8,
-        "Parameter Forwarders": 16,
+        "Parameter Forwarders": 17,
         "Type Conversions": 3
       },
       "perl/spamassassin/SpamAssassin.pm": {
         "Annotated & Test Methods": 2,
-        "Compute Cores": 26,
+        "Compute Cores": 25,
         "Defensive Guards": 2,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 24
+        "Parameter Forwarders": 24,
+        "Type Conversions": 1
       }
     },
     "php": {
@@ -7932,11 +7923,11 @@
       },
       "php/symfony/Request.php": {
         "Callbacks & Closures": 1,
-        "Compute Cores": 7,
+        "Compute Cores": 5,
         "Defensive Guards": 22,
         "Encapsulated Accessors": 4,
         "I/O & Config Routines": 7,
-        "Interface Declarations": 30,
+        "Interface Declarations": 32,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 9,
         "Stateful Encapsulated Methods": 9,
@@ -8111,8 +8102,7 @@
       "powershell/PowerToys/Get-GitHubRawFile.ps1": {},
       "powershell/PowerToys/InstallWinAppDriver.ps1": {},
       "powershell/PowerToys/Invoke-WinMdQuery.ps1": {
-        "Callbacks & Closures": 9,
-        "Compute Cores": 1,
+        "Callbacks & Closures": 10,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 1,
         "Type Conversions": 1
@@ -8173,11 +8163,11 @@
         "Many-Argument Workhorses": 1
       },
       "powershell/core/PowerShell__build.psm1": {
-        "Callbacks & Closures": 41,
+        "Callbacks & Closures": 42,
         "Compute Cores": 6,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 20,
         "Type Conversions": 8
       },
@@ -8206,11 +8196,11 @@
         "Type Conversions": 2
       },
       "powershell/core/build.psm1": {
-        "Callbacks & Closures": 41,
+        "Callbacks & Closures": 42,
         "Compute Cores": 6,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 20,
         "Type Conversions": 8
       },
@@ -8247,7 +8237,8 @@
       "powershell/core/process-pester-results.ps1": {},
       "powershell/core/pwsh.profile.resource.ps1": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 2,
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 1
       },
       "powershell/core/runFuzzer.ps1": {}
@@ -8284,11 +8275,11 @@
       },
       "powershell/roslyn/CreateAndUploadNugetZip.ps1": {},
       "powershell/roslyn/Get-CIStatus.ps1": {
-        "Callbacks & Closures": 14,
+        "Callbacks & Closures": 15,
         "Compute Cores": 4,
         "Defensive Guards": 8,
         "Many-Argument Workhorses": 9,
-        "Type Conversions": 2
+        "Type Conversions": 1
       },
       "powershell/roslyn/Get-CodeflowStatus.ps1": {
         "Callbacks & Closures": 1,
@@ -8364,8 +8355,7 @@
       "powershell/runtime/LICENSE.TXT": {},
       "powershell/runtime/PSScriptAnalyzerSettings.psd1": {},
       "powershell/runtime/ParallelTestExecution.ps1": {
-        "Callbacks & Closures": 3,
-        "Compute Cores": 2,
+        "Callbacks & Closures": 5,
         "Defensive Guards": 1,
         "Many-Argument Workhorses": 1
       },
@@ -8458,8 +8448,8 @@
         "Type Conversions": 1
       },
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": {
-        "Generic / Templated Code": 6,
-        "Many-Argument Workhorses": 3
+        "Generic / Templated Code": 7,
+        "Many-Argument Workhorses": 2
       },
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": {
         "Annotated & Test Methods": 1,
@@ -8543,9 +8533,8 @@
         "Defensive Guards": 1
       },
       "python/fastapi/fastapi/datastructures.py": {
-        "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
-        "Generic / Templated Code": 7,
+        "Generic / Templated Code": 8,
         "Parameter Forwarders": 1,
         "Type Conversions": 1
       },
@@ -8691,10 +8680,10 @@
       },
       "python/fastapi/tests/test_custom_middleware_exception.py": {
         "Annotated & Test Methods": 1,
-        "Compute Cores": 2,
+        "Compute Cores": 1,
         "Defensive Guards": 2,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 1
+        "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_custom_route_class.py": {
         "Annotated & Test Methods": 4,
@@ -9721,11 +9710,11 @@
       },
       "python/numpy/symbolic.py": {
         "Annotated & Test Methods": 1,
-        "Compute Cores": 12,
+        "Compute Cores": 11,
         "Defensive Guards": 23,
         "Encapsulated Accessors": 2,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 31,
+        "Parameter Forwarders": 32,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 4
       },
@@ -9970,18 +9959,18 @@
       "ruby/rails/base.rb": {
         "Compute Cores": 3,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 10,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 11,
         "Parameter Forwarders": 9
       },
       "ruby/rails/blob.rb": {
         "Callbacks & Closures": 1,
-        "Compute Cores": 3,
+        "Compute Cores": 2,
         "Defensive Guards": 7,
         "I/O & Config Routines": 2,
         "Interface Declarations": 10,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 16
+        "Parameter Forwarders": 17
       },
       "ruby/rails/generator.rb": {
         "Callbacks & Closures": 4,
@@ -10233,9 +10222,8 @@
         "Annotated & Test Methods": 13,
         "Compute Cores": 3,
         "Generic / Templated Code": 17,
-        "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 10,
-        "State Mutators": 1
+        "State Mutators": 2
       },
       "rust/tokio/config.rs": {},
       "rust/tokio/fuzz.rs": {},
@@ -10261,10 +10249,11 @@
       },
       "rust/tokio/tokio_mpsc_bounded.rs": {
         "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
         "Compute Cores": 3,
-        "Defensive Guards": 3,
+        "Defensive Guards": 1,
         "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 27,
+        "Generic / Templated Code": 28,
         "Parameter Forwarders": 5,
         "State Mutators": 18
       },
@@ -10329,9 +10318,9 @@
       "rust/wasmtime/wasmtime_pulley_interp.rs": {
         "Annotated & Test Methods": 1,
         "Compute Cores": 2,
-        "Defensive Guards": 4,
+        "Defensive Guards": 2,
         "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 469,
+        "Generic / Templated Code": 471,
         "Many-Argument Workhorses": 9,
         "Parameter Forwarders": 95,
         "State Mutators": 17,
@@ -10377,14 +10366,14 @@
       },
       "scala/kafka/Partition.scala": {
         "Callbacks & Closures": 38,
-        "Compute Cores": 3,
-        "Encapsulated Accessors": 7,
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 8,
         "Generic / Templated Code": 10,
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 9,
         "State Mutators": 15,
-        "Stateful Encapsulated Methods": 17
+        "Stateful Encapsulated Methods": 16
       },
       "scala/kafka/ReplicaManager.scala": {
         "Callbacks & Closures": 24,
@@ -10415,10 +10404,10 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": {},
       "scheme/racket/cpnanopass.ss": {
-        "Callbacks & Closures": 49,
-        "Compute Cores": 13,
+        "Callbacks & Closures": 51,
+        "Compute Cores": 10,
         "I/O & Config Routines": 64,
-        "Many-Argument Workhorses": 12,
+        "Many-Argument Workhorses": 13,
         "State Mutators": 1
       },
       "scheme/racket/eval.c": {
@@ -10505,12 +10494,12 @@
       },
       "shell/brew/brew.rb": {
         "Callbacks & Closures": 6,
-        "Compute Cores": 17,
+        "Compute Cores": 15,
         "Defensive Guards": 3,
         "I/O & Config Routines": 2,
         "Interface Declarations": 12,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 10
       },
       "shell/brew/cask.rb": {
         "Callbacks & Closures": 1,
@@ -10524,8 +10513,8 @@
         "Callbacks & Closures": 1,
         "Compute Cores": 15,
         "Defensive Guards": 39,
-        "I/O & Config Routines": 11,
-        "Interface Declarations": 48,
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 50,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 25,
         "Stateful Encapsulated Methods": 1
@@ -10636,8 +10625,7 @@
       },
       "shell/freebsd-src/ckscripts.sh": {},
       "shell/freebsd-src/cp_test.sh": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 80,
+        "I/O & Config Routines": 81,
         "Interface Declarations": 3,
         "Parameter Forwarders": 1,
         "State Mutators": 3
@@ -11116,12 +11104,12 @@
         "Stateful Encapsulated Methods": 4
       },
       "solidity/openzeppelin/Governor.sol": {
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Defensive Guards": 4,
         "Encapsulated Accessors": 12,
         "Interface Declarations": 7,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 15,
+        "Parameter Forwarders": 14,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 8,
         "Type Conversions": 4
@@ -11671,13 +11659,13 @@
       },
       "typescript/playwright/connection.ts": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 3,
+        "Compute Cores": 2,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 2,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 2,
         "State Mutators": 4,
         "Stateful Encapsulated Methods": 1
       },
@@ -11706,14 +11694,14 @@
       },
       "typescript/playwright/frames.ts": {
         "Callbacks & Closures": 18,
-        "Compute Cores": 24,
+        "Compute Cores": 23,
         "Defensive Guards": 16,
         "Encapsulated Accessors": 7,
         "Generic / Templated Code": 6,
         "I/O & Config Routines": 2,
         "Interface Declarations": 11,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 33,
+        "Parameter Forwarders": 34,
         "State Mutators": 20,
         "Stateful Encapsulated Methods": 13,
         "Type Conversions": 2
@@ -11724,54 +11712,54 @@
       "typescript/typescript_compiler/LICENSE.txt": {},
       "typescript/typescript_compiler/binder.ts": {
         "Callbacks & Closures": 1,
-        "Compute Cores": 63,
+        "Compute Cores": 61,
         "Defensive Guards": 2,
         "Generic / Templated Code": 4,
         "I/O & Config Routines": 9,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 11,
         "Parameter Forwarders": 23,
-        "State Mutators": 39,
+        "State Mutators": 41,
         "Type Conversions": 22
       },
       "typescript/typescript_compiler/checker.ts": {
         "Callbacks & Closures": 115,
-        "Compute Cores": 1104,
-        "Defensive Guards": 163,
+        "Compute Cores": 1054,
+        "Defensive Guards": 164,
         "Encapsulated Accessors": 2,
         "Generic / Templated Code": 48,
-        "I/O & Config Routines": 24,
+        "I/O & Config Routines": 25,
         "Interface Declarations": 19,
-        "Many-Argument Workhorses": 243,
-        "Parameter Forwarders": 488,
-        "State Mutators": 106,
+        "Many-Argument Workhorses": 242,
+        "Parameter Forwarders": 523,
+        "State Mutators": 108,
         "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 317
+        "Type Conversions": 329
       },
       "typescript/typescript_compiler/emitter.ts": {
         "Callbacks & Closures": 4,
-        "Compute Cores": 77,
+        "Compute Cores": 74,
         "Defensive Guards": 16,
         "Generic / Templated Code": 29,
         "I/O & Config Routines": 8,
         "Interface Declarations": 8,
         "Many-Argument Workhorses": 31,
-        "Parameter Forwarders": 65,
-        "State Mutators": 184,
+        "Parameter Forwarders": 67,
+        "State Mutators": 185,
         "Type Conversions": 7
       },
       "typescript/typescript_compiler/package.json": {},
       "typescript/typescript_compiler/parser.ts": {
         "Callbacks & Closures": 7,
-        "Compute Cores": 129,
+        "Compute Cores": 119,
         "Defensive Guards": 3,
-        "Generic / Templated Code": 208,
-        "I/O & Config Routines": 61,
-        "Interface Declarations": 145,
+        "Generic / Templated Code": 210,
+        "I/O & Config Routines": 60,
+        "Interface Declarations": 151,
         "Many-Argument Workhorses": 49,
-        "Parameter Forwarders": 60,
-        "State Mutators": 20,
-        "Type Conversions": 33
+        "Parameter Forwarders": 61,
+        "State Mutators": 21,
+        "Type Conversions": 34
       },
       "typescript/typescript_compiler/types.ts": {
         "Callbacks & Closures": 2,
@@ -11837,14 +11825,14 @@
       "typescript/vscode/instantiationService.ts": {
         "Compute Cores": 4,
         "Defensive Guards": 5,
-        "Encapsulated Accessors": 2,
+        "Encapsulated Accessors": 3,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 2,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 4,
         "State Mutators": 2,
-        "Stateful Encapsulated Methods": 8
+        "Stateful Encapsulated Methods": 7
       },
       "typescript/vscode/ipc.ts": {
         "Callbacks & Closures": 8,
@@ -12141,14 +12129,15 @@
         "Type Conversions": 3
       },
       "zig/mach/collision.zig": {
-        "Compute Cores": 5,
+        "Compute Cores": 8,
         "Defensive Guards": 4,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 6
+        "Parameter Forwarders": 3
       },
       "zig/mach/graph.zig": {
+        "Compute Cores": 1,
         "Defensive Guards": 14,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 2,
         "State Mutators": 2
       },
       "zig/mach/main.zig": {},
@@ -12161,15 +12150,16 @@
         "Type Conversions": 5
       },
       "zig/mach/testing.zig": {
-        "Compute Cores": 2,
+        "Compute Cores": 3,
         "Defensive Guards": 13,
-        "Generic / Templated Code": 4,
+        "Generic / Templated Code": 3,
         "Parameter Forwarders": 1
       },
       "zig/mach/win32.zig": {
+        "Compute Cores": 1,
         "Generic / Templated Code": 2,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 36,
+        "Parameter Forwarders": 35,
         "State Mutators": 49,
         "Type Conversions": 93
       }
@@ -12235,34 +12225,34 @@
         "Callbacks & Closures": 1
       },
       "zig/tigerbeetle/state_machine.zig": {
-        "Compute Cores": 14,
+        "Compute Cores": 15,
         "Defensive Guards": 8,
         "Generic / Templated Code": 6,
-        "I/O & Config Routines": 8,
+        "I/O & Config Routines": 9,
         "Many-Argument Workhorses": 43,
-        "Parameter Forwarders": 6,
-        "State Mutators": 30,
+        "Parameter Forwarders": 5,
+        "State Mutators": 29,
         "Type Conversions": 13
       }
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": {
-        "Compute Cores": 13,
+        "Compute Cores": 17,
         "Defensive Guards": 88,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 25,
-        "Parameter Forwarders": 30,
+        "Parameter Forwarders": 26,
         "State Mutators": 22,
         "Type Conversions": 2
       },
       "zig/zig/InternPool.zig": {
-        "Compute Cores": 37,
+        "Compute Cores": 39,
         "Defensive Guards": 55,
         "Generic / Templated Code": 11,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 49,
-        "Parameter Forwarders": 179,
+        "Parameter Forwarders": 177,
         "State Mutators": 22,
         "Type Conversions": 82
       },

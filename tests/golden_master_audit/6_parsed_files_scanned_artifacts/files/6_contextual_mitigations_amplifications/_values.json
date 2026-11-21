@@ -870,6 +870,7 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": "None Detected"
     },
     "dockerfile/moby/test_targets": {
+      "dockerfile/moby/test_targets/daemon.Dockerfile": "None Detected",
       "dockerfile/moby/test_targets/generate-files.Dockerfile": "None Detected",
       "dockerfile/moby/test_targets/syscall.Dockerfile": "None Detected",
       "dockerfile/moby/test_targets/windows.Dockerfile": "None Detected"
@@ -1591,6 +1592,7 @@
       "livecode/livecode/arithmetic.lcb": "None Detected",
       "livecode/livecode/array.lcb": "None Detected",
       "livecode/livecode/assert.lcb": "None Detected",
+      "livecode/livecode/assign-ops.lcb": "None Detected",
       "livecode/livecode/automaticactivationactivationinputpassfieldbehavior.livecodescript": "None Detected",
       "livecode/livecode/automaticactivationbackgroundgroupbehavior.livecodescript": "None Detected",
       "livecode/livecode/binary.lcb": "None Detected",
@@ -1598,9 +1600,11 @@
       "livecode/livecode/bom.livecodescript": "None Detected",
       "livecode/livecode/button.livecodescript": "None Detected",
       "livecode/livecode/byte.lcb": "None Detected",
+      "livecode/livecode/bytecode.lcb": "None Detected",
       "livecode/livecode/canvas.livecodescript": "None Detected",
       "livecode/livecode/char.lcb": "None Detected",
       "livecode/livecode/clipmessages.livecodescript": "None Detected",
+      "livecode/livecode/code.livecodescript": "None Detected",
       "livecode/livecode/codeunit.lcb": "None Detected",
       "livecode/livecode/compound.livecodescript": "None Detected",
       "livecode/livecode/connect.livecodescript": "None Detected",
@@ -1608,6 +1612,7 @@
       "livecode/livecode/dashes.livecodescript": "None Detected",
       "livecode/livecode/date.lcb": "None Detected",
       "livecode/livecode/default-values.lcb": "None Detected",
+      "livecode/livecode/docsparser.livecodescript": "None Detected",
       "livecode/livecode/dynamic-call.lcb": "None Detected",
       "livecode/livecode/edition_utilities.livecodescript": "None Detected",
       "livecode/livecode/encoding.lcb": "None Detected",
@@ -1672,12 +1677,15 @@
       "lua/pandoc/block-count.lua": "None Detected",
       "lua/pandoc/blocks-filter.lua": "None Detected",
       "lua/pandoc/bytestring-reader.lua": "None Detected",
+      "lua/pandoc/extensions.lua": "None Detected",
+      "lua/pandoc/globals.lua": "None Detected",
       "lua/pandoc/hello-world-doc.lua": "None Detected",
       "lua/pandoc/implicit-doc-filter.lua": "None Detected",
       "lua/pandoc/init.lua": "None Detected",
       "lua/pandoc/pandoc-format.lua": "None Detected",
       "lua/pandoc/pandoc-image.lua": "None Detected",
       "lua/pandoc/pandoc-json.lua": "None Detected",
+      "lua/pandoc/pandoc-list.lua": "None Detected",
       "lua/pandoc/pandoc-log.lua": "None Detected",
       "lua/pandoc/writer-template.lua": "None Detected"
     },
@@ -1778,6 +1786,9 @@
     },
     "perl/mojo": {
       "perl/mojo/Makefile.PL": "None Detected"
+    },
+    "perl/spamassassin": {
+      "perl/spamassassin/Bayes.pm": "None Detected"
     },
     "php": {
       "php/SOURCES.md": "None Detected"
@@ -1897,7 +1908,8 @@
       "python/airflow/NOTICE": "None Detected"
     },
     "python/airflow_ai_providers": {
-      "python/airflow_ai_providers/NOTICE": "None Detected"
+      "python/airflow_ai_providers/NOTICE": "None Detected",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "None Detected"
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": "None Detected"
@@ -1920,6 +1932,7 @@
       "python/fastapi/fastapi/__init__.py": "None Detected",
       "python/fastapi/fastapi/__main__.py": "None Detected",
       "python/fastapi/fastapi/background.py": "None Detected",
+      "python/fastapi/fastapi/datastructures.py": "None Detected",
       "python/fastapi/fastapi/logger.py": "None Detected",
       "python/fastapi/fastapi/param_functions.py": "None Detected",
       "python/fastapi/fastapi/requests.py": "None Detected",
@@ -1949,6 +1962,7 @@
       "python/fastapi/tests/test_application.py": "None Detected",
       "python/fastapi/tests/test_arbitrary_types.py": "None Detected",
       "python/fastapi/tests/test_callable_endpoint.py": "None Detected",
+      "python/fastapi/tests/test_compat.py": "None Detected",
       "python/fastapi/tests/test_computed_fields.py": "None Detected",
       "python/fastapi/tests/test_custom_schema_fields.py": "None Detected",
       "python/fastapi/tests/test_custom_swagger_ui_redirect.py": "None Detected",
@@ -2013,6 +2027,7 @@
       "python/fastapi/tests/test_path.py": "None Detected",
       "python/fastapi/tests/test_put_no_body.py": "None Detected",
       "python/fastapi/tests/test_pydantic_v1_error.py": "None Detected",
+      "python/fastapi/tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py": "None Detected",
       "python/fastapi/tests/test_query.py": "None Detected",
       "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": "None Detected",
       "python/fastapi/tests/test_read_with_orm_mode.py": "None Detected",
@@ -2231,7 +2246,8 @@
       "shell/ansible/hello__runme.sh": "None Detected",
       "shell/ansible/module_common_regex_regression.sh": "None Detected",
       "shell/ansible/runme.sh": "None Detected",
-      "shell/ansible/test__runme.sh": "None Detected"
+      "shell/ansible/test__runme.sh": "None Detected",
+      "shell/ansible/windows.sh": "None Detected"
     },
     "shell/brew": {
       "shell/brew/Dockerfile": "None Detected",
@@ -2244,7 +2260,9 @@
       "shell/curl/cmakelint.sh": "None Detected",
       "shell/curl/codespell.sh": "None Detected",
       "shell/curl/coverage.sh": "None Detected",
+      "shell/curl/distfiles.sh": "None Detected",
       "shell/curl/gnv_curl_configure.sh": "None Detected",
+      "shell/curl/make-docs.sh": "None Detected",
       "shell/curl/make_gnv_curl_install.sh": "None Detected",
       "shell/curl/shellcheck-ci.sh": "None Detected",
       "shell/curl/shellcheck.sh": "None Detected",
@@ -2267,8 +2285,11 @@
       "shell/freebsd-src/mkdir_test.sh": "None Detected",
       "shell/freebsd-src/mkerrno.sh": "None Detected",
       "shell/freebsd-src/mv_test.sh": "None Detected",
+      "shell/freebsd-src/pkg-install.sh": "None Detected",
+      "shell/freebsd-src/pwd_test.sh": "None Detected",
       "shell/freebsd-src/rm_test.sh": "None Detected",
-      "shell/freebsd-src/rmdir_test.sh": "None Detected"
+      "shell/freebsd-src/rmdir_test.sh": "None Detected",
+      "shell/freebsd-src/timeout_test.sh": "None Detected"
     },
     "shell/freebsd_sysbuild": {
       "shell/freebsd_sysbuild/COPYRIGHT": "None Detected"
@@ -2283,11 +2304,14 @@
       "shell/haiku/makezip.sh": "None Detected"
     },
     "shell/illumos-gate": {
+      "shell/illumos-gate/Run.sh": "None Detected",
       "shell/illumos-gate/clear.sh": "None Detected",
       "shell/illumos-gate/devlink.tab.sh": "None Detected",
       "shell/illumos-gate/dfshares.sh": "None Detected",
       "shell/illumos-gate/dmesg.sh": "None Detected",
-      "shell/illumos-gate/ikecert.sh": "None Detected"
+      "shell/illumos-gate/ikecert.sh": "None Detected",
+      "shell/illumos-gate/mkerror.sh": "None Detected",
+      "shell/illumos-gate/newvers.sh": "None Detected"
     },
     "shell/kubernetes": {
       "shell/kubernetes/build-image.sh": "None Detected",
@@ -2299,6 +2323,7 @@
       "shell/kubernetes/skeleton__util.sh": "None Detected",
       "shell/kubernetes/stage-upload.sh": "None Detected",
       "shell/kubernetes/testdata__generate.sh": "None Detected",
+      "shell/kubernetes/update-codegen.sh": "None Detected",
       "shell/kubernetes/util.sh": "None Detected"
     },
     "shell/linux": {
@@ -2315,6 +2340,10 @@
       "shell/linux/vdso__gen_vdso_offsets.sh": "None Detected"
     },
     "shell/moby": {
+      "shell/moby/e2e-run.sh": "None Detected",
+      "shell/moby/generate-swagger-api.sh": "None Detected",
+      "shell/moby/generate-test-certs.sh": "None Detected",
+      "shell/moby/generate-test-rogue-certs.sh": "None Detected",
       "shell/moby/run.sh": "None Detected",
       "shell/moby/validate-swagger.sh": "None Detected"
     },
@@ -2680,6 +2709,7 @@
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/bin-image.yml": "None Detected",
+      "yaml/moby_workflows/buildkit.yml": "None Detected",
       "yaml/moby_workflows/codeql.yml": "None Detected",
       "yaml/moby_workflows/labeler.yml": "None Detected",
       "yaml/moby_workflows/test.yml": "None Detected",

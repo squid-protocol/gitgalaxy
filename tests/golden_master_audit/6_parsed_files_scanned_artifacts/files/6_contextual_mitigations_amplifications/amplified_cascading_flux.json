@@ -60,7 +60,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": "1 instances",
       "assembly/cosmopolitan/ape.S": "11 instances",
-      "assembly/cosmopolitan/loader.c": "229 instances"
+      "assembly/cosmopolitan/loader.c": "225 instances"
     },
     "assembly/cosmopolitan_runtime": {
       "assembly/cosmopolitan_runtime/kcpuids.S": "3 instances",
@@ -105,13 +105,13 @@
       "c/cosmopolitan_intrin/countbits.c": "19 instances"
     },
     "c/cpython": {
-      "c/cpython/ceval.c": "256 instances",
+      "c/cpython/ceval.c": "252 instances",
       "c/cpython/compile.c": "159 instances",
-      "c/cpython/dictobject.c": "575 instances",
-      "c/cpython/frameobject.c": "144 instances",
-      "c/cpython/gc.c": "129 instances",
+      "c/cpython/dictobject.c": "571 instances",
+      "c/cpython/frameobject.c": "139 instances",
+      "c/cpython/gc.c": "126 instances",
       "c/cpython/object.c": "144 instances",
-      "c/cpython/typeobject.c": "768 instances"
+      "c/cpython/typeobject.c": "765 instances"
     },
     "c/doom": {
       "c/doom/d_main.c": "145 instances",
@@ -123,15 +123,15 @@
       "c/doom/z_zone.c": "56 instances"
     },
     "c/micropython": {
-      "c/micropython/compile.c": "242 instances",
-      "c/micropython/emitnative.c": "101 instances",
-      "c/micropython/gc.c": "113 instances",
+      "c/micropython/compile.c": "241 instances",
+      "c/micropython/emitnative.c": "100 instances",
+      "c/micropython/gc.c": "112 instances",
       "c/micropython/objtype.c": "88 instances",
       "c/micropython/vfs.c": "41 instances",
       "c/micropython/vm.c": "93 instances"
     },
     "c/sqlite": {
-      "c/sqlite/lemon.c": "1627 instances",
+      "c/sqlite/lemon.c": "1622 instances",
       "c/sqlite/parse.y": "215 instances"
     },
     "cobol/CICS-Cobol": {
@@ -409,9 +409,9 @@
       "cobol/gnucobol/tutorial.cob": "16 instances"
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/codegen.c": "1487 instances",
-      "cobol/gnucobol_internals/fileio.c": "1529 instances",
-      "cobol/gnucobol_internals/numeric.c": "323 instances",
+      "cobol/gnucobol_internals/codegen.c": "1482 instances",
+      "cobol/gnucobol_internals/fileio.c": "1528 instances",
+      "cobol/gnucobol_internals/numeric.c": "322 instances",
       "cobol/gnucobol_internals/parser.y": "1820 instances",
       "cobol/gnucobol_internals/scanner.l": "352 instances"
     },
@@ -426,30 +426,30 @@
       "cobol/zopeneditor-sample/SAM2.cbl": "35 instances"
     },
     "cpp/NVDA": {
-      "cpp/NVDA/__init__.py": "442 instances",
-      "cpp/NVDA/braille.py": "562 instances",
-      "cpp/NVDA/core.py": "66 instances",
+      "cpp/NVDA/__init__.py": "433 instances",
+      "cpp/NVDA/braille.py": "539 instances",
+      "cpp/NVDA/core.py": "64 instances",
       "cpp/NVDA/ensureuv.ps1": "9 instances",
       "cpp/NVDA/espeak.py": "54 instances",
       "cpp/NVDA/inProcess.cpp": "12 instances",
-      "cpp/NVDA/storage.cpp": "198 instances"
+      "cpp/NVDA/storage.cpp": "197 instances"
     },
     "cpp/godot": {
-      "cpp/godot/editor_node.cpp": "573 instances",
+      "cpp/godot/editor_node.cpp": "564 instances",
       "cpp/godot/editor_node.h": "1 instances",
-      "cpp/godot/gdscript_vm.cpp": "389 instances",
-      "cpp/godot/main.cpp": "715 instances",
-      "cpp/godot/node.cpp": "382 instances",
+      "cpp/godot/gdscript_vm.cpp": "357 instances",
+      "cpp/godot/main.cpp": "711 instances",
+      "cpp/godot/node.cpp": "377 instances",
       "cpp/godot/node.h": "6 instances",
-      "cpp/godot/object.cpp": "248 instances",
-      "cpp/godot/object.h": "12 instances",
+      "cpp/godot/object.cpp": "247 instances",
+      "cpp/godot/object.h": "11 instances",
       "cpp/godot/rendering_server_default.cpp": "21 instances",
       "cpp/godot/rendering_server_default.h": "2 instances",
       "cpp/godot/variant.cpp": "266 instances",
-      "cpp/godot/variant.h": "15 instances"
+      "cpp/godot/variant.h": "12 instances"
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": "212 instances",
+      "cpp/mlir/flatbuffer_export.cc": "210 instances",
       "cpp/mlir/glob_lit_test.bzl": "7 instances",
       "cpp/mlir/mlir_graph_optimization_pass.cc": "15 instances",
       "cpp/mlir/tf_tfl_translate.cc": "15 instances"
@@ -459,7 +459,7 @@
       "cpp/powertoys/ImageResizerExt.cpp": "2 instances",
       "cpp/powertoys/centralized_kb_hook.cpp": "17 instances",
       "cpp/powertoys/logger.cpp": "5 instances",
-      "cpp/powertoys/main.cpp": "19 instances"
+      "cpp/powertoys/main.cpp": "18 instances"
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "3 instances",
@@ -468,17 +468,17 @@
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "143 instances",
       "csharp/roslyn/CSharpSyntaxTree.cs": "23 instances",
-      "csharp/roslyn/LanguageParser.cs": "768 instances",
-      "csharp/roslyn/MethodCompiler.cs": "108 instances",
+      "csharp/roslyn/LanguageParser.cs": "759 instances",
+      "csharp/roslyn/MethodCompiler.cs": "107 instances",
       "csharp/roslyn/Workspace.cs": "27 instances"
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": "162 instances",
+      "dart/flutter/editable_text.dart": "157 instances",
       "dart/flutter/events.dart": "1 instances",
-      "dart/flutter/framework.dart": "183 instances",
-      "dart/flutter/navigator.dart": "198 instances",
-      "dart/flutter/object.dart": "386 instances",
-      "dart/flutter/semantics.dart": "369 instances",
+      "dart/flutter/framework.dart": "180 instances",
+      "dart/flutter/navigator.dart": "188 instances",
+      "dart/flutter/object.dart": "375 instances",
+      "dart/flutter/semantics.dart": "366 instances",
       "dart/flutter/theme_data.dart": "109 instances"
     },
     "db2_sql/db2unit": {
@@ -487,13 +487,13 @@
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": "7 instances",
       "dockerfile/moby/builder/dockerfile/builder.go": "22 instances",
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": "9 instances",
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": "8 instances",
       "dockerfile/moby/builder/dockerfile/copy.go": "19 instances",
       "dockerfile/moby/builder/dockerfile/copy_unix.go": "6 instances",
       "dockerfile/moby/builder/dockerfile/dispatchers.go": "59 instances",
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "19 instances",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "3 instances",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "7 instances",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "6 instances",
       "dockerfile/moby/builder/dockerfile/evaluator.go": "11 instances",
       "dockerfile/moby/builder/dockerfile/imagecontext.go": "9 instances",
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": "1 instances",
@@ -526,9 +526,6 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": "6 instances",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": "7 instances"
     },
-    "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": "3 instances"
-    },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": "91 instances",
       "embedded_python/meow_turtle/app.py": "233 instances",
@@ -539,30 +536,30 @@
       "embedded_python/meow_turtle/meowprotocol.py": "25 instances",
       "embedded_python/meow_turtle/mpu6050.py": "6 instances",
       "embedded_python/meow_turtle/ota.py": "16 instances",
-      "embedded_python/meow_turtle/sensors.py": "75 instances",
+      "embedded_python/meow_turtle/sensors.py": "74 instances",
       "embedded_python/meow_turtle/tester.py": "12 instances",
-      "embedded_python/meow_turtle/tsl2591.py": "9 instances",
+      "embedded_python/meow_turtle/tsl2591.py": "8 instances",
       "embedded_python/meow_turtle/vibration_driver.py": "14 instances"
     },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": "13 instances",
-      "fortran/wrf/configure_reader.py": "90 instances",
+      "fortran/wrf/configure_reader.py": "88 instances",
       "fortran/wrf/gen_be_wrapper.ksh": "3 instances",
       "fortran/wrf/module_configure.F": "60 instances",
-      "fortran/wrf/module_domain.F": "339 instances",
-      "fortran/wrf/module_initialize_real.F": "1879 instances",
+      "fortran/wrf/module_domain.F": "330 instances",
+      "fortran/wrf/module_initialize_real.F": "1854 instances",
       "fortran/wrf/module_physics_init.F": "455 instances",
-      "fortran/wrf/module_sf_noahdrv.F": "746 instances",
-      "fortran/wrf/sourcetree.py": "52 instances",
-      "fortran/wrf/wrf_timeseries.F": "201 instances"
+      "fortran/wrf/module_sf_noahdrv.F": "725 instances",
+      "fortran/wrf/sourcetree.py": "51 instances",
+      "fortran/wrf/wrf_timeseries.F": "200 instances"
     },
     "go/core": {
       "go/core/main.go": "30 instances",
-      "go/core/mgc.go": "91 instances",
-      "go/core/proc.go": "489 instances",
+      "go/core/mgc.go": "89 instances",
+      "go/core/proc.go": "485 instances",
       "go/core/server.go": "202 instances",
-      "go/core/syscall_linux.go": "110 instances",
-      "go/core/value.go": "155 instances"
+      "go/core/syscall_linux.go": "106 instances",
+      "go/core/value.go": "153 instances"
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": "16 instances"
@@ -572,7 +569,7 @@
       "go/kubernetes/generic.go": "33 instances",
       "go/kubernetes/kubelet.go": "8 instances",
       "go/kubernetes/proxier.go": "60 instances",
-      "go/kubernetes/replica_set.go": "27 instances",
+      "go/kubernetes/replica_set.go": "26 instances",
       "go/kubernetes/scheduler.go": "27 instances"
     },
     "go/kubernetes_kubectl_tls": {
@@ -714,13 +711,13 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": "1 instances"
     },
     "javascript/jquery": {
-      "javascript/jquery/ajax.js": "113 instances",
+      "javascript/jquery/ajax.js": "108 instances",
       "javascript/jquery/buildFragment.js": "23 instances",
-      "javascript/jquery/core.js": "42 instances",
-      "javascript/jquery/css.js": "51 instances",
-      "javascript/jquery/deferred.js": "24 instances",
-      "javascript/jquery/event.js": "120 instances",
-      "javascript/jquery/tokenize.js": "15 instances"
+      "javascript/jquery/core.js": "41 instances",
+      "javascript/jquery/css.js": "49 instances",
+      "javascript/jquery/deferred.js": "23 instances",
+      "javascript/jquery/event.js": "113 instances",
+      "javascript/jquery/tokenize.js": "14 instances"
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": "1 instances",
@@ -730,9 +727,9 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "2 instances",
-      "javascript/react/ReactFiberBeginWork.js": "234 instances",
-      "javascript/react/ReactFiberWorkLoop.js": "314 instances",
-      "javascript/react/ReactFlightServer.js": "424 instances",
+      "javascript/react/ReactFiberBeginWork.js": "225 instances",
+      "javascript/react/ReactFiberWorkLoop.js": "308 instances",
+      "javascript/react/ReactFlightServer.js": "413 instances",
       "javascript/react/build.js": "15 instances"
     },
     "javascript/react_error_codes": {
@@ -740,11 +737,11 @@
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "71 instances",
-      "javascript/threejs/Editor.js": "51 instances",
-      "javascript/threejs/GLTFLoader.js": "331 instances",
+      "javascript/threejs/Editor.js": "47 instances",
+      "javascript/threejs/GLTFLoader.js": "316 instances",
       "javascript/threejs/Matrix4.js": "97 instances",
       "javascript/threejs/WebGLProgram.js": "33 instances",
-      "javascript/threejs/WebGLRenderer.js": "233 instances"
+      "javascript/threejs/WebGLRenderer.js": "225 instances"
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Dispatcher.kt": "9 instances",
@@ -754,25 +751,21 @@
     "livecode/livecode": {
       "livecode/livecode/accountsignupcardbehavior.livecodescript": "2 instances",
       "livecode/livecode/accountsignuppasswordfieldbehaviorbuttonbehavior.livecodescript": "19 instances",
-      "livecode/livecode/array.livecodescript": "32 instances",
-      "livecode/livecode/assign-ops.lcb": "1 instances",
+      "livecode/livecode/array.livecodescript": "28 instances",
       "livecode/livecode/automaticactivationactivationgroupbehavior.livecodescript": "6 instances",
       "livecode/livecode/automaticactivationcardbehavior.livecodescript": "1 instances",
       "livecode/livecode/automaticactivationprocessinggroupbehavior.livecodescript": "2 instances",
       "livecode/livecode/background-pattern-scroll.livecodescript": "6 instances",
       "livecode/livecode/basic.livecodescript": "8 instances",
       "livecode/livecode/builder_tool.livecodescript": "41 instances",
-      "livecode/livecode/builder_utilities.livecodescript": "42 instances",
-      "livecode/livecode/bytecode.lcb": "1 instances",
+      "livecode/livecode/builder_utilities.livecodescript": "40 instances",
       "livecode/livecode/case-senstive-db-type.livecodescript": "1 instances",
       "livecode/livecode/char.livecodescript": "8 instances",
-      "livecode/livecode/code.livecodescript": "2 instances",
       "livecode/livecode/combine.livecodescript": "18 instances",
       "livecode/livecode/datetime.livecodescript": "1 instances",
       "livecode/livecode/db_getters.livecodescript": "7 instances",
       "livecode/livecode/docs_builder.livecodescript": "35 instances",
-      "livecode/livecode/docsparser.livecodescript": "1 instances",
-      "livecode/livecode/encrypt.livecodescript": "4 instances",
+      "livecode/livecode/encrypt.livecodescript": "3 instances",
       "livecode/livecode/engine_builder.livecodescript": "7 instances",
       "livecode/livecode/ext-urls.livecodescript": "3 instances",
       "livecode/livecode/filters.livecodescript": "3 instances",
@@ -781,90 +774,87 @@
       "livecode/livecode/installeruiconfirmcardbehavior.livecodescript": "10 instances",
       "livecode/livecode/installeruicustomizecardbehavior.livecodescript": "1 instances",
       "livecode/livecode/installeruicustomizechangelocationbuttonbehavior.livecodescript": "1 instances",
-      "livecode/livecode/installeruifinishcardbehavior.livecodescript": "10 instances",
-      "livecode/livecode/installeruiinstallcardbehavior.livecodescript": "15 instances",
+      "livecode/livecode/installeruifinishcardbehavior.livecodescript": "9 instances",
+      "livecode/livecode/installeruiinstallcardbehavior.livecodescript": "14 instances",
       "livecode/livecode/iterator.lcb": "1 instances",
       "livecode/livecode/lexical-scoping.lcb": "29 instances",
       "livecode/livecode/log.livecodescript": "9 instances",
-      "livecode/livecode/network.livecodescript": "22 instances",
-      "livecode/livecode/recursion.livecodescript": "28 instances",
+      "livecode/livecode/network.livecodescript": "20 instances",
+      "livecode/livecode/recursion.livecodescript": "12 instances",
       "livecode/livecode/repeat.livecodescript": "61 instances",
       "livecode/livecode/revdeploylibraryandroid.livecodescript": "81 instances",
       "livecode/livecode/revdeploylibraryemscripten.livecodescript": "48 instances",
-      "livecode/livecode/revdeploylibraryios.livecodescript": "105 instances",
-      "livecode/livecode/revdocsparser.livecodescript": "552 instances",
+      "livecode/livecode/revdeploylibraryios.livecodescript": "104 instances",
+      "livecode/livecode/revdocsparser.livecodescript": "540 instances",
       "livecode/livecode/revhtml5urllibrary.livecodescript": "23 instances",
-      "livecode/livecode/revliburl.livecodescript": "1030 instances",
-      "livecode/livecode/revsaveasandroidstandalone.livecodescript": "288 instances",
-      "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": "46 instances"
+      "livecode/livecode/revliburl.livecodescript": "1025 instances",
+      "livecode/livecode/revsaveasandroidstandalone.livecodescript": "285 instances",
+      "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": "44 instances"
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": "22 instances",
-      "lua/cosmopolitan/api.lua": "110 instances",
-      "lua/cosmopolitan/attrib.lua": "52 instances",
-      "lua/cosmopolitan/big.lua": "6 instances",
+      "lua/cosmopolitan/all.lua": "21 instances",
+      "lua/cosmopolitan/api.lua": "49 instances",
+      "lua/cosmopolitan/attrib.lua": "17 instances",
+      "lua/cosmopolitan/big.lua": "5 instances",
       "lua/cosmopolitan/binarytrees.lua": "4 instances",
-      "lua/cosmopolitan/bitwise.lua": "21 instances",
-      "lua/cosmopolitan/bwcoercion.lua": "8 instances",
-      "lua/cosmopolitan/calls.lua": "33 instances",
-      "lua/cosmopolitan/closure.lua": "27 instances",
-      "lua/cosmopolitan/code.lua": "8 instances",
-      "lua/cosmopolitan/constructs.lua": "37 instances",
-      "lua/cosmopolitan/coroutine.lua": "64 instances",
-      "lua/cosmopolitan/cstack.lua": "6 instances",
-      "lua/cosmopolitan/db.lua": "85 instances",
-      "lua/cosmopolitan/errors.lua": "41 instances",
-      "lua/cosmopolitan/events.lua": "93 instances",
+      "lua/cosmopolitan/bitwise.lua": "2 instances",
+      "lua/cosmopolitan/bwcoercion.lua": "2 instances",
+      "lua/cosmopolitan/calls.lua": "21 instances",
+      "lua/cosmopolitan/closure.lua": "26 instances",
+      "lua/cosmopolitan/code.lua": "6 instances",
+      "lua/cosmopolitan/constructs.lua": "30 instances",
+      "lua/cosmopolitan/coroutine.lua": "37 instances",
+      "lua/cosmopolitan/cstack.lua": "4 instances",
+      "lua/cosmopolitan/db.lua": "61 instances",
+      "lua/cosmopolitan/errors.lua": "31 instances",
+      "lua/cosmopolitan/events.lua": "37 instances",
       "lua/cosmopolitan/fetch.lua": "1 instances",
-      "lua/cosmopolitan/files.lua": "42 instances",
-      "lua/cosmopolitan/gc.lua": "78 instances",
-      "lua/cosmopolitan/gengc.lua": "9 instances",
+      "lua/cosmopolitan/files.lua": "28 instances",
+      "lua/cosmopolitan/gc.lua": "73 instances",
+      "lua/cosmopolitan/gengc.lua": "1 instances",
       "lua/cosmopolitan/goto.lua": "10 instances",
       "lua/cosmopolitan/heavy.lua": "9 instances",
       "lua/cosmopolitan/hitcounter.lua": "2 instances",
-      "lua/cosmopolitan/literals.lua": "5 instances",
-      "lua/cosmopolitan/locals.lua": "33 instances",
-      "lua/cosmopolitan/main.lua": "13 instances",
-      "lua/cosmopolitan/math.lua": "29 instances",
+      "lua/cosmopolitan/literals.lua": "4 instances",
+      "lua/cosmopolitan/locals.lua": "13 instances",
+      "lua/cosmopolitan/main.lua": "7 instances",
+      "lua/cosmopolitan/math.lua": "26 instances",
       "lua/cosmopolitan/maxmind.lua": "9 instances",
-      "lua/cosmopolitan/nextvar.lua": "148 instances",
-      "lua/cosmopolitan/pm.lua": "28 instances",
+      "lua/cosmopolitan/nextvar.lua": "104 instances",
+      "lua/cosmopolitan/pm.lua": "20 instances",
       "lua/cosmopolitan/redbean-form.lua": "3 instances",
-      "lua/cosmopolitan/sort.lua": "41 instances",
-      "lua/cosmopolitan/strings.lua": "3 instances",
-      "lua/cosmopolitan/tpack.lua": "4 instances",
+      "lua/cosmopolitan/sort.lua": "25 instances",
+      "lua/cosmopolitan/strings.lua": "2 instances",
+      "lua/cosmopolitan/tpack.lua": "1 instances",
       "lua/cosmopolitan/tracegc.lua": "3 instances"
     },
     "lua/darwin-xnu": {
-      "lua/darwin-xnu/benchmark.lua": "8 instances",
+      "lua/darwin-xnu/benchmark.lua": "6 instances",
       "lua/darwin-xnu/bridgetime.lua": "11 instances",
-      "lua/darwin-xnu/fault_throughput.lua": "7 instances",
+      "lua/darwin-xnu/fault_throughput.lua": "5 instances",
       "lua/darwin-xnu/kqtrace.lua": "16 instances",
       "lua/darwin-xnu/perf_madvise.lua": "3 instances",
       "lua/darwin-xnu/wqtrace.lua": "25 instances"
     },
     "lua/freebsd-src": {
       "lua/freebsd-src/cli.lua": "20 instances",
-      "lua/freebsd-src/color.lua": "14 instances",
+      "lua/freebsd-src/color.lua": "6 instances",
       "lua/freebsd-src/config.lua": "69 instances",
-      "lua/freebsd-src/core.lua": "49 instances",
+      "lua/freebsd-src/core.lua": "46 instances",
       "lua/freebsd-src/drawer.lua": "49 instances",
       "lua/freebsd-src/hook.lua": "2 instances",
-      "lua/freebsd-src/menu.lua": "40 instances",
+      "lua/freebsd-src/menu.lua": "35 instances",
       "lua/freebsd-src/password.lua": "3 instances"
     },
     "lua/pandoc": {
       "lua/pandoc/bytestring.lua": "1 instances",
       "lua/pandoc/count_words.lua": "9 instances",
-      "lua/pandoc/creole.lua": "6 instances",
-      "lua/pandoc/extensions.lua": "1 instances",
+      "lua/pandoc/creole.lua": "4 instances",
       "lua/pandoc/extract-changes.lua": "4 instances",
-      "lua/pandoc/globals.lua": "2 instances",
       "lua/pandoc/inlines-filter.lua": "1 instances",
       "lua/pandoc/manfilter.lua": "1 instances",
       "lua/pandoc/markdown-reader.lua": "1 instances",
       "lua/pandoc/math.lua": "2 instances",
-      "lua/pandoc/pandoc-list.lua": "1 instances",
       "lua/pandoc/pandoc-mediabag.lua": "1 instances",
       "lua/pandoc/sample.lua": "9 instances"
     },
@@ -872,9 +862,8 @@
       "lua/redis/bisect.lua": "2 instances",
       "lua/redis/cf.lua": "1 instances",
       "lua/redis/factorial.lua": "2 instances",
-      "lua/redis/fib.lua": "6 instances",
-      "lua/redis/life.lua": "10 instances",
-      "lua/redis/luac.lua": "1 instances",
+      "lua/redis/fib.lua": "3 instances",
+      "lua/redis/life.lua": "9 instances",
       "lua/redis/sieve.lua": "3 instances",
       "lua/redis/sort.lua": "7 instances",
       "lua/redis/strict.lua": "5 instances",
@@ -882,18 +871,18 @@
     },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": "41 instances",
-      "matlab/eeglab/eeglab.m": "315 instances",
+      "matlab/eeglab/eeglab.m": "314 instances",
       "matlab/eeglab/eegobj.m": "2 instances",
       "matlab/eeglab/pop_loadset.m": "60 instances",
-      "matlab/eeglab/runica.m": "322 instances",
-      "matlab/eeglab/supergui.m": "91 instances"
+      "matlab/eeglab/runica.m": "318 instances",
+      "matlab/eeglab/supergui.m": "90 instances"
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": "1 instances"
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": "14 instances",
-      "objective-c/worldwideweb/HText.c": "100 instances",
+      "objective-c/worldwideweb/HText.c": "99 instances",
       "objective-c/worldwideweb/HyperManager.m": "29 instances",
       "objective-c/worldwideweb/HyperText.m": "267 instances",
       "objective-c/worldwideweb/TcpAccess.m": "4 instances"
@@ -902,78 +891,77 @@
       "perl/ack3_tests/file-permission.t": "2 instances"
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": "16 instances",
-      "perl/bugzilla/Bug.pm": "437 instances",
-      "perl/bugzilla/CGI.pm": "43 instances",
-      "perl/bugzilla/DB.pm": "52 instances",
+      "perl/bugzilla/Auth.pm": "11 instances",
+      "perl/bugzilla/Bug.pm": "416 instances",
+      "perl/bugzilla/CGI.pm": "42 instances",
+      "perl/bugzilla/DB.pm": "51 instances",
       "perl/bugzilla/Requirements.pm": "26 instances"
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": "1543 instances",
+      "perl/exiftool/ExifTool.pm": "1537 instances",
       "perl/exiftool/RandomAccess.pm": "69 instances",
       "perl/exiftool/exiftool": "1005 instances"
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": "16 instances",
-      "perl/mojo/Promise.pm": "24 instances",
-      "perl/mojo/Template.pm": "64 instances",
+      "perl/mojo/Promise.pm": "23 instances",
+      "perl/mojo/Template.pm": "62 instances",
       "perl/mojo/WebSocket.pm": "18 instances"
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": "98 instances",
-      "perl/spamassassin/Bayes.pm": "1 instances",
-      "perl/spamassassin/HTML.pm": "189 instances",
+      "perl/spamassassin/AsyncLoop.pm": "97 instances",
+      "perl/spamassassin/HTML.pm": "186 instances",
       "perl/spamassassin/Makefile.PL": "70 instances",
-      "perl/spamassassin/Message.pm": "160 instances",
-      "perl/spamassassin/Parser.pm": "203 instances",
-      "perl/spamassassin/PerMsgStatus.pm": "397 instances",
-      "perl/spamassassin/SpamAssassin.pm": "176 instances"
+      "perl/spamassassin/Message.pm": "154 instances",
+      "perl/spamassassin/Parser.pm": "201 instances",
+      "perl/spamassassin/PerMsgStatus.pm": "391 instances",
+      "perl/spamassassin/SpamAssassin.pm": "171 instances"
     },
     "php/guzzle": {
       "php/guzzle/Client.php": "57 instances",
-      "php/guzzle/CurlFactory.php": "110 instances",
+      "php/guzzle/CurlFactory.php": "109 instances",
       "php/guzzle/CurlMultiHandler.php": "22 instances",
       "php/guzzle/Middleware.php": "9 instances",
       "php/guzzle/Pool.php": "10 instances",
       "php/guzzle/RequestException.php": "20 instances",
-      "php/guzzle/StreamHandler.php": "72 instances"
+      "php/guzzle/StreamHandler.php": "69 instances"
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": "36 instances",
-      "php/laravel_core/BladeCompiler.php": "66 instances",
+      "php/laravel_core/BladeCompiler.php": "65 instances",
       "php/laravel_core/Collection.php": "169 instances",
-      "php/laravel_core/Container.php": "112 instances",
-      "php/laravel_core/Facade.php": "17 instances",
-      "php/laravel_core/Model.php": "102 instances",
-      "php/laravel_core/Router.php": "58 instances"
+      "php/laravel_core/Container.php": "111 instances",
+      "php/laravel_core/Facade.php": "15 instances",
+      "php/laravel_core/Model.php": "100 instances",
+      "php/laravel_core/Router.php": "56 instances"
     },
     "php/laravel_validation_rules": {
       "php/laravel_validation_rules/Can.php": "1 instances"
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "86 instances",
-      "php/magento2/AbstractModel.php": "51 instances",
+      "php/magento2/AbstractModel.php": "49 instances",
       "php/magento2/Application.php": "4 instances",
       "php/magento2/Http.php": "9 instances",
       "php/magento2/Interceptor.php": "15 instances",
-      "php/magento2/Mysql.php": "506 instances",
+      "php/magento2/Mysql.php": "502 instances",
       "php/magento2/ObjectManager.php": "3 instances"
     },
     "php/symfony": {
-      "php/symfony/Application.php": "213 instances",
-      "php/symfony/ContainerBuilder.php": "189 instances",
+      "php/symfony/Application.php": "209 instances",
+      "php/symfony/ContainerBuilder.php": "187 instances",
       "php/symfony/EventDispatcher.php": "29 instances",
       "php/symfony/HttpKernel.php": "32 instances",
-      "php/symfony/Parser.php": "51 instances",
-      "php/symfony/Request.php": "274 instances",
+      "php/symfony/Parser.php": "50 instances",
+      "php/symfony/Request.php": "270 instances",
       "php/symfony/Router.php": "27 instances"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "2 instances",
-      "php/wordpress/class-wp-query.php": "791 instances",
-      "php/wordpress/formatting.php": "710 instances",
-      "php/wordpress/functions.php": "912 instances",
-      "php/wordpress/plugin.php": "65 instances",
+      "php/wordpress/class-wp-query.php": "786 instances",
+      "php/wordpress/formatting.php": "707 instances",
+      "php/wordpress/functions.php": "906 instances",
+      "php/wordpress/plugin.php": "64 instances",
       "php/wordpress/wp-login.php": "145 instances",
       "php/wordpress/wp-settings.php": "15 instances"
     },
@@ -995,7 +983,7 @@
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": "48 instances",
       "powershell/PowerToys/BuildSDKHelper.ps1": "16 instances",
-      "powershell/PowerToys/BuildSparsePackage.ps1": "59 instances",
+      "powershell/PowerToys/BuildSparsePackage.ps1": "56 instances",
       "powershell/PowerToys/Capture-MonitorLayout.ps1": "39 instances",
       "powershell/PowerToys/Check preview handler registration.ps1": "6 instances",
       "powershell/PowerToys/CheckCmdNotFoundRequirements.ps1": "4 instances",
@@ -1006,8 +994,8 @@
       "powershell/PowerToys/Get-GitHubRawFile.ps1": "6 instances",
       "powershell/PowerToys/InstallWinAppDriver.ps1": "1 instances",
       "powershell/PowerToys/Invoke-WinMdQuery.ps1": "94 instances",
-      "powershell/PowerToys/Update-WinMdCache.ps1": "33 instances",
-      "powershell/PowerToys/UpdateVersions.ps1": "70 instances",
+      "powershell/PowerToys/Update-WinMdCache.ps1": "32 instances",
+      "powershell/PowerToys/UpdateVersions.ps1": "67 instances",
       "powershell/PowerToys/apply-labels.ps1": "14 instances",
       "powershell/PowerToys/check-extensions.ps1": "9 instances",
       "powershell/PowerToys/clear-copilot-context.ps1": "4 instances",
@@ -1022,22 +1010,22 @@
       "powershell/core/Install-PowerShellRemoting.ps1": "17 instances",
       "powershell/core/InstallPSCorePolicyDefinitions.ps1": "6 instances",
       "powershell/core/Parse-MarkdownLink.ps1": "13 instances",
-      "powershell/core/PowerShell__build.psm1": "526 instances",
-      "powershell/core/RegisterManifest.ps1": "11 instances",
+      "powershell/core/PowerShell__build.psm1": "502 instances",
+      "powershell/core/RegisterManifest.ps1": "10 instances",
       "powershell/core/RegisterMicrosoftUpdate.ps1": "10 instances",
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": "38 instances",
-      "powershell/core/Run.ps1": "55 instances",
-      "powershell/core/SSHRemoting.Basic.Tests.ps1": "30 instances",
+      "powershell/core/Run.ps1": "54 instances",
+      "powershell/core/SSHRemoting.Basic.Tests.ps1": "20 instances",
       "powershell/core/analyze-pr-test-failures.ps1": "55 instances",
-      "powershell/core/build.psm1": "526 instances",
-      "powershell/core/ci.psm1": "153 instances",
-      "powershell/core/ciModule.Tests.ps1": "6 instances",
-      "powershell/core/install-powershell.ps1": "82 instances",
+      "powershell/core/build.psm1": "502 instances",
+      "powershell/core/ci.psm1": "150 instances",
+      "powershell/core/ciModule.Tests.ps1": "2 instances",
+      "powershell/core/install-powershell.ps1": "77 instances",
       "powershell/core/package-validation.tests.ps1": "6 instances",
-      "powershell/core/packaging.psm1": "499 instances",
+      "powershell/core/packaging.psm1": "496 instances",
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": "17 instances",
       "powershell/core/process-pester-results.ps1": "25 instances",
-      "powershell/core/pwsh.profile.resource.ps1": "24 instances",
+      "powershell/core/pwsh.profile.resource.ps1": "23 instances",
       "powershell/core/runFuzzer.ps1": "3 instances"
     },
     "powershell/nvda": {
@@ -1057,8 +1045,8 @@
     "powershell/roslyn": {
       "powershell/roslyn/CommonLibrary.psm1": "24 instances",
       "powershell/roslyn/CreateAndUploadNugetZip.ps1": "8 instances",
-      "powershell/roslyn/Get-CIStatus.ps1": "337 instances",
-      "powershell/roslyn/Get-CodeflowStatus.ps1": "313 instances",
+      "powershell/roslyn/Get-CIStatus.ps1": "326 instances",
+      "powershell/roslyn/Get-CodeflowStatus.ps1": "305 instances",
       "powershell/roslyn/PowerShell__install.ps1": "5 instances",
       "powershell/roslyn/PowerShell__uninstall.ps1": "5 instances",
       "powershell/roslyn/SetupNugetSources.ps1": "24 instances",
@@ -1070,7 +1058,7 @@
       "powershell/roslyn/cleanup_perf.ps1": "10 instances",
       "powershell/roslyn/common__build.ps1": "18 instances",
       "powershell/roslyn/configure-sdl-tool.ps1": "19 instances",
-      "powershell/roslyn/execute-all-sdl-tools.ps1": "15 instances",
+      "powershell/roslyn/execute-all-sdl-tools.ps1": "14 instances",
       "powershell/roslyn/install-tool.ps1": "16 instances",
       "powershell/roslyn/install.ps1": "6 instances",
       "powershell/roslyn/mark-shipped.ps1": "11 instances",
@@ -1086,7 +1074,7 @@
       "powershell/runtime/build-local.ps1": "11 instances",
       "powershell/runtime/build.ps1": "67 instances",
       "powershell/runtime/check-channel-consistency.ps1": "5 instances",
-      "powershell/runtime/collect-coverage.ps1": "43 instances",
+      "powershell/runtime/collect-coverage.ps1": "39 instances",
       "powershell/runtime/copy_version_files.ps1": "12 instances",
       "powershell/runtime/download-tools.ps1": "3 instances",
       "powershell/runtime/generateredefinesfile.ps1": "4 instances",
@@ -1095,43 +1083,39 @@
       "powershell/runtime/processrc.ps1": "21 instances"
     },
     "python/airflow": {
-      "python/airflow/dag.py": "54 instances",
-      "python/airflow/s3.py": "182 instances",
-      "python/airflow/scheduler_job_runner.py": "223 instances"
+      "python/airflow/dag.py": "53 instances",
+      "python/airflow/s3.py": "168 instances",
+      "python/airflow/scheduler_job_runner.py": "208 instances"
     },
     "python/airflow_ai_providers": {
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "7 instances",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "2 instances",
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "14 instances",
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "5 instances",
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "4 instances"
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/test_opsgenie.py": "1 instances"
     },
     "python/cython": {
-      "python/cython/MemoryView.pyx": "176 instances",
-      "python/cython/Nodes.py": "1504 instances"
+      "python/cython/MemoryView.pyx": "173 instances",
+      "python/cython/Nodes.py": "1474 instances"
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_utils.py": "1 instances"
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/applications.py": "24 instances",
+      "python/fastapi/fastapi/applications.py": "17 instances",
       "python/fastapi/fastapi/cli.py": "2 instances",
-      "python/fastapi/fastapi/datastructures.py": "1 instances",
-      "python/fastapi/fastapi/encoders.py": "13 instances",
+      "python/fastapi/fastapi/encoders.py": "12 instances",
       "python/fastapi/fastapi/exception_handlers.py": "1 instances",
-      "python/fastapi/fastapi/exceptions.py": "9 instances",
+      "python/fastapi/fastapi/exceptions.py": "2 instances",
       "python/fastapi/fastapi/params.py": "18 instances",
-      "python/fastapi/fastapi/routing.py": "157 instances",
+      "python/fastapi/fastapi/routing.py": "139 instances",
       "python/fastapi/fastapi/sse.py": "8 instances",
-      "python/fastapi/fastapi/utils.py": "8 instances"
+      "python/fastapi/fastapi/utils.py": "5 instances"
     },
     "python/fastapi/tests": {
-      "python/fastapi/tests/test_compat.py": "2 instances",
       "python/fastapi/tests/test_custom_middleware_exception.py": "5 instances",
       "python/fastapi/tests/test_custom_route_class.py": "2 instances",
-      "python/fastapi/tests/test_datastructures.py": "1 instances",
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": "2 instances",
       "python/fastapi/tests/test_dependency_wrapped.py": "1 instances",
       "python/fastapi/tests/test_generate_unique_id_function.py": "1 instances",
@@ -1140,10 +1124,8 @@
       "python/fastapi/tests/test_openapi_cache_root_path.py": "16 instances",
       "python/fastapi/tests/test_operations_signatures.py": "5 instances",
       "python/fastapi/tests/test_optional_file_list.py": "1 instances",
-      "python/fastapi/tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py": "1 instances",
       "python/fastapi/tests/test_regex_deprecated_body.py": "1 instances",
       "python/fastapi/tests/test_regex_deprecated_params.py": "1 instances",
-      "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": "2 instances",
       "python/fastapi/tests/test_security_api_key_cookie_optional.py": "1 instances",
       "python/fastapi/tests/test_security_api_key_header_optional.py": "2 instances",
       "python/fastapi/tests/test_security_api_key_query_optional.py": "2 instances",
@@ -1157,7 +1139,6 @@
       "python/fastapi/tests/test_stream_bare_type.py": "2 instances",
       "python/fastapi/tests/test_stream_cancellation.py": "5 instances",
       "python/fastapi/tests/test_typing_python39.py": "1 instances",
-      "python/fastapi/tests/test_ws_router.py": "1 instances",
       "python/fastapi/tests/utils.py": "1 instances"
     },
     "python/homeassistant_anthropic": {
@@ -1169,7 +1150,7 @@
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "5 instances",
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "16 instances",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "14 instances",
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "3 instances"
     },
     "python/micropython_usb_tls": {
@@ -1180,8 +1161,8 @@
     "python/numpy": {
       "python/numpy/_linalg.py": "201 instances",
       "python/numpy/cfuncs.py": "35 instances",
-      "python/numpy/core.py": "801 instances",
-      "python/numpy/crackfortran.py": "1000 instances",
+      "python/numpy/core.py": "793 instances",
+      "python/numpy/crackfortran.py": "997 instances",
       "python/numpy/func2subr.py": "84 instances",
       "python/numpy/genapi.py": "103 instances",
       "python/numpy/generate_numpy_api.py": "22 instances",
@@ -1189,22 +1170,22 @@
       "python/numpy/generate_umath.py": "105 instances",
       "python/numpy/generate_umath_doc.py": "2 instances",
       "python/numpy/lapack_litemodule.c": "3 instances",
-      "python/numpy/symbolic.py": "232 instances",
+      "python/numpy/symbolic.py": "230 instances",
       "python/numpy/testutils.py": "18 instances",
       "python/numpy/ufunc_docstrings.py": "4 instances",
       "python/numpy/verify_c_api_version.py": "1 instances"
     },
     "python/pip_vendored_requests": {
-      "python/pip_vendored_requests/packages.py": "7 instances"
+      "python/pip_vendored_requests/packages.py": "6 instances"
     },
     "python/thealgorithms_machine_learning": {
       "python/thealgorithms_machine_learning/logistic_regression.py": "11 instances",
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "13 instances"
     },
     "python/twisted": {
-      "python/twisted/defer.py": "120 instances",
-      "python/twisted/http.py": "246 instances",
-      "python/twisted/reflect.py": "36 instances",
+      "python/twisted/defer.py": "118 instances",
+      "python/twisted/http.py": "245 instances",
+      "python/twisted/reflect.py": "35 instances",
       "python/twisted/transport.py": "128 instances"
     },
     "python/wtfpython": {
@@ -1244,12 +1225,12 @@
       "rexx/ibm_z_zos/wjsst92.rexx": "17 instances"
     },
     "ruby/rails": {
-      "ruby/rails/Rakefile": "23 instances",
-      "ruby/rails/base.rb": "12 instances",
-      "ruby/rails/blob.rb": "6 instances",
-      "ruby/rails/generator.rb": "38 instances",
+      "ruby/rails/Rakefile": "22 instances",
+      "ruby/rails/base.rb": "7 instances",
+      "ruby/rails/blob.rb": "5 instances",
+      "ruby/rails/generator.rb": "33 instances",
       "ruby/rails/inbound_emails_controller.rb": "1 instances",
-      "ruby/rails/metal.rb": "19 instances"
+      "ruby/rails/metal.rb": "18 instances"
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": "13 instances"
@@ -1257,7 +1238,7 @@
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": "14 instances",
       "rust/bevy/bevy_ecs_table.rs": "1 instances",
-      "rust/bevy/bevy_ecs_world.rs": "12 instances",
+      "rust/bevy/bevy_ecs_world.rs": "11 instances",
       "rust/bevy/bevy_reflect_path.rs": "1 instances",
       "rust/bevy/bevy_schedule_graph.rs": "16 instances"
     },
@@ -1283,7 +1264,7 @@
       "rust/syn/derive.rs": "5 instances"
     },
     "rust/tokio": {
-      "rust/tokio/builder.rs": "2 instances",
+      "rust/tokio/builder.rs": "1 instances",
       "rust/tokio/tests.rs": "3 instances",
       "rust/tokio/tokio_mpsc_bounded.rs": "1 instances",
       "rust/tokio/tokio_named_pipe.rs": "12 instances"
@@ -1299,49 +1280,46 @@
     },
     "scala/kafka": {
       "scala/kafka/KafkaApis.scala": "97 instances",
-      "scala/kafka/LogManager.scala": "28 instances",
+      "scala/kafka/LogManager.scala": "26 instances",
       "scala/kafka/Partition.scala": "23 instances",
       "scala/kafka/ReplicaManager.scala": "38 instances",
       "scala/kafka/SocketServer.scala": "33 instances"
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": "283 instances",
-      "scheme/racket/eval.c": "758 instances",
-      "scheme/racket/fun.c": "1938 instances",
-      "scheme/racket/io.ss": "86 instances",
-      "scheme/racket/schemify.rkt": "3 instances",
-      "scheme/racket/thread.rkt": "4 instances"
+      "scheme/racket/cpnanopass.ss": "265 instances",
+      "scheme/racket/eval.c": "753 instances",
+      "scheme/racket/fun.c": "1932 instances",
+      "scheme/racket/io.ss": "85 instances",
+      "scheme/racket/schemify.rkt": "2 instances",
+      "scheme/racket/thread.rkt": "3 instances"
     },
     "shell/ansible": {
       "shell/ansible/aggregate-coverage.sh": "1 instances",
-      "shell/ansible/ansible-doc__runme.sh": "20 instances",
+      "shell/ansible/ansible-doc__runme.sh": "13 instances",
       "shell/ansible/ansible-galaxy__runme.sh": "4 instances",
       "shell/ansible/ansible-playbook-callbacks__runme.sh": "1 instances",
-      "shell/ansible/ansible-pull__runme.sh": "7 instances",
-      "shell/ansible/windows.sh": "1 instances"
+      "shell/ansible/ansible-pull__runme.sh": "3 instances"
     },
     "shell/brew": {
-      "shell/brew/brew": "31 instances",
-      "shell/brew/brew.rb": "67 instances",
+      "shell/brew/brew": "27 instances",
+      "shell/brew/brew.rb": "65 instances",
       "shell/brew/cask.rb": "11 instances",
-      "shell/brew/download_strategy.rb": "112 instances",
-      "shell/brew/formula.rb": "12 instances"
+      "shell/brew/download_strategy.rb": "104 instances",
+      "shell/brew/formula.rb": "6 instances"
     },
     "shell/curl": {
-      "shell/curl/appveyor.sh": "12 instances",
+      "shell/curl/appveyor.sh": "11 instances",
       "shell/curl/cmp-pkg-config.sh": "11 instances",
       "shell/curl/contributors.sh": "6 instances",
       "shell/curl/contrithanks.sh": "8 instances",
-      "shell/curl/distfiles.sh": "3 instances",
-      "shell/curl/ech_tests.sh": "85 instances",
+      "shell/curl/ech_tests.sh": "78 instances",
       "shell/curl/firefox-db2pem.sh": "5 instances",
-      "shell/curl/initscript.sh": "18 instances",
-      "shell/curl/make-docs.sh": "3 instances",
+      "shell/curl/initscript.sh": "13 instances",
       "shell/curl/make-include.sh": "8 instances",
       "shell/curl/make-lib.sh": "12 instances",
       "shell/curl/make-src.sh": "14 instances",
-      "shell/curl/make-tests.sh": "12 instances",
-      "shell/curl/test.sh": "11 instances"
+      "shell/curl/make-tests.sh": "11 instances",
+      "shell/curl/test.sh": "9 instances"
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": "4 instances",
@@ -1352,12 +1330,12 @@
       "shell/darwin-xnu/ios_trace_ipc.sh": "4 instances",
       "shell/darwin-xnu/iosspeedtracer.sh": "3 instances",
       "shell/darwin-xnu/list_supported.sh": "2 instances",
-      "shell/darwin-xnu/mach_install_mig.sh": "23 instances",
+      "shell/darwin-xnu/mach_install_mig.sh": "19 instances",
       "shell/darwin-xnu/make_posix_availability.sh": "2 instances",
       "shell/darwin-xnu/make_symbol_aliasing.sh": "17 instances",
       "shell/darwin-xnu/makesyscalls.sh": "16 instances",
       "shell/darwin-xnu/persona_test_run_src.sh": "64 instances",
-      "shell/darwin-xnu/remote_build.sh": "41 instances",
+      "shell/darwin-xnu/remote_build.sh": "40 instances",
       "shell/darwin-xnu/test.sh": "8 instances",
       "shell/darwin-xnu/validate_blacklist.sh": "4 instances",
       "shell/darwin-xnu/vnode_if.sh": "13 instances",
@@ -1369,17 +1347,14 @@
       "shell/freebsd-src/dtest.sh": "24 instances",
       "shell/freebsd-src/functional_test.sh": "2 instances",
       "shell/freebsd-src/legacy_test.sh": "4 instances",
-      "shell/freebsd-src/ls_tests.sh": "54 instances",
+      "shell/freebsd-src/ls_tests.sh": "53 instances",
       "shell/freebsd-src/pgrep-_f_test.sh": "3 instances",
-      "shell/freebsd-src/pkg-install.sh": "2 instances",
       "shell/freebsd-src/pkg_config_test.sh": "4 instances",
-      "shell/freebsd-src/pwd_test.sh": "1 instances",
-      "shell/freebsd-src/runulp.sh": "12 instances",
-      "shell/freebsd-src/timeout_test.sh": "2 instances",
+      "shell/freebsd-src/runulp.sh": "11 instances",
       "shell/freebsd-src/ztest.sh": "5 instances"
     },
     "shell/freebsd_sysbuild": {
-      "shell/freebsd_sysbuild/sysbuild.sh": "50 instances"
+      "shell/freebsd_sysbuild/sysbuild.sh": "46 instances"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "14 instances",
@@ -1400,7 +1375,6 @@
       "shell/haiku/usb_vision__install.sh": "3 instances"
     },
     "shell/illumos-gate": {
-      "shell/illumos-gate/Run.sh": "1 instances",
       "shell/illumos-gate/acct.sh": "1 instances",
       "shell/illumos-gate/adbgen.sh": "13 instances",
       "shell/illumos-gate/amt.sh": "3 instances",
@@ -1408,27 +1382,25 @@
       "shell/illumos-gate/audio_clean.sh": "25 instances",
       "shell/illumos-gate/audit_warn.sh": "27 instances",
       "shell/illumos-gate/batch.sh": "1 instances",
-      "shell/illumos-gate/diff3.sh": "11 instances",
+      "shell/illumos-gate/diff3.sh": "10 instances",
       "shell/illumos-gate/diffmk.sh": "1 instances",
       "shell/illumos-gate/dircmp.sh": "13 instances",
       "shell/illumos-gate/exportfs.sh": "11 instances",
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": "2 instances",
       "shell/illumos-gate/inetd-upgrade.sh": "18 instances",
-      "shell/illumos-gate/mkerror.sh": "5 instances",
-      "shell/illumos-gate/newvers.sh": "3 instances",
       "shell/illumos-gate/nfsfind.sh": "1 instances",
       "shell/illumos-gate/process_msg_template.sh": "2 instances",
       "shell/illumos-gate/shareall.sh": "5 instances",
       "shell/illumos-gate/unshareall.sh": "3 instances"
     },
     "shell/kubernetes": {
-      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": "3 instances",
+      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": "2 instances",
       "shell/kubernetes/benchmark-dockerized.sh": "4 instances",
-      "shell/kubernetes/cluster__common.sh": "40 instances",
-      "shell/kubernetes/common.sh": "27 instances",
+      "shell/kubernetes/cluster__common.sh": "38 instances",
+      "shell/kubernetes/common.sh": "20 instances",
       "shell/kubernetes/config-common.sh": "15 instances",
       "shell/kubernetes/config-default.sh": "2 instances",
-      "shell/kubernetes/configure-helper.sh": "241 instances",
+      "shell/kubernetes/configure-helper.sh": "237 instances",
       "shell/kubernetes/etcd.sh": "19 instances",
       "shell/kubernetes/gen-swagger-docs.sh": "4 instances",
       "shell/kubernetes/gencerts.sh": "1 instances",
@@ -1437,14 +1409,13 @@
       "shell/kubernetes/log-dump.sh": "57 instances",
       "shell/kubernetes/pre-existing__util.sh": "2 instances",
       "shell/kubernetes/release.sh": "19 instances",
-      "shell/kubernetes/testcerts__gencerts.sh": "1 instances",
-      "shell/kubernetes/update-codegen.sh": "3 instances"
+      "shell/kubernetes/testcerts__gencerts.sh": "1 instances"
     },
     "shell/linux": {
       "shell/linux/autoload.sh": "1 instances",
       "shell/linux/boot__install.sh": "1 instances",
       "shell/linux/config3270.sh": "5 instances",
-      "shell/linux/deflate_xip_data.sh": "8 instances",
+      "shell/linux/deflate_xip_data.sh": "5 instances",
       "shell/linux/generic-board-config.sh": "9 instances",
       "shell/linux/install.sh": "2 instances",
       "shell/linux/multisound.sh": "19 instances",
@@ -1455,31 +1426,27 @@
       "shell/linux/syscalls__syscallnr.sh": "2 instances"
     },
     "shell/moby": {
-      "shell/moby/check-config.sh": "33 instances",
+      "shell/moby/check-config.sh": "30 instances",
       "shell/moby/cli.sh": "4 instances",
       "shell/moby/dev.sh": "1 instances",
       "shell/moby/dockerd-rootless-setuptool.sh": "48 instances",
       "shell/moby/dockerd-rootless.sh": "20 instances",
       "shell/moby/dockerize-disk.sh": "12 instances",
-      "shell/moby/download-frozen-image-v2.sh": "48 instances",
-      "shell/moby/e2e-run.sh": "3 instances",
-      "shell/moby/generate-swagger-api.sh": "1 instances",
-      "shell/moby/generate-test-certs.sh": "2 instances",
-      "shell/moby/generate-test-rogue-certs.sh": "2 instances",
+      "shell/moby/download-frozen-image-v2.sh": "47 instances",
       "shell/moby/install.sh": "5 instances",
       "shell/moby/support.sh": "16 instances",
-      "shell/moby/validate-swagger-gen.sh": "8 instances"
+      "shell/moby/validate-swagger-gen.sh": "4 instances"
     },
     "shell/reactos": {
       "shell/reactos/CreateCabFile.sh": "4 instances",
       "shell/reactos/check_code_format.sh": "3 instances",
       "shell/reactos/codespell_changed_files.sh": "3 instances",
-      "shell/reactos/codespell_check.sh": "11 instances",
+      "shell/reactos/codespell_check.sh": "9 instances",
       "shell/reactos/configure.sh": "8 instances",
       "shell/reactos/dos2unix.sh": "2 instances",
       "shell/reactos/mksrctar.sh": "14 instances",
       "shell/reactos/output_to_pcap.sh": "2 instances",
-      "shell/reactos/remaster.sh": "20 instances"
+      "shell/reactos/remaster.sh": "18 instances"
     },
     "shell/serenity": {
       "shell/serenity/BuildFuzzers.sh": "7 instances",
@@ -1494,7 +1461,7 @@
       "shell/sqlite/fts3cov.sh": "2 instances",
       "shell/sqlite/json-speed-check.sh": "16 instances",
       "shell/sqlite/mkautoconfamal.sh": "7 instances",
-      "shell/sqlite/mkdist.sh": "23 instances",
+      "shell/sqlite/mkdist.sh": "16 instances",
       "shell/sqlite/split-speedtest1-script.sh": "4 instances",
       "shell/sqlite/tclConfigShToMake.sh": "5 instances"
     },
@@ -1504,7 +1471,7 @@
       "solidity/openzeppelin/Governor.sol": "5 instances"
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": "107 instances"
+      "sql/baseline/schema.php": "104 instances"
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/tables.sql": "2 instances"
@@ -1556,8 +1523,8 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": "27 instances",
-      "typescript/assemblyscript/builtins.ts": "403 instances",
-      "typescript/assemblyscript/compiler.ts": "983 instances",
+      "typescript/assemblyscript/builtins.ts": "401 instances",
+      "typescript/assemblyscript/compiler.ts": "977 instances",
       "typescript/assemblyscript/parser.ts": "367 instances"
     },
     "typescript/excalibur_math": {
@@ -1576,22 +1543,22 @@
     },
     "typescript/playwright": {
       "typescript/playwright/bidiConnection.ts": "21 instances",
-      "typescript/playwright/connection.ts": "44 instances",
+      "typescript/playwright/connection.ts": "42 instances",
       "typescript/playwright/crConnection.ts": "13 instances",
       "typescript/playwright/dispatcher.ts": "39 instances",
-      "typescript/playwright/frames.ts": "90 instances"
+      "typescript/playwright/frames.ts": "87 instances"
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": "213 instances",
-      "typescript/typescript_compiler/checker.ts": "2445 instances",
-      "typescript/typescript_compiler/emitter.ts": "160 instances",
-      "typescript/typescript_compiler/parser.ts": "401 instances"
+      "typescript/typescript_compiler/binder.ts": "202 instances",
+      "typescript/typescript_compiler/checker.ts": "2321 instances",
+      "typescript/typescript_compiler/emitter.ts": "156 instances",
+      "typescript/typescript_compiler/parser.ts": "388 instances"
     },
     "typescript/vscode": {
-      "typescript/vscode/async.ts": "116 instances",
-      "typescript/vscode/codeEditorWidget.ts": "73 instances",
+      "typescript/vscode/async.ts": "115 instances",
+      "typescript/vscode/codeEditorWidget.ts": "60 instances",
       "typescript/vscode/extHost.api.impl.ts": "24 instances",
-      "typescript/vscode/gulpfile.vscode.ts": "43 instances",
+      "typescript/vscode/gulpfile.vscode.ts": "40 instances",
       "typescript/vscode/instantiationService.ts": "36 instances",
       "typescript/vscode/ipc.ts": "62 instances",
       "typescript/vscode/lifecycle.ts": "44 instances",
@@ -1606,7 +1573,6 @@
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/arm64.yml": "1 instances",
-      "yaml/moby_workflows/buildkit.yml": "3 instances",
       "yaml/moby_workflows/ci.yml": "1 instances"
     },
     "yaml/vscode_workflows": {
@@ -1614,10 +1580,10 @@
       "yaml/vscode_workflows/copilot-setup-steps.yml": "1 instances",
       "yaml/vscode_workflows/monaco-editor.yml": "1 instances",
       "yaml/vscode_workflows/no-engineering-system-changes.yml": "2 instances",
-      "yaml/vscode_workflows/pr-darwin-test.yml": "2 instances",
-      "yaml/vscode_workflows/pr-linux-test.yml": "7 instances",
+      "yaml/vscode_workflows/pr-darwin-test.yml": "1 instances",
+      "yaml/vscode_workflows/pr-linux-test.yml": "6 instances",
       "yaml/vscode_workflows/pr-node-modules.yml": "1 instances",
-      "yaml/vscode_workflows/pr-win32-test.yml": "3 instances"
+      "yaml/vscode_workflows/pr-win32-test.yml": "2 instances"
     },
     "zig/bun": {
       "zig/bun/MimallocArena.zig": "2 instances",
@@ -1630,7 +1596,7 @@
       "zig/mach/StringTable.zig": "1 instances",
       "zig/mach/collision.zig": "49 instances",
       "zig/mach/graph.zig": "15 instances",
-      "zig/mach/module.zig": "16 instances",
+      "zig/mach/module.zig": "15 instances",
       "zig/mach/win32.zig": "1 instances"
     },
     "zig/tigerbeetle": {

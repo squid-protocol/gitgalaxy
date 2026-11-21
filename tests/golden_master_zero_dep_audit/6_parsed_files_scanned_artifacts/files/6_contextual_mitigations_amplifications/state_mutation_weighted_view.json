@@ -60,7 +60,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 3,
       "assembly/cosmopolitan/ape.S": 43,
-      "assembly/cosmopolitan/loader.c": 690
+      "assembly/cosmopolitan/loader.c": 682
     },
     "assembly/cosmopolitan_runtime": {
       "assembly/cosmopolitan_runtime/kcpuids.S": 9,
@@ -105,13 +105,13 @@
       "c/cosmopolitan_intrin/countbits.c": 59
     },
     "c/cpython": {
-      "c/cpython/ceval.c": 846,
+      "c/cpython/ceval.c": 838,
       "c/cpython/compile.c": 484,
-      "c/cpython/dictobject.c": 1793,
-      "c/cpython/frameobject.c": 448,
-      "c/cpython/gc.c": 461,
+      "c/cpython/dictobject.c": 1785,
+      "c/cpython/frameobject.c": 438,
+      "c/cpython/gc.c": 455,
       "c/cpython/object.c": 460,
-      "c/cpython/typeobject.c": 2444
+      "c/cpython/typeobject.c": 2438
     },
     "c/doom": {
       "c/doom/d_main.c": 450,
@@ -123,15 +123,15 @@
       "c/doom/z_zone.c": 191
     },
     "c/micropython": {
-      "c/micropython/compile.c": 766,
-      "c/micropython/emitnative.c": 361,
-      "c/micropython/gc.c": 381,
+      "c/micropython/compile.c": 764,
+      "c/micropython/emitnative.c": 359,
+      "c/micropython/gc.c": 379,
       "c/micropython/objtype.c": 275,
       "c/micropython/vfs.c": 135,
       "c/micropython/vm.c": 361
     },
     "c/sqlite": {
-      "c/sqlite/lemon.c": 4995,
+      "c/sqlite/lemon.c": 4985,
       "c/sqlite/parse.y": 850
     },
     "cobol/CICS-Cobol": {
@@ -409,9 +409,9 @@
       "cobol/gnucobol/tutorial.cob": 89
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/codegen.c": 4577,
-      "cobol/gnucobol_internals/fileio.c": 4678,
-      "cobol/gnucobol_internals/numeric.c": 984,
+      "cobol/gnucobol_internals/codegen.c": 4567,
+      "cobol/gnucobol_internals/fileio.c": 4676,
+      "cobol/gnucobol_internals/numeric.c": 982,
       "cobol/gnucobol_internals/parser.y": 5824,
       "cobol/gnucobol_internals/scanner.l": 1092
     },
@@ -426,30 +426,30 @@
       "cobol/zopeneditor-sample/SAM2.cbl": 107
     },
     "cpp/NVDA": {
-      "cpp/NVDA/__init__.py": 1408,
-      "cpp/NVDA/braille.py": 1801,
-      "cpp/NVDA/core.py": 211,
+      "cpp/NVDA/__init__.py": 1390,
+      "cpp/NVDA/braille.py": 1755,
+      "cpp/NVDA/core.py": 207,
       "cpp/NVDA/ensureuv.ps1": 29,
       "cpp/NVDA/espeak.py": 185,
       "cpp/NVDA/inProcess.cpp": 38,
-      "cpp/NVDA/storage.cpp": 627
+      "cpp/NVDA/storage.cpp": 625
     },
     "cpp/godot": {
-      "cpp/godot/editor_node.cpp": 1907,
+      "cpp/godot/editor_node.cpp": 1889,
       "cpp/godot/editor_node.h": 7,
-      "cpp/godot/gdscript_vm.cpp": 1282,
-      "cpp/godot/main.cpp": 2317,
-      "cpp/godot/node.cpp": 1209,
+      "cpp/godot/gdscript_vm.cpp": 1218,
+      "cpp/godot/main.cpp": 2309,
+      "cpp/godot/node.cpp": 1199,
       "cpp/godot/node.h": 33,
-      "cpp/godot/object.cpp": 801,
-      "cpp/godot/object.h": 51,
+      "cpp/godot/object.cpp": 799,
+      "cpp/godot/object.h": 49,
       "cpp/godot/rendering_server_default.cpp": 71,
       "cpp/godot/rendering_server_default.h": 9,
       "cpp/godot/variant.cpp": 860,
-      "cpp/godot/variant.h": 55
+      "cpp/godot/variant.h": 49
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 681,
+      "cpp/mlir/flatbuffer_export.cc": 677,
       "cpp/mlir/glob_lit_test.bzl": 35,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 55,
       "cpp/mlir/tf_tfl_translate.cc": 62
@@ -459,7 +459,7 @@
       "cpp/powertoys/ImageResizerExt.cpp": 6,
       "cpp/powertoys/centralized_kb_hook.cpp": 55,
       "cpp/powertoys/logger.cpp": 15,
-      "cpp/powertoys/main.cpp": 70
+      "cpp/powertoys/main.cpp": 68
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 9,
@@ -468,17 +468,17 @@
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 521,
       "csharp/roslyn/CSharpSyntaxTree.cs": 76,
-      "csharp/roslyn/LanguageParser.cs": 2573,
-      "csharp/roslyn/MethodCompiler.cs": 393,
+      "csharp/roslyn/LanguageParser.cs": 2555,
+      "csharp/roslyn/MethodCompiler.cs": 391,
       "csharp/roslyn/Workspace.cs": 102
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 548,
+      "dart/flutter/editable_text.dart": 538,
       "dart/flutter/events.dart": 33,
-      "dart/flutter/framework.dart": 638,
-      "dart/flutter/navigator.dart": 652,
-      "dart/flutter/object.dart": 1252,
-      "dart/flutter/semantics.dart": 1331,
+      "dart/flutter/framework.dart": 632,
+      "dart/flutter/navigator.dart": 632,
+      "dart/flutter/object.dart": 1230,
+      "dart/flutter/semantics.dart": 1325,
       "dart/flutter/theme_data.dart": 414
     },
     "db2_sql/db2unit": {
@@ -487,13 +487,13 @@
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": 25,
       "dockerfile/moby/builder/dockerfile/builder.go": 70,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 30,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 28,
       "dockerfile/moby/builder/dockerfile/copy.go": 59,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 18,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 181,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 91,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 9,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 23,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 21,
       "dockerfile/moby/builder/dockerfile/evaluator.go": 34,
       "dockerfile/moby/builder/dockerfile/imagecontext.go": 27,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 3,
@@ -526,9 +526,6 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 24,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 21
     },
-    "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 9
-    },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": 306,
       "embedded_python/meow_turtle/app.py": 804,
@@ -539,30 +536,30 @@
       "embedded_python/meow_turtle/meowprotocol.py": 110,
       "embedded_python/meow_turtle/mpu6050.py": 46,
       "embedded_python/meow_turtle/ota.py": 65,
-      "embedded_python/meow_turtle/sensors.py": 268,
+      "embedded_python/meow_turtle/sensors.py": 266,
       "embedded_python/meow_turtle/tester.py": 39,
-      "embedded_python/meow_turtle/tsl2591.py": 47,
+      "embedded_python/meow_turtle/tsl2591.py": 45,
       "embedded_python/meow_turtle/vibration_driver.py": 43
     },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": 41,
-      "fortran/wrf/configure_reader.py": 311,
+      "fortran/wrf/configure_reader.py": 307,
       "fortran/wrf/gen_be_wrapper.ksh": 9,
       "fortran/wrf/module_configure.F": 205,
-      "fortran/wrf/module_domain.F": 1289,
-      "fortran/wrf/module_initialize_real.F": 5979,
+      "fortran/wrf/module_domain.F": 1271,
+      "fortran/wrf/module_initialize_real.F": 5929,
       "fortran/wrf/module_physics_init.F": 1470,
-      "fortran/wrf/module_sf_noahdrv.F": 2722,
-      "fortran/wrf/sourcetree.py": 181,
-      "fortran/wrf/wrf_timeseries.F": 761
+      "fortran/wrf/module_sf_noahdrv.F": 2680,
+      "fortran/wrf/sourcetree.py": 179,
+      "fortran/wrf/wrf_timeseries.F": 759
     },
     "go/core": {
       "go/core/main.go": 113,
-      "go/core/mgc.go": 309,
-      "go/core/proc.go": 1555,
+      "go/core/mgc.go": 305,
+      "go/core/proc.go": 1547,
       "go/core/server.go": 631,
-      "go/core/syscall_linux.go": 358,
-      "go/core/value.go": 480
+      "go/core/syscall_linux.go": 350,
+      "go/core/value.go": 476
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 55
@@ -572,7 +569,7 @@
       "go/kubernetes/generic.go": 101,
       "go/kubernetes/kubelet.go": 25,
       "go/kubernetes/proxier.go": 199,
-      "go/kubernetes/replica_set.go": 94,
+      "go/kubernetes/replica_set.go": 92,
       "go/kubernetes/scheduler.go": 99
     },
     "go/kubernetes_kubectl_tls": {
@@ -714,13 +711,13 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": 5
     },
     "javascript/jquery": {
-      "javascript/jquery/ajax.js": 348,
+      "javascript/jquery/ajax.js": 338,
       "javascript/jquery/buildFragment.js": 69,
-      "javascript/jquery/core.js": 129,
-      "javascript/jquery/css.js": 154,
-      "javascript/jquery/deferred.js": 76,
-      "javascript/jquery/event.js": 364,
-      "javascript/jquery/tokenize.js": 45
+      "javascript/jquery/core.js": 127,
+      "javascript/jquery/css.js": 150,
+      "javascript/jquery/deferred.js": 74,
+      "javascript/jquery/event.js": 350,
+      "javascript/jquery/tokenize.js": 43
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 51,
@@ -730,9 +727,9 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 6,
-      "javascript/react/ReactFiberBeginWork.js": 773,
-      "javascript/react/ReactFiberWorkLoop.js": 1042,
-      "javascript/react/ReactFlightServer.js": 1371,
+      "javascript/react/ReactFiberBeginWork.js": 755,
+      "javascript/react/ReactFiberWorkLoop.js": 1030,
+      "javascript/react/ReactFlightServer.js": 1349,
       "javascript/react/build.js": 46
     },
     "javascript/react_error_codes": {
@@ -740,11 +737,11 @@
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 261,
-      "javascript/threejs/Editor.js": 210,
-      "javascript/threejs/GLTFLoader.js": 1091,
+      "javascript/threejs/Editor.js": 202,
+      "javascript/threejs/GLTFLoader.js": 1061,
       "javascript/threejs/Matrix4.js": 520,
       "javascript/threejs/WebGLProgram.js": 117,
-      "javascript/threejs/WebGLRenderer.js": 844
+      "javascript/threejs/WebGLRenderer.js": 828
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Dispatcher.kt": 35,
@@ -754,25 +751,21 @@
     "livecode/livecode": {
       "livecode/livecode/accountsignupcardbehavior.livecodescript": 13,
       "livecode/livecode/accountsignuppasswordfieldbehaviorbuttonbehavior.livecodescript": 58,
-      "livecode/livecode/array.livecodescript": 126,
-      "livecode/livecode/assign-ops.lcb": 5,
+      "livecode/livecode/array.livecodescript": 118,
       "livecode/livecode/automaticactivationactivationgroupbehavior.livecodescript": 22,
       "livecode/livecode/automaticactivationcardbehavior.livecodescript": 6,
       "livecode/livecode/automaticactivationprocessinggroupbehavior.livecodescript": 9,
       "livecode/livecode/background-pattern-scroll.livecodescript": 18,
       "livecode/livecode/basic.livecodescript": 36,
       "livecode/livecode/builder_tool.livecodescript": 128,
-      "livecode/livecode/builder_utilities.livecodescript": 153,
-      "livecode/livecode/bytecode.lcb": 36,
+      "livecode/livecode/builder_utilities.livecodescript": 149,
       "livecode/livecode/case-senstive-db-type.livecodescript": 7,
       "livecode/livecode/char.livecodescript": 50,
-      "livecode/livecode/code.livecodescript": 6,
       "livecode/livecode/combine.livecodescript": 54,
       "livecode/livecode/datetime.livecodescript": 5,
       "livecode/livecode/db_getters.livecodescript": 24,
       "livecode/livecode/docs_builder.livecodescript": 143,
-      "livecode/livecode/docsparser.livecodescript": 23,
-      "livecode/livecode/encrypt.livecodescript": 17,
+      "livecode/livecode/encrypt.livecodescript": 15,
       "livecode/livecode/engine_builder.livecodescript": 36,
       "livecode/livecode/ext-urls.livecodescript": 13,
       "livecode/livecode/filters.livecodescript": 9,
@@ -781,90 +774,87 @@
       "livecode/livecode/installeruiconfirmcardbehavior.livecodescript": 33,
       "livecode/livecode/installeruicustomizecardbehavior.livecodescript": 5,
       "livecode/livecode/installeruicustomizechangelocationbuttonbehavior.livecodescript": 3,
-      "livecode/livecode/installeruifinishcardbehavior.livecodescript": 30,
-      "livecode/livecode/installeruiinstallcardbehavior.livecodescript": 49,
+      "livecode/livecode/installeruifinishcardbehavior.livecodescript": 28,
+      "livecode/livecode/installeruiinstallcardbehavior.livecodescript": 47,
       "livecode/livecode/iterator.lcb": 3,
       "livecode/livecode/lexical-scoping.lcb": 87,
       "livecode/livecode/log.livecodescript": 27,
-      "livecode/livecode/network.livecodescript": 73,
-      "livecode/livecode/recursion.livecodescript": 84,
+      "livecode/livecode/network.livecodescript": 69,
+      "livecode/livecode/recursion.livecodescript": 52,
       "livecode/livecode/repeat.livecodescript": 188,
       "livecode/livecode/revdeploylibraryandroid.livecodescript": 258,
       "livecode/livecode/revdeploylibraryemscripten.livecodescript": 144,
-      "livecode/livecode/revdeploylibraryios.livecodescript": 329,
-      "livecode/livecode/revdocsparser.livecodescript": 1801,
+      "livecode/livecode/revdeploylibraryios.livecodescript": 327,
+      "livecode/livecode/revdocsparser.livecodescript": 1777,
       "livecode/livecode/revhtml5urllibrary.livecodescript": 71,
-      "livecode/livecode/revliburl.livecodescript": 3212,
-      "livecode/livecode/revsaveasandroidstandalone.livecodescript": 941,
-      "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": 160
+      "livecode/livecode/revliburl.livecodescript": 3202,
+      "livecode/livecode/revsaveasandroidstandalone.livecodescript": 935,
+      "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": 156
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 71,
-      "lua/cosmopolitan/api.lua": 379,
-      "lua/cosmopolitan/attrib.lua": 172,
-      "lua/cosmopolitan/big.lua": 20,
+      "lua/cosmopolitan/all.lua": 69,
+      "lua/cosmopolitan/api.lua": 257,
+      "lua/cosmopolitan/attrib.lua": 102,
+      "lua/cosmopolitan/big.lua": 18,
       "lua/cosmopolitan/binarytrees.lua": 16,
-      "lua/cosmopolitan/bitwise.lua": 69,
-      "lua/cosmopolitan/bwcoercion.lua": 24,
-      "lua/cosmopolitan/calls.lua": 110,
-      "lua/cosmopolitan/closure.lua": 86,
-      "lua/cosmopolitan/code.lua": 77,
-      "lua/cosmopolitan/constructs.lua": 119,
-      "lua/cosmopolitan/coroutine.lua": 241,
-      "lua/cosmopolitan/cstack.lua": 24,
-      "lua/cosmopolitan/db.lua": 283,
-      "lua/cosmopolitan/errors.lua": 149,
-      "lua/cosmopolitan/events.lua": 297,
+      "lua/cosmopolitan/bitwise.lua": 31,
+      "lua/cosmopolitan/bwcoercion.lua": 12,
+      "lua/cosmopolitan/calls.lua": 86,
+      "lua/cosmopolitan/closure.lua": 84,
+      "lua/cosmopolitan/code.lua": 73,
+      "lua/cosmopolitan/constructs.lua": 105,
+      "lua/cosmopolitan/coroutine.lua": 187,
+      "lua/cosmopolitan/cstack.lua": 20,
+      "lua/cosmopolitan/db.lua": 235,
+      "lua/cosmopolitan/errors.lua": 129,
+      "lua/cosmopolitan/events.lua": 185,
       "lua/cosmopolitan/fetch.lua": 4,
-      "lua/cosmopolitan/files.lua": 142,
-      "lua/cosmopolitan/gc.lua": 256,
-      "lua/cosmopolitan/gengc.lua": 28,
+      "lua/cosmopolitan/files.lua": 114,
+      "lua/cosmopolitan/gc.lua": 246,
+      "lua/cosmopolitan/gengc.lua": 12,
       "lua/cosmopolitan/goto.lua": 33,
       "lua/cosmopolitan/heavy.lua": 30,
       "lua/cosmopolitan/hitcounter.lua": 6,
-      "lua/cosmopolitan/literals.lua": 23,
-      "lua/cosmopolitan/locals.lua": 155,
-      "lua/cosmopolitan/main.lua": 58,
-      "lua/cosmopolitan/math.lua": 95,
+      "lua/cosmopolitan/literals.lua": 21,
+      "lua/cosmopolitan/locals.lua": 115,
+      "lua/cosmopolitan/main.lua": 46,
+      "lua/cosmopolitan/math.lua": 89,
       "lua/cosmopolitan/maxmind.lua": 28,
-      "lua/cosmopolitan/nextvar.lua": 475,
-      "lua/cosmopolitan/pm.lua": 97,
+      "lua/cosmopolitan/nextvar.lua": 387,
+      "lua/cosmopolitan/pm.lua": 81,
       "lua/cosmopolitan/redbean-form.lua": 10,
-      "lua/cosmopolitan/sort.lua": 161,
-      "lua/cosmopolitan/strings.lua": 16,
-      "lua/cosmopolitan/tpack.lua": 14,
+      "lua/cosmopolitan/sort.lua": 129,
+      "lua/cosmopolitan/strings.lua": 14,
+      "lua/cosmopolitan/tpack.lua": 8,
       "lua/cosmopolitan/tracegc.lua": 9
     },
     "lua/darwin-xnu": {
-      "lua/darwin-xnu/benchmark.lua": 30,
+      "lua/darwin-xnu/benchmark.lua": 26,
       "lua/darwin-xnu/bridgetime.lua": 39,
-      "lua/darwin-xnu/fault_throughput.lua": 26,
+      "lua/darwin-xnu/fault_throughput.lua": 22,
       "lua/darwin-xnu/kqtrace.lua": 62,
       "lua/darwin-xnu/perf_madvise.lua": 16,
       "lua/darwin-xnu/wqtrace.lua": 76
     },
     "lua/freebsd-src": {
       "lua/freebsd-src/cli.lua": 63,
-      "lua/freebsd-src/color.lua": 42,
+      "lua/freebsd-src/color.lua": 26,
       "lua/freebsd-src/config.lua": 218,
-      "lua/freebsd-src/core.lua": 154,
+      "lua/freebsd-src/core.lua": 148,
       "lua/freebsd-src/drawer.lua": 168,
       "lua/freebsd-src/hook.lua": 7,
-      "lua/freebsd-src/menu.lua": 166,
+      "lua/freebsd-src/menu.lua": 156,
       "lua/freebsd-src/password.lua": 11
     },
     "lua/pandoc": {
       "lua/pandoc/bytestring.lua": 3,
       "lua/pandoc/count_words.lua": 40,
-      "lua/pandoc/creole.lua": 44,
-      "lua/pandoc/extensions.lua": 3,
+      "lua/pandoc/creole.lua": 40,
       "lua/pandoc/extract-changes.lua": 12,
-      "lua/pandoc/globals.lua": 6,
       "lua/pandoc/inlines-filter.lua": 3,
       "lua/pandoc/manfilter.lua": 3,
       "lua/pandoc/markdown-reader.lua": 3,
       "lua/pandoc/math.lua": 6,
-      "lua/pandoc/pandoc-list.lua": 3,
       "lua/pandoc/pandoc-mediabag.lua": 3,
       "lua/pandoc/sample.lua": 33
     },
@@ -872,9 +862,8 @@
       "lua/redis/bisect.lua": 7,
       "lua/redis/cf.lua": 3,
       "lua/redis/factorial.lua": 7,
-      "lua/redis/fib.lua": 19,
-      "lua/redis/life.lua": 43,
-      "lua/redis/luac.lua": 3,
+      "lua/redis/fib.lua": 13,
+      "lua/redis/life.lua": 41,
       "lua/redis/sieve.lua": 9,
       "lua/redis/sort.lua": 22,
       "lua/redis/strict.lua": 15,
@@ -882,18 +871,18 @@
     },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": 124,
-      "matlab/eeglab/eeglab.m": 1141,
+      "matlab/eeglab/eeglab.m": 1139,
       "matlab/eeglab/eegobj.m": 6,
       "matlab/eeglab/pop_loadset.m": 260,
-      "matlab/eeglab/runica.m": 1081,
-      "matlab/eeglab/supergui.m": 338
+      "matlab/eeglab/runica.m": 1073,
+      "matlab/eeglab/supergui.m": 336
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 3
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 54,
-      "objective-c/worldwideweb/HText.c": 321,
+      "objective-c/worldwideweb/HText.c": 319,
       "objective-c/worldwideweb/HyperManager.m": 91,
       "objective-c/worldwideweb/HyperText.m": 862,
       "objective-c/worldwideweb/TcpAccess.m": 13
@@ -902,78 +891,77 @@
       "perl/ack3_tests/file-permission.t": 6
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 49,
-      "perl/bugzilla/Bug.pm": 1350,
-      "perl/bugzilla/CGI.pm": 136,
-      "perl/bugzilla/DB.pm": 161,
+      "perl/bugzilla/Auth.pm": 39,
+      "perl/bugzilla/Bug.pm": 1308,
+      "perl/bugzilla/CGI.pm": 134,
+      "perl/bugzilla/DB.pm": 159,
       "perl/bugzilla/Requirements.pm": 80
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 4769,
+      "perl/exiftool/ExifTool.pm": 4757,
       "perl/exiftool/RandomAccess.pm": 214,
       "perl/exiftool/exiftool": 3067
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 53,
-      "perl/mojo/Promise.pm": 81,
-      "perl/mojo/Template.pm": 208,
+      "perl/mojo/Promise.pm": 79,
+      "perl/mojo/Template.pm": 204,
       "perl/mojo/WebSocket.pm": 71
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 296,
-      "perl/spamassassin/Bayes.pm": 3,
-      "perl/spamassassin/HTML.pm": 576,
+      "perl/spamassassin/AsyncLoop.pm": 294,
+      "perl/spamassassin/HTML.pm": 570,
       "perl/spamassassin/Makefile.PL": 221,
-      "perl/spamassassin/Message.pm": 500,
-      "perl/spamassassin/Parser.pm": 615,
-      "perl/spamassassin/PerMsgStatus.pm": 1206,
-      "perl/spamassassin/SpamAssassin.pm": 547
+      "perl/spamassassin/Message.pm": 488,
+      "perl/spamassassin/Parser.pm": 611,
+      "perl/spamassassin/PerMsgStatus.pm": 1194,
+      "perl/spamassassin/SpamAssassin.pm": 537
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 189,
-      "php/guzzle/CurlFactory.php": 345,
+      "php/guzzle/CurlFactory.php": 343,
       "php/guzzle/CurlMultiHandler.php": 74,
       "php/guzzle/Middleware.php": 33,
       "php/guzzle/Pool.php": 35,
       "php/guzzle/RequestException.php": 62,
-      "php/guzzle/StreamHandler.php": 226
+      "php/guzzle/StreamHandler.php": 220
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 174,
-      "php/laravel_core/BladeCompiler.php": 235,
+      "php/laravel_core/BladeCompiler.php": 233,
       "php/laravel_core/Collection.php": 538,
-      "php/laravel_core/Container.php": 397,
-      "php/laravel_core/Facade.php": 53,
-      "php/laravel_core/Model.php": 406,
-      "php/laravel_core/Router.php": 213
+      "php/laravel_core/Container.php": 395,
+      "php/laravel_core/Facade.php": 49,
+      "php/laravel_core/Model.php": 402,
+      "php/laravel_core/Router.php": 209
     },
     "php/laravel_validation_rules": {
       "php/laravel_validation_rules/Can.php": 10
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 310,
-      "php/magento2/AbstractModel.php": 185,
+      "php/magento2/AbstractModel.php": 181,
       "php/magento2/Application.php": 13,
       "php/magento2/Http.php": 34,
       "php/magento2/Interceptor.php": 57,
-      "php/magento2/Mysql.php": 1659,
+      "php/magento2/Mysql.php": 1651,
       "php/magento2/ObjectManager.php": 16
     },
     "php/symfony": {
-      "php/symfony/Application.php": 660,
-      "php/symfony/ContainerBuilder.php": 606,
+      "php/symfony/Application.php": 652,
+      "php/symfony/ContainerBuilder.php": 602,
       "php/symfony/EventDispatcher.php": 89,
       "php/symfony/HttpKernel.php": 111,
-      "php/symfony/Parser.php": 165,
-      "php/symfony/Request.php": 889,
+      "php/symfony/Parser.php": 163,
+      "php/symfony/Request.php": 881,
       "php/symfony/Router.php": 92
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 9,
-      "php/wordpress/class-wp-query.php": 2535,
-      "php/wordpress/formatting.php": 2317,
-      "php/wordpress/functions.php": 2866,
-      "php/wordpress/plugin.php": 209,
+      "php/wordpress/class-wp-query.php": 2525,
+      "php/wordpress/formatting.php": 2311,
+      "php/wordpress/functions.php": 2854,
+      "php/wordpress/plugin.php": 207,
       "php/wordpress/wp-login.php": 450,
       "php/wordpress/wp-settings.php": 55
     },
@@ -995,7 +983,7 @@
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": 181,
       "powershell/PowerToys/BuildSDKHelper.ps1": 54,
-      "powershell/PowerToys/BuildSparsePackage.ps1": 185,
+      "powershell/PowerToys/BuildSparsePackage.ps1": 179,
       "powershell/PowerToys/Capture-MonitorLayout.ps1": 123,
       "powershell/PowerToys/Check preview handler registration.ps1": 25,
       "powershell/PowerToys/CheckCmdNotFoundRequirements.ps1": 12,
@@ -1006,8 +994,8 @@
       "powershell/PowerToys/Get-GitHubRawFile.ps1": 21,
       "powershell/PowerToys/InstallWinAppDriver.ps1": 5,
       "powershell/PowerToys/Invoke-WinMdQuery.ps1": 287,
-      "powershell/PowerToys/Update-WinMdCache.ps1": 102,
-      "powershell/PowerToys/UpdateVersions.ps1": 257,
+      "powershell/PowerToys/Update-WinMdCache.ps1": 100,
+      "powershell/PowerToys/UpdateVersions.ps1": 251,
       "powershell/PowerToys/apply-labels.ps1": 44,
       "powershell/PowerToys/check-extensions.ps1": 29,
       "powershell/PowerToys/clear-copilot-context.ps1": 12,
@@ -1022,22 +1010,22 @@
       "powershell/core/Install-PowerShellRemoting.ps1": 54,
       "powershell/core/InstallPSCorePolicyDefinitions.ps1": 24,
       "powershell/core/Parse-MarkdownLink.ps1": 42,
-      "powershell/core/PowerShell__build.psm1": 1698,
-      "powershell/core/RegisterManifest.ps1": 33,
+      "powershell/core/PowerShell__build.psm1": 1650,
+      "powershell/core/RegisterManifest.ps1": 31,
       "powershell/core/RegisterMicrosoftUpdate.ps1": 32,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 127,
-      "powershell/core/Run.ps1": 187,
-      "powershell/core/SSHRemoting.Basic.Tests.ps1": 111,
+      "powershell/core/Run.ps1": 185,
+      "powershell/core/SSHRemoting.Basic.Tests.ps1": 91,
       "powershell/core/analyze-pr-test-failures.ps1": 170,
-      "powershell/core/build.psm1": 1698,
-      "powershell/core/ci.psm1": 538,
-      "powershell/core/ciModule.Tests.ps1": 49,
-      "powershell/core/install-powershell.ps1": 252,
+      "powershell/core/build.psm1": 1650,
+      "powershell/core/ci.psm1": 532,
+      "powershell/core/ciModule.Tests.ps1": 41,
+      "powershell/core/install-powershell.ps1": 242,
       "powershell/core/package-validation.tests.ps1": 25,
-      "powershell/core/packaging.psm1": 1781,
+      "powershell/core/packaging.psm1": 1775,
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 54,
       "powershell/core/process-pester-results.ps1": 84,
-      "powershell/core/pwsh.profile.resource.ps1": 76,
+      "powershell/core/pwsh.profile.resource.ps1": 74,
       "powershell/core/runFuzzer.ps1": 18
     },
     "powershell/nvda": {
@@ -1057,8 +1045,8 @@
     "powershell/roslyn": {
       "powershell/roslyn/CommonLibrary.psm1": 76,
       "powershell/roslyn/CreateAndUploadNugetZip.ps1": 24,
-      "powershell/roslyn/Get-CIStatus.ps1": 1065,
-      "powershell/roslyn/Get-CodeflowStatus.ps1": 969,
+      "powershell/roslyn/Get-CIStatus.ps1": 1043,
+      "powershell/roslyn/Get-CodeflowStatus.ps1": 953,
       "powershell/roslyn/PowerShell__install.ps1": 15,
       "powershell/roslyn/PowerShell__uninstall.ps1": 15,
       "powershell/roslyn/SetupNugetSources.ps1": 74,
@@ -1070,7 +1058,7 @@
       "powershell/roslyn/cleanup_perf.ps1": 31,
       "powershell/roslyn/common__build.ps1": 58,
       "powershell/roslyn/configure-sdl-tool.ps1": 62,
-      "powershell/roslyn/execute-all-sdl-tools.ps1": 58,
+      "powershell/roslyn/execute-all-sdl-tools.ps1": 56,
       "powershell/roslyn/install-tool.ps1": 49,
       "powershell/roslyn/install.ps1": 18,
       "powershell/roslyn/mark-shipped.ps1": 34,
@@ -1086,7 +1074,7 @@
       "powershell/runtime/build-local.ps1": 36,
       "powershell/runtime/build.ps1": 217,
       "powershell/runtime/check-channel-consistency.ps1": 16,
-      "powershell/runtime/collect-coverage.ps1": 131,
+      "powershell/runtime/collect-coverage.ps1": 123,
       "powershell/runtime/copy_version_files.ps1": 37,
       "powershell/runtime/download-tools.ps1": 14,
       "powershell/runtime/generateredefinesfile.ps1": 15,
@@ -1095,43 +1083,39 @@
       "powershell/runtime/processrc.ps1": 65
     },
     "python/airflow": {
-      "python/airflow/dag.py": 198,
-      "python/airflow/s3.py": 573,
-      "python/airflow/scheduler_job_runner.py": 773
+      "python/airflow/dag.py": 196,
+      "python/airflow/s3.py": 545,
+      "python/airflow/scheduler_job_runner.py": 743
     },
     "python/airflow_ai_providers": {
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 74,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 64,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 54,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 37,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 17
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/test_opsgenie.py": 25
     },
     "python/cython": {
-      "python/cython/MemoryView.pyx": 554,
-      "python/cython/Nodes.py": 5021
+      "python/cython/MemoryView.pyx": 548,
+      "python/cython/Nodes.py": 4961
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_utils.py": 5
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/applications.py": 90,
+      "python/fastapi/fastapi/applications.py": 76,
       "python/fastapi/fastapi/cli.py": 6,
-      "python/fastapi/fastapi/datastructures.py": 5,
-      "python/fastapi/fastapi/encoders.py": 44,
+      "python/fastapi/fastapi/encoders.py": 42,
       "python/fastapi/fastapi/exception_handlers.py": 3,
-      "python/fastapi/fastapi/exceptions.py": 29,
+      "python/fastapi/fastapi/exceptions.py": 15,
       "python/fastapi/fastapi/params.py": 72,
-      "python/fastapi/fastapi/routing.py": 526,
+      "python/fastapi/fastapi/routing.py": 490,
       "python/fastapi/fastapi/sse.py": 25,
-      "python/fastapi/fastapi/utils.py": 28
+      "python/fastapi/fastapi/utils.py": 22
     },
     "python/fastapi/tests": {
-      "python/fastapi/tests/test_compat.py": 25,
       "python/fastapi/tests/test_custom_middleware_exception.py": 25,
       "python/fastapi/tests/test_custom_route_class.py": 16,
-      "python/fastapi/tests/test_datastructures.py": 13,
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": 16,
       "python/fastapi/tests/test_dependency_wrapped.py": 27,
       "python/fastapi/tests/test_generate_unique_id_function.py": 34,
@@ -1140,10 +1124,8 @@
       "python/fastapi/tests/test_openapi_cache_root_path.py": 54,
       "python/fastapi/tests/test_operations_signatures.py": 16,
       "python/fastapi/tests/test_optional_file_list.py": 7,
-      "python/fastapi/tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py": 5,
       "python/fastapi/tests/test_regex_deprecated_body.py": 12,
       "python/fastapi/tests/test_regex_deprecated_params.py": 12,
-      "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": 9,
       "python/fastapi/tests/test_security_api_key_cookie_optional.py": 11,
       "python/fastapi/tests/test_security_api_key_header_optional.py": 11,
       "python/fastapi/tests/test_security_api_key_query_optional.py": 11,
@@ -1157,7 +1139,6 @@
       "python/fastapi/tests/test_stream_bare_type.py": 10,
       "python/fastapi/tests/test_stream_cancellation.py": 18,
       "python/fastapi/tests/test_typing_python39.py": 5,
-      "python/fastapi/tests/test_ws_router.py": 34,
       "python/fastapi/tests/utils.py": 5
     },
     "python/homeassistant_anthropic": {
@@ -1169,7 +1150,7 @@
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 17,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 48,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 44,
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 13
     },
     "python/micropython_usb_tls": {
@@ -1180,8 +1161,8 @@
     "python/numpy": {
       "python/numpy/_linalg.py": 638,
       "python/numpy/cfuncs.py": 231,
-      "python/numpy/core.py": 2625,
-      "python/numpy/crackfortran.py": 3188,
+      "python/numpy/core.py": 2609,
+      "python/numpy/crackfortran.py": 3182,
       "python/numpy/func2subr.py": 268,
       "python/numpy/genapi.py": 349,
       "python/numpy/generate_numpy_api.py": 92,
@@ -1189,22 +1170,22 @@
       "python/numpy/generate_umath.py": 382,
       "python/numpy/generate_umath_doc.py": 16,
       "python/numpy/lapack_litemodule.c": 15,
-      "python/numpy/symbolic.py": 747,
+      "python/numpy/symbolic.py": 743,
       "python/numpy/testutils.py": 63,
       "python/numpy/ufunc_docstrings.py": 14,
       "python/numpy/verify_c_api_version.py": 10
     },
     "python/pip_vendored_requests": {
-      "python/pip_vendored_requests/packages.py": 22
+      "python/pip_vendored_requests/packages.py": 20
     },
     "python/thealgorithms_machine_learning": {
       "python/thealgorithms_machine_learning/logistic_regression.py": 38,
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 48
     },
     "python/twisted": {
-      "python/twisted/defer.py": 434,
-      "python/twisted/http.py": 879,
-      "python/twisted/reflect.py": 122,
+      "python/twisted/defer.py": 430,
+      "python/twisted/http.py": 877,
+      "python/twisted/reflect.py": 120,
       "python/twisted/transport.py": 570
     },
     "python/wtfpython": {
@@ -1244,12 +1225,12 @@
       "rexx/ibm_z_zos/wjsst92.rexx": 350
     },
     "ruby/rails": {
-      "ruby/rails/Rakefile": 79,
-      "ruby/rails/base.rb": 40,
-      "ruby/rails/blob.rb": 20,
-      "ruby/rails/generator.rb": 123,
+      "ruby/rails/Rakefile": 77,
+      "ruby/rails/base.rb": 30,
+      "ruby/rails/blob.rb": 18,
+      "ruby/rails/generator.rb": 113,
       "ruby/rails/inbound_emails_controller.rb": 4,
-      "ruby/rails/metal.rb": 72
+      "ruby/rails/metal.rb": 70
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 66
@@ -1257,7 +1238,7 @@
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": 52,
       "rust/bevy/bevy_ecs_table.rs": 4,
-      "rust/bevy/bevy_ecs_world.rs": 55,
+      "rust/bevy/bevy_ecs_world.rs": 53,
       "rust/bevy/bevy_reflect_path.rs": 5,
       "rust/bevy/bevy_schedule_graph.rs": 53
     },
@@ -1283,7 +1264,7 @@
       "rust/syn/derive.rs": 15
     },
     "rust/tokio": {
-      "rust/tokio/builder.rs": 33,
+      "rust/tokio/builder.rs": 31,
       "rust/tokio/tests.rs": 11,
       "rust/tokio/tokio_mpsc_bounded.rs": 3,
       "rust/tokio/tokio_named_pipe.rs": 53
@@ -1299,49 +1280,46 @@
     },
     "scala/kafka": {
       "scala/kafka/KafkaApis.scala": 314,
-      "scala/kafka/LogManager.scala": 102,
+      "scala/kafka/LogManager.scala": 98,
       "scala/kafka/Partition.scala": 96,
       "scala/kafka/ReplicaManager.scala": 128,
       "scala/kafka/SocketServer.scala": 119
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": 1259,
-      "scheme/racket/eval.c": 2457,
-      "scheme/racket/fun.c": 6129,
-      "scheme/racket/io.ss": 317,
-      "scheme/racket/schemify.rkt": 11,
-      "scheme/racket/thread.rkt": 19
+      "scheme/racket/cpnanopass.ss": 1223,
+      "scheme/racket/eval.c": 2447,
+      "scheme/racket/fun.c": 6117,
+      "scheme/racket/io.ss": 315,
+      "scheme/racket/schemify.rkt": 9,
+      "scheme/racket/thread.rkt": 17
     },
     "shell/ansible": {
       "shell/ansible/aggregate-coverage.sh": 5,
-      "shell/ansible/ansible-doc__runme.sh": 91,
+      "shell/ansible/ansible-doc__runme.sh": 77,
       "shell/ansible/ansible-galaxy__runme.sh": 33,
       "shell/ansible/ansible-playbook-callbacks__runme.sh": 4,
-      "shell/ansible/ansible-pull__runme.sh": 30,
-      "shell/ansible/windows.sh": 11
+      "shell/ansible/ansible-pull__runme.sh": 22
     },
     "shell/brew": {
-      "shell/brew/brew": 98,
-      "shell/brew/brew.rb": 223,
+      "shell/brew/brew": 90,
+      "shell/brew/brew.rb": 219,
       "shell/brew/cask.rb": 39,
-      "shell/brew/download_strategy.rb": 375,
-      "shell/brew/formula.rb": 41
+      "shell/brew/download_strategy.rb": 359,
+      "shell/brew/formula.rb": 29
     },
     "shell/curl": {
-      "shell/curl/appveyor.sh": 36,
+      "shell/curl/appveyor.sh": 34,
       "shell/curl/cmp-pkg-config.sh": 35,
       "shell/curl/contributors.sh": 18,
       "shell/curl/contrithanks.sh": 24,
-      "shell/curl/distfiles.sh": 10,
-      "shell/curl/ech_tests.sh": 275,
+      "shell/curl/ech_tests.sh": 261,
       "shell/curl/firefox-db2pem.sh": 15,
-      "shell/curl/initscript.sh": 67,
-      "shell/curl/make-docs.sh": 12,
+      "shell/curl/initscript.sh": 57,
       "shell/curl/make-include.sh": 26,
       "shell/curl/make-lib.sh": 46,
       "shell/curl/make-src.sh": 48,
-      "shell/curl/make-tests.sh": 42,
-      "shell/curl/test.sh": 41
+      "shell/curl/make-tests.sh": 40,
+      "shell/curl/test.sh": 37
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": 15,
@@ -1352,12 +1330,12 @@
       "shell/darwin-xnu/ios_trace_ipc.sh": 15,
       "shell/darwin-xnu/iosspeedtracer.sh": 10,
       "shell/darwin-xnu/list_supported.sh": 10,
-      "shell/darwin-xnu/mach_install_mig.sh": 78,
+      "shell/darwin-xnu/mach_install_mig.sh": 70,
       "shell/darwin-xnu/make_posix_availability.sh": 6,
       "shell/darwin-xnu/make_symbol_aliasing.sh": 51,
       "shell/darwin-xnu/makesyscalls.sh": 83,
       "shell/darwin-xnu/persona_test_run_src.sh": 201,
-      "shell/darwin-xnu/remote_build.sh": 138,
+      "shell/darwin-xnu/remote_build.sh": 136,
       "shell/darwin-xnu/test.sh": 30,
       "shell/darwin-xnu/validate_blacklist.sh": 12,
       "shell/darwin-xnu/vnode_if.sh": 56,
@@ -1369,17 +1347,14 @@
       "shell/freebsd-src/dtest.sh": 77,
       "shell/freebsd-src/functional_test.sh": 7,
       "shell/freebsd-src/legacy_test.sh": 12,
-      "shell/freebsd-src/ls_tests.sh": 195,
+      "shell/freebsd-src/ls_tests.sh": 193,
       "shell/freebsd-src/pgrep-_f_test.sh": 12,
-      "shell/freebsd-src/pkg-install.sh": 6,
       "shell/freebsd-src/pkg_config_test.sh": 18,
-      "shell/freebsd-src/pwd_test.sh": 5,
-      "shell/freebsd-src/runulp.sh": 41,
-      "shell/freebsd-src/timeout_test.sh": 6,
+      "shell/freebsd-src/runulp.sh": 39,
       "shell/freebsd-src/ztest.sh": 15
     },
     "shell/freebsd_sysbuild": {
-      "shell/freebsd_sysbuild/sysbuild.sh": 159
+      "shell/freebsd_sysbuild/sysbuild.sh": 151
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 66,
@@ -1400,7 +1375,6 @@
       "shell/haiku/usb_vision__install.sh": 9
     },
     "shell/illumos-gate": {
-      "shell/illumos-gate/Run.sh": 3,
       "shell/illumos-gate/acct.sh": 3,
       "shell/illumos-gate/adbgen.sh": 39,
       "shell/illumos-gate/amt.sh": 9,
@@ -1408,27 +1382,25 @@
       "shell/illumos-gate/audio_clean.sh": 76,
       "shell/illumos-gate/audit_warn.sh": 83,
       "shell/illumos-gate/batch.sh": 3,
-      "shell/illumos-gate/diff3.sh": 34,
+      "shell/illumos-gate/diff3.sh": 32,
       "shell/illumos-gate/diffmk.sh": 3,
       "shell/illumos-gate/dircmp.sh": 39,
       "shell/illumos-gate/exportfs.sh": 33,
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": 8,
       "shell/illumos-gate/inetd-upgrade.sh": 56,
-      "shell/illumos-gate/mkerror.sh": 15,
-      "shell/illumos-gate/newvers.sh": 9,
       "shell/illumos-gate/nfsfind.sh": 3,
       "shell/illumos-gate/process_msg_template.sh": 6,
       "shell/illumos-gate/shareall.sh": 15,
       "shell/illumos-gate/unshareall.sh": 9
     },
     "shell/kubernetes": {
-      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": 9,
+      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": 7,
       "shell/kubernetes/benchmark-dockerized.sh": 12,
-      "shell/kubernetes/cluster__common.sh": 129,
-      "shell/kubernetes/common.sh": 88,
+      "shell/kubernetes/cluster__common.sh": 125,
+      "shell/kubernetes/common.sh": 74,
       "shell/kubernetes/config-common.sh": 46,
       "shell/kubernetes/config-default.sh": 18,
-      "shell/kubernetes/configure-helper.sh": 828,
+      "shell/kubernetes/configure-helper.sh": 820,
       "shell/kubernetes/etcd.sh": 64,
       "shell/kubernetes/gen-swagger-docs.sh": 12,
       "shell/kubernetes/gencerts.sh": 4,
@@ -1437,14 +1409,13 @@
       "shell/kubernetes/log-dump.sh": 176,
       "shell/kubernetes/pre-existing__util.sh": 7,
       "shell/kubernetes/release.sh": 66,
-      "shell/kubernetes/testcerts__gencerts.sh": 5,
-      "shell/kubernetes/update-codegen.sh": 9
+      "shell/kubernetes/testcerts__gencerts.sh": 5
     },
     "shell/linux": {
       "shell/linux/autoload.sh": 3,
       "shell/linux/boot__install.sh": 5,
       "shell/linux/config3270.sh": 24,
-      "shell/linux/deflate_xip_data.sh": 25,
+      "shell/linux/deflate_xip_data.sh": 19,
       "shell/linux/generic-board-config.sh": 27,
       "shell/linux/install.sh": 6,
       "shell/linux/multisound.sh": 57,
@@ -1455,31 +1426,27 @@
       "shell/linux/syscalls__syscallnr.sh": 11
     },
     "shell/moby": {
-      "shell/moby/check-config.sh": 103,
+      "shell/moby/check-config.sh": 97,
       "shell/moby/cli.sh": 13,
       "shell/moby/dev.sh": 3,
       "shell/moby/dockerd-rootless-setuptool.sh": 171,
       "shell/moby/dockerd-rootless.sh": 60,
       "shell/moby/dockerize-disk.sh": 39,
-      "shell/moby/download-frozen-image-v2.sh": 158,
-      "shell/moby/e2e-run.sh": 25,
-      "shell/moby/generate-swagger-api.sh": 3,
-      "shell/moby/generate-test-certs.sh": 16,
-      "shell/moby/generate-test-rogue-certs.sh": 16,
+      "shell/moby/download-frozen-image-v2.sh": 156,
       "shell/moby/install.sh": 15,
       "shell/moby/support.sh": 59,
-      "shell/moby/validate-swagger-gen.sh": 24
+      "shell/moby/validate-swagger-gen.sh": 16
     },
     "shell/reactos": {
       "shell/reactos/CreateCabFile.sh": 12,
       "shell/reactos/check_code_format.sh": 9,
       "shell/reactos/codespell_changed_files.sh": 9,
-      "shell/reactos/codespell_check.sh": 35,
+      "shell/reactos/codespell_check.sh": 31,
       "shell/reactos/configure.sh": 24,
       "shell/reactos/dos2unix.sh": 6,
       "shell/reactos/mksrctar.sh": 42,
       "shell/reactos/output_to_pcap.sh": 6,
-      "shell/reactos/remaster.sh": 68
+      "shell/reactos/remaster.sh": 64
     },
     "shell/serenity": {
       "shell/serenity/BuildFuzzers.sh": 22,
@@ -1494,7 +1461,7 @@
       "shell/sqlite/fts3cov.sh": 6,
       "shell/sqlite/json-speed-check.sh": 63,
       "shell/sqlite/mkautoconfamal.sh": 24,
-      "shell/sqlite/mkdist.sh": 71,
+      "shell/sqlite/mkdist.sh": 57,
       "shell/sqlite/split-speedtest1-script.sh": 12,
       "shell/sqlite/tclConfigShToMake.sh": 15
     },
@@ -1504,7 +1471,7 @@
       "solidity/openzeppelin/Governor.sol": 20
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 349
+      "sql/baseline/schema.php": 343
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/tables.sql": 6
@@ -1556,8 +1523,8 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": 91,
-      "typescript/assemblyscript/builtins.ts": 2677,
-      "typescript/assemblyscript/compiler.ts": 3131,
+      "typescript/assemblyscript/builtins.ts": 2673,
+      "typescript/assemblyscript/compiler.ts": 3119,
       "typescript/assemblyscript/parser.ts": 1120
     },
     "typescript/excalibur_math": {
@@ -1576,22 +1543,22 @@
     },
     "typescript/playwright": {
       "typescript/playwright/bidiConnection.ts": 87,
-      "typescript/playwright/connection.ts": 136,
+      "typescript/playwright/connection.ts": 132,
       "typescript/playwright/crConnection.ts": 55,
       "typescript/playwright/dispatcher.ts": 126,
-      "typescript/playwright/frames.ts": 314
+      "typescript/playwright/frames.ts": 308
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 743,
-      "typescript/typescript_compiler/checker.ts": 7911,
-      "typescript/typescript_compiler/emitter.ts": 528,
-      "typescript/typescript_compiler/parser.ts": 1302
+      "typescript/typescript_compiler/binder.ts": 721,
+      "typescript/typescript_compiler/checker.ts": 7663,
+      "typescript/typescript_compiler/emitter.ts": 520,
+      "typescript/typescript_compiler/parser.ts": 1276
     },
     "typescript/vscode": {
-      "typescript/vscode/async.ts": 430,
-      "typescript/vscode/codeEditorWidget.ts": 326,
+      "typescript/vscode/async.ts": 428,
+      "typescript/vscode/codeEditorWidget.ts": 300,
       "typescript/vscode/extHost.api.impl.ts": 152,
-      "typescript/vscode/gulpfile.vscode.ts": 143,
+      "typescript/vscode/gulpfile.vscode.ts": 137,
       "typescript/vscode/instantiationService.ts": 115,
       "typescript/vscode/ipc.ts": 215,
       "typescript/vscode/lifecycle.ts": 150,
@@ -1606,7 +1573,6 @@
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/arm64.yml": 4,
-      "yaml/moby_workflows/buildkit.yml": 11,
       "yaml/moby_workflows/ci.yml": 4
     },
     "yaml/vscode_workflows": {
@@ -1614,10 +1580,10 @@
       "yaml/vscode_workflows/copilot-setup-steps.yml": 6,
       "yaml/vscode_workflows/monaco-editor.yml": 4,
       "yaml/vscode_workflows/no-engineering-system-changes.yml": 6,
-      "yaml/vscode_workflows/pr-darwin-test.yml": 9,
-      "yaml/vscode_workflows/pr-linux-test.yml": 25,
+      "yaml/vscode_workflows/pr-darwin-test.yml": 7,
+      "yaml/vscode_workflows/pr-linux-test.yml": 23,
       "yaml/vscode_workflows/pr-node-modules.yml": 11,
-      "yaml/vscode_workflows/pr-win32-test.yml": 11
+      "yaml/vscode_workflows/pr-win32-test.yml": 9
     },
     "zig/bun": {
       "zig/bun/MimallocArena.zig": 6,
@@ -1630,7 +1596,7 @@
       "zig/mach/StringTable.zig": 3,
       "zig/mach/collision.zig": 155,
       "zig/mach/graph.zig": 52,
-      "zig/mach/module.zig": 50,
+      "zig/mach/module.zig": 48,
       "zig/mach/win32.zig": 3
     },
     "zig/tigerbeetle": {

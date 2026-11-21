@@ -4,18 +4,18 @@
     "File Composition Distribution"
   ],
   "value": {
-    "Callbacks & Closures Files": "1.9% (65)",
-    "Compute Cores Files": "2.2% (73)",
+    "Callbacks & Closures Files": "2.0% (66)",
+    "Compute Cores Files": "2.1% (72)",
     "Data / Markup / Trivial": "20.5% (691)",
     "Declarative / Non-Code": "21.6% (727)",
     "Encapsulated Accessors Files": "1.5% (51)",
     "Generic / Templated Code Files": "2.2% (75)",
-    "Interface Declarations Files": "12.6% (423)",
-    "Large Core Modules": "10.7% (361)",
+    "Interface Declarations Files": "12.6% (424)",
+    "Large Core Modules": "10.8% (363)",
     "Large Core Modules (2)": "8.4% (284)",
-    "Large Core Modules (3)": "8.9% (298)",
+    "Large Core Modules (3)": "8.7% (293)",
     "Many-Argument Workhorses Files": "2.2% (75)",
-    "Parameter Forwarders Files": "4.4% (149)",
+    "Parameter Forwarders Files": "4.5% (151)",
     "State Mutators Files": "2.3% (77)",
     "Type Conversions Files": "0.4% (15)"
   }

@@ -76,3 +76,29 @@ def test_kotlin_overloaded_import_excludes_test_files_for_production_importer():
         ("src/main/kotlin/app/Main.kt", "src/main/kotlin/pkg/A.kt"),
         ("src/main/kotlin/app/Main.kt", "src/main/kotlin/pkg/B.kt"),
     }
+
+
+def test_kotlin_test_importer_prefers_production_over_test_decoy():
+    files = [
+        {
+            "path": "src/jvmTest/kotlin/app/SpecTest.kt",
+            "lang_id": "kotlin",
+            "raw_imports": ["pkg.asTypeName"],
+        },
+        {
+            "path": "src/jvmMain/kotlin/pkg/TypeName.kt",
+            "lang_id": "kotlin",
+            "raw_imports": [],
+            "functions": [{"name": "asTypeName"}],
+        },
+        {
+            "path": "src/jvmTest/kotlin/pkg/TypeNameTest.kt",
+            "lang_id": "kotlin",
+            "raw_imports": [],
+            "functions": [{"name": "asTypeName"}],
+        },
+    ]
+    edges = NetworkRiskSensor()._resolve_edges(files)
+    assert set(edges) == {
+        ("src/jvmTest/kotlin/app/SpecTest.kt", "src/jvmMain/kotlin/pkg/TypeName.kt"),
+    }

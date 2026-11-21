@@ -1634,9 +1634,11 @@ class NetworkRiskSensor:
                         and "." in target_token
                     ):
                         # #4125: Kotlin `import a.b.fn` imports every top-level overload of `fn`
-                        # declared across files of package `a.b`.
+                        # declared across files of package `a.b`. Prefer production files when
+                        # both production and test files declare the same name.
                         multi = self._resolve_declaration_hits(target_token, curr_path, file_facts, src_lang)
-                        if len(multi) > 1:
+                        multi = [c for c in multi if not _is_test_path(c)] or multi
+                        if multi:
                             targets = multi
                     if not targets or _NO_DECLARATION in targets:
                         targets = [default if t is _NO_DECLARATION else t for t in targets] or [default]

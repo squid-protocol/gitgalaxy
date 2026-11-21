@@ -297,8 +297,8 @@ def test_an_explicit_probe_beats_the_inferred_one(tmp_path):
 
 
 # #8424: a `gh api` read captured into a variable / process substitution is wrapped in capture mode, so a failed try never
-# leaks into the captured value. The planner workflows (ruff-audit.yml is the next slice) carry the same three-call step.
-GH_API_PLAN_WORKFLOWS = ["gitgalaxy.yml", "small-audits.yml", "mypy-audit.yml"]
+# leaks into the captured value. The planner workflows carry the same three-call step.
+GH_API_PLAN_WORKFLOWS = ["gitgalaxy.yml", "small-audits.yml", "mypy-audit.yml", "ruff-audit.yml"]
 
 
 def _gh_api_lines(name):
@@ -323,3 +323,17 @@ def test_the_planner_gh_api_calls_are_wrapped_in_capture_mode(name):
     for ln in lines:
         assert "CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api" in ln, ln
         assert "||" in ln, f"{name}: the planner must still fail open: {ln.strip()}"
+
+
+def test_ports_compile_plan_gh_api_calls_are_wrapped_and_fail_open():
+    lines = _gh_api_lines("ports-compile.yml")
+    assert len(lines) == 2, lines
+    for ln in lines:
+        assert "CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api" in ln, ln
+        assert "||" in ln, f"ports-compile.yml: the planner must still fail open: {ln.strip()}"
+
+
+def test_graph_comparison_history_gh_run_list_is_wrapped_and_fail_open():
+    text = (WORKFLOWS / "graph-comparison-history.yml").read_text(encoding="utf-8")
+    assert "base=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh run list" in text
+    assert "2>/dev/null || true" in text

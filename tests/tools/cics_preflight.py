@@ -17,7 +17,8 @@ Eight checks (#8112 adds the listing and duplicate counts to the first; #8111 ad
      engine and from the file search alike; counted by name or by the first 512 bytes' signature (TERSE by name only), never unpacked. Any is a finding, and a clone with one
      never earns the clone-defect label (`gap_prevalence.ARCHIVED`).
   8. RECFM=V exports (#8412, `gap_prevalence.rdw_files`): files whose records carry RDW (or BDW+RDW) length prefixes are
-     binary framing, not text: the aperture drops them and nothing names it. Counted by structure, never decoded or named.
+     binary framing, not text: the aperture drops them (refusal reason names RECFM=V). Counted by structure, never decoded; a clone with
+     one never earns the clone-defect label (`gap_prevalence.RDW_HELD`).
 """
 
 from __future__ import annotations

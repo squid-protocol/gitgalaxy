@@ -208,6 +208,15 @@ side, the worker now runs it after a passing `runTask` side, in the same session
 (`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
 named `<scenario> [java-facade]`; `killers` names those for a separate run too.
 
+**A baseline proof is kept in its `--work` dir (2026-11-21, #8599).** `mutation.run` proved the baseline every time: a
+`det_mutation.py refresh` or `run` after an earlier run in the same `--work`, or a re-run after a crash, paid it again
+(13-60 s a case). `baseline_proof` now writes `baseline.key.json` beside `baseline/` after a *proven* proof, and reuses the
+directory when the key matches: sha256 of the port's every file, the `--case-file` bytes, the case's evidence digest
+(harness, oracle, generator, case and corpus fingerprints) and the engine hash. A moved input, an unproven or missing
+report, or inputs that cannot be read prove it again; a refuted baseline is never kept. The proof is not loosened: a kept
+baseline is the one a fresh proof of the same inputs would make. Not shared *between* cases: each case has its own port
+and report, so the sharing is across runs of one case, not across a batch's cases.
+
 **`survivor_attack.py try` proves a CICS attack through the facades too (#8599).** It ran every proof with `--no-facades`
 while `live_methods` counts `handleLink` / `lastLinkBytes` as live, so an attack on a facade-only survivor could report
 `survived` where the facade side kills it. `attack_flags` now drops `--no-facades` for a CICS case (batch and the other

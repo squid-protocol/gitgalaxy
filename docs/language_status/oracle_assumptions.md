@@ -2385,15 +2385,14 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   from an input operation ( X'80' , X'02' , or X'82'). For extended attribute bytes, the value must not be null. ... For display
   data, the first character of the data must not be null."
   - **MATCHED:** a null (X'00') attribute, extended attribute or leading data byte is absent.
-  - **DIFFERS (declared here, `RT-CICS-BMS-SUBFIELDS`):** `DetCics.subfields` also drops a space, which IBM sends (a field attribute
-    of X'40' is present), and sets X'80' / X'02' / X'82', which IBM treats as absent. The receiving side's `<f>L` is the text without
+  - **DIFFERS (declared here, `RT-CICS-BMS-SUBFIELDS`):** `DetCics.subfields` records a space (X'40') as a value, as IBM sends it (#8827), and sets X'80' / X'02' / X'82', which IBM treats as absent. The receiving side's `<f>L` is the text without
     trailing blanks; IBM does not say it counts the blanks keyed, so that half stays with X54's blank-field note.
   - **Landed (#7955, PR #8827):** both sides now record a space (X'40') and a NUL (X'00') as values. This kills HXATTR `722da01d4e`
     and HXEXT `2f61febdd4`. The earlier "tried, not landed" premise was wrong: on an uncleared map (`ca-bytes-entry-clear`)
     GnuCOBOL holds spaces, not nothing, so the port and the oracle agree and no write tracking in the runtime is needed.
     A subfield never given, a written X'00' and a written X'40' are three different states on the compare
-    (pinned once #8827 merges, see the PR's Remaining slices). HXEXT `8ec71a9459` (a repeat of the `MOVE LOW-VALUES TO HXM2I`
-    just before it) survives seven oracle inputs and carries no stated verdict until a seed samples it.
+    (pinned by `test_7955_nul_and_space_attribute_bytes_are_different_values`). HXEXT `8ec71a9459` (a repeat of the
+    `MOVE LOW-VALUES TO HXM2I` just before it) survives seven oracle inputs and is stated equivalent (#8827).
   - **Still ASSUMED:** the symbolic-map comparison itself (the paragraphs above).
 
 ### X3. Backout and recoverable files — MATCHED
@@ -2432,6 +2431,9 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   the interval; ENQ and DEQ serialize on a resource across tasks. The wording is paraphrased, not verbatim.
 - **Declared difference.** IBM's ASKTIME returns a later time and a DELAY takes the interval; here neither moves the
   clock. ENQ never waits, since one task is the region's only one.
+- **IBM trace (#8700, 2026-11-21; Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, "CURRENT-DATE", local manual text; the CICS TS 6 API Reference names no region zone for the function).** IBM: "The CURRENT-DATE function returns a 21-character alphanumeric value that represents the calendar date, time of day, and time differential from Greenwich mean time provided by the system on which the function is evaluated." Positions 15-16 are "the hundredths of a second past the second"; position 17: "The character '+' is returned if the local time indicated is the same as or ahead of Greenwich mean time"; positions 18-21 hold the hours and minutes of the differential.
+  - **MATCHED (`RT-CICS-CURRENT-DATE`, the layout):** `DetCics.currentDate` returns YYYYMMDDHHMMSS, the hundredths, then `+0000`: 21 characters in IBM's positions, '+' with a zero differential for local time equal to GMT.
+  - **Still ASSUMED:** which clock and zone a CICS task reads. IBM says "the system on which the function is evaluated" and gives no CICS region rule, so the task's dispatch clock and a UTC region (the choice named above) are ours, not IBM's. The rule stays ASSUMED.
 
 ### X5. What IBM leaves open — REFUSED
 Refused by name (`equivalence_cics.Unsupported`):
@@ -4712,6 +4714,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   ADDRESS OF a table element (not modelled), and a table a REDEFINES overlays. GnuCOBOL holds POINTER OCCURS natively, so the oracle needs no change.
   Unit-proven on the translator and on DetCics compiled and run (tests/cobol_mainframe/test_pointer_table_5079.py); no estate program or scenario
   uses it, so nothing here is executed-equivalent. WAIT EXTERNAL / WAITCICS, which would read such a list, are not modelled yet (X63).
+- **IBM trace (#8700, 2026-11-21; CICS TS 6 API Reference, GETMAIN, FREEMAIN, WEB RECEIVE, local manual text).** GETMAIN SET(ptr-ref): "Sets the pointer reference to the address of the acquired main storage"; "A LENGERR condition that results from a zero or negative value that is specified for FLENGTH or LENGTH sets ptr-ref to zero."; "There is no default initialization, so if you require the storage to be initialized to a specific bit configuration, you must use the INITIMG option."; INITIMG: "If you specify INITIMG, CICS sets every byte of the storage to that value". LENGERR for FLENGTH: "The FLENGTH value is less than 1".
+  - **MATCHED (`RT-CICS-POINTER-LANE`, the GETMAIN half):** INITIMG fills every byte, a FLENGTH below 1 or a LENGTH of zero is LENGERR with the pointer zero.
+  - **Still ASSUMED:** the pointer-as-handle model itself (an 8-byte handle of a block of task storage, a record and its block sharing one storage). IBM defines the pointer as an address of storage and says nothing of a handle; the oracle and the port cannot hold a z/OS address, so the handle is our modelling choice, named here. SET ADDRESS OF / SET pointer TO ADDRESS OF are COBOL statements, not on a CICS page; the rule's `SET ADDRESS` methods are not traced to a manual quote here.
 
 ### X48. Injected duplicate-key file faults: DUPKEY delivers the record, each condition only on the commands IBM lists it for — ASSUMED, REFUSED where IBM is silent (#4623)
 - **DUPKEY** (CICS TS 6.x, READ / READNEXT / READPREV "Conditions": DUPKEY, RESP2 140): "a record is retrieved through an
@@ -5357,6 +5362,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (FLENGTH SET, the modelled form). So no refusal here blocks a burned program, nothing moves, and each stays REFUSED until one does.
   `tests/cobol_mainframe/test_pointer_lane_reach_5042.py` pins both halves: the spec keeps each refusal, and the census finds no burned program
   issuing one (skipped without the corpora checkout). Evidence level: refused by name, 0 burned programs reach it.
+- **IBM trace (#8700, 2026-11-21; CICS TS 6 API Reference, READ, READNEXT, READQ TS, RETRIEVE, GET CONTAINER (CHANNEL), RECEIVE, local manual text).** READ SET: "indicates that CICS is to supply a buffer where the record is read, and specifies the pointer reference that is to contain the address of the retrieved record"; "The pointer reference is valid until the next READ command for the same file or until completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET." READNEXT SET: "The pointer reference is valid until the next READNEXT or READPREV command specifies SET for the same browse (REQID) for the same file. The pointer is no longer valid after an ENDBR or SYNCPOINT command." READQ TS SET: "valid until the next READQ TS command or the end of task". RETRIEVE SET: "specifies the pointer reference to be set to the address of the retrieved data ... If you use SET you must also include LENGTH". RECEIVE SET: "The pointer reference is valid until the next receive command or the end of task". GET CONTAINER SET: "CICS maintains the data area until any of the following occurs: A subsequent GET CONTAINER or GET64 CONTAINER command with the SET option, for the same container in the same channel ... The container is deleted by a DELETE CONTAINER command. The container is moved by a MOVE CONTAINER command. The channel goes out of program scope. The channel, and the containers that are in it, are deleted by a DELETE CHANNEL command."
+  - **MATCHED (`RT-CICS-SET-BLOCK`, the lifetimes):** the end of each pointer's validity as the rule names it, per command.
+  - **Still ASSUMED:** a "new block of task storage holding the data" with a handle for the pointer: IBM says CICS supplies a buffer and returns its address, and says nothing of a copy per command or of what the storage holds after the end of validity (it says to move the data to your own area). The block-per-command copy is the runtime's choice. RETRIEVE's end of validity is stated by IBM nowhere on the page (above, "IBM states no end for the pointer"). No DIFFERS is claimed.
 
 ### X59. ADDRESS EIB / COMMAREA / CWA / TWA / TCTUA modelled in the port and the stub; ADDRESS ACEE, SEND PAGE and PURGE MESSAGE refused by name (#5079; CONVERSE, POST, WAIT EVENT: X63)
 - **ADDRESS** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-address). EIB "returns a pointer reference set to the address
@@ -5444,6 +5452,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   after a command, COMMAREA written through, no COMMAREA) and `ca-address-twa-tctua` are pinned; `ca-address-cwa` is in the cics-crucible v0.11.0 pin. The equivalence harness (`equivalence.py`, GnuCOBOL end to end) states
   the three area sizes too (case or scenario keys `twasize`, `wrkarea`, `userarealen`; a TCTUA needs a `termid`): TWA, CWA and TCTUA writes are proven alike on the
   stub and the port by tests/cobol_mainframe/test_address_areas_e2e_5079.py (hand-traced; one task per scenario, so TCTUA persistence across tasks stays crucible-only).
+- **IBM trace (#8700, 2026-11-21; CICS TS 6 API Reference, ADDRESS, local manual text).** COMMAREA(ptr-ref): "This option returns a pointer reference, set to the address of the communication area (COMMAREA) available to the currently executing program ... If the COMMAREA does not exist, the pointer reference is set to the null value, X'FF000000'." CWA(ptr-ref): "If a CWA does not exist, CICS sets the pointer reference to the null value, X'FF000000'." TCTUA: "If a TCTUA does not exist, the pointer reference is set to the null value, X'FF000000'." TWA: "If a TWA does not exist, the pointer reference is set to the null value, X'FF000000'." EIB: "returns a pointer reference set to the address of the EXEC interface block (EIB)".
+  - **MATCHED (`RT-CICS-ADDRESS`):** a missing CWA / TWA / TCTUA (size 0 or unstated) gives X'FF000000' (`addressNoCommarea`, `addressTwa`, `addressTctua`, `addressCwa`); COMMAREA(ptr) is the address of the DFHCOMMAREA record.
+  - **Still ASSUMED:** the refusals. A task with no COMMAREA is refused where IBM sets X'FF000000' (the handle is no COBOL NULL, as above), and a COMMAREA in a program with no 01 DFHCOMMAREA is refused: stated boundaries, not IBM behaviour. No DIFFERS is claimed.
 
 ### X60. ENQ fault injection: ENQBUSY with NOSUSPEND, RESP2 0 — ASSUMED, REFUSED where IBM is silent (#5089)
 - **What IBM says** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-enq). "If a resource is not available when ENQ

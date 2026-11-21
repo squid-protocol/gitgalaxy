@@ -301,6 +301,10 @@ def det_mutation_component(
             r["ready"] += bool(m.get("l5")) and not m.get("current")
             r["caught"] += m.get("killed") or 0
             r["survived"] += m.get("survived") or 0
+            if p["level"] == "L5" or m.get("l5"):  # finished: every planted bug caught or explained (current or not)
+                r["closed"] += 1
+                r["closed_caught"] += m.get("killed") or 0
+                r["closed_survived"] += m.get("survived") or 0
             case = by_program.get(Path(p["program"]).stem.upper())
             if case:
                 r["sampled"] += ledger[case].get("chosen") or 0
@@ -320,6 +324,9 @@ def det_mutation_component(
             "sampled_pct": pct(r["sampled"], r["mutants"]),
             "equivalent": r["equivalent"],
             "unreachable": r["unreachable"],
+            "closed": r["closed"],
+            "closed_caught": r["closed_caught"],
+            "closed_survived": r["closed_survived"],
         }
     keys = (
         "programs",
@@ -332,6 +339,9 @@ def det_mutation_component(
         "mutants",
         "equivalent",
         "unreachable",
+        "closed",
+        "closed_caught",
+        "closed_survived",
     )
     total: dict[str, Any] = {k: sum(e[k] for e in estates.values()) for k in keys}
     total["raw_pct"] = pct(total["caught"], total["caught"] + total["survived"])

@@ -64,6 +64,7 @@ S_STATES = [
     ("S3", "chain proven from the JCL"),
     ("S4", "operating cycle proven"),
 ]
+S_SHORT = [("S0", "inventoried"), ("S1", "wired"), ("S2", "chain proven"), ("S3", "from the JCL"), ("S4", "full cycle")]
 SY_DARK = [LADDER_DARK[0], "#8fd3de", "#2aa6bb", "#1b7f91", "#105a67"]
 SY_LABEL_CLS = ["on-light", "on-light", "on-dark", "on-dark", "on-dark"]
 
@@ -190,6 +191,19 @@ def stacked(svg: Svg, x, y, w, h, values, classes, titles, label_min=26, label_c
         if lab is not None:
             svg.text(cx + sw / 2, y + h / 2 + 5, lab, cls=lc or "on-dark", size=13, weight=600, anchor="middle")
         cx += sw + gap
+
+
+def wrap(text: str, width: float, char_w: float) -> list[str]:
+    """`text` broken at spaces into lines of at most `width` px, estimating each character at `char_w` px (the
+    slide's sans at that size); a single word longer than a line stays whole on its own line."""
+    limit = max(1, int(width // char_w))
+    lines: list[str] = []
+    for word in text.split():
+        if lines and len(lines[-1]) + 1 + len(word) <= limit:
+            lines[-1] += " " + word
+        else:
+            lines.append(word)
+    return lines or [""]
 
 
 def pct(a, b) -> str:
@@ -397,6 +411,8 @@ def render(prog: dict[str, Any]) -> str:
     t_l4 = sum(e["l4_plus"] for e in tests_.values())
     dt = det["total"]
     judged = dt["caught"] + dt["survived"]
+    closed_run = dt.get("closed_caught", 0) + dt.get("closed_survived", 0)
+    waiting = judged - closed_run
     ours = (lambda v: f"Our test suite: {v} / {t_n}") if t_n else (lambda v: "")
     gap = 16
     tw, th = (W - 2 * PAD - 3 * gap) / 4, 140
@@ -408,9 +424,10 @@ def render(prog: dict[str, Any]) -> str:
          False),
         (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch",
          f"net of {n_net} reviewed outcomes (L4+)" if n_net else "every branch outcome run (L4+)", ours(t_l4), True),
-        (f"{dt['caught']:,}", pct(dt["caught"], judged), "planted bugs caught by tests",
-         f"of {judged:,} run; {total['L5']} programs pass L5", "Our test suite: L5 not yet started" if t_n else "",
-         False),
+        # owner 2026-11-21: count only the finished programs (every planted bug caught or explained), and say how
+        # many more wait, instead of a rate over every program still open
+        (f"{closed_run:,}", pct(closed_run, closed_run), "planted bugs accounted for",
+         f"caught or explained, in {dt['closed']} finished programs", f"{waiting:,} more waiting evaluation", False),
     ]  # fmt: skip
 
     # ---------------------------------------------------------------- how to read it: the six steps, defined once
@@ -565,25 +582,22 @@ def render(prog: dict[str, Any]) -> str:
         lx += 17 + 7.2 * len(short) + 14
     y += 40
     # #8888: the S ladder's legend, under the column heads (its own colours: a second axis, per job, not per program)
-    s.text(bar_x, y + 4, "S: each codebase's batch jobs on the system ladder (a second axis, per job)", cls="t2",
+    # one line, like the L5 key: short names here, the full meaning in each bar segment's title
+    s.text(bar_x, y + 4, "S: batch jobs on the system ladder (a second axis, per job, the thin bar)", cls="t2",
            size=13.5, weight=700)  # fmt: skip
     lx = bar_x
     y += 14
-    for i, (lv, lab) in enumerate(S_STATES):
+    for i, (lv, short) in enumerate(S_SHORT):
         s.rect(lx, y, 12, 12, f"sy{i}", rx=2)
-        txt = f"{lv} {lab}"
+        txt = f"{lv} {short}"
         s.text(lx + 17, y + 11, txt, cls="t3", size=12.5)
-        lx += 17 + 6.6 * len(txt) + 16
-        if lx > W - PAD - 240 and i < len(S_STATES) - 1:  # wrap before the slide's edge
-            lx, y = bar_x, y + 20
+        lx += 17 + 6.6 * len(txt) + 14
     s_measured = next((e["system"]["measured"] for e in estates.values() if e.get("system")), None)
     if s_measured is not None:  # said once here, not on every row: a level with no measure counts no job
         unmeasured = [lv for lv, _ in S_STATES if lv not in s_measured]
         if unmeasured:
-            s.text(bar_x, y + 34, f"{', '.join(unmeasured)}: not measured yet, so no job is counted there; "
-                   "S2 counts only a chain proof CI records.", cls="t3", size=12.5)  # fmt: skip
-            y += 20
-    y += 30
+            s.text(lx + 6, y + 11, f"({', '.join(unmeasured)} not measured yet)", cls="t3", size=12.5)
+    y += 36
 
     band(
         1,
@@ -759,15 +773,25 @@ def render(prog: dict[str, Any]) -> str:
             state_icon(s, PAD + 8, y - 4, r["state"])
             s.text(PAD + 22, y, capability_ledger.STATE_LABEL[r["state"]], cls="t3", size=13)
             s.text(PAD + 110, y, r["name"], cls="t1", size=14, weight=600)
-            s.text(PAD + 330, y, r["have"], cls="t3", size=13)
+            bx, bw = W - PAD - 330, 110  # room for the unit after the count ("8 / 13 COND jobs checked")
+            # owner 2026-11-21: a long line ran under the bar (JCL on MVS 3.8J): wrap it in the space left of the bar
+            have = wrap(r["have"], (bx - 14 if r["of"] else W - PAD) - (PAD + 330), 6.4)
+            for k, line in enumerate(have):
+                s.text(PAD + 330, y + 17 * k, line, cls="t3", size=13)
+            extra = 17 * (len(have) - 1)
             if r["of"]:
-                bx, bw = W - PAD - 330, 110  # room for the unit after the count ("8 / 13 COND jobs checked")
                 s.rect(bx, y - 10, bw, 10, "track", rx=4)
                 s.rect(bx, y - 10, bw * r["done"] / r["of"], 10, "meter", rx=4,
                        title=f"{r['name']}: {r['done']} of {r['of']}")  # fmt: skip
-                s.text(bx + bw + 10, y, f"{r['done']} / {r['of']}", cls="t1", size=14, weight=700)
-                s.text(W - PAD, y, r["unit"].replace("modelled on both runtimes", "modelled").replace(
-                    "modelled; the rest refused by name", "modelled"), cls="t3", size=12.5, anchor="end")  # fmt: skip
+                count = f"{r['done']} / {r['of']}"
+                s.text(bx + bw + 10, y, count, cls="t1", size=14, weight=700)
+                unit = r["unit"].replace("modelled on both runtimes", "modelled").replace(
+                    "modelled; the rest refused by name", "modelled")  # fmt: skip
+                units = wrap(unit, (W - PAD) - (bx + bw + 10 + 8.0 * len(count) + 12), 5.9)
+                for k, line in enumerate(units):
+                    s.text(W - PAD, y + 15 * k, line, cls="t3", size=12.5, anchor="end")
+                extra = max(extra, 15 * (len(units) - 1))
+            y += extra
             if r["note"]:
                 s.text(PAD + 330, y + 17, r["note"], cls="t3", size=12.5)
                 y += 17
@@ -882,16 +906,21 @@ def render(prog: dict[str, Any]) -> str:
         if measured
         else (NOT_MEASURED, "", "gaps mapped (Gap Atlas)", "Gap Atlas"),
     ]  # fmt: skip
-    bh = (my - y - 3 * 10) / 4
+    # a box keeps room for its two lines even when the milestone list beside it is empty (no token: "not measured"),
+    # and an unmeasured value is a small grey note, never a big number-sized word over the label
+    bh = max(52.0, (my - y - 3 * 10) / 4)
     for k, (big, p, lab, sub) in enumerate(boxes):
         by = y + k * (bh + 10)
         s.rect(ix, by, iw, bh, "card", rx=10)
-        s.text(ix + 16, by + bh / 2 + 3, big, cls="t1", size=22, weight=700)
+        if big == NOT_MEASURED:
+            s.text(ix + 16, by + bh / 2 + 5, big, cls="t3", size=13.5, weight=600)
+        else:
+            s.text(ix + 16, by + bh / 2 + 3, big, cls="t1", size=22, weight=700)
         if p:
             s.text(ix + iw - 16, by + bh / 2 + 3, p, cls="t2", size=18, weight=600, anchor="end")
         s.text(ix + 150, by + bh / 2 - 6, lab, cls="t1", size=13.5, weight=600)
         s.text(ix + 150, by + bh / 2 + 13, sub, cls="t3", size=12.5)
-    y = my + 26
+    y = max(my, y + 4 * bh + 3 * 10) + 26
     s.text(
         PAD,
         y,

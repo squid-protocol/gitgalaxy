@@ -1,0 +1,1888 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "tests/equivalence/jcl/gdg/scenarios.json",
+ "skipped": {
+  "step-bias-create-then-read-zero": "GDGBIAS is a z/OS JOB keyword (not in 3.8J)",
+  "job-bias-named-is-the-default": "GDGBIAS is a z/OS JOB keyword (not in 3.8J)",
+  "step-bias-two-steps-each-create-a-plus-one": "GDGBIAS is a z/OS JOB keyword (not in 3.8J)",
+  "step-bias-limit-rolls-off-at-step-end": "GDGBIAS is a z/OS JOB keyword (not in 3.8J)",
+  "step-bias-abend-in-step-two-keeps-the-step-one-generation": "GDGBIAS is a z/OS JOB keyword (not in 3.8J)",
+  "proc-called-twice-under-step-bias": "GDGBIAS is a z/OS JOB keyword (not in 3.8J)",
+  "restart-step-present-numbers": "restart is a later slice (#8413 restart; the JES2 restart scenarios are not run here)",
+  "restart-step-creates-and-rereads": "restart is a later slice (#8413 restart; the JES2 restart scenarios are not run here)",
+  "restart-star-is-the-first-step": "restart is a later slice (#8413 restart; the JES2 restart scenarios are not run here)",
+  "restart-checkpoint-same-numbers": "restart is a later slice (#8413 restart; the JES2 restart scenarios are not run here)",
+  "restart-checkpoint-keep-by-creating-number": "restart is a later slice (#8413 restart; the JES2 restart scenarios are not run here)"
+ },
+ "results": [
+  {
+   "id": "rel-read",
+   "job": "RDJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "R1.I0": 7,
+     "R1.I1": 6,
+     "R1.I2": 5
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "R1.I0": 7,
+     "R1.I1": 6,
+     "R1.I2": 5
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "R1.I0": 7,
+     "R1.I1": 6,
+     "R1.I2": 5
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "R1": [
+     [
+      "I0",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ],
+     [
+      "I1",
+      "PAY.GDG.G0006V00",
+      "KEPT"
+     ],
+     [
+      "I2",
+      "PAY.GDG.G0005V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "create-then-read-same-job",
+   "job": "MAKEJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "C1": [
+     [
+      "OUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ],
+    "C2": [
+     [
+      "NEW",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ],
+     [
+      "CUR",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ]
+    ],
+    "C3": [
+     [
+      "PRV",
+      "PAY.GDG.G0006V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "rel-read-after-create",
+   "job": "RDJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7,
+     8
+    ]
+   },
+   "expect": {
+    "names": {
+     "R1.I0": 8,
+     "R1.I1": 7,
+     "R1.I2": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "R1.I0": 8,
+     "R1.I1": 7,
+     "R1.I2": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "R1.I0": 8,
+     "R1.I1": 7,
+     "R1.I2": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "R1": [
+     [
+      "I0",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ],
+     [
+      "I1",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ],
+     [
+      "I2",
+      "PAY.GDG.G0006V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "plus-one-plus-two",
+   "job": "TWOJOB",
+   "catalog_before": {
+    "AUD.GDG": [
+     1,
+     2
+    ]
+   },
+   "expect": {
+    "names": {
+     "D1.O1": 3,
+     "D2.O2": 4,
+     "D3.X1": 3,
+     "D3.X2": 4,
+     "D3.X0": 2
+    },
+    "catalog": {
+     "AUD.GDG": [
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "D1.O1": 3,
+     "D2.O2": 4,
+     "D3.X1": 3,
+     "D3.X2": 4,
+     "D3.X0": 2
+    },
+    "catalog": {
+     "AUD.GDG": [
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "D1.O1": 3,
+     "D2.O2": 4,
+     "D3.X1": 3,
+     "D3.X2": 4,
+     "D3.X0": 2
+    },
+    "catalog": {
+     "AUD.GDG": [
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "D1": [
+     [
+      "O1",
+      "AUD.GDG.G0003V00",
+      "CATALOGED"
+     ]
+    ],
+    "D2": [
+     [
+      "O2",
+      "AUD.GDG.G0004V00",
+      "CATALOGED"
+     ]
+    ],
+    "D3": [
+     [
+      "X1",
+      "AUD.GDG.G0003V00",
+      "KEPT"
+     ],
+     [
+      "X2",
+      "AUD.GDG.G0004V00",
+      "KEPT"
+     ],
+     [
+      "X0",
+      "AUD.GDG.G0002V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "AUD.GDG": {
+     "limit": 5,
+     "generations": [
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "abend-delete",
+   "job": "ABNJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ],
+    "AUD.GDG": [
+     1,
+     2
+    ]
+   },
+   "expect": {
+    "names": {
+     "E1.EOUT": 8,
+     "E2.FOUT": 3
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ],
+     "AUD.GDG": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "E1.EOUT": 8,
+     "E2.FOUT": 3
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ],
+     "AUD.GDG": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "E1.EOUT": 8,
+     "E2.FOUT": 3
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ],
+     "AUD.GDG": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "E1": [
+     [
+      "EOUT",
+      "PAY.GDG.G0008V00",
+      "DELETED"
+     ]
+    ],
+    "E2": [
+     [
+      "FOUT",
+      "AUD.GDG.G0003V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7
+     ]
+    },
+    "AUD.GDG": {
+     "limit": 5,
+     "generations": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "abend-catlg-default",
+   "job": "ABNJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ],
+    "AUD.GDG": [
+     1,
+     2
+    ]
+   },
+   "expect": {
+    "names": {
+     "E1.EOUT": 8,
+     "E2.FOUT": 3
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "AUD.GDG": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "E1.EOUT": 8,
+     "E2.FOUT": 3
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "AUD.GDG": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "E1.EOUT": 8,
+     "E2.FOUT": 3
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "AUD.GDG": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "E1": [
+     [
+      "EOUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ],
+    "E2": [
+     [
+      "FOUT",
+      "AUD.GDG.G0003V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "AUD.GDG": {
+     "limit": 5,
+     "generations": [
+      1,
+      2,
+      3
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "bypassed-step-creates-nothing",
+   "job": "BYPJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "B3.COUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "B3.COUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "B3.COUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "B1": [],
+    "B3": [
+     [
+      "COUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ],
+   "box_not_executed": {
+    "B2": "IEF272I BYPJOB B2 - STEP WAS NOT EXECUTED."
+   }
+  },
+  {
+   "id": "pass-then-catlg",
+   "job": "PASSJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "P1.POUT": 8,
+     "P2.PIN": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "P1.POUT": 8,
+     "P2.PIN": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "P1.POUT": 8,
+     "P2.PIN": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "P1": [
+     [
+      "POUT",
+      "PAY.GDG.G0008V00",
+      "PASSED"
+     ]
+    ],
+    "P2": [
+     [
+      "PIN",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "limit-rolls-off-oldest",
+   "job": "MAKEJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "C1": [
+     [
+      "OUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ],
+    "C2": [
+     [
+      "NEW",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ],
+     [
+      "CUR",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ]
+    ],
+    "C3": [
+     [
+      "PRV",
+      "PAY.GDG.G0006V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 3,
+     "generations": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "mod-plus-one-creates-a-generation",
+   "job": "MODJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "M1.MOUT": 8,
+     "M2.MADD": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "M1.MOUT": 8,
+     "M2.MADD": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "M1.MOUT": 8,
+     "M2.MADD": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "M1": [
+     [
+      "MOUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ],
+    "M2": [
+     [
+      "MADD",
+      "PAY.GDG.G0007V00",
+      "NOT RECTLGD"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "mod-plus-one-abend-is-a-new-generation-deleted",
+   "job": "MODABJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "N1.NOUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "N1.NOUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "N1.NOUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "N1": [
+     [
+      "NOUT",
+      "PAY.GDG.G0008V00",
+      "DELETED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "plus-two-alone-skips-a-number",
+   "job": "SKIPJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "S1.SOUT": 9
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "S1.SOUT": 9
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "S1.SOUT": 9
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "S1": [
+     [
+      "SOUT",
+      "PAY.GDG.G0009V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "rel-read-after-skipped-number",
+   "job": "RDJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7,
+     9
+    ]
+   },
+   "expect": {
+    "names": {
+     "R1.I0": 9,
+     "R1.I1": 7,
+     "R1.I2": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "R1.I0": 9,
+     "R1.I1": 7,
+     "R1.I2": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "R1.I0": 9,
+     "R1.I1": 7,
+     "R1.I2": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "R1": [
+     [
+      "I0",
+      "PAY.GDG.G0009V00",
+      "KEPT"
+     ],
+     [
+      "I1",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ],
+     [
+      "I2",
+      "PAY.GDG.G0006V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      9
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "empty-rolls-off-every-generation-at-limit",
+   "job": "MAKEJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "C1.OUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      8
+     ]
+    }
+   },
+   "verdict": "differ:box",
+   "box_dispositions": {
+    "C1": [
+     [
+      "OUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 3,
+     "generations": [
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ],
+   "box_not_executed": {
+    "C2": "IEF212I MAKEJOB C2 CUR - DATA SET NOT FOUND"
+   }
+  },
+  {
+   "id": "empty-below-limit-rolls-off-nothing",
+   "job": "MAKEJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "C1.OUT": 8,
+     "C2.NEW": 8,
+     "C2.CUR": 7,
+     "C3.PRV": 6
+    },
+    "catalog": {
+     "PAY.GDG": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "C1": [
+     [
+      "OUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ],
+    "C2": [
+     [
+      "NEW",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ],
+     [
+      "CUR",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ]
+    ],
+    "C3": [
+     [
+      "PRV",
+      "PAY.GDG.G0006V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 3,
+     "generations": [
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "new-keep-is-a-deferred-roll-in",
+   "job": "KEEPJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "K1.KOUT": 8,
+     "K2.KIN": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "K1.KOUT": 8,
+     "K2.KIN": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "K1.KOUT": 8
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "verdict": "differ:box",
+   "box_dispositions": {
+    "K1": [
+     [
+      "KOUT",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ],
+   "box_not_executed": {
+    "K2": "IEF286I KEEPJOB K2 KIN - DISP FIELD INCOMPATIBLE WITH DSNAME"
+   }
+  },
+  {
+   "id": "delete-whole-group-then-plus-one-keeps-the-anchor",
+   "job": "DELAFTER",
+   "catalog_before": {
+    "PAY.GDG": [
+     6,
+     7,
+     8
+    ]
+   },
+   "expect": {
+    "names": {
+     "Q1.Q1IN": 7,
+     "Q3.Q3OUT": 9
+    },
+    "catalog": {
+     "PAY.GDG": [
+      9
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "Q1.Q1IN": 7,
+     "Q3.Q3OUT": 9
+    },
+    "catalog": {
+     "PAY.GDG": [
+      9
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "Q1.Q1IN": 7,
+     "Q3.Q3OUT": 9
+    },
+    "catalog": {
+     "PAY.GDG": [
+      9
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "Q1": [
+     [
+      "Q1IN",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ]
+    ],
+    "Q2": [
+     [
+      "Q2DEL",
+      "PAY.GDG.G0008V00",
+      "UNCATALOGED+DELETED"
+     ],
+     [
+      "",
+      "PAY.GDG.G0007V00",
+      "UNCATALOGED+DELETED"
+     ],
+     [
+      "",
+      "PAY.GDG.G0006V00",
+      "UNCATALOGED+DELETED"
+     ]
+    ],
+    "Q3": [
+     [
+      "Q3OUT",
+      "PAY.GDG.G0009V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      9
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "delete-whole-group-before-any-relative-reference-restarts-at-one",
+   "job": "DELFIRST",
+   "catalog_before": {
+    "PAY.GDG": [
+     6,
+     7,
+     8
+    ]
+   },
+   "expect": {
+    "names": {
+     "R2.R2OUT": 1,
+     "R3.R3OUT": 2
+    },
+    "catalog": {
+     "PAY.GDG": [
+      1,
+      2
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "R2.R2OUT": 1,
+     "R3.R3OUT": 2
+    },
+    "catalog": {
+     "PAY.GDG": [
+      1,
+      2
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "R2.R2OUT": 1,
+     "R3.R3OUT": 2
+    },
+    "catalog": {
+     "PAY.GDG": [
+      1,
+      2
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "R1": [
+     [
+      "R1DEL",
+      "PAY.GDG.G0008V00",
+      "UNCATALOGED+DELETED"
+     ],
+     [
+      "",
+      "PAY.GDG.G0007V00",
+      "UNCATALOGED+DELETED"
+     ],
+     [
+      "",
+      "PAY.GDG.G0006V00",
+      "UNCATALOGED+DELETED"
+     ]
+    ],
+    "R2": [
+     [
+      "R2OUT",
+      "PAY.GDG.G0001V00",
+      "CATALOGED"
+     ]
+    ],
+    "R3": [
+     [
+      "R3OUT",
+      "PAY.GDG.G0002V00",
+      "CATALOGED"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      1,
+      2
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "delete-the-oldest-generation-keeps-the-anchor",
+   "job": "DELOLDJB",
+   "catalog_before": {
+    "PAY.GDG": [
+     6,
+     7,
+     8
+    ]
+   },
+   "expect": {
+    "names": {
+     "O1.ODEL": 6,
+     "O2.OCUR": 8,
+     "O2.OPRV": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "O1.ODEL": 6,
+     "O2.OCUR": 8,
+     "O2.OPRV": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "O1.ODEL": 6,
+     "O2.OCUR": 8,
+     "O2.OPRV": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "O1": [
+     [
+      "ODEL",
+      "PAY.GDG.G0006V00",
+      "UNCATALOGED+DELETED"
+     ]
+    ],
+    "O2": [
+     [
+      "OCUR",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ],
+     [
+      "OPRV",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  },
+  {
+   "id": "proc-step-gdg-dds-are-job-steps",
+   "job": "PRCJOB",
+   "catalog_before": {
+    "PAY.GDG": [
+     5,
+     6,
+     7
+    ]
+   },
+   "expect": {
+    "names": {
+     "C1.M1.OUT": 8,
+     "C1.R1.IN": 8,
+     "C2.Z": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "engine": {
+    "names": {
+     "C1.M1.OUT": 8,
+     "C1.R1.IN": 8,
+     "C2.Z": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "box": {
+    "names": {
+     "C1.M1.OUT": 8,
+     "C1.R1.IN": 8,
+     "C2.Z": 7
+    },
+    "catalog": {
+     "PAY.GDG": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_dispositions": {
+    "C1.M1": [
+     [
+      "OUT",
+      "PAY.GDG.G0008V00",
+      "CATALOGED"
+     ]
+    ],
+    "C1.R1": [
+     [
+      "IN",
+      "PAY.GDG.G0008V00",
+      "KEPT"
+     ]
+    ],
+    "C2": [
+     [
+      "Z",
+      "PAY.GDG.G0007V00",
+      "KEPT"
+     ]
+    ]
+   },
+   "box_catalog_after": {
+    "PAY.GDG": {
+     "limit": 5,
+     "generations": [
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "unobserved": [
+    "what a program reads (every PGM= is IEFBR14): the allocation messages name each DD's generation, nothing is read",
+    "the fate of a generation rolled off at LIMIT (SCRATCH / NOSCRATCH): only catalog membership is compared",
+    "the deferred roll-in state of a NEW,KEEP generation: the box shows it absent from the catalog (the manual's state is not a 3.8J column)",
+    "a system-managed group (assumption A5): 3.8J has a VSAM-catalog GDG with a model DSCB, set up by the probe",
+    "a DD naming the base itself (DELAFTER, DELFIRST): the box expands it to every generation (a nameless IEF237I per generation); the model DSCB is not shown"
+   ]
+  }
+ ]
+}

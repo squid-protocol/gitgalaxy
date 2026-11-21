@@ -217,22 +217,6 @@
    ]
   },
   {
-   "id": "8f9f19913b",
-   "op": "CON",
-   "line": 66,
-   "before": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 1, false);",
-   "after": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 2, false);",
-   "verdict": "harness-gap",
-   "reason": "ACCTA grows by one byte onto the byte after the attribute byte, which the port leaves NUL (LOW-VALUES) and the mutant's one-byte MOVE pads with a space: a NUL turned into a space in a symbolic-map byte; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
-   ]
-  },
-  {
    "id": "ca18b700a0",
    "op": "CON",
    "line": 66,
@@ -254,22 +238,6 @@
    "reason": "f15_MSGL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
     "map-length-scale"
-   ]
-  },
-  {
-   "id": "0fd741c580",
-   "op": "CON",
-   "line": 72,
-   "before": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 1, false);",
-   "after": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 2, false);",
-   "verdict": "harness-gap",
-   "reason": "MSGA grows by one byte onto the byte after the attribute byte, which the port leaves NUL (LOW-VALUES) and the mutant's MOVE X'F1' pads with a space: a NUL turned into a space in a symbolic-map byte; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
    ]
   },
   {
@@ -3343,22 +3311,6 @@
    ]
   },
   {
-   "id": "2f61febdd4",
-   "op": "DEL",
-   "line": 436,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without MOVE LOW-VALUES TO HXM2O on the first display the output area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
-   ]
-  },
-  {
    "id": "5cd7217dba",
    "op": "CON",
    "line": 440,
@@ -3455,24 +3407,6 @@
    ]
   },
   {
-   "id": "eed786b475",
-   "op": "LIT",
-   "line": 444,
-   "before": "values1.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "after": "values1.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
    "id": "236287f3cd",
    "op": "NEG",
    "line": 446,
@@ -3494,24 +3428,6 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
    "tried": [
     "flow-plumbing"
-   ]
-  },
-  {
-   "id": "fbcf71a72b",
-   "op": "LIT",
-   "line": 447,
-   "before": "DetCics.subfields(sub2, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "after": "DetCics.subfields(sub2, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
    ]
   },
   {
@@ -3557,34 +3473,6 @@
    ]
   },
   {
-   "id": "5af3fd2106",
-   "op": "LIT",
-   "line": 477,
-   "before": "DetCics.subfields(sub2, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "after": "DetCics.subfields(sub2, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "equivalent",
-   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
-   ]
-  },
-  {
-   "id": "d9c0f89e64",
-   "op": "DEL",
-   "line": 477,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without MOVE LOW-VALUES TO HXM2I the input area keeps its initial spaces where the port writes NULs before RECEIVE MAP; every field the RECEIVE fills is overwritten and the rest are read by typed text, and DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
-   ]
-  },
-  {
    "id": "5e8f4f85e4",
    "op": "CON",
    "line": 483,
@@ -3606,22 +3494,6 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "8ec71a9459",
-   "op": "DEL",
-   "line": 483,
-   "before": "java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0);",
-   "after": "/* java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0); */",
-   "verdict": "harness-gap",
-   "reason": "the NUL fill of the input area before a successful RECEIVE MAP is dropped, leaving the previous task's spaces/initial bytes where the port has NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
    ]
   },
   {
@@ -3883,58 +3755,6 @@
    ]
   },
   {
-   "id": "d1599893c2",
-   "op": "DEL",
-   "line": 530,
-   "before": "Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS); */",
-   "verdict": "harness-gap",
-   "reason": "MOVE SPACES TO MSGO is dropped on the good-entry arm, leaving the NULs of the earlier LOW-VALUES move where the original writes spaces: a space turned into a NUL in a symbolic-map data field; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
-   ]
-  },
-  {
-   "id": "2def5febb4",
-   "op": "LIT",
-   "line": 537,
-   "before": "DetCics.subfields(sub14, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "after": "DetCics.subfields(sub14, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
-   "id": "2d68f6c698",
-   "op": "LIT",
-   "line": 541,
-   "before": "DetCics.subfields(sub14, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "after": "DetCics.subfields(sub14, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
    "id": "c0f11888a3",
    "op": "LIT",
    "line": 548,
@@ -4046,38 +3866,6 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
    "tried": [
     "flow-plumbing"
-   ]
-  },
-  {
-   "id": "b0482afde7",
-   "op": "DEL",
-   "line": 558,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without MOVE LOW-VALUES TO HXM2O on the PF5 path the output area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
-   ]
-  },
-  {
-   "id": "ec1c582775",
-   "op": "DEL",
-   "line": 564,
-   "before": "Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS);",
-   "after": "/* Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS); */",
-   "verdict": "harness-gap",
-   "reason": "MOVE DFHBMUNP (X'40', a space) TO ACCTA is dropped: the attribute byte stays NUL where the original writes a space; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, PF5 and PF2 on filled maps, an empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-clear",
-    "nul-empty-receive",
-    "nul-first-display-pf1",
-    "nul-good-entry-pf2",
-    "nul-pf5-no-fields"
    ]
   },
   {

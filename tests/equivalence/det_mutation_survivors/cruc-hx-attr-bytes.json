@@ -634,21 +634,6 @@
    ]
   },
   {
-   "id": "3e8875cfd8",
-   "op": "CON",
-   "line": 89,
-   "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
-   "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
-   "verdict": "harness-gap",
-   "reason": "the field grows by one byte over the attribute byte's neighbour, which the program leaves NUL (LOW-VALUES) or space; the change turns a NUL into a space in a symbolic-map byte and DetCics.subfields reads both as not set while the comparator strips trailing blanks and NULs, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-all-fields-pf2",
-    "nul-clear-ca-x",
-    "nul-echo-empty-receive",
-    "nul-first-display-pf1"
-   ]
-  },
-  {
    "id": "c23c5afee2",
    "op": "CON",
    "line": 89,
@@ -785,24 +770,6 @@
    ]
   },
   {
-   "id": "5b760e0076",
-   "op": "CON",
-   "line": 100,
-   "before": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 10, false);",
-   "after": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 11, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
    "id": "599dca8b46",
    "op": "CON",
    "line": 101,
@@ -844,24 +811,6 @@
    "line": 103,
    "before": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 9, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
-   "tried": [
-    "s2-attr-1byte-clear",
-    "s2-attr-1byte-entry",
-    "s2-attr-dto-first",
-    "s2-attr-dto-z",
-    "s2-attr-full-width",
-    "s2-attr-name-only-long",
-    "s2-attr-pf3"
-   ]
-  },
-  {
-   "id": "27d9c57ae1",
-   "op": "CON",
-   "line": 104,
-   "before": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 8, false);",
-   "after": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 9, false);",
    "verdict": "equivalent",
    "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..12 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). (A MOVE into the field pads one more byte, a space, which is also stripped; nothing reads that item as -1.)",
    "tried": [
@@ -4167,21 +4116,6 @@
    ]
   },
   {
-   "id": "722da01d4e",
-   "op": "DEL",
-   "line": 486,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without the LOW-VALUES move the map-out area keeps its initial spaces where the port writes NULs; DetCics.subfields reads a NUL and a space attribute byte as not set and the comparator strips trailing blanks and NULs from field data, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-all-fields-pf2",
-    "nul-clear-ca-x",
-    "nul-echo-empty-receive",
-    "nul-first-display-pf1"
-   ]
-  },
-  {
    "id": "567c9dee17",
    "op": "LIT",
    "line": 488,
@@ -4344,21 +4278,6 @@
    "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
    "tried": [
     "subfield-unset"
-   ]
-  },
-  {
-   "id": "f2ec0dbb50",
-   "op": "DEL",
-   "line": 564,
-   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS); */",
-   "verdict": "harness-gap",
-   "reason": "without the LOW-VALUES move the map-in area keeps its initial spaces where the port writes NULs; the program then reads fields by typed text and DetCics.subfields reads NUL and space as not set, and the comparator strips both, so no input shows it; PF1 first display, all-fields on PF2, empty receive and CLEAR all survived on the oracle",
-   "tried": [
-    "nul-all-fields-pf2",
-    "nul-clear-ca-x",
-    "nul-echo-empty-receive",
-    "nul-first-display-pf1"
    ]
   },
   {

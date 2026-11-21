@@ -212,7 +212,7 @@
     "| io | 16323 | 1044 | 7 | `fortran/wrf/regtest.csh` |",
     "| crypto | 19 | 11 | 0 | `python/twisted/transport.py` |",
     "| ipc | 1579 | 306 | 0 | `cobol/gnucobol/numeric-dump.cob` |",
-    "| time | 1057 | 277 | 0 | `lua/cosmopolitan/files.lua` |",
+    "| time | 1086 | 280 | 0 | `lua/cosmopolitan/files.lua` |",
     "| serialization | 1043 | 177 | 0 | `lua/cosmopolitan/calls.lua` |",
     "| regex | 3965 | 322 | 0 | `perl/exiftool/ExifTool.pm` |",
     "| events | 3777 | 534 | 1 | `m4/curl/configure.ac` |",

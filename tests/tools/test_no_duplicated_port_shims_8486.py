@@ -23,12 +23,9 @@ PARSER = get_parser("java")
 
 # Structural entrypoints / dispatchers that are inherently per-service in live det output.
 DET_STRUCTURAL_METHODS: frozenset[str] = frozenset({
-    "abended",
     "dd",
     "handleLink",
     "handleTransaction",
-    "lastAnswerBytes",
-    "lastLinkBytes",
     "perform",
     "run",
     "runBatch",
@@ -72,7 +69,10 @@ ALLOWED_COMMITTED_DUPLICATES: frozenset[tuple[str, str]] = frozenset({
 _SAMPLE_STUB = """package com.example.service;
 import com.example.cics.CicsTask;
 public class {cls} {{
+    public void runTask(CicsTask task) {{}}
     public void handleTransaction(String transid) {{}}
+    public byte[] lastAnswerBytes() {{ return null; }}
+    public byte[] lastLinkBytes() {{ return null; }}
 }}
 """
 
@@ -117,6 +117,15 @@ _SAMPLE_PROGRAMS: dict[str, str] = {
 }
 
 
+def _translate(td: Path, name: str):
+    """The live det output for one sample, through the full task path (a project dir, a stub with runTask)."""
+    p = td / f"{name}.cbl"
+    p.write_text(_SAMPLE_PROGRAMS[name], encoding="utf-8")
+    (td / "proj/src/main/java/com/example").mkdir(parents=True, exist_ok=True)
+    stub = _SAMPLE_STUB.format(cls=f"{name}Service")
+    return det_prog.translate(p, [], stub, "com.example", {}, td / "proj")
+
+
 def _collect_methods(java_sources: list[tuple[str, bytes]]) -> dict[tuple[str, str], set[str]]:
     methods: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
     for label, src in java_sources:
@@ -147,10 +156,8 @@ def test_det_translator_emits_no_new_duplicated_shims():
     sources: list[tuple[str, bytes]] = []
     with tempfile.TemporaryDirectory() as d:
         td = Path(d)
-        for name, cobol_src in _SAMPLE_PROGRAMS.items():
-            p = td / f"{name}.cbl"
-            p.write_text(cobol_src, encoding="utf-8")
-            res = det_prog.translate(p, [], _SAMPLE_STUB.format(cls=f"{name}Service"), "com.example")
+        for name in _SAMPLE_PROGRAMS:
+            res = _translate(td, name)
             sources.append((name, res.java.encode("utf-8")))
     methods = _collect_methods(sources)
     dups = sorted(
@@ -164,6 +171,16 @@ def test_det_translator_emits_no_new_duplicated_shims():
             "hoist them into cobolrt (DetCics.java / Cobol.java) instead (#8486): "
             + ", ".join(dups)
         )
+
+
+def test_det_service_delegates_the_cobolrt_invariant_shims():
+    """#8486: abended / lastAnswerBytes / lastLinkBytes are one-line delegates to DetCics, not per-service bodies."""
+    with tempfile.TemporaryDirectory() as d:
+        java = _translate(Path(d), "P1").java
+    assert "private Goback abended() { return DetCics.abended(task, caBack, Goback::new); }" in java
+    assert "return DetCics.copyBytes(lastAnswerBytes);" in java
+    assert "return DetCics.copyBytes(lastLinkBytes);" in java
+    assert "java.util.Arrays.copyOf(lastAnswerBytes" not in java
 
 
 def test_committed_ports_no_new_duplicated_shims():

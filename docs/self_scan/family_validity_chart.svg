@@ -21,16 +21,16 @@
 </style>
 <rect class="surface" x="0" y="0" width="880" height="910"/>
 <text class="title" x="16" y="24">Keyword families: how much is checked, and how well</text>
-<text class="subtitle" x="16" y="43">2,894 language-by-family rules are defined. 181 are measured against a parser (15 languages), 677 more only by a decoy test, 2,036 not tested yet.</text>
-<rect x="16.0" y="56" width="53.0" height="16" fill="#4f9be8"/>
+<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 181 are measured against a parser (15 languages), 677 more only by a decoy test, 2,078 not tested yet.</text>
+<rect x="16.0" y="56" width="52.3" height="16" fill="#4f9be8"/>
 <rect x="16" y="80" width="9" height="9" fill="#4f9be8"/>
 <text class="legend" x="30" y="88">181 measured against a parser</text>
-<rect x="69.0" y="56" width="198.4" height="16" fill="#8b949e"/>
+<rect x="68.3" y="56" width="195.5" height="16" fill="#8b949e"/>
 <rect x="200" y="80" width="9" height="9" fill="#8b949e"/>
 <text class="legend" x="214" y="88">677 decoy test only</text>
-<rect x="267.4" y="56" width="596.6" height="16" fill="#30363d"/>
+<rect x="263.8" y="56" width="600.2" height="16" fill="#30363d"/>
 <rect x="328" y="80" width="9" height="9" fill="#30363d"/>
-<text class="legend" x="342" y="88">2,036 not tested yet</text>
+<text class="legend" x="342" y="88">2,078 not tested yet</text>
 <text class="h" x="16" y="120">Measured against a parser: the lower of recall and precision, in %</text>
 <text class="lang" transform="translate(228,192) rotate(-90)">python</text>
 <text class="lang" transform="translate(270,192) rotate(-90)">csharp</text>

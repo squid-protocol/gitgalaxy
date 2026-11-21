@@ -468,6 +468,36 @@
    ]
   },
   {
+   "id": "1b994b9c86",
+   "op": "CON",
+   "line": 154,
+   "before": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 8, 0, true, false);",
+   "after": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 154: WS-CICS-RESP declared with scale 1. It is stored with Cobol.store and read back with Cobol.num on the same field, so the round trip returns the same value (53 stores as 530 and reads as 53.0) and the compares against D0 and D53 at lines 592-595 and 619 are unchanged. Attacked with the SYSIDERR (53), NOTFND, IOERR, NOTOPEN, DISABLED and DELAY-fault scenarios: equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "47b0c4e913",
+   "op": "CON",
+   "line": 154,
+   "before": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 8, 0, true, false);",
+   "after": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 154: WS-CICS-RESP declared with 9 digits instead of 8. A 9-digit binary is the same 4 bytes as an 8-digit one (Field.binaryLength 4/9/18 digits to 2/4/8 bytes), and the item only ever holds RESP values (small CICS response codes such as 0 and 53), none near 10^8 where truncation would differ; the comparisons against 0 and 53 (lines 592-595, 619) are equal in both. Attacked with the SYSIDERR (53), NOTFND, IOERR, NOTOPEN, DISABLED and DELAY-fault scenarios: equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "bbfc5b12ac",
    "op": "CON",
    "line": 154,
@@ -504,6 +534,21 @@
    ]
   },
   {
+   "id": "39989285b3",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 8, 0, true, false);",
+   "after": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 155: WS-CICS-RESP2 declared with 9 digits instead of 8. A 8 or 9 digit binary is the same 4 bytes (Field.binaryLength), and the item is never read in CUSTCTRL.cbl (receiver of RESP2 only), so only the truncation limit moves, at 10^8, above any RESP2 value the READ can answer (small CICS response codes). No scenario's RESP2 differs.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "95e22950aa",
    "op": "CON",
    "line": 155,
@@ -525,6 +570,21 @@
    "reason": "branch_solver: no reachable statement uses WS-TIME-NOW (WS-TIME-DATA) (solver-unread)",
    "tried": [
     "solver-unread"
+   ]
+  },
+  {
+   "id": "a8ed8348d7",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 8, 0, true, false);",
+   "after": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "CON at line 155: WS-CICS-RESP2 declared with scale 1. The item is never read in CUSTCTRL.cbl and is stored and never read, so the scaling (a store followed by no read) cannot reach any output. The scale only changes what a read would return, and there is none.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
    ]
   },
   {
@@ -888,6 +948,51 @@
    ]
   },
   {
+   "id": "403dfd0fa3",
+   "op": "LIT",
+   "line": 205,
+   "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+   "after": "default -> throw new Hole(\"XICS file \" + n + \": no store in the generated project\");",
+   "verdict": "unreachable",
+   "reason": "LIT at line 205: edits the text of the Hole thrown by store() for a file with no store. The only two callers (lines 583 and 607) pass the constant 'CUSTOMER', which the switch handles, and a name no region defines returns DetCics.Store.undefined before the switch, so the default branch is never taken and the message never built. Attacked with the file-not-open, file-disabled, read-io-error and control-record-not-found scenarios: equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "5ba117d116",
+   "op": "LIT",
+   "line": 205,
+   "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+   "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");",
+   "verdict": "unreachable",
+   "reason": "LIT at line 205: edits the text of the Hole thrown by store() for a file with no store. The only two callers (lines 583 and 607) pass the constant 'CUSTOMER', which the switch handles, and a name no region defines returns DetCics.Store.undefined before the switch, so the default branch is never taken and the message never built. Attacked with the file-not-open, file-disabled, read-io-error and control-record-not-found scenarios: equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "4efec7fa3e",
+   "op": "LIT",
+   "line": 210,
+   "before": "java.util.Map.entry(\"PTD999\", 11),",
+   "after": "java.util.Map.entry(\"XTD999\", 11),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 210: the PARAGRAPHS entry for paragraph PTD999 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name PTD999 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of PTD999.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "b7478fd27b",
    "op": "CON",
    "line": 210,
@@ -910,6 +1015,36 @@
    "after": "java.util.Map.entry(\"PTD010\", 11),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS (line 211, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "bbafa3bda2",
+   "op": "LIT",
+   "line": 211,
+   "before": "java.util.Map.entry(\"PTD010\", 10),",
+   "after": "java.util.Map.entry(\"XTD010\", 10),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 211: the PARAGRAPHS entry for paragraph PTD010 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name PTD010 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of PTD010.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "4a7b85a047",
+   "op": "LIT",
+   "line": 212,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+   "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 9),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 212: the PARAGRAPHS entry for paragraph POPULATE-TIME-DATE is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name POPULATE-TIME-DATE is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of POPULATE-TIME-DATE.",
    "tried": [
     "atk-sortcode-caller-set",
     "atk-sortcode-caller-set-dto",
@@ -948,6 +1083,21 @@
    ]
   },
   {
+   "id": "d4900ea9c6",
+   "op": "LIT",
+   "line": 213,
+   "before": "java.util.Map.entry(\"GMOFH999\", 8),",
+   "after": "java.util.Map.entry(\"XMOFH999\", 8),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 213: the PARAGRAPHS entry for paragraph GMOFH999 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name GMOFH999 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of GMOFH999.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "42ee8ccf2a",
    "op": "CON",
    "line": 214,
@@ -955,6 +1105,21 @@
    "after": "java.util.Map.entry(\"GMOFH010\", 8),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS (line 214, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "a101857581",
+   "op": "LIT",
+   "line": 214,
+   "before": "java.util.Map.entry(\"GMOFH010\", 7),",
+   "after": "java.util.Map.entry(\"XMOFH010\", 7),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 214: the PARAGRAPHS entry for paragraph GMOFH010 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name GMOFH010 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of GMOFH010.",
    "tried": [
     "atk-sortcode-caller-set",
     "atk-sortcode-caller-set-dto",
@@ -978,6 +1143,21 @@
    ]
   },
   {
+   "id": "fed6c2260d",
+   "op": "LIT",
+   "line": 215,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+   "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 6),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 215: the PARAGRAPHS entry for paragraph GET-ME-OUT-OF-HERE is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name GET-ME-OUT-OF-HERE is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of GET-ME-OUT-OF-HERE.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "5801742c5d",
    "op": "CON",
    "line": 216,
@@ -993,6 +1173,36 @@
    ]
   },
   {
+   "id": "728b132e39",
+   "op": "LIT",
+   "line": 216,
+   "before": "java.util.Map.entry(\"WCV999\", 5),",
+   "after": "java.util.Map.entry(\"XCV999\", 5),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 216: the PARAGRAPHS entry for paragraph WCV999 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name WCV999 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of WCV999.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "4800acfaba",
+   "op": "LIT",
+   "line": 217,
+   "before": "java.util.Map.entry(\"WCV010\", 4),",
+   "after": "java.util.Map.entry(\"XCV010\", 4),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 217: the PARAGRAPHS entry for paragraph WCV010 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name WCV010 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of WCV010.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "cb0909c0cf",
    "op": "CON",
    "line": 217,
@@ -1000,6 +1210,21 @@
    "after": "java.util.Map.entry(\"WCV010\", 5),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS (line 217, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "70c606e89d",
+   "op": "LIT",
+   "line": 218,
+   "before": "java.util.Map.entry(\"GET-NUMBER-OF-CUSTOMERS-VSAM\", 3),",
+   "after": "java.util.Map.entry(\"XET-NUMBER-OF-CUSTOMERS-VSAM\", 3),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 218: the PARAGRAPHS entry for paragraph GET-NUMBER-OF-CUSTOMERS-VSAM is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name GET-NUMBER-OF-CUSTOMERS-VSAM is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of GET-NUMBER-OF-CUSTOMERS-VSAM.",
    "tried": [
     "atk-sortcode-caller-set",
     "atk-sortcode-caller-set-dto",
@@ -1038,6 +1263,36 @@
    ]
   },
   {
+   "id": "6b1a9b650b",
+   "op": "LIT",
+   "line": 219,
+   "before": "java.util.Map.entry(\"P999\", 2),",
+   "after": "java.util.Map.entry(\"X999\", 2),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 219: the PARAGRAPHS entry for paragraph P999 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name P999 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of P999.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "80c06b36ac",
+   "op": "LIT",
+   "line": 220,
+   "before": "java.util.Map.entry(\"P010\", 1),",
+   "after": "java.util.Map.entry(\"X010\", 1),",
+   "verdict": "unreachable",
+   "reason": "LIT at line 220: the PARAGRAPHS entry for paragraph P010 is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name P010 is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of P010.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
    "id": "e5ef806aff",
    "op": "CON",
    "line": 220,
@@ -1045,6 +1300,21 @@
    "after": "java.util.Map.entry(\"P010\", 2),",
    "verdict": "unreachable",
    "reason": "PARAGRAPHS (line 220, Map.entry label -> paragraph index) is read only by paragraph(), which resolveCondition calls with the label task.abendOnCondition(cond) returns; that is non-null only when a HANDLE ABEND exit is active at this level or a linking parent. CUSTCTRL has no HANDLE ABEND (the port never calls handleAbend) and every scenario enters runTask as the root task, so abendOnCondition returns null and resolveCondition throws the abend instead. No input can reach the table; the DELAY and READ fault scenarios (sysiderr-persistent, file-not-open, atk-sysiderr-twice) drive condition() and survive the mutant.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "57bc8ecfa6",
+   "op": "LIT",
+   "line": 221,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"XREMIERE\", 0)",
+   "verdict": "unreachable",
+   "reason": "LIT at line 221: the PARAGRAPHS entry for paragraph PREMIERE is read only by DetCics.paragraph(...), which resolveCondition calls only after task.abendOnCondition(cond) returns a HANDLE ABEND label. CUSTCTRL.cbl has no HANDLE ABEND or HANDLE CONDITION, so that label is always null, the port abends instead, and the name PREMIERE is never looked up. The static map is also never read by the port's own paragraph(String) helper, which has no caller. Attacks: the original 4 inputs, the SYSIDERR-persistent, DELAY INVREQ and DELAY EXPIRED fault scenarios and the COMMAREA length variants all ran this mutant and left it equal; no input of the program reaches a lookup of PREMIERE.",
    "tried": [
     "atk-sortcode-caller-set",
     "atk-sortcode-caller-set-dto",
@@ -3481,6 +3751,96 @@
     "sysiderr-notfnd",
     "sysiderr-then-ioerr",
     "sysiderr-twice"
+   ]
+  },
+  {
+   "id": "148cba2e35",
+   "op": "DEL",
+   "line": 587,
+   "before": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read1.resp()), false, CS);",
+   "after": "/* Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read1.resp()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 587: deletes the store of EIBRESP after the first READ into DFHEIBLK bytes 76-83. CUSTCTRL.cbl never names EIBRESP or EIBRESP2 (grep of the source: no match), the port's only readers of f137/f138 are the stores themselves (lines 587-612 and 599-600), no other EIB item covers bytes 76-83. The branch tests read WS-CICS-RESP (f32), not the EIB copy. The SYSIDERR-retried, persistent and DELAY-fault scenarios ran it with the store present and absent and the outputs, COMMAREA and CICS events were equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "6cc2481f0a",
+   "op": "DEL",
+   "line": 588,
+   "before": "Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read1.resp2()), false, CS);",
+   "after": "/* Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read1.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 588: deletes the store of EIBRESP2 after the first READ into DFHEIBLK bytes 76-83. CUSTCTRL.cbl never names EIBRESP or EIBRESP2 (grep of the source: no match), the port's only readers of f137/f138 are the stores themselves (lines 587-612 and 599-600), no other EIB item covers bytes 76-83. The branch tests read WS-CICS-RESP (f32), not the EIB copy. The SYSIDERR-retried, persistent and DELAY-fault scenarios ran it with the store present and absent and the outputs, COMMAREA and CICS events were equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "143f2c0d38",
+   "op": "DEL",
+   "line": 590,
+   "before": "Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read1.resp2()), false, CS);",
+   "after": "/* Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read1.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 590: deletes the store of RESP2 after the first READ into WS-CICS-RESP2 (f33). WS-CICS-RESP2 appears in CUSTCTRL.cbl only as the RESP2 receiver of the two READs (lines 168 and 184) and is never read, so the stored value is never seen by any branch, move or output. Attacked by the SYSIDERR-retried, persistent and DELAY-fault scenarios (RESP2 nonzero cases): equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "4c85d27c00",
+   "op": "DEL",
+   "line": 611,
+   "before": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read4.resp()), false, CS);",
+   "after": "/* Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read4.resp()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 611: deletes the store of EIBRESP after the retry READ into DFHEIBLK bytes 76-83. CUSTCTRL.cbl never names EIBRESP or EIBRESP2 (grep of the source: no match), the port's only readers of f137/f138 are the stores themselves (lines 587-612 and 599-600), no other EIB item covers bytes 76-83. The branch tests read WS-CICS-RESP (f32), not the EIB copy. The SYSIDERR-retried, persistent and DELAY-fault scenarios ran it with the store present and absent and the outputs, COMMAREA and CICS events were equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "8dbe142f64",
+   "op": "DEL",
+   "line": 612,
+   "before": "Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read4.resp2()), false, CS);",
+   "after": "/* Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read4.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 612: deletes the store of EIBRESP2 after the retry READ into DFHEIBLK bytes 76-83. CUSTCTRL.cbl never names EIBRESP or EIBRESP2 (grep of the source: no match), the port's only readers of f137/f138 are the stores themselves (lines 587-612 and 599-600), no other EIB item covers bytes 76-83. The branch tests read WS-CICS-RESP (f32), not the EIB copy. The SYSIDERR-retried, persistent and DELAY-fault scenarios ran it with the store present and absent and the outputs, COMMAREA and CICS events were equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
+   ]
+  },
+  {
+   "id": "10ca606119",
+   "op": "DEL",
+   "line": 614,
+   "before": "Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read4.resp2()), false, CS);",
+   "after": "/* Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read4.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "DEL at line 614: deletes the store of RESP2 after the retry READ into WS-CICS-RESP2 (f33). WS-CICS-RESP2 appears in CUSTCTRL.cbl only as the RESP2 receiver of the two READs (lines 168 and 184) and is never read, so the stored value is never seen by any branch, move or output. Attacked by the SYSIDERR-retried, persistent and DELAY-fault scenarios (RESP2 nonzero cases): equal.",
+   "tried": [
+    "atk-sortcode-caller-set",
+    "atk-sortcode-caller-set-dto",
+    "atk-sysiderr-persistent-dto",
+    "atk-sysiderr-twice"
    ]
   },
   {

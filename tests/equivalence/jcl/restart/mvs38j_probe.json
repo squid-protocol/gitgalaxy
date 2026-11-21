@@ -10,7 +10,13 @@
   "restart-if-referback-false": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
   "restart-if-referback-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
   "restart-star-checkpoint": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-  "procstep-checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)"
+  "procstep-checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
+  "procstep-restart-cond-override-on-restart-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
+  "procstep-restart-cond-override-on-restart-step-later-cond-kept": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
+  "procstep-restart-cond-override-names-restart-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
+  "procstep-restart-cond-override-names-restart-step-run": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
+  "procstep-restart-cond-override-names-skipped-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
+  "procstep-restart-cond-on-call-replaces-every-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)"
  },
  "unobserved": [
   "what a program does (every step is IDCAMS with SET MAXCC)",

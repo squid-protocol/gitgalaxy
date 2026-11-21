@@ -3556,8 +3556,9 @@
    "site": "le/LeTime.java:putVstring",
    "ibm": {
     "doc": "le-pr",
-    "section": "Data type definitions: VSTRING"
+    "section": "Data type definitions: VSTRING (COBOL: STRING-OUT PIC X(80)); CEEDATE / CEEDATM output_char_date"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"Data type definitions\" table for COBOL, VSTRING): \"A halfword length-prefixed character string (for input); fixed-length 80-character string (for output)\", declared \"01 STRING-IN. 02 LEN PIC S9(4) USAGE IS BINARY. 02 TXT PIC X(N).\" for input and \"01 STRING-OUT PIC X(80).\" for output. CEEDATE: output_char_date is \"A fixed-length 80-character string (VSTRING)\" and, \"If input_Lilian_date is not valid, output_char_date is set to all blanks.\" Input VSTRINGs (the picture) are halfword-prefixed, as the runtime reads them. For an OUTPUT, IBM documents a plain 80-byte text with no length prefix and blanks on error; the runtime writes a halfword length then the text, leaves the rest of the item untouched and, on error, writes a zero length (register L6 assumption 2, which says IBM states no COBOL layout: this text does). That is a difference, not an open point; it is kept ASSUMED here and filed as a bug in #8700 (both sides of the harness share the prefixed model, so no case sees it). Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6"
@@ -3577,14 +3578,15 @@
    "site": "le/LeTime.java:gmt",
    "ibm": {
     "doc": "le-pr",
-    "section": "CEEGMT: get current Greenwich Mean Time"
+    "section": "CEEGMT: get current Greenwich Mean Time (CEEUTC alias)"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEEGMT\"): \"CEEGMT returns the current Greenwich Mean Time (GMT) as both a Lilian date and as the number of seconds since 00:00:00 14 October 1582.\" \"In order for the results of this service to be meaningful, your system's TOD (time-of-day) clock must be set to Greenwich Mean Time and be based on the standard epoch.\" output_GMT_Lilian: a 32-bit binary integer, \"the number of days since 14 October 1582 (16 May 1988 is day number 148138)\"; output_GMT_seconds: a 64-bit double floating-point number, \"the number of seconds since 00:00:00 on 14 October 1582, not counting leap seconds\" (\"00:00:01 on 15 October 1582 is second number 86,401\"); fc CEE000 on success; \"Language Environment treats Coordinated Universal Time (UTC) and Greenwich Mean Time (GMT) as the same. You can use the CEEUTC service, which is an alias of the CEEGMT service\". The runtime does what this says: its clock is GMT, the day count and the seconds (with the clock's hundredths) are IBM's, a fullword and a COMP-2, success feedback zero, CEEUTC the same method. IBM's one failure, CEE2E6 (GMT not available, outputs 0), cannot arise from a pinned clock and is not modelled (an unpinned clock is refused by name, L6). The clock's value is the run's, which IBM cannot define. Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6",
     "X4"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -3598,6 +3600,7 @@
     "doc": "le-pr",
     "section": "CEEGMTO: get offset from Greenwich Mean Time to local time"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEEGMTO\"): \"CEEGMTO returns values to the calling routine representing the difference between the local system time and Greenwich Mean Time (GMT).\" offset_hours: \"the offset from GMT to local time, in hours. For example, for Pacific Standard Time, offset_hours equals -8\"; offset_minutes \"0 to 59\"; offset_seconds: \"-28,800 (-8 * 60 * 60)\" for Pacific standard time; \"If local time offset is not available, offset_hours equals 0 and CEEGMTO terminates with a non-CEE000\" code (CEE2E7, message 2503). IBM defines the output as the real difference of the system's local time from GMT. The runtime answers 0, 0, 0.0 and success whatever zone the system is in, because its clock is read as GMT (register L6 assumption 1): that equals IBM only when the local zone is GMT, and no zone is modelled. Stays ASSUMED, the zone gap recorded, as for CURRENT-DATE's +0000. Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6"
@@ -3617,8 +3620,9 @@
    ],
    "ibm": {
     "doc": "db2-app",
-    "section": "DSNTIAC: the CICS interface to DSNTIAR"
+    "section": "Displaying SQLCA fields by calling DSNTIAR; DSNTIAC (assembler and COBOL syntax)"
    },
+   "ibm_note": "IBM (Db2 13 for z/OS Application Programming and SQL Guide, \"Displaying SQLCA fields by calling DSNTIAR\" and \"DSNTIAC\"): \"If your CICS application requires CICS storage handling, you must use the subroutine DSNTIAC instead of DSNTIAR\", called \"CALL 'DSNTIAC' USING eib commarea sqlca msg lrecl\"; \"Both DSNTIAC and DSNTIAR format the SQLCA in the same way.\" The message area is a halfword total length (\"the minimum length of the output area is 240-bytes\") then lines of lrecl, lrecl \"in the range 72-240 bytes\"; \"DSNTIAR places up to 10 lines in the message area. If the text of a message is longer than the record length you specify on DSNTIAR, the output message splits into several records, on word boundaries if possible. The split records are indented. All records begin with a blank character for carriage control. If you have more lines than the message output area can contain, DSNTIAR issues a return code of 4. A completely blank record marks the end of the message output area.\" Return codes: 0 successful; 4 more data than fit; 8 \"Logical record length not in the range 72-240, inclusive\"; 12 \"Message area not large enough. The message length was 240 or greater.\"; 16 TSO message routine error; 20 DSNTIA1 not loaded; 24 \"SQLCA data error\". The runtime's return codes 0, 4, 8, 12 (no whole line in the area) and 24 and its line length range are IBM's. The text is Db2's message catalogue (IBM gives no byte-for-byte text, register Q5), and three layout points differ from the quote: the runtime's lines do not begin with a carriage-control blank, its split lines are not indented, and it does not cap the text at 10 lines. Filed as a bug in #8700; the rule stays ASSUMED, not matched. Checked against the Db2 13 Application Programming and SQL Guide text copy",
    "options": [],
    "register": [
     "Q5"
@@ -3636,8 +3640,9 @@
    ],
    "ibm": {
     "doc": "zarch-pop",
-    "section": "STORE CLOCK EXTENDED"
+    "section": "STORE CLOCK EXTENDED (STCKE): the 16-byte operand"
    },
+   "ibm_note": "IBM (z/Architecture Principles of Operation, SA22-7832, \"STORE CLOCK EXTENDED\", STCKE): \"the following are stored into the 16-byte second operand: ... the epoch index is stored in byte position 0 [when the multiple-epoch facility is installed]. The current value of the TOD clock is stored in byte positions 1-13. The TOD programmable field, bits 16-31 of the TOD programmable register, is stored in byte positions 14 and 15.\" \"Zeros are stored at the operand location when the clock is in the error state or the not-operational state.\" ZUIDSTCK is not an IBM service: it is zECS's own assembler wrapper around STCKE, so IBM defines only the 16-byte layout it wraps. The runtime makes the 16 bytes a stated input of the run and never the host clock (register X47): the layout is IBM's, the value is the machine's, which no manual states. The program keeps only bytes 1-6 (epoch index and the first five clock bytes) as a key prefix. IBM neither confirms nor contradicts the stand-in, so the rule stays ASSUMED. Checked against the z/Architecture Principles of Operation text copy",
    "options": [],
    "register": [
     "X47"
@@ -3658,8 +3663,9 @@
    "site": "le/LeTime.java:qcen",
    "ibm": {
     "doc": "le-pr",
-    "section": "CEEQCEN: query the century window"
+    "section": "CEEQCEN: query the century window; CEESCEN: set the century window"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEEQCEN\" and \"CEESCEN\"): century_start is \"An integer between 0 and 100 indicating the year on which the century window is based. For example, if the Language Environment default is in effect, all 2-digit years lie within the 100-year window starting 80 years prior to the system date. CEEQCEN then returns the value 80.\" CEESCEN: \"An integer between 0 and 100, setting the century window.\" The runtime's default 80, its 0-to-100 range and a CEEQCEN that returns what CEESCEN set are IBM's. What IBM leaves open: the reaction to a value outside 0-100 (the runtime answers CEE2533 and keeps the setting; this manual lists no such code for CEESCEN, only CEE000 and CEE2E6, the latter being the GMT message), and the scope (\"Century intervals are kept as thread-level data\" against \"CEESCEN applies to the enclave\"; the runtime holds one setting for the run). Stays ASSUMED. Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L6"
@@ -3826,6 +3832,7 @@
     "doc": "le-pr",
     "section": "CEELOCT: get current local date or time"
    },
+   "ibm_note": "IBM (z/OS 3.1 Language Environment Programming Reference, SA38-0683-60, \"CEELOCT\"): \"CEELOCT returns the current local date or time in three formats: Lilian date, Lilian seconds, Gregorian character string (in the form YYYYMMDDHHMISS999)\"; output_Lilian a 32-bit binary integer (\"day 1 equals 15 October 1582, day 148,887 equals 4 June 1990\"); output_seconds a 64-bit double floating-point number (\"19:00:01.078 on 4 June 1990 is second number 12,863,905,201.078\"); output_Gregorian \"A 17-byte fixed-length character string in the form YYYYMMDDHHMISS999\"; fc CEE000, or CEE2F3 (severity 3, message 2531, \"The local time was not available from the system\"). The runtime's three outputs, the 17 bytes (register L5 assumption 3, the longer field, is not what IBM documents), the success feedback and the CEE2F3 token are IBM's. One difference: for CEE2F3 IBM says \"output_Lilian is set to 0\" and \"output_seconds is set to 0\"; the planned-fault path (Ceeloct.fail) leaves the outputs as they were. Filed as a bug in #8700, so the rule is not MATCHED. The clock is the run's (the zone is the pinned clock's, L5 assumption 1). Checked against the LE Programming Reference text copy",
    "options": [],
    "register": [
     "L5"
@@ -3904,6 +3911,7 @@
     "doc": "ims-ap",
     "section": "Hierarchic sequence"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Sequential access\"; IMS 15.4 Application Programming APIs, DBD AMBIGUOUS INSERT): \"When you use a sequential access method, the segments in the database are stored in hierarchic sequence, one after another\"; a unique sequence field fixes the twin order; for FIRST / LAST / HERE the DBD's insert rule applies only to a segment \"with no sequence field or with a nonunique sequence field\" and \"The value is ignored when specified for a segment type with a unique sequence field\". The runtime stores twins by segment type and sequence field, which is IBM's order. IBM says nothing about how a harness loads a database: refusing an out-of-order seed and the DBD / PSB configuration reader are the harness's own (registers I1, I6), so the rule stays ASSUMED. Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -3930,6 +3938,7 @@
     "doc": "ims-apis",
     "section": "Segment search arguments (SSAs)"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Multiple qualification statements\"; IMS 15.4 Application Programming APIs, \"Command codes\"; IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), AC, AJ, AK): AC \"The call specifies two SSAs for the same hierarchic level\" and \"the SSA specifying that segment name is not in its correct hierarchic sequence\"; AK \"An SSA contains an invalid field name\"; AJ \"the format of one of the SSAs is invalid\"; \"Logical AND ... (coded * or &)\", \"Logical OR ... (coded + or |)\", \"A set is a number of qualification statements that are joined by an AND ... Each OR starts a new set\" (AND binds tighter); the independent AND is \"Use it only with secondary indexes\" (refused here); the null command code is \"Use an SSA in command code format without specifying the command code\". Those parts MATCH. Two choices go past IBM and are refusals, not wrong answers: the runtime's limit of 16 qualification statements (MAX_TERMS) where IBM says \"You can use a maximum of 1024 qualification statements on a call\", and L / P / C refused outside one call shape where IBM's command-code table allows each on every get (C also on ISRT: \"You can use the C command code for all Get calls and for the ISRT call\"). Stays ASSUMED, the choices named. Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -3971,6 +3980,7 @@
     "doc": "ims-ap",
     "section": "Specifying the DB PCB mask"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Specifying the DB PCB mask\", Table 35 and notes 2-9): the layout is database name 8, segment level 2, status code 2, processing options 4, reserved 4, segment name 8, length of key feedback area 4 (binary), number of sensitive segments 4 (binary), key feedback area: the runtime's offsets are that order. Note 2: \"If IMS is unable to find the segment that you request, it gives you the level number of the last segment it encounters that satisfied your call\"; note 9: \"IMS does not normally clear the key feedback area. IMS sets this length of the key feedback area to indicate the portion of the area that is valid\". Those parts MATCH. IBM is silent on the mask after GB, REPL, DLET and II (the runtime leaves level, name and key as they were, or gives the parent) and on GNP's GE; the entry contents are the runtime's (RT-DLI-ENTRY carries a separate DIFFERS: note 6 puts the database type in SEGNAME at scheduling). Stays ASSUMED (register I4). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I4"
@@ -3992,6 +4002,7 @@
     "doc": "ims-apis",
     "section": "GU / GHU, GN / GHN, GNP / GHNP calls"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, Chapter 15 \"Current position in the database after each call\"; IMS 15.4 Application Programming APIs, \"GU/GHU call\", \"GN/GHN call\", \"GNP/GHNP call\", \"D command code\"): \"A GU call with an unqualified SSA at the root level attempts to satisfy the call by starting at the beginning of the database\"; GN \"Processing moves forward from current position\"; GNP: \"The search for the requested segment is limited to the dependents of the lowest-level segment most recently accessed by a GU or GN call\"; GP and GK as the runtime answers them. D: \"The D command code has no effect on the IMS retrieval logic. The only thing it does is cause each segment to be moved to your I/O area\", the segments \"one after the other, left to right\" and \"IMS always returns the last segment in the path\". Position after a successful call MATCHES. Where IBM answers by IMS's own search (position after a GE from GU, after II, a qualified GN that finds nothing: GE or GB) the runtime refuses the next call that needs it (stricter, never different). Not read against the runtime here: the missing-SSA derivation, and D's P-processing-option requirement. Stays ASSUMED (register I3). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -4062,6 +4073,7 @@
     "doc": "ims-apis",
     "section": "ISRT call"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming APIs, \"ISRT call\"; IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), II): \"If the segment type you are inserting has a unique key field, the place where IMS adds the new segment occurrence depends on the value of its key field\"; \"The last SSA must be unqualified\"; \"If IMS returns a GE status code, at least one of the parents does not exist\"; II \"tried to insert a segment that already exists ... A segment with an equal physical twin sequence field already exists for the parent\"; with D, \"all the SSAs below and including the SSA containing the D command code\" make a path insert. Those parts MATCH. Not matched to text: the FIRST / LAST / HERE rules for a non-unique or absent key (IBM: the DBD's RULES parameter; the runtime's reading of it is unchecked) and the load-mode codes LB / LC / LD / LE, which the text copy does not give. Stays ASSUMED (registers I1, I3). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I1",
@@ -4122,6 +4134,7 @@
     "doc": "ims-codes",
     "section": "DL/I status codes"
    },
+   "ibm_note": "IBM (IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), AM; IMS 15.4 Application Programming APIs, \"ISRT call\"; IMS 15.4 Application Programming, \"PCB masks for GSAM databases\"): AM \"If the processing option is L and the program issued a call other than an ISRT call. Load programs can issue only ISRT calls.\" (the runtime's AM for any other function MATCHES). \"When you use the ISRT call with GSAM, the area named by the i/o area parameter contains the record you want to add. The area must be long enough to hold these records\" (an area shorter than the record refused is the caller's error). Open in IBM: the mask's segment level, \"Segment Level Number. Not used by GSAM, but you must code it. It is 2 bytes\", no value stated, so the runtime's blank is its own choice; the SSA refusal is not IBM text either. Stays ASSUMED (register I5). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"
@@ -4141,6 +4154,7 @@
     "doc": "ims-apis",
     "section": "EXEC DLI SCHD / TERM"
    },
+   "ibm_note": "IBM (IMS 15.4 Messages and Codes Volume 4 (IMS Component Codes), TC; IMS 15.4 Application Programming APIs, \"SCHD command\", NODHABEND): TC \"This status code applies to CICS online command-level programs only, and it is returned following a scheduling request. It means that you have already scheduled a PSB\"; NODHABEND: a CICS transaction does not fail with a DHxx abend and, \"Following an unsuccessful SCHD command, the control, as well as the status code in the DIB are passed back to the application program\"; the codes not returned to the program abend, which fits refusing a SCHD of a scheduled PSB without NODHABEND. Those parts MATCH. Not in the text: that the databases load at the first SCHD and that the PCBs start with no position (IBM only says to \"notify DL/I that your program will be accessing a database by scheduling a PSB\"); DIBSTAT blank for success is what the manual's sample programs test (\"CLC DIBSTAT,=C' '  IS STATUS BLANK\"). Stays ASSUMED (register I5). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"
@@ -4159,6 +4173,7 @@
     "doc": "ims-apis",
     "section": "EXEC DLI SCHD / TERM"
    },
+   "ibm_note": "IBM (IMS 15.4 Application Programming APIs, \"TERM command\"): \"The Terminate (TERM) command is used to terminate a PSB in a CICS online program.\" \"If you want to use a PSB other than the one already scheduled, use the TERM command to release the PSB.\" \"When you issue the TERM command, all database changes are committed and cannot be backed out.\" \"No options are allowed with the TERM command. If your program subsequently needs a PSB that has terminated, it must reschedule that PSB by issuing another SCHD command.\" The runtime does this: the PSB is released and its PCBs dropped, what was written is kept (the committed changes), a later SCHD schedules again, DIBSTAT is blank (as for any success). The TERM call form adds \"causes a CICS sync point\"; the runtime refuses that call (RT-DLI-CALL) and takes no sync point for the EXEC form, whose text names only the database commit. IBM is silent on a TERM with no PSB scheduled, which the runtime refuses by name: a stated boundary, not a different answer. Stays ASSUMED only for that refusal and the sync point; the traced behaviour MATCHES (register I5). Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"

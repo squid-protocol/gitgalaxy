@@ -298,7 +298,7 @@ Run 2026-11-21: **11 of 11 agree three ways**, `unparsed_ief` 0, no JCL error. N
 step (`RSTJOB6` Z3 runs) and a bare `COND=(0,NE)` reads only the steps that ran (assumption A1 on its outcome: S5 runs). Internal only (Q16).
 
 Skipped, with the reason in the file: the checkpoint restarts (`RSTJOB4`, `11`, `12`: a SYSCHK dataset from a checkpointed run is needed) and the
-IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. Not observed: what a program does (every step is IDCAMS).
+IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. `RSTJOB13` to `16` (the COND-override-on-a-procedure-call scenarios of #8835, added after this run) are skipped until the probe is rerun on the box. Not observed: what a program does (every step is IDCAMS).
 
 ## Probe run (#8414): IEBGENER / IEBCOPY / IEFBR14
 

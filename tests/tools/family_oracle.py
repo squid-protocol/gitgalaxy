@@ -298,6 +298,15 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
 def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
     """What `fn` (its whole span, nested definitions included) does, counted from its syntax tree."""
     c = _Counts()
+    annotation_nodes: set[int] = (
+        set()
+    )  # `str | None` in a type annotation is a type union, not a bitwise operator on values
+    for node in ast.walk(fn):
+        ann = getattr(node, "annotation", None) if isinstance(node, (ast.arg, ast.AnnAssign)) else None
+        if node is fn:
+            ann = fn.returns
+        if ann is not None:
+            annotation_nodes.update(id(x) for x in ast.walk(ann))
     for node in ast.walk(fn):
         if isinstance(node, (ast.If, ast.For, ast.While, ast.AsyncFor, ast.IfExp, ast.ExceptHandler, ast.Assert)):
             c.add("branch")
@@ -334,8 +343,9 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
             c.add("globals", f"{node.value.id}.{node.attr}")
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             c.add("imports")
-        if (isinstance(node, ast.BinOp) and isinstance(node.op, _BITWISE_OPS)) or (
-            isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Invert)
+        if id(node) not in annotation_nodes and (
+            (isinstance(node, ast.BinOp) and isinstance(node.op, _BITWISE_OPS))
+            or (isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Invert))
         ):
             c.add("bitwise", type(node.op).__name__)
         if isinstance(node, ast.Call):

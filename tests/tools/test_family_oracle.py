@@ -35,6 +35,12 @@ def _counts(src: str) -> dict:
         ("def f():\n    return PAT.finditer(s)", "regex", 1),
         ('def f():\n    return re.compile(r"^a|~b<<")', "bitwise", 0),
         ("def f(x):\n    return x << 2", "bitwise", 1),
+        (
+            "def f(a: int | None, b: str = 'x') -> str | None:\n    return b",
+            "bitwise",
+            0,
+        ),  # a type union is not a bitwise operator
+        ("def f(a):\n    x: int | None = a | 1\n    return x", "bitwise", 1),  # only the value operation counts
         ("def f(x):\n    return ~x", "bitwise", 1),
         ("def f(x):\n    return x & 3 | 1", "bitwise", 2),  # the contract counts and/or in operator position
         ("def f(a, b, *c, d=1, **e):\n    pass", "args", 5),

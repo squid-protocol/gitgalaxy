@@ -8,15 +8,15 @@
     "C Struct Operations": "0.2% (82)",
     "Callbacks & Closures": "3.1% (1629)",
     "Compute Cores": "10.7% (5644)",
-    "Defensive Guards": "8.5% (4476)",
-    "Encapsulated Accessors": "3.6% (1874)",
+    "Defensive Guards": "8.5% (4477)",
+    "Encapsulated Accessors": "3.5% (1872)",
     "Generic / Templated Code": "5.8% (3072)",
     "I/O & Config Routines": "15.3% (8093)",
     "Interface Declarations": "16.0% (8447)",
     "Many-Argument Workhorses": "6.6% (3489)",
     "Parameter Forwarders": "13.3% (7026)",
     "State Mutators": "8.5% (4507)",
-    "Stateful Encapsulated Methods": "4.1% (2178)",
-    "Type Conversions": "2.6% (1354)"
+    "Stateful Encapsulated Methods": "4.1% (2180)",
+    "Type Conversions": "2.6% (1353)"
   }
 }

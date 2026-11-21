@@ -112,7 +112,7 @@ HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.p
                  # #8119: the resource legs a CICS, Db2, IMS or MQ proof runs through, and the shared runners
                  "tests/tools/equivalence_db2.py", "tests/tools/equivalence_sql.py", "tests/tools/equivalence_ims.py",
                  "tests/tools/equivalence_mq.py", "tests/tools/equivalence_mvs.py",
-                 "tests/tools/equivalence_binary64.py", "tests/tools/equivalence_job.py",
+                 "tests/tools/equivalence_binary64.py", "tests/tools/equivalence_gdg.py", "tests/tools/equivalence_job.py",
                  "tests/tools/equivalence_oracle.py", "tests/tools/equivalence_env.py",
                  # the C stubs each leg links: fault runs, CEE3ABD, DISPLAY (#4056), LE services, CICS, Db2, DL/I, MQI
                  "tests/equivalence/faults", "tests/equivalence/le", "tests/equivalence/cics",

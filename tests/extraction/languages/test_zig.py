@@ -202,3 +202,12 @@ def test_zig_dependency_valid(payload, expected_name):
 @pytest.mark.parametrize("payload", DEPENDENCY_INVALID)
 def test_zig_dependency_invalid(payload):
     assert_invalid_no_match(ZIG_RULES["_dependency_capture"], payload, "zig.dependency")
+
+
+def test_zig_branch_counts_boolean_keywords_not_dead_symbols_8905():
+    """#8905: the rule listed `&&`/`||`, which Zig does not have; its short-circuit operators are the keywords `and`/`or`."""
+    rule = ZIG_RULES["branch"]
+    assert len(rule.findall("return a and b or c;")) == 2
+    assert not rule.search("return a && b;")  # not Zig
+    assert not rule.search("const android = 1; const color = 2;")  # whole words only
+    assert not rule.search('const s = @"and";')  # quoted identifier is not the keyword

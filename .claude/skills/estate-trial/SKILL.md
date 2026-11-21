@@ -49,8 +49,9 @@ Section 7's calibration is not a forecast.
   contact (titles citing the trial's issues, naming the estate, or a booked cause fix); it never goes back.
 * L2 only if the owner amends the pre-registration to allow cases (blind 1: Amendment 3). The first L2 point carries the
   amendment (`point --measure L2 --l2-note "..."`); after the case PRs merge, `estate_journey.py l2-from-prs --key ...
-  --since <T0 UTC> [--causes fixes] --write` rebuilds the series from them, and the evidence report's L2+ must match its
-  last value.
+  --since <T0 UTC> [--until <close UTC>] [--causes fixes] [--evidence-l2 N] --write` rebuilds the series from them
+  (times are strict UTC ISO; a program is credited only when a committed case exists at the PR's merge commit), and the
+  evidence report's L2+ must match its last value: `--evidence-l2 N` refuses to write when it does not.
 
 ## 4. Source defects (rule 10)
 A gap becomes a named source defect only with an IBM citation in its owner text and an Opus review. Product copybooks are

@@ -5,18 +5,18 @@
  "case": "carddemo-paudblod",
  "entry": {
   "program": "PAUDBLOD",
-  "commit": "565334c046c56e3142e6ee28d72c7e3791cf44b7+uncommitted",
-  "date": "2026-11-05",
+  "commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef+uncommitted",
+  "date": "2026-11-21",
   "mode": "fast",
   "seed": 0,
-  "mutants": 419,
+  "mutants": 421,
   "out_of_scope": 0,
-  "chosen": 419,
+  "chosen": 421,
   "coverage": "proven on 11 runs, covering 16/16 paragraphs and 33/34 branches",
   "counts": {
    "killed": 242,
    "timeout": 29,
-   "survived": 126,
+   "survived": 128,
    "stillborn": 22,
    "error": 0,
    "pending": 0
@@ -323,7 +323,7 @@
     "id": "3d1b9c978d",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 35,
+    "line": 37,
     "before": "private static final int GOTO = 1 << 20;",
     "after": "private static final int GOTO = 2 << 20;"
    },
@@ -331,7 +331,7 @@
     "id": "a2097d264f",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 35,
+    "line": 37,
     "before": "private static final int GOTO = 1 << 20;",
     "after": "private static final int GOTO = 1 << 21;"
    },
@@ -339,7 +339,7 @@
     "id": "56ec4d3e6e",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 39,
+    "line": 42,
     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));"
    },
@@ -347,7 +347,7 @@
     "id": "4374fb1783",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 41,
+    "line": 44,
     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
    },
@@ -355,7 +355,7 @@
     "id": "2558db1414",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 43,
+    "line": 46,
     "before": "\"SU1TVU5MT0QwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAABOTk4gICAgICAgICAgICBSTUFEMDAwMA==\"));",
     "after": "\"XU1TVU5MT0QwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAABOTk4gICAgICAgICAgICBSTUFEMDAwMA==\"));"
    },
@@ -363,7 +363,7 @@
     "id": "69010d61eb",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 45,
+    "line": 48,
     "before": "\"ICAg\"));",
     "after": "\"XCAg\"));"
    },
@@ -371,7 +371,7 @@
     "id": "ef65e9a02a",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 53,
+    "line": 56,
     "before": "\"MDAgICAgICAgICAgICAgICA=\"));",
     "after": "\"XDAgICAgICAgICAgICAgICA=\"));"
    },
@@ -379,7 +379,7 @@
     "id": "70e8e06971",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 57,
+    "line": 60,
     "before": "\"AAAAAAAMMDAwMDAwMDAwICAgICAgICAgICAAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAAAAAAMAAAAAAAMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
     "after": "\"XAAAAAAMMDAwMDAwMDAwICAgICAgICAgICAAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAAAAAAMAAAAAAAMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));"
    },
@@ -387,7 +387,7 @@
     "id": "73536af1a0",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 59,
+    "line": 62,
     "before": "\"AAAMAAAAAAwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAAAAAAAAAMAAAAAAAADCAgICAgICAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
     "after": "\"XAAMAAAAAAwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAAAAAAAAAMAAAAAAAADCAgICAgICAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
    },
@@ -395,7 +395,7 @@
     "id": "af9673b700",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 61,
+    "line": 64,
     "before": "\"IA==\"));",
     "after": "\"XA==\"));"
    },
@@ -403,7 +403,7 @@
     "id": "9aad527ca8",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 63,
+    "line": 66,
     "before": "\"ICAgICAgICAgICAgICAgIAAAAAAgICAgICAgIAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
     "after": "\"XCAgICAgICAgICAgICAgIAAAAAAgICAgICAgIAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
    },
@@ -411,7 +411,7 @@
     "id": "844098e40d",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 65,
+    "line": 68,
     "before": "\"AAA=\"));",
     "after": "\"XAA=\"));"
    },
@@ -419,7 +419,7 @@
     "id": "b84b3c5f30",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 85,
+    "line": 88,
     "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
     "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 15, 5, 0, false, false, false);"
    },
@@ -427,7 +427,7 @@
     "id": "da300fdd86",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 85,
+    "line": 88,
     "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
     "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 6, 0, false, false, false);"
    },
@@ -435,7 +435,7 @@
     "id": "7509e2feb4",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 85,
+    "line": 88,
     "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
     "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 1, false, false, false);"
    },
@@ -443,7 +443,7 @@
     "id": "22756f9321",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 86,
+    "line": 89,
     "before": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 2, false);",
     "after": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 85, 2, false);"
    },
@@ -451,7 +451,7 @@
     "id": "9b1ce89f67",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 86,
+    "line": 89,
     "before": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 2, false);",
     "after": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 3, false);"
    },
@@ -459,7 +459,7 @@
     "id": "6469e0c541",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 87,
+    "line": 90,
     "before": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 2, false);",
     "after": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 87, 2, false);"
    },
@@ -467,7 +467,7 @@
     "id": "a75cb62983",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 87,
+    "line": 90,
     "before": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 2, false);",
     "after": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 3, false);"
    },
@@ -475,7 +475,7 @@
     "id": "08cb9a4439",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 88,
+    "line": 91,
     "before": "private final Field f38_ROOT_QUAL_SSA = Field.group(s_ROOT_QUAL_SSA, 0, 26);",
     "after": "private final Field f38_ROOT_QUAL_SSA = Field.group(s_ROOT_QUAL_SSA, 0, 27);"
    },
@@ -483,7 +483,7 @@
     "id": "287afbf0a1",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 90,
+    "line": 93,
     "before": "private final Field f45_ROOT_UNQUAL_SSA = Field.group(s_ROOT_UNQUAL_SSA, 0, 9);",
     "after": "private final Field f45_ROOT_UNQUAL_SSA = Field.group(s_ROOT_UNQUAL_SSA, 0, 10);"
    },
@@ -491,7 +491,7 @@
     "id": "ec1fcfb0d9",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 91,
+    "line": 94,
     "before": "private final Field f48_CHILD_UNQUAL_SSA = Field.group(s_CHILD_UNQUAL_SSA, 0, 9);",
     "after": "private final Field f48_CHILD_UNQUAL_SSA = Field.group(s_CHILD_UNQUAL_SSA, 0, 10);"
    },
@@ -499,7 +499,7 @@
     "id": "41d9c97a18",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 92,
+    "line": 95,
     "before": "private final Field f61_FUNC_GU = Field.alphanumeric(s_FUNC_CODES, 0, 4, false);",
     "after": "private final Field f61_FUNC_GU = Field.alphanumeric(s_FUNC_CODES, 0, 5, false);"
    },
@@ -507,7 +507,7 @@
     "id": "6ea67dcd35",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 93,
+    "line": 96,
     "before": "private final Field f68_FUNC_ISRT = Field.alphanumeric(s_FUNC_CODES, 28, 4, false);",
     "after": "private final Field f68_FUNC_ISRT = Field.alphanumeric(s_FUNC_CODES, 28, 5, false);"
    },
@@ -515,7 +515,7 @@
     "id": "7cc7356ba2",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 96,
+    "line": 99,
     "before": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 0, 1, false);",
     "after": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 1, 1, false);"
    },
@@ -523,7 +523,7 @@
     "id": "069add9965",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 96,
+    "line": 99,
     "before": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 0, 1, false);",
     "after": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 0, 2, false);"
    },
@@ -531,7 +531,7 @@
     "id": "8834354bb3",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 100,
+    "line": 103,
     "before": "private final Field f126_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
     "after": "private final Field f126_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
@@ -539,7 +539,7 @@
     "id": "562b3669c1",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 154,
+    "line": 157,
     "before": "System.arraycopy(IMAGE_s_INFIL1_REC, 0, s_INFIL1_REC.bytes, 0, IMAGE_s_INFIL1_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_INFIL1_REC, 0, s_INFIL1_REC.bytes, 0, IMAGE_s_INFIL1_REC.length); */"
    },
@@ -547,7 +547,7 @@
     "id": "92d21d0ff3",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 155,
+    "line": 158,
     "before": "System.arraycopy(IMAGE_s_INFIL2_REC, 0, s_INFIL2_REC.bytes, 0, IMAGE_s_INFIL2_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_INFIL2_REC, 0, s_INFIL2_REC.bytes, 0, IMAGE_s_INFIL2_REC.length); */"
    },
@@ -555,7 +555,7 @@
     "id": "f31afb623e",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 156,
+    "line": 159,
     "before": "System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length); */"
    },
@@ -563,7 +563,7 @@
     "id": "cdfbf6ea68",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 157,
+    "line": 160,
     "before": "System.arraycopy(IMAGE_s_WS_IMS_VARIABLES, 0, s_WS_IMS_VARIABLES.bytes, 0, IMAGE_s_WS_IMS_VARIABLES.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_IMS_VARIABLES, 0, s_WS_IMS_VARIABLES.bytes, 0, IMAGE_s_WS_IMS_VARIABLES.length); */"
    },
@@ -571,7 +571,7 @@
     "id": "42353e23f7",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 161,
+    "line": 164,
     "before": "System.arraycopy(IMAGE_s_PRM_INFO, 0, s_PRM_INFO.bytes, 0, IMAGE_s_PRM_INFO.length);",
     "after": "/* System.arraycopy(IMAGE_s_PRM_INFO, 0, s_PRM_INFO.bytes, 0, IMAGE_s_PRM_INFO.length); */"
    },
@@ -579,7 +579,7 @@
     "id": "c93861262f",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 163,
+    "line": 166,
     "before": "System.arraycopy(IMAGE_s_PENDING_AUTH_SUMMARY, 0, s_PENDING_AUTH_SUMMARY.bytes, 0, IMAGE_s_PENDING_AUTH_SUMMARY.length);",
     "after": "/* System.arraycopy(IMAGE_s_PENDING_AUTH_SUMMARY, 0, s_PENDING_AUTH_SUMMARY.bytes, 0, IMAGE_s_PENDING_AUTH_SUMMARY.length); */"
    },
@@ -587,7 +587,7 @@
     "id": "0ef0e8ec91",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 164,
+    "line": 167,
     "before": "System.arraycopy(IMAGE_s_PENDING_AUTH_DETAILS, 0, s_PENDING_AUTH_DETAILS.bytes, 0, IMAGE_s_PENDING_AUTH_DETAILS.length);",
     "after": "/* System.arraycopy(IMAGE_s_PENDING_AUTH_DETAILS, 0, s_PENDING_AUTH_DETAILS.bytes, 0, IMAGE_s_PENDING_AUTH_DETAILS.length); */"
    },
@@ -595,7 +595,7 @@
     "id": "d351c96759",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 165,
+    "line": 168,
     "before": "System.arraycopy(IMAGE_s_IO_PCB_MASK, 0, s_IO_PCB_MASK.bytes, 0, IMAGE_s_IO_PCB_MASK.length);",
     "after": "/* System.arraycopy(IMAGE_s_IO_PCB_MASK, 0, s_IO_PCB_MASK.bytes, 0, IMAGE_s_IO_PCB_MASK.length); */"
    },
@@ -603,7 +603,7 @@
     "id": "2d499ceb1f",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 166,
+    "line": 169,
     "before": "System.arraycopy(IMAGE_s_PAUTBPCB, 0, s_PAUTBPCB.bytes, 0, IMAGE_s_PAUTBPCB.length);",
     "after": "/* System.arraycopy(IMAGE_s_PAUTBPCB, 0, s_PAUTBPCB.bytes, 0, IMAGE_s_PAUTBPCB.length); */"
    },
@@ -611,7 +611,7 @@
     "id": "5278291529",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 167,
+    "line": 170,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -619,7 +619,7 @@
     "id": "545e0cfbe3",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 168,
+    "line": 171,
     "before": "f6_WS_PGMNAME = \"IMSUNLOD\";",
     "after": "f6_WS_PGMNAME = \"XMSUNLOD\";"
    },
@@ -627,7 +627,7 @@
     "id": "daca6e2ef3",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 170,
+    "line": 173,
     "before": "f10_WS_EXPIRY_DAYS = 0L;",
     "after": "/* f10_WS_EXPIRY_DAYS = 0L; */"
    },
@@ -635,7 +635,7 @@
     "id": "160f937800",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 171,
+    "line": 174,
     "before": "f11_WS_DAY_DIFF = 0L;",
     "after": "/* f11_WS_DAY_DIFF = 0L; */"
    },
@@ -643,7 +643,7 @@
     "id": "7b9b372525",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 172,
+    "line": 175,
     "before": "f12_IDX = 0L;",
     "after": "/* f12_IDX = 0L; */"
    },
@@ -651,7 +651,7 @@
     "id": "fe3d5b1f57",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 176,
+    "line": 179,
     "before": "f16_WS_TOT_REC_WRITTEN = 0L;",
     "after": "/* f16_WS_TOT_REC_WRITTEN = 0L; */"
    },
@@ -659,7 +659,7 @@
     "id": "2af5bc9d26",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 177,
+    "line": 180,
     "before": "f17_WS_NO_SUMRY_READ = 0L;",
     "after": "/* f17_WS_NO_SUMRY_READ = 0L; */"
    },
@@ -667,7 +667,7 @@
     "id": "0575dc39e7",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 178,
+    "line": 181,
     "before": "f18_WS_NO_SUMRY_DELETED = 0L;",
     "after": "/* f18_WS_NO_SUMRY_DELETED = 0L; */"
    },
@@ -675,7 +675,7 @@
     "id": "11e07ed6ab",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 179,
+    "line": 182,
     "before": "f19_WS_NO_DTL_READ = 0L;",
     "after": "/* f19_WS_NO_DTL_READ = 0L; */"
    },
@@ -683,7 +683,7 @@
     "id": "593086248b",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 180,
+    "line": 183,
     "before": "f20_WS_NO_DTL_DELETED = 0L;",
     "after": "/* f20_WS_NO_DTL_DELETED = 0L; */"
    },
@@ -691,7 +691,7 @@
     "id": "864b727b11",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 181,
+    "line": 184,
     "before": "f21_WS_ERR_FLG = \"N\";",
     "after": "f21_WS_ERR_FLG = \"X\";"
    },
@@ -699,7 +699,7 @@
     "id": "64f1d55f76",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 182,
+    "line": 185,
     "before": "f22_WS_END_OF_AUTHDB_FLAG = \"N\";",
     "after": "f22_WS_END_OF_AUTHDB_FLAG = \"X\";"
    },
@@ -707,7 +707,7 @@
     "id": "e5ecd0fd5f",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 183,
+    "line": 186,
     "before": "f23_WS_MORE_AUTHS_FLAG = \"N\";",
     "after": "f23_WS_MORE_AUTHS_FLAG = \"X\";"
    },
@@ -715,7 +715,7 @@
     "id": "09d9237a27",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 184,
+    "line": 187,
     "before": "f24_WS_END_OF_INFILE1 = \" \";",
     "after": "f24_WS_END_OF_INFILE1 = \"X\";"
    },
@@ -723,7 +723,7 @@
     "id": "94bfd244f7",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 185,
+    "line": 188,
     "before": "f25_WS_END_OF_INFILE2 = \" \";",
     "after": "f25_WS_END_OF_INFILE2 = \"X\";"
    },
@@ -731,7 +731,7 @@
     "id": "f7380314a4",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 186,
+    "line": 189,
     "before": "f26_WS_INFILE_STATUS = \"  \";",
     "after": "f26_WS_INFILE_STATUS = \"X \";"
    },
@@ -739,7 +739,7 @@
     "id": "67e3a297f4",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 187,
+    "line": 190,
     "before": "f29_END_ROOT_SEG_FILE = \" \";",
     "after": "f29_END_ROOT_SEG_FILE = \"X\";"
    },
@@ -747,7 +747,7 @@
     "id": "43c9c706b6",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 188,
+    "line": 191,
     "before": "f30_END_CHILD_SEG_FILE = \" \";",
     "after": "f30_END_CHILD_SEG_FILE = \"X\";"
    },
@@ -755,7 +755,7 @@
     "id": "b359cbe860",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 189,
+    "line": 192,
     "before": "f31_WS_CUSTID_STATUS = \"  \";",
     "after": "f31_WS_CUSTID_STATUS = \"X \";"
    },
@@ -763,7 +763,7 @@
     "id": "8bf0527735",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 191,
+    "line": 194,
     "before": "f36_IMS_RETURN_CODE = \"  \";",
     "after": "f36_IMS_RETURN_CODE = \"X \";"
    },
@@ -771,7 +771,7 @@
     "id": "f215a102a6",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 192,
+    "line": 195,
     "before": "f37_WS_IMS_PSB_SCHD_FLG = \" \";",
     "after": "f37_WS_IMS_PSB_SCHD_FLG = \"X\";"
    },
@@ -779,7 +779,7 @@
     "id": "9fc6867abc",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 194,
+    "line": 197,
     "before": "f54_P_CHKP_FREQ = \"     \";",
     "after": "f54_P_CHKP_FREQ = \"X    \";"
    },
@@ -787,7 +787,7 @@
     "id": "a87e62408d",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 195,
+    "line": 198,
     "before": "f56_P_CHKP_DIS_FREQ = \"     \";",
     "after": "f56_P_CHKP_DIS_FREQ = \"X    \";"
    },
@@ -795,7 +795,7 @@
     "id": "8c307e7da5",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 196,
+    "line": 199,
     "before": "f58_P_DEBUG_FLAG = \" \";",
     "after": "f58_P_DEBUG_FLAG = \"X\";"
    },
@@ -803,7 +803,7 @@
     "id": "1416ac14af",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 197,
+    "line": 200,
     "before": "f62_FUNC_GHU = \"GHU \";",
     "after": "f62_FUNC_GHU = \"XHU \";"
    },
@@ -811,7 +811,7 @@
     "id": "65e08b8065",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 198,
+    "line": 201,
     "before": "f63_FUNC_GN = \"GN  \";",
     "after": "f63_FUNC_GN = \"XN  \";"
    },
@@ -819,7 +819,7 @@
     "id": "b0558de03b",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 199,
+    "line": 202,
     "before": "f64_FUNC_GHN = \"GHN \";",
     "after": "f64_FUNC_GHN = \"XHN \";"
    },
@@ -827,7 +827,7 @@
     "id": "e2850c6c34",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 200,
+    "line": 203,
     "before": "f65_FUNC_GNP = \"GNP \";",
     "after": "f65_FUNC_GNP = \"XNP \";"
    },
@@ -835,7 +835,7 @@
     "id": "7383ce7f0c",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 201,
+    "line": 204,
     "before": "f66_FUNC_GHNP = \"GHNP\";",
     "after": "f66_FUNC_GHNP = \"XHNP\";"
    },
@@ -843,7 +843,7 @@
     "id": "93198080a2",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 202,
+    "line": 205,
     "before": "f67_FUNC_REPL = \"REPL\";",
     "after": "f67_FUNC_REPL = \"XEPL\";"
    },
@@ -851,7 +851,7 @@
     "id": "63d529194b",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 203,
+    "line": 206,
     "before": "f69_FUNC_DLET = \"DLET\";",
     "after": "f69_FUNC_DLET = \"XLET\";"
    },
@@ -859,7 +859,7 @@
     "id": "db3462731d",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 204,
+    "line": 207,
     "before": "f70_PARMCOUNT = 4L;",
     "after": "/* f70_PARMCOUNT = 4L; */"
    },
@@ -867,7 +867,7 @@
     "id": "b62c488358",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 210,
+    "line": 213,
     "before": "initialState();",
     "after": "/* initialState(); */"
    },
@@ -875,7 +875,7 @@
     "id": "9f76095f41",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 211,
+    "line": 214,
     "before": "performDepth = 0;",
     "after": "/* performDepth = 0; */"
    },
@@ -883,7 +883,7 @@
     "id": "a45c430a36",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 211,
+    "line": 214,
     "before": "performDepth = 0;",
     "after": "performDepth = 1;"
    },
@@ -891,7 +891,7 @@
     "id": "f71a987b4e",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 213,
+    "line": 216,
     "before": "perform(0, 16);",
     "after": "/* perform(0, 16); */"
    },
@@ -899,7 +899,7 @@
     "id": "39c606cb57",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 213,
+    "line": 216,
     "before": "perform(0, 16);",
     "after": "perform(1, 16);"
    },
@@ -907,7 +907,7 @@
     "id": "1371663c52",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 213,
+    "line": 216,
     "before": "perform(0, 16);",
     "after": "perform(0, 17);"
    },
@@ -915,7 +915,7 @@
     "id": "1eac524f53",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 226,
+    "line": 229,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -923,7 +923,7 @@
     "id": "c667fdd705",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 245,
+    "line": 248,
     "before": "perform(0, 16);",
     "after": "perform(0, 17);"
    },
@@ -931,7 +931,7 @@
     "id": "0e41bf8645",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 252,
+    "line": 255,
     "before": "Cobol.swapZosComp5(comp5Before);",
     "after": "/* Cobol.swapZosComp5(comp5Before); */"
    },
@@ -939,7 +939,7 @@
     "id": "618f89660e",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 253,
+    "line": 256,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -947,7 +947,7 @@
     "id": "0073d3fd8e",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 254,
+    "line": 257,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -955,7 +955,7 @@
     "id": "c074724daf",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 259,
+    "line": 262,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -963,7 +963,7 @@
     "id": "005dff7e02",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 260,
+    "line": 263,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -971,7 +971,7 @@
     "id": "831ffbd5f3",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 268,
+    "line": 271,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -979,7 +979,7 @@
     "id": "678f0eb9b3",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 279,
+    "line": 282,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -987,7 +987,7 @@
     "id": "66389ba048",
     "op": "AOR",
     "file": "service/PaudblodService.java",
-    "line": 279,
+    "line": 282,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -995,7 +995,7 @@
     "id": "7f3518112f",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 279,
+    "line": 282,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -1003,7 +1003,7 @@
     "id": "444ca0fcff",
     "op": "NEG",
     "file": "service/PaudblodService.java",
-    "line": 289,
+    "line": 292,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -1011,7 +1011,7 @@
     "id": "836754bd64",
     "op": "ROR",
     "file": "service/PaudblodService.java",
-    "line": 289,
+    "line": 292,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -1019,7 +1019,7 @@
     "id": "550f6c9f0d",
     "op": "AOR",
     "file": "service/PaudblodService.java",
-    "line": 292,
+    "line": 295,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -1027,7 +1027,7 @@
     "id": "1035f55569",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 292,
+    "line": 295,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -1035,7 +1035,7 @@
     "id": "287b156308",
     "op": "ROR",
     "file": "service/PaudblodService.java",
-    "line": 292,
+    "line": 295,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -1043,7 +1043,7 @@
     "id": "64cef86ca8",
     "op": "ROR",
     "file": "service/PaudblodService.java",
-    "line": 292,
+    "line": 295,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -1051,7 +1051,7 @@
     "id": "8b9d182fed",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 292,
+    "line": 295,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -1059,7 +1059,7 @@
     "id": "937876ee35",
     "op": "ROR",
     "file": "service/PaudblodService.java",
-    "line": 298,
+    "line": 301,
     "before": "if (next >= 17) {",
     "after": "if (next > 17) {"
    },
@@ -1067,7 +1067,7 @@
     "id": "c0a420a4c2",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 298,
+    "line": 301,
     "before": "if (next >= 17) {",
     "after": "if (next >= 18) {"
    },
@@ -1075,7 +1075,7 @@
     "id": "e9afddaf6c",
     "op": "NEG",
     "file": "service/PaudblodService.java",
-    "line": 304,
+    "line": 307,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -1083,7 +1083,7 @@
     "id": "e86923b3d9",
     "op": "ROR",
     "file": "service/PaudblodService.java",
-    "line": 304,
+    "line": 307,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -1091,7 +1091,7 @@
     "id": "8d5b40b874",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 308,
+    "line": 311,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -1099,7 +1099,7 @@
     "id": "0e5d4bde3d",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 330,
+    "line": 333,
     "before": "case 16: return p16();",
     "after": "case 17: return p16();"
    },
@@ -1107,7 +1107,7 @@
     "id": "e8cb9811d0",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 331,
+    "line": 334,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -1115,7 +1115,7 @@
     "id": "a448caa6b3",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 341,
+    "line": 344,
     "before": "perform(1, 2);",
     "after": "perform(1, 3);"
    },
@@ -1123,7 +1123,7 @@
     "id": "504685a02e",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 354,
+    "line": 357,
     "before": "return 1;",
     "after": "return 2;"
    },
@@ -1131,7 +1131,7 @@
     "id": "ce8e0f269c",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 379,
+    "line": 382,
     "before": "perform(15, 15);",
     "after": "perform(15, 16);"
    },
@@ -1139,7 +1139,7 @@
     "id": "8df18b87d6",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 391,
+    "line": 394,
     "before": "perform(15, 15);",
     "after": "perform(15, 16);"
    },
@@ -1147,7 +1147,7 @@
     "id": "0243cbb70a",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 399,
+    "line": 402,
     "before": "return 3;",
     "after": "return 4;"
    },
@@ -1155,7 +1155,7 @@
     "id": "e40199f395",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 429,
+    "line": 432,
     "before": "return 5;",
     "after": "return 6;"
    },
@@ -1163,7 +1163,7 @@
     "id": "6e48882415",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 436,
+    "line": 439,
     "before": "Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
     "after": "/* Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */"
    },
@@ -1171,7 +1171,7 @@
     "id": "01be8d029b",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 456,
+    "line": 459,
     "before": "perform(15, 15);",
     "after": "perform(15, 16);"
    },
@@ -1179,7 +1179,7 @@
     "id": "2c0b28fc2a",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 464,
+    "line": 467,
     "before": "return 7;",
     "after": "return 8;"
    },
@@ -1187,7 +1187,7 @@
     "id": "61393579ab",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 499,
+    "line": 502,
     "before": "return 9;",
     "after": "return 10;"
    },
@@ -1195,7 +1195,7 @@
     "id": "67071289b3",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 505,
+    "line": 508,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
     "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS); */"
    },
@@ -1203,7 +1203,7 @@
     "id": "85bb381ba0",
     "op": "AOR",
     "file": "service/PaudblodService.java",
-    "line": 505,
+    "line": 508,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() - 0, 2, false), CS);"
    },
@@ -1211,7 +1211,7 @@
     "id": "c58a8c3208",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 505,
+    "line": 508,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 1, 2, false), CS);"
    },
@@ -1219,7 +1219,7 @@
     "id": "8f9b8334c0",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 505,
+    "line": 508,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 3, false), CS);"
    },
@@ -1227,7 +1227,7 @@
     "id": "712e6e3246",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 508,
+    "line": 511,
     "before": "Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
     "after": "/* Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */"
    },
@@ -1235,7 +1235,7 @@
     "id": "a697be782a",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 522,
+    "line": 525,
     "before": "Sysout.display(\"ROOT GU CALL FAIL:\", Cobol.displayText(f119_PAUT_PCB_STATUS, CS));",
     "after": "Sysout.display(\"XOOT GU CALL FAIL:\", Cobol.displayText(f119_PAUT_PCB_STATUS, CS));"
    },
@@ -1243,7 +1243,7 @@
     "id": "65cfc80ef3",
     "op": "LIT",
     "file": "service/PaudblodService.java",
-    "line": 524,
+    "line": 527,
     "before": "Sysout.display(\"KFB AREA IN CHILD:\", Cobol.displayText(f125_PAUT_KEYFB, CS));",
     "after": "Sysout.display(\"XFB AREA IN CHILD:\", Cobol.displayText(f125_PAUT_KEYFB, CS));"
    },
@@ -1251,7 +1251,7 @@
     "id": "0b2adb2841",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 526,
+    "line": 529,
     "before": "perform(15, 15);",
     "after": "/* perform(15, 15); */"
    },
@@ -1259,7 +1259,7 @@
     "id": "a10bcd4fb1",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 526,
+    "line": 529,
     "before": "perform(15, 15);",
     "after": "perform(16, 15);"
    },
@@ -1267,7 +1267,7 @@
     "id": "3c45fa0102",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 526,
+    "line": 529,
     "before": "perform(15, 15);",
     "after": "perform(15, 16);"
    },
@@ -1275,7 +1275,7 @@
     "id": "acfc2b800f",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 535,
+    "line": 538,
     "before": "return 11;",
     "after": "return 12;"
    },
@@ -1283,7 +1283,7 @@
     "id": "15acbc1448",
     "op": "DEL",
     "file": "service/PaudblodService.java",
-    "line": 542,
+    "line": 545,
     "before": "Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
     "after": "/* Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */"
    },
@@ -1291,7 +1291,7 @@
     "id": "86b0101ea4",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 560,
+    "line": 563,
     "before": "perform(15, 15);",
     "after": "perform(15, 16);"
    },
@@ -1299,7 +1299,7 @@
     "id": "698ffd7d28",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 568,
+    "line": 571,
     "before": "return 13;",
     "after": "return 14;"
    },
@@ -1307,7 +1307,7 @@
     "id": "fd73f07600",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 601,
+    "line": 604,
     "before": "return 15;",
     "after": "return 16;"
    },
@@ -1315,7 +1315,7 @@
     "id": "1b1147f2aa",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 612,
+    "line": 615,
     "before": "return 16;",
     "after": "return 17;"
    },
@@ -1323,30 +1323,46 @@
     "id": "fe8e52a240",
     "op": "CON",
     "file": "service/PaudblodService.java",
-    "line": 618,
+    "line": 621,
     "before": "return 17;",
     "after": "return 18;"
+   },
+   {
+    "id": "184cbc5a1b",
+    "op": "LIT",
+    "file": "service/PaudblodService.java",
+    "line": 38,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, true, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, true, false, false, \"XBM037\");"
+   },
+   {
+    "id": "1ef836feeb",
+    "op": "LIT",
+    "file": "service/PaudblodService.java",
+    "line": 36,
+    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
    }
   ],
   "inputs": {
-   "port": "062c81827ec4673d267b8f1f911ed4779939116beac74da0cd292e240308aac5",
-   "runtime": "b890b6e017021042ba93628dc1bce7ea501f673a92f49188d3b7520de34d04f9",
-   "generator": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
+   "port": "dbb7d20545aaf3da7e336780e47508fd32607e3bcd99493c8a90b0555fba05b3",
+   "runtime": "a6090f02e1fae2edabf84b088ea78aa84e46ec5395b5189237a8db46cc97a916",
+   "generator": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
    "case": "0c5f6f59125ea520c647fc958688e2e9956c2a79c1b98267742b7a8005c53fb1",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
+   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "3df0ca21b15a68037e2effc92673d1f3d6143619df4702150643213fd95eac9e"
   },
   "components": {
    "generator": {
-    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
+    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67",
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b",
     "harness:ims": "5e6b145294131b7f0dfc67b0e3b85409d04a3109eea2548ea871ba66894ee45f"
    },
    "oracle": {
@@ -1356,14 +1372,12 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "005dff7e02 0062438fd7 0073d3fd8e 01908c2e0f 01be8d029b 01d425e8fd 0243cbb70a 028f699ae8 034fe85c02 03f74a86a4 048928f619 055e27db9b 0575dc39e7 069add9965 08217464f3 0889747afa 0894e10815 08cb9a4439 0967ff83fa 09bbf70ec2 09d9237a27 0a48a5108d 0a551bb712 0ab1006e08 0b2adb2841 0c59a79bb6 0c6aa898eb 0c82b5a14d 0e2547f3f4 0e41bf8645 0e5d4bde3d 0ed3edb4fd 0ef0e8ec91 10006cd842 1035f55569 11e07ed6ab 12b752d575 12d46f9e10 1342564d52 1371663c52 13dc2111f7 1416ac14af 14330b3ede 143d9bdd9c 1449c3d276 14b4c26c66 1541757f27 154988cc66 15acbc1448 15b50c9bc1 160f937800 16b9b8a86f 17c2102a88 18aa1bbdb6 18c55ac60e 1915778f79 1948dcb65f 19794b3058 1a91727c2d 1b1147f2aa 1d1f095949 1d2fef1ae4 1d815c45dd 1e5d942d1c 1e62cd1fe7 1e8e38409f 1e9967c894 1eac524f53 1f233b359b 1f5efcfb9f 20f2a3f454 22756f9321 23683d3f55 2558db1414 2832ca187b 287afbf0a1 287b156308 28b034de2d 28c305ea0f 29b32374d4 2a0f059819 2a576310eb 2a9c8676af 2acf6a6f42 2af5bc9d26 2b366f006c 2c097ece30 2c0b28fc2a 2cc302186f 2d499ceb1f 2e1f067d23 2f24a48243 31628c5639 31662cec9d 3188d64f63 32acfca264 33e3abab48 356795e7aa 35b53f9d09 3660b36108 36798f2784 36a116a847 36b0aac9c0 36b0c70070 36f401d069 37230c53fb 387f0f6a68 39214bfa86 3929196ac9 39b0f6b985 39bc724c88 39c606cb57 3a145457f1 3a791a728a 3bd4ae8c79 3c45fa0102 3c5e5aba34 3cbb01e455 3d1b9c978d 3e7459281d 3f2902b2e0 40d2cdcf4c 40d64951f5 40ee3016eb 41d5bbcb09 41d9c97a18 42353e23f7 4374fb1783 43851e5fcf 439d901836 43a21d2c67 43c9c706b6 444ca0fcff 446952b023 44eb38d4c4 4685da267c 47165d34cb 478d5ca44e 487da79e03 4ad569b9df 4c45a3586d 4fbdaa5a66 4ff85a534d 504685a02e 50b60ffeaa 515ab96566 518b2ea428 51cc7c92fa 521d1da316 5278291529 545e0cfbe3 5483abd3ad 550f6c9f0d 555ba4a883 562b3669c1 56539acd8b 56ec4d3e6e 593086248b 5b61264b1e 5bcf27c3fd 5be456a489 5be472e368 5c19738265 5d4eae2bc1 5df2654b63 61393579ab 618f89660e 6371503757 63d529194b 63d81a451b 6469e0c541 64cef86ca8 64f1d55f76 65525918de 65cfc80ef3 65e08b8065 66278916f3 66389ba048 67071289b3 678f0eb9b3 67e3a297f4 69010d61eb 698ffd7d28 6acb97117f 6d3ac63c1d 6d9ac748d9 6e48882415 6ea67dcd35 6fc90a4a35 7018a3e6fe 70e8e06971 712e6e3246 719a9445b3 725918d53d 7301770862 73536af1a0 7383ce7f0c 74bbc98981 7509e2feb4 766d948ce0 786dac17b4 799d874891 7ade5c61ae 7b9b372525 7c11d815cc 7c7f0f6363 7cc7356ba2 7d2fedce99 7d994ba750 7f07d6f9ac 7f3518112f 80509f6ec9 80ddee5e5a 828f4805b4 82a5e7b5ba 831ffbd5f3 836754bd64 836890fc20 8384222882 8405c46048 841f69c4a7 844098e40d 85bb381ba0 864b727b11 86b0101ea4 86fddf66c9 8706ecfa1a 8798657a30 8834354bb3 88749f9269 890ac3b9c3 8b458f92e0 8b4fb9e3d1 8b9d182fed 8bf0527735 8bf0e2fb6c 8c307e7da5 8c5fdacc41 8d5b40b874 8df18b87d6 8f176f2aae 8f9b8334c0 8ff6637430 90a343fbb5 92d21d0ff3 93198080a2 937876ee35 93fcec7f62 943600f945 947c5536d5 94bfd244f7 95f64254db 977dffe2ad 98d9302c02 9aad527ca8 9b1ce89f67 9bbc4302d6 9f76095f41 9f901baf05 9fc6867abc a0930d6fce a099a561fc a10bcd4fb1 a19c10d8a4 a1fad20a03 a2097d264f a448caa6b3 a45c430a36 a57b1c716a a5b407995d a5b64cf63c a628de82ac a697be782a a75cb62983 a87e62408d a9b7b6f624 a9fcbaed88 aa12cec4ab aa3f861c54 aa6b201608 aa8079afdb ab0308f010 abaf7c81d1 acfc2b800f ad18e30893 ad831493af adaf8d34ef aeac527303 af37b15be5 af9673b700 afc117012e afca17b46a b0558de03b b0f5d93186 b16ffbe6bf b29b392378 b2c3cd0afc b2c7d7a638 b330990e97 b359cbe860 b4e989bbd8 b53f80ab49 b5a67589db b5c7ad72f7 b5eb7f678b b5f177df3b b62c488358 b63fa634db b65bdefb73 b809e5dd54 b827ba1932 b84b3c5f30 b87cf7b4d9 b902d80013 b976c1f063 bb74d48ce9 bba0a26788 bc4bbc54c1 be384b3f01 c04331f7b3 c074724daf c0a420a4c2 c1ba66d66c c1c6a178b9 c2573ff10b c2eab6744e c43a947e1f c4d79855cd c58a8c3208 c58d4beabe c605ee4af8 c667fdd705 c79c046d63 c8e7729f19 c93861262f c96ecb7772 c9c0c072a0 ca5f5d1e7c cb6eb3751b cdfbf6ea68 ce54992936 ce8e0f269c ceb5ee4f5e cf95ec54b2 d19992b937 d2188c9243 d227ed0834 d29c0fcf60 d2ed97deef d351c96759 d4c409882d d52d571f65 d55e2d5064 d6383d6731 d66cd5562d d71b493a63 d7838a4470 d7da367e00 d86157857e d90bb4e21d da300fdd86 da64b10e0d da74f7a3d8 dac64cf5b6 daca6e2ef3 dafaab470f db3462731d db76854e2a dd25ac4111 dd79dd2b9d de7ef7b5f8 ded393e470 df3b5c7df4 df82b74a84 dfa7bb8a01 dfca696262 e2850c6c34 e2f752ccf6 e3964a8c6b e40199f395 e5036b073f e5de73e7b7 e5ecd0fd5f e6839fcd2a e6893b2ccd e86923b3d9 e8cb9811d0 e9afddaf6c ea1f640946 ebafb1ee3c ec1fcfb0d9 ec2bb6e2b1 ec81e03754 ed5f58a1e7 ed892b71f3 ef58de39de ef65e9a02a f215a102a6 f2f5b424a7 f30c3ee47e f31afb623e f447305c83 f48daa0b15 f6f3ab9ed7 f71a987b4e f7380314a4 f9e4afcc01 fb8cf08750 fbf49620bf fc8e300906 fcaeb43357 fcd772d39d fd1af5b6b0 fd73f07600 fddb416874 fe3d5b1f57 fe764174df fe8e52a240 ff7bd2dc7f",
+  "every": "005dff7e02 0062438fd7 0073d3fd8e 01908c2e0f 01be8d029b 01d425e8fd 0243cbb70a 028f699ae8 034fe85c02 03f74a86a4 048928f619 055e27db9b 0575dc39e7 069add9965 08217464f3 0889747afa 0894e10815 08cb9a4439 0967ff83fa 09bbf70ec2 09d9237a27 0a48a5108d 0a551bb712 0ab1006e08 0b2adb2841 0c59a79bb6 0c6aa898eb 0c82b5a14d 0e2547f3f4 0e41bf8645 0e5d4bde3d 0ed3edb4fd 0ef0e8ec91 10006cd842 1035f55569 11e07ed6ab 12b752d575 12d46f9e10 1342564d52 1371663c52 13dc2111f7 1416ac14af 14330b3ede 143d9bdd9c 1449c3d276 14b4c26c66 1541757f27 154988cc66 15acbc1448 15b50c9bc1 160f937800 16b9b8a86f 17c2102a88 184cbc5a1b 18aa1bbdb6 18c55ac60e 1915778f79 1948dcb65f 19794b3058 1a91727c2d 1b1147f2aa 1d1f095949 1d2fef1ae4 1d815c45dd 1e5d942d1c 1e62cd1fe7 1e8e38409f 1e9967c894 1eac524f53 1ef836feeb 1f233b359b 1f5efcfb9f 20f2a3f454 22756f9321 23683d3f55 2558db1414 2832ca187b 287afbf0a1 287b156308 28b034de2d 28c305ea0f 29b32374d4 2a0f059819 2a576310eb 2a9c8676af 2acf6a6f42 2af5bc9d26 2b366f006c 2c097ece30 2c0b28fc2a 2cc302186f 2d499ceb1f 2e1f067d23 2f24a48243 31628c5639 31662cec9d 3188d64f63 32acfca264 33e3abab48 356795e7aa 35b53f9d09 3660b36108 36798f2784 36a116a847 36b0aac9c0 36b0c70070 36f401d069 37230c53fb 387f0f6a68 39214bfa86 3929196ac9 39b0f6b985 39bc724c88 39c606cb57 3a145457f1 3a791a728a 3bd4ae8c79 3c45fa0102 3c5e5aba34 3cbb01e455 3d1b9c978d 3e7459281d 3f2902b2e0 40d2cdcf4c 40d64951f5 40ee3016eb 41d5bbcb09 41d9c97a18 42353e23f7 4374fb1783 43851e5fcf 439d901836 43a21d2c67 43c9c706b6 444ca0fcff 446952b023 44eb38d4c4 4685da267c 47165d34cb 478d5ca44e 487da79e03 4ad569b9df 4c45a3586d 4fbdaa5a66 4ff85a534d 504685a02e 50b60ffeaa 515ab96566 518b2ea428 51cc7c92fa 521d1da316 5278291529 545e0cfbe3 5483abd3ad 550f6c9f0d 555ba4a883 562b3669c1 56539acd8b 56ec4d3e6e 593086248b 5b61264b1e 5bcf27c3fd 5be456a489 5be472e368 5c19738265 5d4eae2bc1 5df2654b63 61393579ab 618f89660e 6371503757 63d529194b 63d81a451b 6469e0c541 64cef86ca8 64f1d55f76 65525918de 65cfc80ef3 65e08b8065 66278916f3 66389ba048 67071289b3 678f0eb9b3 67e3a297f4 69010d61eb 698ffd7d28 6acb97117f 6d3ac63c1d 6d9ac748d9 6e48882415 6ea67dcd35 6fc90a4a35 7018a3e6fe 70e8e06971 712e6e3246 719a9445b3 725918d53d 7301770862 73536af1a0 7383ce7f0c 74bbc98981 7509e2feb4 766d948ce0 786dac17b4 799d874891 7ade5c61ae 7b9b372525 7c11d815cc 7c7f0f6363 7cc7356ba2 7d2fedce99 7d994ba750 7f07d6f9ac 7f3518112f 80509f6ec9 80ddee5e5a 828f4805b4 82a5e7b5ba 831ffbd5f3 836754bd64 836890fc20 8384222882 8405c46048 841f69c4a7 844098e40d 85bb381ba0 864b727b11 86b0101ea4 86fddf66c9 8706ecfa1a 8798657a30 8834354bb3 88749f9269 890ac3b9c3 8b458f92e0 8b4fb9e3d1 8b9d182fed 8bf0527735 8bf0e2fb6c 8c307e7da5 8c5fdacc41 8d5b40b874 8df18b87d6 8f176f2aae 8f9b8334c0 8ff6637430 90a343fbb5 92d21d0ff3 93198080a2 937876ee35 93fcec7f62 943600f945 947c5536d5 94bfd244f7 95f64254db 977dffe2ad 98d9302c02 9aad527ca8 9b1ce89f67 9bbc4302d6 9f76095f41 9f901baf05 9fc6867abc a0930d6fce a099a561fc a10bcd4fb1 a19c10d8a4 a1fad20a03 a2097d264f a448caa6b3 a45c430a36 a57b1c716a a5b407995d a5b64cf63c a628de82ac a697be782a a75cb62983 a87e62408d a9b7b6f624 a9fcbaed88 aa12cec4ab aa3f861c54 aa6b201608 aa8079afdb ab0308f010 abaf7c81d1 acfc2b800f ad18e30893 ad831493af adaf8d34ef aeac527303 af37b15be5 af9673b700 afc117012e afca17b46a b0558de03b b0f5d93186 b16ffbe6bf b29b392378 b2c3cd0afc b2c7d7a638 b330990e97 b359cbe860 b4e989bbd8 b53f80ab49 b5a67589db b5c7ad72f7 b5eb7f678b b5f177df3b b62c488358 b63fa634db b65bdefb73 b809e5dd54 b827ba1932 b84b3c5f30 b87cf7b4d9 b902d80013 b976c1f063 bb74d48ce9 bba0a26788 bc4bbc54c1 be384b3f01 c04331f7b3 c074724daf c0a420a4c2 c1ba66d66c c1c6a178b9 c2573ff10b c2eab6744e c43a947e1f c4d79855cd c58a8c3208 c58d4beabe c605ee4af8 c667fdd705 c79c046d63 c8e7729f19 c93861262f c96ecb7772 c9c0c072a0 ca5f5d1e7c cb6eb3751b cdfbf6ea68 ce54992936 ce8e0f269c ceb5ee4f5e cf95ec54b2 d19992b937 d2188c9243 d227ed0834 d29c0fcf60 d2ed97deef d351c96759 d4c409882d d52d571f65 d55e2d5064 d6383d6731 d66cd5562d d71b493a63 d7838a4470 d7da367e00 d86157857e d90bb4e21d da300fdd86 da64b10e0d da74f7a3d8 dac64cf5b6 daca6e2ef3 dafaab470f db3462731d db76854e2a dd25ac4111 dd79dd2b9d de7ef7b5f8 ded393e470 df3b5c7df4 df82b74a84 dfa7bb8a01 dfca696262 e2850c6c34 e2f752ccf6 e3964a8c6b e40199f395 e5036b073f e5de73e7b7 e5ecd0fd5f e6839fcd2a e6893b2ccd e86923b3d9 e8cb9811d0 e9afddaf6c ea1f640946 ebafb1ee3c ec1fcfb0d9 ec2bb6e2b1 ec81e03754 ed5f58a1e7 ed892b71f3 ef58de39de ef65e9a02a f215a102a6 f2f5b424a7 f30c3ee47e f31afb623e f447305c83 f48daa0b15 f6f3ab9ed7 f71a987b4e f7380314a4 f9e4afcc01 fb8cf08750 fbf49620bf fc8e300906 fcaeb43357 fcd772d39d fd1af5b6b0 fd73f07600 fddb416874 fe3d5b1f57 fe764174df fe8e52a240 ff7bd2dc7f",
   "refreshed": {
    "from": "2026-11-05",
-   "survivors_rerun": 126,
-   "fresh": 0,
-   "stale": [
-    "survivors"
-   ]
+   "survivors_rerun": 0,
+   "fresh": 2,
+   "stale": []
   }
  }
 }

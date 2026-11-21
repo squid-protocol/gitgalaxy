@@ -5,19 +5,19 @@
  "case": "cruc-ca-channel-containers-callee",
  "entry": {
   "program": "CACHSUB",
-  "commit": "bb18d41b95cbfa4536cb8d88c9cbe56eee71ce48",
-  "date": "2026-11-13",
+  "commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef+uncommitted",
+  "date": "2026-11-21",
   "mode": "fast",
   "seed": 0,
-  "mutants": 507,
+  "mutants": 495,
   "out_of_scope": 6,
-  "chosen": 150,
+  "chosen": 145,
   "coverage": "proven on 1 scenario, covering 4/4 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 57,
+   "killed": 56,
    "timeout": 0,
-   "survived": 88,
-   "stillborn": 5,
+   "survived": 85,
+   "stillborn": 4,
    "error": 0,
    "pending": 0
   },
@@ -44,7 +44,6 @@
    "55f0151280",
    "57f48ffbd6",
    "582fc08152",
-   "5e3fc2a704",
    "60ad54a452",
    "61b8bf3dc2",
    "62088ca7a1",
@@ -84,7 +83,6 @@
    "38083b3251",
    "483f17667f",
    "537d6e5187",
-   "a84351672a",
    "aed42e6505"
   ],
   "survived": [
@@ -92,7 +90,7 @@
     "id": "c16791092b",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 37,
+    "line": 40,
     "before": "\"ICAgICAgICAgICAgICAgIA==\"));",
     "after": "\"XCAgICAgICAgICAgICAgIA==\"));"
    },
@@ -100,7 +98,7 @@
     "id": "f13f9756bd",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 39,
+    "line": 42,
     "before": "\"ICAgICAgICAgICAgICAgICAgICA=\"));",
     "after": "\"XCAgICAgICAgICAgICAgICAgICA=\"));"
    },
@@ -108,7 +106,7 @@
     "id": "3052ef1020",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 47,
+    "line": 50,
     "before": "\"ICAgIDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgIA==\"));",
     "after": "\"XCAgIDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgIA==\"));"
    },
@@ -116,7 +114,7 @@
     "id": "da3f89c40a",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 51,
+    "line": 54,
     "before": "\"AAA=\"));",
     "after": "\"XAA=\"));"
    },
@@ -124,7 +122,7 @@
     "id": "f2adc60e14",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 74,
+    "line": 77,
     "before": "private final Field f18_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
     "after": "private final Field f18_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
    },
@@ -132,7 +130,7 @@
     "id": "3a00e2b484",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 75,
+    "line": 78,
     "before": "private final Field f19_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
     "after": "private final Field f19_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
    },
@@ -140,7 +138,7 @@
     "id": "f9e914eca0",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 95,
+    "line": 98,
     "before": "if (task.level() > 1) {",
     "after": "if (!(task.level() > 1)) {"
    },
@@ -148,7 +146,7 @@
     "id": "56b206d2ba",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 95,
+    "line": 98,
     "before": "if (task.level() > 1) {",
     "after": "if (task.level() >= 1) {"
    },
@@ -156,7 +154,7 @@
     "id": "eae4820d0d",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 95,
+    "line": 98,
     "before": "if (task.level() > 1) {",
     "after": "if (task.level() <= 1) {"
    },
@@ -164,7 +162,7 @@
     "id": "1cbe0bb654",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 101,
+    "line": 104,
     "before": "@SuppressWarnings(\"unchecked\")",
     "after": "@SuppressWarnings(\"Xnchecked\")"
    },
@@ -172,7 +170,7 @@
     "id": "18d5aba037",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 103,
+    "line": 106,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
    },
@@ -180,7 +178,7 @@
     "id": "bbbbd2b520",
     "op": "COR",
     "file": "service/CachsubService.java",
-    "line": 103,
+    "line": 106,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
    },
@@ -188,7 +186,7 @@
     "id": "4a72d90c21",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 106,
+    "line": 109,
     "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
     "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
    },
@@ -196,7 +194,7 @@
     "id": "cd438add9c",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 111,
+    "line": 114,
     "before": "java.util.Map.entry(\"LOG-RESP\", 2),",
     "after": "java.util.Map.entry(\"LOG-RESP\", 3),"
    },
@@ -204,71 +202,15 @@
     "id": "a0cec2e438",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 113,
+    "line": 116,
     "before": "java.util.Map.entry(\"SUB-MAIN\", 0)",
     "after": "java.util.Map.entry(\"XUB-MAIN\", 0)"
-   },
-   {
-    "id": "197350531b",
-    "op": "NEG",
-    "file": "service/CachsubService.java",
-    "line": 118,
-    "before": "if (i == null) {",
-    "after": "if (!(i == null)) {"
-   },
-   {
-    "id": "43c3ae3cc0",
-    "op": "LIT",
-    "file": "service/CachsubService.java",
-    "line": 119,
-    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
-   },
-   {
-    "id": "29d4a5121f",
-    "op": "NEG",
-    "file": "service/CachsubService.java",
-    "line": 134,
-    "before": "if (DetCics.ignoredByDefault(cond)) {",
-    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
-   },
-   {
-    "id": "1013df853b",
-    "op": "LIT",
-    "file": "service/CachsubService.java",
-    "line": 137,
-    "before": "Integer error = handlers.get(\"ERROR\");",
-    "after": "Integer error = handlers.get(\"XRROR\");"
-   },
-   {
-    "id": "6090d271f9",
-    "op": "ROR",
-    "file": "service/CachsubService.java",
-    "line": 138,
-    "before": "if (error != null) {",
-    "after": "if (error == null) {"
-   },
-   {
-    "id": "0d4e791c11",
-    "op": "ROR",
-    "file": "service/CachsubService.java",
-    "line": 142,
-    "before": "if (label == null) {",
-    "after": "if (label != null) {"
-   },
-   {
-    "id": "9cd3293431",
-    "op": "ROR",
-    "file": "service/CachsubService.java",
-    "line": 149,
-    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
-    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
    },
    {
     "id": "b51a4fdd53",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 160,
+    "line": 140,
     "before": "System.arraycopy(IMAGE_s_WS_AREA, 0, s_WS_AREA.bytes, 0, IMAGE_s_WS_AREA.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_AREA, 0, s_WS_AREA.bytes, 0, IMAGE_s_WS_AREA.length); */"
    },
@@ -276,7 +218,7 @@
     "id": "b644d600fe",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 162,
+    "line": 142,
     "before": "System.arraycopy(IMAGE_s_WS_BIN, 0, s_WS_BIN.bytes, 0, IMAGE_s_WS_BIN.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_BIN, 0, s_WS_BIN.bytes, 0, IMAGE_s_WS_BIN.length); */"
    },
@@ -284,7 +226,7 @@
     "id": "4e8561b056",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 169,
+    "line": 149,
     "before": "f8_WS_RESP2 = 0L;",
     "after": "/* f8_WS_RESP2 = 0L; */"
    },
@@ -292,7 +234,7 @@
     "id": "164ca2eea0",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 199,
+    "line": 179,
     "before": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -300,7 +242,7 @@
     "id": "82516c70d7",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 199,
+    "line": 179,
     "before": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -308,7 +250,7 @@
     "id": "8144ead28d",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 199,
+    "line": 179,
     "before": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -316,7 +258,7 @@
     "id": "99070d5b8a",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 199,
+    "line": 179,
     "before": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f17_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -324,7 +266,7 @@
     "id": "e230f1b700",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 200,
+    "line": 180,
     "before": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -332,7 +274,7 @@
     "id": "a04835b56d",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 200,
+    "line": 180,
     "before": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -340,7 +282,7 @@
     "id": "0a04f8e8d6",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 200,
+    "line": 180,
     "before": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -348,7 +290,7 @@
     "id": "3554d97d83",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 200,
+    "line": 180,
     "before": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -356,7 +298,7 @@
     "id": "727d3d44a3",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 200,
+    "line": 180,
     "before": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f16_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
    },
@@ -364,31 +306,15 @@
     "id": "341685c68b",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 201,
+    "line": 181,
     "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
     "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
-   },
-   {
-    "id": "5673a7d616",
-    "op": "CON",
-    "file": "service/CachsubService.java",
-    "line": 207,
-    "before": "calen = cx(task, 20);",
-    "after": "calen = cx(task, 21);"
-   },
-   {
-    "id": "379b5706f9",
-    "op": "CON",
-    "file": "service/CachsubService.java",
-    "line": 211,
-    "before": "calen = cx(task, 16);",
-    "after": "calen = cx(task, 17);"
    },
    {
     "id": "811583a05a",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 212,
+    "line": 192,
     "before": "} else if (ca instanceof CaboffWsPre) {",
     "after": "} else if (!(ca instanceof CaboffWsPre)) {"
    },
@@ -396,7 +322,7 @@
     "id": "098f69f5f5",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 224,
+    "line": 204,
     "before": "} else if (ca instanceof CachanWsReq) {",
     "after": "} else if (!(ca instanceof CachanWsReq)) {"
    },
@@ -404,7 +330,7 @@
     "id": "16a35b6d77",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 230,
+    "line": 210,
     "before": "} else if (ca instanceof CachxbWsOwn) {",
     "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
    },
@@ -412,55 +338,15 @@
     "id": "ef8616a940",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 232,
+    "line": 212,
     "before": "} else if (ca instanceof CagcstWsPtr) {",
     "after": "} else if (!(ca instanceof CagcstWsPtr)) {"
-   },
-   {
-    "id": "3af17f1d95",
-    "op": "DEL",
-    "file": "service/CachsubService.java",
-    "line": 233,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
-   },
-   {
-    "id": "2f80e384f7",
-    "op": "DEL",
-    "file": "service/CachsubService.java",
-    "line": 235,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
-   },
-   {
-    "id": "cf55056031",
-    "op": "CON",
-    "file": "service/CachsubService.java",
-    "line": 235,
-    "before": "calen = cx(task, 8);",
-    "after": "calen = cx(task, 9);"
-   },
-   {
-    "id": "381b6d24bc",
-    "op": "DEL",
-    "file": "service/CachsubService.java",
-    "line": 239,
-    "before": "calen = cx(task, 30);",
-    "after": "/* calen = cx(task, 30); */"
-   },
-   {
-    "id": "8b93fcefdb",
-    "op": "DEL",
-    "file": "service/CachsubService.java",
-    "line": 241,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
    },
    {
     "id": "3d97ca7432",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 242,
+    "line": 226,
     "before": "} else if (ca instanceof PcrcaWsModify) {",
     "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
    },
@@ -468,7 +354,7 @@
     "id": "57ba94dcb3",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 244,
+    "line": 228,
     "before": "} else if (ca instanceof PcrcbWsExtra) {",
     "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
    },
@@ -476,39 +362,23 @@
     "id": "f87655d72e",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 248,
+    "line": 232,
     "before": "} else if (ca instanceof PcrcbWsNew2) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
-   },
-   {
-    "id": "f3160a64dc",
-    "op": "CON",
-    "file": "service/CachsubService.java",
-    "line": 249,
-    "before": "calen = cx(task, 8);",
-    "after": "calen = cx(task, 9);"
    },
    {
     "id": "eab644632e",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 250,
+    "line": 234,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
-   },
-   {
-    "id": "18351966b8",
-    "op": "DEL",
-    "file": "service/CachsubService.java",
-    "line": 251,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
    },
    {
     "id": "475f2063fd",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 273,
+    "line": 257,
     "before": "throw new UnsupportedOperationException(\"handleLink: the program has no task facade (a channel program); it runs as runTask\");",
     "after": "throw new UnsupportedOperationException(\"XandleLink: the program has no task facade (a channel program); it runs as runTask\");"
    },
@@ -516,7 +386,7 @@
     "id": "0f5a533b42",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 282,
+    "line": 266,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -524,7 +394,7 @@
     "id": "054853fd08",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 287,
+    "line": 271,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -532,7 +402,7 @@
     "id": "573e57f466",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 307,
+    "line": 291,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -540,7 +410,7 @@
     "id": "c7c60040b6",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 320,
+    "line": 304,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -548,7 +418,7 @@
     "id": "74d9cf8c4f",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 320,
+    "line": 304,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -556,7 +426,7 @@
     "id": "c7d418b641",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 320,
+    "line": 304,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -564,7 +434,7 @@
     "id": "cffb2ed03b",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 321,
+    "line": 305,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -572,7 +442,7 @@
     "id": "51d309edb3",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 321,
+    "line": 305,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -580,7 +450,7 @@
     "id": "9cd35cf7f9",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 326,
+    "line": 310,
     "before": "if (next >= 4) {",
     "after": "if (next > 4) {"
    },
@@ -588,7 +458,7 @@
     "id": "94bcf601b9",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 332,
+    "line": 316,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -596,7 +466,7 @@
     "id": "ce706fdd20",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 346,
+    "line": 330,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -604,7 +474,7 @@
     "id": "05275d374c",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 353,
+    "line": 337,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 0, 4, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f9_WS_LOG.storage(), f9_WS_LOG.offset() - 0, 4, false), CS);"
    },
@@ -612,7 +482,7 @@
     "id": "dcb7b274ed",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 356,
+    "line": 340,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 10, 5, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 11, 5, 0, false, false, false), CS);"
    },
@@ -620,7 +490,7 @@
     "id": "fa7d647a23",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 356,
+    "line": 340,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 10, 5, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 10, 5, 1, false, false, false), CS);"
    },
@@ -628,7 +498,7 @@
     "id": "0a5850dca0",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 373,
+    "line": 357,
     "before": "if (cont1.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont1.length()), 8, true, false, CS);",
     "after": "if (cont1.length() >= 1) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont1.length()), 8, true, false, CS);"
    },
@@ -636,7 +506,7 @@
     "id": "67dc0cda91",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 373,
+    "line": 357,
     "before": "if (cont1.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont1.length()), 8, true, false, CS);",
     "after": "if (cont1.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont1.length()), 9, true, false, CS);"
    },
@@ -644,7 +514,7 @@
     "id": "8b1f7d6a68",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 376,
+    "line": 360,
     "before": "f7_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(cont1.resp())), 8, true, false, CS);",
     "after": "/* f7_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(cont1.resp())), 8, true, false, CS); */"
    },
@@ -652,7 +522,7 @@
     "id": "df0a9ad590",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 377,
+    "line": 361,
     "before": "f8_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(cont1.resp2()), 8, true, false, CS);",
     "after": "/* f8_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(cont1.resp2()), 8, true, false, CS); */"
    },
@@ -660,7 +530,7 @@
     "id": "99e05db729",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 391,
+    "line": 375,
     "before": "if (cont2.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont2.length()), 8, true, false, CS);",
     "after": "if (cont2.length() > 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont2.length()), 8, true, false, CS);"
    },
@@ -668,7 +538,7 @@
     "id": "b478fc6f42",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 391,
+    "line": 375,
     "before": "if (cont2.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont2.length()), 8, true, false, CS);",
     "after": "if (cont2.length() >= 1) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont2.length()), 8, true, false, CS);"
    },
@@ -676,7 +546,7 @@
     "id": "7612176c2e",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 406,
+    "line": 390,
     "before": "if (cont3.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont3.length()), 8, true, false, CS);",
     "after": "if (cont3.length() > 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont3.length()), 8, true, false, CS);"
    },
@@ -684,7 +554,7 @@
     "id": "4a0350a99c",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 422,
+    "line": 406,
     "before": "if (cont4.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);",
     "after": "if (!(cont4.length() >= 0)) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);"
    },
@@ -692,7 +562,7 @@
     "id": "769ec50eb4",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 422,
+    "line": 406,
     "before": "if (cont4.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);",
     "after": "if (cont4.length() > 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);"
    },
@@ -700,7 +570,7 @@
     "id": "ea1bb84220",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 422,
+    "line": 406,
     "before": "if (cont4.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);",
     "after": "if (cont4.length() < 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);"
    },
@@ -708,7 +578,7 @@
     "id": "8609bf35b2",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 422,
+    "line": 406,
     "before": "if (cont4.length() >= 0) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);",
     "after": "if (cont4.length() >= 1) f6_WS_LEN = Cobol.binary(BigDecimal.valueOf(cont4.length()), 8, true, false, CS);"
    },
@@ -716,7 +586,7 @@
     "id": "7e787099a7",
     "op": "DEL",
     "file": "service/CachsubService.java",
-    "line": 425,
+    "line": 409,
     "before": "f7_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(cont4.resp())), 8, true, false, CS);",
     "after": "/* f7_WS_RESP = Cobol.binary(BigDecimal.valueOf(DetCics.resp(cont4.resp())), 8, true, false, CS); */"
    },
@@ -724,7 +594,7 @@
     "id": "463bd6ef59",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 434,
+    "line": 418,
     "before": "CicsTask.ContainerResult cont5 = task.getContainer(null, \"NOSUCH\".strip(), DetCics.containerLimit(f2_WS_AREA, 20));",
     "after": "CicsTask.ContainerResult cont5 = task.getContainer(null, \"XOSUCH\".strip(), DetCics.containerLimit(f2_WS_AREA, 20));"
    },
@@ -732,7 +602,7 @@
     "id": "7963cf01e9",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 445,
+    "line": 429,
     "before": "CicsTask.ContainerResult cont6 = task.getContainer(\"CAOTHER\".strip(), \"REQUEST\".strip(), DetCics.containerLimit(f2_WS_AREA, 20));",
     "after": "CicsTask.ContainerResult cont6 = task.getContainer(\"CAOTHER\".strip(), \"XEQUEST\".strip(), DetCics.containerLimit(f2_WS_AREA, 20));"
    },
@@ -740,7 +610,7 @@
     "id": "ce242f67e3",
     "op": "LIT",
     "file": "service/CachsubService.java",
-    "line": 479,
+    "line": 463,
     "before": "CicsTask.ContainerResult cont10 = task.deleteContainer(null, \"COUNT\".strip());",
     "after": "CicsTask.ContainerResult cont10 = task.deleteContainer(null, \"XOUNT\".strip());"
    },
@@ -748,7 +618,7 @@
     "id": "ca22873250",
     "op": "NEG",
     "file": "service/CachsubService.java",
-    "line": 533,
+    "line": 517,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -756,7 +626,7 @@
     "id": "051bef32c1",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 533,
+    "line": 517,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -764,7 +634,7 @@
     "id": "3976101a30",
     "op": "ROR",
     "file": "service/CachsubService.java",
-    "line": 533,
+    "line": 517,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -772,7 +642,7 @@
     "id": "c5aac7c8b7",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 533,
+    "line": 517,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -780,7 +650,7 @@
     "id": "0d881f06ed",
     "op": "AOR",
     "file": "service/CachsubService.java",
-    "line": 536,
+    "line": 520,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 0, 4, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f9_WS_LOG.storage(), f9_WS_LOG.offset() - 0, 4, false), CS);"
    },
@@ -788,26 +658,130 @@
     "id": "99d6f8f60d",
     "op": "CON",
     "file": "service/CachsubService.java",
-    "line": 538,
+    "line": 522,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 7, 3, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f9_WS_LOG.storage(), f9_WS_LOG.offset() + 8, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "07d3f2b9da",
+    "op": "CON",
+    "file": "service/CachsubService.java",
+    "line": 217,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "0c400448d5",
+    "op": "CON",
+    "file": "service/CachsubService.java",
+    "line": 195,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "1225ba0e02",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 205,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "1af23bd7f6",
+    "op": "CON",
+    "file": "service/CachsubService.java",
+    "line": 213,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "1c51b58e15",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 197,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "293cd1d534",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 209,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
+   },
+   {
+    "id": "29514a3afa",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 195,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "2a7f75d09c",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 187,
+    "before": "calen = DetCics.eibCalen(task, 20);",
+    "after": "/* calen = DetCics.eibCalen(task, 20); */"
+   },
+   {
+    "id": "3b9eff43d5",
+    "op": "CON",
+    "file": "service/CachsubService.java",
+    "line": 225,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "3fede7e0cb",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 235,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "3ffa8cfaa3",
+    "op": "CON",
+    "file": "service/CachsubService.java",
+    "line": 205,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "4086611e8f",
+    "op": "CON",
+    "file": "service/CachsubService.java",
+    "line": 201,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "46724f487a",
+    "op": "DEL",
+    "file": "service/CachsubService.java",
+    "line": 203,
+    "before": "calen = DetCics.eibCalen(task, 3);",
+    "after": "/* calen = DetCics.eibCalen(task, 3); */"
    }
   ],
   "inputs": {
-   "port": "39efc551ecf0ee7f3e9f4711e1041cfece487a8c68589963601c5d397c916a9c",
-   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
-   "generator": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
+   "port": "dd01ada07761b4c6a55f08451bc4f998e81ecbc3f14146521bde558b1f9a95d4",
+   "runtime": "2b8ed5f77c93ed0a93de604138ede8b212b82a5c2c2c71efbf66886e8367e9ed",
+   "generator": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
    "case": "53820dd0e549ba4518e97c5582b18b66d4a140722d539357dd1ab78e75eb80f7",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
+   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "01ab7c70202a3d7075387190dc64ccbe0ccc6ba7637360ab0b851b6159d3d2ee"
   },
   "components": {
    "generator": {
-    "generator:core": "14036b3dac86cb4bc53a23171455347ab95c84129749c8485ef13a3c90769d1a",
+    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
@@ -825,12 +799,12 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:cics": "7e00f67547797a34f2b15d5ae76f363d97c8896fdf5bef20550bebdda8e7de0d",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "c45ae5594627db649e15c4a883089dba946d2c33f84ce20cd317149f13161413",
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
    },
    "oracle": {
     "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
@@ -838,6 +812,12 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "0035471439 00c5e99540 00da656194 00ea4da50c 01d0d33215 01d6fcbda9 0249f7dda0 028e02575d 043b6d60bc 04922b4276 051bef32c1 05275d374c 054853fd08 07ca8e00b9 07eef4733d 08cff239a9 0942c23f8c 098f69f5f5 09dd455e03 0a04f8e8d6 0a5850dca0 0ae43fb666 0aff38cd25 0b27b3916f 0b31f20961 0b42dba652 0c7f3bf26a 0d4e791c11 0d881f06ed 0f5a533b42 1013df853b 102c0aff68 1346c15d29 13da20a1f4 13df34aa09 13e140bb48 164ca2eea0 169b553473 16a35b6d77 16ad66df08 16d1c88175 172b2e0aa0 175ae89a62 18351966b8 1863f79391 188a6c476d 18d5aba037 18e10fc651 1900abe2c0 196256b0de 197350531b 19cc64615a 19eb6f1311 1a05a0f1b9 1a233d566f 1b91aa1267 1bdcc3ea6d 1bde6f0f13 1c7771af75 1c90a82090 1cb1a9c711 1cbe0bb654 1dce1dc171 1e51e322b3 1fcf013e19 201b811968 20c09c00e3 214bfed5b8 216585db9b 22bd355aa3 243c817256 24529a6b4d 2483254254 24bf3f8a89 25e5f3d7a6 276283a25f 284836d8f1 29c93cfc69 29d4a5121f 2a22ab8fa3 2a75a9da92 2af56fc2fe 2d6023ee73 2dea6d31ea 2e85a2d2a5 2f0e632064 2f80e384f7 300302d8bd 3052ef1020 341685c68b 344adec595 34ae656c04 3554d97d83 36b6733292 378bdb7479 37992a28b6 379b5706f9 37b3bd818c 37ea5883d2 38083b3251 381b6d24bc 38825c29b0 38a09b7fdd 3976101a30 3a00e2b484 3ae3358e43 3af17f1d95 3b5727bd9e 3d80c03fe8 3d97ca7432 3dd83dfdd5 3f28b09c9b 4065612b42 40cb023606 4164e40848 4306bbe6ef 4334b7f316 43c3ae3cc0 44cc5429e3 4561713eb1 45af0d6362 45bc2a6055 462d421095 463bd6ef59 4671aad5e1 469b648563 46e9fe3bfc 475f2063fd 47a84eaef8 47edd86c39 481cbadc7e 482c2aad61 483f17667f 48923e9cd3 49da1a0011 4a0350a99c 4a324de030 4a72d90c21 4ba0f9b764 4cdf315e20 4e8561b056 4eda8b7f85 4edf8dfca6 4f968f6585 4fe5715fc7 50f8d17522 50fa905d6d 5179c39cbe 51d309edb3 51fad89b15 52499b7b1f 529a1bf805 52c53edbd4 537d6e5187 5383f2a836 5596752a48 55abd4104b 55f0151280 562e779657 5673a7d616 56b206d2ba 56cab31e6f 56d65ba5f5 573e57f466 574ac5dc17 57ba94dcb3 57f48ffbd6 582fc08152 58e657b8f6 5934dee3ff 5983b2f406 59a305a1f7 5a3feef9f3 5b3c370385 5b63d61bf6 5bd55e69da 5bd8dc8cae 5d6f4f5758 5dd39bab03 5e3fc2a704 606460b610 6090d271f9 60ad54a452 6138201ad4 61514135d0 618ca4f670 61b8bf3dc2 62088ca7a1 62c5a42119 62c763217f 639de0d366 63b595a832 6433a07498 64922ba4c1 64ebbcac59 65bbacef52 66413b4d18 66a97c6649 67321e4332 67dc0cda91 67e2bf6177 68122fab35 693f8a530f 693f8d7eeb 698f100f3a 6a1eb319fd 6a88c8bf3d 6aad62eaa9 6ab1c65d06 6ab9112046 6b42780a2c 6ba0dd8a8a 6c3f8cfced 6ca217d501 6d8c656a1f 6e6e98cad4 6e83a4cbee 6e85b87b43 6e92997dbd 6eb929742a 6ee0d2eb7f 6f68671442 6f7c01a4bf 6fef4ed391 703466006c 707ab86f2e 715bef9979 718239408e 7182a9dd66 71cc339d84 7229cc353c 727d3d44a3 732a061289 738caee9b1 74d9cf8c4f 75d794e46c 7612176c2e 769ec50eb4 7736666a37 77b709e228 786dffd8a8 78c2f0394d 78f2b79473 7963cf01e9 799d6e5a65 7a314e5aeb 7a5769ac15 7b73f88fe6 7bce5cd904 7c2a1802de 7c4a42bd27 7d21045d5a 7da80d597b 7dcf8a7907 7deefd3530 7e787099a7 7ebc8a0331 7f23f65b47 7ff292f888 7ff78688c8 811583a05a 81418c069f 8144ead28d 8187322ad6 81a6659bb7 82516c70d7 82838c6afb 83c664241c 841538633b 8470ae9820 84a7e1360e 8609bf35b2 871fc1cb1c 87c564266c 8846df68f7 8855e4324c 88c75789fb 88f980335b 897c9cbcaf 8a3527c82a 8a48c5eed8 8a63df0d0a 8a969e3b80 8b1f7d6a68 8b93fcefdb 8c18984a98 8c206211a8 8c42a37efe 8c4bdeb48a 8c65876d30 8cd9ff9a39 8cfc667433 8d13819c80 8edb0eb51d 8f439a98bd 8fb723ec15 908a6d549b 9099d7451a 91fe260978 928d697084 92a524093d 92a8474fad 92ab501d94 9431feb3e7 945b1536b2 94bcf601b9 94c500c5dd 9798e6715e 97fd52a7ab 98bc5df610 99003bc52c 99070d5b8a 997b41f437 998020e78d 99d6f8f60d 99e05db729 9bea45e993 9c08ce94ec 9cb253ba87 9cd3293431 9cd35cf7f9 9e279994dc 9f2c78ee9b a02b968b12 a04835b56d a0cec2e438 a15776b109 a1a341ad19 a20a30565a a2242166fb a2fe47125b a33b3aefab a4284d36db a46c2c99b2 a4d7c151fb a5232e48a8 a54dcc44ed a56382e27a a563f0c288 a58e2c7cb5 a603612890 a7bdbe9481 a84351672a a9954b7ec8 a9981f6c60 aa38b7622a aafb5daef5 ab0d6d354a abacd9b049 acd29faa9e aed42e6505 aeda1b7fa0 afb9b1c437 aff4a01a0c b049a5a3f1 b1537b29ff b168ef4a73 b231ded18d b2849b9006 b2d4218ca9 b3f95119d7 b478fc6f42 b51a4fdd53 b644d600fe b6e4b91aea b7052896e7 b73c1709b8 b7b5976208 b7e619bfa6 b8262a2321 b856fc2792 b86b687c34 b90869c036 b9723d9f6e b98594e88c b9da4646a5 ba5cd550bc bb9b4572b0 bbbbd2b520 bc133550a2 bcad963568 be1d94d93a be95ea925e beb486b7e9 bf31493fc3 c05daeea37 c0f380b8fc c16791092b c17774ff51 c28a0fba9c c2e84f8bbd c325884caa c43ad503d9 c4629b03f0 c4f0466176 c5147c39dc c5aac7c8b7 c65bb93c85 c68c0eb447 c7790c7bad c7c60040b6 c7d418b641 c8b8c60387 c8d86d00f2 c9319f2846 c9a28f1d3d ca0a0d1593 ca22873250 ca3a5242e8 cbbf9dc772 cd438add9c ce242f67e3 ce706fdd20 cf55056031 cffb2ed03b d0fc7fc321 d21ec4c747 d269f0c891 d27223c2f3 d2851f59c1 d2d7c0238f d31de098b8 d3386db3cd d381a1394b d3845b7152 d4bd3f26e5 d597a160c4 d60f117352 d65962b5bd d76f3f5092 d84e657b42 d9b9030c16 da3f89c40a dabc2cdfc5 daef7e7299 db45778405 db66479cfe db721c7883 db77207c0e dc8b0ad35a dcb7b274ed dcff10eb69 de10345fdb de645840f6 df02e2c4d1 df0a9ad590 df1b525525 dff0674c77 e085675bd6 e1ecbede8e e1ed873d3f e230f1b700 e285bda74a e2e0c28336 e3bbd5c662 e3bcfa3ea1 e469e23823 e4b02d2a62 e4f113f41f e50f0aa3fd e5691feb2f e5ab72f02f e620f70782 e6b21ee3ba e9331e4c6a e96d8da01e e9873568f5 e9b948c6db ea1bb84220 ea381796a1 eab644632e eae4820d0d eb9b0fc0de ed8d56320c edadf276aa ee27692b88 ef8616a940 efb3780780 efb6201eee efe73ec131 f0ab8132dd f0fd44627c f13f9756bd f23ab0592a f2adc60e14 f3160a64dc f404fe4cc7 f40e89d4f3 f50e46efb6 f5e1760bcf f5ea12a229 f62f5916cd f676ab4360 f68bd7df5a f7036ceef8 f87655d72e f90d649814 f96cda0671 f9d6a27afc f9e914eca0 fa7d647a23 fb99d696cd fbd571f147 fc027fbfe8 fc831a55dd fec59cf467 ff8d1bcbf1"
+  "every": "0035471439 00da656194 00ea4da50c 01d0d33215 01d6fcbda9 0249f7dda0 028e02575d 043b6d60bc 04922b4276 051bef32c1 05275d374c 054853fd08 07ca8e00b9 07d3f2b9da 07eef4733d 08cff239a9 0942c23f8c 098f69f5f5 09dd455e03 0a04f8e8d6 0a5850dca0 0ae43fb666 0aff38cd25 0b31f20961 0b42dba652 0c400448d5 0c7f3bf26a 0d881f06ed 0f5a533b42 102c0aff68 1225ba0e02 13da20a1f4 13df34aa09 13e140bb48 164ca2eea0 169b553473 16a35b6d77 16ad66df08 16d1c88175 172b2e0aa0 175ae89a62 1863f79391 188a6c476d 18d5aba037 18e10fc651 1900abe2c0 196256b0de 19cc64615a 1a05a0f1b9 1a233d566f 1af23bd7f6 1b91aa1267 1bde6f0f13 1c51b58e15 1c7771af75 1c90a82090 1cbe0bb654 1dce1dc171 1e51e322b3 201b811968 214bfed5b8 216585db9b 22bd355aa3 24529a6b4d 2483254254 24bf3f8a89 25e5f3d7a6 276283a25f 284836d8f1 293cd1d534 29514a3afa 29c93cfc69 2a22ab8fa3 2a75a9da92 2a7f75d09c 2af56fc2fe 2d6023ee73 2dea6d31ea 2e85a2d2a5 2f0e632064 300302d8bd 3052ef1020 341685c68b 344adec595 34ae656c04 3554d97d83 36b6733292 378bdb7479 37992a28b6 37b3bd818c 37ea5883d2 38083b3251 38825c29b0 38a09b7fdd 3976101a30 3a00e2b484 3ae3358e43 3b5727bd9e 3b9eff43d5 3d80c03fe8 3d97ca7432 3dd83dfdd5 3f28b09c9b 3fede7e0cb 3ffa8cfaa3 4065612b42 4086611e8f 40cb023606 4164e40848 4306bbe6ef 4334b7f316 44cc5429e3 4561713eb1 45af0d6362 45bc2a6055 463bd6ef59 4671aad5e1 46724f487a 469b648563 475f2063fd 47a84eaef8 47edd86c39 481cbadc7e 482c2aad61 483f17667f 48923e9cd3 4a0350a99c 4a324de030 4a72d90c21 4ba0f9b764 4be19efe7f 4cdf315e20 4e67ea9a0f 4e8561b056 4edf8dfca6 4f968f6585 4fe5715fc7 50f8d17522 50fa905d6d 5179c39cbe 51d309edb3 51fad89b15 52499b7b1f 529a1bf805 52c53edbd4 537d6e5187 5383f2a836 5596752a48 55f0151280 56b206d2ba 56d65ba5f5 573e57f466 574ac5dc17 57ba94dcb3 57f48ffbd6 582fc08152 58e657b8f6 5934dee3ff 5a3feef9f3 5b3c370385 5b63d61bf6 5bd55e69da 5bd8dc8cae 5d6f4f5758 606460b610 60ad54a452 6138201ad4 61514135d0 618ca4f670 61b8bf3dc2 62088ca7a1 62c763217f 639de0d366 63b595a832 6433a07498 64922ba4c1 64ebbcac59 65bbacef52 66413b4d18 66a97c6649 67321e4332 67dc0cda91 67e2bf6177 68122fab35 687d7a71b4 68bb6b946e 693f8d7eeb 698f100f3a 6a88c8bf3d 6aad62eaa9 6ab1c65d06 6ab9112046 6b42780a2c 6ba0dd8a8a 6c3f8cfced 6ca217d501 6d8c656a1f 6e83a4cbee 6e85b87b43 6e92997dbd 6eb929742a 6ee0d2eb7f 6f68671442 6f7c01a4bf 6fab3ee6a2 6fef4ed391 707ab86f2e 70a41431a2 715bef9979 718239408e 7182a9dd66 71cc339d84 71dc95af4d 7229cc353c 727d3d44a3 732a061289 738caee9b1 74d9cf8c4f 75d794e46c 7612176c2e 769ec50eb4 7736666a37 77b709e228 786dffd8a8 78c2f0394d 78f2b79473 7963cf01e9 799d6e5a65 7a314e5aeb 7a5769ac15 7ad14ffd79 7b73f88fe6 7bce5cd904 7c2a1802de 7c4a42bd27 7d21045d5a 7da80d597b 7dcf8a7907 7deefd3530 7e787099a7 7ebc8a0331 7f23f65b47 7ff292f888 7ff78688c8 811583a05a 81418c069f 8144ead28d 8187322ad6 81a6659bb7 82516c70d7 82838c6afb 83c664241c 841538633b 8463e5a70b 8470ae9820 84a7e1360e 8609bf35b2 871fc1cb1c 87c564266c 8846df68f7 8855e4324c 88c75789fb 88f980335b 897c9cbcaf 8a3527c82a 8a48c5eed8 8a63df0d0a 8a969e3b80 8b1f7d6a68 8c18984a98 8c206211a8 8c42a37efe 8c4bdeb48a 8c65876d30 8cd9ff9a39 8cfc667433 8d13819c80 8e52328954 8edb0eb51d 8f439a98bd 908a6d549b 9099d7451a 91fe260978 92a524093d 92a8474fad 92ab501d94 9431feb3e7 945b1536b2 94bcf601b9 94c500c5dd 9798e6715e 98bc5df610 98d99899b5 99003bc52c 99070d5b8a 992655016f 997b41f437 998020e78d 9997b12e42 99d6f8f60d 99e05db729 9bea45e993 9c08ce94ec 9cb253ba87 9cd35cf7f9 9cf1f6cb84 9e279994dc 9faa5616dc a02b968b12 a04835b56d a0cec2e438 a15776b109 a1a341ad19 a20a30565a a2242166fb a293e3f556 a2fe47125b a33b3aefab a4284d36db a46c2c99b2 a4b37779a0 a4d7c151fb a5232e48a8 a54dcc44ed a56382e27a a58e2c7cb5 a6b36dca37 a7bdbe9481 a9954b7ec8 a9981f6c60 aa38b7622a aafb5daef5 ab0d6d354a abacd9b049 acd29faa9e aed42e6505 aeda1b7fa0 afb9b1c437 b049a5a3f1 b1537b29ff b168ef4a73 b231ded18d b3f95119d7 b478fc6f42 b51a4fdd53 b644d600fe b6e4b91aea b73c1709b8 b73f56a119 b7b5976208 b7e619bfa6 b8262a2321 b856fc2792 b90869c036 b9723d9f6e b98594e88c b9da4646a5 bb9b4572b0 bbabd06e58 bbbbd2b520 bc133550a2 bcad963568 bcc4881cf2 bd5b4ec6df be1d94d93a be95ea925e beb486b7e9 bf2dfd7159 bf31493fc3 c05daeea37 c0740184aa c16791092b c17774ff51 c28a0fba9c c2e84f8bbd c325884caa c43ad503d9 c4629b03f0 c4f0466176 c5147c39dc c5aac7c8b7 c65bb93c85 c68c0eb447 c7790c7bad c797e5ad3a c7c60040b6 c7d418b641 c8b8c60387 c8d86d00f2 c9319f2846 c95459f397 ca0a0d1593 ca22873250 cbbf9dc772 cd438add9c ce1c516f99 ce242f67e3 ce706fdd20 cffb2ed03b d0fc7fc321 d21ec4c747 d27223c2f3 d2851f59c1 d2d7c0238f d31de098b8 d3386db3cd d381a1394b d3845b7152 d3bbfdd193 d4bd3f26e5 d597a160c4 d76f3f5092 d84e657b42 d9b9030c16 da3f89c40a dabc2cdfc5 daef7e7299 db45778405 db66479cfe db721c7883 db77207c0e dc8b0ad35a dcb7b274ed dcff10eb69 de645840f6 df02e2c4d1 df0a9ad590 df1b525525 dff0674c77 e085675bd6 e17ce2a7d5 e17e390f40 e1ecbede8e e1ed873d3f e230f1b700 e285bda74a e2fa065d22 e3bbd5c662 e3bcfa3ea1 e469e23823 e4b02d2a62 e4f113f41f e50f0aa3fd e5691feb2f e5ab72f02f e620f70782 e6b21ee3ba e9331e4c6a e96d8da01e e9873568f5 e9b948c6db ea1bb84220 ea381796a1 eab644632e eac58b6722 eae4820d0d eb9b0fc0de ebe930a1f1 ecb1054c15 edadf276aa ee27692b88 ef8616a940 efb6201eee efe73ec131 f0ab8132dd f0fd44627c f13f9756bd f17cda4971 f23ab0592a f2adc60e14 f404fe4cc7 f40e89d4f3 f50e46efb6 f5e1760bcf f5ea12a229 f62f5916cd f676ab4360 f68bd7df5a f7036ceef8 f86c6ebd48 f87655d72e f9015e4bda f90d649814 f9d6a27afc f9e914eca0 fa7d647a23 fb99d696cd fbd571f147 fc027fbfe8 fc831a55dd fc877b255f fec59cf467 ff8d1bcbf1 ffbf5c0ef4 ffef4d6a67",
+  "refreshed": {
+   "from": "2026-11-13",
+   "survivors_rerun": 0,
+   "fresh": 13,
+   "stale": []
+  }
  }
 }

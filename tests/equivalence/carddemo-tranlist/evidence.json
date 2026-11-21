@@ -59,10 +59,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 27,
-   "sha256": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
+   "sha256": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "components": {
-    "harness:cics": "7e00f67547797a34f2b15d5ae76f363d97c8896fdf5bef20550bebdda8e7de0d",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "c45ae5594627db649e15c4a883089dba946d2c33f84ce20cd317149f13161413",
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
    }
   },
   "oracle": {
@@ -89,13 +89,13 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 143,
-   "sha256": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
+   "files": 146,
+   "sha256": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
-    "generator:core": "14036b3dac86cb4bc53a23171455347ab95c84129749c8485ef13a3c90769d1a",
+    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
@@ -113,8 +113,8 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    }
   },
   "corpus": {
@@ -198,10 +198,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "4354217930d6cdc549256e88dcb660d71bf486444118aae1def758690978fac1"
+  "digest": "86b50798baa388efc9b345d141b307a25d05ce5e99a743aa96b03bc853901abb"
  },
  "proof": {
-  "at": "2026-11-16T05:59:35Z",
+  "at": "2026-11-21T13:41:26Z",
   "verdict": "proven",
   "runs": 38,
   "fault_runs": 6,
@@ -601,8 +601,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "ab12fd2249215e5a605eb1a8f4e893ffe9212b16+uncommitted",
-  "inputs_digest": "4354217930d6cdc549256e88dcb660d71bf486444118aae1def758690978fac1"
+  "harness_commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef+uncommitted",
+  "inputs_digest": "86b50798baa388efc9b345d141b307a25d05ce5e99a743aa96b03bc853901abb"
  },
  "coverage": {
   "paragraphs": {
@@ -650,7 +650,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4354217930d6cdc549256e88dcb660d71bf486444118aae1def758690978fac1"
+  "inputs_digest": "86b50798baa388efc9b345d141b307a25d05ce5e99a743aa96b03bc853901abb"
  },
  "reach": {
   "entry_points": [

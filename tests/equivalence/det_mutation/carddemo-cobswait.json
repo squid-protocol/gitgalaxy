@@ -5,18 +5,18 @@
  "case": "carddemo-cobswait",
  "entry": {
   "program": "COBSWAIT",
-  "commit": "51bb6e65e35532ecf4bb7a7fdc46e91d1dbdf494",
-  "date": "2026-11-02",
+  "commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef+uncommitted",
+  "date": "2026-11-21",
   "mode": "fast",
   "seed": 0,
-  "mutants": 79,
+  "mutants": 81,
   "out_of_scope": 0,
-  "chosen": 79,
+  "chosen": 81,
   "coverage": "proven on 1 run, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
    "killed": 16,
    "timeout": 0,
-   "survived": 57,
+   "survived": 59,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -52,7 +52,7 @@
     "id": "84eed1104c",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 34,
+    "line": 36,
     "before": "private static final int GOTO = 1 << 20;",
     "after": "private static final int GOTO = 2 << 20;"
    },
@@ -60,7 +60,7 @@
     "id": "bfecf84992",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 34,
+    "line": 36,
     "before": "private static final int GOTO = 1 << 20;",
     "after": "private static final int GOTO = 1 << 21;"
    },
@@ -68,7 +68,7 @@
     "id": "e0304c1779",
     "op": "LIT",
     "file": "service/CobswaitService.java",
-    "line": 37,
+    "line": 40,
     "before": "\"AAAAAA==\"));",
     "after": "\"XAAAAA==\"));"
    },
@@ -76,7 +76,7 @@
     "id": "2aa499d34f",
     "op": "LIT",
     "file": "service/CobswaitService.java",
-    "line": 39,
+    "line": 42,
     "before": "\"ICAgICAgICA=\"));",
     "after": "\"XCAgICAgICA=\"));"
    },
@@ -84,7 +84,7 @@
     "id": "8f1ab664a0",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 46,
+    "line": 49,
     "before": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 0, false, false);",
     "after": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 9, 0, false, false);"
    },
@@ -92,7 +92,7 @@
     "id": "afa94ef3cf",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 46,
+    "line": 49,
     "before": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 0, false, false);",
     "after": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 1, false, false);"
    },
@@ -100,7 +100,7 @@
     "id": "5eb496db56",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 48,
+    "line": 51,
     "before": "private final Field f3_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
     "after": "private final Field f3_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
@@ -108,7 +108,7 @@
     "id": "6865643e57",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 63,
+    "line": 66,
     "before": "System.arraycopy(IMAGE_s_MVSWAIT_TIME, 0, s_MVSWAIT_TIME.bytes, 0, IMAGE_s_MVSWAIT_TIME.length);",
     "after": "/* System.arraycopy(IMAGE_s_MVSWAIT_TIME, 0, s_MVSWAIT_TIME.bytes, 0, IMAGE_s_MVSWAIT_TIME.length); */"
    },
@@ -116,7 +116,7 @@
     "id": "04115c9006",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 64,
+    "line": 67,
     "before": "System.arraycopy(IMAGE_s_PARM_VALUE, 0, s_PARM_VALUE.bytes, 0, IMAGE_s_PARM_VALUE.length);",
     "after": "/* System.arraycopy(IMAGE_s_PARM_VALUE, 0, s_PARM_VALUE.bytes, 0, IMAGE_s_PARM_VALUE.length); */"
    },
@@ -124,7 +124,7 @@
     "id": "7c58e7271b",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 65,
+    "line": 68,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -132,7 +132,7 @@
     "id": "eb2fab2c21",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 71,
+    "line": 74,
     "before": "initialState();",
     "after": "/* initialState(); */"
    },
@@ -140,7 +140,7 @@
     "id": "d6df09d790",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 72,
+    "line": 75,
     "before": "performDepth = 0;",
     "after": "/* performDepth = 0; */"
    },
@@ -148,7 +148,7 @@
     "id": "1a06c8cf18",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 72,
+    "line": 75,
     "before": "performDepth = 0;",
     "after": "performDepth = 1;"
    },
@@ -156,7 +156,7 @@
     "id": "b2a7caa8ae",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 74,
+    "line": 77,
     "before": "perform(0, 0);",
     "after": "/* perform(0, 0); */"
    },
@@ -164,7 +164,7 @@
     "id": "f0aee45ccc",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 74,
+    "line": 77,
     "before": "perform(0, 0);",
     "after": "perform(1, 0);"
    },
@@ -172,7 +172,7 @@
     "id": "048987447f",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 74,
+    "line": 77,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -180,7 +180,7 @@
     "id": "6a4c1bb845",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 87,
+    "line": 90,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -188,7 +188,7 @@
     "id": "30cde526fb",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 100,
+    "line": 103,
     "before": "initialState();",
     "after": "/* initialState(); */"
    },
@@ -196,7 +196,7 @@
     "id": "dfbb030334",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 102,
+    "line": 105,
     "before": "perform(0, 0);",
     "after": "/* perform(0, 0); */"
    },
@@ -204,7 +204,7 @@
     "id": "83082faa1f",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 102,
+    "line": 105,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -212,7 +212,7 @@
     "id": "2a57c7ded1",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 108,
+    "line": 111,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -220,7 +220,7 @@
     "id": "71ad6d91f9",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 109,
+    "line": 112,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -228,7 +228,7 @@
     "id": "9c2b1a9f09",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 114,
+    "line": 117,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -236,7 +236,7 @@
     "id": "4d578abe9f",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 115,
+    "line": 118,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -244,7 +244,7 @@
     "id": "96ee4cf51b",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 123,
+    "line": 126,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -252,7 +252,7 @@
     "id": "2762496f28",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 134,
+    "line": 137,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -260,7 +260,7 @@
     "id": "45d981d9b1",
     "op": "AOR",
     "file": "service/CobswaitService.java",
-    "line": 134,
+    "line": 137,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -268,7 +268,7 @@
     "id": "7d4f133d7d",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 134,
+    "line": 137,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -276,7 +276,7 @@
     "id": "bf830f2d17",
     "op": "AOR",
     "file": "service/CobswaitService.java",
-    "line": 136,
+    "line": 139,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -284,7 +284,7 @@
     "id": "1048fc4d85",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 141,
+    "line": 144,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -292,7 +292,7 @@
     "id": "7fe9ea9054",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 141,
+    "line": 144,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -300,7 +300,7 @@
     "id": "c6e8de525b",
     "op": "NEG",
     "file": "service/CobswaitService.java",
-    "line": 143,
+    "line": 146,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -308,7 +308,7 @@
     "id": "f72d982db9",
     "op": "NEG",
     "file": "service/CobswaitService.java",
-    "line": 144,
+    "line": 147,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -316,7 +316,7 @@
     "id": "def64962d0",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 144,
+    "line": 147,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -324,7 +324,7 @@
     "id": "1b99e3244f",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 145,
+    "line": 148,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -332,7 +332,7 @@
     "id": "b2f3e5e858",
     "op": "AOR",
     "file": "service/CobswaitService.java",
-    "line": 147,
+    "line": 150,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -340,7 +340,7 @@
     "id": "3f91f8d024",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 147,
+    "line": 150,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -348,7 +348,7 @@
     "id": "08a146075f",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 147,
+    "line": 150,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -356,7 +356,7 @@
     "id": "2a2986a15e",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 147,
+    "line": 150,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -364,7 +364,7 @@
     "id": "c07fb407cc",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 147,
+    "line": 150,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -372,7 +372,7 @@
     "id": "ec69799e79",
     "op": "AOR",
     "file": "service/CobswaitService.java",
-    "line": 147,
+    "line": 150,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -380,7 +380,7 @@
     "id": "a1a96e32d7",
     "op": "NEG",
     "file": "service/CobswaitService.java",
-    "line": 148,
+    "line": 151,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -388,7 +388,7 @@
     "id": "a72d28bc3e",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 148,
+    "line": 151,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -396,7 +396,7 @@
     "id": "1d707846d9",
     "op": "NEG",
     "file": "service/CobswaitService.java",
-    "line": 153,
+    "line": 156,
     "before": "if (next >= 1) {",
     "after": "if (!(next >= 1)) {"
    },
@@ -404,7 +404,7 @@
     "id": "248a2d2e66",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 153,
+    "line": 156,
     "before": "if (next >= 1) {",
     "after": "if (next < 1) {"
    },
@@ -412,7 +412,7 @@
     "id": "5e49251d51",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 153,
+    "line": 156,
     "before": "if (next >= 1) {",
     "after": "if (next > 1) {"
    },
@@ -420,7 +420,7 @@
     "id": "adb83dff6e",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 153,
+    "line": 156,
     "before": "if (next >= 1) {",
     "after": "if (next >= 2) {"
    },
@@ -428,7 +428,7 @@
     "id": "c5747d1e59",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 156,
+    "line": 159,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -436,7 +436,7 @@
     "id": "1301f18039",
     "op": "NEG",
     "file": "service/CobswaitService.java",
-    "line": 159,
+    "line": 162,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -444,7 +444,7 @@
     "id": "8a954c352c",
     "op": "ROR",
     "file": "service/CobswaitService.java",
-    "line": 159,
+    "line": 162,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -452,7 +452,7 @@
     "id": "ca1a19a3da",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 163,
+    "line": 166,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -460,7 +460,7 @@
     "id": "3d096ead81",
     "op": "LIT",
     "file": "service/CobswaitService.java",
-    "line": 170,
+    "line": 173,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -468,7 +468,7 @@
     "id": "98cd089a4e",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 177,
+    "line": 180,
     "before": "Accept.sysin(f2_PARM_VALUE, CS);",
     "after": "/* Accept.sysin(f2_PARM_VALUE, CS); */"
    },
@@ -476,7 +476,7 @@
     "id": "f1af8da18b",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 179,
+    "line": 182,
     "before": "Cobol.move(f2_PARM_VALUE, f1_MVSWAIT_TIME, CS);",
     "after": "/* Cobol.move(f2_PARM_VALUE, f1_MVSWAIT_TIME, CS); */"
    },
@@ -484,7 +484,7 @@
     "id": "ace2dc572a",
     "op": "DEL",
     "file": "service/CobswaitService.java",
-    "line": 181,
+    "line": 184,
     "before": "com.gitgalaxy.modernized.cobolrt.le.Mvswait.call(f1_MVSWAIT_TIME);",
     "after": "/* com.gitgalaxy.modernized.cobolrt.le.Mvswait.call(f1_MVSWAIT_TIME); */"
    },
@@ -492,7 +492,7 @@
     "id": "e54a783ccd",
     "op": "NEG",
     "file": "service/CobswaitService.java",
-    "line": 183,
+    "line": 186,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -500,30 +500,46 @@
     "id": "546721dea8",
     "op": "CON",
     "file": "service/CobswaitService.java",
-    "line": 184,
+    "line": 187,
     "before": "return 1;",
     "after": "return 2;"
+   },
+   {
+    "id": "32b5947661",
+    "op": "LIT",
+    "file": "service/CobswaitService.java",
+    "line": 37,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
+   },
+   {
+    "id": "34453a6349",
+    "op": "LIT",
+    "file": "service/CobswaitService.java",
+    "line": 35,
+    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
    }
   ],
   "inputs": {
-   "port": "7cc4463e695aad3d6d3b28cde98260741ffb86a1547c68feb890c5a25f9deca2",
-   "runtime": "b890b6e017021042ba93628dc1bce7ea501f673a92f49188d3b7520de34d04f9",
-   "generator": "895927d945508e398a6d23cb787fb979ec8c4e1ea3cbbe0b982accfe01101fe6",
+   "port": "45a723aa95c4392787b502cec3b0735a85c58baec4cc65c4df103b0a94e11e18",
+   "runtime": "a6090f02e1fae2edabf84b088ea78aa84e46ec5395b5189237a8db46cc97a916",
+   "generator": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
    "case": "8db07274e12789996742ab39265e84cc3ba1ce2d562e3f846d72a4014a49ba00",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "91c4bc501fb41da28f910c38277f76723eef7b7c3d3d629ca67bcbd3bb921ac8",
+   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
    "survivors": "31cd3980cbeb337fe07a96bc1d47c4f7f1f1d79556d82c976bc338cff3ef3fa2"
   },
   "components": {
    "generator": {
-    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
+    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
    },
    "oracle": {
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
@@ -531,6 +547,12 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "04115c9006 048987447f 0626e19446 06feebfc05 08a146075f 09cc06ac3e 0d98d0b4f7 1048fc4d85 1301f18039 1a06c8cf18 1b99e3244f 1d707846d9 248a2d2e66 2708f2b02e 2762496f28 2a2986a15e 2a57c7ded1 2aa499d34f 2d3dfcc0b2 30cde526fb 32510deab1 38dfed0e07 3d096ead81 3f91f8d024 45d981d9b1 4bdb44a7d3 4d578abe9f 509b38b836 546721dea8 560883584f 5e49251d51 5eb496db56 63cdea3265 6865643e57 6a4c1bb845 71ad6d91f9 7c58e7271b 7d4f133d7d 7fe9ea9054 83082faa1f 84eed1104c 8a954c352c 8f1ab664a0 90ff1af47f 96ee4cf51b 98cd089a4e 9c2b1a9f09 a1a96e32d7 a338a4e0fc a72d28bc3e a7b94dfbc6 ace2dc572a adb83dff6e afa94ef3cf b2a7caa8ae b2f3e5e858 bf830f2d17 bfecf84992 c07fb407cc c5747d1e59 c6e8de525b ca1a19a3da cfda46a38a d1add71580 d55976d123 d6df09d790 def64962d0 dfbb030334 e0304c1779 e54a783ccd eaa0482cf7 eb2fab2c21 ec69799e79 f0aee45ccc f1af8da18b f6f05ce06d f72d982db9 fa005480d7 fc0b08496e"
+  "every": "04115c9006 048987447f 0626e19446 06feebfc05 08a146075f 09cc06ac3e 0d98d0b4f7 1048fc4d85 1301f18039 1a06c8cf18 1b99e3244f 1d707846d9 248a2d2e66 2708f2b02e 2762496f28 2a2986a15e 2a57c7ded1 2aa499d34f 2d3dfcc0b2 30cde526fb 32510deab1 32b5947661 34453a6349 38dfed0e07 3d096ead81 3f91f8d024 45d981d9b1 4bdb44a7d3 4d578abe9f 509b38b836 546721dea8 560883584f 5e49251d51 5eb496db56 63cdea3265 6865643e57 6a4c1bb845 71ad6d91f9 7c58e7271b 7d4f133d7d 7fe9ea9054 83082faa1f 84eed1104c 8a954c352c 8f1ab664a0 90ff1af47f 96ee4cf51b 98cd089a4e 9c2b1a9f09 a1a96e32d7 a338a4e0fc a72d28bc3e a7b94dfbc6 ace2dc572a adb83dff6e afa94ef3cf b2a7caa8ae b2f3e5e858 bf830f2d17 bfecf84992 c07fb407cc c5747d1e59 c6e8de525b ca1a19a3da cfda46a38a d1add71580 d55976d123 d6df09d790 def64962d0 dfbb030334 e0304c1779 e54a783ccd eaa0482cf7 eb2fab2c21 ec69799e79 f0aee45ccc f1af8da18b f6f05ce06d f72d982db9 fa005480d7 fc0b08496e",
+  "refreshed": {
+   "from": "2026-11-02",
+   "survivors_rerun": 0,
+   "fresh": 2,
+   "stale": []
+  }
  }
 }

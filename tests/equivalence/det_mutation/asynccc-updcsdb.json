@@ -5,19 +5,19 @@
  "case": "asynccc-updcsdb",
  "entry": {
   "program": "UPDCSDB",
-  "commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
-  "date": "2026-11-14",
+  "commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef+uncommitted",
+  "date": "2026-11-21",
   "mode": "fast",
   "seed": 0,
-  "mutants": 204,
+  "mutants": 192,
   "out_of_scope": 6,
-  "chosen": 204,
+  "chosen": 192,
   "coverage": "proven on 2 scenarios, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 184,
+   "killed": 157,
    "timeout": 0,
-   "survived": 14,
-   "stillborn": 6,
+   "survived": 30,
+   "stillborn": 5,
    "error": 0,
    "pending": 0
   },
@@ -28,7 +28,6 @@
    "040c1a8d92",
    "046172a832",
    "04e17788fa",
-   "070fffa9ef",
    "08170ba08f",
    "0d44922dc6",
    "0d854a9a7c",
@@ -37,13 +36,11 @@
    "1145474bc1",
    "1414f4df86",
    "160e24de91",
-   "177dd7ea9f",
    "197238d2e5",
    "1e34cad6ca",
    "1ee3cf1def",
    "250518b532",
    "2b76398efa",
-   "2c70b76661",
    "2dd43a7638",
    "308a148fdd",
    "3296b30c0b",
@@ -69,29 +66,21 @@
    "4da427bdda",
    "4df0e80c80",
    "4e31e426a1",
-   "59f65f64e8",
-   "5aa308f11a",
    "5ae5aaafbc",
    "5cb7ae4b81",
    "5cd242a84e",
    "5cff651429",
    "5dcee5abb8",
-   "5f3d425301",
    "5fd5ba1da0",
    "621716c066",
    "640055e528",
-   "699ca5e96b",
    "6ab0640983",
    "6b5197f6a3",
-   "6cdc44b4a8",
    "6daae04845",
    "6f48ec6aca",
-   "7069746056",
    "70aa4bd31e",
-   "7254fa5110",
    "727e929c73",
    "74ca2f2444",
-   "74cbef6151",
    "7575b1a9a0",
    "77a1da6ca6",
    "78b140973f",
@@ -99,7 +88,6 @@
    "7adab60f06",
    "7b43aadddb",
    "7babce6644",
-   "7cac6b6cb0",
    "7e5095fc57",
    "7fd2739e23",
    "807c94d610",
@@ -107,11 +95,8 @@
    "87c163b251",
    "8850459d29",
    "887a323124",
-   "8a2e760a25",
    "8b29d76432",
-   "9102380672",
    "9583613a84",
-   "958d08bec4",
    "974df7ac77",
    "977928812f",
    "9932dc5527",
@@ -119,21 +104,16 @@
    "9d9598dcfe",
    "9fc7611033",
    "a037e8f6d6",
-   "a08ca8030e",
    "a1df64e291",
    "a1e116ad04",
-   "a300f78ba2",
    "a414b5d118",
    "a55688a7be",
-   "a57f30e5e3",
    "a7aaf93c8d",
    "a870de5e11",
    "a8b0c5901e",
    "a8be429a31",
-   "a972de764d",
    "a97ae3976e",
    "a9a278acdd",
-   "ab714123b9",
    "af2f8c467c",
    "b02c456fd4",
    "b034422619",
@@ -150,21 +130,18 @@
    "beac24576d",
    "bfc1394b35",
    "bff529c25f",
-   "c1c7079406",
    "c1ec775d1e",
    "c2b6d46dfa",
    "c2fe450398",
    "c3167e8aa5",
    "c37e3d5bc3",
    "c4d747d370",
-   "c6a318ec47",
    "c6f264a9f8",
    "c75fb18bcd",
    "c886f8a804",
    "c8c0bd83c7",
    "c957007ace",
    "c98e3bb05c",
-   "ca79a8c99e",
    "cde16c12be",
    "cf7b98fb17",
    "d3673ecd53",
@@ -186,14 +163,11 @@
    "eaf388f0b3",
    "eb157e6ea0",
    "ebdd8b4de1",
-   "ebf87610ab",
    "edfb124ea0",
    "efa6ddbfd9",
-   "f0294b84c1",
    "f02a02b350",
    "f10f843367",
    "f134a62b6d",
-   "f261aab95a",
    "f2982f3526",
    "f2e8e12a73",
    "f2ee32fd55",
@@ -204,23 +178,21 @@
    "fc99d5beda",
    "fce87806b5",
    "fe2abb8530",
-   "ff07b8f89b",
-   "ffce0475f7"
+   "ff07b8f89b"
   ],
   "stillborn": [
    "0420792c9d",
    "3cf14d9d26",
    "57312c0a72",
    "b154b64562",
-   "cbc5c418fe",
-   "de48bbc9d0"
+   "cbc5c418fe"
   ],
   "survived": [
    {
     "id": "6dbdf67791",
     "op": "DEL",
     "file": "service/UpdcsdbService.java",
-    "line": 295,
+    "line": 278,
     "before": "Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS);",
     "after": "/* Cobol.store(f41_EIBRESP2, BigDecimal.valueOf(planned1[1]), false, CS); */"
    },
@@ -228,7 +200,7 @@
     "id": "9947406a9b",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 294,
+    "line": 277,
     "before": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
     "after": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[1]), false, CS);"
    },
@@ -236,7 +208,7 @@
     "id": "aab5f00ebd",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 296,
+    "line": 279,
     "before": "if (planned1[0] != 0) {",
     "after": "if (planned1[1] != 0) {"
    },
@@ -244,23 +216,15 @@
     "id": "ffd5294f5c",
     "op": "DEL",
     "file": "service/UpdcsdbService.java",
-    "line": 294,
+    "line": 277,
     "before": "Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS);",
     "after": "/* Cobol.store(f40_EIBRESP, BigDecimal.valueOf(planned1[0]), false, CS); */"
-   },
-   {
-    "id": "3766113040",
-    "op": "DEL",
-    "file": "service/UpdcsdbService.java",
-    "line": 197,
-    "before": "calen = cx(task, task.linkArea().length);",
-    "after": "/* calen = cx(task, task.linkArea().length); */"
    },
    {
     "id": "49316f0ea6",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 196,
+    "line": 176,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 1 && task.linkArea() != null) {"
    },
@@ -268,7 +232,7 @@
     "id": "6b57a399c2",
     "op": "ROR",
     "file": "service/UpdcsdbService.java",
-    "line": 196,
+    "line": 176,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen != 0 && task.linkArea() != null) {"
    },
@@ -276,7 +240,7 @@
     "id": "0772b2b238",
     "op": "LIT",
     "file": "service/UpdcsdbService.java",
-    "line": 296,
+    "line": 276,
     "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
     "after": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"XELAY out of range\");"
    },
@@ -284,7 +248,7 @@
     "id": "25af4e4be7",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 296,
+    "line": 276,
     "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
     "after": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(4), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
    },
@@ -292,7 +256,7 @@
     "id": "26a5357a8b",
     "op": "NEG",
     "file": "service/UpdcsdbService.java",
-    "line": 84,
+    "line": 87,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
    },
@@ -300,7 +264,7 @@
     "id": "2c404afed3",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 296,
+    "line": 276,
     "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
     "after": "if (planned1[1] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
    },
@@ -308,7 +272,7 @@
     "id": "586cba3ce3",
     "op": "COR",
     "file": "service/UpdcsdbService.java",
-    "line": 84,
+    "line": 87,
     "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
     "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
    },
@@ -316,7 +280,7 @@
     "id": "baf2a40ccc",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 296,
+    "line": 276,
     "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
     "after": "if (planned1[0] == 1) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
    },
@@ -324,26 +288,162 @@
     "id": "c6d749ddfc",
     "op": "CON",
     "file": "service/UpdcsdbService.java",
-    "line": 296,
+    "line": 276,
     "before": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
     "after": "if (planned1[0] == 0) planned1 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(4), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "0aed7076b2",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 168,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "0e06ba592e",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 172,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "24146c7b77",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 164,
+    "before": "calen = DetCics.eibCalen(task, 3);",
+    "after": "calen = DetCics.eibCalen(task, 4);"
+   },
+   {
+    "id": "2853ea98ff",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 166,
+    "before": "calen = DetCics.eibCalen(task, 80);",
+    "after": "/* calen = DetCics.eibCalen(task, 80); */"
+   },
+   {
+    "id": "292a75e7a4",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 162,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "2e39cb60e5",
+    "op": "LIT",
+    "file": "service/UpdcsdbService.java",
+    "line": 33,
+    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
+   },
+   {
+    "id": "4025c5c136",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 164,
+    "before": "calen = DetCics.eibCalen(task, 3);",
+    "after": "/* calen = DetCics.eibCalen(task, 3); */"
+   },
+   {
+    "id": "499caf8cfd",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 170,
+    "before": "calen = DetCics.eibCalen(task, 80);",
+    "after": "calen = DetCics.eibCalen(task, 81);"
+   },
+   {
+    "id": "5458a7f6a4",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 174,
+    "before": "calen = DetCics.eibCalen(task, 186);",
+    "after": "/* calen = DetCics.eibCalen(task, 186); */"
+   },
+   {
+    "id": "61dd6282fd",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 170,
+    "before": "calen = DetCics.eibCalen(task, 80);",
+    "after": "/* calen = DetCics.eibCalen(task, 80); */"
+   },
+   {
+    "id": "786689e88b",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 168,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "b2e780de69",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 162,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
+   },
+   {
+    "id": "b71451cfa4",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 177,
+    "before": "calen = DetCics.eibCalen(task, task.linkArea().length);",
+    "after": "/* calen = DetCics.eibCalen(task, task.linkArea().length); */"
+   },
+   {
+    "id": "be86463e63",
+    "op": "DEL",
+    "file": "service/UpdcsdbService.java",
+    "line": 172,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "bfd8570111",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 174,
+    "before": "calen = DetCics.eibCalen(task, 186);",
+    "after": "calen = DetCics.eibCalen(task, 187);"
+   },
+   {
+    "id": "d45daa1c9a",
+    "op": "CON",
+    "file": "service/UpdcsdbService.java",
+    "line": 166,
+    "before": "calen = DetCics.eibCalen(task, 80);",
+    "after": "calen = DetCics.eibCalen(task, 81);"
+   },
+   {
+    "id": "d67ef8aa08",
+    "op": "LIT",
+    "file": "service/UpdcsdbService.java",
+    "line": 35,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
    }
   ],
   "inputs": {
-   "port": "cc07582b71615bf2a8a18c5aadf9a374f1bb8f787a250cdd777586a1e95ad92d",
-   "generator": "1016fbeeb6699ccda3672bf3540a3a5a3e4b783d80c53f1249deafa8564cac42",
+   "port": "e3cf7b27d7209d194370d0c54002eca4de8c4060e7556de0e3e5a55f19533f0b",
+   "generator": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
    "case": "ed66ac005009cb63bed12666d902baeb280c4d3b5ccd4fcf8a5f0576126c889c",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "e110bb3fd41db0254f8190ac7b312e08e60d794ba90c90a561e15dab48626a38",
+   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "runtime": "2b8ed5f77c93ed0a93de604138ede8b212b82a5c2c2c71efbf66886e8367e9ed",
    "survivors": "d7c01f79f767eaeb1c0a1af8e4f0bc527ac849bd20b30930f9c2594eff53d4bf"
   },
   "components": {
    "generator": {
-    "generator:core": "14036b3dac86cb4bc53a23171455347ab95c84129749c8485ef13a3c90769d1a",
+    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
@@ -361,12 +461,12 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
+    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
    },
    "harness": {
-    "harness:cics": "7e00f67547797a34f2b15d5ae76f363d97c8896fdf5bef20550bebdda8e7de0d",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "c45ae5594627db649e15c4a883089dba946d2c33f84ce20cd317149f13161413",
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
    },
    "oracle": {
     "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
@@ -374,11 +474,11 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "009f6892b9 0370ed5197 03cc8072c1 040c1a8d92 0420792c9d 046172a832 04e17788fa 070fffa9ef 0772b2b238 08170ba08f 0d44922dc6 0d854a9a7c 0df3777904 0ff473178f 1145474bc1 1414f4df86 160e24de91 177dd7ea9f 197238d2e5 1e34cad6ca 1ee3cf1def 250518b532 25af4e4be7 26a5357a8b 2b76398efa 2c404afed3 2c70b76661 2dd43a7638 308a148fdd 3296b30c0b 3363bbcb46 33d7b8ec25 3757642528 3766113040 37af3e2f0b 38c29405ab 395ed0bad4 3b31b681c9 3cf14d9d26 3e86fe78ae 3f29f10f75 40bcec486e 42e3c1f155 44d09302b3 4508e44d47 45e520e657 460c3f69c1 475f12b61a 47e3cd381c 49316f0ea6 4956c3dfa7 49afbe335b 4da427bdda 4df0e80c80 4e31e426a1 57312c0a72 586cba3ce3 59f65f64e8 5aa308f11a 5ae5aaafbc 5cb7ae4b81 5cd242a84e 5cff651429 5dcee5abb8 5f3d425301 5fd5ba1da0 621716c066 640055e528 699ca5e96b 6ab0640983 6b5197f6a3 6b57a399c2 6cdc44b4a8 6daae04845 6dbdf67791 6f48ec6aca 7069746056 70aa4bd31e 7254fa5110 727e929c73 74ca2f2444 74cbef6151 7575b1a9a0 77a1da6ca6 78b140973f 790d2cd1b8 7adab60f06 7b43aadddb 7babce6644 7cac6b6cb0 7e5095fc57 7fd2739e23 807c94d610 82d8da54c7 87c163b251 8850459d29 887a323124 8a2e760a25 8b29d76432 9102380672 9583613a84 958d08bec4 974df7ac77 977928812f 9932dc5527 9947406a9b 9b53c50278 9d9598dcfe 9fc7611033 a037e8f6d6 a08ca8030e a1df64e291 a1e116ad04 a300f78ba2 a414b5d118 a55688a7be a57f30e5e3 a7aaf93c8d a870de5e11 a8b0c5901e a8be429a31 a972de764d a97ae3976e a9a278acdd aab5f00ebd ab714123b9 af2f8c467c b02c456fd4 b034422619 b061e12d54 b154b64562 b26c65436e b366e6832a b548ff64ac b6488e8ec6 b938eaf87a ba0132a0cb ba9f82d11d bac1d7233e bacf7eb523 baf2a40ccc beac24576d bfc1394b35 bff529c25f c1c7079406 c1ec775d1e c2b6d46dfa c2fe450398 c3167e8aa5 c37e3d5bc3 c4d747d370 c6a318ec47 c6d749ddfc c6f264a9f8 c75fb18bcd c886f8a804 c8c0bd83c7 c957007ace c98e3bb05c ca79a8c99e cbc5c418fe cde16c12be cf7b98fb17 d3673ecd53 d50d8166eb d58b6d198d d72da8c6ce d792e40285 d7ab176786 d7b7d4d7ae d96e8b3dd7 d9cb42163d dadddbde9a dd9f1abeed de48bbc9d0 e0e8d3ec7f e185f4f216 e5b84ea3e4 e6412bb37d e867cfc902 eaf388f0b3 eb157e6ea0 ebdd8b4de1 ebf87610ab edfb124ea0 efa6ddbfd9 f0294b84c1 f02a02b350 f10f843367 f134a62b6d f261aab95a f2982f3526 f2e8e12a73 f2ee32fd55 f40a1e09af f63b7db037 f9c1867b73 fc9434d2c9 fc99d5beda fce87806b5 fe2abb8530 ff07b8f89b ffce0475f7 ffd5294f5c",
+  "every": "009f6892b9 0370ed5197 03cc8072c1 040c1a8d92 0420792c9d 046172a832 04e17788fa 0772b2b238 08170ba08f 0aed7076b2 0d44922dc6 0d854a9a7c 0df3777904 0e06ba592e 0ff473178f 1145474bc1 1414f4df86 160e24de91 197238d2e5 1e34cad6ca 1ee3cf1def 24146c7b77 250518b532 25af4e4be7 26a5357a8b 2853ea98ff 292a75e7a4 2b76398efa 2c404afed3 2dd43a7638 2e39cb60e5 308a148fdd 3296b30c0b 3363bbcb46 33d7b8ec25 3757642528 37af3e2f0b 38c29405ab 395ed0bad4 3b31b681c9 3cf14d9d26 3e86fe78ae 3f29f10f75 4025c5c136 40bcec486e 42e3c1f155 44d09302b3 4508e44d47 45e520e657 460c3f69c1 475f12b61a 47e3cd381c 49316f0ea6 4956c3dfa7 499caf8cfd 49afbe335b 4da427bdda 4df0e80c80 4e31e426a1 5458a7f6a4 57312c0a72 586cba3ce3 5ae5aaafbc 5cb7ae4b81 5cd242a84e 5cff651429 5dcee5abb8 5fd5ba1da0 61dd6282fd 621716c066 640055e528 6ab0640983 6b5197f6a3 6b57a399c2 6daae04845 6dbdf67791 6f48ec6aca 70aa4bd31e 727e929c73 74ca2f2444 7575b1a9a0 77a1da6ca6 786689e88b 78b140973f 790d2cd1b8 7adab60f06 7b43aadddb 7babce6644 7e5095fc57 7fd2739e23 807c94d610 82d8da54c7 87c163b251 8850459d29 887a323124 8b29d76432 9583613a84 974df7ac77 977928812f 9932dc5527 9947406a9b 9b53c50278 9d9598dcfe 9fc7611033 a037e8f6d6 a1df64e291 a1e116ad04 a414b5d118 a55688a7be a7aaf93c8d a870de5e11 a8b0c5901e a8be429a31 a97ae3976e a9a278acdd aab5f00ebd af2f8c467c b02c456fd4 b034422619 b061e12d54 b154b64562 b26c65436e b2e780de69 b366e6832a b548ff64ac b6488e8ec6 b71451cfa4 b938eaf87a ba0132a0cb ba9f82d11d bac1d7233e bacf7eb523 baf2a40ccc be86463e63 beac24576d bfc1394b35 bfd8570111 bff529c25f c1ec775d1e c2b6d46dfa c2fe450398 c3167e8aa5 c37e3d5bc3 c4d747d370 c6d749ddfc c6f264a9f8 c75fb18bcd c886f8a804 c8c0bd83c7 c957007ace c98e3bb05c cbc5c418fe cde16c12be cf7b98fb17 d3673ecd53 d45daa1c9a d50d8166eb d58b6d198d d67ef8aa08 d72da8c6ce d792e40285 d7ab176786 d7b7d4d7ae d96e8b3dd7 d9cb42163d dadddbde9a dd9f1abeed e0e8d3ec7f e185f4f216 e5b84ea3e4 e6412bb37d e867cfc902 eaf388f0b3 eb157e6ea0 ebdd8b4de1 edfb124ea0 efa6ddbfd9 f02a02b350 f10f843367 f134a62b6d f2982f3526 f2e8e12a73 f2ee32fd55 f40a1e09af f63b7db037 f9c1867b73 fc9434d2c9 fc99d5beda fce87806b5 fe2abb8530 ff07b8f89b ffd5294f5c",
   "refreshed": {
-   "from": "2026-11-04",
+   "from": "2026-11-14",
    "survivors_rerun": 0,
-   "fresh": 9,
+   "fresh": 17,
    "stale": []
   }
  }

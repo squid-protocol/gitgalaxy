@@ -160,6 +160,32 @@
     }
    ],
    "why": "the DELAY fails with INVREQ RESP2 6 (seconds out of range; IBM, EXEC CICS DELAY, planned by the scenario, register X72): A010's failure branch fills ABNDINFO from EIBRESP / EIBRESP2, ASSIGNs APPLID and PROGRAM, PERFORMs POPULATE-TIME-DATE, LINKs ABNDPROC (which logs the record on ABNDFILE) and ABENDs PLOP. No container is read or written: the channel is as the parent left it"
+  },
+  {
+   "name": "delay-invreq-duplicate-log",
+   "commarea": null,
+   "taskn": 7,
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    }
+   ],
+   "why": "the DELAY fails (INVREQ RESP2 6) in a task whose EIBTASKN 7 makes the ABNDFILE key the one record the file already holds: ABNDPROC's WRITE fails DUPREC (RESP 14) and it DISPLAYs and RETURNs; the abend PLOP follows"
+  },
+  {
+   "name": "delay-invreq-task-4242",
+   "commarea": null,
+   "taskn": 4242,
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    }
+   ],
+   "why": "the DELAY fails in task 4242: a second abend record, a different key, written beside the seeded one"
   }
  ]
 }

@@ -61,6 +61,7 @@ from typing import Any
 
 from gitgalaxy.core import overload_types
 from gitgalaxy.core.java_arg_types import choose as java_choose
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
 INIT_LIST_QUALIFIER = "<init>"
@@ -1197,15 +1198,21 @@ def _include_depths(imports: dict[str, set[str]], path: str) -> dict[str, int]:
 # #6266: a type alias of a class (`typedef Private<PublicType> Base;` / `using Base = Private<P>;`). A ctor-init entry
 # naming one (doomsday's DE_PIMPL `Impl(Public *i) : Base(i)`) calls the aliased base's constructor. Capitalised names
 # only, and only where the target is a class the repo declares: `typedef int Bool;` shares its name with a data member.
+_UID = "[" + ID_START + "][" + ID_CONTINUE + "]*"  # #8916: Unicode identifier, not `[A-Za-z_]\\w*`
+_UQID = "[" + ID_START + "][" + ID_CONTINUE + ":]*"
+_UCAP = "[" + CAPITAL + "][" + ID_CONTINUE + "]*"
 _ALIAS_DECL = re.compile(
-    r"\btypedef\b\s*(?:typename\s+)?([A-Za-z_][\w:]*)\s*(?:<[^;{}()]*>)?[\s*&]*([A-Z]\w*)\s*;"
-    r"|\busing\s+([A-Z]\w*)\s*=\s*(?:typename\s+)?([A-Za-z_][\w:]*)"
+    r"\btypedef\b\s*(?:typename\s+)?(" + _UQID + r")\s*(?:<[^;{}()]*>)?[\s*&]*(" + _UCAP + r")\s*;"
+    r"|\busing\s+(" + _UCAP + r")\s*=\s*(?:typename\s+)?(" + _UQID + r")"
 )
-_CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[:{<;]")
+_CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?(" + _UID + r")\s*[:{<;]")
 # a data member `PType *Type = nullptr;` (the declared type, then the name, at a line start)
 _FIELD_DECL = re.compile(
-    r"(?m)^[ \t]*(?:(?:static|mutable|const|constexpr|volatile|inline)[ \t]+)*([A-Za-z_][\w:]*(?:<[^;{}()]*>)?)[ \t*&]+"
-    r"([A-Z]\w*)[ \t]*(?:=[^;{}]*|\{[^;{}]*\})?;"
+    r"(?m)^[ \t]*(?:(?:static|mutable|const|constexpr|volatile|inline)[ \t]+)*("
+    + _UQID
+    + r"(?:<[^;{}()]*>)?)[ \t*&]+("
+    + _UCAP
+    + r")[ \t]*(?:=[^;{}]*|\{[^;{}]*\})?;"
 )
 _NOT_A_TYPE = frozenset({"return", "typedef", "using", "delete", "goto", "case", "else", "throw", "break", "continue"})
 _COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
@@ -1368,7 +1375,9 @@ _PARENT_LIST_KEYWORDS = frozenset(
     {"extends", "implements", "with", "public", "protected", "private", "internal", "virtual", "sealed", "open"}
 )
 _PARENT_TYPE_ARGS = re.compile(r"<[^<>]*>|\[[^\[\]]*\]|\([^()]*\)")
-_PARENT_NAME = re.compile(r"[A-Za-z_$][\w$]*(?:(?:\.|::)[A-Za-z_$][\w$]*)*")
+_PARENT_NAME = re.compile(
+    r"[" + ID_START + "$][" + ID_CONTINUE + r"$]*(?:(?:\.|::)[" + ID_START + "$][" + ID_CONTINUE + r"$]*)*"
+)
 
 
 def _parent_names(raw: Any) -> list[str]:

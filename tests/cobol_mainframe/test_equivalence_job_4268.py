@@ -61,6 +61,56 @@ def test_every_refusal_is_by_name(job, cases, why):
         _check(job, **({} if cases is None else cases))
 
 
+K = [{"offset": 0, "length": 4}]
+
+
+def _ix(reclen=10, keys=K, compare=True):
+    return {"organization": "indexed", "reclen": reclen, "keys": keys, **({"compare": True} if compare else {})}
+
+
+def _ix_cases(a=None, b=None):
+    return {"a": {"datasets": {"OUT": a or _ix()}}, "b": {"datasets": {"IN": b or _ix(compare=False)}}}
+
+
+def test_an_indexed_feed_between_batch_steps_is_accepted():  # a KSDS the earlier step opens I-O, fed on
+    _check(_job(), **_ix_cases())
+
+
+@pytest.mark.parametrize(
+    ("cases", "why"),
+    [
+        (_ix_cases(b={"organization": "sequential", "reclen": 10}), "both sides"),
+        (_ix_cases(a={"organization": "sequential", "reclen": 10, "compare": True}), "both sides"),
+        (_ix_cases(b=_ix(keys=[{"offset": 1, "length": 4}], compare=False)), "is keyed"),
+        (_ix_cases(b=_ix(keys=[*K, {"offset": 5, "length": 2, "duplicates": True}], compare=False)), "is keyed"),
+        (_ix_cases(b=_ix(reclen=12, compare=False)), "record length"),
+    ],
+)
+def test_an_indexed_feed_that_does_not_line_up_is_refused_by_name(cases, why):
+    with pytest.raises(ej_job.Unsupported, match=why):
+        _check(_job(), **cases)
+
+
+def test_an_indexed_feed_is_the_cobol_unload_staged_as_the_keyed_loader_reads_it(stub, tmp_path):
+    cases = {"a": {**_step(), "program": "PA", "datasets": {"OUT": _ix()}},
+             "b": {**_step(), "program": "PB", "datasets": {"IN": _ix(compare=False)}}}  # fmt: skip
+    api = _Api(cases, {"PA": {"OUT": b"0001AAAAAA0002BBBBBB", "RETURN-CODE": b"0"}, "PB": {"RETURN-CODE": b"0"}})
+    assert ej_job.run_case(api, _job(), tmp_path) == 0
+    fed = api.seen[1][1]["IN"]
+    assert Path(fed["input"]).read_bytes() == b"0001AAAAAA\n0002BBBBBB\n"
+    assert fed["organization"] == "indexed" and fed["keys"] == K  # keyed as the next step declares
+
+
+def test_a_corpus_input_override_is_passed_as_the_corpus_relative_path(stub, tmp_path):
+    api = _api()
+    job = _job()
+    job["steps"][1]["inputs"] = {"OTHER": ej_job.CORPUS_PREFIX + "app/data/x.txt"}
+    api.cases["b"]["datasets"]["OTHER"] = {"organization": "sequential", "reclen": 10}
+    ej_job.check_job(job, api.cases)
+    assert ej_job.run_case(api, job, tmp_path) == 0
+    assert api.seen[1][1]["OTHER"]["input"] == "app/data/x.txt"
+
+
 @pytest.mark.parametrize("enc", ["latin-1", "utf-8", "cp037", "cp500"])
 def test_records_become_lines_the_input_reader_returns_whole(tmp_path, enc):
     sp = " ".encode(enc)

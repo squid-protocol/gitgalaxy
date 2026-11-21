@@ -408,6 +408,8 @@ def _dbb_copy_globs(folder: str, props: dict[str, str]) -> list[str]:
                 parts = parts[1:]  # workspace-relative `App/copybook` is `copybook` inside this folder
             text = "/".join(p for p in parts if p not in ("", "."))
             if text and "${" not in text and ".." not in parts and not os.path.isabs(item.strip()):
+                if text.endswith("/**"):
+                    globs.append(text[:-3])  # `dir/**/*.cpy` takes `dir` itself too, before its subdirectories
                 globs.append(text)
     return globs
 

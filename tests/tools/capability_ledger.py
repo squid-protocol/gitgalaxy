@@ -262,12 +262,7 @@ def _step_results() -> dict[str, list[tuple[dict[str, Any], bool]]]:
         for sc in doc["scenarios"]:
             job = sc["job"]
             if case == "restart":
-                if sc.get("library"):  # a procedure that is a JCLLIB member, read from the answer file's `libraries`
-                    lib_text = "\n".join(doc["library_jcl"]) + "\n"
-                    libs = {lb: {m: "\n".join(x) + "\n" for m, x in ms.items()} for lb, ms in doc["libraries"].items()}
-                    got = restart_flow(job_flow.jcl_job_flow(lib_text), job, sc["given"], lib_text, libs)
-                else:
-                    got = restart_flow(rows, job, sc["given"])
+                got = restart_flow(rows, job, sc["given"])
                 res.append((sc, got == sc["expect"]))
                 continue
             if case == "gdg" and sc.get("restart"):  # a restarted run: steps before the restart step do not start
@@ -341,6 +336,17 @@ def _flow_results(f: Path, doc: dict[str, Any]) -> list[tuple[dict[str, Any], bo
             for sc in doc["scenarios"]]  # fmt: skip
 
 
+def _library_restart_results(doc: dict[str, Any]) -> list[tuple[dict[str, Any], bool]]:
+    """The restarts of a library procedure (`restart/library.json`): the member is read from the file's `libraries`."""
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_restart import restart_flow
+
+    text = "\n".join(doc["library_jcl"]) + "\n"
+    libs = {lb: {m: "\n".join(x) + "\n" for m, x in ms.items()} for lb, ms in doc["libraries"].items()}
+    rows = job_flow.jcl_job_flow(text)
+    return [(sc, restart_flow(rows, sc["job"], sc["given"], text, libs) == sc["expect"]) for sc in doc["scenarios"]]
+
+
 def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
     """Each answer file (`case/file.json`) with its scenarios and whether the evaluator reproduced each, run live."""
     steps = _step_results()
@@ -352,6 +358,8 @@ def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
             continue
         if case == "proc":
             res = _proc_results()
+        elif case == "restart" and f.name == "library.json":
+            res = _library_restart_results(doc)
         elif case in steps and f.name == "scenarios.json":
             res = steps[case]
         else:

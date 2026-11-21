@@ -104,6 +104,13 @@ def _prune(base: Path, corpus_name: str) -> None:
         old.parent.with_name(old.parent.name + ".lock").unlink(missing_ok=True)
 
 
+# ---- the port ------------------------------------------------------------------------------------------------
+def port_entry(corpus: Path, extra: str, build) -> Path:  # noqa: ANN001
+    """The cache entry of one case's translated port (det_port.port_case), built by build(directory) when missing.
+    `extra` is what the translation reads besides the corpus and the engine; the caller states it."""
+    return _entry("port", corpus, build, extra=extra)
+
+
 # ---- the scan ------------------------------------------------------------------------------------------------
 def scan_db(corpus: Path, out_dir: Path) -> Path:
     """galaxy_ir.scan_to_db(corpus, out_dir), from the cache: the master DB, as one file (its journal folded in)."""

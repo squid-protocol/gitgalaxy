@@ -280,14 +280,15 @@ DEFINITION: dict[str, Any] = {
             r"\b(eval|exec|subprocess\.(?:call|Popen|run|check_call|check_output|getoutput|getstatusoutput)|os\.system|os\.exec[lv]p?e?|os\.spawn[lv]p?e?|pickle\.loads?|yaml\.unsafe_load|shell=True|sys\.exit|os\._exit|os\.abort)\b"
         ),
         # 9. io (I/O & Network Boundaries)
-        # #2593: `os\.`/`sys\.` used to match ANY `os.x`/`sys.x` attribute access, which
-        # overlaps the `globals` rule's `os.environ`/`sys.argv`/`sys.path` (those are shared
-        # process state, not an I/O boundary) -- one planted `os.environ` or `sys.argv` read
-        # was double-counted as both `globals` and `io`. Negative lookaheads carve out exactly
-        # those three tokens so `os.path`/`os.open`/`sys.stdin`/etc. still count as `io`.
+        # #8860: I/O is a boundary crossing. The `os.`/`sys.` alternatives name the I/O members
+        # only (path string work like `os.path.join` and `sys.exit` are not I/O; `os.environ`,
+        # `sys.argv`, `sys.path` stay with `globals`, #2593), and the Path method forms
+        # (`Path(p).read_text()`, `.glob(`) count without the word `pathlib` being present.
         "io": re.compile(
             r"\b(open|requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\b"
-            r"|\bos\.(?!environ\b)|\bsys\.(?!argv\b|path\b)"
+            r"|\bos\.(?:walk|listdir|scandir|remove|unlink|rename|replace|makedirs|mkdir|rmdir|removedirs|open|read|write)\b"
+            r"|\bsys\.(?:stdin|stdout|stderr)\b"
+            r"|\.(?:read_text|write_text|read_bytes|write_bytes|glob|rglob|iterdir)[ \t]*\("
         ),
         # 10. api (Public Surface Area)
         # Implicit public defaults (undercased root definitions) + explicit __all__.

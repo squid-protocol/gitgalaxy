@@ -33,7 +33,8 @@ _PY_SIMPLE_CASES = [
     ("safety_bypasses", "except Exception:\n    log(e)", "except ValueError:\n    log(e)"),
     ("high_risk_execution", "eval(user_input)", "print('safe')"),
     ("io", "with open('f.txt') as f:\n    pass", "opened = True"),
-    ("io", "os.path.join(a, b)", "os.environ.get('X')"),
+    ("io", "os.walk(top)", "os.path.join(a, b)"),
+    ("io", "Path(p).read_text()", "sys.exit(2)"),
     ("io", "sys.stdin.read()", "sys.argv[0]"),
     ("state_mutation", "x = 1", "foo(x=1)"),  # #2817: plain reassignment counts; kwarg does not
     ("dead_code", "# def old_unused_function():", "# just a note"),
@@ -155,7 +156,6 @@ def test_python_io_excludes_globals_overlap():
     assert not io.search("os.environ.get('X')"), "io incorrectly matched os.environ (owned by globals)"
     assert not io.search("sys.argv[0]"), "io incorrectly matched sys.argv (owned by globals)"
     assert not io.search("sys.path.append(x)"), "io incorrectly matched sys.path (owned by globals)"
-    assert io.search("os.path.join(a, b)"), "io failed to match a real os. attribute (os.path)"
     assert io.search("os.remove(path)"), "io failed to match a real os. attribute (os.remove)"
     assert io.search("sys.stdin.read()"), "io failed to match a real sys. attribute (sys.stdin)"
 
@@ -526,3 +526,70 @@ def test_python_serialization_parsing_covers_the_contract_formats(code):
 )
 def test_python_serialization_parsing_ignores_non_calls(code):
     assert not PY_RULES["serialization_parsing"].search(code), code
+
+
+# #8860: one case per function so a regression names itself.
+_IO_POSITIVE = [
+    "Path(p).read_text()",
+    "p.write_text(s)",
+    "p.read_bytes()",
+    "p.write_bytes(b)",
+    "root.glob('*.py')",
+    "root.rglob('*.py')",
+    "d.iterdir()",
+    "os.walk(top)",
+    "os.listdir(d)",
+    "os.scandir(d)",
+    "os.remove(f)",
+    "os.unlink(f)",
+    "os.rename(a, b)",
+    "os.replace(a, b)",
+    "os.makedirs(d)",
+    "os.mkdir(d)",
+    "os.rmdir(d)",
+    "os.removedirs(d)",
+    "os.open(f, 0)",
+    "os.read(fd, 1)",
+    "os.write(fd, b)",
+    "sys.stdin.read()",
+    "sys.stdout.write(s)",
+    "sys.stderr.write(s)",
+]
+_IO_NEGATIVE = [
+    "os.path.join(a, b)",
+    "os.path.basename(a)",
+    "sys.exit(2)",
+    "os.environ.get('X')",
+    "sys.argv[0]",
+    "sys.path.append(x)",
+    "my_read_text(x)",
+    "x.globby(1)",
+    "x.read_texts(1)",
+    "os.getcwd()",
+    "sys.platform",
+]
+
+
+@pytest.mark.parametrize("snippet", _IO_POSITIVE)
+def test_python_io_counts_boundary_crossings_8860(snippet):
+    assert PY_RULES["io"].search(snippet), snippet
+
+
+@pytest.mark.parametrize("snippet", _IO_NEGATIVE)
+def test_python_io_ignores_non_io_8860(snippet):
+    assert not PY_RULES["io"].search(snippet), snippet
+
+
+def test_python_io_issue_reproduction_8860():
+    io = PY_RULES["io"]
+    assert io.search("def pather(p):\n    return Path(p).read_text()")
+    assert not io.search("def ospath(a, b):\n    return os.path.join(a, b)")
+    assert not io.search("def exiter():\n    sys.exit(2)")
+
+
+def test_python_io_redos_immunity_8860():
+    import time
+
+    start = time.process_time()
+    PY_RULES["io"].search("os." * 20000 + "." + " " * 20000 + "read_text")
+    assert time.process_time() - start < 1.0

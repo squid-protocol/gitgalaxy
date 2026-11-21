@@ -1,8 +1,10 @@
 """Tests for cross-function return types and chained receiver resolution."""
 
+import pytest
+
 from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, resolve_calls
 from gitgalaxy.core.detector import StructuralExtractor
-from gitgalaxy.core.return_types import extract_expr_chain, extract_return_type
+from gitgalaxy.core.return_types import extract_call_assigns, extract_expr_chain, extract_return_type
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
@@ -303,3 +305,57 @@ def test_java_builder_chain_disambiguated_by_file_scope():
     assert build_site["step"] == "typed"
     assert build_site["resolution"] in CONFIDENT_RESOLUTIONS
     assert build_site["dst_path"] == "FunSpec.java"
+
+
+# #8916: a name in another script, or a decomposed one, must read as its ASCII twin does. `\w` has no combining marks
+# (Mn / Mc) or ZWJ, so a Devanagari / Tamil / NFD suffix cut the name and the header or assignment never matched.
+_SUFFIXES = {
+    "ascii": "",
+    "nfd": "e" + chr(0x301),
+    "devanagari": "".join(map(chr, (0x928, 0x93E, 0x92E))),
+    "devanagari_zwj": "".join(map(chr, (0x915, 0x94D, 0x200D, 0x937))),
+    "tamil": "".join(map(chr, (0xBAA, 0xBC6, 0xBAF, 0xBB0, 0xBCD))),
+}
+_HEADERS = {
+    "python": "def get{n}() -> Store:\n    pass\n",
+    "typescript": "function get{n}(): Store {{\n}}\n",
+    "go": "func Get{n}() *Store {{\n}}\n",
+    "rust": "pub fn get{n}() -> Store {{\n}}\n",
+    "java": "public static Store get{n}() {{\n}}\n",
+    "csharp": "public async Store Get{n}() {{\n}}\n",
+    "kotlin": "fun get{n}(): Store {{\n}}\n",
+    "cpp": "const Store& get{n}() {{\n}}\n",
+}
+
+
+@pytest.mark.parametrize("script", sorted(_SUFFIXES))
+@pytest.mark.parametrize("lang", sorted(_HEADERS))
+def test_extract_return_type_reads_a_non_ascii_name_like_its_twin(lang, script):
+    assert extract_return_type(lang, _HEADERS[lang].format(n=_SUFFIXES[script])) == "Store"
+
+
+@pytest.mark.parametrize("script", sorted(_SUFFIXES))
+@pytest.mark.parametrize(
+    "lang,tmpl",
+    [
+        ("typescript", "const s{n} = make{n}();"),
+        ("go", "s{n} := Make{n}()"),
+        ("rust", "let s{n} = make{n}();"),
+        ("cpp", "auto s{n} = make{n}();"),
+    ],
+)
+def test_extract_call_assigns_reads_a_non_ascii_name_like_its_twin(lang, tmpl, script):
+    n = _SUFFIXES[script]
+    got = extract_call_assigns(lang, tmpl.format(n=n), {"s" + n})
+    assert got == {"s" + n: "make" + n if lang != "go" else "Make" + n}
+
+
+@pytest.mark.parametrize("script", sorted(_SUFFIXES))
+def test_call_resolver_declaration_regexes_read_a_non_ascii_name_like_its_twin(script):
+    from gitgalaxy.core import call_resolver as cr
+
+    n = _SUFFIXES[script]
+    assert cr._CLASS_DECL.search(f"class Impl{n} : Base {{").group(1) == "Impl" + n
+    assert cr._PARENT_NAME.fullmatch(f"pkg{n}.Base{n}")
+    m = cr._ALIAS_DECL.search(f"using Base{n} = Priv{n}<Pub>;")
+    assert m and m.group(3) == "Base" + n and m.group(4) == "Priv" + n

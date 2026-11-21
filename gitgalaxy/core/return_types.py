@@ -15,7 +15,12 @@
 # ==============================================================================
 import re
 
-_IDENT = r"[A-Za-z_]\w{0,127}"
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
+_S = "[" + ID_START + "]"
+_SD = "[" + ID_START + "$]"
+_C = "[" + ID_CONTINUE + "]"
+_IDENT = _S + _C + "{0,127}"
 
 _PRIMITIVES = frozenset(
     {
@@ -366,7 +371,7 @@ def _extract_rust(text: str, parent_class: str | None) -> str | None:
 
 
 def _extract_kotlin(text: str, parent_class: str | None) -> str | None:
-    cleaned = re.sub(r"^(?:[ \t]*@[A-Za-z_]\w*(?:\([^)]*\))?[ \t\r\n]*)+", "", text)
+    cleaned = re.sub(r"^(?:[ \t]*@" + _S + _C + r"*(?:\([^)]*\))?[ \t\r\n]*)+", "", text)
     m = _KT_HEADER.match(cleaned)
     if not m:
         return None
@@ -396,14 +401,14 @@ def _extract_c_like(lang: str, text: str, parent_class: str | None) -> str | Non
                     return norm
     prefix = text[:paren].strip()
     # Strip function name (possibly Class::name)
-    nm = re.search(r"(?:[A-Za-z_]\w*::)?([A-Za-z_]\w*)[ \t]*\Z", prefix)
+    nm = re.search(r"(?:" + _S + _C + r"*::)?(" + _S + _C + r"*)[ \t]*\Z", prefix)
     if not nm:
         return None
     before_name = prefix[: nm.start()].strip()
     if not before_name:
         return None
     # Strip annotations/attributes like @Override or [SerializeField]
-    before_name = re.sub(r"(?:@[A-Za-z_]\w*(?:\([^)]*\))?|\[[^\]]*\])[ \t\r\n]*", "", before_name).strip()
+    before_name = re.sub(r"(?:@" + _S + _C + r"*(?:\([^)]*\))?|\[[^\]]*\])[ \t\r\n]*", "", before_name).strip()
     # Strip leading modifier keywords
     tokens = before_name.split()
     while tokens and tokens[0] in _MODIFIERS:
@@ -433,8 +438,10 @@ _NESTED_PY = re.compile(r"\n[ \t]+(?:async[ \t]+)?def[ \t]+")
 _NESTED_JS = re.compile(r"\bfunction[ \t]+")
 _RETURN_STMT = re.compile(r"\breturn[ \t]+([^\n;]{1,200})")
 _RETURN_NULLS = frozenset({"None", "null", "undefined"})
-_RETURN_PY_CALL = re.compile(r"^([A-Za-z_]\w{0,127}(?:\.[A-Za-z_]\w{0,127}){0,4})\([^()]{0,200}\)[ \t]*$")
-_RETURN_JS_NEW = re.compile(r"^new[ \t]+([A-Za-z_]\w{0,127}(?:\.[A-Za-z_]\w{0,127}){0,4})\([^()]{0,200}\)[ \t]*$")
+_RETURN_PY_CALL = re.compile(r"^(" + _S + _C + r"{0,127}(?:\." + _S + _C + r"{0,127}){0,4})\([^()]{0,200}\)[ \t]*$")
+_RETURN_JS_NEW = re.compile(
+    r"^new[ \t]+(" + _S + _C + r"{0,127}(?:\." + _S + _C + r"{0,127}){0,4})\([^()]{0,200}\)[ \t]*$"
+)
 
 
 def _infer_body_return_type(lang: str, text: str) -> str | None:
@@ -533,20 +540,20 @@ def extract_expr_chain(text: str, pos: int, separators: tuple[str, ...], max_seg
 
 
 _CALL_ASSIGN_TS = re.compile(
-    r"(?:^|[;\n])[ \t]*(?:(?:const|let|var)[ \t]+)?(?P<n>[A-Za-z_$]\w{0,127})[ \t]*=[ \t]*(?:await[ \t]+)?"
-    r"(?!new\b)(?P<call>[A-Za-z_$]\w{0,127}(?:\.[A-Za-z_$]\w{0,127}){0,4})[ \t]*\("
+    r"(?:^|[;\n])[ \t]*(?:(?:const|let|var)[ \t]+)?(?P<n>" + _SD + _C + r"{0,127})[ \t]*=[ \t]*(?:await[ \t]+)?"
+    r"(?!new\b)(?P<call>" + _SD + _C + r"{0,127}(?:\." + _SD + _C + r"{0,127}){0,4})[ \t]*\("
 )
 _CALL_ASSIGN_GO = re.compile(
-    r"(?:^|[;\n])[ \t]*(?P<n>[A-Za-z_]\w{0,127})(?:[ \t]*,[ \t]*(?:err|_))?[ \t]*:=[ \t]*"
-    r"(?!new\b)(?P<call>[A-Za-z_]\w{0,127}(?:\.[A-Za-z_]\w{0,127}){0,4})[ \t]*\("
+    r"(?:^|[;\n])[ \t]*(?P<n>" + _S + _C + r"{0,127})(?:[ \t]*,[ \t]*(?:err|_))?[ \t]*:=[ \t]*"
+    r"(?!new\b)(?P<call>" + _S + _C + r"{0,127}(?:\." + _S + _C + r"{0,127}){0,4})[ \t]*\("
 )
 _CALL_ASSIGN_RS = re.compile(
-    r"(?:^|[;\n])[ \t]*let[ \t]+(?:mut[ \t]+)?(?P<n>[A-Za-z_]\w{0,127})[ \t]*=[ \t]*"
-    r"(?P<call>[A-Za-z_]\w{0,127}(?:(?:::|\.)[A-Za-z_]\w{0,127}){0,4})[ \t]*\("
+    r"(?:^|[;\n])[ \t]*let[ \t]+(?:mut[ \t]+)?(?P<n>" + _S + _C + r"{0,127})[ \t]*=[ \t]*"
+    r"(?P<call>" + _S + _C + r"{0,127}(?:(?:::|\.)" + _S + _C + r"{0,127}){0,4})[ \t]*\("
 )
 _CALL_ASSIGN_CPP = re.compile(
-    r"(?:^|[;\n])[ \t]*(?:const[ \t]+)?auto(?:[ \t]*[&*]{1,2})?[ \t]+(?P<n>[A-Za-z_]\w{0,127})[ \t]*=[ \t]*"
-    r"(?P<call>[A-Za-z_]\w{0,127}(?:(?:::|\.|->)[A-Za-z_]\w{0,127}){0,4})[ \t]*\("
+    r"(?:^|[;\n])[ \t]*(?:const[ \t]+)?auto(?:[ \t]*[&*]{1,2})?[ \t]+(?P<n>" + _S + _C + r"{0,127})[ \t]*=[ \t]*"
+    r"(?P<call>" + _S + _C + r"{0,127}(?:(?:::|\.|->)" + _S + _C + r"{0,127}){0,4})[ \t]*\("
 )
 _CALL_ASSIGN_PATTERNS = {
     "typescript": _CALL_ASSIGN_TS,

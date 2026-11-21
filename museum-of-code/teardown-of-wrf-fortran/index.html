@@ -12702,7 +12702,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * <strong><code>module_configure.F</code></strong> -&gt; Severity: 1159.1 (Blast Radius: 11.5 * Doc Risk: 100.0%)
 * <strong><code>module_model_constants.F</code></strong> -&gt; Severity: 1046.9 (Blast Radius: 10.4 * Doc Risk: 100.0%)</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
-<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>. </p>
+<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. </p>
 <p>Furthermore, the rule-based X-Ray and Import Policy Gate confirmed an incredibly tight security perimeter:
 * <strong>Hardcoded Secrets:</strong> <code>0</code> instances found.
 * <strong>Blacklisted/Unknown Dependencies:</strong> <code>0</code> packages imported that bypass the Zero-Trust whitelist. The build environment is entirely self-contained.

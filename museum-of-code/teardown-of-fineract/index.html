@@ -12694,9 +12694,9 @@ Enterprise repositories often suffer from "Bus Factor" risks, where massive file
 * <strong><code>BatchHelper.java</code></strong> (Mass: 1815.6) -&gt; <strong>Adam Saghy</strong> (100.0% isolated ownership)
 * <strong><code>ShareAccountDataSerializer.java</code></strong> (Mass: 1690.9) -&gt; <strong>Wilfred Kigenyi</strong> (100.0% isolated ownership)</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray">The Security Perimeter (Zero-Trust &amp; X-Ray)</h3>
-<p>For a core banking platform, the security perimeter is paramount. GitGalaxy's rule-based lenses and XGBoost models revealed a mixed security posture:</p>
+<p>For a core banking platform, the security perimeter is paramount. GitGalaxy's rule-based lenses revealed a mixed security posture:</p>
 <ul>
-<li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is secure against recognized structural malware and Agentic RCE.</li>
+<li><strong>Autonomous AI Threats:</strong> <strong>0 detected</strong> by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.</li>
 <li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. The dependency tree is immaculate, relying strictly on known, trusted packages.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <strong>8 hits</strong>. Flagged for high entropy, likely tied to compressed test payloads or keystores.</li>
 <li><strong>Weaponizable Surface Exposures:</strong> * <code>LocalContentStorageUtil.java</code> and <code>ReportsTest.java</code> both triggered <strong>100.0% Weaponizable Injection Vectors</strong>, indicating external I/O flows directly into dynamic execution contexts without sufficient static safety nets.</li>

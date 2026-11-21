@@ -12699,7 +12699,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 * <strong>Cormac Parle</strong>: Owns 100% of both <code>Controller.js</code> and <code>FiltersViewModel.js</code> (Combined Mass: ~1330).
 * <strong>Ammarpad</strong>: Owns 100% of <code>ApiSandbox.js</code> (Mass: 540.26).</p>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
-<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>SECURE (No Malware Detected)</strong>. However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:</p>
+<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. The X-Ray and Import Policy Gate identified several perimeter exposures:</p>
 <ul>
 <li><strong>Hardcoded Secrets:</strong> <code>4</code> instances found. The Vault Sentinel caught <code>key1.pem</code> and <code>key2.pem</code> (and their public counterparts) exposed in the <code>tests/phpunit/integration/includes/Json/</code> directory.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <code>42</code> anomalies detected. These represent high-entropy strings, packed payloads, or magic byte mismatches that warrant deeper forensic review.</li>

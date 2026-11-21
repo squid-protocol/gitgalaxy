@@ -12703,7 +12703,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 <li><strong><code>underscore.js</code></strong> possesses a massive network Blast Radius (0.694) but suffers from <strong>100% Documentation Risk</strong>, making it a dangerous blind spot for new maintainers.</li>
 </ul>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
-<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model (XGBoost) flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>. There are no autonomous AI vulnerabilities (Agentic RCE) detected despite the new AI client integrations.</p>
+<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. There are no autonomous AI vulnerabilities (Agentic RCE) detected despite the new AI client integrations.</p>
 <p>However, the rule-based X-Ray and Import Policy Gate identified several perimeter exposures:
 * <strong>Hardcoded Secrets &amp; Artifacts:</strong> <code>3</code> instances found, including exposed <code>.npmrc</code> files in the TwentyTwenty and TwentyTwentyOne themes, and a <code>ca-bundle.crt</code>.
 * <strong>Binary Anomalies (X-Ray):</strong> <code>171</code> anomalies detected. These represent high-entropy strings, packed payloads, or magic byte mismatches that warrant deeper forensic review.

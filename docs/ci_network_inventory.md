@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 2 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 0 | 0 | 0 | 0 | 27 |
+| gh-api | 3 | 0 | 0 | 0 | 24 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 102 | 84 | 54 | 208 | 43 |
+| **total** | 105 | 84 | 54 | 208 | 40 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -80,17 +80,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - refresh / Enable squash auto-merge on the bot PR
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)
 
-### gitgalaxy.yml
-
-- `gh-api` - pre-gate / Plan the gates
-
 ### graph-comparison-history.yml
 
 - `gh-api` - plan / Plan the run
-
-### mypy-audit.yml
-
-- `gh-api` - mypy-audit / Plan the audit
 
 ### ports-compile.yml
 
@@ -107,10 +99,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 ### ruff-audit.yml
 
 - `gh-api` - ruff-audit / Plan the audit
-
-### small-audits.yml
-
-- `gh-api` - small-audits / Plan the audit
 
 ### smoke-test.yml
 

@@ -47,27 +47,56 @@
 <text class="lang" transform="translate(732,192) rotate(-90)">c</text>
 <text class="lang" transform="translate(774,192) rotate(-90)">lua</text>
 <text class="lang" transform="translate(816,192) rotate(-90)">shell</text>
-<text class="fam" x="16" y="213">serialization_parsing</text>
-<rect x="204" y="200" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="224.0" y="213">0†</text>
-<text class="side" x="207" y="208">R</text>
-<text class="dim" x="266.0" y="213">·</text>
-<text class="dim" x="308.0" y="213">·</text>
-<text class="dim" x="350.0" y="213">·</text>
-<text class="dim" x="392.0" y="213">·</text>
-<text class="dim" x="434.0" y="213">·</text>
-<text class="dim" x="476.0" y="213">·</text>
-<text class="dim" x="518.0" y="213">·</text>
-<text class="dim" x="560.0" y="213">·</text>
-<text class="dim" x="602.0" y="213">·</text>
-<text class="dim" x="644.0" y="213">·</text>
-<text class="dim" x="686.0" y="213">·</text>
-<text class="dim" x="728.0" y="213">·</text>
-<text class="dim" x="770.0" y="213">·</text>
-<text class="dim" x="812.0" y="213">·</text>
-<text class="fam" x="16" y="233">sync_locks (draft)</text>
-<rect x="204" y="220" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="224.0" y="233">0</text>
+<text class="fam" x="16" y="213">args</text>
+<rect x="204" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="224.0" y="213">100</text>
+<text class="sided" x="207" y="208">P</text>
+<rect x="246" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="266.0" y="213">100†</text>
+<text class="sided" x="249" y="208">P</text>
+<rect x="288" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="308.0" y="213">100</text>
+<text class="sided" x="291" y="208">P</text>
+<rect x="330" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="350.0" y="213">99</text>
+<text class="sided" x="333" y="208">R</text>
+<rect x="372" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="392.0" y="213">100†</text>
+<text class="sided" x="375" y="208">P</text>
+<rect x="414" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="434.0" y="213">100†</text>
+<text class="sided" x="417" y="208">P</text>
+<rect x="456" y="200" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="476.0" y="213">97†</text>
+<text class="side" x="459" y="208">P</text>
+<rect x="498" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="518.0" y="213">98†</text>
+<text class="sided" x="501" y="208">R</text>
+<rect x="540" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="560.0" y="213">99</text>
+<text class="sided" x="543" y="208">P</text>
+<rect x="582" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="602.0" y="213">100†</text>
+<text class="sided" x="585" y="208">P</text>
+<rect x="624" y="200" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="644.0" y="213">94†</text>
+<text class="side" x="627" y="208">P</text>
+<rect x="666" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="686.0" y="213">100</text>
+<text class="sided" x="669" y="208">P</text>
+<rect x="708" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="728.0" y="213">100</text>
+<text class="sided" x="711" y="208">P</text>
+<rect x="750" y="200" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="770.0" y="213">100</text>
+<text class="sided" x="753" y="208">P</text>
+<rect x="792" y="200" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="812.0" y="213">98</text>
+<text class="side" x="795" y="208">P</text>
+<text class="fam" x="16" y="233">import</text>
+<rect x="204" y="220" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="224.0" y="233">100</text>
+<text class="sided" x="207" y="228">P</text>
 <text class="dim" x="266.0" y="233">·</text>
 <text class="dim" x="308.0" y="233">·</text>
 <text class="dim" x="350.0" y="233">·</text>
@@ -82,282 +111,295 @@
 <text class="dim" x="728.0" y="233">·</text>
 <text class="dim" x="770.0" y="233">·</text>
 <text class="dim" x="812.0" y="233">·</text>
-<text class="fam" x="16" y="253">telemetry (draft)</text>
-<rect x="204" y="240" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="224.0" y="253">4</text>
-<text class="side" x="207" y="248">R</text>
-<text class="dim" x="266.0" y="253">·</text>
-<text class="dim" x="308.0" y="253">·</text>
-<text class="dim" x="350.0" y="253">·</text>
-<text class="dim" x="392.0" y="253">·</text>
-<text class="dim" x="434.0" y="253">·</text>
-<text class="dim" x="476.0" y="253">·</text>
-<text class="dim" x="518.0" y="253">·</text>
-<text class="dim" x="560.0" y="253">·</text>
-<text class="dim" x="602.0" y="253">·</text>
-<text class="dim" x="644.0" y="253">·</text>
-<text class="dim" x="686.0" y="253">·</text>
-<text class="dim" x="728.0" y="253">·</text>
-<text class="dim" x="770.0" y="253">·</text>
-<text class="dim" x="812.0" y="253">·</text>
-<text class="fam" x="16" y="273">bitwise_ops</text>
-<rect x="204" y="260" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="224.0" y="273">70</text>
+<text class="fam" x="16" y="253">debug_prints (draft)</text>
+<rect x="204" y="240" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="224.0" y="253">100</text>
+<text class="sided" x="207" y="248">P</text>
+<rect x="246" y="240" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="266.0" y="253">100</text>
+<rect x="288" y="240" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="308.0" y="253">100†</text>
+<text class="sided" x="291" y="248">P</text>
+<rect x="330" y="240" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="350.0" y="253">64†</text>
+<text class="side" x="333" y="248">P</text>
+<rect x="372" y="240" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="392.0" y="253">99†</text>
+<text class="sided" x="375" y="248">P</text>
+<rect x="414" y="240" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="434.0" y="253">94†</text>
+<text class="side" x="417" y="248">R</text>
+<rect x="456" y="240" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="476.0" y="253">74†</text>
+<text class="side" x="459" y="248">P</text>
+<rect x="498" y="240" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="518.0" y="253">88</text>
+<rect x="540" y="240" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="560.0" y="253">86†</text>
+<text class="side" x="543" y="248">P</text>
+<rect x="582" y="240" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="253">100</text>
+<rect x="624" y="240" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="644.0" y="253">50†</text>
+<text class="side" x="627" y="248">P</text>
+<rect x="666" y="240" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="686.0" y="253">98†</text>
+<text class="sided" x="669" y="248">P</text>
+<rect x="708" y="240" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="728.0" y="253">99†</text>
+<text class="sided" x="711" y="248">P</text>
+<rect x="750" y="240" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="770.0" y="253">100</text>
+<text class="sided" x="753" y="248">P</text>
+<rect x="792" y="240" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="812.0" y="253">64</text>
+<text class="side" x="795" y="248">P</text>
+<text class="fam" x="16" y="273">branch</text>
+<rect x="204" y="260" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="224.0" y="273">97</text>
 <text class="side" x="207" y="268">P</text>
-<rect x="246" y="260" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="266.0" y="273">4†</text>
+<rect x="246" y="260" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="266.0" y="273">94†</text>
 <text class="side" x="249" y="268">P</text>
-<rect x="288" y="260" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="308.0" y="273">61†</text>
-<text class="side" x="291" y="268">R</text>
-<rect x="330" y="260" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="350.0" y="273">0</text>
-<rect x="372" y="260" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="392.0" y="273">46†</text>
-<text class="side" x="375" y="268">R</text>
-<rect x="414" y="260" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="434.0" y="273">13†</text>
-<text class="side" x="417" y="268">P</text>
-<rect x="456" y="260" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="476.0" y="273">8</text>
+<rect x="288" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="308.0" y="273">100</text>
+<text class="sided" x="291" y="268">P</text>
+<rect x="330" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="350.0" y="273">99</text>
+<text class="sided" x="333" y="268">R</text>
+<rect x="372" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="392.0" y="273">99†</text>
+<text class="sided" x="375" y="268">P</text>
+<rect x="414" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="434.0" y="273">98†</text>
+<text class="sided" x="417" y="268">P</text>
+<rect x="456" y="260" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="476.0" y="273">92†</text>
+<text class="side" x="459" y="268">P</text>
 <rect x="498" y="260" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="518.0" y="273">76†</text>
+<text class="num" x="518.0" y="273">66†</text>
 <text class="side" x="501" y="268">P</text>
-<rect x="540" y="260" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="560.0" y="273">7</text>
-<text class="side" x="543" y="268">R</text>
-<rect x="582" y="260" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="273">67</text>
-<rect x="624" y="260" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="644.0" y="273">4†</text>
+<rect x="540" y="260" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="560.0" y="273">96</text>
+<text class="side" x="543" y="268">P</text>
+<rect x="582" y="260" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="602.0" y="273">96†</text>
+<text class="side" x="585" y="268">P</text>
+<rect x="624" y="260" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="644.0" y="273">93†</text>
 <text class="side" x="627" y="268">P</text>
 <rect x="666" y="260" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="686.0" y="273">56</text>
-<text class="side" x="669" y="268">R</text>
-<rect x="708" y="260" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="728.0" y="273">46†</text>
-<text class="side" x="711" y="268">R</text>
-<rect x="750" y="260" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="770.0" y="273">0</text>
-<rect x="792" y="260" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="812.0" y="273">0</text>
-<text class="fam" x="16" y="293">cleanup</text>
-<rect x="204" y="280" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="224.0" y="293">15</text>
-<text class="side" x="207" y="288">R</text>
-<text class="dim" x="266.0" y="293">·</text>
-<text class="dim" x="308.0" y="293">·</text>
-<text class="dim" x="350.0" y="293">·</text>
-<text class="dim" x="392.0" y="293">·</text>
-<text class="dim" x="434.0" y="293">·</text>
-<text class="dim" x="476.0" y="293">·</text>
-<text class="dim" x="518.0" y="293">·</text>
+<text class="num" x="686.0" y="273">71</text>
+<text class="side" x="669" y="268">P</text>
+<rect x="708" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="728.0" y="273">100</text>
+<text class="sided" x="711" y="268">P</text>
+<rect x="750" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="770.0" y="273">99</text>
+<text class="sided" x="753" y="268">P</text>
+<rect x="792" y="260" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="812.0" y="273">84</text>
+<text class="side" x="795" y="268">P</text>
+<text class="fam" x="16" y="293">lazy_evaluation</text>
+<rect x="204" y="280" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="224.0" y="293">95†</text>
+<text class="side" x="207" y="288">P</text>
 <text class="dim" x="560.0" y="293">·</text>
 <text class="dim" x="602.0" y="293">·</text>
-<text class="dim" x="644.0" y="293">·</text>
-<text class="dim" x="686.0" y="293">·</text>
-<text class="dim" x="728.0" y="293">·</text>
-<text class="dim" x="770.0" y="293">·</text>
-<text class="dim" x="812.0" y="293">·</text>
-<text class="fam" x="16" y="313">time_date_logic</text>
-<rect x="204" y="300" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="224.0" y="313">19</text>
-<text class="side" x="207" y="308">R</text>
-<rect x="246" y="300" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="266.0" y="313">78†</text>
-<text class="side" x="249" y="308">R</text>
-<rect x="288" y="300" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="308.0" y="313">68†</text>
-<text class="side" x="291" y="308">R</text>
-<rect x="330" y="300" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="350.0" y="313">38†</text>
-<text class="side" x="333" y="308">R</text>
-<rect x="372" y="300" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="392.0" y="313">12†</text>
-<text class="side" x="375" y="308">R</text>
-<rect x="414" y="300" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="434.0" y="313">77†</text>
-<text class="side" x="417" y="308">R</text>
-<rect x="456" y="300" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="476.0" y="313">36†</text>
-<text class="side" x="459" y="308">R</text>
-<rect x="498" y="300" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="518.0" y="313">59†</text>
-<text class="side" x="501" y="308">R</text>
-<rect x="540" y="300" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="560.0" y="313">0</text>
-<rect x="582" y="300" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="313">100</text>
-<rect x="624" y="300" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="644.0" y="313">25†</text>
-<text class="side" x="627" y="308">P</text>
-<rect x="666" y="300" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="686.0" y="313">12†</text>
-<text class="side" x="669" y="308">R</text>
-<rect x="708" y="300" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="728.0" y="313">52†</text>
-<text class="side" x="711" y="308">R</text>
-<rect x="750" y="300" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="770.0" y="313">100</text>
-<rect x="792" y="300" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="812.0" y="313">20</text>
-<text class="fam" x="16" y="333">io</text>
-<rect x="204" y="320" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="224.0" y="333">53</text>
+<text class="fam" x="16" y="313">high_risk_execution</text>
+<rect x="204" y="300" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="224.0" y="313">94</text>
+<text class="side" x="207" y="308">P</text>
+<text class="dim" x="266.0" y="313">·</text>
+<text class="dim" x="308.0" y="313">·</text>
+<text class="dim" x="350.0" y="313">·</text>
+<text class="dim" x="392.0" y="313">·</text>
+<text class="dim" x="434.0" y="313">·</text>
+<text class="dim" x="476.0" y="313">·</text>
+<text class="dim" x="518.0" y="313">·</text>
+<text class="dim" x="560.0" y="313">·</text>
+<text class="dim" x="602.0" y="313">·</text>
+<text class="dim" x="644.0" y="313">·</text>
+<text class="dim" x="686.0" y="313">·</text>
+<text class="dim" x="728.0" y="313">·</text>
+<text class="dim" x="770.0" y="313">·</text>
+<text class="dim" x="812.0" y="313">·</text>
+<text class="fam" x="16" y="333">explicit_casts</text>
+<rect x="204" y="320" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="224.0" y="333">92</text>
 <text class="side" x="207" y="328">P</text>
-<rect x="246" y="320" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="266.0" y="333">55†</text>
-<text class="side" x="249" y="328">P</text>
-<rect x="288" y="320" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="308.0" y="333">38</text>
-<text class="side" x="291" y="328">R</text>
-<rect x="330" y="320" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="350.0" y="333">0</text>
-<rect x="372" y="320" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="392.0" y="333">14†</text>
-<text class="side" x="375" y="328">P</text>
-<rect x="414" y="320" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="434.0" y="333">18†</text>
-<text class="side" x="417" y="328">P</text>
-<rect x="456" y="320" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="476.0" y="333">35†</text>
-<text class="side" x="459" y="328">P</text>
-<rect x="498" y="320" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="518.0" y="333">73†</text>
-<text class="side" x="501" y="328">R</text>
-<rect x="540" y="320" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="560.0" y="333">2</text>
-<rect x="582" y="320" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="333">80</text>
-<rect x="624" y="320" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="644.0" y="333">27†</text>
-<text class="side" x="627" y="328">P</text>
-<rect x="666" y="320" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="686.0" y="333">25†</text>
-<text class="side" x="669" y="328">P</text>
-<rect x="708" y="320" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="728.0" y="333">77†</text>
-<text class="side" x="711" y="328">R</text>
-<rect x="750" y="320" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="770.0" y="333">50</text>
-<rect x="792" y="320" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="812.0" y="333">61</text>
-<text class="side" x="795" y="328">P</text>
-<text class="fam" x="16" y="353">concurrency (draft)</text>
-<rect x="204" y="340" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="224.0" y="353">48†</text>
+<text class="dim" x="266.0" y="333">·</text>
+<text class="dim" x="308.0" y="333">·</text>
+<text class="dim" x="350.0" y="333">·</text>
+<text class="dim" x="392.0" y="333">·</text>
+<text class="dim" x="434.0" y="333">·</text>
+<text class="dim" x="476.0" y="333">·</text>
+<text class="dim" x="518.0" y="333">·</text>
+<text class="dim" x="560.0" y="333">·</text>
+<text class="dim" x="602.0" y="333">·</text>
+<text class="dim" x="644.0" y="333">·</text>
+<text class="dim" x="686.0" y="333">·</text>
+<text class="dim" x="728.0" y="333">·</text>
+<text class="dim" x="770.0" y="333">·</text>
+<text class="fam" x="16" y="353">panics_and_aborts</text>
+<rect x="204" y="340" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="224.0" y="353">96</text>
 <text class="side" x="207" y="348">P</text>
-<text class="dim" x="266.0" y="353">·</text>
-<text class="dim" x="308.0" y="353">·</text>
-<text class="dim" x="350.0" y="353">·</text>
-<text class="dim" x="392.0" y="353">·</text>
-<text class="dim" x="434.0" y="353">·</text>
-<text class="dim" x="476.0" y="353">·</text>
-<text class="dim" x="518.0" y="353">·</text>
-<text class="dim" x="560.0" y="353">·</text>
-<text class="dim" x="602.0" y="353">·</text>
-<text class="dim" x="644.0" y="353">·</text>
-<text class="dim" x="686.0" y="353">·</text>
-<text class="dim" x="728.0" y="353">·</text>
-<text class="dim" x="770.0" y="353">·</text>
-<text class="dim" x="812.0" y="353">·</text>
-<text class="fam" x="16" y="373">globals</text>
-<rect x="204" y="360" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="224.0" y="373">51†</text>
-<text class="side" x="207" y="368">R</text>
-<text class="dim" x="266.0" y="373">·</text>
-<text class="dim" x="308.0" y="373">·</text>
-<text class="dim" x="350.0" y="373">·</text>
-<text class="dim" x="392.0" y="373">·</text>
-<text class="dim" x="434.0" y="373">·</text>
-<text class="dim" x="476.0" y="373">·</text>
-<text class="dim" x="518.0" y="373">·</text>
-<text class="dim" x="560.0" y="373">·</text>
-<text class="dim" x="602.0" y="373">·</text>
-<text class="dim" x="644.0" y="373">·</text>
-<text class="dim" x="686.0" y="373">·</text>
-<text class="dim" x="728.0" y="373">·</text>
-<text class="dim" x="770.0" y="373">·</text>
-<text class="dim" x="812.0" y="373">·</text>
-<text class="fam" x="16" y="393">regex_execution</text>
-<rect x="204" y="380" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="224.0" y="393">78</text>
-<text class="side" x="207" y="388">R</text>
-<rect x="246" y="380" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="266.0" y="393">39†</text>
-<text class="side" x="249" y="388">R</text>
-<rect x="288" y="380" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="308.0" y="393">56†</text>
-<text class="side" x="291" y="388">P</text>
-<rect x="330" y="380" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="350.0" y="393">0</text>
-<rect x="372" y="380" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="392.0" y="393">55†</text>
+<rect x="246" y="340" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="266.0" y="353">100†</text>
+<text class="sided" x="249" y="348">P</text>
+<rect x="288" y="340" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="308.0" y="353">98†</text>
+<text class="side" x="291" y="348">P</text>
+<rect x="330" y="340" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="350.0" y="353">100</text>
+<text class="sided" x="333" y="348">P</text>
+<rect x="372" y="340" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="392.0" y="353">37†</text>
+<text class="side" x="375" y="348">P</text>
+<rect x="414" y="340" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="434.0" y="353">95†</text>
+<text class="side" x="417" y="348">P</text>
+<rect x="456" y="340" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="476.0" y="353">90†</text>
+<text class="side" x="459" y="348">P</text>
+<rect x="498" y="340" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="518.0" y="353">96†</text>
+<text class="side" x="501" y="348">P</text>
+<rect x="540" y="340" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="560.0" y="353">85</text>
+<text class="side" x="543" y="348">P</text>
+<rect x="582" y="340" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="602.0" y="353">100†</text>
+<text class="sided" x="585" y="348">P</text>
+<rect x="624" y="340" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="644.0" y="353">64†</text>
+<text class="side" x="627" y="348">P</text>
+<rect x="666" y="340" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="686.0" y="353">26</text>
+<text class="side" x="669" y="348">R</text>
+<rect x="708" y="340" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="728.0" y="353">48†</text>
+<text class="side" x="711" y="348">P</text>
+<rect x="750" y="340" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="770.0" y="353">0</text>
+<rect x="792" y="340" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="812.0" y="353">26</text>
+<text class="side" x="795" y="348">P</text>
+<text class="fam" x="16" y="373">thread_sleeps</text>
+<rect x="204" y="360" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="224.0" y="373">100</text>
+<rect x="246" y="360" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="266.0" y="373">94†</text>
+<text class="side" x="249" y="368">P</text>
+<rect x="288" y="360" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="308.0" y="373">89†</text>
+<text class="side" x="291" y="368">R</text>
+<rect x="330" y="360" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="350.0" y="373">100</text>
+<rect x="372" y="360" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="392.0" y="373">80†</text>
+<text class="side" x="375" y="368">P</text>
+<rect x="414" y="360" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="434.0" y="373">100</text>
+<rect x="456" y="360" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="476.0" y="373">25†</text>
+<text class="side" x="459" y="368">R</text>
+<rect x="498" y="360" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="518.0" y="373">89</text>
+<rect x="540" y="360" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="560.0" y="373">94†</text>
+<text class="side" x="543" y="368">P</text>
+<rect x="582" y="360" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="373">0</text>
+<rect x="624" y="360" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="644.0" y="373">65†</text>
+<text class="side" x="627" y="368">P</text>
+<rect x="666" y="360" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="686.0" y="373">36†</text>
+<text class="side" x="669" y="368">R</text>
+<rect x="708" y="360" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="728.0" y="373">100†</text>
+<text class="sided" x="711" y="368">P</text>
+<rect x="750" y="360" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="770.0" y="373">0</text>
+<rect x="792" y="360" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="812.0" y="373">82</text>
+<text class="side" x="795" y="368">P</text>
+<text class="fam" x="16" y="393">decorators</text>
+<rect x="204" y="380" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="224.0" y="393">0</text>
+<text class="side" x="207" y="388">P</text>
+<rect x="246" y="380" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="266.0" y="393">100†</text>
+<text class="sided" x="249" y="388">P</text>
+<rect x="288" y="380" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="308.0" y="393">0</text>
+<rect x="330" y="380" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="350.0" y="393">95</text>
+<text class="side" x="333" y="388">R</text>
+<rect x="372" y="380" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="392.0" y="393">97†</text>
 <text class="side" x="375" y="388">P</text>
-<rect x="414" y="380" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="434.0" y="393">100†</text>
-<text class="sided" x="417" y="388">P</text>
-<rect x="456" y="380" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="476.0" y="393">14†</text>
+<rect x="414" y="380" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="434.0" y="393">54†</text>
+<text class="side" x="417" y="388">P</text>
+<rect x="456" y="380" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="476.0" y="393">97†</text>
 <text class="side" x="459" y="388">R</text>
-<rect x="498" y="380" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="518.0" y="393">0</text>
-<rect x="540" y="380" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="560.0" y="393">74</text>
-<text class="side" x="543" y="388">R</text>
-<rect x="582" y="380" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="393">25</text>
-<rect x="624" y="380" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="644.0" y="393">69†</text>
-<text class="side" x="627" y="388">P</text>
-<text class="dim" x="686.0" y="393">–</text>
-<rect x="708" y="380" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="728.0" y="393">100</text>
-<rect x="750" y="380" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="770.0" y="393">5</text>
-<text class="side" x="753" y="388">R</text>
-<rect x="792" y="380" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="812.0" y="393">92</text>
-<text class="side" x="795" y="388">P</text>
-<text class="fam" x="16" y="413">closures</text>
-<rect x="204" y="400" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="224.0" y="413">98†</text>
-<text class="sided" x="207" y="408">P</text>
-<rect x="246" y="400" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="266.0" y="413">78†</text>
+<rect x="498" y="380" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="518.0" y="393">81†</text>
+<text class="side" x="501" y="388">P</text>
+<rect x="540" y="380" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="560.0" y="393">0</text>
+<text class="dim" x="602.0" y="393">–</text>
+<text class="dim" x="644.0" y="393">·</text>
+<rect x="666" y="380" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="686.0" y="393">97</text>
+<text class="side" x="669" y="388">P</text>
+<text class="dim" x="728.0" y="393">–</text>
+<text class="dim" x="770.0" y="393">·</text>
+<text class="fam" x="16" y="413">doc (draft)</text>
+<rect x="204" y="400" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="224.0" y="413">82</text>
+<text class="side" x="207" y="408">R</text>
+<rect x="246" y="400" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="266.0" y="413">97†</text>
 <text class="side" x="249" y="408">P</text>
-<rect x="288" y="400" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="308.0" y="413">29</text>
-<text class="side" x="291" y="408">P</text>
-<rect x="330" y="400" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="350.0" y="413">62</text>
+<rect x="288" y="400" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="308.0" y="413">76</text>
+<text class="side" x="291" y="408">R</text>
+<rect x="330" y="400" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="350.0" y="413">89</text>
 <text class="side" x="333" y="408">P</text>
-<rect x="372" y="400" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="392.0" y="413">29†</text>
-<text class="side" x="375" y="408">R</text>
-<rect x="414" y="400" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="434.0" y="413">83†</text>
-<text class="side" x="417" y="408">R</text>
+<rect x="372" y="400" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="392.0" y="413">85†</text>
+<text class="side" x="375" y="408">P</text>
+<rect x="414" y="400" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="434.0" y="413">100†</text>
+<text class="sided" x="417" y="408">P</text>
 <rect x="456" y="400" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="476.0" y="413">81†</text>
+<text class="num" x="476.0" y="413">87†</text>
 <text class="side" x="459" y="408">P</text>
-<rect x="498" y="400" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="518.0" y="413">56†</text>
-<text class="side" x="501" y="408">R</text>
-<rect x="540" y="400" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="560.0" y="413">44</text>
-<text class="side" x="543" y="408">R</text>
-<rect x="582" y="400" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="602.0" y="413">32†</text>
-<text class="side" x="585" y="408">P</text>
-<rect x="624" y="400" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="644.0" y="413">87†</text>
+<rect x="498" y="400" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="518.0" y="413">85†</text>
+<text class="side" x="501" y="408">P</text>
+<rect x="540" y="400" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="560.0" y="413">69</text>
+<text class="side" x="543" y="408">P</text>
+<rect x="582" y="400" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="413">25</text>
+<rect x="624" y="400" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="644.0" y="413">0†</text>
 <text class="side" x="627" y="408">P</text>
-<rect x="666" y="400" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="686.0" y="413">6</text>
-<text class="side" x="669" y="408">R</text>
-<rect x="750" y="400" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="770.0" y="413">100</text>
+<rect x="666" y="400" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="686.0" y="413">95</text>
+<text class="side" x="669" y="408">P</text>
+<rect x="708" y="400" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="728.0" y="413">86†</text>
+<text class="side" x="711" y="408">P</text>
+<text class="dim" x="770.0" y="413">–</text>
+<text class="dim" x="812.0" y="413">·</text>
 <text class="fam" x="16" y="433">comprehensions</text>
 <rect x="204" y="420" width="40" height="18" fill="#1f3b5c"/>
 <text class="num" x="224.0" y="433">74</text>
@@ -375,345 +417,303 @@
 <text class="dim" x="686.0" y="433">·</text>
 <text class="dim" x="770.0" y="433">·</text>
 <text class="dim" x="812.0" y="433">·</text>
-<text class="fam" x="16" y="453">doc (draft)</text>
-<rect x="204" y="440" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="224.0" y="453">82</text>
-<text class="side" x="207" y="448">R</text>
-<rect x="246" y="440" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="266.0" y="453">97†</text>
+<text class="fam" x="16" y="453">closures</text>
+<rect x="204" y="440" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="224.0" y="453">98†</text>
+<text class="sided" x="207" y="448">P</text>
+<rect x="246" y="440" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="266.0" y="453">78†</text>
 <text class="side" x="249" y="448">P</text>
-<rect x="288" y="440" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="308.0" y="453">76</text>
-<text class="side" x="291" y="448">R</text>
-<rect x="330" y="440" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="350.0" y="453">89</text>
+<rect x="288" y="440" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="308.0" y="453">29</text>
+<text class="side" x="291" y="448">P</text>
+<rect x="330" y="440" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="350.0" y="453">62</text>
 <text class="side" x="333" y="448">P</text>
-<rect x="372" y="440" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="392.0" y="453">85†</text>
-<text class="side" x="375" y="448">P</text>
-<rect x="414" y="440" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="434.0" y="453">100†</text>
-<text class="sided" x="417" y="448">P</text>
+<rect x="372" y="440" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="392.0" y="453">29†</text>
+<text class="side" x="375" y="448">R</text>
+<rect x="414" y="440" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="434.0" y="453">83†</text>
+<text class="side" x="417" y="448">R</text>
 <rect x="456" y="440" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="476.0" y="453">87†</text>
+<text class="num" x="476.0" y="453">81†</text>
 <text class="side" x="459" y="448">P</text>
-<rect x="498" y="440" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="518.0" y="453">85†</text>
-<text class="side" x="501" y="448">P</text>
-<rect x="540" y="440" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="560.0" y="453">69</text>
-<text class="side" x="543" y="448">P</text>
-<rect x="582" y="440" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="453">25</text>
-<rect x="624" y="440" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="644.0" y="453">0†</text>
+<rect x="498" y="440" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="518.0" y="453">56†</text>
+<text class="side" x="501" y="448">R</text>
+<rect x="540" y="440" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="560.0" y="453">44</text>
+<text class="side" x="543" y="448">R</text>
+<rect x="582" y="440" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="602.0" y="453">32†</text>
+<text class="side" x="585" y="448">P</text>
+<rect x="624" y="440" width="40" height="18" fill="#2f6aa8"/>
+<text class="num" x="644.0" y="453">87†</text>
 <text class="side" x="627" y="448">P</text>
-<rect x="666" y="440" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="686.0" y="453">95</text>
-<text class="side" x="669" y="448">P</text>
-<rect x="708" y="440" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="728.0" y="453">86†</text>
-<text class="side" x="711" y="448">P</text>
-<text class="dim" x="770.0" y="453">–</text>
-<text class="dim" x="812.0" y="453">·</text>
-<text class="fam" x="16" y="473">decorators</text>
-<rect x="204" y="460" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="224.0" y="473">0</text>
-<text class="side" x="207" y="468">P</text>
-<rect x="246" y="460" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="266.0" y="473">100†</text>
-<text class="sided" x="249" y="468">P</text>
-<rect x="288" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="308.0" y="473">0</text>
-<rect x="330" y="460" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="350.0" y="473">95</text>
-<text class="side" x="333" y="468">R</text>
-<rect x="372" y="460" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="392.0" y="473">97†</text>
+<rect x="666" y="440" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="686.0" y="453">6</text>
+<text class="side" x="669" y="448">R</text>
+<rect x="750" y="440" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="770.0" y="453">100</text>
+<text class="fam" x="16" y="473">regex_execution</text>
+<rect x="204" y="460" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="224.0" y="473">78</text>
+<text class="side" x="207" y="468">R</text>
+<rect x="246" y="460" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="266.0" y="473">39†</text>
+<text class="side" x="249" y="468">R</text>
+<rect x="288" y="460" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="308.0" y="473">56†</text>
+<text class="side" x="291" y="468">P</text>
+<rect x="330" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="350.0" y="473">0</text>
+<rect x="372" y="460" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="392.0" y="473">55†</text>
 <text class="side" x="375" y="468">P</text>
-<rect x="414" y="460" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="434.0" y="473">54†</text>
-<text class="side" x="417" y="468">P</text>
-<rect x="456" y="460" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="476.0" y="473">97†</text>
+<rect x="414" y="460" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="434.0" y="473">100†</text>
+<text class="sided" x="417" y="468">P</text>
+<rect x="456" y="460" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="476.0" y="473">14†</text>
 <text class="side" x="459" y="468">R</text>
-<rect x="498" y="460" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="518.0" y="473">81†</text>
-<text class="side" x="501" y="468">P</text>
-<rect x="540" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="560.0" y="473">0</text>
-<text class="dim" x="602.0" y="473">–</text>
-<text class="dim" x="644.0" y="473">·</text>
-<rect x="666" y="460" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="686.0" y="473">97</text>
-<text class="side" x="669" y="468">P</text>
-<text class="dim" x="728.0" y="473">–</text>
-<text class="dim" x="770.0" y="473">·</text>
-<text class="fam" x="16" y="493">thread_sleeps</text>
-<rect x="204" y="480" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="224.0" y="493">100</text>
-<rect x="246" y="480" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="266.0" y="493">94†</text>
-<text class="side" x="249" y="488">P</text>
-<rect x="288" y="480" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="308.0" y="493">89†</text>
-<text class="side" x="291" y="488">R</text>
-<rect x="330" y="480" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="350.0" y="493">100</text>
-<rect x="372" y="480" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="392.0" y="493">80†</text>
-<text class="side" x="375" y="488">P</text>
-<rect x="414" y="480" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="434.0" y="493">100</text>
-<rect x="456" y="480" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="476.0" y="493">25†</text>
-<text class="side" x="459" y="488">R</text>
-<rect x="498" y="480" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="518.0" y="493">89</text>
-<rect x="540" y="480" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="560.0" y="493">94†</text>
-<text class="side" x="543" y="488">P</text>
-<rect x="582" y="480" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="493">0</text>
-<rect x="624" y="480" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="644.0" y="493">65†</text>
-<text class="side" x="627" y="488">P</text>
-<rect x="666" y="480" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="686.0" y="493">36†</text>
-<text class="side" x="669" y="488">R</text>
-<rect x="708" y="480" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="728.0" y="493">100†</text>
-<text class="sided" x="711" y="488">P</text>
-<rect x="750" y="480" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="770.0" y="493">0</text>
-<rect x="792" y="480" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="812.0" y="493">82</text>
-<text class="side" x="795" y="488">P</text>
-<text class="fam" x="16" y="513">panics_and_aborts</text>
-<rect x="204" y="500" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="224.0" y="513">96</text>
+<rect x="498" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="518.0" y="473">0</text>
+<rect x="540" y="460" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="560.0" y="473">74</text>
+<text class="side" x="543" y="468">R</text>
+<rect x="582" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="473">25</text>
+<rect x="624" y="460" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="644.0" y="473">69†</text>
+<text class="side" x="627" y="468">P</text>
+<text class="dim" x="686.0" y="473">–</text>
+<rect x="708" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="728.0" y="473">100</text>
+<rect x="750" y="460" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="770.0" y="473">5</text>
+<text class="side" x="753" y="468">R</text>
+<rect x="792" y="460" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="812.0" y="473">92</text>
+<text class="side" x="795" y="468">P</text>
+<text class="fam" x="16" y="493">globals</text>
+<rect x="204" y="480" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="224.0" y="493">51†</text>
+<text class="side" x="207" y="488">R</text>
+<text class="dim" x="266.0" y="493">·</text>
+<text class="dim" x="308.0" y="493">·</text>
+<text class="dim" x="350.0" y="493">·</text>
+<text class="dim" x="392.0" y="493">·</text>
+<text class="dim" x="434.0" y="493">·</text>
+<text class="dim" x="476.0" y="493">·</text>
+<text class="dim" x="518.0" y="493">·</text>
+<text class="dim" x="560.0" y="493">·</text>
+<text class="dim" x="602.0" y="493">·</text>
+<text class="dim" x="644.0" y="493">·</text>
+<text class="dim" x="686.0" y="493">·</text>
+<text class="dim" x="728.0" y="493">·</text>
+<text class="dim" x="770.0" y="493">·</text>
+<text class="dim" x="812.0" y="493">·</text>
+<text class="fam" x="16" y="513">concurrency (draft)</text>
+<rect x="204" y="500" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="224.0" y="513">48†</text>
 <text class="side" x="207" y="508">P</text>
-<rect x="246" y="500" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="266.0" y="513">100†</text>
-<text class="sided" x="249" y="508">P</text>
-<rect x="288" y="500" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="308.0" y="513">98†</text>
-<text class="side" x="291" y="508">P</text>
-<rect x="330" y="500" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="350.0" y="513">100</text>
-<text class="sided" x="333" y="508">P</text>
-<rect x="372" y="500" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="392.0" y="513">37†</text>
-<text class="side" x="375" y="508">P</text>
-<rect x="414" y="500" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="434.0" y="513">95†</text>
-<text class="side" x="417" y="508">P</text>
-<rect x="456" y="500" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="476.0" y="513">90†</text>
-<text class="side" x="459" y="508">P</text>
-<rect x="498" y="500" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="518.0" y="513">96†</text>
-<text class="side" x="501" y="508">P</text>
-<rect x="540" y="500" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="560.0" y="513">85</text>
-<text class="side" x="543" y="508">P</text>
-<rect x="582" y="500" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="602.0" y="513">100†</text>
-<text class="sided" x="585" y="508">P</text>
-<rect x="624" y="500" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="644.0" y="513">64†</text>
-<text class="side" x="627" y="508">P</text>
-<rect x="666" y="500" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="686.0" y="513">26</text>
-<text class="side" x="669" y="508">R</text>
-<rect x="708" y="500" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="728.0" y="513">48†</text>
-<text class="side" x="711" y="508">P</text>
-<rect x="750" y="500" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="770.0" y="513">0</text>
-<rect x="792" y="500" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="812.0" y="513">26</text>
-<text class="side" x="795" y="508">P</text>
-<text class="fam" x="16" y="533">explicit_casts</text>
-<rect x="204" y="520" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="224.0" y="533">92</text>
+<text class="dim" x="266.0" y="513">·</text>
+<text class="dim" x="308.0" y="513">·</text>
+<text class="dim" x="350.0" y="513">·</text>
+<text class="dim" x="392.0" y="513">·</text>
+<text class="dim" x="434.0" y="513">·</text>
+<text class="dim" x="476.0" y="513">·</text>
+<text class="dim" x="518.0" y="513">·</text>
+<text class="dim" x="560.0" y="513">·</text>
+<text class="dim" x="602.0" y="513">·</text>
+<text class="dim" x="644.0" y="513">·</text>
+<text class="dim" x="686.0" y="513">·</text>
+<text class="dim" x="728.0" y="513">·</text>
+<text class="dim" x="770.0" y="513">·</text>
+<text class="dim" x="812.0" y="513">·</text>
+<text class="fam" x="16" y="533">io</text>
+<rect x="204" y="520" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="224.0" y="533">53</text>
 <text class="side" x="207" y="528">P</text>
-<text class="dim" x="266.0" y="533">·</text>
-<text class="dim" x="308.0" y="533">·</text>
-<text class="dim" x="350.0" y="533">·</text>
-<text class="dim" x="392.0" y="533">·</text>
-<text class="dim" x="434.0" y="533">·</text>
-<text class="dim" x="476.0" y="533">·</text>
-<text class="dim" x="518.0" y="533">·</text>
-<text class="dim" x="560.0" y="533">·</text>
-<text class="dim" x="602.0" y="533">·</text>
-<text class="dim" x="644.0" y="533">·</text>
-<text class="dim" x="686.0" y="533">·</text>
-<text class="dim" x="728.0" y="533">·</text>
-<text class="dim" x="770.0" y="533">·</text>
-<text class="fam" x="16" y="553">high_risk_execution</text>
-<rect x="204" y="540" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="224.0" y="553">94</text>
-<text class="side" x="207" y="548">P</text>
-<text class="dim" x="266.0" y="553">·</text>
-<text class="dim" x="308.0" y="553">·</text>
-<text class="dim" x="350.0" y="553">·</text>
-<text class="dim" x="392.0" y="553">·</text>
-<text class="dim" x="434.0" y="553">·</text>
-<text class="dim" x="476.0" y="553">·</text>
-<text class="dim" x="518.0" y="553">·</text>
-<text class="dim" x="560.0" y="553">·</text>
-<text class="dim" x="602.0" y="553">·</text>
-<text class="dim" x="644.0" y="553">·</text>
-<text class="dim" x="686.0" y="553">·</text>
-<text class="dim" x="728.0" y="553">·</text>
-<text class="dim" x="770.0" y="553">·</text>
-<text class="dim" x="812.0" y="553">·</text>
-<text class="fam" x="16" y="573">lazy_evaluation</text>
-<rect x="204" y="560" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="224.0" y="573">95†</text>
-<text class="side" x="207" y="568">P</text>
+<rect x="246" y="520" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="266.0" y="533">55†</text>
+<text class="side" x="249" y="528">P</text>
+<rect x="288" y="520" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="308.0" y="533">38</text>
+<text class="side" x="291" y="528">R</text>
+<rect x="330" y="520" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="350.0" y="533">0</text>
+<rect x="372" y="520" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="392.0" y="533">14†</text>
+<text class="side" x="375" y="528">P</text>
+<rect x="414" y="520" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="434.0" y="533">18†</text>
+<text class="side" x="417" y="528">P</text>
+<rect x="456" y="520" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="476.0" y="533">35†</text>
+<text class="side" x="459" y="528">P</text>
+<rect x="498" y="520" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="518.0" y="533">73†</text>
+<text class="side" x="501" y="528">R</text>
+<rect x="540" y="520" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="560.0" y="533">2</text>
+<rect x="582" y="520" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="533">80</text>
+<rect x="624" y="520" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="644.0" y="533">27†</text>
+<text class="side" x="627" y="528">P</text>
+<rect x="666" y="520" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="686.0" y="533">25†</text>
+<text class="side" x="669" y="528">P</text>
+<rect x="708" y="520" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="728.0" y="533">77†</text>
+<text class="side" x="711" y="528">R</text>
+<rect x="750" y="520" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="770.0" y="533">50</text>
+<rect x="792" y="520" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="812.0" y="533">61</text>
+<text class="side" x="795" y="528">P</text>
+<text class="fam" x="16" y="553">time_date_logic</text>
+<rect x="204" y="540" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="224.0" y="553">19</text>
+<text class="side" x="207" y="548">R</text>
+<rect x="246" y="540" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="266.0" y="553">78†</text>
+<text class="side" x="249" y="548">R</text>
+<rect x="288" y="540" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="308.0" y="553">68†</text>
+<text class="side" x="291" y="548">R</text>
+<rect x="330" y="540" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="350.0" y="553">38†</text>
+<text class="side" x="333" y="548">R</text>
+<rect x="372" y="540" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="392.0" y="553">12†</text>
+<text class="side" x="375" y="548">R</text>
+<rect x="414" y="540" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="434.0" y="553">77†</text>
+<text class="side" x="417" y="548">R</text>
+<rect x="456" y="540" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="476.0" y="553">36†</text>
+<text class="side" x="459" y="548">R</text>
+<rect x="498" y="540" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="518.0" y="553">59†</text>
+<text class="side" x="501" y="548">R</text>
+<rect x="540" y="540" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="560.0" y="553">0</text>
+<rect x="582" y="540" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="553">100</text>
+<rect x="624" y="540" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="644.0" y="553">25†</text>
+<text class="side" x="627" y="548">P</text>
+<rect x="666" y="540" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="686.0" y="553">12†</text>
+<text class="side" x="669" y="548">R</text>
+<rect x="708" y="540" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="728.0" y="553">52†</text>
+<text class="side" x="711" y="548">R</text>
+<rect x="750" y="540" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="770.0" y="553">100</text>
+<rect x="792" y="540" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="812.0" y="553">20</text>
+<text class="fam" x="16" y="573">cleanup</text>
+<rect x="204" y="560" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="224.0" y="573">15</text>
+<text class="side" x="207" y="568">R</text>
+<text class="dim" x="266.0" y="573">·</text>
+<text class="dim" x="308.0" y="573">·</text>
+<text class="dim" x="350.0" y="573">·</text>
+<text class="dim" x="392.0" y="573">·</text>
+<text class="dim" x="434.0" y="573">·</text>
+<text class="dim" x="476.0" y="573">·</text>
+<text class="dim" x="518.0" y="573">·</text>
 <text class="dim" x="560.0" y="573">·</text>
 <text class="dim" x="602.0" y="573">·</text>
-<text class="fam" x="16" y="593">branch</text>
-<rect x="204" y="580" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="224.0" y="593">97</text>
+<text class="dim" x="644.0" y="573">·</text>
+<text class="dim" x="686.0" y="573">·</text>
+<text class="dim" x="728.0" y="573">·</text>
+<text class="dim" x="770.0" y="573">·</text>
+<text class="dim" x="812.0" y="573">·</text>
+<text class="fam" x="16" y="593">bitwise_ops</text>
+<rect x="204" y="580" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="224.0" y="593">70</text>
 <text class="side" x="207" y="588">P</text>
-<rect x="246" y="580" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="266.0" y="593">94†</text>
+<rect x="246" y="580" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="266.0" y="593">4†</text>
 <text class="side" x="249" y="588">P</text>
-<rect x="288" y="580" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="308.0" y="593">100</text>
-<text class="sided" x="291" y="588">P</text>
-<rect x="330" y="580" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="350.0" y="593">99</text>
-<text class="sided" x="333" y="588">R</text>
-<rect x="372" y="580" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="392.0" y="593">99†</text>
-<text class="sided" x="375" y="588">P</text>
-<rect x="414" y="580" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="434.0" y="593">98†</text>
-<text class="sided" x="417" y="588">P</text>
-<rect x="456" y="580" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="476.0" y="593">92†</text>
-<text class="side" x="459" y="588">P</text>
+<rect x="288" y="580" width="40" height="18" fill="#1f3b5c"/>
+<text class="num" x="308.0" y="593">61†</text>
+<text class="side" x="291" y="588">R</text>
+<rect x="330" y="580" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="350.0" y="593">0</text>
+<rect x="372" y="580" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="392.0" y="593">46†</text>
+<text class="side" x="375" y="588">R</text>
+<rect x="414" y="580" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="434.0" y="593">13†</text>
+<text class="side" x="417" y="588">P</text>
+<rect x="456" y="580" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="476.0" y="593">8</text>
 <rect x="498" y="580" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="518.0" y="593">66†</text>
+<text class="num" x="518.0" y="593">76†</text>
 <text class="side" x="501" y="588">P</text>
-<rect x="540" y="580" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="560.0" y="593">96</text>
-<text class="side" x="543" y="588">P</text>
-<rect x="582" y="580" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="602.0" y="593">96†</text>
-<text class="side" x="585" y="588">P</text>
-<rect x="624" y="580" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="644.0" y="593">93†</text>
+<rect x="540" y="580" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="560.0" y="593">7</text>
+<text class="side" x="543" y="588">R</text>
+<rect x="582" y="580" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="602.0" y="593">67</text>
+<rect x="624" y="580" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="644.0" y="593">4†</text>
 <text class="side" x="627" y="588">P</text>
 <rect x="666" y="580" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="686.0" y="593">71</text>
-<text class="side" x="669" y="588">P</text>
-<rect x="708" y="580" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="728.0" y="593">100</text>
-<text class="sided" x="711" y="588">P</text>
-<rect x="750" y="580" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="770.0" y="593">99</text>
-<text class="sided" x="753" y="588">P</text>
-<rect x="792" y="580" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="812.0" y="593">84</text>
-<text class="side" x="795" y="588">P</text>
-<text class="fam" x="16" y="613">debug_prints (draft)</text>
-<rect x="204" y="600" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="224.0" y="613">100</text>
-<text class="sided" x="207" y="608">P</text>
-<rect x="246" y="600" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="266.0" y="613">100</text>
-<rect x="288" y="600" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="308.0" y="613">100†</text>
-<text class="sided" x="291" y="608">P</text>
-<rect x="330" y="600" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="350.0" y="613">64†</text>
-<text class="side" x="333" y="608">P</text>
-<rect x="372" y="600" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="392.0" y="613">99†</text>
-<text class="sided" x="375" y="608">P</text>
-<rect x="414" y="600" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="434.0" y="613">94†</text>
-<text class="side" x="417" y="608">R</text>
-<rect x="456" y="600" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="476.0" y="613">74†</text>
-<text class="side" x="459" y="608">P</text>
-<rect x="498" y="600" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="518.0" y="613">88</text>
-<rect x="540" y="600" width="40" height="18" fill="#2f6aa8"/>
-<text class="num" x="560.0" y="613">86†</text>
-<text class="side" x="543" y="608">P</text>
-<rect x="582" y="600" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="602.0" y="613">100</text>
-<rect x="624" y="600" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="644.0" y="613">50†</text>
-<text class="side" x="627" y="608">P</text>
-<rect x="666" y="600" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="686.0" y="613">98†</text>
-<text class="sided" x="669" y="608">P</text>
-<rect x="708" y="600" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="728.0" y="613">99†</text>
-<text class="sided" x="711" y="608">P</text>
-<rect x="750" y="600" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="770.0" y="613">100</text>
-<text class="sided" x="753" y="608">P</text>
-<rect x="792" y="600" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="812.0" y="613">64</text>
-<text class="side" x="795" y="608">P</text>
-<text class="fam" x="16" y="633">args</text>
-<rect x="204" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="224.0" y="633">100</text>
-<text class="sided" x="207" y="628">P</text>
-<rect x="246" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="266.0" y="633">100†</text>
-<text class="sided" x="249" y="628">P</text>
-<rect x="288" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="308.0" y="633">100</text>
-<text class="sided" x="291" y="628">P</text>
-<rect x="330" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="350.0" y="633">99</text>
-<text class="sided" x="333" y="628">R</text>
-<rect x="372" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="392.0" y="633">100†</text>
-<text class="sided" x="375" y="628">P</text>
-<rect x="414" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="434.0" y="633">100†</text>
-<text class="sided" x="417" y="628">P</text>
-<rect x="456" y="620" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="476.0" y="633">97†</text>
-<text class="side" x="459" y="628">P</text>
-<rect x="498" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="518.0" y="633">98†</text>
-<text class="sided" x="501" y="628">R</text>
-<rect x="540" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="560.0" y="633">99</text>
-<text class="sided" x="543" y="628">P</text>
-<rect x="582" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="602.0" y="633">100†</text>
-<text class="sided" x="585" y="628">P</text>
-<rect x="624" y="620" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="644.0" y="633">94†</text>
-<text class="side" x="627" y="628">P</text>
-<rect x="666" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="686.0" y="633">100</text>
-<text class="sided" x="669" y="628">P</text>
-<rect x="708" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="728.0" y="633">100</text>
-<text class="sided" x="711" y="628">P</text>
-<rect x="750" y="620" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="770.0" y="633">100</text>
-<text class="sided" x="753" y="628">P</text>
-<rect x="792" y="620" width="40" height="18" fill="#4f9be8"/>
-<text class="num" x="812.0" y="633">98</text>
-<text class="side" x="795" y="628">P</text>
-<text class="fam" x="16" y="653">import</text>
-<rect x="204" y="640" width="40" height="18" fill="#a9d1ff"/>
-<text class="numd" x="224.0" y="653">100</text>
-<text class="sided" x="207" y="648">P</text>
+<text class="num" x="686.0" y="593">56</text>
+<text class="side" x="669" y="588">R</text>
+<rect x="708" y="580" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="728.0" y="593">46†</text>
+<text class="side" x="711" y="588">R</text>
+<rect x="750" y="580" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="770.0" y="593">0</text>
+<rect x="792" y="580" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="812.0" y="593">0</text>
+<text class="fam" x="16" y="613">telemetry (draft)</text>
+<rect x="204" y="600" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="224.0" y="613">4</text>
+<text class="side" x="207" y="608">R</text>
+<text class="dim" x="266.0" y="613">·</text>
+<text class="dim" x="308.0" y="613">·</text>
+<text class="dim" x="350.0" y="613">·</text>
+<text class="dim" x="392.0" y="613">·</text>
+<text class="dim" x="434.0" y="613">·</text>
+<text class="dim" x="476.0" y="613">·</text>
+<text class="dim" x="518.0" y="613">·</text>
+<text class="dim" x="560.0" y="613">·</text>
+<text class="dim" x="602.0" y="613">·</text>
+<text class="dim" x="644.0" y="613">·</text>
+<text class="dim" x="686.0" y="613">·</text>
+<text class="dim" x="728.0" y="613">·</text>
+<text class="dim" x="770.0" y="613">·</text>
+<text class="dim" x="812.0" y="613">·</text>
+<text class="fam" x="16" y="633">serialization_parsing</text>
+<rect x="204" y="620" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="224.0" y="633">0†</text>
+<text class="side" x="207" y="628">R</text>
+<text class="dim" x="266.0" y="633">·</text>
+<text class="dim" x="308.0" y="633">·</text>
+<text class="dim" x="350.0" y="633">·</text>
+<text class="dim" x="392.0" y="633">·</text>
+<text class="dim" x="434.0" y="633">·</text>
+<text class="dim" x="476.0" y="633">·</text>
+<text class="dim" x="518.0" y="633">·</text>
+<text class="dim" x="560.0" y="633">·</text>
+<text class="dim" x="602.0" y="633">·</text>
+<text class="dim" x="644.0" y="633">·</text>
+<text class="dim" x="686.0" y="633">·</text>
+<text class="dim" x="728.0" y="633">·</text>
+<text class="dim" x="770.0" y="633">·</text>
+<text class="dim" x="812.0" y="633">·</text>
+<text class="fam" x="16" y="653">sync_locks (draft)</text>
+<rect x="204" y="640" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
+<text class="thin" x="224.0" y="653">0</text>
 <text class="dim" x="266.0" y="653">·</text>
 <text class="dim" x="308.0" y="653">·</text>
 <text class="dim" x="350.0" y="653">·</text>
@@ -729,7 +729,7 @@
 <text class="dim" x="770.0" y="653">·</text>
 <text class="dim" x="812.0" y="653">·</text>
 <text class="note" x="16" y="672">R = the family misses constructs the parser sees; P = it fires where the parser sees none. † corpus not pinned (exploratory).</text>
-<text class="note" x="16" y="685">Dashed grey italic: under 10 functions. · not tested yet. – tested, construct never occurs. Rows worst first.</text>
+<text class="note" x="16" y="685">Dashed grey italic: under 10 functions. · not tested yet. – tested, construct never occurs. Rows best first.</text>
 <text class="note" x="16" y="698">Draft = the family&#x27;s contract is a draft.</text>
 <rect x="16" y="716" width="12" height="9" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.4"/>
 <text class="legend" x="32" y="724">under 50%</text>

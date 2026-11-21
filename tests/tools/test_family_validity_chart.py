@@ -132,12 +132,11 @@ def test_summary_table_prints_the_score_marks_the_weaker_side_and_the_failures()
     assert 'stroke-dasharray="3 2"' in svg  # the under-10-function cell is dashed, not filled
 
 
-def test_summary_rows_are_worst_first():
+def test_summary_rows_are_best_first():
     svg = fvc.render_summary_svg(FAMILIES, LANGUAGES, DEFINED, CELLS, DECOYS)
-    assert svg.index(">io<") < svg.index(
-        ">branch<"
-    )  # io (0.33) before branch (0.03 thin / 0.98): by median of the scored cells
-    # median(branch) = median(0.98, 0.03) = 0.505; median(io) = 0.33
+    # median(branch) = median(0.98, 0.03) = 0.505; median(io) = 0.33: what holds up is at the top, the problems at the bottom
+    assert svg.index(">branch<") < svg.index(">io<")
+    assert "Rows best first." in svg
 
 
 def test_draft_contracts_are_marked_in_words_not_italics():
@@ -150,7 +149,15 @@ def test_matrix_has_no_dots_no_rainbow_and_names_every_state():
     svg = fvc.render_matrix_svg(FAMILIES, LANGUAGES, DEFINED, CELLS, DECOYS)
     assert svg == fvc.render_matrix_svg(FAMILIES, LANGUAGES, DEFINED, CELLS, DECOYS)
     assert "Keyword-family matrix (maintainers)" in svg
-    for label in ("decoy test only", "not tested yet", "tested, construct never seen", "N/A: no rule"):
+    for label in (
+        "not tested yet",
+        "decoy: comment and string both ignored",
+        "decoy: comment ignored, string counted",
+        "decoy: comment ignored (no string decoy)",
+        "decoy: a comment leaked",
+        "parser: construct never seen",
+        "N/A: no rule",
+    ):
         assert label in svg
     assert 'class="dg"' not in svg and "green dot" not in svg
     assert "go / io: recall 0.33, precision 0.62" in svg and "prometheus (not pinned)" in svg
@@ -235,3 +242,21 @@ def test_check_fails_on_a_stale_svg(request, monkeypatch, capsys):
     monkeypatch.setattr(fvc, "CHART_PATH", stale)
     assert fvc.main(["--check"]) == 1
     assert "is stale" in capsys.readouterr().out
+
+
+def test_decoy_states_are_told_apart_and_drawn_in_different_colours():
+    clean = {"comment": "pass", "string_counts": False, "keyword": "k", "corpus": "r"}
+    strings = {**clean, "string_counts": True}
+    comment_only = {**clean, "string_counts": None}
+    leak = {**clean, "comment": "leak"}
+    assert [fvc.decoy_state(d) for d in (clean, strings, comment_only, leak)] == [
+        "decoy_clean",
+        "decoy_strings",
+        "decoy_comment_only",
+        "decoy_leak",
+    ]
+    colours = [fvc.MATRIX_COLOR[k] for k in ("untested", "decoy_clean", "decoy_strings", "decoy_comment_only", "empty")]
+    assert len(set(colours)) == 5  # five states, five different fills: the three greys no longer merge
+    decoys = {"c": {"io": clean}, "go": {"io": strings}, "zig": {"branch": leak}}
+    svg = fvc.render_matrix_svg(FAMILIES, LANGUAGES, DEFINED, {}, decoys)
+    assert fvc.MATRIX_COLOR["decoy_clean"] in svg and fvc.MATRIX_COLOR["decoy_strings"] in svg and fvc.FAIL in svg

@@ -66,7 +66,16 @@ PARSER_BLUE = "#4f9be8"
 
 CELL, GAP = 11, 1
 PITCH = CELL + GAP
-MATRIX_COLOR = {"na": "#12141a", "untested": "#3b3f4a", "decoy": "#566074", "empty": "#4d5260"}
+# Matrix states, kept visibly apart: dark = not tested yet; blue family = decoy test only (steel: comment and string both ignored, amber: comment ignored but
+# a keyword in a string counts, slate: comment ignored, no string decoy); dotted = tested by a parser but the construct never occurs; red = a comment leaked.
+MATRIX_COLOR = {
+    "na": "#12141a",
+    "untested": "#2b2f3a",
+    "decoy_clean": "#3d6a8c",
+    "decoy_strings": "#8a6d3b",
+    "decoy_comment_only": "#566074",
+    "empty": "#3b3f4a",
+}
 
 
 @dataclass(frozen=True)
@@ -247,7 +256,7 @@ def render_summary_svg(
         if scored:
             med = statistics.median(cell_score(c) or 0.0 for c in scored.values())
             rows.append((med, fam, got))
-    rows.sort(key=lambda r: (r[0], r[1].key))  # worst first: the reader sees the problems first
+    rows.sort(key=lambda r: (-r[0], r[1].key))  # best first: what holds up at the top, the problems at the bottom
 
     left, label_w, cw, ch, cgap = 16, 188, 40, 18, 2
     gx = left + label_w
@@ -321,7 +330,7 @@ def render_summary_svg(
     ya = y + 12
     key_lines = (
         "R = the family misses constructs the parser sees; P = it fires where the parser sees none. \u2020 corpus not pinned (exploratory).",
-        f"Dashed grey italic: under {SMALL_N} functions. \N{MIDDLE DOT} not tested yet. \N{EN DASH} tested, construct never occurs. Rows worst first.",
+        f"Dashed grey italic: under {SMALL_N} functions. \N{MIDDLE DOT} not tested yet. \N{EN DASH} tested, construct never occurs. Rows best first.",
         "Draft = the family's contract is a draft.",
     )
     for k, line in enumerate(key_lines):
@@ -373,6 +382,27 @@ def render_summary_svg(
     return "\n".join(p) + "\n"
 
 
+def decoy_state(dec: dict) -> str:
+    """decoy_leak / decoy_strings / decoy_clean / decoy_comment_only: what the decoy test found for one cell."""
+    if dec["comment"] != "pass":
+        return "decoy_leak"
+    if dec["string_counts"] is None:
+        return "decoy_comment_only"
+    return "decoy_strings" if dec["string_counts"] else "decoy_clean"
+
+
+def _legend_row(p: list[str], x0: int, y: int, items: tuple) -> None:
+    sx = float(x0)
+    for color, label, dotted in items:
+        p.append(
+            f'<rect x="{sx:.0f}" y="{y}" width="{CELL}" height="{CELL}" fill="{color}" stroke="#4a4f5c" stroke-width="0.6"/>'
+        )
+        if dotted:
+            p.append(f'<rect x="{sx:.0f}" y="{y}" width="{CELL}" height="{CELL}" fill="url(#dots)"/>')
+        p.append(f'<text class="legend" x="{sx + 16:.0f}" y="{y + 9}">{label}</text>')
+        sx += 30 + len(label) * 5.4
+
+
 def _decoy_tip(lang: str, rule: str, dec: dict) -> str:
     strings = {True: "counts", False: "does not count", None: "not tested"}[dec["string_counts"]]
     comment = "ignored (pass)" if dec["comment"] == "pass" else "LEAKS"
@@ -386,7 +416,7 @@ def render_matrix_svg(
     decoys = decoys or {}
     order = _order(languages, families, defined, cells)
     s = summary(families, languages, defined, cells, decoys)
-    left, label_w, top = 16, 176, 172
+    left, label_w, top = 16, 176, 212
     grid_x = left + label_w
     rows: list[tuple[str, Family | str]] = []
     last = None
@@ -401,7 +431,8 @@ def render_matrix_svg(
     p.insert(
         2,
         f'<defs><rect id="c" width="{CELL}" height="{CELL}"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
-        '<line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern></defs>',
+        '<line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern>'
+        '<pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>',
     )
     p.append(
         f'<text class="title" x="{left}" y="24">Keyword-family matrix (maintainers): every language against every family</text>'
@@ -415,20 +446,19 @@ def render_matrix_svg(
         stroke = f' stroke="{FAIL}" stroke-width="1.2"' if i == 0 else ""
         p.append(f'<rect x="{lx + i * 70}" y="{ly}" width="12" height="10" fill="{fill}"{stroke}/>')
         p.append(f'<text class="legend" x="{lx + i * 70 + 16}" y="{ly + 9}">{BIN_LABELS[i]}</text>')
-    sx = float(lx + 5 * 70 + 10)
-    for color, label in (
-        (MATRIX_COLOR["decoy"], "decoy test only"),
-        (MATRIX_COLOR["untested"], "not tested yet"),
-        (MATRIX_COLOR["empty"], "tested, construct never seen"),
-        (MATRIX_COLOR["na"], "N/A: no rule"),
-    ):
-        p.append(
-            f'<rect x="{sx:.0f}" y="{ly}" width="{CELL}" height="{CELL}" fill="{color}" stroke="#4a4f5c" stroke-width="0.6"/>'
-        )
-        p.append(f'<text class="legend" x="{sx + 16:.0f}" y="{ly + 9}">{label}</text>')
-        sx += 30 + len(label) * 5.6
+    legend2 = (
+        (MATRIX_COLOR["untested"], "not tested yet", False),
+        (MATRIX_COLOR["decoy_clean"], "decoy: comment and string both ignored", False),
+        (MATRIX_COLOR["decoy_strings"], "decoy: comment ignored, string counted", False),
+        (MATRIX_COLOR["decoy_comment_only"], "decoy: comment ignored (no string decoy)", False),
+        (FAIL, "decoy: a comment leaked", False),
+        (MATRIX_COLOR["empty"], "parser: construct never seen", True),
+        (MATRIX_COLOR["na"], "N/A: no rule", False),
+    )
+    for row, items in ((ly + 20, legend2[:4]), (ly + 38, legend2[4:])):
+        _legend_row(p, lx, row, items)
     p.append(
-        f'<text class="legend" x="{lx}" y="{ly + 26}">Cell colour = the lower of recall and precision. Faded: under {SMALL_N} functions. Hatched: corpus not pinned (exploratory).</text>'
+        f'<text class="legend" x="{lx}" y="{ly + 62}">Parser cells: colour = the lower of recall and precision. Faded: under {SMALL_N} functions. Hatched: corpus not pinned (exploratory).</text>'
     )
     for i, lang in enumerate(order):
         cx = grid_x + i * PITCH + CELL / 2
@@ -456,9 +486,12 @@ def render_matrix_svg(
             if state == "untested":
                 p.append(f'<use href="#c" x="{x}" y="{y}" class="u"/>')
             elif state == "decoy":
-                tip = _decoy_tip(lang, fam.key, decoys[lang][fam.key])
+                dec = decoys[lang][fam.key]
+                tip = _decoy_tip(lang, fam.key, dec)
+                dstate = decoy_state(dec)
+                fill = FAIL if dstate == "decoy_leak" else MATRIX_COLOR[dstate]
                 p.append(
-                    f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="{MATRIX_COLOR["decoy"]}"><title>{escape(tip)}</title></rect>'
+                    f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="{fill}"><title>{escape(tip)}</title></rect>'
                 )
             elif cell is not None:
                 where = f"{cell['corpus']}{'' if cell['pinned'] else ' (not pinned)'}"
@@ -467,6 +500,7 @@ def render_matrix_svg(
                     p.append(
                         f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="{MATRIX_COLOR["empty"]}"><title>{escape(tip)}</title></rect>'
                     )
+                    p.append(f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="url(#dots)"/>')
                 else:
                     sc_ = cell_score(cell) or 0.0
                     b = score_bin(sc_)

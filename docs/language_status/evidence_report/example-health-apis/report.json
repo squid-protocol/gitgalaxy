@@ -2756,7 +2756,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "be32321a3e053e87fbeeaa7da476010cfdf347cd",
+   "sha": "30231b1eb4bbbd4d79a24c8aa0c25fd7a2d05405",
    "translator": {
     "files": 183,
     "sha256": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
@@ -15614,8 +15614,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha be32321a3e053e87fbeeaa7da476010cfdf347cd",
-   "python tests/tools/evidence_report.py example-health-apis --baseline --sha be32321a3e053e87fbeeaa7da476010cfdf347cd",
+   "python tests/tools/cics_census.py survey --baseline --sha 30231b1eb4bbbd4d79a24c8aa0c25fd7a2d05405",
+   "python tests/tools/evidence_report.py example-health-apis --baseline --sha 30231b1eb4bbbd4d79a24c8aa0c25fd7a2d05405",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -15636,13 +15636,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "be32321a3e053e87fbeeaa7da476010cfdf347cd",
+   "sha": "30231b1eb4bbbd4d79a24c8aa0c25fd7a2d05405",
    "translator": {
     "files": 183,
     "sha256": "6a683e4d0cfbed28c64f89d67854e82fdcf6efac1f3f3031873822076a91d7c3"
    }
   },
-  "translator_commit": "be32321a3e053e87fbeeaa7da476010cfdf347cd",
+  "translator_commit": "30231b1eb4bbbd4d79a24c8aa0c25fd7a2d05405",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

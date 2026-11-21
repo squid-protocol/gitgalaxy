@@ -205,7 +205,7 @@ jobs:
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
           # the det translator's parser: without it every det test importorskips and "passes"
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e .
+          tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
         id: tree_sitter_language_pack
@@ -441,7 +441,7 @@ jobs:
           tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
-          pip install --no-build-isolation -e .
+          tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
         id: tree_sitter_language_pack

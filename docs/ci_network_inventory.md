@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 52 | 0 | 0 | 0 | 15 |
+| pip | 53 | 0 | 0 | 0 | 7 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
@@ -24,7 +24,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 84 | 84 | 54 | 208 | 67 |
+| **total** | 85 | 84 | 54 | 208 | 59 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -54,14 +54,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### det-sweep.yml
 
-- `pip` - db2 / Install GitGalaxy with the translator
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
-- `pip` - detmut / Install GitGalaxy
 - `git-fetch` - detmut / Check the ledgers of the cases this PR changes
 - `gh-api` - plan / Plan the sweep
 - `git-fetch` - plan / Plan the sweep
-- `pip` - plan / Install GitGalaxy with the translator (port diff)
-- `pip` - shard / Install GitGalaxy with the translator
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
 ### detection-accuracy-audit.yml
@@ -74,11 +70,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### equivalence-e2e.yml
 
-- `pip` - db2 / Install dependencies
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - equivalence-e2e / Every shard passed, or the plan proved none was needed
 - `gh-api` - plan / Plan the shards
-- `pip` - shard / Install dependencies
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
 ### evidence-refresh.yml
@@ -108,7 +102,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### graph-accuracy-audit.yml
 
-- `pip` - graph-accuracy-audit / Install GitGalaxy + tree-sitter-language-pack + pyan3 + libclang
 - `git-fetch` - plan / Plan the gates
 
 ### graph-comparison-history.yml
@@ -133,7 +126,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### referee-panel.yml
 
-- `pip` - panel / Install GitGalaxy
 - `git-fetch` - panel / Install Cobrix
 - `maven-gradle` - panel / Install Cobrix
 - `git-fetch` - panel / Install tree-sitter-cobol-enterprise

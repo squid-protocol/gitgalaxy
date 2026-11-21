@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
-from gitgalaxy.core.call_resolver import class_alias_tables, confident_file_pairs, resolve_calls
+from gitgalaxy.core.call_resolver import class_alias_tables_full, confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.dense_source import is_dense_source
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
@@ -2879,11 +2879,11 @@ class Orchestrator:
         # the "unparsable_artifacts" list order.
         self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
 
-    def _cpp_alias_tables(self) -> tuple[frozenset[str], dict[str, frozenset[str]]]:
-        """#6266: the class-typedef names and each header's foreign-type aliases (`call_resolver.class_alias_tables`) over
-        the C++ headers of the scan, the delta scan's cached files included. Empty when no parsed file is C++."""
+    def _cpp_alias_tables(self) -> tuple[frozenset[str], dict[str, frozenset[str]], dict[str, str]]:
+        """#6266: the class-typedef names, each header's foreign-type aliases, and unambiguous
+        alias->target map (`call_resolver.class_alias_tables_full`) over the C++ headers of the scan."""
         if not any(f.get("lang_id") == "cpp" for f in self.parsed_files):
-            return frozenset(), {}
+            return frozenset(), {}, {}
         rels = sorted({*self.stem_map.values(), *self.ram_cache.keys()})
         headers = [r for r in rels if Path(r).suffix.lower() in self._C_HEADER_EXTS]
 
@@ -2894,7 +2894,7 @@ class Orchestrator:
                 except OSError:
                     continue
 
-        return class_alias_tables(texts())
+        return class_alias_tables_full(texts())
 
     def _resolve_function_calls(self) -> None:
         """#3328: resolve every function's calls_out_to against the whole repository.
@@ -2902,7 +2902,7 @@ class Orchestrator:
         Runs after the import graph (step 3 of the ladder reads its edges). The
         per-step counts are logged here and kept on `fcall_stats` for #3331.
         """
-        class_aliases, foreign_aliases = self._cpp_alias_tables()
+        class_aliases, foreign_aliases, class_alias_targets = self._cpp_alias_tables()
         self.fcall_sites, self.fcall_stats = resolve_calls(
             self.parsed_files,
             self.network_sensor.dependency_edges,
@@ -2910,6 +2910,7 @@ class Orchestrator:
             self.network_sensor.star_exports,
             class_aliases,
             foreign_aliases,
+            class_alias_targets,
         )
         by_step = self.fcall_stats.get("by_step", {})
         logger.info(

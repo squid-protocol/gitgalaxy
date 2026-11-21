@@ -1428,6 +1428,74 @@ def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
     return list(dict.fromkeys(parents))
 
 
+_KT_IDENT = re.compile(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*")
+
+
+def _kotlin_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
+    """Extract Kotlin supertype names from a class/interface/object header after the name,
+    stepping over `<...>` type parameters and `(...)` primary constructors (`class ClassName(...) : TypeName(...), Comparable<ClassName> {`)."""
+    limit = min(len(stream), body_end, name_end + 3000)
+    i = name_end
+    paren = angle = 0
+    colon = -1
+    open_at = -1
+    while i < limit:
+        ch = stream[i]
+        if ch == "(":
+            paren += 1
+        elif ch == ")":
+            if paren > 0:
+                paren -= 1
+        elif ch == "<":
+            angle += 1
+        elif ch == ">":
+            if angle > 0:
+                angle -= 1
+        elif paren == 0 and angle == 0:
+            if ch == ":" and colon < 0:
+                colon = i
+            elif ch == "{":
+                open_at = i
+                break
+            elif ch == ";" or (
+                ch == "\n"
+                and colon < 0
+                and stream[i + 1 : i + 20].lstrip().startswith(("class ", "interface ", "object ", "fun "))
+            ):
+                break
+        i += 1
+    if colon < 0:
+        return []
+    end = open_at if open_at > colon else limit
+    # Split top-level comma-separated supertypes between `:` and `{` (stopping at `where`)
+    raw = stream[colon + 1 : end]
+    parents: list[str] = []
+    start = 0
+    paren = angle = 0
+    for idx, ch in enumerate(raw):
+        if ch == "(":
+            paren += 1
+        elif ch == ")":
+            if paren > 0:
+                paren -= 1
+        elif ch == "<":
+            angle += 1
+        elif ch == ">":
+            if angle > 0:
+                angle -= 1
+        elif ch == "," and paren == 0 and angle == 0:
+            part = raw[start:idx].strip()
+            m = _KT_IDENT.match(part)
+            if m and m.group(0) != "where":
+                parents.append(m.group(0).rsplit(".", 1)[-1])
+            start = idx + 1
+    part = raw[start:].strip()
+    m = _KT_IDENT.match(part)
+    if m and m.group(0) != "where":
+        parents.append(m.group(0).rsplit(".", 1)[-1])
+    return list(dict.fromkeys(parents))
+
+
 def _php_new_self(func: "FunctionNode", cls: str) -> None:
     """#8161 (PR 5): PHP `new self(..)` / `new static(..)` construct the method's own class (`static` may be a
     subclass at run time; the class itself is what the text names): the call is to that class, as `new C(..)`."""
@@ -4411,6 +4479,8 @@ class StructuralExtractor:
                     # #8161 (PR 5): `class C extends B` and the traits its body `use`s, so `$this->m()` walks to
                     # an inherited (or trait) method
                     classes[-1]["inheritance"] = _php_class_parents(class_safe_stream, match.end(), end_idx)
+                elif self.primary_lang_id == "kotlin" and not inheritance and name != "Anonymous_Class":
+                    classes[-1]["inheritance"] = _kotlin_class_parents(class_safe_stream, match.end(), end_idx)
 
             # #8161 (R1): Rust methods live in `impl` blocks, which are no class rows: (start line, end line,
             # owner) of each, so a method there is owned by its type (`impl Tr for X` -> X) like a class's
@@ -4443,6 +4513,10 @@ class StructuralExtractor:
                 func_line = func.get("start_line", 0)
                 innermost_cls: _ClassInfoWithBounds | None = None
                 for cls in classes:
+                    # Kotlin `companion object { ... }` is sliced as `Anonymous_Class`; its methods
+                    # belong to the enclosing class (`CodeBlock.of(...)`, `FunSpec.builder(...)`).
+                    if self.primary_lang_id == "kotlin" and cls.get("name") == "Anonymous_Class":
+                        continue
                     if cls["_start_line"] <= func_line <= cls["_end_line"] and (
                         innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
                     ):

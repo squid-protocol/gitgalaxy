@@ -173,8 +173,8 @@ jobs:
           args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
           if [ "$EVENT" = "pull_request" ]; then
             # the PR's files from the API, whole or not at all (as equivalence-e2e.yml's plan): a short list runs the check
-            gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | "\(.status)\t\(.filename)"' > "$RUNNER_TEMP/pr_files.tsv" || : > "$RUNNER_TEMP/pr_files.tsv"
-            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+            CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | "\(.status)\t\(.filename)"' > "$RUNNER_TEMP/pr_files.tsv" || : > "$RUNNER_TEMP/pr_files.tsv"
+            count=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
             if [ "$count" -gt 0 ] && [ "$(wc -l < "$RUNNER_TEMP/pr_files.tsv")" -ge "$count" ]; then
               args+=(--files-tsv "$RUNNER_TEMP/pr_files.tsv")
             fi

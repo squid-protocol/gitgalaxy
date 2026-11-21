@@ -2616,6 +2616,10 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     # (doomsday's `Impl::import`) too: a C++20 `import` declaration is never followed by `(`.
     "c": _C_FAMILY_NOT_KEYWORDS,
     "cpp": _C_FAMILY_NOT_KEYWORDS,
+    # Zig `@import("std")` is a builtin invocation (C3); `import` is not a Zig keyword
+    "zig": frozenset({"import"}),
+    # Ruby `obj.class` (Object#class) and `require "x"` (Kernel#require) are method calls (C3)
+    "ruby": frozenset({"class", "require"}),
 }
 
 # #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries

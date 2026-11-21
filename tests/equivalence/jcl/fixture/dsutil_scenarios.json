@@ -1,0 +1,477 @@
+{
+ "fixture": "flow_jcl (in this file)",
+ "issue": 8414,
+ "written_from": "IBM z/OS MVS JCL Reference (SA23-1385: DD DISP and its defaults, IEFBR14 usage) and z/OS DFSMSdfp Utilities (SC23-6864: IEBGENER, IEBCOPY), read by section from memory of the text; page numbers are not cited (the manuals were not open in the authoring environment, so no page was invented). The answers were written before any box ran them. The two ASSUMED answers (A1, A2) rest on analogy, not on a cited sentence.",
+ "scenario_input": "none: each job is submitted as written (its programs are the real utilities). cleanup_dsns are deleted by an IEFBR14 deck before each job so a run never meets a leftover.",
+ "scenario_answer": "expect: per step {action: run|bypass, rc: n | abend: Sxxx}. events: the ordered end states (cataloged | kept | deleted) the tracked datasets reach, consecutive repeats collapsed. sysout_count: how many times a line's text appears in the job's printed output.",
+ "cleanup_dsns": [
+  "PRB.UTIL.NEW1",
+  "PRB.UTIL.NEW2",
+  "PRB.UTIL.GEN1",
+  "PRB.UTIL.EMPTY",
+  "PRB.UTIL.SRC",
+  "PRB.UTIL.DST"
+ ],
+ "flow_jcl": [
+  "//*********************************************************************",
+  "//* #8414: IEFBR14 / IEBGENER / IEBCOPY dataset scenarios. The answers",
+  "//* are in scenarios.json, written from IBM's manuals (z/OS MVS JCL",
+  "//* Reference SA23-1385 for DISP and IEFBR14, z/OS DFSMSdfp Utilities",
+  "//* SC23-6864 for IEBGENER and IEBCOPY) before any box ran them.",
+  "//*********************************************************************",
+  "//BR14CAT  JOB (ACCT),'IEFBR14 CATLG',CLASS=A,MSGCLASS=A",
+  "//MAKE     EXEC PGM=IEFBR14",
+  "//DD1      DD DSN=PRB.UTIL.NEW1,DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(1,1))",
+  "//GONE     EXEC PGM=IEFBR14",
+  "//DD1      DD DSN=PRB.UTIL.NEW1,DISP=(OLD,DELETE)",
+  "//*",
+  "//BR14DFT  JOB (ACCT),'IEFBR14 DEFAULT',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEFBR14",
+  "//DD1      DD DSN=PRB.UTIL.NEW2,UNIT=SYSDA,SPACE=(TRK,1)",
+  "//*",
+  "//BR14NOF  JOB (ACCT),'IEFBR14 NOT FOUND',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEFBR14",
+  "//DD1      DD DSN=PRB.UTIL.MISSING,DISP=OLD",
+  "//S2       EXEC PGM=IEFBR14",
+  "//*",
+  "//GENCPY   JOB (ACCT),'IEBGENER COPY',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "GENERATOR RECORD ONE",
+  "GENERATOR RECORD TWO",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.GEN1,DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(1,1))",
+  "//S2       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.GEN1,DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A",
+  "//S3       EXEC PGM=IEFBR14",
+  "//DD1      DD DSN=PRB.UTIL.GEN1,DISP=(OLD,DELETE)",
+  "//*",
+  "//GENNOIN  JOB (ACCT),'IEBGENER NO SYSUT1',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT2   DD SYSOUT=A",
+  "//*",
+  "//GENEMP   JOB (ACCT),'IEBGENER EMPTY',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DUMMY",
+  "//SYSUT2   DD DSN=PRB.UTIL.EMPTY,DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,1),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//S2       EXEC PGM=IEFBR14",
+  "//DD1      DD DSN=PRB.UTIL.EMPTY,DISP=(OLD,DELETE)",
+  "//*",
+  "//CPYSEL   JOB (ACCT),'IEBCOPY SELECT',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "MEMA LINE",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.SRC(MEMA),DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(2,1,5)),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//S2       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "MEMB LINE",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.SRC(MEMB),DISP=OLD",
+  "//S3       EXEC PGM=IEBCOPY",
+  "//SYSPRINT DD SYSOUT=A",
+  "//IN       DD DSN=PRB.UTIL.SRC,DISP=SHR",
+  "//OUT      DD DSN=PRB.UTIL.DST,DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(2,1,5)),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//SYSUT3   DD UNIT=SYSDA,SPACE=(TRK,(1))",
+  "//SYSUT4   DD UNIT=SYSDA,SPACE=(TRK,(1))",
+  "//SYSIN    DD *",
+  " COPY OUTDD=OUT,INDD=IN",
+  " SELECT MEMBER=MEMA",
+  "/*",
+  "//S4       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMA),DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A",
+  "//S5       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMB),DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A",
+  "//*",
+  "//CPYEXC   JOB (ACCT),'IEBCOPY EXCLUDE',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "MEMA LINE",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.SRC(MEMA),DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(2,1,5)),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//S2       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "MEMB LINE",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.SRC(MEMB),DISP=OLD",
+  "//S3       EXEC PGM=IEBCOPY",
+  "//SYSPRINT DD SYSOUT=A",
+  "//IN       DD DSN=PRB.UTIL.SRC,DISP=SHR",
+  "//OUT      DD DSN=PRB.UTIL.DST,DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(2,1,5)),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//SYSUT3   DD UNIT=SYSDA,SPACE=(TRK,(1))",
+  "//SYSUT4   DD UNIT=SYSDA,SPACE=(TRK,(1))",
+  "//SYSIN    DD *",
+  " COPY OUTDD=OUT,INDD=IN",
+  " EXCLUDE MEMBER=MEMA",
+  "/*",
+  "//S4       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMB),DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A",
+  "//S5       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMA),DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A",
+  "//*",
+  "//CPYALL   JOB (ACCT),'IEBCOPY ALL',CLASS=A,MSGCLASS=A",
+  "//S1       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "MEMA LINE",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.SRC(MEMA),DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(2,1,5)),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//S2       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD *",
+  "MEMB LINE",
+  "/*",
+  "//SYSUT2   DD DSN=PRB.UTIL.SRC(MEMB),DISP=OLD",
+  "//S3       EXEC PGM=IEBCOPY",
+  "//SYSPRINT DD SYSOUT=A",
+  "//IN       DD DSN=PRB.UTIL.SRC,DISP=SHR",
+  "//OUT      DD DSN=PRB.UTIL.DST,DISP=(NEW,CATLG),UNIT=SYSDA,",
+  "//            SPACE=(TRK,(2,1,5)),DCB=(RECFM=FB,LRECL=80,BLKSIZE=80)",
+  "//SYSUT3   DD UNIT=SYSDA,SPACE=(TRK,(1))",
+  "//SYSUT4   DD UNIT=SYSDA,SPACE=(TRK,(1))",
+  "//SYSIN    DD *",
+  " COPY OUTDD=OUT,INDD=IN",
+  "/*",
+  "//S4       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMA),DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A",
+  "//S5       EXEC PGM=IEBGENER",
+  "//SYSPRINT DD SYSOUT=A",
+  "//SYSIN    DD DUMMY",
+  "//SYSUT1   DD DSN=PRB.UTIL.DST(MEMB),DISP=SHR",
+  "//SYSUT2   DD SYSOUT=A"
+ ],
+ "scenarios": [
+  {
+   "id": "iefbr14-catlg-then-delete",
+   "job": "BR14CAT",
+   "expect": {
+    "MAKE": {
+     "action": "run",
+     "rc": 0
+    },
+    "GONE": {
+     "action": "run",
+     "rc": 0
+    }
+   },
+   "track": [
+    "PRB.UTIL.NEW1"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.NEW1",
+     "cataloged"
+    ],
+    [
+     "PRB.UTIL.NEW1",
+     "deleted"
+    ]
+   ],
+   "basis": "IEFBR14 is a dummy program that does nothing and ends with return code 0; its use is the allocation and deallocation the DD statements cause. MAKE's DD is NEW,CATLG: the dataset is created and cataloged when the step ends normally. GONE's DD is OLD,DELETE: the dataset is deleted (and its catalog entry removed) at normal end."
+  },
+  {
+   "id": "iefbr14-new-without-disposition",
+   "job": "BR14DFT",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 0
+    }
+   },
+   "track": [
+    "PRB.UTIL.NEW2"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.NEW2",
+     "deleted"
+    ]
+   ],
+   "basis": "DISP, defaults: for a NEW dataset with no normal termination disposition coded, the default is DELETE, so the dataset is created and deleted again within the one step."
+  },
+  {
+   "id": "iefbr14-old-dataset-not-cataloged",
+   "job": "BR14NOF",
+   "expect": {
+    "S1": {
+     "action": "bypass"
+    },
+    "S2": {
+     "action": "bypass"
+    }
+   },
+   "assumed": "A1",
+   "basis": "DISP=OLD names an existing dataset; one that is not cataloged (and has no VOLUME) cannot be located, the allocation fails, and S1 is not executed. ASSUMED A1: that the failed allocation also flushes the rest of the job (S2 not executed) is read from IBM's JCL-error wording by analogy, not from a sentence about DISP=OLD; the answer is not the manual's until a sentence is cited."
+  },
+  {
+   "id": "iebgener-copy-instream-to-new-dataset",
+   "job": "GENCPY",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 0
+    },
+    "S2": {
+     "action": "run",
+     "rc": 0
+    },
+    "S3": {
+     "action": "run",
+     "rc": 0
+    }
+   },
+   "track": [
+    "PRB.UTIL.GEN1"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.GEN1",
+     "cataloged"
+    ],
+    [
+     "PRB.UTIL.GEN1",
+     "kept"
+    ],
+    [
+     "PRB.UTIL.GEN1",
+     "deleted"
+    ]
+   ],
+   "sysout_count": {
+    "GENERATOR RECORD ONE": 1,
+    "GENERATOR RECORD TWO": 1
+   },
+   "basis": "IEBGENER copies SYSUT1 to SYSUT2 sequentially; with SYSIN DUMMY (no control statements) it is a straight copy and ends 0. SYSUT2 takes its record format and length from SYSUT1 when it is not given (an in-stream deck is fixed, 80). S2 copies the dataset to SYSOUT, so each record is printed once; DISP=SHR with no normal disposition keeps the existing dataset; S3 deletes it."
+  },
+  {
+   "id": "iebgener-no-sysut1-dd",
+   "job": "GENNOIN",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 12
+    }
+   },
+   "assumed": "A2",
+   "basis": "IEBGENER needs a SYSUT1 DD; the program is documented to end with a return code above 4 when it cannot open its input. ASSUMED A2: that the code is 12 (and not an open abend) is IBM's usual 'unrecoverable error' code for the utilities; it is not a sentence about a missing DD, so it is not the manual's answer."
+  },
+  {
+   "id": "iebgener-dummy-input-empty-output",
+   "job": "GENEMP",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 0
+    },
+    "S2": {
+     "action": "run",
+     "rc": 0
+    }
+   },
+   "track": [
+    "PRB.UTIL.EMPTY"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.EMPTY",
+     "cataloged"
+    ],
+    [
+     "PRB.UTIL.EMPTY",
+     "deleted"
+    ]
+   ],
+   "basis": "A DUMMY SYSUT1 reads end of data at once: IEBGENER copies no records, ends 0 and the new SYSUT2 is created and cataloged empty (the usual way to allocate an empty dataset). SYSUT2 carries its own DCB because there is no input to take one from."
+  },
+  {
+   "id": "iebcopy-select-one-member",
+   "job": "CPYSEL",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 0
+    },
+    "S2": {
+     "action": "run",
+     "rc": 0
+    },
+    "S3": {
+     "action": "run",
+     "rc": 0
+    },
+    "S4": {
+     "action": "run",
+     "rc": 0
+    },
+    "S5": {
+     "action": "run",
+     "abend": "S013"
+    }
+   },
+   "track": [
+    "PRB.UTIL.DST"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.DST",
+     "cataloged"
+    ],
+    [
+     "PRB.UTIL.DST",
+     "kept"
+    ]
+   ],
+   "sysout_count": {
+    "MEMA LINE": 1,
+    "MEMB LINE": 0
+   },
+   "basis": "IEBCOPY COPY with SELECT MEMBER=MEMA copies only that member. S4 reads the copied member (return code 0); S5 names a member the copy does not hold, so OPEN fails with a member-not-found system abend (S013, reason 18) and no return code is set."
+  },
+  {
+   "id": "iebcopy-exclude-one-member",
+   "job": "CPYEXC",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 0
+    },
+    "S2": {
+     "action": "run",
+     "rc": 0
+    },
+    "S3": {
+     "action": "run",
+     "rc": 0
+    },
+    "S4": {
+     "action": "run",
+     "rc": 0
+    },
+    "S5": {
+     "action": "run",
+     "abend": "S013"
+    }
+   },
+   "track": [
+    "PRB.UTIL.DST"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.DST",
+     "cataloged"
+    ],
+    [
+     "PRB.UTIL.DST",
+     "kept"
+    ]
+   ],
+   "sysout_count": {
+    "MEMB LINE": 1,
+    "MEMA LINE": 0
+   },
+   "basis": "IEBCOPY COPY with EXCLUDE MEMBER=MEMA copies every member except MEMA. S4 reads MEMB (return code 0); S5 names the excluded MEMA, which the copy does not hold: S013 as for SELECT."
+  },
+  {
+   "id": "iebcopy-no-member-statement-copies-all",
+   "job": "CPYALL",
+   "expect": {
+    "S1": {
+     "action": "run",
+     "rc": 0
+    },
+    "S2": {
+     "action": "run",
+     "rc": 0
+    },
+    "S3": {
+     "action": "run",
+     "rc": 0
+    },
+    "S4": {
+     "action": "run",
+     "rc": 0
+    },
+    "S5": {
+     "action": "run",
+     "rc": 0
+    }
+   },
+   "track": [
+    "PRB.UTIL.DST"
+   ],
+   "events": [
+    [
+     "PRB.UTIL.DST",
+     "cataloged"
+    ],
+    [
+     "PRB.UTIL.DST",
+     "kept"
+    ]
+   ],
+   "sysout_count": {
+    "MEMA LINE": 1,
+    "MEMB LINE": 1
+   },
+   "basis": "IEBCOPY COPY with no SELECT or EXCLUDE copies every member of the input PDS. Both members read back with return code 0 and each prints once."
+  }
+ ],
+ "assumed": [
+  {
+   "id": "A1",
+   "text": "A failed allocation (DISP=OLD, dataset not cataloged) not only skips its own step but flushes the later steps of the job."
+  },
+  {
+   "id": "A2",
+   "text": "IEBGENER with no SYSUT1 DD ends with return code 12."
+  }
+ ],
+ "refused": [
+  "IEBGENER record-format inheritance (DCB of SYSUT2 taken from SYSUT1): needs a VTOC listing (IEHLIST), not in this slice",
+  "IEBGENER GENERATE / MEMBER / RECORD / EXITS control statements",
+  "IEBCOPY unload / load, compress in place (INDD = OUTDD), COPYGRP, RENAME / REPLACE",
+  "IEFBR14 with DISP=(MOD,...) appending, and a multi-volume DD"
+ ]
+}

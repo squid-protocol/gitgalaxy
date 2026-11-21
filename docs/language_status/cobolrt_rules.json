@@ -2884,16 +2884,17 @@
   {
    "id": "RT-CICS-BMS-SUBFIELDS",
    "family": "CICS",
-   "title": "A symbolic map field's subfields: attribute, colour and highlight bytes (X'00' and a space not set), length -1 the cursor; RECEIVE MAP's input text padded and its length without trailing blanks",
+   "title": "A symbolic map field's subfields: attribute, colour and highlight bytes (recorded as they are: X'00' and the space X'40' are values), length -1 the cursor; RECEIVE MAP's input text padded and its length without trailing blanks",
    "methods": [
     "subfields",
+    "subfieldByte",
     "typed"
    ],
    "ibm": {
     "doc": "cics-apr",
     "section": "SEND MAP, RECEIVE MAP"
    },
-   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime treats X'00' and a space as not set, so a space attribute (X'40') is dropped where IBM sends it and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
+   "ibm_note": "IBM (Developing CICS Applications, SEND MAP) treats an attribute byte as not present only when it is X'00' or a leftover of an input operation (X'80', X'02', X'82'), and an extended attribute byte only when null; the runtime records every byte as it is (#7955: X'00' and a space are values the harness compares), so a space attribute (X'40') is recorded where IBM sends it, and a leftover X'80' / X'02' / X'82' is set where IBM ignores it. RECEIVE's <f>L is the characters the terminal sent (blanks keyed included), the runtime's the text without trailing blanks. Declared in X2",
    "options": [],
    "features": [
     "cics_commands: RECEIVE",

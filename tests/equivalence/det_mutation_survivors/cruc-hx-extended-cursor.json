@@ -298,24 +298,6 @@
    ]
   },
   {
-   "id": "71297bb4fe",
-   "op": "CON",
-   "line": 77,
-   "before": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 6, false);",
-   "after": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 7, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..6 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). ACCTO is followed by AMOUNTL.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
    "id": "8fc91e8128",
    "op": "CON",
    "line": 78,
@@ -349,24 +331,6 @@
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: map attribute MSGH: SEND MAP reads its first byte only, and the mutant keeps it (the line is `private final Field f33_MSGH = Field.alphanumeric(s_HXM2I, 39, 1, false);`)",
    "tried": [
     "solver-unobservable"
-   ]
-  },
-  {
-   "id": "4e41ee0b76",
-   "op": "CON",
-   "line": 80,
-   "before": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 7, false);",
-   "after": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 8, false);",
-   "verdict": "equivalent",
-   "reason": "Output field read one byte too long. The extra byte is the high byte of the next field's two-byte length item, which the program never sets to anything but 0..7 (RECEIVE stores a length of 0 or more, no statement sets -1), so it is X'00'; `Cobol.text` returns it as a trailing NUL and the screen compare strips trailing NULs and blanks (`_same`, equivalence_cics_compare.py:200). AMOUNTO is followed by MSGL.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
    ]
   },
   {
@@ -2564,6 +2528,18 @@
    ]
   },
   {
+   "id": "eb2d001f62",
+   "op": "CON",
+   "line": 284,
+   "before": "calen = DetCics.eibCalen(task, 1);",
+   "after": "calen = DetCics.eibCalen(task, 2);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is only compared with 0 (IF EIBCALEN = 0) and the program always returns a one-byte COMMAREA, so the second argument (1 -> 2) cannot move that test: calen stays non-zero when a COMMAREA arrives and zero when none does. One attempt (empty ENTER then PF5) did not kill it.",
+   "tried": [
+    "atk-empty-enter"
+   ]
+  },
+  {
    "id": "5665347662",
    "op": "DEL",
    "line": 286,
@@ -3359,24 +3335,6 @@
    ]
   },
   {
-   "id": "dca3283b82",
-   "op": "LIT",
-   "line": 442,
-   "before": "values1.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
-   "after": "values1.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
    "id": "63063d90d0",
    "op": "DEL",
    "line": 443,
@@ -3386,24 +3344,6 @@
    "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
    "tried": [
     "flow-plumbing"
-   ]
-  },
-  {
-   "id": "80e4b86df4",
-   "op": "LIT",
-   "line": 443,
-   "before": "DetCics.subfields(sub2, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "after": "DetCics.subfields(sub2, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
    ]
   },
   {
@@ -3494,6 +3434,18 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8ec71a9459",
+   "op": "DEL",
+   "line": 483,
+   "before": "java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0);",
+   "after": "/* java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0); */",
+   "verdict": "equivalent",
+   "reason": "The deleted fill zeroes HXM2I storage; the line just before it is MOVE LOW-VALUES TO HXM2I (CHECK-INPUT), which already sets the same bytes, and RECEIVE then overwrites them. One attempt (empty ENTER then PF5) did not kill it.",
+   "tried": [
+    "atk-empty-enter"
    ]
   },
   {
@@ -3677,24 +3629,6 @@
    ]
   },
   {
-   "id": "8f0044f63a",
-   "op": "LIT",
-   "line": 518,
-   "before": "DetCics.subfields(sub10, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "after": "DetCics.subfields(sub10, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records only a set attribute, colour or highlight byte (not X'00' or a space) and a length only of -1; ec.java_subfields (equivalence_cics.py:2956) drops the rest, and the compare keys the result by name. On this send every attribute byte of the field is X'00' or a space and its length is not -1 (no statement here sets it; RECEIVE only stores a length of 0 or more), so the subfield set is empty under either name: the rename cannot show.",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
    "id": "104999b42f",
    "op": "DEL",
    "line": 527,
@@ -3752,18 +3686,6 @@
    "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "c0f11888a3",
-   "op": "LIT",
-   "line": 548,
-   "before": "DetCics.subfields(sub10, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "after": "DetCics.subfields(sub10, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "equivalent",
-   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
    ]
   },
   {
@@ -3869,54 +3791,6 @@
    ]
   },
   {
-   "id": "28c31429c3",
-   "op": "LIT",
-   "line": 570,
-   "before": "values17.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
-   "after": "values17.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
-   "id": "e8051099dd",
-   "op": "LIT",
-   "line": 571,
-   "before": "DetCics.subfields(sub14, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "after": "DetCics.subfields(sub14, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "equivalent",
-   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
-   ]
-  },
-  {
-   "id": "143f9caa95",
-   "op": "LIT",
-   "line": 572,
-   "before": "values17.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "after": "values17.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "verdict": "equivalent",
-   "reason": "SEND MAP values key renamed on the first screen: the map is LOW-VALUES'd first and this field is never set before the send, so its value is NUL or blank, and the harness compares a screen value with `_same` (equivalence_cics_compare.py:200), which strips trailing blanks and NULs and reads an absent key as empty. Renamed or not, the compared value is empty. (HXEXT: ACCT and AMOUNT are blank on the first screen and after the LOW-VALUES move of the clear path.)",
-   "tried": [
-    "s2-ext-bad-short-acct",
-    "s2-ext-dto-first",
-    "s2-ext-dto-z",
-    "s2-ext-dto-z-pf5",
-    "s2-ext-good-1byte-entry",
-    "s2-ext-pf5-1byte-entry",
-    "s2-ext-typed-all"
-   ]
-  },
-  {
    "id": "07ae69f750",
    "op": "DEL",
    "line": 577,
@@ -4016,18 +3890,6 @@
     "long-acct",
     "pa1-f",
     "pf3-f"
-   ]
-  },
-  {
-   "id": "ed0122b913",
-   "op": "LIT",
-   "line": 605,
-   "before": "DetCics.subfields(sub18, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "after": "DetCics.subfields(sub18, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "equivalent",
-   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
-   "tried": [
-    "subfield-unset"
    ]
   },
   {

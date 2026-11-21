@@ -2220,6 +2220,111 @@
    ]
   },
   {
+   "id": "e68f73c664",
+   "op": "LIT",
+   "line": 241,
+   "before": "f22_WS_CONTAINER_NAME = \"                \";",
+   "after": "f22_WS_CONTAINER_NAME = \"X               \";",
+   "verdict": "equivalent",
+   "reason": "initial value of WS-CONTAINER-NAME / WS-CHANNEL-NAME in initialState: A010 moves 'CIPA' and 'CIPCREDCHANN' into them (lines 450-452) before the first GET / PUT CONTAINER reads them, so the initial text is never observed",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "df5183bf01",
+   "op": "LIT",
+   "line": 242,
+   "before": "f23_WS_CHANNEL_NAME = \"                \";",
+   "after": "f23_WS_CHANNEL_NAME = \"X               \";",
+   "verdict": "equivalent",
+   "reason": "initial value of WS-CONTAINER-NAME / WS-CHANNEL-NAME in initialState: A010 moves 'CIPA' and 'CIPCREDCHANN' into them (lines 450-452) before the first GET / PUT CONTAINER reads them, so the initial text is never observed",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "935772df6f",
+   "op": "LIT",
+   "line": 244,
+   "before": "f36_WS_ORIG_DATE_DD_X = \"  \";",
+   "after": "f36_WS_ORIG_DATE_DD_X = \"X \";",
+   "verdict": "equivalent",
+   "reason": "initial value of a WS-ORIG-DATE-xx-X item: its only mentions in Crdtagy1Service are the declaration and this initialState assignment (no statement reads it), so the value is unobservable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5cb9750ba1",
+   "op": "LIT",
+   "line": 245,
+   "before": "f38_WS_ORIG_DATE_MM_X = \"  \";",
+   "after": "f38_WS_ORIG_DATE_MM_X = \"X \";",
+   "verdict": "equivalent",
+   "reason": "initial value of a WS-ORIG-DATE-xx-X item: its only mentions in Crdtagy1Service are the declaration and this initialState assignment (no statement reads it), so the value is unobservable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a0909d9933",
+   "op": "LIT",
+   "line": 246,
+   "before": "f40_WS_ORIG_DATE_YYYY_X = \"    \";",
+   "after": "f40_WS_ORIG_DATE_YYYY_X = \"X   \";",
+   "verdict": "equivalent",
+   "reason": "initial value of a WS-ORIG-DATE-xx-X item: its only mentions in Crdtagy1Service are the declaration and this initialState assignment (no statement reads it), so the value is unobservable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "e879dc224e",
    "op": "DEL",
    "line": 249,
@@ -2421,6 +2526,27 @@
    ]
   },
   {
+   "id": "52615584cc",
+   "op": "DEL",
+   "line": 272,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "caBack is already initialised to `() -> { }` at its declaration (line 132) and nothing else in Crdtagy1Service assigns it, so removing this re-assignment at the start of the task leaves the same no-op Runnable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "3ea521309a",
    "op": "DEL",
    "line": 273,
@@ -2601,6 +2727,90 @@
    ]
   },
   {
+   "id": "0d3f41eef7",
+   "op": "NEG",
+   "line": 287,
+   "before": "if (ca instanceof AbndprocDfhcommarea) {",
+   "after": "if (!(ca instanceof AbndprocDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2e0930d94b",
+   "op": "DEL",
+   "line": 288,
+   "before": "calen = DetCics.eibCalen(task, 681);",
+   "after": "/* calen = DetCics.eibCalen(task, 681); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a3ba42f64c",
+   "op": "CON",
+   "line": 288,
+   "before": "calen = DetCics.eibCalen(task, 681);",
+   "after": "calen = DetCics.eibCalen(task, 682);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "709fac07c3",
+   "op": "NEG",
+   "line": 289,
+   "before": "} else if (ca instanceof AcctctrlDfhcommarea) {",
+   "after": "} else if (!(ca instanceof AcctctrlDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "fc18f42cd2",
    "op": "CON",
    "line": 289,
@@ -2622,6 +2832,111 @@
    ]
   },
   {
+   "id": "13b2a6e28b",
+   "op": "DEL",
+   "line": 290,
+   "before": "calen = DetCics.eibCalen(task, 98);",
+   "after": "/* calen = DetCics.eibCalen(task, 98); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4d6d68ab5f",
+   "op": "CON",
+   "line": 290,
+   "before": "calen = DetCics.eibCalen(task, 98);",
+   "after": "calen = DetCics.eibCalen(task, 99);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7a64470f40",
+   "op": "NEG",
+   "line": 291,
+   "before": "} else if (ca instanceof Bnk1cacWsCommArea) {",
+   "after": "} else if (!(ca instanceof Bnk1cacWsCommArea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0c65263c47",
+   "op": "CON",
+   "line": 292,
+   "before": "calen = DetCics.eibCalen(task, 32);",
+   "after": "calen = DetCics.eibCalen(task, 33);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "313fecfd25",
+   "op": "DEL",
+   "line": 292,
+   "before": "calen = DetCics.eibCalen(task, 32);",
+   "after": "/* calen = DetCics.eibCalen(task, 32); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "eea30fe38b",
    "op": "DEL",
    "line": 292,
@@ -2629,6 +2944,27 @@
    "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
    "verdict": "equivalent",
    "reason": "caBack's fill_ call for ABNDPROC's typed DTO, deleted: ABNDPROC only reads DFHCOMMAREA (MOVE DFHCOMMAREA TO WS-ABND-AREA) and never writes it, so the copy-back rewrites the bytes the entry gave. The #7485 sign defect is closed: ABND-RESPCODE sent as 9 spaces (respcode-spaces) and the case's low-value codes (raw-numerics-written) leave the port equal to the COBOL with and without the call, and the mutant survives them.",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "052b686bf2",
+   "op": "NEG",
+   "line": 293,
+   "before": "} else if (ca instanceof Bnk1tfnWsCommarea) {",
+   "after": "} else if (!(ca instanceof Bnk1tfnWsCommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2676,6 +3012,48 @@
    ]
   },
   {
+   "id": "0703763896",
+   "op": "CON",
+   "line": 294,
+   "before": "calen = DetCics.eibCalen(task, 28);",
+   "after": "calen = DetCics.eibCalen(task, 29);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7a979c3fbe",
+   "op": "DEL",
+   "line": 294,
+   "before": "calen = DetCics.eibCalen(task, 28);",
+   "after": "/* calen = DetCics.eibCalen(task, 28); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "d59ae5ad93",
    "op": "DEL",
    "line": 294,
@@ -2688,6 +3066,27 @@
    ]
   },
   {
+   "id": "1665dfb35a",
+   "op": "NEG",
+   "line": 295,
+   "before": "} else if (ca instanceof BnkmenuCommunicationArea) {",
+   "after": "} else if (!(ca instanceof BnkmenuCommunicationArea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "f284ce2e43",
    "op": "DEL",
    "line": 295,
@@ -2695,6 +3094,132 @@
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
    "verdict": "equivalent",
    "reason": "ABNDPROC's `beyond = null` reset deleted: `beyond` is read only by the raw-link copy-back, which sets `beyond` itself first, and by the end-area compare, which cuts the area to the entered length, so a stale tail is never inside the compared bytes (as GETCOMPY 02134c5f29, #8417). Ran the byte entry, the direct entry, the entry-only shape and the LINK bytes at 1985, 1986 and 2000 bytes (scenarios raw-entry-bytes-N, raw-entry-direct-N, entry-only-N, link-bytes-tail-past-storage-1/10/40: DFHCOMMAREA storage is 1985 bytes, so only an area over 1985 bytes reaches `beyond`; the earlier record-sized attempts never did) and all equal (slice 18).",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "181487bed9",
+   "op": "CON",
+   "line": 296,
+   "before": "calen = DetCics.eibCalen(task, 1);",
+   "after": "calen = DetCics.eibCalen(task, 2);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1fdbb06088",
+   "op": "DEL",
+   "line": 296,
+   "before": "calen = DetCics.eibCalen(task, 1);",
+   "after": "/* calen = DetCics.eibCalen(task, 1); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b05a765890",
+   "op": "NEG",
+   "line": 297,
+   "before": "} else if (ca instanceof Crdtagy1WsContIn) {",
+   "after": "} else if (!(ca instanceof Crdtagy1WsContIn)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "21197da6a5",
+   "op": "DEL",
+   "line": 298,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "/* calen = DetCics.eibCalen(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8ea4f06240",
+   "op": "CON",
+   "line": 298,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8a484d6609",
+   "op": "NEG",
+   "line": 299,
+   "before": "} else if (ca instanceof CreaccDfhcommarea) {",
+   "after": "} else if (!(ca instanceof CreaccDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2733,6 +3258,27 @@
    ]
   },
   {
+   "id": "4b697c93d6",
+   "op": "DEL",
+   "line": 300,
+   "before": "calen = DetCics.eibCalen(task, 100);",
+   "after": "/* calen = DetCics.eibCalen(task, 100); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "4cbf0b75c1",
    "op": "CON",
    "line": 300,
@@ -2754,6 +3300,27 @@
    "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "6e2224adb1",
+   "op": "CON",
+   "line": 300,
+   "before": "calen = DetCics.eibCalen(task, 100);",
+   "after": "calen = DetCics.eibCalen(task, 101);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
    ]
   },
   {
@@ -2793,6 +3360,27 @@
    ]
   },
   {
+   "id": "39e70b6e7b",
+   "op": "NEG",
+   "line": 301,
+   "before": "} else if (ca instanceof DelaccDfhcommarea) {",
+   "after": "} else if (!(ca instanceof DelaccDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "5b28719ea4",
    "op": "AOR",
    "line": 301,
@@ -2829,6 +3417,90 @@
    ]
   },
   {
+   "id": "4209492161",
+   "op": "CON",
+   "line": 302,
+   "before": "calen = DetCics.eibCalen(task, 134);",
+   "after": "calen = DetCics.eibCalen(task, 135);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8be60dc417",
+   "op": "DEL",
+   "line": 302,
+   "before": "calen = DetCics.eibCalen(task, 134);",
+   "after": "/* calen = DetCics.eibCalen(task, 134); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "baf6741b63",
+   "op": "NEG",
+   "line": 303,
+   "before": "} else if (ca instanceof DelcusDfhcommarea) {",
+   "after": "} else if (!(ca instanceof DelcusDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "79f3bf92e9",
+   "op": "DEL",
+   "line": 304,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "/* calen = DetCics.eibCalen(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "b340ac5e04",
    "op": "DEL",
    "line": 304,
@@ -2838,6 +3510,27 @@
    "reason": "handlers is a map nothing puts into: clear() and get() see it empty (never-populated)",
    "tried": [
     "never-populated"
+   ]
+  },
+  {
+   "id": "efe5a034ea",
+   "op": "CON",
+   "line": 304,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
    ]
   },
   {
@@ -2853,6 +3546,27 @@
    ]
   },
   {
+   "id": "f8e0dbf89d",
+   "op": "NEG",
+   "line": 305,
+   "before": "} else if (ca instanceof InqaccDfhcommarea) {",
+   "after": "} else if (!(ca instanceof InqaccDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "6ffd2eaf92",
    "op": "DEL",
    "line": 306,
@@ -2860,6 +3574,69 @@
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
    "verdict": "equivalent",
    "reason": "ABNDPROC's raw LINK copy-back `caBack` deleted: the copy-back writes the storage back into the caller's area, and ABNDPROC never writes DFHCOMMAREA (it MOVEs it to WS-ABND-AREA and WRITEs the file record), so the bytes written back equal the bytes the caller passed in. Ran the byte entry, the direct entry, the entry-only shape and the LINK bytes at 1985, 1986 and 2000 bytes with the caller's end area compared, and all equal (slice 18).",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "bb5f794f12",
+   "op": "CON",
+   "line": 306,
+   "before": "calen = DetCics.eibCalen(task, 107);",
+   "after": "calen = DetCics.eibCalen(task, 108);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "cbdb9b7975",
+   "op": "DEL",
+   "line": 306,
+   "before": "calen = DetCics.eibCalen(task, 107);",
+   "after": "/* calen = DetCics.eibCalen(task, 107); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1d91b3455d",
+   "op": "NEG",
+   "line": 307,
+   "before": "} else if (ca instanceof InqacccuDfhcommarea) {",
+   "after": "} else if (!(ca instanceof InqacccuDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2898,6 +3675,48 @@
    ]
   },
   {
+   "id": "89fdcb404f",
+   "op": "CON",
+   "line": 308,
+   "before": "calen = DetCics.eibCalen(task, 1985);",
+   "after": "calen = DetCics.eibCalen(task, 1986);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b2128572dd",
+   "op": "DEL",
+   "line": 308,
+   "before": "calen = DetCics.eibCalen(task, 1985);",
+   "after": "/* calen = DetCics.eibCalen(task, 1985); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "7d9e4ea1e6",
    "op": "ROR",
    "line": 309,
@@ -2905,6 +3724,69 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "unreachable",
    "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b1f33db31a",
+   "op": "NEG",
+   "line": 309,
+   "before": "} else if (ca instanceof InqcustDfhcommarea) {",
+   "after": "} else if (!(ca instanceof InqcustDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "00f04f9c28",
+   "op": "CON",
+   "line": 310,
+   "before": "calen = DetCics.eibCalen(task, 269);",
+   "after": "calen = DetCics.eibCalen(task, 270);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "726ef4895c",
+   "op": "DEL",
+   "line": 310,
+   "before": "calen = DetCics.eibCalen(task, 269);",
+   "after": "/* calen = DetCics.eibCalen(task, 269); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2991,6 +3873,27 @@
    ]
   },
   {
+   "id": "d221b80c8c",
+   "op": "NEG",
+   "line": 311,
+   "before": "} else if (ca instanceof UpdcustDfhcommarea) {",
+   "after": "} else if (!(ca instanceof UpdcustDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "de9a5db51a",
    "op": "CON",
    "line": 311,
@@ -3051,6 +3954,48 @@
    ]
   },
   {
+   "id": "447753df7d",
+   "op": "CON",
+   "line": 312,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5976e709d3",
+   "op": "DEL",
+   "line": 312,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "/* calen = DetCics.eibCalen(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "98fd599183",
    "op": "AOR",
    "line": 312,
@@ -3087,6 +4032,27 @@
    ]
   },
   {
+   "id": "096de36aac",
+   "op": "CON",
+   "line": 314,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen == 1 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "3ea55be942",
    "op": "DEL",
    "line": 314,
@@ -3094,6 +4060,27 @@
    "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */",
    "verdict": "equivalent",
    "reason": "the exact-EIBCALEN wrapper `caBack = () -> { restoreCommarea(...); typed.run(); }` deleted: the finally block restores the full area from caWhole on every path before caBack runs, and ABNDPROC never writes DFHCOMMAREA (it MOVEs it to WS-ABND-AREA), so the typed copy-back rewrites the bytes the entry gave. Tried: dto-eibcalen-100 and dto-eibcalen-681 re-entered under new names, equal to the COBOL",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6b44929d52",
+   "op": "ROR",
+   "line": 314,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen != 0 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -3129,6 +4116,27 @@
    "reason": "local calen at line 314 is overwritten at line 316 before any read (local-unread)",
    "tried": [
     "local-unread"
+   ]
+  },
+  {
+   "id": "8f8bb53807",
+   "op": "DEL",
+   "line": 315,
+   "before": "calen = DetCics.eibCalen(task, task.linkArea().length);",
+   "after": "/* calen = DetCics.eibCalen(task, task.linkArea().length); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
    ]
   },
   {
@@ -3187,6 +4195,48 @@
    "after": "perform(0, 6);",
    "verdict": "equivalent",
    "reason": "perform(0, 5) range encompasses all paragraphs; modifying range arguments produces identical execution path ending at GMOOH010's RETURN",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "78b8a16fde",
+   "op": "CON",
+   "line": 319,
+   "before": "perform(0, 8);",
+   "after": "perform(1, 8);",
+   "verdict": "equivalent",
+   "reason": "the paragraph skipped or added by this PERFORM range is empty: p0 (and POPULATE-TIME-DATE, p6) hold no statement and only return the next paragraph's index, so starting at the next one or ending one later runs the same statements",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7f7fe0053e",
+   "op": "CON",
+   "line": 319,
+   "before": "perform(0, 8);",
+   "after": "perform(0, 9);",
+   "verdict": "equivalent",
+   "reason": "the paragraph skipped or added by this PERFORM range is empty: p0 (and POPULATE-TIME-DATE, p6) hold no statement and only return the next paragraph's index, so starting at the next one or ending one later runs the same statements",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -3505,6 +4555,48 @@
    "after": "private int[] performThru = new int[65];",
    "verdict": "equivalent",
    "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0aac70e2b8",
+   "op": "CON",
+   "line": 412,
+   "before": "if (next >= 9) {",
+   "after": "if (next >= 10) {",
+   "verdict": "equivalent",
+   "reason": "`next >= 9` (Goback past the last paragraph) is never true here: the only paragraph returning 9 is p8, which is always the THRU end of its PERFORM and returns before next is read, so a changed bound or comparison that is still false for next 1-8 and 9 changes nothing",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "67570a3597",
+   "op": "ROR",
+   "line": 412,
+   "before": "if (next >= 9) {",
+   "after": "if (next > 9) {",
+   "verdict": "equivalent",
+   "reason": "`next >= 9` (Goback past the last paragraph) is never true here: the only paragraph returning 9 is p8, which is always the THRU end of its PERFORM and returns before next is read, so a changed bound or comparison that is still false for next 1-8 and 9 changes nothing",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -3960,6 +5052,27 @@
    ]
   },
   {
+   "id": "dd0bec5a74",
+   "op": "CON",
+   "line": 491,
+   "before": "perform(6, 8);",
+   "after": "perform(7, 8);",
+   "verdict": "equivalent",
+   "reason": "the paragraph skipped or added by this PERFORM range is empty: p0 (and POPULATE-TIME-DATE, p6) hold no statement and only return the next paragraph's index, so starting at the next one or ending one later runs the same statements",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "e6b3f07fea",
    "op": "DEL",
    "line": 497,
@@ -4266,6 +5379,27 @@
    "reason": "line 617 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
    "tried": [
     "dead-after-throw"
+   ]
+  },
+  {
+   "id": "0d2e8eb9aa",
+   "op": "CON",
+   "line": 625,
+   "before": "return 9;",
+   "after": "return 10;",
+   "verdict": "equivalent",
+   "reason": "p8 (PTD999, an EXIT) is the last paragraph and runs only inside perform(0, 8) and perform(6, 8); perform() returns at `i == thru` before it reads the next-index value p8 returns, so 9 vs 10 is never read",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
    ]
   }
  ]

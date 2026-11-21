@@ -95,9 +95,7 @@ def _git(cwd, *args):
     subprocess.run(["git", "-C", str(cwd), *args], check=True, capture_output=True)
 
 
-def test_fetch_port_checks_out_exactly_the_pinned_sha(tmp_path, monkeypatch):
-    # the bad-SHA fetch below is retried (#8424): skip its 70 s backoff
-    monkeypatch.setattr(doom_speedrun.time, "sleep", lambda _s: None)
+def test_fetch_port_checks_out_exactly_the_pinned_sha(tmp_path):
     src = tmp_path / "src"
     src.mkdir()
     _git(src, "init", "-q")

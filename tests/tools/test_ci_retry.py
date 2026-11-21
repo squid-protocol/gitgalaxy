@@ -369,27 +369,3 @@ def test_planner_and_scope_gh_api_captures_are_wrapped_and_keep_their_tails(name
     if name != "doom-rosetta.yml":  # Scope stays fail-closed: a persistent API failure fails the step
         assert all("||" in ln for ln in lines), lines
 
-
-def test_doom_speedrun_corpus_fetch_retries_and_gives_up(monkeypatch):
-    sys.path.insert(0, str(WORKFLOWS.parents[1] / "tests" / "tools" / "doom_speedrun"))
-    sys.path.insert(0, str(WORKFLOWS.parents[1] / "tests" / "tools"))
-    import doom_speedrun as ds
-
-    calls, sleeps = [], []
-
-    class R:
-        def __init__(self, rc):
-            self.returncode, self.stderr = rc, "fatal: 403"
-
-    def fake_git(_dest, *args):
-        calls.append(args[0])
-        return R(1 if len(calls) < 3 else 0)
-
-    monkeypatch.setattr(ds, "_git", fake_git)
-    monkeypatch.setattr(ds.time, "sleep", sleeps.append)
-    assert ds._fetch_with_retry("d", "fetch").returncode == 0
-    assert calls == ["fetch"] * 3
-    assert sleeps == [10, 20]
-    calls.clear()
-    monkeypatch.setattr(ds, "_git", lambda _d, *a: R(1))
-    assert ds._fetch_with_retry("d", "fetch").returncode == 1

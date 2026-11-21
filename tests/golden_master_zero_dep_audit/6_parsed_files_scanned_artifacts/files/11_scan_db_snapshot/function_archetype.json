@@ -18652,7 +18652,7 @@
         "scrollToCursorOrSelection@3176": "Defensive Guards",
         "setDisplayByName@2772": "Stateful Encapsulated Methods",
         "setTether@2631": "Stateful Encapsulated Methods",
-        "shouldBeUsed@415": "Type Conversions",
+        "shouldBeUsed@415": "Generic / Templated Code",
         "suppressClearBrailleRegions@2616": "Encapsulated Accessors",
         "terminate@2507": "Stateful Encapsulated Methods",
         "terminate@3444": "Interface Declarations",
@@ -38021,7 +38021,7 @@
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
         "__init__@50": "Many-Argument Workhorses",
         "awrap_model_call@106": "Defensive Guards",
-        "wrap_model_call@72": "Defensive Guards"
+        "wrap_model_call@72": "Many-Argument Workhorses"
       },
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
         "__init__@66": "Many-Argument Workhorses",

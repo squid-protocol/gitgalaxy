@@ -1302,7 +1302,7 @@
 <text class="n" x="324" y="1277">n=272 imports</text>
 <text class="n" x="324" y="1289">repos 1 · files 91</text>
 </g>
-<g><title>zig callee names: precision 99.9% of 20,931, recall 99.6% of 20,686 (raw 98.4% / 99.6%; 9 shapes without a verdict)</title>
+<g><title>zig callee names: precision 99.9% of 20,931, recall 99.6% of 20,686 (raw 98.4% / 99.6%; 8 shapes without a verdict)</title>
 <text class="pr" x="426" y="1276.5">Precision</text>
 <rect class="track" x="472" y="1269" width="110" height="8" rx="2"/>
 <rect x="472" y="1269" width="109.9" height="8" rx="2" fill="#4a3aa7"/>

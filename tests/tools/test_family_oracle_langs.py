@@ -74,3 +74,30 @@ def test_unknown_language_is_still_refused(tmp_path):
     db.write_bytes(b"")
     with pytest.raises(SystemExit, match="no oracle"):
         fo.get_oracle("cobol")
+
+
+def test_grammar_names_fall_back_through_the_pack_s_renames(monkeypatch):
+    """CI's language pack knows C# as `csharp`, this box's as `c_sharp`: the oracle tries each name a grammar has had."""
+    seen = []
+
+    class _Pack:
+        @staticmethod
+        def get_parser(name):
+            seen.append(name)
+            if name == "c_sharp":
+                raise LookupError("Language 'c_sharp' is not in the download manifest")
+            return f"parser:{name}"
+
+    import types
+
+    monkeypatch.setitem(sys.modules, "tree_sitter_language_pack", types.SimpleNamespace(get_parser=_Pack.get_parser))
+    assert ts.get_parser("c_sharp") == "parser:csharp"
+    assert seen == ["c_sharp", "csharp"]
+    assert ts.get_parser("kotlin") == "parser:kotlin"  # a name with no aliases is tried as given
+    with pytest.raises(LookupError):
+        monkeypatch.setitem(
+            sys.modules,
+            "tree_sitter_language_pack",
+            types.SimpleNamespace(get_parser=lambda n: (_ for _ in ()).throw(LookupError(n))),
+        )
+        ts.get_parser("c_sharp")

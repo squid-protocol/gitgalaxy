@@ -541,10 +541,8 @@ class BOracle(TreeSitterOracle):
         return [s]
 
     def index(self, text: str) -> dict:
-        import tree_sitter_language_pack
-
         if self._parser is None:
-            self._parser = tree_sitter_language_pack.get_parser(self.spec.ts_name)
+            self._parser = fts.get_parser(self.spec.ts_name)
         root = self._parser.parse(text.encode("utf-8", "surrogateescape")).root_node
         index: dict = {}
         stack = [root]

@@ -396,6 +396,28 @@ _EXTRA_MODULES = ("family_oracle_specs_a", "family_oracle_specs_b")  # C#, Kotli
 _extras_loaded = False
 
 
+# The language pack has renamed grammars between releases; try each name a grammar has been known by.
+GRAMMAR_ALIASES: dict[str, tuple[str, ...]] = {
+    "c_sharp": ("c_sharp", "csharp"),
+    "csharp": ("csharp", "c_sharp"),
+    "objc": ("objc", "objective_c", "objectivec"),
+    "bash": ("bash", "shell"),
+}
+
+
+def get_parser(ts_name: str):
+    """A tree-sitter parser for `ts_name`, falling back through the names the pack has used for it (C# is `c_sharp` in one release and `csharp` in another)."""
+    import tree_sitter_language_pack
+
+    last: Exception | None = None
+    for name in GRAMMAR_ALIASES.get(ts_name, (ts_name,)):
+        try:
+            return tree_sitter_language_pack.get_parser(name)
+        except Exception as exc:
+            last = exc
+    raise last if last is not None else LookupError(ts_name)
+
+
 def _load_extras() -> None:
     """Register the oracles that carry their own node maps (family_oracle_specs_a / _b). Idempotent; a missing module is skipped."""
     global _extras_loaded
@@ -545,10 +567,8 @@ class TreeSitterOracle:
         self._parser: Any = None
 
     def index(self, text: str) -> dict:
-        import tree_sitter_language_pack
-
         if self._parser is None:
-            self._parser = tree_sitter_language_pack.get_parser(self.spec.ts_name)
+            self._parser = get_parser(self.spec.ts_name)
         root = self._parser.parse(text.encode("utf-8", "surrogateescape")).root_node
         index: dict = {}
         stack = [root]

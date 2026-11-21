@@ -604,10 +604,8 @@ class OracleA(TreeSitterOracle):
     def index(self, text: str) -> dict:
         """{(name, line): Fn}. A function is reachable by its first line, its name line, and every annotation / doc-comment
         line directly above it (a scan may key a decorated or documented function by its first such line)."""
-        import tree_sitter_language_pack
-
         if self._parser is None:
-            self._parser = tree_sitter_language_pack.get_parser(self.spec.ts_name)
+            self._parser = fots.get_parser(self.spec.ts_name)
         root = self._parser.parse(text.encode("utf-8", "surrogateescape")).root_node
         lines = text.split("\n")
         index: dict = {}

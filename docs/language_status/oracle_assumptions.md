@@ -2083,6 +2083,14 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   - **Still ASSUMED (`RT-FILE-FILE-STATUS`, `RT-FILE-KEYED-READ`):** IBM says nothing of the situations that raise a code on
     the oracle's files versus VSAM, or of the check order; for a keyed READ it names the key, not the lookup, so the
     repository lookup verified against the key bytes is the runtime's own mechanism.
+- **Alternate index and path (AIX, #4894).** The level fixture `tests/equivalence/vsam/fixture/AIXLVL.cbl` (40 steps: an
+  indexed file with `ALTERNATE RECORD KEY ... WITH DUPLICATES` and one without; READ by path, READ NEXT along a path, START,
+  WRITE, REWRITE, DELETE; statuses 00, 02, 10, 22, 23, 35, 48) has `expected_aix.txt` written from IBM's rules before either
+  runtime ran it. First run (2026-11-21), oracle only: 36 of 40 steps match. GnuCOBOL 3.1.2 answers 00 where IBM's text for
+  02 ("the key value for the current key of reference was equal to the value of the same key in the next record") gives 02
+  for a READ by path or READ NEXT that is followed by a duplicate (steps 10, 11, 18, 21); WRITE and REWRITE give 02 as IBM
+  does. Not in the fixture: duplicate order after an out-of-primary-order insert (IBM: order of entry; not exercised), and
+  a path over an ESDS. The only burned use of an alternate key (CardDemo CBACT04C) has no DUPLICATES clause.
 
 ### F2. Injected faults — MATCHED
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which

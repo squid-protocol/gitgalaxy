@@ -1605,6 +1605,216 @@
    ]
   },
   {
+   "id": "bbd04273d6",
+   "op": "ROR",
+   "line": 176,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e3b2f55d47",
+   "op": "NEG",
+   "line": 176,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c71fb24af8",
+   "op": "DEL",
+   "line": 177,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0227132290",
+   "op": "DEL",
+   "line": 179,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4821f528ea",
+   "op": "CON",
+   "line": 179,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 1, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "63a661e3dc",
+   "op": "CON",
+   "line": 179,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7964b1f158",
+   "op": "ROR",
+   "line": 179,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "9313984380",
+   "op": "CON",
+   "line": 179,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 16, 0, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e502545da4",
+   "op": "AOR",
+   "line": 179,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "309e1d3c3a",
+   "op": "DEL",
+   "line": 180,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "60c0dbcd97",
    "op": "NEG",
    "line": 180,
@@ -1614,6 +1824,69 @@
    "reason": "condition() is reached from no entry point of the program (no-entry-path)",
    "tried": [
     "no-entry-path"
+   ]
+  },
+  {
+   "id": "7c2fc96036",
+   "op": "AOR",
+   "line": 180,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base - 8, 4, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "9dc20aa351",
+   "op": "CON",
+   "line": 180,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 9, 4, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c0fd0398cb",
+   "op": "CON",
+   "line": 180,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 1, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
    ]
   },
   {
@@ -1638,6 +1911,258 @@
    "reason": "condition() is reached from no entry point of the program (no-entry-path)",
    "tried": [
     "no-entry-path"
+   ]
+  },
+  {
+   "id": "f395014545",
+   "op": "CON",
+   "line": 180,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 5, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "fa6509fe8c",
+   "op": "ROR",
+   "line": 180,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2d1c2528d0",
+   "op": "ROR",
+   "line": 181,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b10be40103",
+   "op": "AOR",
+   "line": 181,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base - 12, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "df63e60eab",
+   "op": "CON",
+   "line": 181,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 13, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e175832fa4",
+   "op": "CON",
+   "line": 181,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 9, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "34f73aa305",
+   "op": "AOR",
+   "line": 182,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base - 20, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "48e22dfde7",
+   "op": "ROR",
+   "line": 182,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "be917deba7",
+   "op": "CON",
+   "line": 182,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 21, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "db8b9c4788",
+   "op": "NEG",
+   "line": 182,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e52bce047e",
+   "op": "CON",
+   "line": 182,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ebaac5866d",
+   "op": "ROR",
+   "line": 182,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
    ]
   },
   {
@@ -1674,6 +2199,111 @@
    ]
   },
   {
+   "id": "6a15ee7fb6",
+   "op": "AOR",
+   "line": 183,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base - 24, 10, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6e71ac422f",
+   "op": "CON",
+   "line": 183,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 25, 10, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a32b2dbcb4",
+   "op": "ROR",
+   "line": 183,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() != null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "fec69a1434",
+   "op": "CON",
+   "line": 183,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 11, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "08d4391683",
+   "op": "CON",
+   "line": 184,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 9, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "0982654d68",
    "op": "CON",
    "line": 184,
@@ -1686,6 +2316,111 @@
    ]
   },
   {
+   "id": "20592b7c12",
+   "op": "ROR",
+   "line": 184,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "695c39db1a",
+   "op": "CON",
+   "line": 184,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 35, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "780cf19c04",
+   "op": "AOR",
+   "line": 184,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base - 34, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1c42203f58",
+   "op": "ROR",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "248f0fea69",
+   "op": "ROR",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() != null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "2b6d88f263",
    "op": "AOR",
    "line": 185,
@@ -1693,6 +2428,321 @@
    "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);",
    "verdict": "equivalent",
    "reason": "`base - 0` for `base + 0`: the same offset",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3e37d63d92",
+   "op": "CON",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 1, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "58db3a9cef",
+   "op": "AOR",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base - 42, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "66ddf14fba",
+   "op": "CON",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "969634f2a4",
+   "op": "CON",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 43, 4, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "9e6532d5e8",
+   "op": "DEL",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b818860839",
+   "op": "CON",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 5, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f04b36f2fa",
+   "op": "CON",
+   "line": 185,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 16, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "130bf69c51",
+   "op": "DEL",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "36f872c8bc",
+   "op": "CON",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 5, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "600e48e9db",
+   "op": "ROR",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6d04e61211",
+   "op": "AOR",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base - 46, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8164c42977",
+   "op": "CON",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 9, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c9e77ad474",
+   "op": "ROR",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "cacd4597ac",
+   "op": "CON",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 47, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "d716d95e41",
+   "op": "CON",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1719,6 +2769,27 @@
    ]
   },
   {
+   "id": "ec147facb0",
+   "op": "CON",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 9, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "42fac8f0e4",
    "op": "NEG",
    "line": 187,
@@ -1731,6 +2802,27 @@
    ]
   },
   {
+   "id": "4c68eb99ab",
+   "op": "CON",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 1, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "5c1c7be8d4",
    "op": "CON",
    "line": 187,
@@ -1738,6 +2830,153 @@
    "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 9, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "63ca87bb3a",
+   "op": "DEL",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS); */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "bab5398e99",
+   "op": "ROR",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "cc81ac60ef",
+   "op": "AOR",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base - 54, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ccea8ea8be",
+   "op": "CON",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 55, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "dac08d7263",
+   "op": "CON",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 13, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "dd2c4b4076",
+   "op": "ROR",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e64c66bd8d",
+   "op": "CON",
+   "line": 187,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 9, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1764,6 +3003,153 @@
    ]
   },
   {
+   "id": "0f6ad418a8",
+   "op": "AOR",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base - 63, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "330873112c",
+   "op": "CON",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 21, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3864a3fa64",
+   "op": "CON",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 1, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "57316ffce0",
+   "op": "ROR",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "68871642e3",
+   "op": "CON",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7dc6992669",
+   "op": "CON",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 64, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "dcd783d808",
+   "op": "ROR",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "e015a6b7ab",
    "op": "CON",
    "line": 188,
@@ -1771,6 +3157,174 @@
    "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);",
    "verdict": "equivalent",
    "reason": "in_: ABND-TRANID moved into 5 bytes (20-24) instead of 4 spills one byte into ABND-DATE (24), which the next statement, the ABND-DATE move into 24-33, overwrites",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f3333c32c7",
+   "op": "DEL",
+   "line": 188,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS); */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "014aed63de",
+   "op": "DEL",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1263e569c9",
+   "op": "AOR",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base - 72, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3ce9127dcc",
+   "op": "ROR",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5b4e1b485e",
+   "op": "CON",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 9, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6296fdb1a3",
+   "op": "ROR",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() != null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a8f2c33f7b",
+   "op": "CON",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b3fdee6fa4",
+   "op": "CON",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 1, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1806,6 +3360,90 @@
    ]
   },
   {
+   "id": "f3d087db5a",
+   "op": "CON",
+   "line": 189,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 25, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2d0f672129",
+   "op": "ROR",
+   "line": 190,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3974824f4a",
+   "op": "ROR",
+   "line": 190,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "62bc81272f",
+   "op": "AOR",
+   "line": 190,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base - 81, 600, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "65148c92db",
    "op": "CON",
    "line": 190,
@@ -1813,6 +3451,69 @@
    "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 9, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b4976db869",
+   "op": "CON",
+   "line": 190,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 601, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "be188ab703",
+   "op": "CON",
+   "line": 190,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 82, 600, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy1Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e5db822385",
+   "op": "CON",
+   "line": 190,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 35, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1839,6 +3540,27 @@
    ]
   },
   {
+   "id": "85c7ad2efa",
+   "op": "CON",
+   "line": 191,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 43, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "93279354bf",
    "op": "CON",
    "line": 191,
@@ -1846,6 +3568,27 @@
    "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 5, false), CS);",
    "verdict": "equivalent",
    "reason": "s_DFHCOMMAREA is immediately overwritten by raw arraycopy with identical bytes from the linked area, hiding any in_ difference",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "9990dae63f",
+   "op": "ROR",
+   "line": 191,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() != null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1872,6 +3615,48 @@
    ]
   },
   {
+   "id": "0c0c487efe",
+   "op": "CON",
+   "line": 192,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 47, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2edcf3535e",
+   "op": "ROR",
+   "line": 192,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "3ddea482e8",
    "op": "CON",
    "line": 192,
@@ -1879,6 +3664,573 @@
    "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 9, false), CS);",
    "verdict": "equivalent",
    "reason": "in_: ABND-PROGRAM moved into 9 bytes (46-54) instead of 8 spills one byte into ABND-RESPCODE (54), which the next statement, the ABND-RESPCODE move into 54-62, overwrites",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "24080dff15",
+   "op": "CON",
+   "line": 193,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 9, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "431c0b704f",
+   "op": "ROR",
+   "line": 193,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "605ad5c8d1",
+   "op": "DEL",
+   "line": 193,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ccc5a4e5f6",
+   "op": "CON",
+   "line": 193,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 1, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "dd4ed41fa2",
+   "op": "CON",
+   "line": 193,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 55, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2dc3bdb83d",
+   "op": "CON",
+   "line": 194,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 16, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "30dd0592f6",
+   "op": "CON",
+   "line": 194,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 1, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3b09a96bb8",
+   "op": "CON",
+   "line": 194,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4a1e74f7d8",
+   "op": "CON",
+   "line": 194,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 1, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4c42814980",
+   "op": "CON",
+   "line": 194,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 64, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6edf087a0a",
+   "op": "DEL",
+   "line": 194,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "/* d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue()); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "77c1b18f4e",
+   "op": "CON",
+   "line": 194,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 1, 15, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a228dbdd3b",
+   "op": "ROR",
+   "line": 194,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a509aa36b7",
+   "op": "AOR",
+   "line": 194,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base - 0, 15, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "b0e6d32a0f",
+   "op": "DEL",
+   "line": 194,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0a61b74597",
+   "op": "DEL",
+   "line": 195,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2a827d1d3b",
+   "op": "CON",
+   "line": 195,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3ff5ffd731",
+   "op": "CON",
+   "line": 195,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 1, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4eb4ddf5a7",
+   "op": "DEL",
+   "line": 195,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "59d698b443",
+   "op": "ROR",
+   "line": 195,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "64d01c3787",
+   "op": "CON",
+   "line": 195,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 1, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6a4ade8f77",
+   "op": "CON",
+   "line": 195,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 9, 4, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7484bd8ef0",
+   "op": "CON",
+   "line": 195,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 5, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "9f150eb933",
+   "op": "CON",
+   "line": 195,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 9, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "25608efa04",
+   "op": "ROR",
+   "line": 196,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "519432efe2",
+   "op": "DEL",
+   "line": 196,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "/* d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "563c756eed",
+   "op": "CON",
+   "line": 196,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 13, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1914,6 +4266,300 @@
    ]
   },
   {
+   "id": "7654da206d",
+   "op": "CON",
+   "line": 196,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e1ca4cd6e6",
+   "op": "CON",
+   "line": 196,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 82, 600, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8557b913fd",
+   "op": "CON",
+   "line": 197,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "9447ad7e15",
+   "op": "CON",
+   "line": 197,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 21, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ddc3b0aaa8",
+   "op": "DEL",
+   "line": 197,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "/* d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8092912a1b",
+   "op": "CON",
+   "line": 198,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 11, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a0cb04b0c1",
+   "op": "CON",
+   "line": 198,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 25, 10, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "cc0cebce2b",
+   "op": "DEL",
+   "line": 198,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "/* d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "02f5eecb10",
+   "op": "DEL",
+   "line": 199,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "/* d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f396ac3d40",
+   "op": "CON",
+   "line": 199,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 35, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f4aa5805bb",
+   "op": "CON",
+   "line": 199,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "048c018c92",
+   "op": "CON",
+   "line": 200,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0790e09f1e",
+   "op": "CON",
+   "line": 200,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 1, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "33ecb9e2db",
+   "op": "CON",
+   "line": 200,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 1, 15, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "5d08ffba93",
    "op": "DEL",
    "line": 200,
@@ -1921,6 +4567,69 @@
    "after": "/* d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue()); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "67a52b382f",
+   "op": "CON",
+   "line": 200,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ac16209bf7",
+   "op": "DEL",
+   "line": 200,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "/* d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e23881b5da",
+   "op": "CON",
+   "line": 200,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 16, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1956,6 +4665,132 @@
    ]
   },
   {
+   "id": "1ef89278d5",
+   "op": "CON",
+   "line": 201,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 47, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "38de0e4575",
+   "op": "DEL",
+   "line": 201,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "/* d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "450ca7cff3",
+   "op": "CON",
+   "line": 201,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 1, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4893ffd9d0",
+   "op": "CON",
+   "line": 201,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 9, 4, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "50af85fc25",
+   "op": "CON",
+   "line": 201,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 5, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c4ed92481d",
+   "op": "CON",
+   "line": 201,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "d0d178d7a1",
    "op": "DEL",
    "line": 201,
@@ -1963,6 +4798,90 @@
    "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0b01cf2576",
+   "op": "CON",
+   "line": 202,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 55, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "22c4acba0a",
+   "op": "DEL",
+   "line": 202,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "/* d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3c4d12b9a1",
+   "op": "CON",
+   "line": 202,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3c7913efea",
+   "op": "CON",
+   "line": 202,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 13, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -1998,6 +4917,153 @@
    ]
   },
   {
+   "id": "e532fc74df",
+   "op": "CON",
+   "line": 202,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f78980889f",
+   "op": "CON",
+   "line": 202,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1423c60e2e",
+   "op": "CON",
+   "line": 203,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "26b481dff4",
+   "op": "CON",
+   "line": 203,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 64, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4cee180f52",
+   "op": "CON",
+   "line": 203,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8921481d6b",
+   "op": "CON",
+   "line": 203,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 21, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "961fb96bc5",
+   "op": "DEL",
+   "line": 203,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "/* d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "a21479ebca",
    "op": "DEL",
    "line": 203,
@@ -2005,6 +5071,69 @@
    "after": "/* d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS)); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f75e1b461f",
+   "op": "CON",
+   "line": 203,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4297c540e5",
+   "op": "CON",
+   "line": 204,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4f1b1d2b37",
+   "op": "CON",
+   "line": 204,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 25, 10, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2040,6 +5169,153 @@
    ]
   },
   {
+   "id": "756ddefd98",
+   "op": "CON",
+   "line": 204,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 73, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7dde1c1a81",
+   "op": "CON",
+   "line": 204,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 11, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e2f25aac32",
+   "op": "DEL",
+   "line": 204,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "/* d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ea87730fb7",
+   "op": "CON",
+   "line": 204,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "37839e0df4",
+   "op": "CON",
+   "line": 205,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 35, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5a1a4df403",
+   "op": "CON",
+   "line": 205,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "d5ced79004",
+   "op": "DEL",
+   "line": 205,
+   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+   "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "e1cf27c714",
    "op": "DEL",
    "line": 205,
@@ -2047,6 +5323,48 @@
    "after": "/* d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS)); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2bdc06faa1",
+   "op": "CON",
+   "line": 206,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "76ed164dd4",
+   "op": "CON",
+   "line": 206,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2082,6 +5400,48 @@
    ]
   },
   {
+   "id": "09398d5dcd",
+   "op": "CON",
+   "line": 207,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 47, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4a9aa548fa",
+   "op": "CON",
+   "line": 207,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "8d49518e7b",
    "op": "DEL",
    "line": 207,
@@ -2089,6 +5449,27 @@
    "after": "/* d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS)); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "315f05e39f",
+   "op": "CON",
+   "line": 208,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2124,6 +5505,90 @@
    ]
   },
   {
+   "id": "42424381b0",
+   "op": "CON",
+   "line": 208,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "530d2a7d25",
+   "op": "CON",
+   "line": 208,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 55, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5f83165f29",
+   "op": "CON",
+   "line": 209,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 64, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "658196dba0",
+   "op": "CON",
+   "line": 209,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "7040cd0f96",
    "op": "DEL",
    "line": 209,
@@ -2131,6 +5596,90 @@
    "after": "/* d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue()); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c0b732f59c",
+   "op": "CON",
+   "line": 209,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "058c44ef1f",
+   "op": "CON",
+   "line": 210,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 73, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2ac2881e74",
+   "op": "CON",
+   "line": 210,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "418c8aac63",
+   "op": "DEL",
+   "line": 210,
+   "before": "fill_AbndprocDfhcommarea(d, s, base);",
+   "after": "/* fill_AbndprocDfhcommarea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2166,6 +5715,27 @@
    ]
   },
   {
+   "id": "de798acf72",
+   "op": "CON",
+   "line": 210,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "397393d2a2",
    "op": "DEL",
    "line": 211,
@@ -2173,6 +5743,48 @@
    "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */",
    "verdict": "equivalent",
    "reason": "ABNDPROC never writes DFHCOMMAREA, so on the way back each fill_ setter stores the value in_ took from the same DTO field (ABND-FREEFORM), padded to the field's width; without it the DTO keeps the caller's value -- the same COMMAREA bytes once laid out as the record, which is what a caller receives",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8dceaeab52",
+   "op": "CON",
+   "line": 211,
+   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+   "after": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 82, 600, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "bcdfb9be45",
+   "op": "CON",
+   "line": 211,
+   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+   "after": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 601, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -2895,6 +6507,48 @@
    ]
   },
   {
+   "id": "bf8701440f",
+   "op": "CON",
+   "line": 291,
+   "before": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ddbb555366",
+   "op": "DEL",
+   "line": 291,
+   "before": "in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* in_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY1 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
    "id": "0c65263c47",
    "op": "CON",
    "line": 292,
@@ -2923,6 +6577,27 @@
    "after": "/* calen = DetCics.eibCalen(task, 32); */",
    "verdict": "equivalent",
    "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy1Service line 317 and no statement of CRDTAGY1 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY1 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "d95617bb29",
+   "op": "CON",
+   "line": 292,
+   "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY1 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",
@@ -5206,6 +8881,69 @@
    "after": "return 4;",
    "verdict": "unreachable",
    "reason": "code after terminal throw new Goback() or sequential paragraph fallthrough return is unreachable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "44d8cb75dd",
+   "op": "CON",
+   "line": 511,
+   "before": "if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca4, cw5, 0); }",
+   "after": "if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca4, cw5, 1); }",
+   "verdict": "equivalent",
+   "reason": "ABNDINFO-REC is referenced after the A010 LINK nowhere (only the field moves before it and the LINK itself); the program then DISPLAYs and ABENDs PLOP, and initialState() resets it per task, so the copy back from the link area is a dead store",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ccd84ccb60",
+   "op": "NEG",
+   "line": 511,
+   "before": "if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca4, cw5, 0); }",
+   "after": "if (!(!task.linkAreaBack())) { in_AbndprocDfhcommarea(ca4, cw5, 0); }",
+   "verdict": "equivalent",
+   "reason": "ABNDINFO-REC is referenced after the A010 LINK nowhere (only the field moves before it and the LINK itself); the program then DISPLAYs and ABENDs PLOP, and initialState() resets it per task, so the copy back from the link area is a dead store",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-duprec",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7e769849ef",
+   "op": "DEL",
+   "line": 512,
+   "before": "Cobol.commareaBack(cw5, f48_ABNDINFO_REC);",
+   "after": "/* Cobol.commareaBack(cw5, f48_ABNDINFO_REC); */",
+   "verdict": "equivalent",
+   "reason": "ABNDINFO-REC is referenced after the A010 LINK nowhere (only the field moves before it and the LINK itself); the program then DISPLAYs and ABENDs PLOP, and initialState() resets it per task, so the copy back from the link area is a dead store",
    "tried": [
     "atk-get-invreq",
     "atk-link-pgmiderr",

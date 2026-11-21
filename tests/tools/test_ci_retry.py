@@ -337,3 +337,18 @@ def test_graph_comparison_history_gh_run_list_is_wrapped_and_fail_open():
     text = (WORKFLOWS / "graph-comparison-history.yml").read_text(encoding="utf-8")
     assert "base=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh run list" in text
     assert "2>/dev/null || true" in text
+
+
+def test_smoke_test_plan_gh_api_calls_are_wrapped_and_fail_open():
+    lines = _gh_api_lines("smoke-test.yml")
+    assert len(lines) == 6, lines  # the suite plan's three calls and the ReDoS sweep plan's three
+    for ln in lines:
+        assert "CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api" in ln, ln
+        assert "||" in ln, f"smoke-test.yml: the planner must still fail open: {ln.strip()}"
+
+
+@pytest.mark.parametrize("name", ["tri-comparison-history.yml", "tree-sitter-accuracy-history.yml"])
+def test_accuracy_history_gh_run_list_is_wrapped_and_fail_open(name):
+    text = (WORKFLOWS / name).read_text(encoding="utf-8")
+    assert "base=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh run list" in text
+    assert "2>/dev/null || true" in text

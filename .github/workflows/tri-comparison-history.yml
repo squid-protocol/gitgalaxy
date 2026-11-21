@@ -78,7 +78,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          base=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tri-comparison-history.yml --branch main \
+          base=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh run list --repo "$GITHUB_REPOSITORY" --workflow tri-comparison-history.yml --branch main \
             --event push --status success --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || true)
           python3 tests/tools/accuracy_audit_plan.py --audit tri-comparison-history --event "$GITHUB_EVENT_NAME" --base "${base:-HEAD}" \
             --github-output "$GITHUB_OUTPUT" | tee plan.json

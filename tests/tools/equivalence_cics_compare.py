@@ -323,7 +323,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             if c.get("cursor") != j.get("cursor"):
                 bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
         if c["event"] == "SEND-MAP" and "subfields" in c:  # #4053: attributes, colour, highlight, cursor, options
-            cs, js = c["subfields"], ec.java_subfields(j.get("subfields"))
+            # #7955: MAPONLY sends no symbolic map: the bytes the port left in it are no claim (the COBOL side holds none)
+            maponly = "MAPONLY" in (j.get("options") or [])
+            cs, js = c["subfields"], ec.java_subfields(None if maponly else j.get("subfields"))
             for name in sorted(set(cs) | set(js)):
                 if cs.get(name, {}) != js.get(name, {}):
                     bad.append({"field": f"subfields.{name}", "cobol": cs.get(name, {}), "java": js.get(name, {})})

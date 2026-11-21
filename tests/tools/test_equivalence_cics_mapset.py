@@ -82,3 +82,11 @@ def test_7955_map_data_nul_is_not_a_blank():
     blank = [{"event": "SEND-MAP", "map": "M", "screen": {"F": "  "}, "subfields": {}, "options": []}]
     assert "screen.F" in str(ec.compare_events(cobol, blank))
     assert "screen.F" not in str(ec.compare_events(blank, blank))
+
+
+def test_7955_maponly_sends_no_symbolic_map_bytes():
+    cobol = [{"event": "SEND-MAP", "map": "M", "screen": {}, "subfields": {}, "options": ["MAPONLY"]}]
+    java = [
+        {"event": "SEND-MAP", "map": "M", "screen": None, "subfields": {"F": {"attr": 0x40}}, "options": ["MAPONLY"]}
+    ]
+    assert "subfields" not in str(ec.compare_events(cobol, java))

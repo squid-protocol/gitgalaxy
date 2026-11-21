@@ -87,6 +87,11 @@ def load_baseline(path: Path = BASELINE) -> dict[str, dict[str, dict]]:
     return json.loads(path.read_text(encoding="utf-8")).get("cells", {}) if path.exists() else {}
 
 
+def load_decoys(path: Path = BASELINE) -> dict[str, dict[str, dict]]:
+    """{language: {family: {comment: pass|leak, string_counts: bool|None, keyword, corpus}}} from the baseline's `decoys` section."""
+    return json.loads(path.read_text(encoding="utf-8")).get("decoys", {}) if path.exists() else {}
+
+
 def cell_score(cell: dict) -> float | None:
     """The weaker of recall and precision; None when the oracle saw nothing to score. A family that never fires where the oracle sees the
     construct scores 0, and one that fires where the oracle sees nothing scores 0."""
@@ -115,11 +120,19 @@ def cell_state(lang: str, rule: str, defined: dict[str, set[str]], cells: dict) 
     return ("untested" if rule in defined.get(lang, set()) else "na"), None
 
 
-def summary(families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict) -> dict:
+def summary(
+    families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict, decoys: dict | None = None
+) -> dict:
+    decoys = decoys or {}
     counts = {"scored": 0, "empty": 0, "untested": 0, "na": 0}
+    decoy_cells = decoy_only = 0
     for lang in languages:
         for fam in families:
-            counts[cell_state(lang, fam.key, defined, cells)[0]] += 1
+            state = cell_state(lang, fam.key, defined, cells)[0]
+            counts[state] += 1
+            if fam.key in decoys.get(lang, {}):
+                decoy_cells += 1
+                decoy_only += state not in ("scored",)
     scored_langs = {
         lang for lang in languages for fam in families if cell_state(lang, fam.key, defined, cells)[0] == "scored"
     }
@@ -129,6 +142,10 @@ def summary(families: list[Family], languages: list[str], defined: dict[str, set
     return {
         **counts,
         "defined": counts["scored"] + counts["empty"] + counts["untested"],
+        "decoy_cells": decoy_cells,
+        "decoy_only": decoy_only,
+        "tested": counts["scored"] + decoy_only,
+        "untested_any": counts["untested"] - decoy_only,
         "languages": len(languages),
         "families": len(families),
         "scored_languages": len(scored_langs),
@@ -142,9 +159,21 @@ def _order(languages: list[str], families: list[Family], defined: dict[str, set[
     return sorted(languages, key=lambda lang: (-n[lang], lang))
 
 
+def _decoy_class(dec: dict) -> str:
+    return "dg" if dec["comment"] == "pass" else "dr"
+
+
+def _decoy_tip(lang: str, rule: str, dec: dict) -> str:
+    strings = {True: "counts", False: "does not count", None: "not tested"}[dec["string_counts"]]
+    comment = "stripped (pass)" if dec["comment"] == "pass" else "LEAKS"
+    return f"{lang} / {rule}: decoy test with '{dec['keyword']}': in a comment {comment}; in a string literal {strings}; rule defined, no parser oracle yet"
+
+
 _STYLE = """<style>
   .surface { fill: #0f1117; }  /* house style: dark, matching the other charts */
   .u { fill: #3b3f4a; }
+  .dg { fill: #3fb950; stroke: #0f1117; stroke-width: 0.6; }
+  .dr { fill: #f85149; stroke: #0f1117; stroke-width: 0.6; }
   .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
   .subtitle { font-size: 11px; fill: #c3c2b7; }
   .legend { font-size: 10px; fill: #f0efec; }
@@ -156,9 +185,12 @@ _STYLE = """<style>
 </style>"""
 
 
-def render_svg(families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict) -> str:
+def render_svg(
+    families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict, decoys: dict | None = None
+) -> str:
+    decoys = decoys or {}
     order = _order(languages, families, defined, cells)
-    s = summary(families, languages, defined, cells)
+    s = summary(families, languages, defined, cells, decoys)
     left, label_w, top = 16, 176, 150
     grid_x = left + label_w
     # rows: a header line per phase, then its families
@@ -179,7 +211,7 @@ def render_svg(families: list[Family], languages: list[str], defined: dict[str, 
         ),
         _STYLE,
         (
-            f'<defs><rect id="c" width="{CELL}" height="{CELL}"/>'
+            f'<defs><rect id="c" width="{CELL}" height="{CELL}"/><circle id="d" cx="8.2" cy="8.2" r="2.9"/>'
             '<pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
             '<line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern>'
             '<pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.7" fill="#8f8e86"/></pattern></defs>'
@@ -187,9 +219,9 @@ def render_svg(families: list[Family], languages: list[str], defined: dict[str, 
         f'<rect class="surface" x="0" y="0" width="{width}" height="{height}"/>',
         f'<text class="title" x="{left}" y="24">Keyword families: measured agreement with a parser, per language</text>',
         (
-            f'<text class="subtitle" x="{left}" y="42">{s["scored"]} of {s["defined"]} defined cells scored '
-            f"({s['scored_languages']} of {s['languages']} languages, {s['scored_families']} of {s['families']} families); "
-            f"{s['na']} cells are N/A (no rule in that language). Colour is the weaker of recall and precision.</text>"
+            f'<text class="subtitle" x="{left}" y="42">{s["tested"]} of {s["defined"]} defined cells tested: {s["scored"]} against a parser '
+            f"({s['scored_languages']} languages), {s['decoy_only']} more by a decoy test only; {s['na']} cells are N/A (no rule in that language). "
+            f"Colour is the weaker of recall and precision.</text>"
         ),
     ]
     # legend
@@ -216,6 +248,9 @@ def render_svg(families: list[Family], languages: list[str], defined: dict[str, 
     p.append(f'<rect x="{sx}" y="{ly}" width="{CELL}" height="{CELL}" fill="{lut(0.9)}"/>')
     p.append(f'<rect x="{sx}" y="{ly}" width="{CELL}" height="{CELL}" fill="url(#hatch)"/>')
     p.append(f'<text class="legend" x="{sx + 16}" y="{ly + 9}">hatched: unpinned corpus (exploratory)</text>')
+    dy = ly + 34  # second legend row, under the gradient: the first row already spans the chart
+    p.append(f'<use href="#c" x="{lx}" y="{dy}" class="u"/><use href="#d" x="{lx}" y="{dy}" class="dg"/>')
+    p.append(f'<text class="legend" x="{lx + 16}" y="{dy + 9}">green dot: comment decoy passed (red: leaked)</text>')
     gh = row_h * len(rows)
     p.append(f'<rect x="{grid_x}" y="{top}" width="{PITCH * len(order)}" height="{gh}" fill="{STATE_COLOR["na"]}"/>')
     # column labels, rotated
@@ -239,8 +274,15 @@ def render_svg(families: list[Family], languages: list[str], defined: dict[str, 
             x = grid_x + i * PITCH
             if state == "na":
                 continue  # the grid background is the N/A colour: 2,000+ cells need no element
+            dec = decoys.get(lang, {}).get(fam.key)
             if state == "untested":
-                p.append(f'<use href="#c" x="{x}" y="{y}" class="u"/>')
+                if dec is None:
+                    p.append(f'<use href="#c" x="{x}" y="{y}" class="u"/>')
+                else:
+                    p.append(
+                        f'<use href="#c" x="{x}" y="{y}" class="u"><title>{escape(_decoy_tip(lang, fam.key, dec))}</title></use>'
+                    )
+                    p.append(f'<use href="#d" x="{x}" y="{y}" class="{_decoy_class(dec)}"/>')
                 continue
             if cell is None:
                 continue
@@ -264,6 +306,8 @@ def render_svg(families: list[Family], languages: list[str], defined: dict[str, 
             )
             if not cell["pinned"]:
                 p.append(f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="url(#hatch)"/>')
+            if dec is not None:
+                p.append(f'<use href="#d" x="{x}" y="{y}" class="{_decoy_class(dec)}"/>')
         y += row_h
     ny = y + 18
     p.append(
@@ -278,13 +322,15 @@ def render_svg(families: list[Family], languages: list[str], defined: dict[str, 
     return "\n".join(p) + "\n"
 
 
-def render_markdown(families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict) -> str:
-    s = summary(families, languages, defined, cells)
+def render_markdown(
+    families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict, decoys: dict | None = None
+) -> str:
+    s = summary(families, languages, defined, cells, decoys)
     out = [
         (
-            f"Keyword-family validity grid: {s['scored']} of {s['defined']} defined cells scored "
-            f"({s['scored_languages']} of {s['languages']} languages, {s['scored_families']} of {s['families']} families); "
-            f"{s['untested']} untested, {s['empty']} scored with no instance, {s['na']} N/A."
+            f"Keyword-family validity grid: {s['tested']} of {s['defined']} defined cells tested ({s['scored']} against a parser, {s['decoy_only']} by a decoy test only), "
+            f"parser-scored: {s['scored_languages']} of {s['languages']} languages, {s['scored_families']} of {s['families']} families; "
+            f"{s['untested_any']} untested by any method, {s['empty']} scored with no instance, {s['na']} N/A."
         ),
         "",
         "| language | scored | weakest family (recall / precision) |",
@@ -378,7 +424,8 @@ def main(argv: list[str] | None = None) -> int:
 
     families, languages, defined = engine_grid()
     cells = load_baseline(Path(a.baseline))
-    svg = render_svg(families, languages, defined, cells)
+    decoys = load_decoys(Path(a.baseline))
+    svg = render_svg(families, languages, defined, cells, decoys)
     if a.history:
         when = os.environ.get("FAMILY_VALIDITY_TIMESTAMP") or dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         wrote = append_history(Path(a.history), history_rows(families, languages, defined, cells, _head_sha(), when))
@@ -398,7 +445,7 @@ def main(argv: list[str] | None = None) -> int:
         CHART_PATH.write_text(svg, encoding="utf-8")
         print(f"family_validity_chart: wrote {CHART_PATH.relative_to(REPO_ROOT)}")
     if not (a.write or a.history):
-        print(render_markdown(families, languages, defined, cells))
+        print(render_markdown(families, languages, defined, cells, decoys))
     return 0
 
 

@@ -82,13 +82,13 @@ def test_svg_is_deterministic_and_says_what_it_shows():
     a = fvc.render_svg(FAMILIES, LANGUAGES, DEFINED, CELLS)
     assert a == fvc.render_svg(FAMILIES, LANGUAGES, DEFINED, CELLS)
     assert a.startswith("<svg") and a.rstrip().endswith("</svg>")
-    assert "3 of 6 defined cells scored" in a
+    assert "3 of 6 defined cells tested" in a
     assert (
         "go / io: recall 0.33, precision 0.62" in a and "prometheus (not pinned)" in a
     )  # the tooltip names the corpus and says it is exploratory
     assert "fewer than 10 functions" in a
     assert (
-        a.count('class="u"') == 2
+        a.count('class="u"') == 3
     )  # one shared-definition element per untested cell (plus the style rule); N/A cells draw nothing
     assert "<title>c / branch" in a  # the faded (n < 10) cell is still scored and explained
 
@@ -105,7 +105,7 @@ def test_no_baseline_means_every_defined_cell_is_untested(tmp_path):
 
 def test_markdown_lists_only_scored_languages_with_their_weakest_family():
     md = fvc.render_markdown(FAMILIES, LANGUAGES, DEFINED, CELLS)
-    assert "3 of 6 defined cells scored" in md
+    assert "3 of 6 defined cells tested" in md
     assert "| go | 2 | io (0.33 / 0.62) |" in md
     assert "| c | 1 | branch (1.0 / 0.03) |" in md
     assert "zig" not in md
@@ -164,3 +164,52 @@ def test_lut_is_a_valid_hex_colour(bad):
     assert len(c) == 7 and c[0] == "#"
     int(c[1:], 16)
     json.dumps(c)
+
+
+DECOYS = {
+    "c": {"io": {"comment": "pass", "string_counts": True, "keyword": "fopen", "corpus": "keyword-rosetta"}},
+    "zig": {"branch": {"comment": "leak", "string_counts": None, "keyword": "if", "corpus": "keyword-rosetta"}},
+}
+
+
+def test_decoy_cells_count_as_tested_but_not_as_parser_scored():
+    s = fvc.summary(FAMILIES, LANGUAGES, DEFINED, CELLS, DECOYS)
+    assert s["decoy_cells"] == 2 and s["decoy_only"] == 2  # c/io and zig/branch have no parser result
+    assert s["tested"] == s["scored"] + 2 == 5
+    assert s["untested_any"] == 0  # the two untested cells are both decoy-tested
+    no_decoys = fvc.summary(FAMILIES, LANGUAGES, DEFINED, CELLS)
+    assert no_decoys["decoy_cells"] == 0 and no_decoys["tested"] == no_decoys["scored"]
+
+
+def test_svg_draws_a_dot_and_a_tooltip_for_a_decoy_cell():
+    svg = fvc.render_svg(FAMILIES, LANGUAGES, DEFINED, CELLS, DECOYS)
+    assert svg.count('class="dg"/>') == 2  # the pass dot (c/io) plus the legend swatch
+    assert svg.count('class="dr"/>') == 1  # the leak dot (zig/branch)
+    assert "c / io: decoy test with &#x27;fopen&#x27;: in a comment stripped (pass); in a string literal counts" in svg
+    assert "in a comment LEAKS" in svg
+    assert fvc.render_svg(FAMILIES, LANGUAGES, DEFINED, CELLS) == fvc.render_svg(
+        FAMILIES, LANGUAGES, DEFINED, CELLS, {}
+    )
+
+
+def test_a_scored_cell_also_carries_its_decoy_dot():
+    cells = {**CELLS, "c": {**CELLS["c"], "io": _cell(0.9, 0.9)}}
+    svg = fvc.render_svg(FAMILIES, LANGUAGES, DEFINED, cells, DECOYS)
+    assert svg.count('class="dg"/>') == 2  # still drawn over the scored cell
+
+
+def test_load_decoys_reads_the_baseline_section(tmp_path):
+    path = tmp_path / "b.json"
+    path.write_text(json.dumps({"cells": {}, "decoys": DECOYS}), encoding="utf-8")
+    assert fvc.load_decoys(path) == DECOYS
+    assert fvc.load_decoys(tmp_path / "missing.json") == {}
+
+
+def test_committed_decoys_name_real_families_and_languages():
+    families, languages, _ = fvc.engine_grid()
+    keys, langs = {f.key for f in families}, set(languages)
+    for lang, rows in fvc.load_decoys().items():
+        assert lang in langs, lang
+        for rule, dec in rows.items():
+            assert rule in keys, (lang, rule)
+            assert dec["comment"] in {"pass", "leak"} and dec["keyword"]

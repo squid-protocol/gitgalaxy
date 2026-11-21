@@ -151,8 +151,11 @@ written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.p
 A parser (Python `ast`, tree-sitter) says what each function does, and each family is scored against that on recall and
 precision (the family-validity tool, [PR #8864](https://github.com/squid-protocol/gitgalaxy/pull/8864)). Each cell shows the weaker of the two, so a family that
 finds every construct but also fires on strings does not look good.
-- Scored so far (2026-11-21): 91 of 2,893 defined cells, in 7 languages. Gray cells are defined but not yet tested;
-  black cells are languages with no rule for that family.
+- Tested so far (2026-11-21): 812 of 2,893 defined cells: 91 against a parser (7 languages) and 721 by a parserless decoy
+  test only. The decoy test plants each family's keyword in a comment and in a string literal in the language's own
+  syntax: comments are stripped in all 756 controlled cells, while a keyword in a string literal counts in 93% of them
+  (known behaviour, [#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)). Gray cells are defined but not yet
+  tested by either; black cells are languages with no rule for that family.
 - Limit: one corpus per language, and the oracle is our reading of each contract, not ground truth. Hatched cells come
   from repositories that are not pinned, so they are exploratory ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)).
 

@@ -11808,21 +11808,31 @@ class StructuralExtractor:
             pattern = rules.get("calls_out")
             if blanked is None or not isinstance(pattern, re.Pattern):
                 continue
-            safe = _rewrite_for_calls(rules, self._call_scan_shield(blanked))
+            safe = self._call_scan_shield(blanked)
+            masked = rules.get("_calls_out_masked_blocks")
+            if isinstance(masked, re.Pattern):
+                safe = masked.sub(_blank_masked_match, safe)
+            safe = _rewrite_for_calls(rules, safe)
+            has_qualifiers = bool(sat.get("calls_out_qualifiers"))
             kept: dict[str, list[str]] = {}
             for m in pattern.finditer(safe):
-                seen = kept.setdefault(m.group(1), [])
-                qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
-                qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
-                # #8161: the rescan marks a scope path as the first scan does (`ns::f()`, Rust `Type::f()`)
-                qualifier = _mark_scope_qualifier(self.primary_lang_id, safe, m.start(1), qualifier)
-                if qualifier not in seen:
-                    seen.append(qualifier)
+                callee = m.group(1) if pattern.groups == 1 else next((g for g in m.groups() if g), "")
+                if not callee:
+                    continue
+                seen = kept.setdefault(callee, [])
+                if has_qualifiers:
+                    qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
+                    qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
+                    # #8161: the rescan marks a scope path as the first scan does (`ns::f()`, Rust `Type::f()`)
+                    qualifier = _mark_scope_qualifier(self.primary_lang_id, safe, m.start(1), qualifier)
+                    if qualifier not in seen:
+                        seen.append(qualifier)
             if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
                 for c in _macro_expansion_callees(list(kept), _C_REPO_MACRO_CALLS):
                     kept.setdefault(c, [""])
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
-            sat["calls_out_qualifiers"] = {c: kept[c] for c in sat["calls_out_to"]}
+            if has_qualifiers:
+                sat["calls_out_qualifiers"] = {c: kept[c] for c in sat["calls_out_to"]}
 
     def _calculate_block_metrics(
         self,
@@ -12625,7 +12635,7 @@ class StructuralExtractor:
             sat["arity_range"] = list(arity_range)
         # #3642 (C8): _function_slice rescans this block without its nested
         # named units once it knows which units the slicer emitted.
-        if calls_out and qualifiers_seen and self._call_scans is not None:
+        if calls_out and self._call_scans is not None:
             self._call_scans.append((sat, block, rules))
         decl_only = header_only - invoked
         if decl_only and self._nested_decl_candidates is not None:

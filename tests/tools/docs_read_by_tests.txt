@@ -253,6 +253,7 @@ _galaxy_llm.md	gitgalaxy
 _layout.json	tests/golden_store.py,tests/tools/bugfix_kit.py,tests/tools/register.py
 _llm.md	tests/golden_outputs_snapshot.py
 _port_ticket.md	gitgalaxy
+_x.md	tests/core_engine
 a.md	tests/core_engine,tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
 a/b.md	tests/tools/test_post_merge_dispatch.py
 a/b/c.md	tests/tools/test_post_merge_dispatch.py
@@ -293,7 +294,7 @@ construct_correspondence.md	tests/tools/test_progress_report.py
 core/README.md	gitgalaxy
 correspondence.md	tests/tools/construct_map.py
 coverage.md	tests/tools/cobol_coverage.py
-d.md	tests/cobol_mainframe
+d.md	tests/cobol_mainframe,tests/core_engine
 definition_of_done.md	tests/cobol_mainframe,tests/tools/progress_report.py,tests/tools/readiness_report.py,tests/tools/support_matrix.py
 det_port_design.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 det_survey.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
@@ -561,11 +562,12 @@ mutation.md	tests/tools/mutation.py,tests/tools/mutation_crucible.py
 mutation_equivalent_spot_check.md	tests/cobol_mainframe
 mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 mutation_testing.md	tests/tools/mutation_scores.py
+my-post.md	tests/core_engine
 none.md	tests/core_engine
 notes.md	tests/cobol_mainframe,tests/tools/test_activity_sensor.py
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
-p.md	tests/tools/test_generated_docs.py
+p.md	tests/core_engine,tests/tools/test_generated_docs.py
 padded.md	tests/extraction
 page.md	tests/cobol_mainframe,tests/tools/test_cics_spec_status.py
 pilot-A.md	tests/cobol_mainframe

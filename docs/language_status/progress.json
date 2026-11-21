@@ -1,5 +1,5 @@
 {
- "commit": "4e554a5e1",
+ "commit": "e475ba537",
  "components": {
   "capabilities": {
    "groups": [
@@ -1067,7 +1067,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-21T18:25:47Z",
+  "as_of": "2026-11-21T19:10:50Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1336,9 +1336,9 @@
     "total": 34
    },
    {
-    "closed": 12,
+    "closed": 13,
     "number": 35,
-    "open": 5,
+    "open": 4,
     "title": "Survival Mode \ud83e\udddf \u2014 L5 Mutation Survivors",
     "total": 17
    },
@@ -1371,9 +1371,9 @@
     "total": 5
    },
    {
-    "closed": 4,
+    "closed": 5,
     "number": 40,
-    "open": 26,
+    "open": 25,
     "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
     "total": 30
    },

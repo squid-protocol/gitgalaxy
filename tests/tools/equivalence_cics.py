@@ -2837,7 +2837,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("links", []).append({"target": kv.get("target", ""), "data": data})
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
-            vals = decode_record(data, fields, enc)
+            vals = decode_record(data, fields, enc, exact=True)  # #7955: NUL is not a blank
             keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
             res["screens"].append({"map": kv["map"], **({"mapset": kv["mapset"]} if "mapset" in kv else {}),
                                    "fields": {keys[k][0]: (common.comp5_zos_text(v) if zos5 and isinstance(v, str) else v)
@@ -2948,18 +2948,20 @@ def map_subfields(
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if kind == "L" and f["bytes"] == 2 and int.from_bytes(raw, "big", signed=True) == -1:
             out.setdefault(name, {})["length"] = -1
-        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space, b"\x40"):
-            out.setdefault(name, {})[_SUBFIELDS[kind]] = raw[0]
+        elif kind in _SUBFIELDS and f["bytes"] == 1 and True:
+            out.setdefault(name, {})[_SUBFIELDS[kind]] = (
+                0x40 if raw == space else raw[0]
+            )  # #7955: X'00' and X'40' are values
     return out
 
 
 def java_subfields(sub: Any) -> dict[str, dict[str, int]]:
-    """CicsTask's recorded subfields in the same terms: the set ones only (X'00' and an EBCDIC space are not set,
-    as on the COBOL side), length only as -1."""
+    """CicsTask's recorded subfields in the same terms: every attribute / colour / highlight byte (#7955: X'00' and
+    the EBCDIC space X'40' are values), length only as -1."""
     out: dict[str, dict[str, int]] = {}
     for name, vals in (sub or {}).items():
         for key, v in (vals or {}).items():
-            if v is None or (key == "length" and v != -1) or (key != "length" and int(v) & 0xFF in (0x00, 0x40)):
+            if v is None or (key == "length" and v != -1):  # #7955: X'00' and X'40' are values, as on the COBOL side
                 continue
             out.setdefault(name, {})[key] = int(v) if key == "length" else int(v) & 0xFF
     return out
@@ -5263,7 +5265,9 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
             o["caller_bytes"] = moved
             ok = False
             if not quiet:
-                print(f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}")
+                print(
+                    f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}"
+                )
         if not sc.get("prefix_link") and not x6:
             changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
             changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))

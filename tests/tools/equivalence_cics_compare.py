@@ -299,7 +299,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     bad.append({"field": f"containers.{name}", "cobol": cc.get(name), "java": jc.get(name)})
         for part in ("screen", "commarea"):
             cv, jv = c.get(part) or {}, j.get(part) or {}
-            same = _same_commarea if part == "commarea" else _same
+            same = (
+                _same_commarea if part == "commarea" or c["event"] == "SEND-MAP" else _same
+            )  # #7955: NUL is not a blank
             for name in cv:
                 if part == "commarea" and name.startswith("FILLER@") and j.get("commarea_dto"):
                     not_compared[f"commarea.{name}"] = UNNAMED_IN_A_DTO

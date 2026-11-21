@@ -1969,6 +1969,8 @@ def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], An
         program = {}
         for f in screen.bms.named():
             v, sub = (values or {}).get(f.name), subs.get(f.name) or {}
+            # #7955: CicsTask records X'00' and X'40' (a space) as values now; BMS reads both as "not given" here
+            sub = {k: x for k, x in sub.items() if k == "length" or x not in (0x00, 0x40)}
             data = cics_bms.ebcdic(str(v)) if v not in (None, "") else None
             program[f.name] = cics_bms.ProgramField(length=sub.get("length"), attr=sub.get("attr"),
                                                      color=sub.get("color"), hilight=sub.get("hilight"),

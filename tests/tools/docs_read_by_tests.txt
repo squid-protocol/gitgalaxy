@@ -477,6 +477,7 @@ docs/self_scan/tree_sitter_accuracy_history.csv	tests/tools/test_generated_branc
 docs/self_scan/tri_comparison_chart.svg	tests/tools/tri_comparison_chart.py
 docs/self_scan/tri_comparison_ledger.json	tests/tools/test_generated_branch.py,tests/tools/tri_comparison_chart.py,tests/tools/tri_comparison_ledger.py
 docs/setup.md	tests/extraction
+docs/short_circuit_rule_contract.md	gitgalaxy
 docs/signal_contracts.md	tests/signal_contract_audit.py
 docs/signals.md	tests/core_engine
 docs/state_mutation_rule_contract.md	gitgalaxy

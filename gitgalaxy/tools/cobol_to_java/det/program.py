@@ -2088,36 +2088,32 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         # of the area is passed"), so what a LINKed program wrote there before an abend ended it stays the caller's.
         # Level 1 (a transaction, a DPL server's mirror task) keeps nothing: no local caller shares its COMMAREA.
         "    /** The program ends because of an abend: a LINKed program's COMMAREA writes stay its caller's. */",
-        "    private Goback abended() {",
-        "        if (task.level() > 1) {",
-        "            caBack.run();",
-        "        }",
-        "        return new Goback();",
-        "    }",
+        "    private Goback abended() { return DetCics.abended(task, caBack, Goback::new); }",
         "",
-        '    @SuppressWarnings("unchecked")',
-        "    private <E> DetCics.Store<E> store(String name) {",
-        # #6072: a name no region defines has no store and takes no record: its command answers FILENOTFOUND
-        # (CicsTask.fileFault); the empty store lets the command's eager arguments (a WRITE's exists) run first
-        # #7487: nor does a name the region does not define (another instance's ZC02FILE when only ZC01 is installed):
-        # the template's shape (fileKey) never reaches a store the region has not defined
-        "        if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-        "            return DetCics.Store.undefined(CS);",
-        "        }",
-        *(["        claimInstance(name);"] if FC.has_template(cx.stores) else []),
         *(
             [
+                '    @SuppressWarnings("unchecked")',
+                "    private <E> DetCics.Store<E> store(String name) {",
+                # #6072: a name no region defines has no store and takes no record: its command answers FILENOTFOUND
+                # (CicsTask.fileFault); the empty store lets the command's eager arguments (a WRITE's exists) run first
+                # #7487: nor does a name the region does not define (another instance's ZC02FILE when only ZC01 is
+                # installed): the template's shape (fileKey) never reaches a store the region has not defined
+                "        if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+                "            return DetCics.Store.undefined(CS);",
+                "        }",
+                *(["        claimInstance(name);"] if FC.has_template(cx.stores) else []),
                 f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",
                 *store_cases,
                 '            default -> throw new Hole("CICS file " + n + ": no store in the generated project");',
                 "        });",
+                "    }",
             ]
             if store_cases
+            # #8486: a program that stores no file keeps the same one-line body in every service: it lives in cobolrt
             else [
-                '        throw new Hole("CICS file " + name + ": the program names no file the generated project stores");'
+                "    private <E> DetCics.Store<E> store(String name) { return DetCics.noStore(task, name, CS); }",
             ]
         ),
-        "    }",
         "",
         *FC.file_key_method(cx.stores),
         "    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(",
@@ -2128,18 +2124,14 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         ),
         "    );",
         "",
-        "    private static int paragraph(String name) {",
-        "        return DetCics.paragraph(PARAGRAPHS, name);",
-        "    }",
+        "    private static int paragraph(String name) { return DetCics.paragraph(PARAGRAPHS, name); }",
         "",
         "    /** A condition the command did not return in RESP: its HANDLE CONDITION label, or -1 (go on) when IGNOREd",
         "     *  (#4414); else CICS's default action -- -1 for one whose default is to ignore it (#4413: EOC); else the",
         '     *  ERROR label (#4502: IBM, HANDLE CONDITION: "if the default action for such a condition terminates the',
         '     *  task abnormally, and the condition ERROR has been specified, the action for ERROR is taken"); else an',
         "     *  abend, to this program's HANDLE ABEND exit or ending the task. */",
-        "    private int condition(String cond) {",
-        "        return DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended);",
-        "    }",
+        "    private int condition(String cond) { return DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended); }",
         "",
         *(
             [
@@ -2398,9 +2390,7 @@ def facades(stub: str, passes_bytes: bool = False, shapes: dict[str, tuple[int, 
                 "",
                 "    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).",
                 "     *  @facade-helper */",
-                "    public byte[] lastAnswerBytes() {",
-                "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
-                "    }",
+                "    public byte[] lastAnswerBytes() { return DetCics.copyBytes(lastAnswerBytes); }",
                 ""]  # fmt: skip
     if re.search(r"public byte\[\] lastLinkBytes\(\)", stub):  # #5053: the LINK's, as lastAnswerBytes is the RETURN's
         out += ["    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA",
@@ -2408,9 +2398,7 @@ def facades(stub: str, passes_bytes: bool = False, shapes: dict[str, tuple[int, 
                 "",
                 "    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it",
                 "     *  took none -- its DTO is the COMMAREA). @facade-helper */",
-                "    public byte[] lastLinkBytes() {",
-                "        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-                "    }",
+                "    public byte[] lastLinkBytes() { return DetCics.copyBytes(lastLinkBytes); }",
                 ""]  # fmt: skip
     # A program with a COMMAREA AND a channel (GenApp's LGASTAT1) also has a channel entry, handleChannel, which its
     # controller calls: kept so the project compiles, it stops by name -- no task runtime carries a channel's DTO in

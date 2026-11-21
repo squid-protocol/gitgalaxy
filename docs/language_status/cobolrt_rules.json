@@ -293,7 +293,10 @@
     "restoreCommarea",
     "eibCalen",
     "paragraph",
-    "resolveCondition"
+    "resolveCondition",
+    "abended",
+    "copyBytes",
+    "noStore"
    ]
   },
   {

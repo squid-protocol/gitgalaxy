@@ -35,7 +35,8 @@ Then edit `/etc/nginx/sites-available/gitgalaxy`, keeping every Certbot line, so
   (nginx does not inherit `add_header` into a location that has one);
 - `/data/` and `/museum/` get `gzip_static on;` and a one-day `Cache-Control`;
 - these are blocked with 404 because nginx serves everything under the web root: dotfiles (except `/.well-known/`),
-  `*.py`, `/deploy/`, `/blog/posts/` (blog drafts) and `/DEPLOY.md`;
+  `*.py`, `/deploy/`, `/blog/posts/` (blog drafts), `/DEPLOY.md` and `/tools/style_guide.html` (a dev page that loads a CDN);
+- `/vendor/` gets a one-day `Cache-Control` and the headers snippet (`^~` keeps the `.js` rule from matching it);
 - the old `/api/list_galaxies` and `/backend/` blocks are gone (they pointed at a broken link).
 
 Test and reload with an automatic way back (a failed `-t` leaves the running config alone, so always test first):
@@ -43,8 +44,12 @@ Test and reload with an automatic way back (a failed `-t` leaves the running con
     ssh gitgalaxy-io 'N=/etc/nginx/sites-available/gitgalaxy; cp -p $N $N.bak && cp $N.new $N && nginx -t && systemctl reload nginx || { cp -p $N.bak $N; echo reverted; }'
     curl -sI https://gitgalaxy.io/ | grep -iE 'strict-transport|x-content|x-frame|referrer|permissions|content-security'
 
-The content-security-policy is **report-only**. After a week of clean visits, rename the header to
-`Content-Security-Policy` in the snippet to enforce it.
+The content-security-policy is **enforced** (since 2026-11-21) and names no external host, because three.js, tween.js and
+the fonts are served from `site/vendor/` (see `site/vendor/README.md`). `'unsafe-inline'` remains for scripts and styles
+because the viewer page is a single file with inline code. If a change ever needs a new external host, vendor the file
+instead of loosening the policy; `tests/core_engine/test_site_self_hosted.py` fails if a page loads from a CDN.
+To debug a policy problem without blocking anything, temporarily rename the header to
+`Content-Security-Policy-Report-Only` and watch the browser console.
 
 Rollback: restore `/etc/nginx/sites-available/gitgalaxy.bak` (or the tarball from step 1) and reload.
 

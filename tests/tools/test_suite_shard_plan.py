@@ -310,4 +310,5 @@ def test_a_windows_part_is_planned_to_finish_inside_the_gate_target_8701(duratio
         n = legs[(os_name, py)]
         assert n >= 3, (py, n)
         weight = dict.fromkeys(durations, mean * speed)
-        assert _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S), (py, n)
+        # a busy durations cache can need more than the part cap: then the plan is at the cap, not under the target
+        assert n == plan.GATE_MAX_PARTS or _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S), (py, n)

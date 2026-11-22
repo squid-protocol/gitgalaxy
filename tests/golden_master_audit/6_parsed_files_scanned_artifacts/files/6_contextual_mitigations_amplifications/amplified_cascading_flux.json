@@ -1479,8 +1479,7 @@
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": "7 instances",
       "swift/alamofire/ParameterEncoder.swift": "4 instances",
-      "swift/alamofire/Request.swift": "48 instances",
-      "swift/alamofire/Response.swift": "4 instances",
+      "swift/alamofire/Request.swift": "37 instances",
       "swift/alamofire/Session.swift": "11 instances"
     },
     "tcl/macports_port_api": {

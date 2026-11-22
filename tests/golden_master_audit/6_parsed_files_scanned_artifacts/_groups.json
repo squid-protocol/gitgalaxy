@@ -11049,20 +11049,20 @@
     "swift/alamofire": {
       "Average Risk Exposures": {
         "API Exposure": "7.81%",
-        "Cognitive Load Exposure": "25.38%",
+        "Cognitive Load Exposure": "22.63%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "48.98%",
         "Documentation Exposure": "12.85%",
-        "Error & Exception Exposure": "41.25%",
+        "Error & Exception Exposure": "40.78%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "62.33%",
+        "State Flux Exposure": "57.83%",
         "Tech Debt Exposure": "18.91%",
-        "Testing Exposure": "35.64%",
+        "Testing Exposure": "13.46%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1774.0,
+      "Directory Group Magnitude": 1294.6,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "28.6%",
         "file_cluster_15": "42.9%",

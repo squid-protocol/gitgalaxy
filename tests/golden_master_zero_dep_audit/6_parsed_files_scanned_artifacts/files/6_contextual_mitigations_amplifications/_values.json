@@ -2519,7 +2519,8 @@
       "swift/SOURCES.md": "None Detected"
     },
     "swift/alamofire": {
-      "swift/alamofire/Package.swift": "None Detected"
+      "swift/alamofire/Package.swift": "None Detected",
+      "swift/alamofire/Response.swift": "None Detected"
     },
     "tabular": {
       "tabular/SOURCES.md": "None Detected"

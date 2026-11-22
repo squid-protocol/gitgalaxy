@@ -3749,13 +3749,13 @@
       "swift/SOURCES.md": 0.0
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 6.997,
+      "swift/alamofire/AFError.swift": 6.777,
       "swift/alamofire/Alamofire.podspec": 4.009,
       "swift/alamofire/Package.swift": 2.036,
-      "swift/alamofire/ParameterEncoder.swift": 7.727,
-      "swift/alamofire/Request.swift": 8.808,
-      "swift/alamofire/Response.swift": 6.291,
-      "swift/alamofire/Session.swift": 7.692
+      "swift/alamofire/ParameterEncoder.swift": 7.4,
+      "swift/alamofire/Request.swift": 8.533,
+      "swift/alamofire/Response.swift": 6.089,
+      "swift/alamofire/Session.swift": 6.694
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0

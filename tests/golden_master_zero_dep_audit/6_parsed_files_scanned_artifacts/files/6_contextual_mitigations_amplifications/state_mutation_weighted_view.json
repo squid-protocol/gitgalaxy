@@ -1479,8 +1479,7 @@
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": 32,
       "swift/alamofire/ParameterEncoder.swift": 18,
-      "swift/alamofire/Request.swift": 168,
-      "swift/alamofire/Response.swift": 21,
+      "swift/alamofire/Request.swift": 146,
       "swift/alamofire/Session.swift": 43
     },
     "tcl/macports_port_api": {

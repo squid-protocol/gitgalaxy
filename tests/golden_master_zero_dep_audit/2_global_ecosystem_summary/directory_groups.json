@@ -5784,20 +5784,20 @@
       "avg_exposures": {
         "api_exposure": 7.81,
         "churn": 0.0,
-        "cognitive_load": 25.38,
+        "cognitive_load": 22.63,
         "concurrency": 48.98,
         "dead_code": 0.0,
         "documentation": 12.85,
-        "safety_score": 41.25,
+        "safety_score": 40.78,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 62.33,
+        "state_flux": 57.83,
         "tech_debt": 18.91,
-        "verification": 35.64
+        "verification": 13.46
       },
       "file_count": 7,
-      "total_mass": 1774.0
+      "total_mass": 1294.6
     },
     "tabular": {
       "avg_exposures": {

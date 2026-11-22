@@ -1129,13 +1129,13 @@
       "cpp/mlir/tf_tfl_translate.cc": -1530.85
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 7697.64,
-      "cpp/powertoys/FancyZones.h": 7396.45,
-      "cpp/powertoys/ImageResizerExt.cpp": 7411.33,
-      "cpp/powertoys/centralized_kb_hook.cpp": 6957.66,
-      "cpp/powertoys/logger.cpp": 7758.0,
-      "cpp/powertoys/main.cpp": 7657.19,
-      "cpp/powertoys/powertoy_module.h": 8193.62
+      "cpp/powertoys/FancyZones.cpp": 6955.85,
+      "cpp/powertoys/FancyZones.h": 6654.66,
+      "cpp/powertoys/ImageResizerExt.cpp": 6669.54,
+      "cpp/powertoys/centralized_kb_hook.cpp": 6215.87,
+      "cpp/powertoys/logger.cpp": 7016.2,
+      "cpp/powertoys/main.cpp": 6915.4,
+      "cpp/powertoys/powertoy_module.h": 7451.82
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 8566.86,
@@ -1157,8 +1157,8 @@
       "csd/cbsa/PROVENANCE.md": 10044.0
     },
     "csd/z_sms_gateway": {
-      "csd/z_sms_gateway/PROVENANCE.md": 7817.94,
-      "csd/z_sms_gateway/ZSMSCSD.csd": 7432.98
+      "csd/z_sms_gateway/PROVENANCE.md": 7816.86,
+      "csd/z_sms_gateway/ZSMSCSD.csd": 7431.9
     },
     "csharp": {
       "csharp/SOURCES.md": 11042.15
@@ -1224,7 +1224,7 @@
       "css/wordpress/LICENSE.txt": -9734.5
     },
     "dart": {
-      "dart/SOURCES.md": -9823.37
+      "dart/SOURCES.md": -9823.14
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": -8958.25,
@@ -1236,7 +1236,7 @@
       "dart/flutter/theme_data.dart": -8720.5
     },
     "db2_sql": {
-      "db2_sql/SOURCES.md": 7438.68
+      "db2_sql/SOURCES.md": 7437.46
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": -5994.15,
@@ -1251,7 +1251,7 @@
       "db2_sql/db2unit/PROVENANCE.md": -5261.54
     },
     "dockerfile": {
-      "dockerfile/SOURCES.md": 8680.35
+      "dockerfile/SOURCES.md": 8677.24
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": 3742.0,
@@ -1381,13 +1381,13 @@
       "go/go_runtime_rand/rand.go": 11130.3
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": -4685.03,
-      "go/kubernetes/generic.go": -4742.07,
-      "go/kubernetes/kubelet.go": -5381.75,
-      "go/kubernetes/options.go": -4514.77,
-      "go/kubernetes/proxier.go": -4918.85,
-      "go/kubernetes/replica_set.go": -5557.41,
-      "go/kubernetes/scheduler.go": -5191.12
+      "go/kubernetes/csi_plugin.go": 8315.21,
+      "go/kubernetes/generic.go": 8258.16,
+      "go/kubernetes/kubelet.go": 7618.48,
+      "go/kubernetes/options.go": 8485.46,
+      "go/kubernetes/proxier.go": 8081.38,
+      "go/kubernetes/replica_set.go": 7442.82,
+      "go/kubernetes/scheduler.go": 7809.12
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10331.95
@@ -1951,12 +1951,12 @@
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -8849.71
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": 6615.01,
-      "javascript/react/ReactFiberBeginWork.js": 6405.86,
-      "javascript/react/ReactFiberWorkLoop.js": 6966.93,
-      "javascript/react/ReactFlightServer.js": 6680.71,
-      "javascript/react/ReactSymbols.js": 6336.5,
-      "javascript/react/build.js": 7104.45
+      "javascript/react/BabelPlugin.ts": -8978.43,
+      "javascript/react/ReactFiberBeginWork.js": -9187.58,
+      "javascript/react/ReactFiberWorkLoop.js": -8626.51,
+      "javascript/react/ReactFlightServer.js": -8912.74,
+      "javascript/react/ReactSymbols.js": -9256.94,
+      "javascript/react/build.js": -8488.99
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 11214.92
@@ -1974,9 +1974,9 @@
       "jcl/SOURCES.md": -4521.43
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": 8592.04,
-      "jcl/cash-account-cobol/DB2DDL.jcl": 8358.78,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": 7935.46
+      "jcl/cash-account-cobol/DB2BIND.jcl": 8588.82,
+      "jcl/cash-account-cobol/DB2DDL.jcl": 8355.56,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": 7932.24
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": -2610.97,
@@ -2551,13 +2551,13 @@
       "php/SOURCES.md": 11701.57
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": -9317.13,
-      "php/guzzle/CurlFactory.php": -8858.91,
-      "php/guzzle/CurlMultiHandler.php": -8573.76,
-      "php/guzzle/Middleware.php": -9137.8,
-      "php/guzzle/Pool.php": -8128.68,
-      "php/guzzle/RequestException.php": -8808.93,
-      "php/guzzle/StreamHandler.php": -8551.57
+      "php/guzzle/Client.php": -5577.03,
+      "php/guzzle/CurlFactory.php": -5118.81,
+      "php/guzzle/CurlMultiHandler.php": -4833.66,
+      "php/guzzle/Middleware.php": -5397.7,
+      "php/guzzle/Pool.php": -4388.59,
+      "php/guzzle/RequestException.php": -5068.83,
+      "php/guzzle/StreamHandler.php": -4811.47
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": -3065.17,
@@ -2609,8 +2609,8 @@
       "plaintext/SOURCES.md": -1543.62
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": 8057.53,
-      "plaintext/ansible/requirements.txt": 8201.67
+      "plaintext/ansible/COPYING": 8054.94,
+      "plaintext/ansible/requirements.txt": 8199.09
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 4901.36
@@ -2835,9 +2835,9 @@
       "python/django_db_tests/test_utils.py": -10168.06
     },
     "python/fastapi": {
-      "python/fastapi/CONTRIBUTING.md": -9626.48,
-      "python/fastapi/README.md": -9651.19,
-      "python/fastapi/SECURITY.md": -9954.5
+      "python/fastapi/CONTRIBUTING.md": -9626.26,
+      "python/fastapi/README.md": -9650.96,
+      "python/fastapi/SECURITY.md": -9954.27
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": -2676.6,
@@ -3749,16 +3749,16 @@
       "swift/SOURCES.md": -9484.96
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 8013.8,
-      "swift/alamofire/Alamofire.podspec": 7551.02,
-      "swift/alamofire/Package.swift": 8383.83,
-      "swift/alamofire/ParameterEncoder.swift": 8425.18,
-      "swift/alamofire/Request.swift": 8289.27,
-      "swift/alamofire/Response.swift": 7534.82,
-      "swift/alamofire/Session.swift": 7800.21
+      "swift/alamofire/AFError.swift": 7608.03,
+      "swift/alamofire/Alamofire.podspec": 7146.73,
+      "swift/alamofire/Package.swift": 7972.97,
+      "swift/alamofire/ParameterEncoder.swift": 8014.07,
+      "swift/alamofire/Request.swift": 7632.06,
+      "swift/alamofire/Response.swift": 7136.39,
+      "swift/alamofire/Session.swift": 7638.07
     },
     "tabular": {
-      "tabular/SOURCES.md": 8040.44
+      "tabular/SOURCES.md": 8039.36
     },
     "tabular/baseline": {
       "tabular/baseline/control_standard.csv": -7785.17,
@@ -3776,7 +3776,7 @@
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 6422.2
     },
     "tcl": {
-      "tcl/SOURCES.md": 8220.89
+      "tcl/SOURCES.md": 8218.41
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": -7581.43,
@@ -3953,9 +3953,9 @@
       "xml/odoo/__manifest__.py": -6339.28
     },
     "xml/odoo/views": {
-      "xml/odoo/views/menu.xml": 6966.95,
-      "xml/odoo/views/test_orm_views.xml": 6897.41,
-      "xml/odoo/views/views.xml": 6531.63
+      "xml/odoo/views/menu.xml": 6965.74,
+      "xml/odoo/views/test_orm_views.xml": 6896.2,
+      "xml/odoo/views/views.xml": 6530.42
     },
     "xml/powertoys": {
       "xml/powertoys/App.xaml.cs": -2908.99,
@@ -3992,8 +3992,8 @@
       "yaml/ansible/blocks/block_in_rescue.yml": -5409.9
     },
     "yaml/ansible/include_import_tasks/tasks": {
-      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": -9372.46,
-      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": -9125.03
+      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": -9372.29,
+      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": -9124.86
     },
     "yaml/ansible/yaml_parsing": {
       "yaml/ansible/yaml_parsing/playbook.yml": 8312.9

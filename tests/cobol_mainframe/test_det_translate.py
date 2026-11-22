@@ -1003,6 +1003,32 @@ def test_an_i_o_control_rerun_same_area_or_multiple_file_clause_is_read_past(tmp
     assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["R2"].size == 40 and recs["W"].size == 2
 
 
+@pytest.mark.parametrize(
+    "rows",
+    [
+        ["I-O-CONTROL. RERUN ON SYSCKPT EVERY 1000 RECORDS OF F."],
+        ["I-O-CONTROL. SAME AREA FOR F G."],
+        ["I-O-CONTROL. RERUN ON SYSCKPT EVERY END OF REEL OF F.", "    SAME SORT-MERGE AREA FOR F G."],
+        ["I-O-CONTROL. MULTIPLE FILE TAPE CONTAINS F POSITION 1", "    G POSITION 2."],
+    ],
+)
+def test_an_i_o_control_clause_on_the_header_row_is_read_past(tmp_path, rows):
+    """#8412: IBM's source format lets the first I-O-CONTROL clause follow the paragraph header on the same row
+    (`I-O-CONTROL. RERUN ...`); it was refused as an unparsed DATA DIVISION, the same-row-after-header sibling of the
+    BDLDCKP shape (header alone, clauses below)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+
+    prog = tmp_path / "P.cbl"
+    prog.write_text(_fixed("IDENTIFICATION DIVISION.", "PROGRAM-ID. P.", "ENVIRONMENT DIVISION.",
+                           "INPUT-OUTPUT SECTION.", "FILE-CONTROL.", "    SELECT F ASSIGN TO FIN.",
+                           "    SELECT G ASSIGN TO GOUT.", *rows, "DATA DIVISION.", "FILE SECTION.",
+                           "FD  F.", "01  R PIC X(80).", "FD  G.", "01  R2 PIC X(40).", "WORKING-STORAGE SECTION.",
+                           "01  W PIC X(2).", "PROCEDURE DIVISION.", "    GOBACK."), encoding="utf-8")  # fmt: skip
+    recs = {r.name: r for r in L.parse(SRC.program_lines(prog, []))}
+    assert recs["R"].size == 80 and recs["R2"].size == 40 and recs["W"].size == 2
+
+
 def test_a_program_with_an_i_o_control_rerun_and_same_area_translates_whole(tmp_path):
     """#8412 end to end (authored, invented names): the layout reads past RERUN / SAME AREA / MULTIPLE FILE (above), and
     the whole translation, not only `layout.parse`, accepts the program: no refusal, no hole, every statement translated."""

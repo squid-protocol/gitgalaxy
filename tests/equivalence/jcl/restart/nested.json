@@ -1,0 +1,220 @@
+{
+  "fixture": "library_jcl (in this file)",
+  "issue": 8413,
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385): the JOB statement's RESTART parameter and its COND / IF cautions, the EXEC statement's COND rules, the JCLLIB statement's ORDER parameter, and 'Nesting procedures' (a procedure may call procedures, up to 15 levels). Restarts of a library procedure that calls another library procedure; written before the resolver ran. Not run on the MVS 3.8J box (no library). The manual states RESTART=stepname.procstepname for a one-level call; how a step of a NESTED procedure is named is assumption A2.",
+  "libraries": {
+    "LIB.A": {
+      "OUTR": [
+        "//OUTR     PROC",
+        "//O1       EXEC PGM=PGMO1",
+        "//I1       EXEC INNR",
+        "//O2       EXEC PGM=PGMO2,COND=(4,LT,O1)"
+      ],
+      "INNR": [
+        "//INNR     PROC",
+        "//N1       EXEC PGM=PGMN1",
+        "//N2       EXEC PGM=PGMN2,COND=(4,LT,N1)"
+      ]
+    }
+  },
+  "library_jcl": [
+    "//*********************************************************************",
+    "//* #8413 restart into a library procedure that calls another library",
+    "//* procedure (JCL Reference, nesting procedures; JOB RESTART).",
+    "//*********************************************************************",
+    "//NST1     JOB (ACCT),'NEST A',CLASS=A,RESTART=CALL1.N1",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC OUTR",
+    "//U2       EXEC PGM=PGMV,COND=(4,LT,CALL1.N2)",
+    "//*",
+    "//NST2     JOB (ACCT),'NEST B',CLASS=A,RESTART=CALL1.N2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC OUTR",
+    "//U2       EXEC PGM=PGMV,COND=(4,LT,CALL1.N2)",
+    "//*",
+    "//NST3     JOB (ACCT),'NEST C',CLASS=A,RESTART=CALL1.O2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC OUTR",
+    "//U2       EXEC PGM=PGMV,COND=(4,LT,CALL1.N2)",
+    "//*",
+    "//NST4     JOB (ACCT),'NEST D',CLASS=A,RESTART=CALL1.O1",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC OUTR",
+    "//U2       EXEC PGM=PGMV",
+    "//*",
+    "//NST5     JOB (ACCT),'NEST E',CLASS=A,RESTART=*",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC OUTR",
+    "//U2       EXEC PGM=PGMV",
+    "//*",
+    "//NST6     JOB (ACCT),'NEST CKPT',CLASS=A,RESTART=(CALL1.N2,CK1)",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC OUTR",
+    "//U2       EXEC PGM=PGMV,COND=(4,LT,CALL1.N2)",
+    "//*",
+    "//NSTBAD1  JOB (ACCT),'NEST CALL',CLASS=A,RESTART=CALL1.I1",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC OUTR",
+    "//*",
+    "//NSTBAD2  JOB (ACCT),'NEST 3 LVL',CLASS=A,RESTART=CALL1.I1.N2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC OUTR",
+    "//*",
+    "//NSTBAD3  JOB (ACCT),'NEST NO MEM',CLASS=A,RESTART=CALL1.O2",
+    "//LIB      JCLLIB ORDER=(LIB.B)",
+    "//CALL1    EXEC OUTR",
+    "//"
+  ],
+  "assumed": [
+    {
+      "id": "A2",
+      "text": "A step of a nested procedure is named CALLSTEP.PROCSTEP, the procedure's own step name under the EXEC that calls the OUTERMOST procedure (levels flattened, as jcl_proc A4 and the manual's equivalent-statement view of nesting). The manual's RESTART text names one level (stepname.procstepname); it does not say whether a step of a procedure called from a procedure is reached as stepname.procstepname or with a further qualifier."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "nested-restart-at-first-inner-step",
+      "job": "NST1",
+      "assumed": "A2",
+      "given": {
+        "CALL1.N1": {"rc": 0},
+        "CALL1.N2": {"rc": 0},
+        "CALL1.O2": {"rc": 0},
+        "U2": {"rc": 0}
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.O1": "skipped",
+        "CALL1.N1": "run",
+        "CALL1.N2": "run",
+        "CALL1.O2": "run",
+        "U2": "run"
+      },
+      "basis": "JCLLIB ORDER=(LIB.A): OUTR calls INNR between its steps O1 and O2, so the job's steps in order are U1, O1, N1, N2, O2, U2 (A2). RESTART=CALL1.N1: U1 and O1 are before the restart step and are skipped; N1 and everything after run. N2's COND=(4,LT,N1) is false at rc 0. O2's COND=(4,LT,O1) names O1, a step the restart skipped: JOB RESTART, COND caution, a test naming a step before the restart step is ignored (false), so O2 runs. U2's (4,LT,CALL1.N2) is false."
+    },
+    {
+      "id": "nested-restart-inner-step-cond-names-restart-step",
+      "job": "NST2",
+      "assumed": "A2",
+      "given": {
+        "CALL1.N2": {"rc": 8},
+        "CALL1.O2": {"rc": 0}
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.O1": "skipped",
+        "CALL1.N1": "skipped",
+        "CALL1.N2": "run",
+        "CALL1.O2": "run",
+        "U2": "bypass"
+      },
+      "basis": "RESTART=CALL1.N2 (A2): U1, O1 and N1 are skipped. N2 is the first step to execute and its COND (which names the skipped N1) is ignored, so it runs and ends 8. O2's (4,LT,O1) names the skipped O1: ignored, O2 runs. U2's (4,LT,CALL1.N2) names the restart step, which executed: 4 is less than 8, so U2 is bypassed."
+    },
+    {
+      "id": "nested-restart-after-the-inner-call",
+      "job": "NST3",
+      "assumed": "A2",
+      "given": {
+        "CALL1.O2": {"rc": 0},
+        "U2": {"rc": 0}
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.O1": "skipped",
+        "CALL1.N1": "skipped",
+        "CALL1.N2": "skipped",
+        "CALL1.O2": "run",
+        "U2": "run"
+      },
+      "basis": "RESTART=CALL1.O2, a step of the outer procedure after the nested call: every step before it, including both steps of INNR, is skipped. O2 runs (the restart step ignores its COND). U2's (4,LT,CALL1.N2) names N2, a step before the restart step: ignored, so U2 runs."
+    },
+    {
+      "id": "nested-restart-at-the-step-before-the-inner-call",
+      "job": "NST4",
+      "assumed": "A2",
+      "given": {
+        "CALL1.O1": {"rc": 8},
+        "CALL1.N1": {"rc": 0},
+        "CALL1.N2": {"rc": 0},
+        "U2": {"rc": 0}
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.O1": "run",
+        "CALL1.N1": "run",
+        "CALL1.N2": "run",
+        "CALL1.O2": "bypass",
+        "U2": "run"
+      },
+      "basis": "RESTART=CALL1.O1: only U1 is skipped; O1 runs and ends 8, then both steps of the nested procedure run (N2's (4,LT,N1) is false at N1 rc 0). O2's (4,LT,O1) names O1, which executed and ended 8: bypassed. U2 has no COND and runs."
+    },
+    {
+      "id": "nested-restart-star-runs-the-whole-call",
+      "job": "NST5",
+      "assumed": "A2",
+      "given": {
+        "CALL1.O1": {"rc": 0},
+        "CALL1.N1": {"rc": 0},
+        "CALL1.N2": {"rc": 0},
+        "CALL1.O2": {"rc": 0},
+        "U2": {"rc": 0}
+      },
+      "expect": {
+        "CALL1.O1": "run",
+        "CALL1.N1": "run",
+        "CALL1.N2": "run",
+        "CALL1.O2": "run",
+        "U2": "run"
+      },
+      "basis": "RESTART=* restarts at the first job step, here the call CALL1, whose first executed step is O1: nothing is skipped and every step of both procedures runs."
+    },
+    {
+      "id": "nested-checkpoint-restart-inner-step",
+      "job": "NST6",
+      "assumed": "A2",
+      "given": {
+        "CALL1.N2": {"rc": 0},
+        "CALL1.O2": {"rc": 0},
+        "U2": {"rc": 0}
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.O1": "skipped",
+        "CALL1.N1": "skipped",
+        "CALL1.N2": "run",
+        "CALL1.O2": "run",
+        "U2": "run"
+      },
+      "basis": "RESTART=(CALL1.N2,CK1) with a SYSCHK DD before the first EXEC: a deferred checkpoint restart at step N2 (A2). The steps before N2 are skipped; N2, O2 and U2 run (U2's (4,LT,CALL1.N2) is false at rc 0)."
+    }
+  ],
+  "refused": [
+    {
+      "id": "nested-restart-names-the-calling-step",
+      "job": "NSTBAD1",
+      "match": "not a step",
+      "construct": "RESTART=CALL1.I1 naming the EXEC inside the outer procedure that calls the inner one",
+      "reason": "the manual's restart step is a step that executes a program; I1 only calls a procedure and is not itself executed, so it is refused by name, not mapped to N1"
+    },
+    {
+      "id": "nested-restart-three-level-name",
+      "job": "NSTBAD2",
+      "match": "not a step",
+      "construct": "RESTART=CALL1.I1.N2, a name qualified through the nested call",
+      "reason": "A2: the manual states stepname.procstepname only; a second qualifier is not answered"
+    },
+    {
+      "id": "nested-restart-member-in-no-library",
+      "job": "NSTBAD3",
+      "match": "OUTR",
+      "construct": "a nested restart whose outer procedure is in no JCLLIB library",
+      "reason": "JCLLIB ORDER: a member found in no library on the search list is a JCL error"
+    }
+  ]
+}

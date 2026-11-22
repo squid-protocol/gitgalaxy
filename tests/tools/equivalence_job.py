@@ -24,6 +24,12 @@ dataset, indexed feeds whose keys or record lengths differ, a feed from a step t
 step does not compare, record lengths that differ across a feed, a fault run on a step (a fault plan names one step's
 datasets; not modelled in the job). A step that abended feeds nothing (the job stops). An `inputs` value beginning
 `@corpus/` names a file in the step's corpus (CardDemo's shipped data) instead of one beside the job case.
+A step may be an IDCAMS step (#8884, `"idcams": {"deck": file beside the job case, "dds": {DD: dataset spec}}`): there is no
+COBOL to run, so the oracle is the model of the step (`det/idcams_model.py`, no GnuCOBOL IDCAMS exists), run on the
+datasets fed to it; a DD carrying `"cluster": NAME` is a cluster the step starts with (empty), a later step reads its
+records (key order for a KSDS) as any other output. The Java runtime of the step is not compared yet (#8881), so a job
+with an IDCAMS step reports `model_only` for it and is never `proven`. A model refusal, or a nonzero condition code (the
+JCL's COND=(0,NE) bypasses the later steps), stops the job. Refused by name: GDG, `inputs`, a subprogram on such a step.
 The oracle is GnuCOBOL plus our stub, not z/OS; the JCL that wires the steps is the case's `feeds`, not a read job.
 """
 
@@ -37,6 +43,8 @@ from typing import Any
 import equivalence_gdg as gdg
 from equivalence_gdg import Unsupported
 
+from gitgalaxy.tools.cobol_to_java.det import idcams_model as idc
+
 JOBS = Path(__file__).resolve().parents[1] / "equivalence" / "jobs"
 
 
@@ -45,6 +53,26 @@ CORPUS_PREFIX = "@corpus/"
 
 def step_names(job: dict[str, Any]) -> list[str]:
     return [s["case"] for s in job.get("steps", [])]
+
+
+def load_steps(job: dict[str, Any], load_case: Any) -> dict[str, dict[str, Any]]:
+    """Each step's case by name: `load_case(name)` for a batch step, the pseudo case of an IDCAMS step (its DD specs
+    as `datasets`, a cluster DD an indexed one compared as an output) so the feed rules read both alike."""
+    out = {}
+    for step in job.get("steps", []):
+        name = step["case"]
+        spec = step.get("idcams")
+        if spec is None:
+            out[name] = load_case(name)
+            continue
+        dds = spec.get("dds") if isinstance(spec, dict) else None
+        if not isinstance(dds, dict) or not dds:
+            raise Unsupported(f"step {name}: idcams needs {{'deck': file, 'dds': {{DD: spec}}}}")
+        out[name] = {"kind": "idcams", "program": "IDCAMS", "datasets": {
+            dd: {"organization": "indexed" if "cluster" in d else "sequential",
+                 **{k: v for k, v in d.items() if k in ("reclen", "keys", "compare")},
+                 **({"compare": True} if "cluster" in d else {})} for dd, d in dds.items()}}  # fmt: skip
+    return out
 
 
 def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
@@ -61,7 +89,11 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         case = cases.get(name)
         if case is None:
             raise Unsupported(f"step {i + 1}: no case {name!r}")
-        what = case.get("kind") or ("db2" if "db2" in case else "ims" if "ims" in case else "batch")
+        if "idcams" in step:
+            _check_idcams(step, case)
+            what = "batch"
+        else:
+            what = case.get("kind") or ("db2" if "db2" in case else "ims" if "ims" in case else "batch")
         if what != "batch":
             raise Unsupported(f"step {name}: a {what} step is not modelled in a job case (batch steps only)")
         _check_subprograms(name, case)
@@ -73,7 +105,7 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
                 raise Unsupported(f"step {step['case']}: input {dd} is not one of its datasets, or is also fed")
             if not rel.startswith(CORPUS_PREFIX) and not (JOBS / rel).is_file():
                 raise Unsupported(f"step {step['case']}: input {dd}: no file {rel} beside the job case")
-    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs", "job", "gdg_in", "gdg_out"}
+    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs", "job", "gdg_in", "gdg_out", "idcams"}
     if unknown:
         raise Unsupported(f"unknown step key(s) {sorted(unknown)}")
     gdg.check_gdg(job, cases)  # #8883: generations across the chain
@@ -81,6 +113,23 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         for rel in spec.get("generations", []):
             if not (JOBS / rel).is_file():
                 raise Unsupported(f"GDG {base}: no generation file {rel} beside the job case")
+
+
+def _check_idcams(step: dict[str, Any], case: dict[str, Any]) -> None:
+    """An IDCAMS step (#8884): a deck file beside the job case, DD specs with a record length, a cluster DD keyed."""
+    name, spec = step["case"], step["idcams"]
+    if not isinstance(spec.get("deck"), str) or not (JOBS / spec["deck"]).is_file():
+        raise Unsupported(f"step {name}: idcams deck {spec.get('deck')!r}: no such file beside the job case")
+    for k in ("inputs", "gdg_in", "gdg_out"):
+        if step.get(k):
+            raise Unsupported(f"step {name}: {k} on an IDCAMS step is not modelled")
+    for dd, d in spec["dds"].items():
+        if not isinstance(d.get("reclen"), int) or d["reclen"] < 1:
+            raise Unsupported(f"step {name}: idcams DD {dd} needs a record length")
+        if "cluster" in d and not (d.get("keys") and len(d["keys"]) == 1):
+            raise Unsupported(f"step {name}: idcams DD {dd}: a cluster needs one key (offset, length)")
+    if not any(d.get("compare") or "cluster" in d for d in case["datasets"].values()):
+        raise Unsupported(f"step {name}: an IDCAMS step with no output dataset proves nothing")
 
 
 def _check_subprograms(name: str, case: dict[str, Any]) -> None:
@@ -134,8 +183,8 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     import equivalence_java as ej
     import mainframe_corpus as mc
 
-    cases = {n: api.load_case(n) for n in step_names(job)}
     try:
+        cases = load_steps(job, api.load_case)
         check_job(job, cases)
     except Unsupported as e:
         raise SystemExit(f"{job['name']}: not runnable faithfully: {e}") from e
@@ -149,6 +198,11 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     for i, step in enumerate(job["steps"]):
         name = step["case"]
         case = cases[name]
+        if "idcams" in step:
+            ok &= _idcams_step(step, outputs, report)
+            if not ok:
+                break
+            continue
         enc = api.data_encoding(case)
         fed = {}
         catalog.begin_step(jobs[i])
@@ -200,15 +254,65 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
                 break
             continue
         break  # a feed had no source
-    report["proven"] = ok and not cobol_only and len(report["steps"]) == len(job["steps"])
+    report["proven"] = (ok and not cobol_only and len(report["steps"]) == len(job["steps"])
+                        and not any(s.get("model_only") for s in report["steps"]))  # fmt: skip
+    work.mkdir(parents=True, exist_ok=True)
     (work / "report.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
     for s in report["steps"]:
+        if s.get("model_only"):
+            print(f"{job['name']} step {s['case']}: IDCAMS model only, rc {s.get('rc')} (Java not compared)")
+            continue
         outs = ", ".join(f"{dd} {d['equal']}/{d['records']}" for dd, d in s.get("outputs", {}).items())
         print(f"{job['name']} step {s['case']}: {'equal' if s['ok'] else 'DIFFERS'}"
               + (f" ({outs})" if outs else "") + (f" -- {s['stopped']}" if s.get("stopped") else ""))  # fmt: skip
     print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {len(job['steps'])} steps")
     print(f"report: {work / 'report.json'}")
     return 0 if report["proven"] or cobol_only else 1
+
+
+def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
+                 report: dict[str, Any]) -> bool:  # fmt: skip
+    """Run an IDCAMS step on the model with what the earlier steps left it. Returns False when the job stops here."""
+    name, spec = step["case"], step["idcams"]
+    entry: dict[str, Any] = {"case": name, "program": "IDCAMS", "ok": False, "model_only": True}
+    report["steps"].append(entry)
+    catalog: dict[str, Any] = {}
+    dds: dict[str, Any] = {}
+    fed = {}
+    try:
+        for dd, d in spec["dds"].items():
+            if "cluster" in d:
+                key = d["keys"][0]
+                catalog[d["cluster"]] = idc.Cluster(
+                    d["cluster"], True, key["length"], key["offset"], d["reclen"], d["reclen"]
+                )
+                dds[dd] = idc.Vsam(d["cluster"])
+                continue
+            feed = step.get("feeds", {}).get(dd)
+            data = b"" if feed is None else outputs.get(feed["step"], {}).get(feed["dd"])
+            if data is None:
+                entry["stopped"] = f"{feed['step']} left no {feed['dd']}"
+                return False
+            n = d["reclen"]
+            if len(data) % n:
+                raise Unsupported(f"an output of {len(data)} bytes is not whole records of {n}")
+            dds[dd] = idc.Sequential(n, [data[k : k + n] for k in range(0, len(data), n)], d.get("disp", "OLD"))
+            if feed is not None:
+                fed[dd] = f"{feed['step']}.{feed['dd']} ({len(data) // n} records)"
+        res = idc.run((JOBS / spec["deck"]).read_text(encoding="utf-8"), catalog, dds)
+    except (idc.Refused, Unsupported) as e:
+        entry["stopped"] = f"the IDCAMS model refuses: {e}"
+        return False
+    entry.update(fed=fed, rc=res.rc, log=res.log)
+    outputs[name] = {}
+    for dd, d in spec["dds"].items():
+        recs = res.catalog[d["cluster"]].records if "cluster" in d else res.datasets[dd].records
+        outputs[name][dd] = b"".join(recs)
+    if res.rc:  # COND=(0,NE) on the next step: it is bypassed, the job's chain stops
+        entry["stopped"] = f"IDCAMS ended with condition code {res.rc}"
+        return False
+    entry["ok"] = True
+    return True
 
 
 def _catalog(api: Any, job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> gdg.Catalog:

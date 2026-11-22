@@ -1,0 +1,15 @@
+{
+  "kind": "job",
+  "job": "CREASTMT",
+  "steps": [
+    {"case": "carddemo-sort-creastmt"},
+    {"case": "creastmt-step020",
+     "idcams": {"deck": "creastmt-step020.idc",
+                "dds": {"INFILE": {"reclen": 350},
+                        "OUTFILE": {"cluster": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS", "reclen": 350,
+                                    "keys": [{"offset": 0, "length": 32}]}}},
+     "feeds": {"INFILE": {"step": "carddemo-sort-creastmt", "dd": "SORTOUT"}}},
+    {"case": "carddemo-cbstm03a", "feeds": {"TRNXFILE": {"step": "creastmt-step020", "dd": "OUTFILE"}}}
+  ],
+  "notes": "CardDemo job CREASTMT (app/jcl/CREASTMT.JCL), steps STEP010 (DFSORT, lowered by det/dfsort.py), STEP020 (IDCAMS REPRO, the model in det/idcams_model.py) and STEP040 (CBSTM03A, which CALLs CBSTM03B: a case with subprograms). DELDEF01 (DELETE / DEFINE CLUSTER of the KSDS) is not a step here: the KSDS starts empty and its definition is the STEP020 DD spec; STEP030 (IEFBR14 deleting the statement files) is not run. NOT RUNNABLE YET, refused by name at the STEP010 -> STEP020 join: STEP010's OUTREC builds 328-byte records (16 + 262 + 50) while the JCL states LRECL=350 for SORTOUT and RECORDSIZE(350 350) for the KSDS; what IBM does with an OUTREC shorter than the DD's LRECL (pad, or an error) is not established, so no pad is guessed (register F4). When that answer is cited, the join states it and this job runs. Assumption: the JCL wiring is this file, not a read job (register F4)."
+}

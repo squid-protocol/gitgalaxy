@@ -5,10 +5,10 @@ carddemo-job-tranrept`. A job case sits outside the per-case directory glob so t
 from __future__ import annotations
 
 import json
-
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/tools"))
@@ -88,3 +88,33 @@ def test_the_real_cbstm03a_case_with_subprograms_is_a_valid_job_step():
     job = {"name": "j", "kind": "job", "job": "CREASTMT",
            "steps": [{"case": "carddemo-sort-tranrept"}, {"case": "carddemo-cbstm03a"}]}  # fmt: skip
     ej.check_job(job, {n: eq.load_case(n) for n in ej.step_names(job)})
+
+
+def test_the_creastmt_job_is_refused_by_name_at_the_outrec_join():
+    """#8884: STEP010's OUTREC builds 328-byte records, CardDemo's JCL states LRECL / RECORDSIZE 350 for them: IBM's answer
+    is not established, so the join is refused (no pad guessed) until it is cited. Every other wire is valid."""
+    job = eq.load_case("carddemo-job-creastmt")
+    cases = ej.load_steps(job, eq.load_case)
+    assert ej.step_names(job) == ["carddemo-sort-creastmt", "creastmt-step020", "carddemo-cbstm03a"]
+    assert cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] == 328
+    with pytest.raises(
+        ej.Unsupported, match=r"feed INFILE has record length 350, carddemo-sort-creastmt.SORTOUT writes 328"
+    ):
+        ej.check_job(job, cases)
+    job["steps"][1]["idcams"]["dds"]["INFILE"]["reclen"] = 328  # the rest of the chain: only the KSDS length differs
+    with pytest.raises(ej.Unsupported, match="record length"):
+        ej.check_job(job, cases)
+
+
+def test_the_creastmt_sort_case_is_the_dfsort_lowering_over_distinct_keys():
+    from gitgalaxy.tools.cobol_to_java.det import dfsort as D
+
+    case_dir = eq.CASES / "carddemo-sort-creastmt"
+    sysin = " SORT FIELDS=(263,16,CH,A,1,16,CH,A)\n OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)\n"
+    assert (case_dir / "DFSORTST.cbl").read_text(encoding="utf-8") == D.cobol_program(
+        D.parse(sysin, ""), 350, ["SORTIN"]
+    )
+    recs = [r for r in (case_dir / "sortin.txt").read_bytes().split(b"\n") if r]
+    keys = [r[262:278] + r[:16] for r in recs]
+    assert recs and all(len(r) == 350 for r in recs) and len(set(keys)) == len(keys) and keys != sorted(keys)
+    assert len({r[262:278] for r in recs}) < len(recs), "a card with several transactions: the second key orders them"

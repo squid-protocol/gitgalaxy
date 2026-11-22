@@ -1,0 +1,25 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "DFSORTST",
+  "program_source": "@case/DFSORTST.cbl",
+  "copy_dirs": [
+    "app/cpy"
+  ],
+  "job": "CREASTMT",
+  "step": "STEP010",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "SORTIN": {
+      "input": "@case/sortin.txt",
+      "organization": "sequential",
+      "reclen": 350
+    },
+    "SORTOUT": {
+      "organization": "sequential",
+      "reclen": 328,
+      "compare": true
+    }
+  },
+  "notes": "Job CREASTMT (app/jcl/CREASTMT.JCL) step STEP010, a DFSORT step, not a COBOL program: SORT FIELDS=(263,16,CH,A,1,16,CH,A) with OUTREC FIELDS=(1:263,16,17:1,262,279:279,50), the transaction file rebuilt card number first, then TRAN-ID and the fields up to the card number, then the 50 bytes from 279 (TRAN-ORIG-TS and the first 24 bytes of TRAN-PROC-TS), the key CBSTM03A's TRNXFILE reads (card 16 + TRAN-ID 16 = key offset 0 length 32). DFSORTST.cbl is that step lowered by gitgalaxy/tools/cobol_to_java/det/dfsort.py (cobol_program(parse(SYSIN), 350, ['SORTIN']); test_job_case_4268.py pins the file to that output) onto the COBOL SORT verb; GnuCOBOL runs it (the oracle), the port is its det translation, and SORTOUT is compared record by record. SORTOUT is 328 bytes a record, what OUTREC builds (16 + 262 + 50): CardDemo's own JCL then states LRECL=350 for that DD and a 350-byte KSDS (STEP020 REPRO, DEFINE CLUSTER RECORDSIZE(350 350)); what IBM does with an OUTREC shorter than the DD's LRECL is not established here (no manual on the box states it), so the job case refuses that join by name instead of guessing a pad (register F4). The 100 records are a seeded shuffle (seed 8884) of CardDemo's dailytran.txt: 50 cards, every (card, TRAN-ID) key distinct, so DFSORT's order of equal keys (no EQUALS) never matters, and the keys are digits where IBM's EBCDIC order and the oracle's byte order agree (collation, #4035). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

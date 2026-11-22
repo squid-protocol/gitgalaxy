@@ -221,3 +221,80 @@ def test_a_malformed_subprograms_list_is_refused_by_name(subs, why):
     cases = {"a": {**_step(), "program": "PA"}, "b": {**_step(), "program": "PB", "subprograms": subs}}
     with pytest.raises(ej_job.Unsupported, match=why):
         ej_job.check_job(_job(), cases)
+
+
+# -- an IDCAMS step (#8884): the model is the oracle, the chain around it is the harness's ---------------------------
+
+REPRO = " REPRO INFILE(INFILE) OUTFILE(OUTFILE)\n"
+
+
+def _idcams(deck="step.idc", reclen=10, **extra):
+    dds = {"INFILE": {"reclen": reclen},
+           "OUTFILE": {"cluster": "A.B.KSDS", "reclen": reclen, "keys": [{"offset": 0, "length": 4}]}}  # fmt: skip
+    return {"case": "idc", "idcams": {"deck": deck, "dds": dds}, "feeds": {"INFILE": {"step": "a", "dd": "OUT"}},
+            **extra}  # fmt: skip
+
+
+def _idcams_job(step=None):
+    return {"name": "j", "kind": "job", "job": "J",
+            "steps": [{"case": "a"}, step or _idcams(),
+                      {"case": "b", "feeds": {"IN": {"step": "idc", "dd": "OUTFILE"}}}]}  # fmt: skip
+
+
+def _idcams_api(deck=REPRO, a_out=b"AAAA000001BBBB000002", tmp_path=None, monkeypatch=None):
+    (tmp_path / "step.idc").write_text(deck, encoding="utf-8")
+    monkeypatch.setattr(ej_job, "JOBS", tmp_path)
+    api = _api(PA={"OUT": a_out, "RETURN-CODE": b"0"})
+    b = api.cases["b"]
+    b["datasets"]["IN"] = {"organization": "indexed", "reclen": 10, "keys": [{"offset": 0, "length": 4}]}
+    return api
+
+
+def _steps(job, api):
+    return ej_job.load_steps(job, api.load_case)
+
+
+def test_an_idcams_step_between_program_steps_runs_in_jcl_order_and_is_never_proven(stub, tmp_path, monkeypatch):
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    ej_job.check_job(_idcams_job(), _steps(_idcams_job(), api))
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1  # the Java side of IDCAMS is not compared
+    assert [p for p, _ in api.seen] == ["PA", "PB"]
+    assert Path(api.seen[1][1]["IN"]["input"]).read_bytes() == b"AAAA000001\nBBBB000002\n"
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert [s["case"] for s in report["steps"]] == ["a", "idc", "b"]
+    idc = report["steps"][1]
+    assert idc["model_only"] and idc["ok"] and idc["rc"] == 0 and idc["fed"] == {"INFILE": "a.OUT (2 records)"}
+    assert report["steps"][2]["fed"] == {"IN": "idc.OUTFILE (2 records)"}
+    assert report["proven"] is False and all(s["ok"] for s in report["steps"])
+
+
+def test_a_model_refusal_stops_the_job_by_name(stub, tmp_path, monkeypatch):  # a source out of key order
+    api = _idcams_api(a_out=b"BBBB000002AAAA000001", tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert "the IDCAMS model refuses" in report["steps"][1]["stopped"] and len(api.seen) == 1
+
+
+def test_a_nonzero_condition_code_bypasses_the_later_steps(stub, tmp_path, monkeypatch):
+    api = _idcams_api(deck=" DELETE NO.SUCH.CLUSTER\n", tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert report["steps"][1]["rc"] is None or "condition code" in report["steps"][1]["stopped"]
+    assert len(api.seen) == 1 and len(report["steps"]) == 2
+
+
+@pytest.mark.parametrize(
+    ("step", "why"),
+    [(_idcams(deck="gone.idc"), "no such file beside the job case"),
+     (_idcams(inputs={"INFILE": "x"}), "inputs on an IDCAMS step"),
+     (_idcams(gdg_in={"INFILE": {}}), "gdg_in on an IDCAMS step"),
+     (_idcams(reclen=0), "needs a record length"),
+     (_idcams(reclen=20), "record length"),  # the feed rule reads the DD spec like a program step's
+     ({**_idcams(), "idcams": {"deck": "step.idc", "dds": {"INFILE": {"reclen": 10}}}}, "no output dataset"),
+     ({**_idcams(), "idcams": {"deck": "step.idc", "dds": {"OUTFILE": {"cluster": "X", "reclen": 10}}}}, "one key"),
+     ({**_idcams(), "idcams": {"deck": "step.idc"}}, "idcams needs")],
+)  # fmt: skip
+def test_every_idcams_refusal_is_by_name(step, why, tmp_path, monkeypatch):
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    with pytest.raises(ej_job.Unsupported, match=why):
+        ej_job.check_job(_idcams_job(step), _steps(_idcams_job(step), api))

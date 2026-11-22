@@ -250,7 +250,106 @@
     "//DDA      DD DSN=NEW.GDG(-2),DISP=OLD",
     "//DDB      DD DSN=NEW.GDG(-1),DISP=OLD",
     "//DDC      DD DSN=NEW.GDG(0),DISP=OLD",
-    "//*"
+    "//*",
+    "//*",
+    "//ALLJOB   JOB (ACCT),'GDG ALL',CLASS=A,MSGCLASS=X",
+    "//A1       EXEC PGM=RPT",
+    "//DEF      DD DSN=PAY.GDG,DISP=SHR",
+    "//LIF      DD DSN=PAY.GDG,DISP=SHR,GDGORDER=LIFO",
+    "//FIF      DD DSN=PAY.GDG,DISP=SHR,GDGORDER=FIFO",
+    "//USE      DD DSN=PAY.GDG,DISP=SHR,GDGORDER=USECATLG",
+    "//*",
+    "//CATJOB   JOB (ACCT),'GDG CONCAT',CLASS=A,MSGCLASS=X",
+    "//C1       EXEC PGM=RPT",
+    "//IN       DD DSN=PAY.GDG(0),DISP=SHR",
+    "//         DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//         DD DSN=AUD.GDG(0),DISP=SHR",
+    "//*",
+    "//* #8413 slice 8: which (+1) a job creates when IF / THEN / ELSE or",
+    "//* COND=ONLY decides whether the creating step runs.",
+    "//IFGJOB   JOB (ACCT),'GDG IF ELSE',CLASS=A,MSGCLASS=X",
+    "//I1       EXEC PGM=CHK",
+    "//   IF (I1.RC = 0) THEN",
+    "//I2       EXEC PGM=MAKE",
+    "//IOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ELSE",
+    "//I3       EXEC PGM=MAKE",
+    "//JOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ENDIF",
+    "//I4       EXEC PGM=USE",
+    "//KIN      DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//IFONLY   JOB (ACCT),'GDG IF ONLY',CLASS=A,MSGCLASS=X",
+    "//F1       EXEC PGM=CHK",
+    "//   IF (F1.RC = 0) THEN",
+    "//F2       EXEC PGM=MAKE",
+    "//FOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ENDIF",
+    "//*",
+    "//ONLYJOB  JOB (ACCT),'GDG COND ONLY',CLASS=A,MSGCLASS=X",
+    "//C1       EXEC PGM=MAKE",
+    "//COUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG,DELETE)",
+    "//C2       EXEC PGM=CLEAN,COND=ONLY",
+    "//CCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//C3       EXEC PGM=MAKE,COND=EVEN",
+    "//DOUT     DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//*",
+    "//ABIFJOB  JOB (ACCT),'GDG IF ABEND',CLASS=A,MSGCLASS=X",
+    "//G1       EXEC PGM=MAKE",
+    "//GOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG,DELETE)",
+    "//   IF (G1.ABEND) THEN",
+    "//G2       EXEC PGM=FIXUP",
+    "//GCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//   ELSE",
+    "//G3       EXEC PGM=USE",
+    "//GNEW     DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//   ENDIF",
+    "//*",
+    "//*",
+    "//* #8413 slice 9: RUN and not-equal IF tests that decide which",
+    "//* (+1) a job creates, and a PASSed (+1) received with DELETE.",
+    "//RUNJOB   JOB (ACCT),'GDG IF RUN',CLASS=A,MSGCLASS=X",
+    "//N1       EXEC PGM=CHK",
+    "//N2       EXEC PGM=CHK2,COND=(4,LT,N1)",
+    "//   IF (N2.RUN) THEN",
+    "//N3       EXEC PGM=MAKE",
+    "//NOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ELSE",
+    "//N4       EXEC PGM=MAKE",
+    "//MOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ENDIF",
+    "//N5       EXEC PGM=USE",
+    "//NCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//NEJOB    JOB (ACCT),'GDG IF NE',CLASS=A,MSGCLASS=X",
+    "//E1       EXEC PGM=CHK",
+    "//   IF (E1.RC NE 0) THEN",
+    "//E2       EXEC PGM=MAKE",
+    "//EOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ENDIF",
+    "//E3       EXEC PGM=USE",
+    "//ECUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//PDJOB    JOB (ACCT),'GDG PASS DELETE',CLASS=A,MSGCLASS=X",
+    "//D1       EXEC PGM=MAKE",
+    "//DOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//D2       EXEC PGM=USE",
+    "//DIN      DD DSN=PAY.GDG(+1),DISP=(OLD,DELETE)",
+    "//D3       EXEC PGM=USE2",
+    "//DCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//UNCNEW   JOB (ACCT),'GDG NEW UNCATLG',CLASS=A,MSGCLASS=X",
+    "//U1       EXEC PGM=MAKE",
+    "//UOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,UNCATLG)",
+    "//U2       EXEC PGM=USE",
+    "//UIN      DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//*",
+    "//UNCOLD   JOB (ACCT),'GDG OLD UNCATLG',CLASS=A,MSGCLASS=X",
+    "//V1       EXEC PGM=TRIM",
+    "//VOLD     DD DSN=PAY.GDG(-2),DISP=(OLD,UNCATLG)",
+    "//V2       EXEC PGM=USE",
+    "//VCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//VPRV     DD DSN=PAY.GDG(-1),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -1645,6 +1744,802 @@
         }
       },
       "basis": "User's Guide, Appendix A, Example 2: the DD statements 'needed to retrieve the SMS-managed generation data sets created in the first example, when the GDG contains no other generation data sets': (-2), (-1), (0) name the first, second and third generation, 1, 2, 3."
+    },
+    {
+      "id": "gdg-all-reads-newest-first-by-default",
+      "job": "ALLJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ]
+        }
+      },
+      "given": {
+        "A1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "A1.DEF": [
+          4,
+          3
+        ],
+        "A1.LIF": [
+          4,
+          3
+        ],
+        "A1.FIF": [
+          3,
+          4
+        ],
+        "A1.USE": [
+          4,
+          3
+        ]
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A, 'Retrieving all generation data sets' (pp. 240-241): DSN=PAYROLL with no generation number is a GDG ALL request, allocated as (0) then (-1) when the catalog entry says LIFO, which is the default and what GDGORDER=LIFO names. GDGORDER=FIFO allocates (-1) then (0), oldest first, 'regardless of the catalog definition'. USECATLG (the default) follows the catalog entry, here LIFO. A read changes no catalog."
+    },
+    {
+      "id": "gdg-all-follows-a-fifo-catalog-entry",
+      "job": "ALLJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ],
+          "gdgorder": "FIFO"
+        }
+      },
+      "given": {
+        "A1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "A1.DEF": [
+          3,
+          4
+        ],
+        "A1.LIF": [
+          4,
+          3
+        ],
+        "A1.FIF": [
+          3,
+          4
+        ],
+        "A1.USE": [
+          3,
+          4
+        ]
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ],
+          "gdgorder": "FIFO"
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A, 'Retrieving all generation data sets' (pp. 240-241): 'if the GDG named PAYROLL is defined to be retrieved in FIFO order, the allocation is (-1) then (0)'. A DD with no GDGORDER, and one with USECATLG, take the catalog's FIFO; GDGORDER=LIFO overrides the catalog."
+    },
+    {
+      "id": "concatenated-generations-are-read-in-the-order-coded",
+      "job": "CATJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.IN": [
+          7,
+          6,
+          2
+        ]
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A, 'Retrieving all generation data sets' (pp. 240-241) (the DD1 example): an unnamed DD concatenates onto the DD above it and the data sets are read in the order coded (relative positions +000, +001, ...). (0) is 7, (-1) is 6 and AUD.GDG(0) is 2, read in that order, not sorted. Only the DDs that name a generation group are listed."
+    },
+    {
+      "id": "if-then-creates-the-plus-one",
+      "job": "IFGJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "I1": {
+          "rc": 0
+        },
+        "I2": {
+          "rc": 0
+        },
+        "I4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "I2.IOUT": 8,
+        "I4.KIN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: the IF test is true (I1 ended with RC 0), so the THEN step I2 runs and the ELSE step I3 is not executed and allocates none of its DDs. I2 creates (+1), the number after the newest, 7: generation 8. I4 reads (0), still 7 because a generation created in the job is rolled in only at the job's end (User's Guide, Appendix A, GDGBIAS=JOB). The job ends with 8 cataloged."
+    },
+    {
+      "id": "if-else-creates-the-plus-one",
+      "job": "IFGJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "I1": {
+          "rc": 8
+        },
+        "I3": {
+          "rc": 0
+        },
+        "I4": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "I3.JOUT": 8,
+        "I4.KIN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: the IF test is false (RC 8), so the ELSE step I3 runs and I2 is not executed. I3's (+1) is the same generation 8 I2's would have been: the number depends on the catalog when the job began, not on which step of the IF made it. I4 reads 7."
+    },
+    {
+      "id": "if-false-creates-nothing",
+      "job": "IFONLY",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "F1": {
+          "rc": 8
+        }
+      },
+      "expect": {},
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: F1 ends with RC 8, the IF test is false and there is no ELSE: F2 is not executed, so its (+1) is never allocated and the group is unchanged."
+    },
+    {
+      "id": "if-false-leaves-the-number-for-the-next-job",
+      "job": "IFONLY",
+      "catalog_from": "if-false-creates-nothing",
+      "given": {
+        "F1": {
+          "rc": 0
+        },
+        "F2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "F2.FOUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: the next run of the job finds the group unchanged (5, 6, 7), so with the test true F2's (+1) is generation 8: a bypassed creator consumes no number."
+    },
+    {
+      "id": "cond-only-runs-after-an-abend-and-sees-the-old-zero",
+      "job": "ONLYJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "abend": "S0C7"
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.COUT": 8,
+        "C2.CCUR": 7,
+        "C3.DOUT": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            9
+          ]
+        }
+      },
+      "basis": "EXEC COND=ONLY and DISP of the z/OS MVS JCL Reference: C1 abends, so COND=ONLY step C2 runs and COND=EVEN step C3 runs. C1's COUT is (NEW,CATLG,DELETE): the abnormal disposition deletes generation 8, never cataloged. C2 reads (0), 7. C3's (+2) is two past the newest at the job's first reference, 7, so generation 9, and is cataloged; 8 is skipped (a (+2) alone skips a number, DFSMS Using Data Sets)."
+    },
+    {
+      "id": "cond-only-is-bypassed-when-no-step-abended",
+      "job": "ONLYJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.COUT": 8,
+        "C3.DOUT": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "basis": "EXEC COND=ONLY: C2 runs only if a previous step abended; none did, so C2 is bypassed and allocates nothing. C1 ends normally and catalogs generation 8; C3 (COND=EVEN runs after a normal end too) creates 9."
+    },
+    {
+      "id": "if-abend-true-reads-the-old-zero",
+      "job": "ABIFJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "G1": {
+          "abend": "S0C7"
+        },
+        "G2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "G1.GOUT": 8,
+        "G2.GCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: G1 abends, so (G1.ABEND) is true: the THEN step G2 runs and ELSE step G3 is not executed. G1's (+1), 8, is deleted by the abnormal disposition and never cataloged; G2 reads (0), 7."
+    },
+    {
+      "id": "if-abend-false-reads-the-plus-one-just-made",
+      "job": "ABIFJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "G1": {
+          "rc": 0
+        },
+        "G3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "G1.GOUT": 8,
+        "G3.GNEW": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: G1 ends normally, (G1.ABEND) is false, so the ELSE step G3 runs. Its (+1) names the generation G1 created, 8, which G1 cataloged at its normal disposition."
+    },
+    {
+      "id": "if-run-true-creates-in-the-then",
+      "job": "RUNJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "N1": {
+          "rc": 0
+        },
+        "N2": {
+          "rc": 0
+        },
+        "N3": {
+          "rc": 0
+        },
+        "N5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "N3.NOUT": 8,
+        "N5.NCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: N1 ends RC 0 so the COND on N2 (4 < RC of N1) is false and N2 starts; the relational expression N2.RUN is true, so THEN step N3 runs and the ELSE step N4 does not. N3's (+1) is 8 (one after the newest, 7). N5 reads (0), still 7 because a generation created in the job is rolled in only at the job's end (User's Guide, Appendix A, GDGBIAS=JOB)."
+    },
+    {
+      "id": "if-run-false-after-a-bypassed-step-creates-in-the-else",
+      "job": "RUNJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "N1": {
+          "rc": 8
+        },
+        "N4": {
+          "rc": 0
+        },
+        "N5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "N4.MOUT": 8,
+        "N5.NCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: N1 ends RC 8 so the COND on N2 (4 < 8) is true and N2 is bypassed; a bypassed step did not start executing, so N2.RUN is false (the RUN keyword is true when the step began execution), the ELSE step N4 runs and N3 does not. N4's (+1) is the same generation 8 N3's would have been: the number depends on the group when the job began, not on which step of the IF made it. N5 reads 7."
+    },
+    {
+      "id": "if-not-equal-true-creates-the-plus-one",
+      "job": "NEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "E1": {
+          "rc": 4
+        },
+        "E2": {
+          "rc": 0
+        },
+        "E3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E2.EOUT": 8,
+        "E3.ECUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: the comparison operator NE (not equal) is a relational operator of the IF statement. E1 ends RC 4, 4 NE 0 is true, so E2 runs and creates (+1) = 8, rolled in at the end of the job; E3 reads (0), still 7."
+    },
+    {
+      "id": "if-not-equal-false-creates-nothing",
+      "job": "NEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "E1": {
+          "rc": 0
+        },
+        "E3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E3.ECUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: E1 ends RC 0, 0 NE 0 is false and there is no ELSE, so E2 is not executed and creates nothing: the group is unchanged and E3 reads (0) = 7."
+    },
+    {
+      "id": "pass-then-delete-never-rolls-in",
+      "job": "PDJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "D1": {
+          "rc": 0
+        },
+        "D2": {
+          "rc": 0
+        },
+        "D3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "D1.DOUT": 8,
+        "D2.DIN": 8,
+        "D3.DCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "assumed": "A11",
+      "basis": "DISP, PASS and DELETE: D1 creates (+1) = 8 and passes it; D2 receives it by the same (+1) (a generation created in the job is named by the number that created it, User's Guide Appendix A, GDGBIAS=JOB) with (OLD,DELETE), so the data set is deleted at the end of D2. The generation was deferred (never rolled in) and is now deleted, so the group is unchanged and D3's (0) is still 7."
+    },
+    {
+      "id": "pass-then-delete-leaves-the-number-for-the-next-job",
+      "job": "IFONLY",
+      "catalog_from": "pass-then-delete-never-rolls-in",
+      "given": {
+        "F1": {
+          "rc": 0
+        },
+        "F2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "F2.FOUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A11",
+      "basis": "The group is unchanged after the PASS-then-DELETE job (5, 6, 7), so the next job's (+1) is generation 8 again (the number of a generation deleted before roll-in is not consumed, as for a generation deleted after an abend, A2)."
+    },
+    {
+      "id": "new-uncatlg-is-rejected-and-treated-as-keep",
+      "job": "UNCNEW",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "U1": {
+          "rc": 0
+        },
+        "U2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U1.UOUT": 8,
+        "U2.UIN": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'By default, if the system retrieves volume information from the catalog, UNCATLG is processed. If not, the UNCATLG request is rejected and UNCATLG is treated as KEEP. Volume information is not retrieved from the catalog when VOLUME=REF or VOLUME=SER is specified on the DD statement, or for new data sets.' and 'With SMS, UNCATLG is ignored for SMS-managed data sets ... (KEEP is implied)'. Either way a (NEW,UNCATLG) generation is a NEW,KEEP one: U2 reads (+1) = 8, the generation U1 made, and 8 waits in deferred roll-in, not rolled into the active group (the same answer as new-keep-is-a-deferred-roll-in, A5)."
+    },
+    {
+      "id": "old-uncatlg-of-the-oldest-sms-is-ignored",
+      "job": "UNCOLD",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "sms": true
+        }
+      },
+      "given": {
+        "V1": {
+          "rc": 0
+        },
+        "V2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "V1.VOLD": 6,
+        "V2.VCUR": 8,
+        "V2.VPRV": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "sms": true
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'Indicates that the system is to delete the entry pointing to the data set in the catalog ... The data set is kept. With SMS, UNCATLG is ignored for SMS-managed data sets and VSAM data sets (KEEP is implied).' User's Guide, Appendix A, 'Deleting and uncataloging generation data sets': 'Note that uncataloging is not supported for SMS-managed data sets', and uncataloging the oldest generation is the form the manual leaves safe (any other 'catalog management can lose orientation within the data group'). V1 names (-2) = 6, the oldest of 6, 7, 8, and fixes the relationship, which the system maintains throughout the job, so V2 still reads (0) = 8 and (-1) = 7. The group is SMS-managed (the catalog entry is given sms: true), so UNCATLG is ignored, KEEP is implied, and 6 stays cataloged."
+    },
+    {
+      "id": "old-uncatlg-of-the-oldest-non-sms-leaves-the-group",
+      "job": "UNCOLD",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "sms": false
+        }
+      },
+      "given": {
+        "V1": {
+          "rc": 0
+        },
+        "V2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "V1.VOLD": 6,
+        "V2.VCUR": 8,
+        "V2.VPRV": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            7,
+            8
+          ],
+          "sms": false
+        }
+      },
+      "assumed": "A12",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'Indicates that the system is to delete the entry pointing to the data set in the catalog ... The data set is kept. With SMS, UNCATLG is ignored for SMS-managed data sets and VSAM data sets (KEEP is implied).' User's Guide, Appendix A, 'Deleting and uncataloging generation data sets': 'Note that uncataloging is not supported for SMS-managed data sets', and uncataloging the oldest generation is the form the manual leaves safe (any other 'catalog management can lose orientation within the data group'). V1 names (-2) = 6, the oldest of 6, 7, 8, and fixes the relationship, which the system maintains throughout the job, so V2 still reads (0) = 8 and (-1) = 7. The group is not SMS-managed (sms: false) and the DD gives no VOLUME, so the system retrieves volume information from the catalog and 'UNCATLG is processed': the catalog entry for 6 is deleted at V1's end and the data set is kept (off the group; this model tracks the group's entries only). ASSUMED (A12): that the other generations keep their entries and numbers is read from the DISP text, as A6 does for DELETE."
     }
   ],
   "assumed": [
@@ -1683,6 +2578,14 @@
     {
       "id": "A10",
       "text": "After a wraparound the generations stay in the order they were created: G0001 made after G9999 is the most recent, so (0) names it and (-1) names G9999. The manual states the wraparound number (User's Guide p. 237) and that (0) is the most recent generation, but not the order of the index across the wrap."
+    },
+    {
+      "id": "A11",
+      "text": "A PASSed new generation received by a later step with DISP=(OLD,DELETE) is deleted without ever being rolled into the group, like a PASSed generation never received (User's Guide p. 237: scratched and uncataloged at job end); the manual states the DELETE of a received PASSed generation for data sets in general, not for a deferred generation, and so does not say the number is free for the next job."
+    },
+    {
+      "id": "A12",
+      "text": "DISP=(OLD,UNCATLG) of the oldest generation of a group that is not SMS-managed removes only that entry from the group, as A6 does for DELETE; the manuals work no example that uncatalogs one generation, and state the SMS case ('ignored, KEEP implied') only in the DISP text. The group's SMS state is a field of the catalog entry given (sms: true / false): a group that does not give it is refused by name."
     }
   ],
   "refused": [
@@ -1745,6 +2648,18 @@
     {
       "construct": "a checkpoint restart (RESTART=(step,checkid)) of a job with GDGBIAS=STEP, or whose steps before the restart step do not create their (+n) with NEW / MOD",
       "why": "the manuals state the checkpoint rule by the numbers that created the generations, not how a per-step relationship is rebuilt; refused by name"
+    },
+    {
+      "construct": "a GDG ALL read (the group named with no generation number) in a job that creates a generation of that group",
+      "why": "the manual says GDG ALL concatenates 'all existing data sets in the GDG' but not whether a generation created earlier in the same job, not yet rolled in, is among them; refused by name"
+    },
+    {
+      "construct": "a GDG ALL read of a group with no cataloged generation, or a GDGORDER other than LIFO, FIFO or USECATLG",
+      "why": "the manual states no outcome for an empty group, and names only these three GDGORDER keywords"
+    },
+    {
+      "construct": "DISP=(OLD,UNCATLG) of a generation of a group whose SMS state the catalog entry does not give, or of a generation other than the oldest",
+      "why": "the manual states UNCATLG as ignored for SMS-managed data sets and processed otherwise, so the answer depends on a fact the job does not carry; and for any generation but the oldest it says 'catalog management can lose orientation within the data group' without stating an outcome"
     }
   ]
 }

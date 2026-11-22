@@ -1,7 +1,7 @@
 {
   "fixture": "library_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL User's Guide (Appendix A, generation data sets) and JCL Reference (JOB: RESTART, JCLLIB ORDER); GDG DDs inside procedures that are JCLLIB library members, under JOB RESTART. Written before the resolver ran. Not run on the MVS 3.8J box (no library). Assumption A9 is in gdg/scenarios.json.",
+  "written_from": "IBM z/OS MVS JCL User's Guide (Appendix A, generation data sets) and JCL Reference (JOB: RESTART, JCLLIB ORDER); GDG DDs inside procedures that are JCLLIB library members, under JOB RESTART. Written before the resolver ran. Not run on the MVS 3.8J box (no library). Assumption A9 is in gdg/scenarios.json. Read again 2026-11-22 for call overrides: JCL Reference, 'Modifying procedures' pp. 28-29 (the override operation merges parameters; an absent parameter is added; DUMMY nullifies all but DCB).",
   "libraries": {
     "LIB.A": {
       "RPRC": [
@@ -23,6 +23,14 @@
         "//D3       EXEC PGM=PGMC",
         "//A1       DD DSN=PAY.GDG(+1),DISP=SHR",
         "//A2       DD DSN=PAY.GDG(+2),DISP=SHR"
+      ],
+      "OVRP": [
+        "//OVRP     PROC",
+        "//M1       EXEC PGM=PGMM",
+        "//OUT      DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+        "//R1       EXEC PGM=PGMR",
+        "//IN       DD DSN=PAY.GDG(0),DISP=SHR",
+        "//LOG      DD DSN=PAY.PLAIN,DISP=SHR"
       ]
     },
     "LIB.B": {
@@ -71,6 +79,58 @@
     "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
     "//U1       EXEC PGM=PGMU",
     "//CALL1    EXEC RPRC",
+    "//*",
+    "//* Call overrides and added DDs on GDG DDs (#8413).",
+    "//*",
+    "//OVR1     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//R1.IN    DD DSN=PAY.GDG(-1)",
+    "//*",
+    "//OVR2     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//M1.OUT   DD DISP=(NEW,DELETE)",
+    "//*",
+    "//OVR3     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//M1.EXTRA DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//*",
+    "//OVR4     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//R1.PREV  DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//*",
+    "//OVR5     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//R1.IN    DD DSN=PAY.OTHER,DISP=SHR",
+    "//*",
+    "//OVR6     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//R1.LOG   DD DSN=PAY.GDG(0)",
+    "//*",
+    "//OVR7     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//M1.OUT   DD DSN=PAY.GDG(+2)",
+    "//*",
+    "//OVR8     JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//M1.OUT   DD DUMMY",
+    "//*",
+    "//OVRBAD1  JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//ZZ.IN    DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//OVRBAD2  JOB (ACCT),'GDG OVR',CLASS=A",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//C1       EXEC OVRP",
+    "//R1.IN    DD SYSOUT=A",
     "//*"
   ],
   "scenarios": [
@@ -213,6 +273,310 @@
       },
       "assumed": "A9",
       "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. JCLLIB ORDER=(LIB.B,LIB.A) makes RPRC LIB.B's member. RESTART=(CALL1.H2,CK1) with a SYSCHK DD: the original run began with 6, 7 and H1 created and cataloged (+1) = 8 before the restart step; H2 reads it by the number that created it, (+1), so 8 (same-numbers rule for the deferred form is ASSUMED A9). Nothing new is created, and 8 stays cataloged."
+    },
+    {
+      "id": "override-dsn-keeps-the-procedure-disp",
+      "job": "OVR1",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.R1.IN": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' pp. 235-236. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. R1.IN is overridden with DSN=PAY.GDG(-1) and no DISP: the DSN is replaced and the DISP=SHR of the procedure statement is kept by the merge, so R1.IN reads the generation one older than the newest at job start, 6. M1.OUT is (+1): 8, cataloged at job end."
+    },
+    {
+      "id": "override-disp-only-keeps-the-procedure-dsn",
+      "job": "OVR2",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.R1.IN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' pp. 235-236. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. M1.OUT is overridden with DISP=(NEW,DELETE) and no DSN: the procedure's DSN=PAY.GDG(+1) is kept and its disposition replaced, so the step still names generation 8 (a (+1) is the next number after the newest at job start) and the step end deletes it: the catalog is unchanged. R1.IN's (0) is still 7."
+    },
+    {
+      "id": "added-dd-creates-a-second-generation",
+      "job": "OVR3",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.M1.EXTRA": 9,
+        "C1.R1.IN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' pp. 235-236. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. The DD EXTRA is not on any procedure statement, so the override operation adds it to step M1. Two additions in one job: OUT is (+1), 8, and EXTRA (+2), 9; both are cataloged at job end (5 generations, within LIMIT 6)."
+    },
+    {
+      "id": "added-dd-reads-the-generation-an-earlier-step-created",
+      "job": "OVR4",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.R1.PREV": 8,
+        "C1.R1.IN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' pp. 235-236, 'a generation created by (+1) is read in a later step by the same (+1)'. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. The added DD PREV of step R1 reads (+1), the generation M1 created, 8, and R1.IN's (0) is 7."
+    },
+    {
+      "id": "override-replaces-a-generation-dsn-with-a-plain-one",
+      "job": "OVR5",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' pp. 235-236. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. R1.IN is overridden with DSN=PAY.OTHER,DISP=SHR: the DSN is replaced, so DD IN no longer names a generation of PAY.GDG and the answer holds no R1.IN. M1.OUT, 8, is cataloged."
+    },
+    {
+      "id": "override-makes-a-plain-dd-a-generation",
+      "job": "OVR6",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "C1.R1.IN": 7,
+        "C1.R1.LOG": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Relative generation numbers' pp. 235-236. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. R1.LOG is overridden with DSN=PAY.GDG(0) and no DISP: the DSN is replaced and the procedure's DISP=SHR kept, so LOG names the current generation at job start, 7, as IN does."
+    },
+    {
+      "id": "override-moves-a-plus-one-to-a-plus-two",
+      "job": "OVR7",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 9,
+        "C1.R1.IN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB). z/OS DFSMS Using Data Sets, 'Processing generation data groups', 'Relative generation number': 'if you have a single step job, and the generation being cataloged is a +2, one generation number is skipped'. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. M1.OUT is overridden with DSN=PAY.GDG(+2) and no DISP: (+2) is the only addition in the job, so it names 9 and 8 is skipped; the procedure's DISP=(NEW,CATLG) catalogs 9 at job end."
+    },
+    {
+      "id": "dummy-override-nullifies-the-generation-dd",
+      "job": "OVR8",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.R1.IN": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385 / ieab600), 'Modifying procedures' pp. 28-29 ('Rules for modifying OUTPUT JCL or DD parameters': the override operation merges the parameters of the overriding statement with those of the overridden one; a parameter coded on the overriding statement and absent from the procedure statement is added; 'Adding an OUTPUT JCL or DD statement'; DUMMY on an overriding DD nullifies all parameters but DCB): 'To nullify all parameters but the DCB parameter, code DUMMY on the overriding DD statement'. JCLLIB ORDER=(LIB.A) finds OVRP: step M1 creates DD OUT as (+1) and step R1 reads DD IN as (0) and holds a DD LOG of PAY.PLAIN; the job's steps are C1.M1 and C1.R1 (ASSUMED A2). The catalog as the job begins is 5, 6, 7. M1.OUT is overridden with DUMMY, so the step allocates no generation: nothing is created and the catalog is unchanged; R1.IN's (0) is 7."
     }
   ],
   "refused": [
@@ -236,6 +600,36 @@
       "reason": "the manuals state the checkpoint rule by the numbers that created the generations, not how a per-step relationship is rebuilt; refused by name",
       "given": {
         "CALL1.G3": {
+          "rc": 0
+        }
+      }
+    },
+    {
+      "id": "lib-gdg-override-of-an-absent-procedure-step",
+      "job": "OVRBAD1",
+      "match": "overrides a procedure step",
+      "construct": "a call override DD that names a step the procedure does not have",
+      "reason": "JCL Reference p. 28: an override names the procedure step that holds the overridden statement; an absent step is a JCL error with no step-flow answer",
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
+          "rc": 0
+        }
+      }
+    },
+    {
+      "id": "lib-gdg-sysout-override-of-a-generation-dd",
+      "job": "OVRBAD2",
+      "match": "SYSOUT",
+      "construct": "a SYSOUT override of a procedure DD that names a generation",
+      "reason": "the merge rules nullify the exclusive DSN, but the call-flow side (jcl_proc) refuses a SYSOUT override of a DD that names a dataset; refused here too until both are answered together",
+      "given": {
+        "C1.M1": {
+          "rc": 0
+        },
+        "C1.R1": {
           "rc": 0
         }
       }

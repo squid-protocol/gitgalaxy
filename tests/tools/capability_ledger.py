@@ -373,9 +373,9 @@ def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
             continue
         if case == "proc":
             res = _proc_results()
-        elif case == "restart" and f.name == "library.json":
+        elif case == "restart" and f.name in ("library.json", "nested.json", "rd.json"):
             res = _library_restart_results(doc)
-        elif case == "gdg" and f.name == "library.json":
+        elif case == "gdg" and f.name in ("library.json", "nested.json"):
             res = _library_gdg_results(doc)
         elif case in steps and f.name == "scenarios.json":
             res = steps[case]

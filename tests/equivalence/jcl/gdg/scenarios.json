@@ -366,7 +366,24 @@
     "//C1       EXEC PGM=MAKE",
     "//COUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
     "//C2       EXEC PGM=USE",
-    "//CNEW     DD DSN=PAY.GDG.G0009V00,DISP=SHR"
+    "//CNEW     DD DSN=PAY.GDG.G0009V00,DISP=SHR",
+    "//*",
+    "//* #8413 slice 10: a PASSed (+1) received with KEEP or UNCATLG.",
+    "//PKJOB    JOB (ACCT),'GDG PASS KEEP',CLASS=A,MSGCLASS=X",
+    "//K1       EXEC PGM=MAKE",
+    "//KOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//K2       EXEC PGM=USE",
+    "//KIN      DD DSN=PAY.GDG(+1),DISP=(OLD,KEEP)",
+    "//K3       EXEC PGM=USE2",
+    "//KCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//PUJOB    JOB (ACCT),'GDG PASS UNCATLG',CLASS=A,MSGCLASS=X",
+    "//L1       EXEC PGM=MAKE",
+    "//LOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//L2       EXEC PGM=USE",
+    "//LIN      DD DSN=PAY.GDG(+1),DISP=(OLD,UNCATLG)",
+    "//L3       EXEC PGM=USE2",
+    "//LCUR     DD DSN=PAY.GDG(0),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -2597,6 +2614,96 @@
       },
       "assumed": "A13",
       "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DSNAME: a generation data set can be named by its absolute name, 'dsname.GxxxxVyy', as well as relatively (z/OS DFSMS Using Data Sets, Appendix A, 'Absolute generation and version number'; GxxxxVyy is the generation and version number the system assigns). An absolute name is the data set itself, not a position in the index: A2 reads G0006V00, which is generation 6 whatever A1 did to the relative numbers; the (+1) A1 made is 9, rolled in at job end, and (0) at A2 is still 8: the relative numbers were fixed at A1's first reference and hold for the job (User's Guide p. 235), so the new 9 is named only by (+1). Nothing is rolled off (limit 5, 4 held). ASSUMED (A13): the DD names a data set directly, so reading it neither changes nor is changed by the job's relative numbers; the manual states the absolute name and the job-long relationship separately."
+    },
+    {
+      "id": "pass-then-keep-is-a-deferred-roll-in",
+      "job": "PKJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "K1": {
+          "rc": 0
+        },
+        "K2": {
+          "rc": 0
+        },
+        "K3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "K1.KOUT": 8,
+        "K2.KIN": 8,
+        "K3.KCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "DISP, PASS and KEEP: K1 creates (+1) = 8 and passes it; K2 receives it by the same (+1) with (OLD,KEEP), so the data set is kept at the end of K2 instead of being scratched at job end. A kept generation is a NEW,KEEP one (new-keep-is-a-deferred-roll-in, A5): it waits in deferred roll-in and is not in the active group, so K3's (0) is still 7."
+    },
+    {
+      "id": "pass-then-uncatlg-is-a-deferred-roll-in",
+      "job": "PUJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "L1": {
+          "rc": 0
+        },
+        "L2": {
+          "rc": 0
+        },
+        "L3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "L1.LOUT": 8,
+        "L2.LIN": 8,
+        "L3.LCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A14",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'By default, if the system retrieves volume information from the catalog, UNCATLG is processed. If not, the UNCATLG request is rejected and UNCATLG is treated as KEEP.' The generation L1 created and passed was never cataloged, so its volume information comes from the pass, not the catalog: L2's UNCATLG is rejected and treated as KEEP (as for new-uncatlg-is-rejected-and-treated-as-keep), 8 waits in deferred roll-in and L3's (0) is still 7."
     }
   ],
   "assumed": [
@@ -2647,6 +2754,10 @@
     {
       "id": "A12",
       "text": "DISP=(OLD,UNCATLG) of the oldest generation of a group that is not SMS-managed removes only that entry from the group, as A6 does for DELETE; the manuals work no example that uncatalogs one generation, and state the SMS case ('ignored, KEEP implied') only in the DISP text. The group's SMS state is a field of the catalog entry given (sms: true / false): a group that does not give it is refused by name."
+    },
+    {
+      "id": "A14",
+      "text": "A PASSed new generation received with DISP=(OLD,UNCATLG) takes its volume information from the pass, not the catalog, so UNCATLG is rejected and treated as KEEP (JCL Reference, DISP: UNCATLG, 'for new data sets'); the manual states the rule for a NEW data set and does not name a passed one. With SMS the text says UNCATLG is ignored and KEEP implied: the answer is KEEP either way."
     }
   ],
   "refused": [

@@ -22,7 +22,12 @@ def _job(name: str, step_min: float | None, job_min: float = 30, conclusion: str
     if step_min is not None:
         steps = [
             {"name": "Install dependencies", "started_at": _t(0), "completed_at": _t(5)},
-            {"name": "Full Suite (x, Python 3.12)", "started_at": _t(5), "completed_at": _t(5 + step_min)},
+            {
+                "name": "Full Suite (x, Python 3.12)",
+                "started_at": _t(5),
+                "completed_at": _t(5 + step_min),
+                "conclusion": conclusion,
+            },
         ]
     return {"name": name, "conclusion": conclusion, "started_at": _t(0), "completed_at": _t(job_min), "steps": steps}
 
@@ -69,7 +74,7 @@ def test_only_the_selected_os_is_checked_and_skipped_legs_are_ignored():
 def test_fewer_than_the_required_scheduled_runs_is_unconfirmed(monkeypatch, capsys):
     monkeypatch.setattr(glm, "scheduled_jobs", lambda *_a: [[_job(W312, 10)]])
     assert glm.main(["--runs", "5"]) == 1
-    assert "UNCONFIRMED: 1 of 5" in capsys.readouterr().out
+    assert "UNCONFIRMED: 1 of 5 scheduled runs measured" in capsys.readouterr().out
     monkeypatch.setattr(glm, "scheduled_jobs", lambda *_a: [[_job(W312, 10)]] * 5)
     assert glm.main(["--runs", "5"]) == 0
 
@@ -80,3 +85,19 @@ def test_each_observation_is_judged_against_its_own_runs_cap():
     rows = glm.margins([[new], [old]], "windows")
     assert rows[("windows-latest", "3.12", 1)] == (25, 24.0, 2)
     assert glm.margins([[new]], "windows")[("windows-latest", "3.12", 1)] == (30, 20.0, 1)
+
+
+def test_a_leg_that_failed_early_or_never_reached_the_step_is_not_an_observation():
+    early = _job(W312, 1, conclusion="failure")  # e.g. an import error at collection
+    no_step = _job(W312, None, job_min=27)
+    assert glm.margins([[early, no_step]], "windows") == {}
+    assert glm.measured_runs([[early, no_step]], "windows") == 0
+
+
+def test_a_step_cut_at_its_cap_is_an_observation_and_unmeasured_runs_do_not_count(monkeypatch, capsys):
+    cut = _job(W312, 30, conclusion="cancelled")
+    assert glm.margins([[cut]], "windows")[("windows-latest", "3.12", 1)] == (30, 30.0, 1)
+    early = _job(W312, 1, conclusion="failure")
+    monkeypatch.setattr(glm, "scheduled_jobs", lambda *_a: [[_job(W312, 10)]] * 3 + [[early]] * 2)
+    assert glm.main(["--runs", "5"]) == 1
+    assert "UNCONFIRMED: 3 of 5 scheduled runs measured (5 sampled)" in capsys.readouterr().out

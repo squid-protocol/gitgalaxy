@@ -137,7 +137,7 @@ the call graph.
 <p><img src="docs/media/callgraph-c.gif" width="760" alt="From one function to the whole call graph: functions inside their files, joined by call and import lines"></p>
 
 - **Call links:** measured in 10 languages against a reference analyser on pinned real repos (as of 2026-11-22):
-  95.7% (C++) to 100.0% (C, TypeScript) precise across all 10 languages.
+  95.7% (C++) to 100.0% (C, TypeScript) precise across all measured languages.
 - **Recall:** from 41.5% (C++) and 42.5% (Kotlin) to 87.9% (JavaScript) and 97.9% (PHP) of calls are linked, so
   function fan-in and PageRank are a lower bound ([graph accuracy](docs/graph_accuracy.md),
   [epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161)).

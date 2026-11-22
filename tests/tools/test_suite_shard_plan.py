@@ -309,5 +309,5 @@ def test_a_windows_part_is_planned_to_finish_inside_the_gate_target_8701(duratio
             continue
         n = legs[(os_name, py)]
         assert n >= 3, (py, n)
-        weight = {k: mean * speed for k in durations}
+        weight = dict.fromkeys(durations, mean * speed)
         assert _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S), (py, n)

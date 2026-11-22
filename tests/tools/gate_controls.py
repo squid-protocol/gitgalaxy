@@ -170,7 +170,9 @@ GATES = (
     Gate(
         "det-mutation",
         "det-sweep.yml",
-        "a det-port mutant that survives and is not in the survivors ledger",
+        "a det-port mutant ledger gone stale in a case the PR changes (#5862)",
+        "tests/tools/test_det_mutation.py::test_a_case_touch_in_a_real_branch_fails_the_ratchet_and_an_untouched_one_does_not",
+        open_gap="the fingerprints are stubbed, and the det job's shell step that turns a failed detmut into a red check is not exercised",
         job="detmut",
     ),
     Gate("db2", "det-sweep.yml", "a Db2 det port that stops proving against the real database", job="db2"),
@@ -187,6 +189,8 @@ GATES = (
         "os-smoke-grid",
         "os-smoke-grid.yml",
         "an OS- or Python-version-sensitive break: package install, CLI entry points, syntax floor (#5130)",
+        "tests/tools/test_gate_controls_smoke.py::test_a_missing_or_import_broken_entry_point_goes_red",
+        open_gap="runs the smoke commands on one OS and Python: the Windows, macOS and 3.11 legs and the install step are not exercised",
         trigger="main",
         job="smoke-test",
     ),
@@ -201,6 +205,8 @@ GATES = (
         "evidence-refresh",
         "evidence-refresh.yml",
         "a det port or evidence record gone stale or no longer proving, found by the nightly re-proof (#4048)",
+        "tests/tools/test_evidence_refresh_shard_loss_8509.py::test_a_skipped_det_mutation_job_still_fails_the_gate",
+        open_gap="only the det mutation lane's verdict is exercised: the re-proof and record lanes have no control",
         trigger="nightly",
     ),
     Gate(
@@ -379,7 +385,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 10
+MAX_UNPROVEN = 4
 
 
 def unproven() -> list[Gate]:

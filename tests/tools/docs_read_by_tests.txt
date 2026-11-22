@@ -197,6 +197,7 @@
 /server.js	tests/security_auditing
 /service	tests/cobol_mainframe
 /shared	tests/cobol_mainframe
+/site	tests/core_engine
 /src	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/cultural_gauntlet.py,tests/tools/test_outcome_pilot.py
 /suite.json	tests/tools/at_extract.py
 /swagger1.json	tests/security_auditing

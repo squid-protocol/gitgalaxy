@@ -121,9 +121,19 @@ def score_review(c: rc.Control, raw: str) -> dict:
     }
 
 
+def is_errored(row: dict) -> bool:
+    """A call that produced no review (nonzero exit, timeout, empty output) says nothing about the reviewer."""
+    return bool(row.get("exit", 0) != 0 or row.get("error") or not str(row.get("raw", "")).strip())
+
+
 def score_results(results: list[dict]) -> list[dict]:
-    """`results` rows are {model, key, raw[, run]}; each gains its score."""
-    return [{**r, **score_review(rc.BY_KEY[r["key"]], r.get("raw", ""))} for r in results]
+    """`results` rows are {model, key, raw[, run, exit, error]}; each gains its score, or `errored` and no score."""
+    return [
+        {**r, "defective": bool(rc.BY_KEY[r["key"]].cls), "errored": True}
+        if is_errored(r)
+        else {**r, **score_review(rc.BY_KEY[r["key"]], r["raw"]), "errored": False}
+        for r in results
+    ]
 
 
 def report(results: list[dict]) -> dict:
@@ -132,7 +142,10 @@ def report(results: list[dict]) -> dict:
     models: dict[str, dict] = {}
     for row in scored:
         m = models.setdefault(row["model"], {"catch": {}, "twin_false_alarms": [0, 0], "stray_on_defective": 0,
-                                             "malformed": 0})  # fmt: skip
+                                             "malformed": 0, "errored": 0})  # fmt: skip
+        if row["errored"]:
+            m["errored"] += 1
+            continue
         m["malformed"] += int(row["malformed"])
         if row["defective"]:
             cell = m["catch"].setdefault(rc.BY_KEY[row["key"]].cls, [0, 0])
@@ -147,8 +160,9 @@ def report(results: list[dict]) -> dict:
         m["catch_rate"] = [caught, n]
     out: dict = {
         "models": models,
-        "note": f"n is {sum(v['catch_rate'][1] for v in models.values())} defective reviews over "
-        f"{len(rc.CONTROLS) // 2} defects: read counts, not percentages; no verdict is drawn from a set this small",
+        "note": f"n is {sum(v['catch_rate'][1] for v in models.values())} completed defective reviews over "
+        f"{len(rc.CONTROLS) // 2} defects (errored calls are counted apart and left out of every rate): "
+        "read counts, not percentages; no verdict is drawn from a set this small",
     }
     names = list(models)
     if len(names) >= 2:
@@ -177,12 +191,18 @@ def run(models: list[str], repeats: int) -> list[dict]:
     for model in models:
         for c in rc.CONTROLS:
             for i in range(repeats):
-                p = subprocess.run(  # noqa: S603
-                    ["claude", *CLAUDE_ARGS[:1], "--model", model, *CLAUDE_ARGS[1:]],  # noqa: S607
-                    input=prompt_for(c), capture_output=True, text=True, timeout=RUN_TIMEOUT_S, check=False,
-                    encoding="utf-8",
-                )  # fmt: skip
-                rows.append({"model": model, "key": c.key, "run": i, "raw": p.stdout, "exit": p.returncode})
+                row = {"model": model, "key": c.key, "run": i}
+                try:
+                    p = subprocess.run(  # noqa: S603
+                        ["claude", *CLAUDE_ARGS[:1], "--model", model, *CLAUDE_ARGS[1:]],  # noqa: S607
+                        input=prompt_for(c), capture_output=True, text=True, timeout=RUN_TIMEOUT_S, check=False,
+                        encoding="utf-8",
+                    )  # fmt: skip
+                except subprocess.TimeoutExpired:
+                    rows.append({**row, "raw": "", "exit": None, "error": f"timeout after {RUN_TIMEOUT_S}s"})
+                    continue
+                err = (p.stderr or "")[-300:].strip() if p.returncode != 0 else ""
+                rows.append({**row, "raw": p.stdout, "exit": p.returncode, "error": err})
     return rows
 
 
@@ -193,6 +213,7 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("run")
     r.add_argument("--models", default="sonnet,opus")
     r.add_argument("--repeats", type=int, default=1)
+    r.add_argument("--max-reviews", type=int, help="refuse a run larger than this many reviews")
     r.add_argument("--owner-ok", action="store_true", help="the experiment lane's OK: without it nothing is called")
     r.add_argument("--out", help="where to write the raw reviews (outside the repo)")
     sub.add_parser("report").add_argument("results")
@@ -207,7 +228,11 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report(json.loads(Path(args.results).read_text(encoding="utf-8"))), indent=2))
     else:
         models = [m for m in re.split(r"[,\s]+", args.models) if m]
-        print(json.dumps({"dry_run": not args.owner_ok, **estimate(models, args.repeats)}))
+        size = estimate(models, args.repeats)
+        print(json.dumps({"dry_run": not args.owner_ok, **size}))
+        if args.max_reviews is not None and size["reviews"] > args.max_reviews:
+            print(f"refused: {size['reviews']} reviews exceeds --max-reviews {args.max_reviews}", file=sys.stderr)
+            return 2
         if not args.owner_ok:
             print("dry run: pass --owner-ok (experiment lane) to call the models", file=sys.stderr)
             return 0

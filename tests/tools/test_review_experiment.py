@@ -126,3 +126,48 @@ def test_prompt_and_report_commands(tmp_path, capsys):
     res.write_text(json.dumps([{"model": "m", "key": "swallow", "raw": _review("approve")}]), encoding="utf-8")
     assert ex.main(["report", str(res)]) == 0
     assert json.loads(capsys.readouterr().out)["models"]["m"]["catch_rate"] == [0, 1]
+
+
+def test_an_errored_call_is_counted_apart_and_left_out_of_every_rate():
+    c = DEFECTIVE[0]
+    ok = {"model": "m", "key": c.key, "raw": _review("request_changes", _on_target(c)), "exit": 0}
+    bad = [
+        {"model": "m", "key": c.key, "raw": "", "exit": 1, "error": "rate limited"},
+        {"model": "m", "key": c.key, "raw": "", "exit": None, "error": "timeout after 600s"},
+        {"model": "m", "key": c.key, "raw": "  \n", "exit": 0},
+        {"model": "m", "key": TWINS[0].key, "raw": "partial", "exit": 3},
+    ]
+    m = ex.report([ok, *bad])["models"]["m"]
+    assert m["errored"] == 4 and m["malformed"] == 0
+    assert m["catch_rate"] == [1, 1] and m["twin_false_alarms"] == [0, 0]
+
+
+def test_a_malformed_answer_from_a_call_that_answered_is_a_miss_not_an_error():
+    c = DEFECTIVE[0]
+    m = ex.report([{"model": "m", "key": c.key, "raw": "no json here", "exit": 0}])["models"]["m"]
+    assert m["errored"] == 0 and m["malformed"] == 1 and m["catch_rate"] == [0, 1]
+
+
+def test_run_records_a_timeout_and_a_failure_as_errored(monkeypatch):
+    seq = iter([subprocess.TimeoutExpired("claude", 1), subprocess.CompletedProcess([], 1, stdout="", stderr="boom")])
+
+    def fake(cmd, **kw):
+        r = next(seq, None)
+        if isinstance(r, Exception):
+            raise r
+        return r or subprocess.CompletedProcess(cmd, 0, stdout=_review("approve"), stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake)
+    rows = ex.run(["m"], 1)
+    assert rows[0]["error"].startswith("timeout") and rows[1]["error"] == "boom" and rows[1]["exit"] == 1
+    assert [ex.is_errored(r) for r in rows[:3]] == [True, True, False]
+
+
+def test_max_reviews_refuses_a_bigger_run_before_any_call(monkeypatch, capsys):
+    def boom(*a, **k):
+        raise AssertionError("a model was called")
+
+    monkeypatch.setattr(subprocess, "run", boom)
+    n = len(rc.CONTROLS) * 2
+    assert ex.main(["run", "--models", "sonnet,opus", "--owner-ok", "--max-reviews", str(n - 1)]) == 2
+    assert "refused" in capsys.readouterr().err

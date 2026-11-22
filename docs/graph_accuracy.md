@@ -271,7 +271,7 @@ call graph. Directories named `win` are not parsed (they need `<windows.h>`).
 25.3%, resolution recall 58.8%, 2,790 confident links unmapped.
 
 **What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
-another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). And
+another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). The libclang adapter also skips calls through function pointers and dispatch tables (`cft->do_connect(...)`, `conn->scheme->run->connect_it(...)`), so the C recall gate does not score indirect calls at all: a hand-checked sample on curl (`01798a0`, #8956) found 20/20 sampled dispatch call sites (10 `cft->`, 10 `->run->`) landed in `fcall_external` (0 linked, 0 wrong) and 0/10 dispatch-table initializers produced edges to their implementations (33/36 sampled implementations had `func_fan_in = 0`). And
 the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
 (612 reference defs the engine does not extract) and libuv's docs code directory (113 defs, files the engine does not ingest).
 Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a

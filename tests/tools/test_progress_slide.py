@@ -245,9 +245,10 @@ def test_offline_the_github_parts_are_not_measured_and_print_no_number(offline):
 
 def test_every_ledger_row_is_on_the_slide_with_its_state_and_count(report):
     texts = _texts(ps.render(report))
+    joined = " ".join(texts)  # a long `have` is wrapped into consecutive lines (owner 2026-11-21: it ran under the bar)
     caps = report["components"]["capabilities"]
     for r in caps["rows"]:
-        assert r["name"] in texts and r["have"] in texts
+        assert r["name"] in texts and " ".join(r["have"].split()) in joined
         assert cl.STATE_LABEL[r["state"]] in texts
         if r["of"]:
             assert f"{r['done']} / {r['of']}" in texts
@@ -386,3 +387,46 @@ def test_the_code_page_rows_are_counted_from_the_codecs_the_gauntlet_and_the_cru
         ok or None,
         n or None,
     ) or not n
+
+
+# ---- #8888: an S bar under each training codebase ---------------------------------------------------------------------
+def test_each_training_codebase_has_an_s_bar_from_the_report(report):
+    estates = report["ladder"]["estates"]
+    svg = ps.render(report)
+    titles, texts = _titles(svg), _texts(svg)
+    drawn = 0
+    for key, e in estates.items():
+        sy, nm = e["system"], ps.ESTATE_NAMES.get(key, key)
+        if sy["jobs"]:
+            n0 = sy["levels"]["S0"]
+            assert f"{nm}: {n0} job{'s' * (n0 != 1)} at S0 (jobs inventoried)" in titles
+            assert any(t.startswith(f"S2 chain-proven: {sy['levels']['S2']} of {sy['jobs']} jobs") for t in texts)
+            drawn += 1
+    assert drawn  # the committed estate sizes (tests/fixtures/estate_size.json) give the fixture estates their jobs
+    assert "(S1, S3, S4 not measured yet)" in texts  # said once, in the S key; never a 0 for them
+
+
+def test_the_l5_tile_counts_only_finished_programs_and_says_how_many_wait(report):
+    dt = report["components"]["det_mutation"]["total"]
+    closed = dt["closed_caught"] + dt["closed_survived"]
+    waiting = dt["caught"] + dt["survived"] - closed
+    texts = _texts(ps.render(report))
+    assert f"{closed:,}" in texts and "planted bugs accounted for" in texts
+    assert f"caught or explained, in {dt['closed']} finished programs" in texts
+    assert f"{waiting:,} more waiting evaluation" in texts
+
+
+def test_wrap_keeps_every_line_inside_its_width():
+    text = "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14)"
+    lines = ps.wrap(text, 300, 6.4)
+    assert " ".join(lines) == text and len(lines) > 1
+    assert all(len(ln) <= 300 // 6.4 for ln in lines)
+    assert ps.wrap("short", 300, 6.4) == ["short"] and ps.wrap("", 300, 6.4) == [""]
+
+
+def test_the_unmeasured_github_boxes_keep_their_height(offline):
+    svg = ps.render(offline)
+    root = ET.fromstring(svg)
+    cards = [e for e in root.iter("{http://www.w3.org/2000/svg}rect") if e.get("class") == "card"
+             and float(e.get("x", 0)) > ps.W / 2 and float(e.get("height", 0)) < 80]  # fmt: skip
+    assert cards and all(float(e.get("height")) >= 52 for e in cards)

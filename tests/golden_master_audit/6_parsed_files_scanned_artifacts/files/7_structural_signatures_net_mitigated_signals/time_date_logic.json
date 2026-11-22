@@ -2808,12 +2808,12 @@
     "python/airflow": {
       "python/airflow/NOTICE": 0,
       "python/airflow/dag.py": 2,
-      "python/airflow/s3.py": 1,
-      "python/airflow/scheduler_job_runner.py": 6
+      "python/airflow/s3.py": 5,
+      "python/airflow/scheduler_job_runner.py": 7
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 1,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 3,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
@@ -2847,7 +2847,7 @@
       "python/fastapi/fastapi/cli.py": 0,
       "python/fastapi/fastapi/concurrency.py": 0,
       "python/fastapi/fastapi/datastructures.py": 0,
-      "python/fastapi/fastapi/encoders.py": 2,
+      "python/fastapi/fastapi/encoders.py": 3,
       "python/fastapi/fastapi/exception_handlers.py": 0,
       "python/fastapi/fastapi/exceptions.py": 0,
       "python/fastapi/fastapi/logger.py": 0,
@@ -2890,7 +2890,7 @@
       "python/fastapi/tests/test_custom_schema_fields.py": 0,
       "python/fastapi/tests/test_custom_swagger_ui_redirect.py": 0,
       "python/fastapi/tests/test_datastructures.py": 0,
-      "python/fastapi/tests/test_datetime_custom_encoder.py": 0,
+      "python/fastapi/tests/test_datetime_custom_encoder.py": 1,
       "python/fastapi/tests/test_default_response_class.py": 0,
       "python/fastapi/tests/test_default_response_class_router.py": 0,
       "python/fastapi/tests/test_dependencies_utils.py": 0,
@@ -2939,7 +2939,7 @@
       "python/fastapi/tests/test_invalid_path_param.py": 0,
       "python/fastapi/tests/test_invalid_sequence_param.py": 0,
       "python/fastapi/tests/test_json_type.py": 0,
-      "python/fastapi/tests/test_jsonable_encoder.py": 0,
+      "python/fastapi/tests/test_jsonable_encoder.py": 6,
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 0,
       "python/fastapi/tests/test_local_docs.py": 0,
       "python/fastapi/tests/test_multi_body_errors.py": 0,
@@ -3036,7 +3036,7 @@
       "python/fastapi/tests/test_security_scopes_dont_propagate.py": 0,
       "python/fastapi/tests/test_security_scopes_sub_dependency.py": 0,
       "python/fastapi/tests/test_serialize_response.py": 0,
-      "python/fastapi/tests/test_serialize_response_dataclass.py": 0,
+      "python/fastapi/tests/test_serialize_response_dataclass.py": 14,
       "python/fastapi/tests/test_serialize_response_model.py": 0,
       "python/fastapi/tests/test_skip_defaults.py": 0,
       "python/fastapi/tests/test_sse.py": 1,

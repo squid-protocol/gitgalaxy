@@ -625,7 +625,8 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\b(std::thread::sleep|tokio::time::sleep|Duration::from)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # Low-level byte manipulation. CRITICAL: Removed the pipe '|' (used for closures `|x| x+1` and patterns), ampersand '&' (used for references), and exclamation '!' (used for macros and logical NOT).
-        "bitwise_ops": re.compile(r"<<|>>|\^"),
+        # #8866: a ">>" closing a generic list is not a shift
+        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>|(?<=\w)>>(?=\w))|\^"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Mutex|RwLock|lock|barrier|atomic|Semaphore)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)

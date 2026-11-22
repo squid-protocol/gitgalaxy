@@ -391,7 +391,7 @@ DEFINITION: dict[str, Any] = {
         # cryptography (#4108): the same import pack as python (`import hashlib` in boot.py);
         # the dialect never carried it. hardware_bridge stays unowned: machine.Pin/I2C ride on `io` (#2898).
         "cryptography": PY_CRYPTOGRAPHY,
-        "serialization_parsing": re.compile(r"\b(ujson\.loads?|ujson\.dumps?|ustruct\.pack|ustruct\.unpack)\b"),
+        "serialization_parsing": re.compile(r"\b(?:u?json\.(?:loads?|dumps?)|ustruct\.pack|ustruct\.unpack)\b"),
         "regex_execution": re.compile(r"\b(ure\.compile|ure\.search|ure\.match|ure\.sub)\b"),
         "time_date_logic": re.compile(r"\b(utime\.sleep_ms|utime\.ticks_ms|utime\.ticks_diff|machine\.RTC)\b"),
         # #2898: the peripheral handles (machine.Pin/I2C/UART, network.WLAN, busio.I2C)

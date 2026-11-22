@@ -232,6 +232,9 @@ APERTURE_CONFIG = {
         "dist",
         "build",
         "_build",
+        # #8708 decision: `target` stays by name (Maven / Cargo build output, `target/generated-sources`); the
+        # fixture directories that share the name (sphinx `tests/roots/*/target/`) are not product code, and are
+        # recorded as `ignored directory: target`.
         "target",
         "obj",
         "out",
@@ -240,7 +243,6 @@ APERTURE_CONFIG = {
         "Debug",
         "cmake-build-debug",
         "CMakeFiles",
-        "classes",
         # 6. Testing Output & Coverage Reports
         "coverage",
         ".nyc_output",
@@ -256,21 +258,10 @@ APERTURE_CONFIG = {
         ".fleet",
         "DerivedData",
         "__MACOSX",
-        # 8. Transitory Runtime Data & Temp Files / Data
-        "tmp",
-        "temp",
-        "logs",
-        "log",
-        # 9. Documentation & Licensing
-        "LICENSES",
-        "licenses",
-        "LICENSE",
-        "license",
-        "DOCS",
-        "docs",
-        "LEGAL",
-        "legal",
-        "site",
+        # 8. Transitory Runtime Data & Temp Files / Data, 9. Documentation & Licensing
+        # #8708: `tmp` `temp` `log` `logs` `classes` `docs` `site` `legal` `license(s)` are also real
+        # source-directory names (DPDK `lib/log/`, mesa `.../nvidia/classes/`, curl `docs/examples/`): they are
+        # not matched by name here; aperture.EVIDENCE_DIRECTORY_NAMES prunes one only when its tree holds no source.
     },
     # --- 2. Extension Denylist ---
     "IGNORED_EXTENSIONS": {

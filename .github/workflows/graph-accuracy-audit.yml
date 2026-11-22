@@ -45,6 +45,9 @@ on:
       - "gitgalaxy/core/prism.py"
       - "gitgalaxy/core/network_risk_sensor.py"
       - "gitgalaxy/core/call_resolver.py"
+      - "gitgalaxy/core/aperture.py"  # #8962: which files a scan sees (#8933 moved two baselines unseen)
+      - "gitgalaxy/core/guidestar_lens.py"  # #8962: same
+      - "gitgalaxy/standards/gitgalaxy_config.py"  # #8962: the ignored-directory lists
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/import_graph_accuracy.py"
       - "tests/tools/call_graph_resolution.py"

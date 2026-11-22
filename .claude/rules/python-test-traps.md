@@ -32,6 +32,7 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   `has_table` / `has_column` injected (#5410).
 * **`test_java_matrix_gate.py` needs `tests/tools` on `PYTHONPATH`** when run alone (#5382). Raising the Python
   floor drops the old CI matrix legs in the same PR (#5370).
+* **`python -I` drops PYTHONPATH:** a privately installed pack (`pip --target` + `PYTHONPATH`) is silently ignored under it (#8938).
 * **Never build JSON by string interpolation in tests when a value is a filesystem path:** use `json.dumps` (Windows
   backslashes) (#5549).
 * **`read_text(errors="replace")` on a corpus file in a test fails `tests/test_source_reads.py`:** use

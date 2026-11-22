@@ -252,6 +252,12 @@ DEFINITION: dict[str, Any] = {
         + _ID
         + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|DFHEIENT|DFHEIRET)"
         + _OPEND
+        # #7065 (HKEP): an IMS DBD / PSB generation member in a `.asm` file has no CSECT or USING, only the
+        # generation closers PSBGEN / DBDGEN (IMS System Definition Reference); no x86/ARM assembler has them.
+        + r"|^"
+        + _ID
+        + r"{0,63}[ \t]+(?:PSBGEN|DBDGEN)"
+        + _OPEND
         # #7064: MEND and LTORG are ARM armasm's too (MACRO..MEND, LTORG), so they never lock alone: 92
         # armasm64 MEND closers sent 7 of 11 CoreCLR .asm files to hlasm. A macro member counts by its
         # `&` prototype (armasm's is `$`), or by conditional-assembly ops armasm lacks (AIF/AGO/ANOP/MNOTE).

@@ -145,7 +145,7 @@ the four control files, target 3 + 0 + 0 + 0). "—" = no crucible presence.
 | groovy | 552 → 533 | 3 | try/catch/finally |
 | haskell | 252 → 174 | 3 | then/of; re-plant added a case |
 | html | 11 | 3 | clean |
-| java | 487 → 351 | 3 | try/catch/finally; break/continue → boundaries, `::` method-refs excluded (#2832/#2833) |
+| java | 487 → 351 | 3 | try/catch/finally; break/continue → boundaries, `::` method-refs excluded (#2832/#2833); #8867: `catch` stays out (corollary 1), `&&`/`||` now count |
 | javascript | 5235 → 4957 | 3 | try/catch/finally; break/continue → boundaries (#2832) |
 | jcl | 81 → 52 | 3 | ENDIF; re-plant added a second IF |
 | kotlin | 45 → 43 | 3 | try/catch/finally relocated; break/continue → boundaries (#2832) |

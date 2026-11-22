@@ -1,0 +1,6514 @@
+{
+ "cells": {
+  "c": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 28,
+    "n_family": 28,
+    "n_oracle": 28,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 597,
+    "n_oracle": 1129,
+    "pinned": false,
+    "precision": 0.878,
+    "recall": 0.464,
+    "status": "misses"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 28,
+    "n_family": 26,
+    "n_oracle": 26,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 207,
+    "n_oracle": 205,
+    "pinned": false,
+    "precision": 0.99,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 28,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "doc": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 29,
+    "n_oracle": 26,
+    "pinned": false,
+    "precision": 0.862,
+    "recall": 0.962,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 125,
+    "n_oracle": 137,
+    "pinned": false,
+    "precision": 0.848,
+    "recall": 0.774,
+    "status": "misses"
+   },
+   "panics_and_aborts": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 257,
+    "n_oracle": 125,
+    "pinned": false,
+    "precision": 0.479,
+    "recall": 0.984,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "thread_sleeps": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 33,
+    "n_oracle": 33,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "redis",
+    "functions": 6073,
+    "n_family": 52,
+    "n_oracle": 65,
+    "pinned": false,
+    "precision": 0.654,
+    "recall": 0.523,
+    "status": "both"
+   }
+  },
+  "csharp": {
+   "args": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 5166,
+    "n_oracle": 5167,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 415,
+    "n_oracle": 88,
+    "pinned": false,
+    "precision": 0.039,
+    "recall": 0.182,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 3082,
+    "n_oracle": 3006,
+    "pinned": false,
+    "precision": 0.945,
+    "recall": 0.968,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 1472,
+    "n_oracle": 1148,
+    "pinned": false,
+    "precision": 0.78,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 3,
+    "n_oracle": 3,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 1114,
+    "n_oracle": 1111,
+    "pinned": false,
+    "precision": 0.996,
+    "recall": 0.998,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 3447,
+    "n_oracle": 3363,
+    "pinned": false,
+    "precision": 0.974,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 514,
+    "n_oracle": 427,
+    "pinned": false,
+    "precision": 0.553,
+    "recall": 0.665,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 325,
+    "n_oracle": 325,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 7,
+    "n_oracle": 18,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.389,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 32,
+    "n_oracle": 30,
+    "pinned": false,
+    "precision": 0.938,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "jellyfin",
+    "functions": 6535,
+    "n_family": 273,
+    "n_oracle": 318,
+    "pinned": false,
+    "precision": 0.912,
+    "recall": 0.783,
+    "status": "misses"
+   }
+  },
+  "go": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 450,
+    "n_oracle": 450,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 115,
+    "n_oracle": 140,
+    "pinned": false,
+    "precision": 0.739,
+    "recall": 0.607,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 359,
+    "n_oracle": 359,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 259,
+    "n_oracle": 75,
+    "pinned": true,
+    "precision": 0.29,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 40,
+    "n_oracle": 40,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 19,
+    "n_oracle": 0,
+    "pinned": false,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 174,
+    "n_oracle": 208,
+    "pinned": true,
+    "precision": 0.914,
+    "recall": 0.764,
+    "status": "misses"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 550,
+    "n_family": 32,
+    "n_oracle": 39,
+    "pinned": true,
+    "precision": 0.469,
+    "recall": 0.385,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 233,
+    "n_oracle": 229,
+    "pinned": false,
+    "precision": 0.979,
+    "recall": 0.996,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 41,
+    "n_oracle": 26,
+    "pinned": false,
+    "precision": 0.561,
+    "recall": 0.885,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 150,
+    "n_oracle": 167,
+    "pinned": false,
+    "precision": 0.993,
+    "recall": 0.892,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "prometheus",
+    "functions": 7935,
+    "n_family": 479,
+    "n_oracle": 573,
+    "pinned": false,
+    "precision": 0.814,
+    "recall": 0.681,
+    "status": "misses"
+   }
+  },
+  "java": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 486,
+    "n_oracle": 489,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.994,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 18,
+    "n_oracle": 9,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": 0.0,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 211,
+    "n_oracle": 214,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.986,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 45,
+    "n_oracle": 28,
+    "pinned": true,
+    "precision": 0.622,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "retrofit",
+    "functions": 2616,
+    "n_family": 31,
+    "n_oracle": 20,
+    "pinned": false,
+    "precision": 0.645,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 421,
+    "n_oracle": 431,
+    "pinned": true,
+    "precision": 0.974,
+    "recall": 0.951,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 129,
+    "n_oracle": 115,
+    "pinned": true,
+    "precision": 0.891,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 36,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 29,
+    "n_oracle": 29,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 1,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 746,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "retrofit",
+    "functions": 2616,
+    "n_family": 6,
+    "n_oracle": 16,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.375,
+    "status": "misses"
+   }
+  },
+  "javascript": {
+   "args": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 264,
+    "n_oracle": 264,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 3,
+    "n_oracle": 2,
+    "pinned": false,
+    "precision": 0.667,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 120,
+    "n_oracle": 115,
+    "pinned": false,
+    "precision": 0.958,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 158,
+    "n_oracle": 57,
+    "pinned": false,
+    "precision": 0.323,
+    "recall": 0.895,
+    "status": "over-counts"
+   },
+   "debug_prints": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 7,
+    "n_oracle": 7,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 4,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 4,
+    "n_family": 4,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 0.25,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "io": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 5,
+    "n_oracle": 4,
+    "pinned": false,
+    "precision": 0.8,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "panics_and_aborts": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 38,
+    "n_oracle": 38,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 12,
+    "n_oracle": 3,
+    "pinned": false,
+    "precision": 0.25,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 0,
+    "n_oracle": 2,
+    "pinned": false,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "time_date_logic": {
+    "corpus": "express",
+    "functions": 332,
+    "n_family": 2,
+    "n_oracle": 2,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
+  "kotlin": {
+   "args": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 2589,
+    "n_oracle": 2589,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 42,
+    "n_oracle": 92,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.457,
+    "status": "misses"
+   },
+   "branch": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 1326,
+    "n_oracle": 1320,
+    "pinned": false,
+    "precision": 0.992,
+    "recall": 0.997,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 484,
+    "n_oracle": 1488,
+    "pinned": false,
+    "precision": 0.886,
+    "recall": 0.288,
+    "status": "misses"
+   },
+   "debug_prints": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 73,
+    "n_oracle": 72,
+    "pinned": false,
+    "precision": 0.986,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 3672,
+    "n_oracle": 3596,
+    "pinned": false,
+    "precision": 0.968,
+    "recall": 0.988,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 1249,
+    "n_oracle": 1059,
+    "pinned": false,
+    "precision": 0.848,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 172,
+    "n_oracle": 115,
+    "pinned": false,
+    "precision": 0.14,
+    "recall": 0.209,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 1180,
+    "n_oracle": 606,
+    "pinned": false,
+    "precision": 0.368,
+    "recall": 0.716,
+    "status": "both"
+   },
+   "regex_execution": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 111,
+    "n_oracle": 62,
+    "pinned": false,
+    "precision": 0.55,
+    "recall": 0.984,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 65,
+    "n_oracle": 56,
+    "pinned": false,
+    "precision": 0.8,
+    "recall": 0.929,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "okhttp",
+    "functions": 7035,
+    "n_family": 22,
+    "n_oracle": 184,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.12,
+    "status": "misses"
+   }
+  },
+  "lua": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 92,
+    "n_oracle": 92,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 9,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 114,
+    "n_oracle": 113,
+    "pinned": true,
+    "precision": 0.991,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 6,
+    "n_oracle": 6,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 21,
+    "n_oracle": 21,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 2,
+    "n_oracle": 4,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.5,
+    "status": "misses"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 2,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 1,
+    "n_oracle": 20,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.05,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 0,
+    "n_oracle": 3,
+    "pinned": true,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 148,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
+  "php": {
+   "args": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 6817,
+    "n_oracle": 6817,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 1044,
+    "n_oracle": 148,
+    "pinned": false,
+    "precision": 0.129,
+    "recall": 0.912,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 7187,
+    "n_oracle": 7077,
+    "pinned": false,
+    "precision": 0.983,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 124,
+    "n_oracle": 135,
+    "pinned": false,
+    "precision": 0.903,
+    "recall": 0.83,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 771,
+    "n_oracle": 775,
+    "pinned": false,
+    "precision": 0.949,
+    "recall": 0.945,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 80,
+    "n_oracle": 43,
+    "pinned": false,
+    "precision": 0.537,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 10160,
+    "n_oracle": 10120,
+    "pinned": false,
+    "precision": 0.996,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 721,
+    "n_oracle": 194,
+    "pinned": false,
+    "precision": 0.176,
+    "recall": 0.655,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 297,
+    "n_oracle": 289,
+    "pinned": false,
+    "precision": 0.949,
+    "recall": 0.976,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 592,
+    "n_oracle": 590,
+    "pinned": false,
+    "precision": 0.997,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "thread_sleeps": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 4,
+    "n_oracle": 4,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "wordpress",
+    "functions": 10462,
+    "n_family": 204,
+    "n_oracle": 264,
+    "pinned": false,
+    "precision": 0.995,
+    "recall": 0.769,
+    "status": "misses"
+   }
+  },
+  "python": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 390,
+    "n_oracle": 390,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 27,
+    "n_oracle": 20,
+    "pinned": true,
+    "precision": 0.704,
+    "recall": 0.95,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 231,
+    "n_oracle": 225,
+    "pinned": true,
+    "precision": 0.974,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "cleanup": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 10,
+    "n_oracle": 59,
+    "pinned": true,
+    "precision": 0.9,
+    "recall": 0.153,
+    "status": "misses"
+   },
+   "closures": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 4100,
+    "n_oracle": 4016,
+    "pinned": false,
+    "precision": 0.98,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "comprehensions": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 58,
+    "n_oracle": 51,
+    "pinned": true,
+    "precision": 0.741,
+    "recall": 0.843,
+    "status": "over-counts"
+   },
+   "concurrency": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 555,
+    "n_oracle": 371,
+    "pinned": false,
+    "precision": 0.477,
+    "recall": 0.714,
+    "status": "both"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 28,
+    "n_oracle": 28,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 2,
+    "n_oracle": 99,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": 0.0,
+    "status": "both"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 243,
+    "n_oracle": 296,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.821,
+    "status": "ok"
+   },
+   "explicit_casts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 75,
+    "n_oracle": 71,
+    "pinned": true,
+    "precision": 0.92,
+    "recall": 0.972,
+    "status": "ok"
+   },
+   "globals": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 508,
+    "n_oracle": 988,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.514,
+    "status": "misses"
+   },
+   "high_risk_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 18,
+    "n_oracle": 18,
+    "pinned": true,
+    "precision": 0.944,
+    "recall": 0.944,
+    "status": "ok"
+   },
+   "import": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 16,
+    "n_oracle": 16,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 47,
+    "n_oracle": 40,
+    "pinned": true,
+    "precision": 0.532,
+    "recall": 0.625,
+    "status": "both"
+   },
+   "lazy_evaluation": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 646,
+    "n_oracle": 613,
+    "pinned": false,
+    "precision": 0.949,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 57,
+    "n_oracle": 55,
+    "pinned": true,
+    "precision": 0.965,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 14,
+    "n_oracle": 18,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.778,
+    "status": "misses"
+   },
+   "serialization_parsing": {
+    "corpus": "GitGalaxy engine code",
+    "functions": 72044,
+    "n_family": 0,
+    "n_oracle": 699,
+    "pinned": false,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "sync_locks": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 4,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "telemetry": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 2,
+    "n_oracle": 47,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.043,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 9,
+    "n_oracle": 9,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 421,
+    "n_family": 7,
+    "n_oracle": 37,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.189,
+    "status": "misses"
+   }
+  },
+  "ruby": {
+   "args": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 3332,
+    "n_oracle": 3130,
+    "pinned": false,
+    "precision": 0.939,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 602,
+    "n_oracle": 113,
+    "pinned": false,
+    "precision": 0.043,
+    "recall": 0.23,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 3560,
+    "n_oracle": 3299,
+    "pinned": false,
+    "precision": 0.926,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 1672,
+    "n_oracle": 1535,
+    "pinned": false,
+    "precision": 0.874,
+    "recall": 0.952,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 564,
+    "n_oracle": 286,
+    "pinned": false,
+    "precision": 0.504,
+    "recall": 0.993,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 4589,
+    "n_oracle": 81,
+    "pinned": false,
+    "precision": 0.004,
+    "recall": 0.235,
+    "status": "both"
+   },
+   "io": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 728,
+    "n_oracle": 336,
+    "pinned": false,
+    "precision": 0.273,
+    "recall": 0.592,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 638,
+    "n_oracle": 425,
+    "pinned": false,
+    "precision": 0.641,
+    "recall": 0.962,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 565,
+    "n_oracle": 509,
+    "pinned": false,
+    "precision": 0.692,
+    "recall": 0.768,
+    "status": "both"
+   },
+   "thread_sleeps": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 17,
+    "n_oracle": 16,
+    "pinned": false,
+    "precision": 0.647,
+    "recall": 0.688,
+    "status": "both"
+   },
+   "time_date_logic": {
+    "corpus": "brew",
+    "functions": 5710,
+    "n_family": 197,
+    "n_oracle": 74,
+    "pinned": false,
+    "precision": 0.249,
+    "recall": 0.662,
+    "status": "both"
+   }
+  },
+  "rust": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 866,
+    "n_oracle": 866,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 32,
+    "n_oracle": 34,
+    "pinned": true,
+    "precision": 0.594,
+    "recall": 0.559,
+    "status": "both"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 399,
+    "n_oracle": 284,
+    "pinned": true,
+    "precision": 0.712,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 6,
+    "n_oracle": 110,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.055,
+    "status": "misses"
+   },
+   "debug_prints": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 55,
+    "n_oracle": 54,
+    "pinned": false,
+    "precision": 0.982,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 252,
+    "n_oracle": 245,
+    "pinned": true,
+    "precision": 0.972,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 139,
+    "n_oracle": 132,
+    "pinned": true,
+    "precision": 0.95,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 253,
+    "n_oracle": 129,
+    "pinned": false,
+    "precision": 0.249,
+    "recall": 0.488,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 6,
+    "n_oracle": 23,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 0.261,
+    "status": "misses"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 883,
+    "n_family": 0,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": null,
+    "recall": null,
+    "status": "no-instances"
+   },
+   "thread_sleeps": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 49,
+    "n_oracle": 114,
+    "pinned": false,
+    "precision": 0.837,
+    "recall": 0.36,
+    "status": "misses"
+   },
+   "time_date_logic": {
+    "corpus": "tokio",
+    "functions": 6826,
+    "n_family": 37,
+    "n_oracle": 287,
+    "pinned": false,
+    "precision": 0.919,
+    "recall": 0.118,
+    "status": "misses"
+   }
+  },
+  "scala": {
+   "args": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 3060,
+    "n_oracle": 2976,
+    "pinned": false,
+    "precision": 0.971,
+    "recall": 0.998,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 75,
+    "n_oracle": 6,
+    "pinned": false,
+    "precision": 0.08,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 1601,
+    "n_oracle": 1475,
+    "pinned": false,
+    "precision": 0.921,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 2731,
+    "n_oracle": 2224,
+    "pinned": false,
+    "precision": 0.814,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 19,
+    "n_oracle": 14,
+    "pinned": false,
+    "precision": 0.737,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "decorators": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 2365,
+    "n_oracle": 2415,
+    "pinned": false,
+    "precision": 0.986,
+    "recall": 0.966,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 619,
+    "n_oracle": 541,
+    "pinned": false,
+    "precision": 0.871,
+    "recall": 0.996,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 108,
+    "n_oracle": 39,
+    "pinned": false,
+    "precision": 0.352,
+    "recall": 0.974,
+    "status": "over-counts"
+   },
+   "panics_and_aborts": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 308,
+    "n_oracle": 277,
+    "pinned": false,
+    "precision": 0.899,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 2,
+    "n_oracle": 14,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.143,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 21,
+    "n_oracle": 81,
+    "pinned": false,
+    "precision": 0.952,
+    "recall": 0.247,
+    "status": "misses"
+   },
+   "time_date_logic": {
+    "corpus": "kafka",
+    "functions": 6051,
+    "n_family": 47,
+    "n_oracle": 127,
+    "pinned": false,
+    "precision": 0.979,
+    "recall": 0.362,
+    "status": "misses"
+   }
+  },
+  "shell": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 128,
+    "n_oracle": 127,
+    "pinned": true,
+    "precision": 0.977,
+    "recall": 0.984,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 0,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 264,
+    "n_oracle": 223,
+    "pinned": true,
+    "precision": 0.845,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 224,
+    "n_oracle": 143,
+    "pinned": true,
+    "precision": 0.638,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 271,
+    "n_oracle": 198,
+    "pinned": true,
+    "precision": 0.609,
+    "recall": 0.833,
+    "status": "over-counts"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 161,
+    "n_oracle": 42,
+    "pinned": true,
+    "precision": 0.261,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 74,
+    "n_oracle": 68,
+    "pinned": true,
+    "precision": 0.919,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "thread_sleeps": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 28,
+    "n_oracle": 23,
+    "pinned": true,
+    "precision": 0.821,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 698,
+    "n_family": 41,
+    "n_oracle": 8,
+    "pinned": true,
+    "precision": 0.195,
+    "recall": 1.0,
+    "status": "over-counts"
+   }
+  },
+  "swift": {
+   "args": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 1086,
+    "n_oracle": 1105,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.983,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 17,
+    "n_oracle": 13,
+    "pinned": false,
+    "precision": 0.765,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "branch": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 784,
+    "n_oracle": 518,
+    "pinned": false,
+    "precision": 0.659,
+    "recall": 0.998,
+    "status": "over-counts"
+   },
+   "closures": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 347,
+    "n_oracle": 618,
+    "pinned": false,
+    "precision": 0.991,
+    "recall": 0.557,
+    "status": "misses"
+   },
+   "debug_prints": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 8,
+    "n_oracle": 7,
+    "pinned": false,
+    "precision": 0.875,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 226,
+    "n_oracle": 183,
+    "pinned": false,
+    "precision": 0.81,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "doc": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 484,
+    "n_oracle": 411,
+    "pinned": false,
+    "precision": 0.849,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 8,
+    "n_oracle": 11,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 0.727,
+    "status": "misses"
+   },
+   "panics_and_aborts": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 126,
+    "n_oracle": 121,
+    "pinned": false,
+    "precision": 0.96,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 1,
+    "n_oracle": 0,
+    "pinned": false,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "thread_sleeps": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 9,
+    "n_oracle": 8,
+    "pinned": false,
+    "precision": 0.889,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 27,
+    "n_oracle": 44,
+    "pinned": false,
+    "precision": 0.963,
+    "recall": 0.591,
+    "status": "misses"
+   }
+  },
+  "typescript": {
+   "args": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 4538,
+    "n_oracle": 4497,
+    "pinned": true,
+    "precision": 0.99,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "bitwise_ops": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 107,
+    "n_oracle": 1284,
+    "pinned": true,
+    "precision": 0.85,
+    "recall": 0.071,
+    "status": "misses"
+   },
+   "branch": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 3589,
+    "n_oracle": 3467,
+    "pinned": true,
+    "precision": 0.965,
+    "recall": 0.999,
+    "status": "ok"
+   },
+   "closures": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 424,
+    "n_oracle": 654,
+    "pinned": true,
+    "precision": 0.684,
+    "recall": 0.443,
+    "status": "both"
+   },
+   "debug_prints": {
+    "corpus": "vue",
+    "functions": 2142,
+    "n_family": 21,
+    "n_oracle": 18,
+    "pinned": false,
+    "precision": 0.857,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "decorators": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 1,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   },
+   "doc": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 539,
+    "n_oracle": 373,
+    "pinned": true,
+    "precision": 0.692,
+    "recall": 1.0,
+    "status": "over-counts"
+   },
+   "io": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 42,
+    "n_oracle": 5,
+    "pinned": true,
+    "precision": 0.024,
+    "recall": 0.2,
+    "status": "both"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 46,
+    "n_oracle": 39,
+    "pinned": true,
+    "precision": 0.848,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "regex_execution": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 16,
+    "n_oracle": 19,
+    "pinned": true,
+    "precision": 0.875,
+    "recall": 0.737,
+    "status": "misses"
+   },
+   "thread_sleeps": {
+    "corpus": "vue",
+    "functions": 2142,
+    "n_family": 62,
+    "n_oracle": 59,
+    "pinned": false,
+    "precision": 0.935,
+    "recall": 0.983,
+    "status": "ok"
+   },
+   "time_date_logic": {
+    "corpus": "language-crucible v1.7.0",
+    "functions": 5014,
+    "n_family": 6,
+    "n_oracle": 0,
+    "pinned": true,
+    "precision": 0.0,
+    "recall": null,
+    "status": "over-counts"
+   }
+  }
+ },
+ "decoys": {
+  "abap": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IF",
+    "string_counts": false
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "FREE",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ENQUEUE_",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "WRITE",
+    "string_counts": false
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CL_BADI_BASE",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TABLES",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TRUNCATE",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CONSTANTS",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "SELECT",
+    "string_counts": false
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "FREE",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CL_ABAP_TYPEDESCR",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TRY",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "UNASSIGNED",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ABS",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CL_BSP_CONTEXT",
+    "string_counts": true
+   },
+   "state_mutation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MOVE",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ENQUEUE_",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "BAL_LOG_CREATE",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CL_ABAP_UNIT_ASSERT",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IGNORE",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PARAMETERS",
+    "string_counts": true
+   }
+  },
+  "ada": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   }
+  },
+  "agc_assembly": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MASK",
+    "string_counts": null
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "BZF",
+    "string_counts": null
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ENDOFJOB",
+    "string_counts": null
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EXEC",
+    "string_counts": null
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "FLASH",
+    "string_counts": null
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "RUPT",
+    "string_counts": null
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CURTAINS",
+    "string_counts": null
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DSKY",
+    "string_counts": null
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ERASABLE",
+    "string_counts": null
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "POODOO",
+    "string_counts": null
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "INDEX",
+    "string_counts": null
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "INDEX",
+    "string_counts": null
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "INHINT",
+    "string_counts": null
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TASKOVER",
+    "string_counts": null
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "VAD",
+    "string_counts": null
+   },
+   "state_mutation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TS",
+    "string_counts": null
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "INHINT",
+    "string_counts": null
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DNTM",
+    "string_counts": null
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "SELFCHECK",
+    "string_counts": null
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "VARDELAY",
+    "string_counts": null
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NOUN",
+    "string_counts": null
+   }
+  },
+  "apex": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Queueable",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fflib_ApexMocks",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PlatformEvent",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "UserInfo",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "emptyRecycleBin",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "final",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Http",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "isAccessible",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Decimal",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "RestRequest",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "StubProvider",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ApexPages",
+    "string_counts": true
+   }
+  },
+  "assembly": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "and",
+    "string_counts": true
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "je",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "lock",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "iret",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "hlt",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "equ",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syscall",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sys_mmap",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "hlt",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "endbr64",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "cli",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fadd",
+    "string_counts": true
+   },
+   "state_mutation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "xchg",
+    "string_counts": false
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "lock",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pause",
+    "string_counts": true
+   }
+  },
+  "c": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "thrd_create",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "printf",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "plugin_register",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "static",
+    "string_counts": false
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "epoll_wait",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "const",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fork",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "on_event",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "uintptr_t",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "regcomp",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "assert",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "strcpy",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dgemm",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "cJSON_Parse",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "FCGI_Accept",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mtx_lock",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syslog",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TEST",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IGNORE_TEST",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "time_t",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "GtkWidget",
+    "string_counts": true
+   }
+  },
+  "cpp": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "co_await",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "printf",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IServiceCollection",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "emit",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "static_cast",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "extern",
+    "string_counts": false
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "const",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fopen",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mmap",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "new",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "uintptr_t",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "decltype",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "__m128",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "rapidjson",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "FCGI_Accept",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TEST",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "GTEST_SKIP",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Q_OBJECT",
+    "string_counts": true
+   }
+  },
+  "csharp": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IServiceCollection",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EventHandler",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ConfigurationManager",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "const",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NamedPipeServerStream",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "on",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MemoryPool",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fixed",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DllImport",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dynamic",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Matrix4x4",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "XmlSerializer",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "RenderFragment",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DateTimeOffset",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ControllerBase",
+    "string_counts": true
+   }
+  },
+  "css": {
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unset",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "gap",
+    "string_counts": true
+   }
+  },
+  "dart": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ConsumerWidget",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "StreamController",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "exit",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "File",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ReceivePort",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Arena",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Opaque",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MethodChannel",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Float64List",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "jsonDecode",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "shelf",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Mutex",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "testWidgets",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "xit",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Stopwatch",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Widget",
+    "string_counts": true
+   }
+  },
+  "db2_sql": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IF",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "LIKE",
+    "string_counts": true
+   }
+  },
+  "dockerfile": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "nohup",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "echo",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EXPOSE",
+    "string_counts": false
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "JAVA_OPTS",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ONBUILD",
+    "string_counts": false
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "HEALTHCHECK",
+    "string_counts": false
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "LOG_LEVEL",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pytest",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "skipTests",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "xvfb",
+    "string_counts": true
+   }
+  },
+  "embedded_python": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "irq",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Final",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "open",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bytearray",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "raise",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ptr8",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "getattr",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "except",
+    "string_counts": false
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "math",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "microdot",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Lock",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unittest",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MagicMock",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "framebuf",
+    "string_counts": true
+   }
+  },
+  "fortran": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "iand",
+    "string_counts": true
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IF",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PRINT",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EVENT_QUERY",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ASSIGN",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "OPEN",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MPI_Init",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ALLOCATE",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "stop",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EQUIVALENCE",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ALLOCATABLE",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NAMELIST",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "lock",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "log_info",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DATE_AND_TIME",
+    "string_counts": true
+   }
+  },
+  "go": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "println",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EventBus",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syscall",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "panic",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "uintptr",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "cgo",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ExecuteTemplate",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Mutex",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ServeHTTP",
+    "string_counts": true
+   }
+  },
+  "groovy": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "synchronized",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "println",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ApplicationEvent",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "File",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addListener",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "invokeMethod",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "null",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "BigDecimal",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MarkupBuilder",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "synchronized",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "SwingBuilder",
+    "string_counts": true
+   }
+  },
+  "haskell": {
+   "auth_middleware": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "requireAuthId",
+    "string_counts": true
+   },
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "shift",
+    "string_counts": true
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "hClose",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "forkIO",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "putStr",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ReaderT",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Event",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unsafeCoerce",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "getEnv",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "die",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IO",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "createProcess",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "subscribe",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "malloc",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Ptr",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TemplateHaskell",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "makeRegex",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unsafePerformIO",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Complex",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "decode",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Yesod",
+    "string_counts": true
+   },
+   "state_mutation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "modifyIORef",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "takeMVar",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "logDebug",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "hspec",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ignore",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "threadDelay",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "getCurrentTime",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Threepenny",
+    "string_counts": true
+   }
+  },
+  "html": {
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": null
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": null
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "required",
+    "string_counts": null
+   }
+  },
+  "java": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "synchronized",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ApplicationContext",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ApplicationEvent",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ThreadLocal",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Unsafe",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "final",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "File",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ProcessBuilder",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "SegmentAllocator",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MemorySegment",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "native",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "null",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "BigDecimal",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ObjectMapper",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ModelAndView",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "verifyZeroInteractions",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "delay",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "LocalDate",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "SwingUtilities",
+    "string_counts": true
+   }
+  },
+  "javascript": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Inject",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "emit",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fetch",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "postMessage",
+    "string_counts": true
+   },
+   "lazy_evaluation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "yield",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "on",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "prototype",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "with",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "getServerSideProps",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "jest",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "xit",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "setTimeout",
+    "string_counts": true
+   }
+  },
+  "kotlin": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "shl",
+    "string_counts": true
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "suspend",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "LiveData",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "exitProcess",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "File",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "BroadcastReceiver",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "memScoped",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CPointer",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "javaClass",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "require",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "as",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sin",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Moshi",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ApplicationCall",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "shouldBe",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mockk",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "delay",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "LocalDate",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Modifier",
+    "string_counts": true
+   }
+  },
+  "livecode": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bitAnd",
+    "string_counts": true
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dispatch",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "do",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "quit",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "frontscripts",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "matchText",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sqrt",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "jsonImport",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "revLog",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Levure",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "card",
+    "string_counts": true
+   }
+  },
+  "lua": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "collectgarbage",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "print",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "inject",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "tonumber",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "_G",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "load",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "subscribe",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "collectgarbage",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "error",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "__index",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pcall",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "rawget",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "loadstring",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "setup",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "xdescribe",
+    "string_counts": true
+   }
+  },
+  "m4": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ifelse",
+    "string_counts": null
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "m4_popdef",
+    "string_counts": null
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "errprint",
+    "string_counts": null
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "AC_REQUIRE",
+    "string_counts": null
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "AC_ARG_VAR",
+    "string_counts": null
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syscmd",
+    "string_counts": null
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sysval",
+    "string_counts": null
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "m4_fatal",
+    "string_counts": null
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "translit",
+    "string_counts": null
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "m4_assert",
+    "string_counts": null
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "changequote",
+    "string_counts": null
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": null
+   },
+   "state_mutation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pushdef",
+    "string_counts": null
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "AC_MSG_CHECKING",
+    "string_counts": null
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "AT_SETUP",
+    "string_counts": null
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "AT_SKIP_IF",
+    "string_counts": null
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": null
+   }
+  },
+  "makefile": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ifeq",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "wait",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "curl",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "curl",
+    "string_counts": false
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "grep",
+    "string_counts": false
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bc",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "tar",
+    "string_counts": false
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pytest",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "date",
+    "string_counts": false
+   }
+  },
+  "matlab": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bitand",
+    "string_counts": true
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "clear",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "parfor",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "disp",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "notify",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "global",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "system",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "load",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "system",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addlistener",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "libpointer",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "feval",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "regexp",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fft",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "jsondecode",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "webwindow",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "labBarrier",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "log4m",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TestCase",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "assume",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "tic",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "uifigure",
+    "string_counts": true
+   }
+  },
+  "objective-c": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dealloc",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dispatch_async",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "printf",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TyphoonComponentFactory",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSNotificationCenter",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "typeof",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "extern",
+    "string_counts": false
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "const",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSFileHandle",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSXPCConnection",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "alloc",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "id",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "objc_msgSend",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSRegularExpression",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "__weak",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "__unsafe_unretained",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sin",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSJSONSerialization",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "WOComponent",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSLock",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "os_log",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "XCTest",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "XCTSkip",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSDate",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "UIView",
+    "string_counts": true
+   }
+  },
+  "perl": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "close",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "print",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IOC",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "emit",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "int",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "exit",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Readonly",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "open",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "undef",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "die",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "AUTOLOAD",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "croak",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PDL",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Dancer2",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "lock",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "cmp_ok",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "localtime",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Template",
+    "string_counts": true
+   }
+  },
+  "php": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Fiber",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "echo",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ContainerInterface",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "EventDispatcher",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "const",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fopen",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "shell_exec",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "call_user_func",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "preg_match",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unserialize",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bcadd",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unserialize",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Response",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PHPUnit",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "markTestSkipped",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "strtotime",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "renderView",
+    "string_counts": true
+   }
+  },
+  "pli": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "IF",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ATTACH",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "INTERNAL",
+    "string_counts": false
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "STATIC",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NONASSIGNABLE",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "RESIGNAL",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "POINTER",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DEFINED",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NOHANDLE",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ZUNIT",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DFHMDF",
+    "string_counts": true
+   }
+  },
+  "powershell": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dispose",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "RunspaceFactory",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "echo",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "InversionOfControl",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ErrorActionPreference",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "iex",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "iwr",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "on_",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "iex",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "lock",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Mock",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pending",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "HtmlDocument",
+    "string_counts": true
+   }
+  },
+  "python": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Depends",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Signal",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Final",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "open",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "multiprocessing",
+    "string_counts": true
+   },
+   "lazy_evaluation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "yield",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "on_event",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "raise",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "c_void_p",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "getattr",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Any",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "render_template",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Lock",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unittest",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "MagicMock",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "timedelta",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "streamlit",
+    "string_counts": true
+   },
+   "vectorized_math": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "einsum",
+    "string_counts": false
+   }
+  },
+  "ruby": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Thread",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "puts",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "inject",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Wisper",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ENV",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "freeze",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "File",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Open3",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ObjectSpace",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "raise",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "method_missing",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "rescue",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Math",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "respond_to",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "skip",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ActionView",
+    "string_counts": true
+   }
+  },
+  "rust": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Extension",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "crossbeam_channel",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "OnceCell",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "reqwest",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "GlobalAlloc",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PhantomData",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unwrap_or",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unwrap",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "f32",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "actix_web",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Mutex",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "slint",
+    "string_counts": true
+   }
+  },
+  "scala": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bracket",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Future",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "println",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ZLayer",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Source",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Source",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ActorSystem",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addEventListener",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Zone",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CFuncPtr",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "implicit",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "require",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "null",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "algebird",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "asJson",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Action",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "synchronized",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "assertEquals",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ignore",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "FiniteDuration",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Laminar",
+    "string_counts": true
+   }
+  },
+  "scheme": {
+   "bitwise_ops": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ash",
+    "string_counts": false
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "display",
+    "string_counts": false
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "hook",
+    "string_counts": false
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": false
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "read",
+    "string_counts": false
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "error",
+    "string_counts": false
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "guard",
+    "string_counts": false
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syslog",
+    "string_counts": false
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": false
+   }
+  },
+  "shell": {
+   "auth_middleware": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "kinit",
+    "string_counts": false
+   },
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "wait",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "echo",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mkfifo",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sudo",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "curl",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "curl",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "read",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "exit",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "grep",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bc",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "jq",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CONTENT_TYPE",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "flock",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "logger",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "assertTrue",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bats_skip",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "date",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dialog",
+    "string_counts": true
+   }
+  },
+  "solidity": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "delete",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "emit",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "selfdestruct",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "constant",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "delegatecall",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "new",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "revert",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "memory",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fallback",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "require",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "unchecked",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "keccak256",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "nonReentrant",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "setUp",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "now",
+    "string_counts": true
+   }
+  },
+  "sqlite": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "CASE",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "VACUUM",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "disp",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sqlite3_load_extension",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TEMP",
+    "string_counts": true
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sqlite_master",
+    "string_counts": true
+   },
+   "immutability_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "STRICT",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "PRAGMA",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ABORT",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "json_extract",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "REGEXP",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "TRANSACTION",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abs",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "json_extract",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sqlite_stat1",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "strftime",
+    "string_counts": true
+   }
+  },
+  "swift": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "print",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Swinject",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NotificationCenter",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fatalError",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "URLSession",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "URLSession",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "addObserver",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "malloc",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "pointers": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "OpaquePointer",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dynamic",
+    "string_counts": true
+   },
+   "regex_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "NSRegularExpression",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "catch",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "simd",
+    "string_counts": true
+   },
+   "serialization_parsing": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "JSONDecoder",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Vapor",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Logger",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "XCTest",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "DateFormatter",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "View",
+    "string_counts": true
+   }
+  },
+  "tcl": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "close",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "vwait",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bind",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "exec",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "bind",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "error",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "rename",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "catch",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "expr",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syslog",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "do_test",
+    "string_counts": true
+   },
+   "ui_framework": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "button",
+    "string_counts": true
+   }
+  },
+  "typescript": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "async",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Inject",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "private",
+    "string_counts": true
+   },
+   "events": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "dispatchEvent",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "eval",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fetch",
+    "string_counts": true
+   },
+   "ipc_rpc_bridges": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "postMessage",
+    "string_counts": true
+   },
+   "lazy_evaluation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "yield",
+    "string_counts": true
+   },
+   "listeners": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "on",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "throw",
+    "string_counts": true
+   },
+   "reflection_metaprogramming": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "prototype",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "any",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "random",
+    "string_counts": true
+   },
+   "ssr_boundaries": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "getServerSideProps",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "mutex",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "xit",
+    "string_counts": true
+   },
+   "thread_sleeps": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "sleep",
+    "string_counts": true
+   },
+   "time_date_logic": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "setTimeout",
+    "string_counts": true
+   }
+  },
+  "yacc": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "printf",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "static",
+    "string_counts": false
+   },
+   "globals": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "yylval",
+    "string_counts": true
+   },
+   "high_risk_execution": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "fopen",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "malloc",
+    "string_counts": true
+   },
+   "panics_and_aborts": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "abort",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "assert",
+    "string_counts": true
+   },
+   "telemetry": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "syslog",
+    "string_counts": true
+   }
+  },
+  "yaml": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": true
+   },
+   "debug_prints": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "echo",
+    "string_counts": true
+   },
+   "io": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "wget",
+    "string_counts": true
+   },
+   "test": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "pytest",
+    "string_counts": true
+   }
+  },
+  "zig": {
+   "branch": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "if",
+    "string_counts": false
+   },
+   "cleanup": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "deinit",
+    "string_counts": true
+   },
+   "concurrency": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "suspend",
+    "string_counts": true
+   },
+   "memory_alloc": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "ArenaAllocator",
+    "string_counts": true
+   },
+   "safety": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "try",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "undefined",
+    "string_counts": true
+   },
+   "scientific": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "f16",
+    "string_counts": true
+   },
+   "sync_locks": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "Mutex",
+    "string_counts": true
+   },
+   "test_skip": {
+    "comment": "pass",
+    "corpus": "keyword-rosetta",
+    "keyword": "assume",
+    "string_counts": true
+   }
+  }
+ },
+ "decoys_about": "Parserless decoy test: the family keyword inserted as a comment (must not count) and as a string literal (counts today: gitgalaxy#2535), each only where the bare keyword fires as code (a positive control). Source: keyword-rosetta menus and decoy lines, 2026-11-21.",
+ "schema": 1
+}

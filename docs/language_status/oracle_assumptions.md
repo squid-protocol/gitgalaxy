@@ -112,7 +112,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IEBGENER, an IDCAMS REPRO copy and a lowered SORT / MERGE step run in a generated job, the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
 | F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
-| F6 | files | GnuCOBOL has no IDCAMS, so det/idcams_model.py models a step (REPRO seq <-> KSDS / ESDS, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF LASTCC / MAXCC) and its condition code; every other command or keyword is refused by name (#8880, #8881) | PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; Java runtime, GnuCOBOL BDB alternate-key cross-check and job harness not yet) | — |
+| F6 | files | GnuCOBOL has no IDCAMS, so det/idcams_model.py models a step (REPRO seq <-> KSDS / ESDS, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF LASTCC / MAXCC) and its condition code; every other command or keyword is refused by name (#8880, #8881) | PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime and job harness not yet) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -2377,7 +2377,16 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   step's commands against a catalog of clusters, alternate indexes and paths and the step's sequential DDs and returns the step's return code (MAXCC at
   its end). It is the oracle for an IDCAMS step in a job case; `det/idcams.py` (one REPRO lowered onto COBOL, F4) is
   unchanged. **Not wired yet (#8880 slices 2 and 3, #8881):** the Java runtime and the job harness do not run an IDCAMS step, and no GnuCOBOL BDB alternate-key run has checked the path order, so no
-  job case compares one. Evidence level: modelled and unit-tested on authored decks; nothing is executed-equivalent.
+  job case compares one. Evidence level: modelled and unit-tested on authored decks; one behaviour is executed-equivalent
+  (next bullet), the rest is not.
+- **Path order against GnuCOBOL (#8881, `test_idcams_aix_oracle_8881.py`).** A KSDS base's path order (alternate key, then
+  the base's primary-key order for equal keys) equals what GnuCOBOL's Berkeley DB alternate key returns through START and
+  READ NEXT: 6 inputs (distinct keys, duplicates interleaved across primary keys, one record, all keys equal, descending,
+  digits and blanks) x 4 key layouts (primary / alternate key offsets 0/4, 4/0, 0/6, 2/6), 24 runs, 0 differences
+  (`gitgalaxy-gnucobol:3`, `EQUIVALENCE_E2E=1`). GnuCOBOL answers 02 on a WRITE whose alternate key repeats, as on the READ.
+  **Not covered:** an ESDS base (GnuCOBOL has no ESDS alternate keys, so the arrival-order rule stays an IBM-text
+  assumption), UNIQUEKEY over duplicates (refused, never executed), BLDINDEX's condition code and the alternate record
+  layout (model only). The oracle is GnuCOBOL, not z/OS.
 - **IBM.** z/OS DFSMS Access Method Services Commands (SC23-6846-60), read by section from memory of the text, not re-read
   against the box copy (ibm-manuals idai200): "REPRO", "DELETE", "DEFINE CLUSTER", "DEFINE ALTERNATEINDEX", "DEFINE PATH", "BLDINDEX", "SET", "IF-THEN-ELSE command sequence",
   "Condition codes", "Modal commands", "Continuing commands and comments".

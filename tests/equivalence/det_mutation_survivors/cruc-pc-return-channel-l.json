@@ -624,6 +624,630 @@
    ]
   },
   {
+   "id": "a8bb308df4",
+   "op": "CON",
+   "line": 161,
+   "before": "int calen = 0;",
+   "after": "int calen = 1;",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "892ab187f4",
+   "op": "DEL",
+   "line": 163,
+   "before": "calen = DetCics.eibCalen(task, 20);",
+   "after": "/* calen = DetCics.eibCalen(task, 20); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "ccf8c3a414",
+   "op": "CON",
+   "line": 163,
+   "before": "calen = DetCics.eibCalen(task, 20);",
+   "after": "calen = DetCics.eibCalen(task, 21);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "124b97458a",
+   "op": "CON",
+   "line": 165,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "86cf71027c",
+   "op": "DEL",
+   "line": 165,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "452a68ce82",
+   "op": "DEL",
+   "line": 167,
+   "before": "calen = DetCics.eibCalen(task, 16);",
+   "after": "/* calen = DetCics.eibCalen(task, 16); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "d74b4f790b",
+   "op": "CON",
+   "line": 167,
+   "before": "calen = DetCics.eibCalen(task, 16);",
+   "after": "calen = DetCics.eibCalen(task, 17);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7dfdc42db6",
+   "op": "DEL",
+   "line": 169,
+   "before": "calen = DetCics.eibCalen(task, 2);",
+   "after": "/* calen = DetCics.eibCalen(task, 2); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "97d832da86",
+   "op": "CON",
+   "line": 169,
+   "before": "calen = DetCics.eibCalen(task, 2);",
+   "after": "calen = DetCics.eibCalen(task, 3);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "786bb633f0",
+   "op": "CON",
+   "line": 171,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7fada7c132",
+   "op": "DEL",
+   "line": 171,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "275ccce563",
+   "op": "CON",
+   "line": 173,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "feabd52c4b",
+   "op": "DEL",
+   "line": 173,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6773170274",
+   "op": "DEL",
+   "line": 175,
+   "before": "calen = DetCics.eibCalen(task, 6);",
+   "after": "/* calen = DetCics.eibCalen(task, 6); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "d6b2b93e6f",
+   "op": "CON",
+   "line": 175,
+   "before": "calen = DetCics.eibCalen(task, 6);",
+   "after": "calen = DetCics.eibCalen(task, 7);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "79804e814c",
+   "op": "CON",
+   "line": 177,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "aa629f7933",
+   "op": "DEL",
+   "line": 177,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "3a2b01f4b1",
+   "op": "DEL",
+   "line": 179,
+   "before": "calen = DetCics.eibCalen(task, 3);",
+   "after": "/* calen = DetCics.eibCalen(task, 3); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "4c5262f821",
+   "op": "CON",
+   "line": 179,
+   "before": "calen = DetCics.eibCalen(task, 3);",
+   "after": "calen = DetCics.eibCalen(task, 4);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "39c1c908ea",
+   "op": "DEL",
+   "line": 181,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "5a71a0feb4",
+   "op": "CON",
+   "line": 181,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "dc4b03341c",
+   "op": "DEL",
+   "line": 183,
+   "before": "calen = DetCics.eibCalen(task, 11);",
+   "after": "/* calen = DetCics.eibCalen(task, 11); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "fd654773c1",
+   "op": "CON",
+   "line": 183,
+   "before": "calen = DetCics.eibCalen(task, 11);",
+   "after": "calen = DetCics.eibCalen(task, 12);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "8c316a4442",
+   "op": "CON",
+   "line": 185,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "a1f2fb4f8e",
+   "op": "DEL",
+   "line": 185,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "d2cc63bbfd",
+   "op": "CON",
+   "line": 187,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "dfac8d4209",
+   "op": "DEL",
+   "line": 187,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "b085242af6",
+   "op": "CON",
+   "line": 189,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "d65b79e48b",
+   "op": "DEL",
+   "line": 189,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6fcd63aaae",
+   "op": "CON",
+   "line": 191,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c210169e04",
+   "op": "DEL",
+   "line": 191,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "0627bdb570",
+   "op": "CON",
+   "line": 193,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "9d8ccf6f10",
+   "op": "DEL",
+   "line": 193,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "1a314564fd",
+   "op": "DEL",
+   "line": 195,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "4ad04a55bf",
+   "op": "CON",
+   "line": 195,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "54fe6b818a",
+   "op": "DEL",
+   "line": 197,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "bba85d6f81",
+   "op": "CON",
+   "line": 197,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7572fc9042",
+   "op": "CON",
+   "line": 199,
+   "before": "calen = DetCics.eibCalen(task, 30);",
+   "after": "calen = DetCics.eibCalen(task, 31);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "df455e9bc9",
+   "op": "DEL",
+   "line": 199,
+   "before": "calen = DetCics.eibCalen(task, 30);",
+   "after": "/* calen = DetCics.eibCalen(task, 30); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "0bf204dfb8",
+   "op": "CON",
+   "line": 201,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "5c418045ae",
+   "op": "DEL",
+   "line": 201,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6c80fabd36",
+   "op": "DEL",
+   "line": 203,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "a31ee4616d",
+   "op": "CON",
+   "line": 203,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "17f2085d3b",
+   "op": "DEL",
+   "line": 205,
+   "before": "calen = DetCics.eibCalen(task, 5);",
+   "after": "/* calen = DetCics.eibCalen(task, 5); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "538cb14cfd",
+   "op": "CON",
+   "line": 205,
+   "before": "calen = DetCics.eibCalen(task, 5);",
+   "after": "calen = DetCics.eibCalen(task, 6);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "73321ba1a1",
+   "op": "CON",
+   "line": 207,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c93323b789",
+   "op": "DEL",
+   "line": 207,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "9ab2b65ec5",
+   "op": "DEL",
+   "line": 209,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "cb0f81dd9c",
+   "op": "CON",
+   "line": 209,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "75d85a2adc",
+   "op": "CON",
+   "line": 211,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "8e8c7dcfd0",
+   "op": "DEL",
+   "line": 211,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "fa1869800c",
+   "op": "CON",
+   "line": 213,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen == 1 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "3335392786",
    "op": "DEL",
    "line": 216,

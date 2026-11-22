@@ -270,6 +270,9 @@ def _parity(port: Path, corpus: Path, programs: list[tuple[str, str]]) -> dict[s
     return {"parity": rows, "parity_warnings": warnings}
 
 
+JAVA_ERROR_CHARS = 1200  # #8215: how much of a failed Java build the summary row keeps
+
+
 def prove(name: str, work: Path, faults: str) -> dict[str, Any]:
     t0 = time.monotonic()
     out = _prove(name, work, faults)
@@ -310,6 +313,9 @@ def _prove(name: str, work: Path, faults: str) -> dict[str, Any]:
     if rep.get("cobol_compile_failed"):  # #4493: only when set (python-test-traps.md: no always-present empty key)
         out["cobol_compile_failed"] = True
         out["cobc_stderr"] = rep.get("cobc_stderr", "")
+    if rep.get("java_failed") and rep.get("feedback"):  # #8215: why the Java side never built (only when set)
+        text = str(rep["feedback"]).replace("### The Java side did not build or run", "")
+        out["java_error"] = text.strip()[:JAVA_ERROR_CHARS]
     return out
 
 

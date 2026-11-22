@@ -22,8 +22,8 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   layout reader skips them by design)
   dli_calls       CALL 'CBLTDLI' rows (dli_call_data) by line: pcb, io_area and ssas as written; the function code is the
                   RESOLVED one (GalaxyIR.ims_calls: the first operand's VALUE), since the table keeps only the operand
-  ims_gen         DBD and SEGM macro rows (ims_gen_data) by (kind, name): parent and bytes; every other kind is
-                  unkeyed until a later estate-crucible slice
+  ims_gen         DBD, SEGM, FIELD, LCHILD, PCB, SENSEG and PSB macro rows (ims_gen_data) by (kind, name): a SEGM's
+                  parent and bytes, a SENSEG's PCB; the key's PSB is the PSBGEN row, its PCB is named by its DBDNAME
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows); a DD outside
                   SYSIN / SYMNAMES / SORTCNTL / DFSPARM / TOOLIN / xxxxCNTL / SYSTSIN / STDPARM / STDIN / STDENV (SYSUT1, SORTIN) is unscored: the engine keeps no body
   jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep=, SET and INCLUDE are scored from their own job_flow rows
@@ -1223,12 +1223,25 @@ def score_ims_gen(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> N
     used: set = set()
     for f in keyed:
         label = f"{f['kind']} {f['name']} @{f['line']}"
-        r = next((x for x in rows if x.kind == f["kind"] and _u(x.name) == _u(f["name"]) and id(x) not in used), None)
+        # The key's PSB is the engine's PSBGEN row; its PCB is named by the DBD it addresses (an unlabelled PCB
+        # statement has no name of its own, the engine names it PCB@<line>) (#7065, HKEP H-0117).
+        kind = "PSBGEN" if f["kind"] == "PSB" else f["kind"]
+        r = next(
+            (
+                x
+                for x in rows
+                if x.kind == kind and _u(x.dbd_name if kind == "PCB" else x.name) == _u(f["name"]) and id(x) not in used
+            ),
+            None,
+        )
         if r is None:
             sc.add("ims_gen", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
         pairs = [("line", f["line"], r.line)]
+        if f["kind"] == "SENSEG" and f.get("pcb"):
+            owner = next((x for x in rows if x.kind == "PCB" and x.name == r.owner), None)
+            pairs.append(("pcb", _u(f["pcb"]), _u(owner.dbd_name if owner else None)))
         if f["kind"] == "SEGM":
             pairs += [
                 ("parent", _u(f.get("parent") or None), _u(r.parent or None)),

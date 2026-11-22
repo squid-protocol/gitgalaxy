@@ -125,9 +125,30 @@ def test_the_three_property_files_are_read_and_a_later_one_overrides(tmp_path):
     assert declared(app_tree(tmp_path / "y", ["a", "b"], files)) == ["a"]
 
 
+@pytest.mark.parametrize(
+    ("mask", "expect"),
+    [
+        ("FakeApp/n/**/*.cpy", ["n", "n/x", "n/x/c", "n/y"]),  # a recursive mask: the directory, then below it
+        ("FakeApp/n/**", ["n"]),  # a trailing `**` is the file mask, as `*.cpy` is
+        ("FakeApp/n/**/c/*.cpy", ["n/x/c"]),  # `**` mid-path crosses directories, the base is not a library
+        ("FakeApp/n/*/*.cpy", ["n/x", "n/y"]),  # one level only
+    ],
+)
+def test_a_recursive_mask_declares_its_base_directory_before_the_subdirectories(tmp_path, mask, expect):
+    app = app_tree(
+        tmp_path, ["n/x/c", "n/y", "other"], conf("cobol_dependencySearch=search:${workspace}/?path=" + mask)
+    )
+    assert declared(app) == expect
+
+
 def test_a_value_scoped_to_files_by_a_pattern_declares_nothing(tmp_path):
     text = "cobol_dependencySearch=" + search("a") + "::**/cobol/one.cbl\n"
     assert declared(app_tree(tmp_path, ["a"], conf(text, "file.properties"))) == []
+
+
+def test_a_scoped_override_leaves_the_unscoped_value_in_force(tmp_path):
+    text = "cobol_dependencySearch=" + search("a") + "\ncobol_dependencySearch=" + search("b") + "::**/cobol/one.cbl\n"
+    assert declared(app_tree(tmp_path, ["a", "b"], conf(text, "file.properties"))) == ["a"]
 
 
 def test_a_folder_with_no_application_conf_declares_nothing(tmp_path):
@@ -166,3 +187,25 @@ FILES = {"q/REC1.cpy": ITEM_B, "p/REC1.cpy": ITEM_A}
 )
 def test_the_declared_order_decides_which_same_name_member_a_copy_reads(tmp_path, order, winner):
     assert edges_of(estate(tmp_path, order, FILES), tmp_path) == {winner}
+
+
+def test_a_comment_ending_in_a_backslash_does_not_swallow_the_next_property(tmp_path):
+    text = "# the copybooks are under C:\\build\\ws\\\ncobol_dependencySearch=" + search("a") + "\n"
+    assert declared(app_tree(tmp_path, ["a"], conf(text))) == ["a"]
+    text = "! old path D:\\fake\\\ncobol_dependencySearch=" + search("b") + "\n"
+    assert declared(app_tree(tmp_path / "x", ["b"], conf(text))) == ["b"]
+
+
+def test_an_even_run_of_trailing_backslashes_does_not_continue_the_line(tmp_path):
+    text = "other=D:\\fake\\\\\ncobol_dependencySearch=" + search("a") + "\n"  # `\\` is a literal backslash
+    assert declared(app_tree(tmp_path, ["a"], conf(text))) == ["a"]
+
+
+def test_a_continuation_line_that_starts_with_a_hash_is_part_of_the_value(tmp_path):
+    text = "cobol_dependencySearch=" + search("a") + ";\\\n    #\\\n    FakeApp/b/*.cpy\n"
+    assert declared(app_tree(tmp_path, ["a", "b"], conf(text))) == ["a"]  # `#` joins the value; no `#` directory
+
+
+def test_the_last_of_two_definitions_of_a_key_in_one_file_wins(tmp_path):
+    text = "cobol_dependencySearch=" + search("a") + "\ncobol_dependencySearch=" + search("b") + "\n"
+    assert declared(app_tree(tmp_path, ["a", "b"], conf(text))) == ["b"]

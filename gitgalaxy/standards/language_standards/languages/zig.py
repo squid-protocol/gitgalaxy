@@ -57,6 +57,7 @@ DEFINITION: dict[str, Any] = {
                 "union",
                 "enum",
                 "struct",
+                "volatile",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

@@ -11,6 +11,7 @@ import os
 import subprocess
 import time
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 from launcher_exe import launcher_executable
@@ -89,7 +90,12 @@ RESOLUTION_FAILURE_MARKERS = (
     "Non-resolvable parent POM",
     "Non-resolvable import POM",
     "UnresolvableModelException",
+    # #8215: the artifact is in the local repository but its `_remote.repositories` origin is not the repository being
+    # asked (a restore-key cache hit saved by another job): Maven asks Central again, and `-U` does not help.
+    "present, but unavailable",
 )
+UNAVAILABLE_MARKER = "present, but unavailable"
+REMOTE_ORIGIN_FILE = "_remote.repositories"
 # #8373: waits (seconds) before the 2nd and 3rd attempt: a throttled Central needs time, an immediate rerun failed too.
 RESOLUTION_RETRY_DELAYS_S = (5, 20)
 
@@ -97,6 +103,28 @@ RESOLUTION_RETRY_DELAYS_S = (5, 20)
 def is_resolution_failure(text: str) -> bool:
     """True when Maven's output shows a dependency that could not be fetched (a miss on Central, a dropped transfer)."""
     return any(marker in text for marker in RESOLUTION_FAILURE_MARKERS)
+
+
+def local_repository(cmd: list[str]) -> Path:
+    """The local repository `cmd` uses: its `-Dmaven.repo.local=`, else `~/.m2/repository`."""
+    for arg in cmd:
+        if arg.startswith("-Dmaven.repo.local="):
+            return Path(arg.split("=", 1)[1])
+    return Path.home() / ".m2" / "repository"
+
+
+def forget_remote_origins(repo: Path) -> int:
+    """Delete every `_remote.repositories` under `repo` (#8215). Maven's enhanced local repository treats an artifact
+    with no origin file as installed locally, so a cached parent POM stops depending on Central. Returns the count."""
+    count = 0
+    if repo.is_dir():
+        for marker in repo.rglob(REMOTE_ORIGIN_FILE):
+            try:
+                marker.unlink()
+                count += 1
+            except OSError:
+                pass
+    return count
 
 
 def run_maven_retrying_resolution(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -108,6 +136,8 @@ def run_maven_retrying_resolution(cmd: list[str], **kwargs: Any) -> subprocess.C
     for attempt, delay in enumerate(RESOLUTION_RETRY_DELAYS_S, start=2):
         if proc.returncode == 0 or not is_resolution_failure(proc.stdout + proc.stderr):
             break
+        if UNAVAILABLE_MARKER in proc.stdout + proc.stderr:
+            forget_remote_origins(local_repository(cmd))
         time.sleep(delay)
         again = run_decoded([cmd[0], "-U", *cmd[1:]], **kwargs)
         log += (

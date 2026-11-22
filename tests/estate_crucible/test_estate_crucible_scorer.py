@@ -1503,3 +1503,40 @@ def test_a_card_in_a_dd_whose_statement_continues_is_scored_on_the_engines_own_r
     flow = [_row(**{**r, "kind": r["kind"]}) for r in jcl_job_flow(jcl)]
     card = dict(_card("DELETE", "PROD.X PURGE", 5), dd="SYSIN", utility="IDCAMS")
     assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
+
+
+def _ims(kind, name=None, line=1, **kw):
+    base = dict(kind=kind, name=name, parent=None, owner=None, dbd_name=None, bytes=None, line=line)
+    return SimpleNamespace(**dict(base, **kw))
+
+
+def _ims_status(rows, keyed):
+    eng = FakeEngine(files={"a.asm": SimpleNamespace(ims_gen=rows)})
+    sc = ec.Score()
+    ec.score_ims_gen(sc, "a.asm", {"ims_gen": keyed}, eng)
+    return [c.status for c in sc.checks]
+
+
+_PSB_KEY = [
+    {"kind": "PCB", "name": "HKEPDB2", "line": 2},
+    {"kind": "SENSEG", "name": "KEEP", "pcb": "HKEPDB2", "line": 3},
+    {"kind": "PSB", "name": "HKEPPSB", "line": 5},
+]
+
+
+def _psb_rows(dbd="HKEPDB2"):
+    return [
+        _ims("PCB", "PCB@2", 2, dbd_name=dbd),
+        _ims("SENSEG", "KEEP", 3, owner="PCB@2"),
+        _ims("PSBGEN", "HKEPPSB", 5),
+    ]
+
+
+def test_an_unlabelled_pcb_is_keyed_by_its_dbd_and_the_key_psb_is_the_psbgen_row():
+    """HKEP H-0117 (#7065): the key names a PCB by its DBDNAME and the PSBGEN row `PSB`."""
+    assert _ims_status(_psb_rows(), _PSB_KEY) == ["pass", "pass", "pass"]
+
+
+def test_a_senseg_under_a_pcb_of_another_dbd_or_a_missing_psbgen_fails():
+    assert _ims_status(_psb_rows(dbd="OTHERDB"), _PSB_KEY) == ["missing", "fail", "pass"]
+    assert _ims_status(_psb_rows()[:2], _PSB_KEY) == ["pass", "pass", "missing"]

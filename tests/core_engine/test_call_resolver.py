@@ -1310,3 +1310,15 @@ def test_an_ownerless_self_call_reaches_methods_only(lang, ext):
     # their methods: a same-file free function (a test-module helper of that name) is never `self`'s
     sites, _ = resolve_calls(_impl_universe(lang, ext, "self"))
     assert _site(sites, "eat_char")["step"] == "none"
+
+
+@pytest.mark.parametrize("method", ["classify", "is_empty", "iter_mut", "into_iter"])
+def test_rust_builtin_instance_method_on_untyped_receiver_stays_ambiguous_4991(method):
+    # #4991: untyped receiver calling a Rust std/core method (`value.classify()` on f32,
+    # `slice.is_empty()`, `map.iter_mut()`) must not link confidently to a same-named repo method.
+    files = [
+        _file("src/ser.rs", "rust", [_fn("run", 1, calls=[method], quals={method: ["val"]})]),
+        _file("src/err.rs", "rust", [_fn(method, 10, owner="Error")]),
+    ]
+    sites, _ = resolve_calls(files, [{"source": "src/ser.rs", "target": "src/err.rs"}])
+    assert _site(sites, method)["step"] == "receiver"

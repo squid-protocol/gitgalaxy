@@ -20,6 +20,8 @@ See `docs/agents/self-scan-orientation.md` for the full detail (query examples, 
 * **See what the engine actually extracted before re-deriving it from source:** `galaxyscope <path> --db-only --debug --output <scratch-dir>` and grep the log for `[WORKER-TRACE] extracted functions for` -- one line per file with the exact satellite/function names produced. Much cheaper than tracing `_slice_by_keywords`/`_slice_by_terminator`/etc. cold when the question is "what did the engine actually name/count here." See `docs/agents/detector-debugging.md` for the full recipe (DB cross-reference, etc.) -- not repeated here.
 * **Extraction Gauntlet & Strict Tests:** Run `pytest tests/extraction/languages/test_<lang>.py` and `test_<lang>_strict.py` for the language you modified.
 * **Parametrized ReDoS payloads need short `ids=`.** pytest exports every node id as the `PYTEST_CURRENT_TEST` environment variable, and Windows caps one variable at 32,767 characters -- a 50,000-character payload inside a parametrize id passes on Linux/macOS and ERRORs at setup on every Windows leg of the matrix (`ValueError: the environment variable is longer than 32767 characters`, #2903). Build the payload inside the test or pass `ids=`; `pytest --collect-only -q` shows the ids.
+* **Register any new `CALLS_OUT_<LANG>` pattern in `QUALIFIED_CALLS_OUT_PATTERNS`:** `detector.py` gates qualifier capture, C5 header drop, and nested-unit call blanking on membership in `QUALIFIED_CALLS_OUT_PATTERNS` (`_shared_patterns.py`). A custom `calls_out` regex left out of that tuple silently disables all three. Also run `pytest tests/extraction/languages/test_calls_out_keywords_3359.py tests/extraction/languages/test_calls_out_generics_3644.py` to update any pattern-identity assertions.
+* **Score `calls_out` changes against tree-sitter locally before pushing:** Run `call_graph_accuracy.py` on every modified language to catch precision regressions (e.g. control-flow `{` read as a trailing closure) before spending a CI run. If `tree-sitter-language-pack` times out downloading grammars, load the locally cached `.so` files under `~/.cache/tree-sitter-language-pack/` directly in a scratch check.
 
 ## 2. Static Analysis & Linting (~15s)
 * **Order matters:** `ruff format` the whole changed set (`git diff --name-only`, never a bare `ruff format .`) FIRST, then `audit_check.py --regenerate`. Formatting shifts line numbers, so a baseline regenerated before it lands in CI as a "new finding" that is really the same finding two lines down.
@@ -27,6 +29,7 @@ See `docs/agents/self-scan-orientation.md` for the full detail (query examples, 
 * **Mypy Type Checking:** `python tests/mypy_audit.py --ci`
 
 ## 3. Global Golden Master Verification (~2-5 min, first run of a fresh venv adds ~30-60s)
+* **Do not stack parallel open PRs that touch `tests/golden_master_*` or `_shared_patterns.py`:** When CI-bound or fixing multiple languages, batch them into **one PR** rebased on the latest `git fetch origin main` before running `crucible_check.py --update --yes`. Stacked golden-master PRs immediately conflict with each other on every merge.
 * **Run the Crucible Check (Mandatory):** Execute `python tests/tools/crucible_check.py` against the full ~80-repo corpus.
 * **Before blessing anything, prove the change reaches a REAL SCAN.** A green unit test is not that proof: tests and both probes (`rule_probe.py`, `census_probe.py`) build the extractor straight from `LANGUAGE_DEFINITIONS`, while a real scan goes through `language_lens.py`, which compiles every *string* value inside a registry's `rules` into a regex, and through `galaxyscope.py`'s config assembly. #2806 declared a string helper in `rules`, passed every test, and blessed a golden master in which nothing had changed. One file, one scan, one query -- `galaxyscope <dir> --output /tmp/x --db-only` then `sqlite3 /tmp/x/*_master.db "select file_path, <column> from file_data;"` -- costs ~20 seconds and is the only thing that catches this class.
 * **Re-Bless Golden Masters:** If `crucible_check.py` shows expected, accurately traced diffs resulting from your fix, bless the new state:
@@ -110,6 +113,7 @@ If `main` advances and causes merge conflicts in `tri_comparison_ledger.json`, `
    `tests/unicode_gauntlet/baseline.txt`, `tests/cultural_gauntlet/baseline.txt`), so a PR touching them shows
    CONFLICTING. Merge origin/main locally, then drop stale re-added lines by comparing with a non-updating
    gauntlet run.
+5. **Verify `git diff origin/main -- <file>` after any cross-branch checkout or rebase** (especially on shared files like `detector.py` and `_shared_patterns.py`) to confirm recent `main` commits were not accidentally reverted.
 
 ## 7. Continuous Integration Monitoring (Agentic)
 Claude PR workers: check CI once and follow `.claude/agents/gitgalaxy-pr-worker.md` ("After pushing"); the

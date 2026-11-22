@@ -466,3 +466,29 @@ def test_a_swept_readme_carries_no_hand_written_status_number(rel):
     text = _prose_only((REPO / rel).read_text(encoding="utf-8"))
     hits = [f"{m.group(0)!r} in {line.strip()[:90]!r}" for line in text.splitlines() for m in COUNT.finditer(line)]
     assert not hits, f"{rel}: hand-written numbers (read them off the generated page, #5282):\n" + "\n".join(hits)
+
+
+# ---- #8888: the S ladder (system testing), a second axis beside L0-L5 ------------------------------------------------
+def test_job_cases_name_their_corpus_and_jcl_job():
+    jobs = pr.job_cases()
+    assert "TRANREPT" in jobs.get("aws-mainframe-modernization-carddemo", [])
+    assert all(names == sorted(set(names)) for names in jobs.values())
+
+
+def test_the_s_ladder_counts_jobs_at_s0_and_only_recorded_chain_proofs_at_s2():
+    sy = pr.system_ladder(10, ["TRANREPT"])
+    assert sy["levels"] == {"S0": 10, "S1": None, "S2": 0, "S3": None, "S4": None}  # a written job case moves nothing
+    assert sy["measured"] == ["S0", "S2"] and sy["job_cases"] == ["TRANREPT"]
+    assert pr.system_ladder(10, [], proven=["A", "B", "A"])["levels"]["S2"] == 2
+    assert pr.system_ladder(1, [], proven=["A", "B"])["levels"] == {
+        "S0": 0,
+        "S1": None,
+        "S2": 1,
+        "S3": None,
+        "S4": None,
+    }
+
+
+def test_without_a_recorded_size_the_jobs_are_not_measured_never_zero():
+    sy = pr.system_ladder(None, ["TRANREPT"])
+    assert sy["jobs"] is None and set(sy["levels"].values()) == {None}

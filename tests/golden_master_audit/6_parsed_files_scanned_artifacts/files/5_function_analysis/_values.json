@@ -313638,8 +313638,8 @@
           "Structural Impact": 93.3
         },
         {
-          "Control Flow Branches": 40,
-          "Control Flow Ratio": "58.0%",
+          "Control Flow Branches": 36,
+          "Control Flow Ratio": "52.2%",
           "End Line": 838,
           "Function Name": "set_scalar_indices_from_config",
           "Has Header Comment": 0,
@@ -313649,7 +313649,7 @@
           "Lines of Code (LOC)": 223,
           "Reflection Hits": 0,
           "Start Line": 616,
-          "Structural Impact": 93.2
+          "Structural Impact": 85.2
         },
         {
           "Control Flow Branches": 28,
@@ -314116,34 +314116,6 @@
           "Structural Impact": 11.0
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
-          "End Line": 1616,
-          "Function Name": "dealloc_linked_lists",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
-          "Start Line": 1599,
-          "Structural Impact": 9.4
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
-          "End Line": 1501,
-          "Function Name": "dealloc_space_domain",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 41,
-          "Reflection Hits": 0,
-          "Start Line": 1461,
-          "Structural Impact": 9.1
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "44.4%",
           "End Line": 1955,
@@ -314158,20 +314130,6 @@
           "Structural Impact": 8.7
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1724,
-          "Function Name": "first_loc_integer",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 32,
-          "Reflection Hits": 0,
-          "Start Line": 1693,
-          "Structural Impact": 8.5
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "57.1%",
           "End Line": 1866,
@@ -314184,6 +314142,20 @@
           "Reflection Hits": 0,
           "Start Line": 1842,
           "Structural Impact": 8.3
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 1616,
+          "Function Name": "dealloc_linked_lists",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 1599,
+          "Structural Impact": 8.0
         },
         {
           "Control Flow Branches": 3,
@@ -314212,6 +314184,34 @@
           "Reflection Hits": 0,
           "Start Line": 1618,
           "Structural Impact": 7.8
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 1501,
+          "Function Name": "dealloc_space_domain",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 41,
+          "Reflection Hits": 0,
+          "Start Line": 1461,
+          "Structural Impact": 7.7
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "22.2%",
+          "End Line": 1724,
+          "Function Name": "first_loc_integer",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 32,
+          "Reflection Hits": 0,
+          "Start Line": 1693,
+          "Structural Impact": 6.8
         },
         {
           "Control Flow Branches": 0,
@@ -314566,8 +314566,8 @@
       ],
       "fortran/wrf/module_initialize_real.F": [
         {
-          "Control Flow Branches": 1292,
-          "Control Flow Ratio": "94.4%",
+          "Control Flow Branches": 1192,
+          "Control Flow Ratio": "87.1%",
           "End Line": 4947,
           "Function Name": "init_domain_rk",
           "Has Header Comment": 0,
@@ -314577,11 +314577,11 @@
           "Lines of Code (LOC)": 4883,
           "Reflection Hits": 11,
           "Start Line": 65,
-          "Structural Impact": 2072.7
+          "Structural Impact": 1931.3
         },
         {
-          "Control Flow Branches": 219,
-          "Control Flow Ratio": "84.2%",
+          "Control Flow Branches": 184,
+          "Control Flow Ratio": "70.8%",
           "End Line": 6341,
           "Function Name": "vert_interp",
           "Has Header Comment": 0,
@@ -314591,11 +314591,11 @@
           "Lines of Code (LOC)": 752,
           "Reflection Hits": 0,
           "Start Line": 5590,
-          "Structural Impact": 1513.4
+          "Structural Impact": 1278.6
         },
         {
-          "Control Flow Branches": 105,
-          "Control Flow Ratio": "76.1%",
+          "Control Flow Branches": 88,
+          "Control Flow Ratio": "63.8%",
           "End Line": 8445,
           "Function Name": "sfcprs",
           "Has Header Comment": 0,
@@ -314605,11 +314605,11 @@
           "Lines of Code (LOC)": 307,
           "Reflection Hits": 0,
           "Start Line": 8139,
-          "Structural Impact": 576.2
+          "Structural Impact": 486.3
         },
         {
-          "Control Flow Branches": 46,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 45,
+          "Control Flow Ratio": "65.2%",
           "End Line": 7894,
           "Function Name": "compute_eta",
           "Has Header Comment": 0,
@@ -314619,25 +314619,11 @@
           "Lines of Code (LOC)": 328,
           "Reflection Hits": 6,
           "Start Line": 7567,
-          "Structural Impact": 313.7
+          "Structural Impact": 307.3
         },
         {
-          "Control Flow Branches": 53,
-          "Control Flow Ratio": "77.9%",
-          "End Line": 7159,
-          "Function Name": "integ_moist",
-          "Has Header Comment": 0,
-          "Input Parameters": 24,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 193,
-          "Reflection Hits": 0,
-          "Start Line": 6967,
-          "Structural Impact": 279.6
-        },
-        {
-          "Control Flow Branches": 48,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 46,
+          "Control Flow Ratio": "71.9%",
           "End Line": 8923,
           "Function Name": "filter_topo_old",
           "Has Header Comment": 0,
@@ -314647,11 +314633,25 @@
           "Lines of Code (LOC)": 170,
           "Reflection Hits": 0,
           "Start Line": 8754,
-          "Structural Impact": 248.5
+          "Structural Impact": 238.8
         },
         {
-          "Control Flow Branches": 39,
-          "Control Flow Ratio": "51.3%",
+          "Control Flow Branches": 43,
+          "Control Flow Ratio": "63.2%",
+          "End Line": 7159,
+          "Function Name": "integ_moist",
+          "Has Header Comment": 0,
+          "Input Parameters": 24,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 193,
+          "Reflection Hits": 0,
+          "Start Line": 6967,
+          "Structural Impact": 229.7
+        },
+        {
+          "Control Flow Branches": 35,
+          "Control Flow Ratio": "46.1%",
           "End Line": 7518,
           "Function Name": "rh_to_mxrat1",
           "Has Header Comment": 0,
@@ -314661,11 +314661,11 @@
           "Lines of Code (LOC)": 188,
           "Reflection Hits": 0,
           "Start Line": 7331,
-          "Structural Impact": 228.5
+          "Structural Impact": 206.6
         },
         {
-          "Control Flow Branches": 55,
-          "Control Flow Ratio": "67.1%",
+          "Control Flow Branches": 53,
+          "Control Flow Ratio": "64.6%",
           "End Line": 6580,
           "Function Name": "lagrange_setup",
           "Has Header Comment": 0,
@@ -314675,11 +314675,11 @@
           "Lines of Code (LOC)": 236,
           "Reflection Hits": 0,
           "Start Line": 6345,
-          "Structural Impact": 213.7
+          "Structural Impact": 206.5
         },
         {
-          "Control Flow Branches": 30,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 26,
+          "Control Flow Ratio": "43.3%",
           "End Line": 7327,
           "Function Name": "rh_to_mxrat2",
           "Has Header Comment": 0,
@@ -314689,7 +314689,7 @@
           "Lines of Code (LOC)": 165,
           "Reflection Hits": 0,
           "Start Line": 7163,
-          "Structural Impact": 178.0
+          "Structural Impact": 156.1
         },
         {
           "Control Flow Branches": 29,
@@ -314706,8 +314706,8 @@
           "Structural Impact": 154.8
         },
         {
-          "Control Flow Branches": 28,
-          "Control Flow Ratio": "65.1%",
+          "Control Flow Branches": 26,
+          "Control Flow Ratio": "60.5%",
           "End Line": 8749,
           "Function Name": "filter_topo",
           "Has Header Comment": 0,
@@ -314717,11 +314717,11 @@
           "Lines of Code (LOC)": 133,
           "Reflection Hits": 0,
           "Start Line": 8617,
-          "Structural Impact": 154.5
+          "Structural Impact": 144.3
         },
         {
-          "Control Flow Branches": 18,
-          "Control Flow Ratio": "62.1%",
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "48.3%",
           "End Line": 8613,
           "Function Name": "sfcprs3",
           "Has Header Comment": 0,
@@ -314731,21 +314731,7 @@
           "Lines of Code (LOC)": 103,
           "Reflection Hits": 0,
           "Start Line": 8511,
-          "Structural Impact": 98.2
-        },
-        {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "54.2%",
-          "End Line": 6760,
-          "Function Name": "p_dry",
-          "Has Header Comment": 0,
-          "Input Parameters": 27,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 51,
-          "Reflection Hits": 0,
-          "Start Line": 6710,
-          "Structural Impact": 76.6
+          "Structural Impact": 78.6
         },
         {
           "Control Flow Branches": 38,
@@ -314762,8 +314748,22 @@
           "Structural Impact": 69.4
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "48.0%",
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "45.8%",
+          "End Line": 6760,
+          "Function Name": "p_dry",
+          "Has Header Comment": 0,
+          "Input Parameters": 27,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 51,
+          "Reflection Hits": 0,
+          "Start Line": 6710,
+          "Structural Impact": 66.0
+        },
+        {
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "40.0%",
           "End Line": 8095,
           "Function Name": "monthly_interp_to_date",
           "Has Header Comment": 0,
@@ -314773,11 +314773,11 @@
           "Lines of Code (LOC)": 67,
           "Reflection Hits": 0,
           "Start Line": 8029,
-          "Structural Impact": 64.3
+          "Structural Impact": 54.9
         },
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "45.5%",
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "36.4%",
           "End Line": 8507,
           "Function Name": "sfcprs2",
           "Has Header Comment": 0,
@@ -314787,7 +314787,7 @@
           "Lines of Code (LOC)": 59,
           "Reflection Hits": 0,
           "Start Line": 8449,
-          "Structural Impact": 61.2
+          "Structural Impact": 50.6
         },
         {
           "Control Flow Branches": 7,
@@ -314804,8 +314804,8 @@
           "Structural Impact": 40.2
         },
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "43.8%",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "37.5%",
           "End Line": 6963,
           "Function Name": "theta_to_t",
           "Has Header Comment": 0,
@@ -314815,21 +314815,7 @@
           "Lines of Code (LOC)": 45,
           "Reflection Hits": 0,
           "Start Line": 6919,
-          "Structural Impact": 39.8
-        },
-        {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 6878,
-          "Function Name": "find_p_top",
-          "Has Header Comment": 0,
-          "Input Parameters": 20,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 47,
-          "Reflection Hits": 0,
-          "Start Line": 6832,
-          "Structural Impact": 34.4
+          "Structural Impact": 35.1
         },
         {
           "Control Flow Branches": 5,
@@ -314847,7 +314833,21 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "38.5%",
+          "Control Flow Ratio": "41.7%",
+          "End Line": 6878,
+          "Function Name": "find_p_top",
+          "Has Header Comment": 0,
+          "Input Parameters": 20,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 47,
+          "Reflection Hits": 0,
+          "Start Line": 6832,
+          "Structural Impact": 29.8
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "30.8%",
           "End Line": 6914,
           "Function Name": "t_to_theta",
           "Has Header Comment": 0,
@@ -314857,39 +314857,11 @@
           "Lines of Code (LOC)": 33,
           "Reflection Hits": 0,
           "Start Line": 6882,
-          "Structural Impact": 29.8
+          "Structural Impact": 25.1
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 6828,
-          "Function Name": "p_dhs",
-          "Has Header Comment": 0,
-          "Input Parameters": 23,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 32,
-          "Reflection Hits": 0,
-          "Start Line": 6797,
-          "Structural Impact": 26.1
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 6793,
-          "Function Name": "p_dts",
-          "Has Header Comment": 0,
-          "Input Parameters": 22,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
-          "Start Line": 6764,
-          "Structural Impact": 25.5
-        },
-        {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "31.2%",
           "End Line": 7962,
           "Function Name": "levels",
           "Has Header Comment": 0,
@@ -314899,7 +314871,7 @@
           "Lines of Code (LOC)": 66,
           "Reflection Hits": 2,
           "Start Line": 7897,
-          "Structural Impact": 25.4
+          "Structural Impact": 22.3
         },
         {
           "Control Flow Branches": 7,
@@ -314916,8 +314888,36 @@
           "Structural Impact": 21.5
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 6828,
+          "Function Name": "p_dhs",
+          "Has Header Comment": 0,
+          "Input Parameters": 23,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 32,
+          "Reflection Hits": 0,
+          "Start Line": 6797,
+          "Structural Impact": 21.2
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 6793,
+          "Function Name": "p_dts",
+          "Has Header Comment": 0,
+          "Input Parameters": 22,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 6764,
+          "Structural Impact": 20.7
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
           "End Line": 5369,
           "Function Name": "find_my_parent2",
           "Has Header Comment": 0,
@@ -314927,21 +314927,7 @@
           "Lines of Code (LOC)": 58,
           "Reflection Hits": 0,
           "Start Line": 5312,
-          "Structural Impact": 18.6
-        },
-        {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "35.7%",
-          "End Line": 6707,
-          "Function Name": "lagrange_interp",
-          "Has Header Comment": 0,
-          "Input Parameters": 5,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 41,
-          "Reflection Hits": 0,
-          "Start Line": 6667,
-          "Structural Impact": 16.7
+          "Structural Impact": 16.3
         },
         {
           "Control Flow Branches": 2,
@@ -314970,6 +314956,20 @@
           "Reflection Hits": 0,
           "Start Line": 8008,
           "Structural Impact": 14.6
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "28.6%",
+          "End Line": 6707,
+          "Function Name": "lagrange_interp",
+          "Has Header Comment": 0,
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 41,
+          "Reflection Hits": 0,
+          "Start Line": 6667,
+          "Structural Impact": 14.3
         },
         {
           "Control Flow Branches": 3,
@@ -315366,8 +315366,8 @@
           "Structural Impact": 43.0
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "50.0%",
           "End Line": 5467,
           "Function Name": "interp_vec",
           "Has Header Comment": 0,
@@ -315377,11 +315377,11 @@
           "Lines of Code (LOC)": 61,
           "Reflection Hits": 0,
           "Start Line": 5407,
-          "Structural Impact": 39.8
+          "Structural Impact": 37.0
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "50.0%",
           "End Line": 5655,
           "Function Name": "interp_vec_cu",
           "Has Header Comment": 0,
@@ -315391,7 +315391,7 @@
           "Lines of Code (LOC)": 61,
           "Reflection Hits": 0,
           "Start Line": 5595,
-          "Structural Impact": 39.8
+          "Structural Impact": 37.0
         },
         {
           "Control Flow Branches": 6,
@@ -315452,8 +315452,8 @@
       ],
       "fortran/wrf/module_sf_noahdrv.F": [
         {
-          "Control Flow Branches": 346,
-          "Control Flow Ratio": "52.5%",
+          "Control Flow Branches": 344,
+          "Control Flow Ratio": "52.2%",
           "End Line": 4940,
           "Function Name": "lsm_mosaic",
           "Has Header Comment": 0,
@@ -315463,11 +315463,11 @@
           "Lines of Code (LOC)": 2592,
           "Reflection Hits": 0,
           "Start Line": 2349,
-          "Structural Impact": 6059.1
+          "Structural Impact": 6025.0
         },
         {
-          "Control Flow Branches": 187,
-          "Control Flow Ratio": "39.1%",
+          "Control Flow Branches": 186,
+          "Control Flow Ratio": "38.9%",
           "End Line": 1787,
           "Function Name": "lsm",
           "Has Header Comment": 0,
@@ -315477,11 +315477,11 @@
           "Lines of Code (LOC)": 1750,
           "Reflection Hits": 0,
           "Start Line": 38,
-          "Structural Impact": 3048.1
+          "Structural Impact": 3032.4
         },
         {
-          "Control Flow Branches": 53,
-          "Control Flow Ratio": "60.2%",
+          "Control Flow Branches": 52,
+          "Control Flow Ratio": "59.1%",
           "End Line": 5354,
           "Function Name": "lsm_mosaic_init",
           "Has Header Comment": 0,
@@ -315491,7 +315491,7 @@
           "Lines of Code (LOC)": 407,
           "Reflection Hits": 0,
           "Start Line": 4948,
-          "Structural Impact": 488.0
+          "Structural Impact": 479.3
         },
         {
           "Control Flow Branches": 30,
@@ -315508,8 +315508,8 @@
           "Structural Impact": 225.1
         },
         {
-          "Control Flow Branches": 51,
-          "Control Flow Ratio": "78.5%",
+          "Control Flow Branches": 50,
+          "Control Flow Ratio": "76.9%",
           "End Line": 2340,
           "Function Name": "SOIL_VEG_GEN_PARM",
           "Has Header Comment": 0,
@@ -315519,7 +315519,7 @@
           "Lines of Code (LOC)": 342,
           "Reflection Hits": 0,
           "Start Line": 1999,
-          "Structural Impact": 107.2
+          "Structural Impact": 105.4
         }
       ],
       "fortran/wrf/regtest.csh": [
@@ -330081,6 +330081,20 @@
           "Structural Impact": 4.6
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 1103,
+          "Function Name": "failAfterProjectIsEvaluated",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 1099,
+          "Structural Impact": 4.5
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 1517,
@@ -330205,20 +330219,6 @@
           "Reflection Hits": 0,
           "Start Line": 869,
           "Structural Impact": 3.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1103,
-          "Function Name": "failAfterProjectIsEvaluated",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 1099,
-          "Structural Impact": 3.1
         },
         {
           "Control Flow Branches": 0,
@@ -337930,8 +337930,8 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": [
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
+          "Control Flow Branches": 18,
+          "Control Flow Ratio": "85.7%",
           "End Line": 239,
           "Function Name": "handleImplicitCondition",
           "Has Header Comment": 0,
@@ -337941,11 +337941,11 @@
           "Lines of Code (LOC)": 37,
           "Reflection Hits": 0,
           "Start Line": 203,
-          "Structural Impact": 13.2
+          "Structural Impact": 28.7
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "77.8%",
           "End Line": 134,
           "Function Name": "doVisitBinaryExpression",
           "Has Header Comment": 0,
@@ -337955,7 +337955,7 @@
           "Lines of Code (LOC)": 29,
           "Reflection Hits": 0,
           "Start Line": 106,
-          "Structural Impact": 11.3
+          "Structural Impact": 12.8
         },
         {
           "Control Flow Branches": 5,
@@ -337972,6 +337972,20 @@
           "Structural Impact": 9.6
         },
         {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "83.3%",
+          "End Line": 161,
+          "Function Name": "doVisitMethodCallExpression",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 151,
+          "Structural Impact": 9.0
+        },
+        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "42.9%",
           "End Line": 201,
@@ -337984,6 +337998,34 @@
           "Reflection Hits": 0,
           "Start Line": 180,
           "Structural Impact": 8.0
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 348,
+          "Function Name": "forbidUseOfSuperInFixtureMethod",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 333,
+          "Structural Impact": 7.9
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
+          "End Line": 92,
+          "Function Name": "doVisitExpressionStatement",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 81,
+          "Structural Impact": 7.7
         },
         {
           "Control Flow Branches": 3,
@@ -338012,20 +338054,6 @@
           "Reflection Hits": 0,
           "Start Line": 163,
           "Structural Impact": 6.5
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 92,
-          "Function Name": "doVisitExpressionStatement",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
-          "Start Line": 81,
-          "Structural Impact": 4.8
         },
         {
           "Control Flow Branches": 2,
@@ -338084,18 +338112,18 @@
           "Structural Impact": 4.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 348,
-          "Function Name": "forbidUseOfSuperInFixtureMethod",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 356,
+          "Function Name": "getCurrentWithOrMockClosure",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 16,
+          "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
-          "Start Line": 333,
-          "Structural Impact": 3.6
+          "Start Line": 350,
+          "Structural Impact": 3.4
         },
         {
           "Control Flow Branches": 1,
@@ -338112,6 +338140,20 @@
           "Structural Impact": 3.2
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 79,
+          "Function Name": "getErrorCollectorSuffix",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 77,
+          "Structural Impact": 3.1
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 319,
@@ -338126,18 +338168,18 @@
           "Structural Impact": 3.1
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 356,
-          "Function Name": "getCurrentWithOrMockClosure",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 360,
+          "Function Name": "isThenOrExpectOrFilterBlock",
           "Has Header Comment": 0,
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 7,
+          "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
-          "Start Line": 350,
-          "Structural Impact": 2.4
+          "Start Line": 358,
+          "Structural Impact": 3.1
         },
         {
           "Control Flow Branches": 1,
@@ -338154,20 +338196,6 @@
           "Structural Impact": 2.1
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 79,
-          "Function Name": "getErrorCollectorSuffix",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 77,
-          "Structural Impact": 2.1
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 368,
@@ -338180,20 +338208,6 @@
           "Reflection Hits": 0,
           "Start Line": 362,
           "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 161,
-          "Function Name": "doVisitMethodCallExpression",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 151,
-          "Structural Impact": 2.0
         },
         {
           "Control Flow Branches": 0,
@@ -338278,20 +338292,6 @@
           "Reflection Hits": 0,
           "Start Line": 249,
           "Structural Impact": 1.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 360,
-          "Function Name": "isThenOrExpectOrFilterBlock",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 358,
-          "Structural Impact": 1.1
         }
       ],
       "groovy/spock/SpecParser.java": [
@@ -338380,6 +338380,20 @@
           "Structural Impact": 6.4
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
+          "End Line": 194,
+          "Function Name": "isVerifyMethod",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 186,
+          "Structural Impact": 6.1
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "33.3%",
           "End Line": 207,
@@ -338408,6 +338422,20 @@
           "Structural Impact": 4.8
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 290,
+          "Function Name": "getDescription",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 286,
+          "Structural Impact": 4.5
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "20.0%",
           "End Line": 76,
@@ -338423,20 +338451,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 194,
-          "Function Name": "isVerifyMethod",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 186,
-          "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 88,
           "Function Name": "visitConstructor",
@@ -338448,20 +338462,6 @@
           "Reflection Hits": 0,
           "Start Line": 81,
           "Structural Impact": 3.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 290,
-          "Function Name": "getDescription",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 286,
-          "Structural Impact": 3.1
         },
         {
           "Control Flow Branches": 0,
@@ -338816,6 +338816,34 @@
           "Structural Impact": 4.6
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 323,
+          "Function Name": "checkFieldAccessInFixtureMethod",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 319,
+          "Structural Impact": 4.5
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 89,
+          "Function Name": "computeDepth",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 86,
+          "Structural Impact": 4.4
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "8.3%",
           "End Line": 195,
@@ -338912,34 +338940,6 @@
           "Reflection Hits": 0,
           "Start Line": 490,
           "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 323,
-          "Function Name": "checkFieldAccessInFixtureMethod",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 319,
-          "Structural Impact": 3.1
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 89,
-          "Function Name": "computeDepth",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 86,
-          "Structural Impact": 3.0
         },
         {
           "Control Flow Branches": 0,
@@ -349174,6 +349174,20 @@
       "java/selenium_grid_session_queue/NOTICE": [],
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": [
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 143,
+          "Function Name": "remove",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 127,
+          "Structural Impact": 6.5
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "33.3%",
           "End Line": 182,
@@ -349186,20 +349200,6 @@
           "Reflection Hits": 0,
           "Start Line": 162,
           "Structural Impact": 6.2
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "28.6%",
-          "End Line": 143,
-          "Function Name": "remove",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 17,
-          "Reflection Hits": 0,
-          "Start Line": 127,
-          "Structural Impact": 5.1
         },
         {
           "Control Flow Branches": 0,
@@ -349346,8 +349346,8 @@
           "Structural Impact": 12.8
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "71.4%",
           "End Line": 223,
           "Function Name": "checkExcludedClasses",
           "Has Header Comment": 0,
@@ -349357,7 +349357,7 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 1,
           "Start Line": 212,
-          "Structural Impact": 9.3
+          "Structural Impact": 11.0
         },
         {
           "Control Flow Branches": 5,
@@ -349372,6 +349372,20 @@
           "Reflection Hits": 0,
           "Start Line": 329,
           "Structural Impact": 9.3
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 486,
+          "Function Name": "process",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 21,
+          "Reflection Hits": 0,
+          "Start Line": 466,
+          "Structural Impact": 6.2
         },
         {
           "Control Flow Branches": 2,
@@ -349400,20 +349414,6 @@
           "Reflection Hits": 0,
           "Start Line": 263,
           "Structural Impact": 4.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 486,
-          "Function Name": "process",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 21,
-          "Reflection Hits": 0,
-          "Start Line": 466,
-          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 1,
@@ -349992,6 +349992,34 @@
       ],
       "java/springboot/Binder.java": [
         {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "54.5%",
+          "End Line": 449,
+          "Function Name": "bindObject",
+          "Has Header Comment": 0,
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 27,
+          "Reflection Hits": 0,
+          "Start Line": 423,
+          "Structural Impact": 18.5
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 407,
+          "Function Name": "handleBindResult",
+          "Has Header Comment": 0,
+          "Input Parameters": 6,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 0,
+          "Start Line": 383,
+          "Structural Impact": 14.5
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "66.7%",
           "End Line": 224,
@@ -350006,36 +350034,8 @@
           "Structural Impact": 14.4
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
-          "End Line": 449,
-          "Function Name": "bindObject",
-          "Has Header Comment": 0,
-          "Input Parameters": 5,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 27,
-          "Reflection Hits": 0,
-          "Start Line": 423,
-          "Structural Impact": 13.6
-        },
-        {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 407,
-          "Function Name": "handleBindResult",
-          "Has Header Comment": 0,
-          "Input Parameters": 6,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 25,
-          "Reflection Hits": 0,
-          "Start Line": 383,
-          "Structural Impact": 11.8
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 514,
           "Function Name": "bindDataObject",
           "Has Header Comment": 0,
@@ -350045,11 +350045,11 @@
           "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 498,
-          "Structural Impact": 8.8
+          "Structural Impact": 11.4
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
           "End Line": 488,
           "Function Name": "findProperty",
           "Has Header Comment": 0,
@@ -350059,11 +350059,11 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 476,
-          "Structural Impact": 8.7
+          "Structural Impact": 10.7
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
           "End Line": 541,
           "Function Name": "isUnbindableBean",
           "Has Header Comment": 0,
@@ -350073,7 +350073,7 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 529,
-          "Structural Impact": 8.7
+          "Structural Impact": 10.7
         },
         {
           "Control Flow Branches": 3,
@@ -350782,6 +350782,20 @@
         },
         {
           "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 62,
+          "Function Name": "getOutcomes",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 48,
+          "Structural Impact": 7.7
+        },
+        {
+          "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
           "End Line": 137,
           "Function Name": "addAll",
@@ -350807,20 +350821,6 @@
           "Reflection Hits": 0,
           "Start Line": 224,
           "Structural Impact": 6.5
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 62,
-          "Function Name": "getOutcomes",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 15,
-          "Reflection Hits": 0,
-          "Start Line": 48,
-          "Structural Impact": 5.9
         },
         {
           "Control Flow Branches": 1,
@@ -350951,8 +350951,8 @@
       ],
       "java/springboot/ServletWebServerApplicationContext.java": [
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
           "End Line": 206,
           "Function Name": "createWebServer",
           "Has Header Comment": 0,
@@ -350962,7 +350962,7 @@
           "Lines of Code (LOC)": 24,
           "Reflection Hits": 0,
           "Start Line": 183,
-          "Structural Impact": 5.2
+          "Structural Impact": 6.2
         },
         {
           "Control Flow Branches": 2,
@@ -351233,6 +351233,20 @@
           "Structural Impact": 11.7
         },
         {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 533,
+          "Function Name": "configurePropertySources",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 21,
+          "Reflection Hits": 0,
+          "Start Line": 513,
+          "Structural Impact": 11.4
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "57.1%",
           "End Line": 828,
@@ -351245,20 +351259,6 @@
           "Reflection Hits": 0,
           "Start Line": 803,
           "Structural Impact": 11.3
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
-          "End Line": 533,
-          "Function Name": "configurePropertySources",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 21,
-          "Reflection Hits": 0,
-          "Start Line": 513,
-          "Structural Impact": 9.7
         },
         {
           "Control Flow Branches": 4,
@@ -351401,6 +351401,34 @@
           "Structural Impact": 5.6
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 910,
+          "Function Name": "getExitCodeFromMappedException",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 902,
+          "Structural Impact": 5.6
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 485,
+          "Function Name": "getOrCreateEnvironment",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 475,
+          "Structural Impact": 5.5
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 368,
@@ -351458,16 +351486,16 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 485,
-          "Function Name": "getOrCreateEnvironment",
+          "Control Flow Ratio": "42.9%",
+          "End Line": 378,
+          "Function Name": "deduceEnvironmentClass",
           "Has Header Comment": 0,
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 11,
+          "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
-          "Start Line": 475,
+          "Start Line": 370,
           "Structural Impact": 4.5
         },
         {
@@ -351483,6 +351511,20 @@
           "Reflection Hits": 0,
           "Start Line": 779,
           "Structural Impact": 4.5
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 932,
+          "Function Name": "isMainThread",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 929,
+          "Structural Impact": 4.4
         },
         {
           "Control Flow Branches": 1,
@@ -351511,20 +351553,6 @@
           "Reflection Hits": 0,
           "Start Line": 767,
           "Structural Impact": 4.0
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 910,
-          "Function Name": "getExitCodeFromMappedException",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 902,
-          "Structural Impact": 3.9
         },
         {
           "Control Flow Branches": 2,
@@ -351570,20 +351598,6 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 378,
-          "Function Name": "deduceEnvironmentClass",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 370,
-          "Structural Impact": 3.5
-        },
-        {
-          "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 1198,
           "Function Name": "getAllSources",
@@ -351623,6 +351637,20 @@
           "Reflection Hits": 0,
           "Start Line": 830,
           "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 1776,
+          "Function Name": "create",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 1,
+          "Start Line": 1771,
+          "Structural Impact": 3.3
         },
         {
           "Control Flow Branches": 1,
@@ -351846,20 +351874,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 922,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 1776,
-          "Function Name": "create",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 1,
-          "Start Line": 1771,
           "Structural Impact": 2.3
         },
         {
@@ -352182,20 +352196,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 755,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 932,
-          "Function Name": "isMainThread",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 929,
           "Structural Impact": 1.6
         },
         {
@@ -353112,6 +353112,34 @@
         },
         {
           "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 698,
+          "Function Name": "configureResourceChain",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 690,
+          "Structural Impact": 7.4
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 284,
+          "Function Name": "configurePathMatch",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 269,
+          "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
           "End Line": 267,
           "Function Name": "configureAsyncSupport",
@@ -353137,34 +353165,6 @@
           "Reflection Hits": 0,
           "Start Line": 624,
           "Structural Impact": 6.2
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 698,
-          "Function Name": "configureResourceChain",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 690,
-          "Structural Impact": 5.6
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 284,
-          "Function Name": "configurePathMatch",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 16,
-          "Reflection Hits": 0,
-          "Start Line": 269,
-          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 2,
@@ -353209,6 +353209,20 @@
           "Structural Impact": 4.9
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 563,
+          "Function Name": "getIndexHtmlResource",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 552,
+          "Structural Impact": 4.8
+        },
+        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "42.9%",
           "End Line": 546,
@@ -353235,6 +353249,20 @@
           "Reflection Hits": 0,
           "Start Line": 222,
           "Structural Impact": 4.3
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 588,
+          "Function Name": "mvcValidator",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 577,
+          "Structural Impact": 3.6
         },
         {
           "Control Flow Branches": 2,
@@ -353277,20 +353305,6 @@
           "Reflection Hits": 0,
           "Start Line": 612,
           "Structural Impact": 3.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 563,
-          "Function Name": "getIndexHtmlResource",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
-          "Start Line": 552,
-          "Structural Impact": 3.4
         },
         {
           "Control Flow Branches": 1,
@@ -353360,20 +353374,6 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 506,
-          "Structural Impact": 2.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 588,
-          "Function Name": "mvcValidator",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
-          "Start Line": 577,
           "Structural Impact": 2.6
         },
         {

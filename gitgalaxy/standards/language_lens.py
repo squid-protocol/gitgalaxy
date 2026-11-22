@@ -373,11 +373,13 @@ def _dbb_properties(path: str) -> dict[str, str]:
     pending = ""
     for raw in read_source(path).text.splitlines():
         line = pending + raw.strip()
+        if not pending and line[:1] in ("#", "!"):
+            continue  # a comment line never continues, even when it ends in a backslash
         pending = ""
-        if line.endswith("\\"):
+        if (len(line) - len(line.rstrip("\\"))) % 2:  # an odd run of trailing backslashes continues the line
             pending = line[:-1]
             continue
-        if not line or line[0] in "#!":
+        if not line:
             continue
         match = re.match(r"([^=:\s]+)\s*[=:]?\s*(.*)$", line)
         if match and "::" not in match.group(2):
@@ -408,8 +410,63 @@ def _dbb_copy_globs(folder: str, props: dict[str, str]) -> list[str]:
                 parts = parts[1:]  # workspace-relative `App/copybook` is `copybook` inside this folder
             text = "/".join(p for p in parts if p not in ("", "."))
             if text and "${" not in text and ".." not in parts and not os.path.isabs(item.strip()):
+                if text.endswith("/**"):
+                    globs.append(text[:-3])  # `dir/**/*.cpy` takes `dir` itself too, before its subdirectories
                 globs.append(text)
     return globs
+
+
+_DBB_APP_YAML = "dbb-app.yaml"  # the DBB 3.x zBuilder application file
+_DBB_COBOL_EXTS = {"cbl", "cob", "cobol", "pco"}  # `languageExt` of a COBOL program in `impactQueryPatterns`
+_DBB_TASKS, _DBB_VARS = "tasks", "variables"  # keys of the file we read, not dicts we write
+_DBB_LANG_EXT, _DBB_DEPS = "languageExt", "dependencyPatterns"
+_DBB_COPY_EXTS = {"cpy", "copy", "cpb", "cobcpy", "cobcopy", "dcl", "inc"}  # a dependency mask for a copybook
+
+
+def _dbb_app_yaml_globs(folder: str, spec: Any) -> list[str]:
+    """#8412: the folder-relative directory globs a zBuilder `dbb-app.yaml` names for COBOL copybooks, in order: the
+    `dependencyPatterns` of a COBOL `languageExt` entry of the `impactQueryPatterns` variable (any task) whose file
+    mask is a copybook extension (`${APP_DIR_NAME}/copybook/*.cpy`; a `*.bms` or `*.cbl` mask is another dependency
+    kind). `${APP_DIR_NAME}` and a leading application folder name are this folder; anything else unresolved,
+    absolute or parent-escaping declares nothing."""
+    app = os.path.basename(os.path.normpath(folder))
+    app_node = spec.get("application") if isinstance(spec, dict) else None
+    tasks = app_node.get(_DBB_TASKS) if isinstance(app_node, dict) else None
+    globs: list[str] = []
+    for task in tasks if isinstance(tasks, list) else []:
+        variables = task.get(_DBB_VARS) if isinstance(task, dict) else None
+        for var in variables if isinstance(variables, list) else []:
+            if not isinstance(var, dict) or var.get("name") != "impactQueryPatterns":
+                continue
+            value = var.get("value")
+            for entry in value if isinstance(value, list) else []:
+                if not isinstance(entry, dict) or str(entry.get(_DBB_LANG_EXT, "")).lower() not in _DBB_COBOL_EXTS:
+                    continue
+                for item in entry.get(_DBB_DEPS) or []:
+                    parts = str(item).strip().replace("${APP_DIR_NAME}", app).replace("\\", "/").strip("/").split("/")
+                    mask = parts[-1].rsplit(".", 1)[-1].lower() if "." in parts[-1] else ""
+                    if not parts or "*" not in parts[-1] or mask not in _DBB_COPY_EXTS:
+                        continue
+                    parts = parts[:-1]
+                    if parts and parts[0].lower() == app.lower():
+                        parts = parts[1:]
+                    text = "/".join(p for p in parts if p not in ("", "."))
+                    if text and "${" not in text and ".." not in parts and not os.path.isabs(str(item).strip()):
+                        if text.endswith("/**"):
+                            globs.append(text[:-3])
+                        if text not in globs:
+                            globs.append(text)
+    return globs
+
+
+def _dbb_app_yaml_libs(folder: str) -> list[Any]:
+    path = os.path.join(folder, _DBB_APP_YAML)
+    if not os.path.isfile(path):
+        return []
+    import yaml  # optional dependency (the `yaml` extra); without it a dbb-app.yaml declares nothing
+
+    spec = yaml.safe_load(read_source(path).text)
+    return [os.path.relpath(d, folder) for d in _expand_dir_globs(folder, _dbb_app_yaml_globs(folder, spec))]
 
 
 def _dbb_libs(folder: str) -> list[Any]:
@@ -438,7 +495,8 @@ def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
                 logger.debug(f"copy-library declaration '{zapp}' unreadable: {e}")
     try:
         entries += _dbb_libs(folder)
-    except (OSError, ValueError) as e:  # an unreadable properties file declares nothing
+        entries += _dbb_app_yaml_libs(folder)
+    except Exception as e:  # a malformed dbb-app.yaml or a missing PyYAML declares nothing; neither does a bad .properties  # an unreadable properties file declares nothing
         if logger is not None:
             logger.debug(f"copy-library declaration '{folder}/{_DBB_CONF}' unreadable: {e}")
     for rel, reader in (

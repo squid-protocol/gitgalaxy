@@ -138,7 +138,8 @@ def synthetic(tmp_path_factory):
     d = base / "estate"
     d.mkdir()
     for name, code in SNIPPETS.items():
-        (d / f"{name}.cbl").write_text(code)
+        # #8412: the estate counts a PROGRAM-ID once (stage copies), so each snippet needs a PROGRAM-ID of its own
+        (d / f"{name}.cbl").write_text(code.replace("PROGRAM-ID. P.", f"PROGRAM-ID. {name.upper().replace('_', '-')}."))
     for name, code in COPYBOOKS.items():
         (d / f"{name}.cpy").write_text(code)
     for name, code in ASM.items():

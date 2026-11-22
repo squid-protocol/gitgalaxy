@@ -1004,6 +1004,41 @@ def test_hlasm_debt_ignores_operand_text(text):
     assert not HLASM_RULES["fragile_debt"].search(text)
 
 
+_IMS_DBD_MEMBER = (
+    "* KEEP DATABASE\n"
+    "         DBD    NAME=HKEPDB,ACCESS=(HDAM,VSAM)\n"
+    "         SEGM   NAME=KEEP,BYTES=40\n"
+    "         DBDGEN\n"
+    "         FINISH\n"
+    "         END\n"
+)
+_IMS_PSB_MEMBER = (
+    "         PCB    TYPE=DB,DBDNAME=HKEPDB,PROCOPT=G,KEYLEN=16\n"
+    "         SENSEG NAME=KEEP\n"
+    "         PSBGEN PSBNAME=HKEPPSB,LANG=COBOL\n"
+    "         END\n"
+)
+
+
+@pytest.mark.parametrize("member", [_IMS_DBD_MEMBER, _IMS_PSB_MEMBER, _IMS_PSB_MEMBER.replace("PSBGEN", "psbgen")])
+def test_an_ims_generation_member_named_asm_resolves_to_hlasm(member):
+    # #7065 (HKEP): a DBD / PSB source has no CSECT or USING; PSBGEN / DBDGEN alone prove it is HLASM.
+    lang, _conf, _family = LanguageDetector(LANGUAGE_DEFINITIONS, {}).focus("asm/HKEPPSB.asm", member)
+    assert lang == "hlasm", f"an IMS generation member named .asm must resolve to hlasm (got {lang!r})"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "* PSBGEN is only named in this comment\n",
+        "section .text\n; DBDGEN\nglobal _start\n_start:\n    mov eax, 1\n",
+        "section .data\nmsg db 'PSBGEN here', 0\n",
+    ],
+)
+def test_psbgen_outside_the_operation_field_is_not_hlasm_evidence(text):
+    assert not HLASM["internal_discriminator"].search(text)
+
+
 def test_hlasm_debt_marker_must_be_on_the_comment_line():
     # the marker on the next statement, or a `*` that is not in column 1
     assert not HLASM_RULES["fragile_debt"].search("* note\nX DC CL3'xxx'\n")

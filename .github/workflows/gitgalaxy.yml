@@ -66,9 +66,9 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
-          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
-          count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+          labels=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+          mapfile -t files < <(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+          count=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
           args=(--profile gate --event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --files)
           if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
           python3 tests/tools/audit_skip_plan.py "${args[@]}" || echo "mode=full" >> "$GITHUB_OUTPUT"

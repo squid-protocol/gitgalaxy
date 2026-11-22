@@ -1352,11 +1352,11 @@
       "fortran/wrf/cleanCMake.sh": 288.64,
       "fortran/wrf/configure_reader.py": 202.41,
       "fortran/wrf/gen_be_wrapper.ksh": 166.5,
-      "fortran/wrf/module_configure.F": 237.94,
+      "fortran/wrf/module_configure.F": 237.93,
       "fortran/wrf/module_domain.F": 137.11,
-      "fortran/wrf/module_initialize_real.F": 276.09,
+      "fortran/wrf/module_initialize_real.F": 288.82,
       "fortran/wrf/module_physics_init.F": 178.32,
-      "fortran/wrf/module_sf_noahdrv.F": 270.92,
+      "fortran/wrf/module_sf_noahdrv.F": 258.18,
       "fortran/wrf/regtest.csh": 187.73,
       "fortran/wrf/regtest_hwrf.csh": 283.4,
       "fortran/wrf/regtest_nmmnest.csh": 171.88,
@@ -1633,10 +1633,10 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": -7.9
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": -224.25,
-      "groovy/spock/SpecParser.java": -224.78,
+      "groovy/spock/DeepBlockRewriter.java": -224.56,
+      "groovy/spock/SpecParser.java": -224.79,
       "groovy/spock/SpecRewriter.java": -217.33,
-      "groovy/spock/SpockTransform.java": -132.85
+      "groovy/spock/SpockTransform.java": -132.83
     },
     "groovy/spock_core_groovy": {
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 129.46,
@@ -1912,14 +1912,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 187.48
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 4.84,
-      "java/springboot/Binder.java": -65.71,
-      "java/springboot/JarLauncher.java": 6.35,
-      "java/springboot/LICENSE.txt": -160.77,
-      "java/springboot/OnClassCondition.java": -134.64,
-      "java/springboot/ServletWebServerApplicationContext.java": -53.6,
+      "java/springboot/AutoConfigurationImportSelector.java": 4.88,
+      "java/springboot/Binder.java": -65.67,
+      "java/springboot/JarLauncher.java": 6.37,
+      "java/springboot/LICENSE.txt": -160.8,
+      "java/springboot/OnClassCondition.java": -134.67,
+      "java/springboot/ServletWebServerApplicationContext.java": -53.61,
       "java/springboot/SpringApplication.java": -57.51,
-      "java/springboot/WebMvcAutoConfiguration.java": -69.82
+      "java/springboot/WebMvcAutoConfiguration.java": -69.88
     },
     "javascript": {
       "javascript/SOURCES.md": 209.11

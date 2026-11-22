@@ -63,6 +63,8 @@ def runtime_files(package: str, batch: bool = True) -> dict[str, str]:
         rel = f.relative_to(RUNTIME).as_posix()
         if rel.startswith("batch/" if not batch else "standalone/"):
             continue
+        if rel.startswith("job/"):  # the IDCAMS step (#8881) runs in the job harness, not inside a generated port
+            continue
         out["cobolrt/" + rel] = f.read_text(encoding="utf-8").replace("__PACKAGE__", package)
     return out
 

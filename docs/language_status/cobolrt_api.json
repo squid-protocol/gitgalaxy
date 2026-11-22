@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 134, "types_public": 110, "members": 1275, "members_public": 860, "members_internal": 415},
+  "summary": {"types": 143, "types_public": 110, "members": 1312, "members_public": 860, "members_internal": 452},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -1134,8 +1134,8 @@
       {"id": "cobolrt.Sort.merge()", "kind": "method", "returns": "void", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cobolrt.Sort.next()", "kind": "method", "returns": "byte[]", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness", "runtime"]},
       {"id": "cobolrt.Sort.nextInput()", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["emitter-dynamic"]},
-      {"id": "cobolrt.Sort.release(Field)", "kind": "method", "returns": "void", "visibility": "internal", "evidence": ["runtime"]},
-      {"id": "cobolrt.Sort.release(Field,Field,Charset)", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["det-port"]},
+      {"id": "cobolrt.Sort.release(Field)", "kind": "method", "returns": "void", "visibility": "internal", "evidence": ["harness", "runtime"]},
+      {"id": "cobolrt.Sort.release(Field,Field,Charset)", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["det-port", "harness"]},
       {"id": "cobolrt.Sort.returnInto(Field)", "kind": "method", "returns": "boolean", "visibility": "public", "evidence": ["emitter-dynamic", "runtime"]},
       {"id": "cobolrt.Sort.returnInto(Field,Field)", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["emitter-dynamic"]},
       {"id": "cobolrt.Sort.returnInto(Field,Field,Charset)", "kind": "method", "returns": "boolean", "visibility": "public", "evidence": ["det-port", "emitter-dynamic"]},
@@ -1373,6 +1373,61 @@
       {"id": "cobolrt.dli.DetDli.ssa(String)", "kind": "method", "static": true, "returns": "cobolrt.Field", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
       {"id": "cobolrt.dli.DetDli.ssa(String,String,String,Field)", "kind": "method", "static": true, "returns": "cobolrt.Field", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]},
       {"id": "cobolrt.dli.DetDli.terminate()", "kind": "method", "static": true, "returns": "String", "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "harness"]}
+    ]},
+    {"id": "cobolrt.job.Idcams", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "internal", "evidence": ["harness", "runtime"], "members": [
+      {"id": "cobolrt.job.Idcams.main(String[])", "kind": "method", "static": true, "returns": "void", "visibility": "internal", "evidence": ["harness"]},
+      {"id": "cobolrt.job.Idcams.pathRecords(Map,String)", "kind": "method", "static": true, "returns": "List<byte[]>", "visibility": "internal", "evidence": ["runtime"]},
+      {"id": "cobolrt.job.Idcams.run(String,Map,Map)", "kind": "method", "static": true, "returns": "cobolrt.job.Idcams.Result", "visibility": "internal", "evidence": ["harness", "runtime"]}
+    ]},
+    {"id": "cobolrt.job.Idcams.Aix", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["cobolrt.job.Idcams.Entry"], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.Aix.<init>(String,String,int,int,int,int,boolean)", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.avg", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.built", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.keyLen", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.keyOff", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.max", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.relate", "kind": "field", "returns": "String", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.unique", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Aix.upgrade", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.Cluster", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["cobolrt.job.Idcams.Entry"], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.Cluster.<init>(String,boolean,int,int,int,int)", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Cluster.avg", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Cluster.indexed", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Cluster.keyLen", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Cluster.keyOff", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Cluster.max", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Cluster.records", "kind": "field", "returns": "List<byte[]>", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.Entry", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.Entry.name", "kind": "field", "returns": "String", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.PathEntry", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["cobolrt.job.Idcams.Entry"], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.PathEntry.<init>(String,String,boolean)", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.PathEntry.aix", "kind": "field", "returns": "String", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.PathEntry.update", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.Refused", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["RuntimeException"], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.Refused.<init>(String)", "kind": "constructor", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.Result", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "internal", "evidence": ["harness", "runtime"], "members": [
+      {"id": "cobolrt.job.Idcams.Result.<init>()", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Result.catalog", "kind": "field", "returns": "Map<String, cobolrt.job.Idcams.Entry>", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Result.datasets", "kind": "field", "returns": "Map<String, cobolrt.job.Idcams.Sequential>", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Result.lastcc", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Result.log", "kind": "field", "returns": "List<String>", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Result.maxcc", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Result.rc", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.Sequential", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.Sequential.<init>(int,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Sequential.disp", "kind": "field", "returns": "String", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Sequential.lrecl", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Sequential.records", "kind": "field", "returns": "List<byte[]>", "visibility": "internal", "evidence": []}
+    ]},
+    {"id": "cobolrt.job.Idcams.Vsam", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "internal", "evidence": [], "members": [
+      {"id": "cobolrt.job.Idcams.Vsam.<init>(String)", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "cobolrt.job.Idcams.Vsam.name", "kind": "field", "returns": "String", "visibility": "internal", "evidence": []}
     ]},
     {"id": "cobolrt.le.Ceedate", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/le/Ceedate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["emitter", "harness"], "members": [
       {"id": "cobolrt.le.Ceedate.call(Field,Field,Field,Field,Charset)", "kind": "method", "static": true, "returns": "void", "visibility": "public", "evidence": ["emitter", "harness"]}

@@ -3779,7 +3779,7 @@
       "tcl/SOURCES.md": 0
     },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": 1,
+      "tcl/macports_port_api/fetch_common.tcl": 3,
       "tcl/macports_port_api/library.tcl": 0,
       "tcl/macports_port_api/portactivate.tcl": 0,
       "tcl/macports_port_api/portbuild.tcl": 0,
@@ -3792,12 +3792,12 @@
       "tcl/macports_port_api/portdistcheck.tcl": 0,
       "tcl/macports_port_api/portdistfiles.tcl": 0,
       "tcl/macports_port_api/portextract.tcl": 1,
-      "tcl/macports_port_api/portfetch.tcl": 3,
+      "tcl/macports_port_api/portfetch.tcl": 4,
       "tcl/macports_port_api/portinstall.tcl": 0,
       "tcl/macports_port_api/portlint.tcl": 0,
       "tcl/macports_port_api/portlivecheck.tcl": 0,
       "tcl/macports_port_api/portload.tcl": 0,
-      "tcl/macports_port_api/portmain.tcl": 0
+      "tcl/macports_port_api/portmain.tcl": 1
     },
     "tcl/macports_registry": {
       "tcl/macports_registry/common.tcl": 2,
@@ -3815,7 +3815,7 @@
       "tcl/sqlite/README.md": 0,
       "tcl/sqlite/malloc_common.tcl": 1,
       "tcl/sqlite/speedtest.tcl": 0,
-      "tcl/sqlite/tester.tcl": 9,
+      "tcl/sqlite/tester.tcl": 8,
       "tcl/sqlite/testrunner.tcl": 0
     },
     "tcl/sqlite_core_dml": {

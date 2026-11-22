@@ -181450,7 +181450,8 @@
       "tcl/macports_port_api/fetch_common.tcl": {
         "portfetch::assemble_url@77": [
           "string",
-          "append"
+          "append",
+          "percent_encode"
         ],
         "portfetch::check_dns@275": [
           "check_broken_dns",
@@ -181458,7 +181459,6 @@
         ],
         "portfetch::checksites@162": [
           "set",
-          "a-zA-Z",
           "upvar",
           "info",
           "list",
@@ -181470,24 +181470,26 @@
           "split",
           "ui_error",
           "format",
-          "msgcat::mc",
+          "mc",
           "append",
           "dict"
         ],
         "portfetch::get_urls@254": [
           "set",
           "list",
-          "portfetch::checkfiles",
+          "checkfiles",
           "info",
           "ui_error",
           "format",
-          "msgcat::mc",
+          "mc",
           "lappend"
         ],
         "portfetch::mirror_sites@104": [
           "file",
           "info",
           "ui_warn",
+          "format",
+          "mc",
           "list",
           "set",
           "lassign",
@@ -181517,7 +181519,7 @@
           "info",
           "ui_error",
           "format",
-          "msgcat::mc",
+          "mc",
           "set",
           "llength",
           "lsort"
@@ -181525,11 +181527,10 @@
       },
       "tcl/macports_port_api/library.tcl": {
         "PortSystem@6": [
-          "portmain::report_platform_info"
+          "report_platform_info"
         ],
         "macports_worker_init@4": [
           "interp",
-          "portmain::report_platform_info",
           "info",
           "set"
         ]
@@ -181541,20 +181542,19 @@
           "eval_targets",
           "ui_error",
           "format",
-          "msgcat::mc",
+          "mc",
           "unset",
           "info",
           "llength",
           "ui_notifications_append"
         ],
         "portactivate::activate_main@61": [
-          "_inregistry_version",
           "info",
           "set",
           "option",
           "dict",
           "array",
-          "portstartupitem::foreach_startupitem",
+          "foreach_startupitem",
           "registry_activate"
         ],
         "portactivate::activate_start@53": [
@@ -181593,6 +181593,8 @@
         "portbuild::build_getmaketype@92": [
           "macports_try",
           "findBinary",
+          "format",
+          "mc",
           "ui_warn"
         ],
         "portbuild::build_main@215": [
@@ -181602,6 +181604,8 @@
         ],
         "portbuild::build_start@204": [
           "ui_notice",
+          "format",
+          "mc",
           "ui_warn_once"
         ]
       },
@@ -181610,13 +181614,14 @@
           "set",
           "info",
           "option",
-          "portchecksum::parse_checksums",
+          "parse_checksums",
           "list",
           "ui_info",
+          "format",
+          "mc",
           "file",
           "llength",
           "ui_error",
-          "portchecksum::calc_",
           "lappend",
           "ui_debug",
           "regexp",
@@ -181626,7 +181631,6 @@
           "tbool",
           "ui_msg",
           "ui_notice",
-          "format",
           "name_to_uid",
           "exec_as_uid",
           "open",
@@ -181634,16 +181638,19 @@
           "read",
           "close",
           "lassign",
-          "portbump::replace_checksums",
-          "portbump::find_revision_line",
+          "replace_checksums",
+          "expr",
+          "find_revision_line",
           "lindex",
-          "portbump::reset_revision",
+          "reset_revision",
           "join",
           "puts",
           "move"
         ],
         "portbump::bump_start@179": [
-          "ui_notice"
+          "ui_notice",
+          "format",
+          "mc"
         ],
         "portbump::find_revision_line@97": [
           "set",
@@ -181674,19 +181681,15 @@
       },
       "tcl/macports_port_api/portchecksum.tcl": {
         "portchecksum::calc_md5@191": [
-          "file",
           "md5"
         ],
         "portchecksum::calc_rmd160@209": [
-          "file",
           "rmd160"
         ],
         "portchecksum::calc_sha1@200": [
-          "file",
           "sha1"
         ],
         "portchecksum::calc_sha256@218": [
-          "file",
           "sha256"
         ],
         "portchecksum::calc_size@227": [
@@ -181700,11 +181703,12 @@
           "option",
           "array",
           "parse_checksums",
+          "format",
+          "mc",
           "file",
           "llength",
           "ui_error",
           "list",
-          "calc_",
           "lappend",
           "ui_debug",
           "regexp",
@@ -181712,13 +181716,15 @@
           "exec",
           "findBinary",
           "ui_notice",
-          "format",
           "lsearch",
           "lreplace",
           "join"
         ],
         "portchecksum::checksum_start@235": [
-          "ui_notice"
+          "ui_notice",
+          "format",
+          "mc",
+          "option"
         ],
         "portchecksum::parse_checksums@112": [
           "set",
@@ -181767,7 +181773,7 @@
           "dirempty",
           "ui_warn",
           "format",
-          "msgcat::mc",
+          "mc",
           "lappend"
         ],
         "portclean::clean_logs@227": [
@@ -181779,9 +181785,11 @@
           "ui_error"
         ],
         "portclean::clean_main@61": [
-          "ports_clean_archive",
           "info",
           "ui_info",
+          "format",
+          "mc",
+          "option",
           "clean_dist",
           "clean_archive",
           "clean_work",
@@ -181789,6 +181797,9 @@
         ],
         "portclean::clean_start@51": [
           "ui_notice",
+          "format",
+          "mc",
+          "option",
           "getuid",
           "geteuid",
           "elevateToRoot"
@@ -181800,21 +181811,20 @@
           "delete",
           "ui_error",
           "set",
-          "portutil::get_oldbuildpath",
+          "get_oldbuildpath",
           "realpath"
         ]
       },
       "tcl/macports_port_api/portdeactivate.tcl": {
         "portdeactivate::deactivate_main@58": [
-          "_inregistry_version",
           "info",
           "set",
           "option",
-          "portstartupitem::loaded",
+          "loaded",
           "eval_targets",
           "ui_warn",
           "format",
-          "msgcat::mc",
+          "mc",
           "registry_deactivate",
           "array"
         ],
@@ -181827,20 +181837,16 @@
       },
       "tcl/macports_port_api/portdepends.tcl": {
         "portdepends::validate_depends_options@57": [
-          "default",
           "format",
-          "msgcat::mc"
+          "mc"
         ],
         "portdepends::validate_depends_options_new@72": [
           "ui_warn",
-          "msgcat::mc"
+          "mc"
         ]
       },
       "tcl/macports_port_api/portdestroot.tcl": {
         "portdestroot::destroot_finish@145": [
-          "applications_dir",
-          "destroot",
-          "macportsuser",
           "file",
           "ui_debug",
           "set",
@@ -181856,13 +181862,17 @@
           "lappend",
           "close",
           "reinplace",
+          "jail",
           "xinstall",
           "ui_error",
           "ui_info",
+          "format",
+          "mc",
           "findBinary",
           "readdir",
           "regexp",
           "system",
+          "shellescape",
           "pwd",
           "_cd",
           "puts",
@@ -181888,14 +181898,15 @@
           "info"
         ],
         "portdestroot::destroot_start@83": [
-          "destroot",
-          "applications_dir",
           "ui_notice",
+          "format",
+          "mc",
           "getuid",
           "geteuid",
           "ui_debug",
           "seteuid",
           "setegid",
+          "getegid",
           "tbool",
           "set",
           "umask",
@@ -181903,24 +181914,25 @@
           "delete",
           "file",
           "system",
-          "portstartupitem::startupitem_create"
+          "shellescape",
+          "startupitem_create"
         ]
       },
       "tcl/macports_port_api/portdistcheck.tcl": {
         "portdistcheck::distcheck_main@53": [
-          "subport",
           "set",
           "file",
           "ui_debug",
+          "clock",
           "list",
           "tbool",
           "lappend",
-          "portfetch::checkfiles",
+          "checkfiles",
           "info",
           "ui_error",
           "format",
-          "msgcat::mc",
-          "portfetch::assemble_url",
+          "mc",
+          "assemble_url",
           "macports_try",
           "curl",
           "ui_warn",
@@ -181932,18 +181944,20 @@
       },
       "tcl/macports_port_api/portdistfiles.tcl": {
         "portdistfiles::distfiles_main@54": [
-          "portdbpath",
           "info",
           "set",
           "list",
-          "portfetch::checkfiles",
-          "portchecksum::parse_checksums",
+          "checkfiles",
+          "parse_checksums",
           "option",
           "ui_msg",
-          "portfetch::assemble_url"
+          "file",
+          "assemble_url"
         ],
         "portdistfiles::distfiles_start@49": [
-          "ui_notice"
+          "ui_notice",
+          "format",
+          "mc"
         ]
       },
       "tcl/macports_port_api/portextract.tcl": {
@@ -181960,6 +181974,8 @@
           "exists",
           "option",
           "ui_info",
+          "format",
+          "mc",
           "file",
           "tbool",
           "elevateToRoot",
@@ -181971,12 +181987,13 @@
           "llength",
           "lindex",
           "ui_debug",
-          "format",
-          "msgcat::mc",
           "move"
         ],
         "portextract::extract_start@204": [
           "ui_notice",
+          "format",
+          "mc",
+          "option",
           "handle_add_users",
           "tbool",
           "ui_debug",
@@ -181990,7 +182007,9 @@
           "binaryInPath"
         ],
         "portextract::get_extract_post_args@118": [
-          "tbool"
+          "tbool",
+          "shellescape",
+          "findBinary"
         ],
         "portextract::get_extract_pre_args@101": [
           "tbool"
@@ -182015,20 +182034,19 @@
           "file",
           "elevateToRoot",
           "format",
-          "msgcat::mc",
+          "mc",
           "chownAsRoot",
           "dropPrivileges",
           "ui_warn",
-          "portfetch::check_dns"
+          "check_dns"
         ],
         "portfetch::bzrfetch@247": [
           "info",
           "string",
-          "http",
           "set",
           "command_exec",
-          "msgcat::mc",
-          "portfetch::fetchfiles"
+          "mc",
+          "fetchfiles"
         ],
         "portfetch::checkdistfiles@201": [
           "upvar",
@@ -182043,7 +182061,6 @@
           "upvar",
           "set",
           "list",
-          "master_sites",
           "info",
           "lsearch",
           "checksites",
@@ -182061,15 +182078,14 @@
           "lappend"
         ],
         "portfetch::cvsfetch@287": [
-          "cvs",
           "patch_sites",
           "set",
           "string",
           "regexp",
           "command_exec",
-          "msgcat::mc",
+          "mc",
           "info",
-          "portfetch::fetchfiles"
+          "fetchfiles"
         ],
         "portfetch::fetch_addfilestomap@612": [
           "file",
@@ -182086,7 +182102,7 @@
           "file"
         ],
         "portfetch::fetch_init@685": [
-          "portfetch::checkfiles"
+          "checkfiles"
         ],
         "portfetch::fetch_main@743": [
           "info",
@@ -182095,16 +182111,17 @@
           "svnfetch",
           "gitfetch",
           "hgfetch",
-          "portfetch::fetchfiles"
+          "fetchfiles"
         ],
         "portfetch::fetch_start@724": [
           "tbool",
           "ui_notice",
+          "format",
+          "mc",
           "files_present",
           "_fetch_start"
         ],
         "portfetch::fetchfiles@451": [
-          "fetch",
           "info",
           "set",
           "list",
@@ -182121,15 +182138,15 @@
           "lappend",
           "ui_info",
           "format",
-          "msgcat::mc",
+          "mc",
           "sortsites",
           "curlwrap_async_file_is_in_progress",
           "touch",
           "chownAsRoot",
           "curlwrap_async",
           "lmap",
+          "assemble_url",
           "ui_notice",
-          "portfetch::assemble_url",
           "macports_try",
           "curlwrap"
         ],
@@ -182144,23 +182161,23 @@
           "file"
         ],
         "portfetch::gitfetch@395": [
-          "git",
           "set",
           "append",
+          "shellescape",
           "ui_debug",
           "system",
-          "msgcat::mc",
+          "mc",
           "info",
-          "portfetch::fetchfiles"
+          "fetchfiles"
         ],
         "portfetch::hgfetch@427": [
-          "fetch",
           "set",
+          "shellescape",
           "ui_debug",
           "system",
-          "msgcat::mc",
+          "mc",
           "info",
-          "portfetch::fetchfiles"
+          "fetchfiles"
         ],
         "portfetch::set_fetch_type@127": [
           "string",
@@ -182179,42 +182196,37 @@
         ],
         "portfetch::svn_proxy_args@336": [
           "string",
-          "http",
           "info",
           "set",
-          "https",
           "expr",
           "regexp",
           "append"
         ],
         "portfetch::svnfetch@357": [
-          "fetch",
           "regexp",
-          "msgcat::mc",
+          "mc",
           "string",
           "append",
           "option",
-          "svn",
           "set",
           "svn_proxy_args",
           "command_exec",
           "info",
-          "portfetch::fetchfiles"
+          "fetchfiles"
         ]
       },
       "tcl/macports_port_api/portinstall.tcl": {
         "portinstall::create_archive@112": [
-          "archive",
-          "depends_lib",
-          "os",
-          "portarchive::archive_command_setup",
+          "archive_command_setup",
           "set",
           "file",
           "open",
           "exists",
           "puts",
+          "option",
           "close",
           "list",
+          "get_canonical_archs",
           "lsort",
           "dict",
           "info",
@@ -182224,10 +182236,10 @@
           "llength",
           "ui_debug",
           "lassign",
+          "macports_version",
           "_get_compatible_platform",
           "get_path_commit",
           "expr",
-          "option",
           "string",
           "fs-traverse",
           "lappend",
@@ -182254,8 +182266,6 @@
           "info"
         ],
         "portinstall::install_main@285": [
-          "portvariants",
-          "portarchivetype",
           "set",
           "get_portimage_path",
           "find_portarchive_path",
@@ -182280,8 +182290,9 @@
           "registry_install"
         ],
         "portinstall::install_start@94": [
-          "prefix_frozen",
           "ui_notice",
+          "format",
+          "mc",
           "file",
           "getuid",
           "geteuid",
@@ -182297,9 +182308,9 @@
           "lindex",
           "incr",
           "llength",
-          "portchecksum::verify_checksum_format",
+          "verify_checksum_format",
           "lappend",
-          "portlint::lint_checksum_type_list"
+          "lint_checksum_type_list"
         ],
         "portlint::lint_checksum_type_list@125": [
           "set",
@@ -182332,28 +182343,22 @@
           "ui_info",
           "A-Za-z0-9_",
           "lappend",
-          "arm64",
-          "intel",
-          "ppc",
-          "ppc64",
-          "x86_64",
           "glob",
-          "depends_fetch",
-          "depends_lib",
-          "depends_test",
-          "replaced_by",
           "get_canonical_archs",
           "file",
           "getportresourcepath",
-          "portlint::lint_platforms",
+          "lint_platforms",
           "ditem_key",
+          "A-Za-z0",
           "get_variant_description",
           "mport_lookup",
           "lsearch",
-          "portlint::lint_checksum",
+          "lint_checksum",
           "get_deprecated_options",
           "array",
-          "ui_notice"
+          "ui_notice",
+          "format",
+          "mc"
         ],
         "portlint::lint_platforms@258": [
           "set",
@@ -182364,10 +182369,11 @@
           "info"
         ],
         "portlint::lint_start@283": [
-          "ui_notice"
+          "ui_notice",
+          "format",
+          "mc"
         ],
         "portlint::seems_utf8@87": [
-          "str",
           "set",
           "string",
           "incr",
@@ -182382,10 +182388,6 @@
           "file"
         ],
         "portlivecheck::_livecheck_main@81": [
-          "livecheck",
-          "git",
-          "homepage",
-          "master_sites",
           "ui_debug",
           "info",
           "curlwrap_async_is_complete",
@@ -182415,6 +182417,7 @@
           "vercmp",
           "gets",
           "md5",
+          "clock",
           "exec",
           "ui_msg",
           "ui_info"
@@ -182428,13 +182431,11 @@
       },
       "tcl/macports_port_api/portload.tcl": {
         "portload::load_main@49": [
-          "portstartupitem::load_only",
-          "portutil::autoconf::launchctl_path",
-          "portstartupitem::foreach_startupitem",
+          "foreach_startupitem",
           "info",
           "set",
           "format",
-          "msgcat::mc",
+          "mc",
           "file",
           "getuid",
           "ui_warn",
@@ -182458,11 +182459,12 @@
           "list",
           "lappend",
           "lmap",
+          "lindex",
           "lrange",
+          "file",
           "exec",
           "ui_debug",
           "expr",
-          "file",
           "fs-traverse"
         ],
         "portmain::get_subbuildpath@97": [
@@ -182481,30 +182483,16 @@
     "tcl/macports_registry": {
       "tcl/macports_registry/common.tcl": {
         "test@3": [
-          "uplevel",
-          "puts",
-          "exit"
+          "uplevel"
         ],
         "test_equal@19": [
-          "uplevel",
-          "puts",
-          "set",
-          "subst",
-          "exit"
+          "uplevel"
         ],
         "test_set@36": [
-          "uplevel",
-          "puts",
-          "list",
-          "set",
-          "lsort",
-          "subst",
-          "exit"
+          "uplevel"
         ],
         "test_throws@53": [
-          "uplevel",
-          "puts",
-          "exit"
+          "uplevel"
         ]
       },
       "tcl/macports_registry/depends.tcl": {
@@ -182512,11 +182500,11 @@
           "load",
           "exec",
           "glob",
-          "registry::open",
-          "registry::write",
+          "open",
+          "write",
           "set",
-          "registry::entry",
-          "registry::read",
+          "entry",
+          "read",
           "test_set",
           "file"
         ]
@@ -182527,18 +182515,17 @@
           "exec",
           "glob",
           "test_throws",
-          "registry::open",
-          "registry::write",
+          "open",
+          "write",
           "set",
-          "registry::entry",
-          "registry::read",
+          "entry",
+          "read",
           "test_equal",
           "test_set",
           "test",
           "list",
           "puts",
-          "registry::not-found",
-          "registry::close",
+          "close",
           "file"
         ]
       },
@@ -182548,28 +182535,30 @@
           "list",
           "clock",
           "llength",
+          "file",
           "expr",
           "extract_archive_to_imagedir",
-          "registry::write",
-          "file",
+          "write",
           "_progress",
           "dict",
-          "registry::read",
+          "read",
           "incr",
           "throw",
           "info",
           "lassign",
           "_get_port_conflicts",
           "append",
+          "lindex",
           "lappend",
           "ui_warn",
           "unset",
-          "registry::run_target",
+          "run_target",
           "deactivate",
           "lsort",
           "_activate_directories",
           "_activate_files",
           "lmap",
+          "string",
           "_",
           "ui_msg",
           "ui_debug",
@@ -182582,6 +182571,7 @@
           "expr",
           "getuid",
           "ui_debug",
+          "file",
           "dict",
           "_progress",
           "incr"
@@ -182591,6 +182581,7 @@
           "set",
           "expr",
           "fs_clone_capable",
+          "file",
           "getuid",
           "dict",
           "ui_debug",
@@ -182604,18 +182595,17 @@
           "list",
           "lappend",
           "append",
-          "registry::entry",
+          "entry",
           "llength",
-          "macports::ui_isset",
+          "ui_isset",
           "ui_msg",
+          "mc",
           "format",
-          "msgcat::mc",
           "info",
           "lindex",
           "throw"
         ],
         "_deactivate_contents@994": [
-          "rollback",
           "set",
           "list",
           "expr",
@@ -182623,17 +182613,19 @@
           "_progress",
           "dict",
           "incr",
+          "file",
           "realpath",
           "lappend",
           "ui_debug",
           "unset",
           "lsort",
           "signal",
-          "registry::write",
+          "write",
           "_deactivate_files"
         ],
         "_deactivate_files@975": [
           "ui_debug",
+          "file",
           "incr",
           "_progress",
           "dirempty"
@@ -182650,92 +182642,88 @@
           "set",
           "dict",
           "lindex",
-          "registry::entry",
+          "entry",
           "lassign",
           "mportlookup",
           "lsearch",
           "list"
         ],
         "_progress@626": [
-          "macports::ui_isset",
+          "ui_isset",
           "ui_progress_generic"
         ],
         "activate@78": [
-          "revision",
-          "variants",
-          "options",
           "dict",
           "string",
           "set",
           "list",
-          "registry::read",
+          "read",
           "_check_registry",
           "ui_info",
-          "registry::entry",
+          "file",
+          "entry",
           "lappend",
-          "registry::run_target",
+          "run_target",
           "deactivate",
           "ui_msg",
+          "format",
+          "mc",
           "_activate_contents"
         ],
         "activate_composite@68": [
-          "optionslist",
           "activate",
-          "registry::decode_spec",
+          "decode_spec",
           "throw"
         ],
         "deactivate@162": [
-          "revision",
-          "variants",
-          "options",
           "dict",
           "string",
           "set",
           "throw",
-          "registry::entry",
+          "entry",
           "llength",
           "lindex",
           "_check_registry",
           "ui_info",
           "append",
-          "registry::check_dependents",
+          "check_dependents",
           "ui_msg",
+          "format",
+          "mc",
           "_deactivate_contents"
         ],
         "deactivate_composite@153": [
-          "optionslist",
           "deactivate",
-          "registry::decode_spec",
+          "decode_spec",
           "throw"
         ],
         "extract_archive_to_imagedir@430": [
           "set",
           "file",
           "mkdtemp",
-          "macports::findBinary",
+          "findBinary",
           "ui_debug",
+          "shellescape",
           "geteuid",
           "regexp",
           "throw",
           "getuid",
-          "macports::find_tar_with_hfscompression",
-          "macports::binaryInPath",
+          "find_tar_with_hfscompression",
+          "binaryInPath",
           "info",
-          "macports::shellescape",
           "system",
           "dict"
         ],
         "install@1083": [
-          "registry::write",
+          "write",
           "set",
           "dict",
           "sha256",
           "file",
           "lappend",
           "list",
-          "registry::entry",
-          "info",
-          "registry::file"
+          "entry",
+          "info"
         ]
       },
       "tcl/macports_registry/portuninstall.tcl": {
@@ -182764,41 +182752,37 @@
           "lsort"
         ],
         "uninstall@133": [
-          "revision",
-          "variants",
-          "options",
           "dict",
           "set",
           "lappend",
           "append",
-          "registry::entry",
+          "entry",
           "llength",
           "lindex",
-          "macports::ui_isset",
+          "ui_isset",
           "ui_msg",
+          "mc",
           "lsort",
           "format",
-          "msgcat::mc",
           "info",
           "throw",
-          "registry::run_target",
-          "registry::check_dependents",
+          "run_target",
+          "check_dependents",
           "string",
-          "portimage::deactivate",
+          "deactivate",
           "generate_deplist",
           "list",
           "file",
           "glob",
-          "registry::portgroup",
-          "registry::write",
+          "portgroup",
+          "write",
           "incr",
           "lrange",
           "lassign"
         ],
         "uninstall_composite@124": [
-          "options",
           "uninstall",
-          "registry::decode_spec",
+          "decode_spec",
           "throw"
         ]
       },
@@ -182824,6 +182808,8 @@
           "interp",
           "llength",
           "lindex",
+          "file",
+          "file_registered",
           "ui_warn",
           "register_file",
           "lappend",
@@ -182833,37 +182819,39 @@
           "write_entry"
         ],
         "delete_entry@407": [
-          "variants",
           "info",
           "set",
           "array",
-          "ui_debug",
           "file",
+          "ui_debug",
           "dirempty"
         ],
         "entry_exists@344": [
-          "variants",
-          "set"
+          "set",
+          "file"
         ],
         "entry_exists_for_name@360": [
           "set",
+          "file",
           "llength",
           "glob"
         ],
         "file_registered@605": [
           "open_file_map",
-          "ui_warn"
+          "ui_warn",
+          "filemap"
         ],
         "get_head_entry_receipt_path@72": [
           "set",
           "glob",
+          "file",
           "string",
           "lindex",
           "regexp"
         ],
         "installed@447": [
-          "version",
           "set",
+          "file",
           "glob",
           "string",
           "list",
@@ -182881,8 +182869,6 @@
           "lappend"
         ],
         "list_depends@768": [
-          "revision",
-          "variants",
           "llength",
           "info",
           "open_dep_map",
@@ -182897,6 +182883,7 @@
         ],
         "open_dep_map@745": [
           "set",
+          "file",
           "exec",
           "open",
           "read",
@@ -182905,11 +182892,9 @@
           "llength"
         ],
         "open_entry@103": [
-          "revision",
-          "variants",
-          "epoch",
           "info",
           "set",
+          "file",
           "get_head_entry_receipt_path",
           "regexp",
           "glob",
@@ -182923,12 +182908,12 @@
           "new_entry",
           "ui_msg",
           "convert_entry_from_HEAD",
-          "file",
           "array",
           "ui_error"
         ],
         "open_file_map@536": [
           "set",
+          "file",
           "info",
           "filemap",
           "list",
@@ -182943,6 +182928,7 @@
         "port_registered@630": [
           "open_file_map",
           "set",
+          "filemap",
           "llength",
           "installed",
           "open_entry"
@@ -182962,6 +182948,7 @@
           "open_file_map",
           "set",
           "lindex",
+          "file",
           "ui_debug",
           "filemap"
         ],
@@ -182973,6 +182960,7 @@
         ],
         "register_file@663": [
           "open_file_map",
+          "file",
           "ui_debug",
           "filemap"
         ],
@@ -182988,15 +182976,14 @@
         ],
         "write_dep_map@839": [
           "set",
+          "file",
           "open",
           "puts",
           "close",
-          "file",
           "info",
           "system"
         ],
         "write_entry@311": [
-          "variants",
           "set",
           "array",
           "file",
@@ -183015,7 +183002,7 @@
       "tcl/macports_registry/receipt_sqlite.tcl": {
         "active@53": [
           "set",
-          "registry::entry",
+          "entry",
           "list",
           "lappend",
           "string"
@@ -183023,9 +183010,9 @@
         "close_file_map@269": [],
         "create_entry_l@390": [
           "array",
-          "registry::write",
+          "write",
           "set",
-          "registry::entry",
+          "entry",
           "llength",
           "list",
           "lappend",
@@ -183033,24 +183020,22 @@
           "incr"
         ],
         "entry_exists@101": [
-          "variants",
           "set",
-          "registry::entry",
+          "entry",
           "llength"
         ],
         "entry_exists_for_name@117": [
           "set",
-          "registry::entry",
+          "entry",
           "llength"
         ],
         "file_registered@137": [
           "set",
-          "registry::entry"
+          "entry"
         ],
         "installed@236": [
-          "version",
           "set",
-          "registry::entry",
+          "entry",
           "list",
           "lappend",
           "string"
@@ -183059,23 +183044,23 @@
           "set",
           "list",
           "lappend",
-          "registry::entry",
+          "entry",
           "lsort"
         ],
         "list_depends@294": [
           "set",
           "list",
           "lappend",
-          "registry::entry",
+          "entry",
           "lsort"
         ],
         "open_dep_map@274": [],
         "open_entry@84": [
-          "registry::entry"
+          "entry"
         ],
         "port_registered@158": [
           "set",
-          "registry::entry",
+          "entry",
           "llength",
           "lindex"
         ],
@@ -183099,31 +183084,31 @@
         "close_file_map@279": [],
         "convert_to_sqlite@435": [
           "set",
-          "receipt_flat::installed",
+          "installed",
           "lindex",
           "list",
-          "receipt_flat::open_entry",
+          "open_entry",
           "lappend",
-          "receipt_flat::property_retrieve",
+          "property_retrieve",
           "string",
           "expr",
-          "receipt_flat::port_registered",
-          "receipt_flat::open_dep_map",
-          "receipt_flat::list_depends",
-          "receipt_sqlite::create_entry_l"
+          "port_registered",
+          "open_dep_map",
+          "list_depends",
+          "create_entry_l"
         ],
         "delete_entry@103": [
           "set",
           "property_retrieve"
         ],
-        "entry_exists@76": [
-          "variants"
-        ],
+        "entry_exists@76": [],
         "entry_exists_for_name@82": [],
         "exclusive_lock@389": [
           "incr",
           "set",
+          "file",
           "info",
+          "open",
           "adv-flock",
           "ui_msg",
           "ui_debug"
@@ -183147,11 +183132,11 @@
           "set",
           "list",
           "string",
+          "file",
           "lappend",
           "fileinfo_for_file"
         ],
         "installed@137": [
-          "version",
           "set",
           "list",
           "lindex",
@@ -183160,35 +183145,23 @@
           "lappend",
           "llength"
         ],
-        "list_dependents@362": [
-          "revision",
-          "variants"
-        ],
-        "list_depends@356": [
-          "revision",
-          "variants"
-        ],
+        "list_dependents@362": [],
+        "list_depends@356": [],
         "location@208": [
           "set",
-          "registry::installed",
+          "installed",
           "llength",
           "puts",
           "lindex"
         ],
         "new_entry@49": [
-          "variants",
-          "epoch",
           "entry_exists",
           "set",
           "property_store",
           "clock"
         ],
         "open_dep_map@307": [],
-        "open_entry@116": [
-          "revision",
-          "variants",
-          "epoch"
-        ],
+        "open_entry@116": [],
         "open_file_map@233": [],
         "port_registered@250": [],
         "property_retrieve@130": [],
@@ -183228,13 +183201,15 @@
       "tcl/macports_registry/registry_util.tcl": {
         "check_dependents@68": [
           "set",
-          "registry::entry",
+          "entry",
           "llength",
           "list",
           "lappend",
           "info",
           "string",
           "ui_msg",
+          "format",
+          "mc",
           "ui_warn",
           "throw"
         ],
@@ -183252,12 +183227,13 @@
           "mportexec",
           "mportclose",
           "ui_warn",
-          "registry::entry",
+          "entry",
           "info"
         ],
         "tdbc_connect@178": [
           "set",
-          "tdbc::sqlite3::connection",
+          "file",
+          "connection",
           "trace"
         ]
       }
@@ -183285,7 +183261,6 @@
           "do_test",
           "list",
           "uplevel",
-          "out",
           "join",
           "incr",
           "sqlite3",
@@ -183318,10 +183293,10 @@
           "incr",
           "restore_prng_state",
           "glob",
+          "forcedelete",
           "do_test",
           "db",
           "db2",
-          "forcedelete",
           "copy_file",
           "sqlite3",
           "sqlite3_extended_result_codes",
@@ -183341,8 +183316,8 @@
           "list",
           "array",
           "info",
-          "uplevel",
           "eval",
+          "incr",
           "do_test"
         ],
         "do_restart_select_test@565": [
@@ -183357,12 +183332,10 @@
           "info",
           "set",
           "db",
-          "list",
-          "out",
-          "lappend",
-          "unable",
           "join",
-          "incr",
+          "concat",
+          "list",
+          "lappend",
           "sqlite3_memdebug_fail",
           "uplevel",
           "do_test",
@@ -183392,7 +183365,6 @@
         ],
         "faultsim_test_proc@347": [],
         "faultsim_test_result@348": [
-          "uplevel",
           "list",
           "eval",
           "set"
@@ -183550,10 +183522,12 @@
         "db_delete_and_reopen@2482": [
           "db",
           "glob",
+          "forcedelete",
           "sqlite3"
         ],
         "db_restore@2470": [
           "glob",
+          "forcedelete",
           "set",
           "string",
           "forcecopy"
@@ -183565,6 +183539,7 @@
         ],
         "db_save@2458": [
           "glob",
+          "forcedelete",
           "set",
           "forcecopy"
         ],
@@ -183578,7 +183553,8 @@
           "md5"
         ],
         "delete_all_data@1159": [
-          "db"
+          "db",
+          "string"
         ],
         "delete_file@268": [
           "do_delete_file"
@@ -183610,7 +183586,6 @@
           "query_plan_graph",
           "list",
           "uplevel",
-          "do_test",
           "string"
         ],
         "do_eqp_test@1048": [
@@ -183619,7 +183594,6 @@
           "query_plan_graph",
           "list",
           "uplevel",
-          "do_test",
           "string"
         ],
         "do_execsql_test@941": [
@@ -183665,6 +183639,7 @@
           "db",
           "db2",
           "sqlite3",
+          "sqlite3_connection_pointer",
           "output2",
           "unset"
         ],
@@ -183711,124 +183686,7 @@
           "expr",
           "llength",
           "fpnum_compare",
-          "omit_test",
-          "incr",
-          "append",
-          "format",
-          "scan",
-          "open",
-          "puts",
-          "close",
-          "eval",
-          "fconfigure",
-          "regsub",
-          "a-z",
-          "subst",
-          "filepath_normalize",
-          "realnum_normalize",
-          "upvar",
-          "db",
-          "lindex",
-          "lrange",
-          "wrong",
-          "lappend",
-          "append_graph",
-          "A-F0-9",
-          "query_plan_graph",
-          "execsql",
-          "time",
-          "sqlite3",
-          "versdb",
-          "db1",
-          "db2",
-          "db3",
-          "unregister_devsim",
-          "unregister_jt_vfs",
-          "unregister_demovfs",
-          "finish_test_precleanup",
-          "db_delete_and_reopen",
-          "finalize_testing",
-          "set_test_counter",
-          "vfs_unlink_test",
-          "sqlite3_reset_auto_extension",
-          "sqlite3_soft_heap_limit64",
-          "sqlite3_hard_heap_limit64",
-          "file",
-          "read",
-          "exec",
-          "run_thread_tests",
-          "lsort",
-          "working_64bit_int",
-          "vfslog",
-          "sqlite3_status",
-          "sqlite3_memory_used",
-          "ifcapable",
-          "sqlite3_memdebug_dump",
-          "show_memstats",
-          "memdebug_log_sql",
-          "sqlite3_memdebug_log",
-          "vdbe_coverage_report",
-          "glob",
-          "forcedelete",
-          "exit",
-          "eof",
-          "gets",
-          "vdbe_coverage",
-          "Seek",
-          "NoConflict",
-          "SorterSort",
-          "array",
-          "sql",
-          "memdb",
-          "sqlite3_prepare",
-          "sqlite3_step",
-          "sqlite3_data_count",
-          "sqlite3_column_text",
-          "sqlite3_finalize",
-          "uses_stmt_journal",
-          "fix_ifcapable_expr",
-          "elsecode",
-          "get_pwd",
-          "btree_from_db",
-          "sqlite3_extended_result_codes",
-          "save_prng_state",
-          "run_ioerr_prep",
-          "cksum",
-          "lsearch",
-          "restore_prng_state",
-          "sqlite3_errcode",
-          "db_enter",
-          "btree_pager_stats",
-          "db_leave",
-          "sqlite3_get_autocommit",
-          "unset",
-          "md5",
-          "pid",
-          "split",
-          "wal_is_wal_mode",
-          "interp",
-          "tinterp",
-          "load_testfixture_extensions",
-          "sqlite3_enable_shared_cache",
-          "reset_prng_state",
-          "hexio_read",
-          "db36231",
-          "hexio_write",
-          "forcecopy",
-          "db_save",
-          "db_restore",
-          "sqlite3_shutdown",
-          "sqlite3_config_pagecache",
-          "sqlite3_initialize",
-          "autoinstall_test_functions",
-          "reset_db",
-          "test_binary_name",
-          "finish_test",
-          "test_find_binary",
-          "sqlite3_next_stmt",
-          "sqlite3_expanded_sql",
-          "database_never_corrupt",
-          "extra_schema_checks"
+          "omit_test"
         ],
         "do_test_with_ansi_output@815": [
           "info",
@@ -183869,7 +183727,6 @@
           "info"
         ],
         "execsql2@1628": [
-          "sql",
           "set",
           "db",
           "lappend"
@@ -183886,6 +183743,7 @@
           "array",
           "incr",
           "expr",
+          "join",
           "puts",
           "lrange",
           "format"
@@ -183896,7 +183754,8 @@
           "uplevel",
           "list",
           "lindex",
-          "output1"
+          "output1",
+          "expr"
         ],
         "expand_all_sql@2601": [
           "set",
@@ -183911,9 +183770,6 @@
           "output2",
           "fconfigure",
           "set",
-          "Seek",
-          "NoConflict",
-          "SorterSort",
           "incr",
           "expr",
           "info",
@@ -183960,6 +183816,7 @@
           "info",
           "incr",
           "output2",
+          "expr",
           "exec",
           "regsub",
           "string",
@@ -183976,13 +183833,14 @@
           "ifcapable",
           "sqlite3_memdebug_dump",
           "show_memstats",
+          "sqlite3_memory_highwater",
+          "sqlite3_memdebug_malloc_count",
           "memdebug_log_sql",
           "sqlite3_memdebug_log",
           "vdbe_coverage_report",
           "glob",
           "forcedelete",
-          "exit",
-          "expr"
+          "exit"
         ],
         "finish_test@1237": [
           "finish_test_precleanup",
@@ -184040,7 +183898,6 @@
           "pwd"
         ],
         "ifcapable@1725": [
-          "elsecode",
           "set",
           "fix_ifcapable_expr",
           "uplevel"
@@ -184091,7 +183948,8 @@
         ],
         "normalize_list@907": [
           "set",
-          "list"
+          "list",
+          "lappend"
         ],
         "omit_test@593": [
           "set",
@@ -184100,14 +183958,12 @@
           "list"
         ],
         "output1@649": [
-          "args",
           "set",
           "verbose",
           "uplevel",
           "lrange"
         ],
         "output2@657": [
-          "args",
           "set",
           "llength",
           "uplevel"
@@ -184151,131 +184007,7 @@
         ],
         "realnum_normalize@888": [
           "string",
-          "uplevel",
-          "list",
-          "subst",
-          "upvar",
-          "info",
           "set",
-          "db",
-          "lindex",
-          "lrange",
-          "llength",
-          "wrong",
-          "fix_testname",
-          "lappend",
-          "append",
-          "append_graph",
-          "regsub",
-          "A-F0-9",
-          "incr",
-          "regexp",
-          "query_plan_graph",
-          "do_test",
-          "eval",
-          "execsql",
-          "format",
-          "output2",
-          "flush",
-          "time",
-          "expr",
-          "sqlite3",
-          "versdb",
-          "db1",
-          "db2",
-          "db3",
-          "unregister_devsim",
-          "unregister_jt_vfs",
-          "unregister_demovfs",
-          "finish_test_precleanup",
-          "puts",
-          "db_delete_and_reopen",
-          "finalize_testing",
-          "set_test_counter",
-          "vfs_unlink_test",
-          "sqlite3_reset_auto_extension",
-          "sqlite3_soft_heap_limit64",
-          "sqlite3_hard_heap_limit64",
-          "incr_ntest",
-          "file",
-          "open",
-          "read",
-          "close",
-          "exec",
-          "run_thread_tests",
-          "lsort",
-          "working_64bit_int",
-          "vfslog",
-          "sqlite3_status",
-          "sqlite3_memory_used",
-          "ifcapable",
-          "sqlite3_memdebug_dump",
-          "show_memstats",
-          "memdebug_log_sql",
-          "sqlite3_memdebug_log",
-          "vdbe_coverage_report",
-          "glob",
-          "forcedelete",
-          "exit",
-          "eof",
-          "gets",
-          "vdbe_coverage",
-          "output1",
-          "fconfigure",
-          "Seek",
-          "NoConflict",
-          "SorterSort",
-          "array",
-          "sql",
-          "memdb",
-          "sqlite3_prepare",
-          "sqlite3_step",
-          "sqlite3_data_count",
-          "sqlite3_column_text",
-          "sqlite3_finalize",
-          "uses_stmt_journal",
-          "fix_ifcapable_expr",
-          "elsecode",
-          "get_pwd",
-          "btree_from_db",
-          "sqlite3_extended_result_codes",
-          "save_prng_state",
-          "run_ioerr_prep",
-          "cksum",
-          "lsearch",
-          "restore_prng_state",
-          "sqlite3_errcode",
-          "db_enter",
-          "btree_pager_stats",
-          "db_leave",
-          "sqlite3_get_autocommit",
-          "unset",
-          "md5",
-          "pid",
-          "split",
-          "permutation",
-          "wal_is_wal_mode",
-          "interp",
-          "tinterp",
-          "load_testfixture_extensions",
-          "sqlite3_enable_shared_cache",
-          "reset_prng_state",
-          "hexio_read",
-          "db36231",
-          "hexio_write",
-          "forcecopy",
-          "db_save",
-          "db_restore",
-          "sqlite3_shutdown",
-          "sqlite3_config_pagecache",
-          "sqlite3_initialize",
-          "autoinstall_test_functions",
-          "reset_db",
-          "test_binary_name",
-          "finish_test",
-          "test_find_binary",
-          "sqlite3_next_stmt",
-          "sqlite3_expanded_sql",
           "database_never_corrupt",
           "extra_schema_checks"
         ],
@@ -184293,6 +184025,7 @@
           "db2",
           "forcedelete",
           "sqlite3",
+          "sqlite3_connection_pointer",
           "sqlite3_extended_result_codes",
           "info",
           "eval",
@@ -184375,7 +184108,6 @@
           "lappend"
         ],
         "sql36231@2446": [
-          "sql",
           "set",
           "hexio_read",
           "sqlite3",
@@ -184390,7 +184122,6 @@
           "sqlite3_finalize"
         ],
         "sqlite3@116": [
-          "args",
           "llength",
           "string",
           "lindex",
@@ -184442,7 +184173,8 @@
           "llength",
           "set",
           "lindex",
-          "ifcapable"
+          "ifcapable",
+          "get_pwd"
         ],
         "test_restore_config_pagecache@2514": [
           "db",
@@ -184514,8 +184246,8 @@
       },
       "tcl/sqlite/testrunner.tcl": {
         "add_build_job@1220": [
-          "depid",
           "set",
+          "string",
           "append",
           "add_job",
           "list",
@@ -184555,9 +184287,7 @@
           "file",
           "lindex",
           "lrange",
-          "trdb",
-          "displaytype",
-          "estwork"
+          "trdb"
         ],
         "add_jobs_from_cmdline@1426": [
           "add_zipvfs_jobs",
@@ -184569,10 +184299,7 @@
           "lrange",
           "trd_all_configs",
           "add_tcl_jobs",
-          "All-O0",
-          "All-Debug",
           "add_devtest_jobs",
-          "All-Sanitize",
           "trd_builds",
           "regexp",
           "add_build_job",
@@ -184586,6 +184313,7 @@
           "array",
           "lappend",
           "puts",
+          "lsort",
           "exit",
           "info"
         ],
@@ -184622,8 +184350,8 @@
           "set",
           "add_build_job",
           "zipvfs_testrunner_files",
-          "add_job",
-          "lindex"
+          "lindex",
+          "add_job"
         ],
         "aggregate_test_counts@797": [
           "set",
@@ -184700,8 +184428,6 @@
           "close"
         ],
         "finish_test@421": [
-          "uplevel",
-          "helper_finish_test",
           "eval",
           "reset_db",
           "exit",
@@ -184775,8 +184501,7 @@
           "r_write_db",
           "info",
           "string",
-          "trdb",
-          "ntest"
+          "trdb"
         ],
         "must_be_testfixture@1411": [
           "lsearch",
@@ -184801,6 +184526,8 @@
           "lsort",
           "array",
           "lappend",
+          "elapsetime",
+          "join",
           "string",
           "append",
           "puts",
@@ -184866,6 +184593,7 @@
           "expr",
           "flush",
           "format",
+          "elapsetime",
           "file",
           "string",
           "append",
@@ -184878,7 +184606,6 @@
           "puts",
           "string",
           "subst",
-          "Usage",
           "where",
           "Special",
           "list",

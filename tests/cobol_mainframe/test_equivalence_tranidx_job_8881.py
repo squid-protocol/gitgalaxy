@@ -133,3 +133,51 @@ def test_a_path_dd_is_an_output_only(dd, why):
     cases = ej.load_steps(job, eq.load_case)
     with pytest.raises(ej.Unsupported, match=why):
         ej.check_job(job, cases)
+
+
+ONEKEY = "carddemo-job-posttran-tranidx-onekey"
+ONEKEY_DECK = ROOT / "tests/equivalence/jobs/carddemo-tranidx-onekey.idc"
+# The harness's POSTTRAN run stamps every TRANFILE record with one processed timestamp (the PARM date): one alternate key.
+POSTTRAN_SHAPE = [_tran(f"{i:016d}", "2022-07-18-10.30.15.000000") for i in range(264)]
+
+
+def test_the_real_deck_stops_by_name_on_the_one_key_posttran_leaves():
+    """Run 2026-11-22: all 264 records share the key, BLDINDEX's record for it needs more than RECORDSIZE(350,350)."""
+    ok, entry, out = _run(POSTTRAN_SHAPE)
+    assert not ok and "RECORDSIZE maximum 350" in entry["stopped"] and "TRANPATH" not in out
+
+
+def test_the_onekey_variant_differs_from_the_real_deck_only_in_recordsize():
+    real = REAL.replace("RECORDSIZE(350,350)    ", "RECORDSIZE(4400,4400)  ")
+    assert ONEKEY_DECK.read_text(encoding="utf-8") == real
+    job = eq.load_case(ONEKEY)
+    ej.check_job(job, ej.load_steps(job, eq.load_case))
+    assert job["steps"][1]["idcams"]["deck"] == "carddemo-tranidx-onekey.idc" and job["notes"]
+
+
+def test_the_onekey_variant_reads_all_duplicates_in_the_bases_order():
+    step = json.loads((eq.CASES / "jobs" / f"{ONEKEY}.json").read_text(encoding="utf-8"))["steps"][1]
+    recs = list(reversed(POSTTRAN_SHAPE))  # fed out of key order: the base loads sorted, the path keeps that order
+    ok, entry, out = _run(recs, step=step)
+    assert ok and entry["rc"] == 0 and entry["log"][-1].endswith("264 records, 1 keys: condition code 0")
+    assert out["TRANPATH"] == b"".join(sorted(recs))
+    if "java" in entry:
+        assert entry["java"]["equal"] and entry["model_only"] is False, entry["java"]
+
+
+@pytest.mark.parametrize(
+    "deck",
+    [
+        REAL.replace("INDATASET(AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS)", "INFILE(IN)"),  # the DD form
+        REAL + REAL.split("   BLDINDEX")[1].join(["   BLDINDEX", ""]),  # a second BLDINDEX of a built index
+        REAL + "   DELETE AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX\n",  # dependents of an AIX are not modelled
+        REAL.replace("PATHENTRY(AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX)", "PATHENTRY(AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS)"),
+        REAL.replace("KEYS(26 304)", "KEYS(26 340)"),  # past the 350-byte record
+        REAL.replace("NONUNIQUEKEY", "REUSE"),
+    ],
+    ids=["bldindex-dd-form", "bldindex-twice", "delete-aix", "path-over-cluster", "key-past-record", "reuse"],
+)
+def test_more_unmodelled_aix_shapes_stop_the_step_by_name(tmp_path, monkeypatch, deck):
+    ok, entry, out = _run([_tran("T1", "A"), _tran("T2", "B")], deck=_deck_dir(tmp_path, deck), monkeypatch=monkeypatch)
+    assert not ok and entry["ok"] is False and entry["stopped"].startswith("the IDCAMS model refuses"), entry
+    assert "TRANPATH" not in out

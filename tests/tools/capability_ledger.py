@@ -347,6 +347,21 @@ def _library_restart_results(doc: dict[str, Any]) -> list[tuple[dict[str, Any], 
     return [(sc, restart_flow(rows, sc["job"], sc["given"], text, libs) == sc["expect"]) for sc in doc["scenarios"]]
 
 
+def _library_gdg_results(doc: dict[str, Any]) -> list[tuple[dict[str, Any], bool]]:
+    """The GDG DDs of a library procedure under restart (`gdg/library.json`): the member is read from `libraries`."""
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_restart import resolve_gdg_restart
+
+    text = "\n".join(doc["library_jcl"]) + "\n"
+    libs = {lb: {m: "\n".join(x) + "\n" for m, x in ms.items()} for lb, ms in doc["libraries"].items()}
+    rows = job_flow.jcl_job_flow(text)
+    out = []
+    for sc in doc["scenarios"]:
+        names, after = resolve_gdg_restart(rows, sc["job"], sc["catalog"], sc["given"], text, libs)
+        out.append((sc, names == sc["expect"] and after == sc["catalog_after"]))
+    return out
+
+
 def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
     """Each answer file (`case/file.json`) with its scenarios and whether the evaluator reproduced each, run live."""
     steps = _step_results()
@@ -360,6 +375,8 @@ def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
             res = _proc_results()
         elif case == "restart" and f.name == "library.json":
             res = _library_restart_results(doc)
+        elif case == "gdg" and f.name == "library.json":
+            res = _library_gdg_results(doc)
         elif case in steps and f.name == "scenarios.json":
             res = steps[case]
         else:

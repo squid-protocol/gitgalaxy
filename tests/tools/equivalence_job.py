@@ -17,7 +17,9 @@ datasets is not defined, equivalence.compare_run).
 An INDEXED (VSAM-style) dataset may be fed (#8879), including one the earlier step opens I-O (a KSDS it reads and
 REWRITEs): what is fed is the earlier step's COBOL-side unload (`ul<DD>`, primary-key order), staged as the same
 fixed-length lines and loaded, keyed as the next step's SELECT declares (`keys`), into both sides. Same composition
-claim as a sequential feed. Refused by name: a Db2 / IMS / CICS / call step, a feed between an indexed and a sequential
+claim as a sequential feed. A step may be a batch case with `subprograms` (#8884: a static CALL of a COBOL program in
+its estate, as CBSTM03A CALLs CBSTM03B): the harness hands the whole case to both sides, so each compiles / translates
+the subprograms exactly as the step's own proof does. Refused by name: a Db2 / IMS / CICS / `kind: call` step, a feed between an indexed and a sequential
 dataset, indexed feeds whose keys or record lengths differ, a feed from a step that is not earlier or a dataset that
 step does not compare, record lengths that differ across a feed, a fault run on a step (a fault plan names one step's
 datasets; not modelled in the job). A step that abended feeds nothing (the job stops). An `inputs` value beginning
@@ -62,6 +64,7 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         what = case.get("kind") or ("db2" if "db2" in case else "ims" if "ims" in case else "batch")
         if what != "batch":
             raise Unsupported(f"step {name}: a {what} step is not modelled in a job case (batch steps only)")
+        _check_subprograms(name, case)
         for dd, feed in step.get("feeds", {}).items():
             _check_feed(name, dd, feed, case, names[:i], cases)
     for step in steps:  # a dataset the JCL gives the step its own input for (the job's shared parameter card)
@@ -78,6 +81,18 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         for rel in spec.get("generations", []):
             if not (JOBS / rel).is_file():
                 raise Unsupported(f"GDG {base}: no generation file {rel} beside the job case")
+
+
+def _check_subprograms(name: str, case: dict[str, Any]) -> None:
+    """A step's `subprograms` (#8884) are corpus-relative source paths of programs it CALLs, none twice, none the step's own."""
+    subs = case.get("subprograms", [])
+    if not isinstance(subs, list) or not all(isinstance(r, str) and r for r in subs):
+        raise Unsupported(f"step {name}: subprograms must be a list of corpus-relative source paths")
+    stems = [Path(r).stem.upper() for r in subs]
+    if len(set(stems)) != len(stems):
+        raise Unsupported(f"step {name}: a subprogram appears twice ({subs})")
+    if str(case.get("program", "")).upper() in stems:
+        raise Unsupported(f"step {name}: subprogram {case['program']} is the step's own program")
 
 
 def _check_feed(name: str, dd: str, feed: dict[str, Any], case: dict[str, Any], earlier: list[str],
@@ -176,7 +191,8 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
             run = api.compare_run(case, corpus, cobol, runs["default"])
             report["steps"].append({"case": name, "program": case["program"], "fed": fed, "ok": run["ok"],
                                     "return_code": run["return_code"], "abend": run["abend"],
-                                    "outputs": run["outputs"]})  # fmt: skip
+                                    "outputs": run["outputs"],
+                                    **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
             if "ABEND" in cobol and i + 1 < len(job["steps"]):
                 report["steps"][-1]["stopped"] = "the step abended: its datasets are not defined, the job stops"

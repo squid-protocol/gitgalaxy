@@ -1,5 +1,6 @@
 """#7155: every gate is listed, a named failure proof exists, and the first controls prove gates can go red."""
 
+import functools
 import json
 import shutil
 import sys
@@ -19,14 +20,21 @@ REPO = TOOLS.parents[1]
 WORKFLOWS = REPO / ".github" / "workflows"
 
 
+@functools.cache
+def _load(path: Path) -> dict:
+    """One parse per workflow per session: pure-Python yaml over 54 files, once per gate, cost 25 s on CI (#8963)."""
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+
+
 def _triggers(path: Path) -> set[str]:
-    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    doc = _load(path)
     on = doc.get(True) or doc.get("on") or {}  # YAML reads a bare `on:` key as True
     return set(on if isinstance(on, (dict, list)) else [on])
 
 
-def _pr_workflows() -> set[str]:
-    return {p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p)}
+@functools.cache
+def _pr_workflows() -> frozenset[str]:
+    return frozenset(p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p))
 
 
 def test_every_workflow_is_a_listed_gate_or_says_why_not():
@@ -41,13 +49,19 @@ def test_every_workflow_is_a_listed_gate_or_says_why_not():
 def test_a_named_job_exists_and_the_trigger_matches_the_workflow():
     for g in gc.GATES:
         assert g.trigger in {"pr", "main", "nightly", "release"}, g.name
-        doc = yaml.safe_load((WORKFLOWS / g.workflow).read_text(encoding="utf-8"))
+        doc = _load(WORKFLOWS / g.workflow)
         assert not g.job or g.job in doc["jobs"], f"{g.name}: job {g.job} is not in {g.workflow}"
         if g.trigger == "pr":
             assert g.workflow in _pr_workflows(), f"{g.name}: marked pr but {g.workflow} has no PR trigger"
         else:
             # an off-PR gate may share a workflow with a PR gate only through its own job
             assert g.job or g.workflow not in _pr_workflows(), f"{g.name}: {g.workflow} runs on PRs"
+
+
+def test_a_workflow_is_parsed_once_per_session():
+    """The named-job test re-parsed every workflow per gate and broke the 15 s ratchet on CI (#8963)."""
+    first = next(WORKFLOWS.glob("*.yml"))
+    assert _load(first) is _load(first)
 
 
 def test_every_required_check_is_listed():

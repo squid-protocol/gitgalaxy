@@ -266,3 +266,29 @@ def test_the_restart_refusals_are_named_in_the_file():
     refused = " ".join(r["construct"] for r in DOC["refused"])
     assert "original relative generation" in refused or "reads a generation by the number" in refused
     assert "checkpoint restart" in refused
+
+
+LIBDOC = json.loads((ROOT / "tests" / "equivalence" / "jcl" / "gdg" / "library.json").read_text(encoding="utf-8"))
+LIB_TEXT = "\n".join(LIBDOC["library_jcl"]) + "\n"
+LIB_ROWS = job_flow.jcl_job_flow(LIB_TEXT)
+LIBS = {lib: {m: "\n".join(ls) + "\n" for m, ls in ms.items()} for lib, ms in LIBDOC["libraries"].items()}
+
+
+def test_every_library_case_line_fits_columns_1_to_72():
+    members = [ln for ms in LIBDOC["libraries"].values() for ls in ms.values() for ln in ls]
+    assert all(len(ln) <= 72 for ln in LIBDOC["library_jcl"] + members)
+
+
+@pytest.mark.parametrize("sc", LIBDOC["scenarios"], ids=lambda s: s["id"])
+def test_the_resolver_reproduces_every_library_procedure_gdg_restart_answer(sc):
+    names, after = resolve_gdg_restart(LIB_ROWS, sc["job"], sc["catalog"], sc["given"], LIB_TEXT, LIBS)
+    assert names == sc["expect"], sc["id"]
+    assert after == sc["catalog_after"], sc["id"]
+
+
+@pytest.mark.parametrize("r", LIBDOC["refused"], ids=lambda r: r["id"])
+def test_a_library_gdg_restart_that_is_not_answered_is_refused_by_name(r):
+    with pytest.raises(JclGdgRefused, match=r["match"]):
+        resolve_gdg_restart(
+            LIB_ROWS, r["job"], {"PAY.GDG": {"limit": 6, "generations": [6, 7]}}, r["given"], LIB_TEXT, LIBS
+        )

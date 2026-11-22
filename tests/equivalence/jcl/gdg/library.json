@@ -1,0 +1,244 @@
+{
+  "fixture": "library_jcl (in this file)",
+  "issue": 8413,
+  "written_from": "IBM z/OS MVS JCL User's Guide (Appendix A, generation data sets) and JCL Reference (JOB: RESTART, JCLLIB ORDER); GDG DDs inside procedures that are JCLLIB library members, under JOB RESTART. Written before the resolver ran. Not run on the MVS 3.8J box (no library). Assumption A9 is in gdg/scenarios.json.",
+  "libraries": {
+    "LIB.A": {
+      "RPRC": [
+        "//RPRC     PROC",
+        "//G1       EXEC PGM=PGMA",
+        "//O1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+        "//G2       EXEC PGM=PGMB",
+        "//O2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+        "//G3       EXEC PGM=PGMC",
+        "//R3       DD DSN=PAY.GDG(0),DISP=SHR",
+        "//R4       DD DSN=PAY.GDG(-1),DISP=SHR"
+      ],
+      "RPRD": [
+        "//RPRD     PROC",
+        "//D1       EXEC PGM=PGMA",
+        "//P1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+        "//D2       EXEC PGM=PGMB",
+        "//P2       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+        "//D3       EXEC PGM=PGMC",
+        "//A1       DD DSN=PAY.GDG(+1),DISP=SHR",
+        "//A2       DD DSN=PAY.GDG(+2),DISP=SHR"
+      ]
+    },
+    "LIB.B": {
+      "RPRC": [
+        "//RPRC     PROC",
+        "//H1       EXEC PGM=PGMH",
+        "//P1       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+        "//H2       EXEC PGM=PGMI",
+        "//P2       DD DSN=PAY.GDG(+1),DISP=SHR"
+      ]
+    }
+  },
+  "library_jcl": [
+    "//*********************************************************************",
+    "//* #8413 restart, GDG DDs in library procedures (JCLLIB members).",
+    "//*********************************************************************",
+    "//GLIB1    JOB (ACCT),'GDG A',CLASS=A,RESTART=CALL1.G3",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//*",
+    "//GLIB2    JOB (ACCT),'GDG B',CLASS=A,RESTART=(CALL1.H2,CK1)",
+    "//LIB      JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//*",
+    "//GLIB4    JOB (ACCT),'GDG B1',CLASS=A,RESTART=CALL1.H1",
+    "//LIB      JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//*",
+    "//GLIB5    JOB (ACCT),'GDG D3',CLASS=A,RESTART=(CALL1.D3,CK2)",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRD",
+    "//*",
+    "//GLIBBAD1 JOB (ACCT),'GDG OLD',CLASS=A,RESTART=CALL1.H2",
+    "//LIB      JCLLIB ORDER=(LIB.B,LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//*",
+    "//GLIBB2   JOB (ACCT),'B',CLASS=A,RESTART=(CALL1.G3,CK3),GDGBIAS=STEP",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RPRC",
+    "//*"
+  ],
+  "scenarios": [
+    {
+      "id": "library-step-restart-present-numbers",
+      "job": "GLIB1",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "given": {
+        "CALL1.G3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.G3.R3": 9,
+        "CALL1.G3.R4": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. RESTART=CALL1.G3 is a step restart of the library member found first on JCLLIB ORDER=(LIB.A,LIB.B) (RPRC of LIB.A: G1, G2, G3). The first run (catalog 6, 7) created and cataloged 8 (G1's +1) and 9 (G2's +2); the restart finds 6, 7, 8, 9 and uses the PRESENT numbers: (0) is 9 and (-1) is 8. G1 and G2 do not run again and G3 creates nothing, so the catalog is unchanged."
+    },
+    {
+      "id": "library-step-restart-first-step-creates",
+      "job": "GLIB4",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "CALL1.H1": {
+          "rc": 0
+        },
+        "CALL1.H2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.H1.P1": 8,
+        "CALL1.H2.P2": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. JCLLIB ORDER=(LIB.B,LIB.A): RPRC is LIB.B's (H1 creates (+1), H2 reads (+1)). RESTART=CALL1.H1 skips only U1, which creates nothing, so the restart finds 6, 7. H1's (+1) is 8 and H2's (+1) names the same generation (the relationship is fixed at the first relative reference of the job); 8 is rolled in at job end."
+    },
+    {
+      "id": "library-checkpoint-restart-same-numbers",
+      "job": "GLIB5",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "CALL1.D3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.D3.A1": 8,
+        "CALL1.D3.A2": 9
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "assumed": "A9",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. 'For checkpoint restart: you can refer to generation data sets created and cataloged in steps before the restart step by the same relative generation numbers that were used to create them.' RESTART=(CALL1.D3,CK2) with a SYSCHK DD is a deferred checkpoint restart into LIB.A's RPRD; applying the same-numbers rule to the deferred form is ASSUMED A9. The original run began with 6, 7: D1's (+1) is 8 and D2's (+2) is 9, both cataloged before the restart step, and D3 names them by (+1) and (+2) again: 8 and 9."
+    },
+    {
+      "id": "library-checkpoint-restart-reversed-order",
+      "job": "GLIB2",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "CALL1.H2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.H2.P2": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 6,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A9",
+      "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. JCLLIB ORDER=(LIB.B,LIB.A) makes RPRC LIB.B's member. RESTART=(CALL1.H2,CK1) with a SYSCHK DD: the original run began with 6, 7 and H1 created and cataloged (+1) = 8 before the restart step; H2 reads it by the number that created it, (+1), so 8 (same-numbers rule for the deferred form is ASSUMED A9). Nothing new is created, and 8 stays cataloged."
+    }
+  ],
+  "refused": [
+    {
+      "id": "lib-gdg-step-restart-reads-original-plus-one",
+      "job": "GLIBBAD1",
+      "match": "before any step creates",
+      "construct": "a step restart into a library procedure whose restart step reads a generation by the number that created it in a step before the restart step, (+1)",
+      "reason": "JCL Reference p. 431: the original relative generation numbers are not used in the restart step; the manual states no outcome, so refused as read before any step creates it",
+      "given": {
+        "CALL1.H2": {
+          "rc": 0
+        }
+      }
+    },
+    {
+      "id": "lib-gdg-checkpoint-restart-under-step-bias",
+      "job": "GLIBB2",
+      "match": "GDGBIAS=JOB",
+      "construct": "a checkpoint restart into a library procedure of a job with GDGBIAS=STEP",
+      "reason": "the manuals state the checkpoint rule by the numbers that created the generations, not how a per-step relationship is rebuilt; refused by name",
+      "given": {
+        "CALL1.G3": {
+          "rc": 0
+        }
+      }
+    }
+  ]
+}

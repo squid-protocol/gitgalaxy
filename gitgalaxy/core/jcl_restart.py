@@ -41,15 +41,21 @@ def restart_flow(
 
 
 def resolve_gdg_restart(
-    rows: list[dict[str, Any]], job: str, catalogs: dict[str, dict[str, Any]], given: dict[str, dict[str, Any]]
+    rows: list[dict[str, Any]],
+    job: str,
+    catalogs: dict[str, dict[str, Any]],
+    given: dict[str, dict[str, Any]],
+    text: str | None = None,
+    libraries: Mapping[str, Mapping[str, str]] | None = None,
 ) -> tuple[dict[str, int], dict[str, dict[str, Any]]]:
     """The absolute generation each GDG DD of the restarted run names, and the catalog after it (#8413).
     Step restart (no checkid): `catalogs` is the catalog as the restart finds it, after the steps before the restart
     step rolled their generations in, and the relative numbers are the PRESENT ones (User's Guide p. 243, JCL Reference
     p. 431). Checkpoint restart (a checkid): `catalogs` is the catalog as the ORIGINAL run began, the steps before the
     restart step are taken as run (their generations created and cataloged) and the relative numbers are the ones that
-    created them (User's Guide p. 243; ASSUMED A9 that this holds for the deferred form RESTART=(step,checkid))."""
-    _names, skipped, flat, run, checkid = _restart_run(rows, job, given)
+    created them (User's Guide p. 243; ASSUMED A9 that this holds for the deferred form RESTART=(step,checkid)).
+    A library procedure's steps (`text`, `libraries`: JCLLIB ORDER) are job steps for this, as an in-stream one's are."""
+    _names, skipped, flat, run, checkid = _restart_run(rows, job, given, text, libraries)
     if checkid:
         return resolve_gdg(flat, job.upper(), catalogs, run, skipped=skipped)
     # a step restart: the steps before the restart step are not in the run, their DDs allocate nothing

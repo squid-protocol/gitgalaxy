@@ -139,13 +139,13 @@ def test_condcode_cli_exit_code_follows_expectations(tmp_path):
         capture_output=True,
         text=True,
         timeout=30,
-    )  # noqa: S603
+    )
     bad = subprocess.run(
         [sys.executable, "-I", str(BOX / "sysgen.py"), "condcode", str(f), "SMP4P44", "--expect", "S1=8"],
         capture_output=True,
         text=True,
         timeout=30,
-    )  # noqa: S603
+    )
     assert (ok.returncode, bad.returncode) == (0, 1)
     assert "unexpected: S1" in bad.stderr
 
@@ -746,3 +746,54 @@ def test_ipl_conf_attaches_the_new_volumes_only_after_custom_has_initialized_the
 def test_the_shell_wrapper_offers_the_custom_stage():
     sh = (Path(__file__).parent / "box/mvs38j/mvs38j.sh").read_text()
     assert "stage3 | ipl | custom)" in sh
+
+
+def test_the_hardcopy_log_feeds_the_console_lines_the_ipl_waits_on(tmp_path):
+    """After JES2 starts, the 009 console stops echoing to Hercules' stdout; the master-console hardcopy (mvslog.txt) still
+    carries the WTORs and `$HASP099` (2026-11-21). Complete lines are appended to `lines`; a partial line waits for its end."""
+    import threading
+    import time
+
+    log = tmp_path / sysgen.HARDCOPY
+    herc = sysgen.Hercules(tmp_path, "conf/mvs.conf", "img", "name", hardcopy=sysgen.HARDCOPY)
+    alive = threading.Event()
+    alive.set()
+    herc.proc = type("P", (), {"poll": lambda self: None if alive.is_set() else 0})()
+    log.write_bytes(b"FFFF 11.52.16          *02 $HASP436 REPLY Y OR N TO CONFIRM CHECKPOINT RECORD CHANGE\r\n/ $HASP0")
+    t = threading.Thread(target=herc._tail_hardcopy, daemon=True)
+    t.start()
+    with log.open("ab") as f:
+        f.write(b"99 ALL AVAILABLE FUNCTIONS COMPLETE\n")
+    deadline = time.monotonic() + 5
+    while len(herc.lines) < 2 and time.monotonic() < deadline:
+        time.sleep(0.1)
+    alive.clear()
+    t.join(5)
+    assert herc.lines[0].endswith("CHECKPOINT RECORD CHANGE")
+    assert re.search(r"\*(\d+)\s+\$HASP436", herc.lines[0])
+    assert re.search(sysgen.IPL_READY_RE, herc.lines[1])
+
+
+def test_a_started_box_moves_the_last_runs_hardcopy_aside(tmp_path):
+    (tmp_path / sysgen.HARDCOPY).write_text("old $HASP099 ALL AVAILABLE FUNCTIONS COMPLETE\n")
+    herc = sysgen.Hercules(tmp_path, "conf/mvs.conf", "img", "name", hardcopy=sysgen.HARDCOPY)
+    calls = []
+
+    class Stop(Exception):
+        pass
+
+    def popen(cmd, **kw):
+        calls.append(cmd)
+        raise Stop
+
+    import subprocess
+
+    orig = subprocess.Popen
+    subprocess.Popen = popen
+    try:
+        with pytest.raises(Stop):
+            herc.start()
+    finally:
+        subprocess.Popen = orig
+    assert not (tmp_path / sysgen.HARDCOPY).exists()
+    assert (tmp_path / "mvslog.prev.txt").read_text().startswith("old")

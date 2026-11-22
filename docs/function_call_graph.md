@@ -192,7 +192,11 @@ so on for `javascript`, `java`, `rust`, `go`, `c`, `cpp`).
 - The brief's sections 16 (reach) and 17 (libraries) (#8529) read the finished `*_master.db` (`gitgalaxy reach`, `gitgalaxy libsurface`; wiki 08-24 and 08-25): they add no table and no column, are absent when the scan wrote no database, and never stop the brief from being written.
 - `function_data` (#3330):
   - `func_pagerank`: PageRank over the confident links.
-  - `func_fan_in` / `func_fan_out`: distinct confident callers and callees.
+  - `func_fan_in` / `func_fan_out`: distinct confident callers and callees. These are structural counts, not
+    validated fix-risk predictors. In an exploratory study (temporal-crucible `docs/fix_radius_orchestrators.md`, 30 repositories in C, Go and Java),
+    fan-out carried a small size-adjusted lift in change and fix counts (partial Spearman about +0.10, positive in
+    all 29 repositories with a result), also with no fix label at all; fan-in did not (median about -0.03) and reads as
+    the cost of changing a function. `func_pagerank` was not tested.
   - The transitive blast radius is a query (below), not a column. An all-nodes
     reachability pass is O(N^2) and exceeded any reasonable budget on real
     repositories.

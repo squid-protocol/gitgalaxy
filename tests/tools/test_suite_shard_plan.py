@@ -211,6 +211,19 @@ def test_a_windows_part_that_took_its_measured_minutes_fits_its_step_timeout_857
             assert leg["step_timeout"] >= minutes + 1, leg
 
 
+def test_a_windows_step_cap_keeps_3_min_over_the_slowest_seen_part_whatever_the_cache_8701(durations):
+    # #8701 [c:35ac4f04]: the issue's confirm item asks that no Windows leg finish within 3 min of its limit. The planner
+    # side of that: the step cap stays >= 3 min over the slowest minutes seen (25:06 on windows 3.12), for the committed
+    # durations and for a wall-calibrated cache a quarter of their size (which plans the fewest parts and the floor cap).
+    for cache in (durations, {k: v / 4 for k, v in durations.items()}):
+        legs = [x for x in plan.gate_plan(cache)["matrix"] if x["os"].startswith("windows")]
+        assert {x["python-version"] for x in legs} == {"3.11", "3.12"}
+        for leg in legs:
+            seen = plan.SLOWEST_SEEN_MIN[(leg["os"], leg["python-version"])]
+            assert leg["step_timeout"] - seen >= 3, leg
+        assert min(x["step_timeout"] for x in legs if x["python-version"] == "3.12") >= 30
+
+
 def _e2e_fits(weight, n):
     return sp.shard_seconds(weight, n, plan.E2E_SETUP_S, plan.E2E_JOBS) <= plan.E2E_TARGET_S
 

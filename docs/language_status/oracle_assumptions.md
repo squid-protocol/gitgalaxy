@@ -6280,9 +6280,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Assumed.** (1) The local time is the pinned clock itself: the case's zone is the mainframe's. (2) output_seconds is
   `days x 86400 + time of day`, with the hundredths as a fraction. The Java side stores it by value in the item's own
   usage (HFP, C6), the C side as a native IEEE double; the byte patterns differ, which is why the translator passes
-  the item by value and any other use of its bytes stays refused (C6). (3) IBM's Gregorian field is longer than the
-  17 characters of the documented form; only the 17 are written, and what the remaining bytes hold is not documented
-  (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled. IBM's one failure, CEE2F3, is a planned fault, not a clock condition (L7).
+  the item by value and any other use of its bytes stays refused (C6). (3) Withdrawn. The register said IBM's Gregorian field is longer than the
+  17 characters of the documented form. **Corrected against the manual (#8700):** IBM (z/OS 3.1 Language Environment
+  Programming Reference SA38-0683-60, CEELOCT, output_Gregorian) says "A 17-byte fixed-length character string in the
+  form YYYYMMDDHHMISS999", so there is no longer field and no unwritten tail; the 17 bytes written are the whole
+  documented output (CRECUST's item is 17 bytes). **Not modelled, and a difference:** IBM
+  says that when the local time is unavailable "output_Lilian is set to 0" and "output_seconds is set to 0" with
+  CEE2F3 (severity 3, message 2531); `Ceeloct.fail` leaves both outputs as they were (a runtime fix, not made here). (4) A leap second, a DST fold or an unset clock are not modelled. IBM's one failure, CEE2F3, is a planned fault, not a clock condition (L7).
 - **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
 
 ### L6. CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI, CEEDYWK, CEEQCEN, CEESCEN — IBM's conditions where documented; the clock, the output item and what IBM leaves open assumed or refused
@@ -6329,8 +6333,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   oracle's case clock is read as GMT; a zone is not modelled: CEEGMTO / CEEUTCO answer an offset of zero (#5003, below). (2) Output_timestamp and
   output_char_date (CEEDATM, CEEDATE) are halfword-prefixed VSTRINGs in COBOL: the model writes the length then the
   text and touches nothing past it; a failing call writes a zero length and leaves the text. IBM says the output is
-  blanks on error and cut to the output's length (CEE2526 / CEE2527) but states no COBOL layout for an output declared
-  `PIC X(n)`, as BANKDATA's `DATM-CONV` is (it reads `DATM-CONV(1:14)` only in a debug line). Both sides refuse an
+  blanks on error and cut to the output's length (CEE2526 / CEE2527). **Corrected against the manual (#8700):** IBM does
+  state a COBOL layout (z/OS 3.1 LE Programming Reference SA38-0683-60, "Data type definitions" for COBOL): VSTRING is
+  "A halfword length-prefixed character string (for input); fixed-length 80-character string (for output)", declared
+  `01 STRING-OUT PIC X(80)`. So an output is a fixed 80-byte string with no length prefix, which is what BANKDATA's
+  `DATM-CONV` (a `PIC X(n)` item) is; the length-prefixed output written here is a **difference from IBM**, not an
+  assumption about an unstated layout (a runtime fix with a harness that does not share the prefixed model, not made here). BANKDATA reads `DATM-CONV(1:14)` only in a debug line. Both sides refuse an
   output item shorter than the result, so 2526 / 2527 are never produced. The Java side knows the item's size. The C model is handed a bare pointer (GnuCOBOL passes no size to a CALLed C routine), so the harness reads the program's DATA DIVISION (`tests/tools/le_out_size.py`) and gives the model `GG_LE_OUT_SIZES=CEEDATE=n,CEEDATM=n`; a result longer than the item is then refused by name (exit 98), the smallest resolved item of a service's calls counting. An item the harness cannot size exactly (COPY or LINKAGE member, REDEFINES, OCCURS, non-DISPLAY usage, subscript, a name declared twice) is left unchecked on the C side, and the census test (below) is what keeps a burned program from reaching it. `test_det_le_time.py` pins both sides: for CEEDATE and CEEDATM an item one byte short of 2 + the result is refused, one of exactly that size is filled whole, byte for byte equal across the two.
   (3) The milliseconds of a Lilian second are the fraction floored to a thousandth, so a value in `.9995` is `.999`;
   a seconds value is valid below 265 621 680 000. (4) CEESECS answers CEE2525 (picture mismatch) for a non-digit in

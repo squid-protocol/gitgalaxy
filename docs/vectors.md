@@ -277,6 +277,10 @@ validated or claimed** as a general result.
 estimate. The mid-band centrality candidate is a pre-registered hypothesis awaiting a third,
 independent repository — it has not cleared that bar yet. Do not treat current
 `connectivity` values as validated risk indicators ahead of that result.
+A separate exploratory study (temporal-crucible `docs/fix_radius_orchestrators.md`, 30 repositories in C, Go and Java) found that
+file-level PageRank and betweenness add nothing to fix counts once LOC is controlled (partial Spearman
+-0.06 to +0.10, only openssl significant). It did not analyse size bands, so it neither confirms nor
+contradicts the mid-size candidate above, and its fix label was not audited for precision: read it as descriptive.
 
 **(4) Appropriate vs inappropriate uses.** Appropriate today: surfacing structurally central
 or heavily-depended-upon files for change-impact assessment and blast-radius annotation;
@@ -508,13 +512,18 @@ in the LLM brief's ranked-artifacts section, now ordered by **structural magnitu
 annotated with **blast radius** (#3113). Both are unit-honest: magnitude is explicitly not a
 risk score, and blast radius is a normalized PageRank over resolved imports.
 
+Blast radius is a structural measure, not a validated predictor of fix-proneness beyond size. In an exploratory
+study (temporal-crucible `docs/fix_radius_orchestrators.md`) PageRank added nothing over LOC and complexity in 8 C repositories (partial Spearman +0.03
+to +0.06, not significant), and the file-level producer ratio had no consistent direction.
+
 **Breaking change to `--max-systemic-threat`.** That CI gate multiplied blast radius by this
 composite. It now multiplies blast radius by structural magnitude. The flag's intent is
 unchanged — *fail when something structurally heavy is also widely depended upon* — but
 **thresholds do not carry over**, because the scales differ (the old basis summed up to 13
 percentages; ~556 was an observed real value). Any existing threshold must be re-tuned. It
 was deliberately not silently rescaled: a fabricated conversion factor would fail more
-quietly and more confusingly than an obvious re-tune.
+quietly and more confusingly than an obvious re-tune. No threshold of this gate has been tested against
+fix history: it says what is structurally heavy and widely depended upon, not what is likely to break.
 
 **Historical documents are left as they stand.** `cumulative_risk` is quoted in ~115 files
 under `docs/wiki/` (the museum-of-code teardowns and per-repo agent briefs) and in

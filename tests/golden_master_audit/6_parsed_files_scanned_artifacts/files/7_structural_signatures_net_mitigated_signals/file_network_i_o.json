@@ -1750,7 +1750,7 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 0,
-      "haskell/pandoc/App.hs": 12,
+      "haskell/pandoc/App.hs": 2,
       "haskell/pandoc/CONTRIBUTING.md": 0,
       "haskell/pandoc/COPYING.md": 0,
       "haskell/pandoc/COPYRIGHT": 0,
@@ -1759,7 +1759,7 @@
       "haskell/pandoc/Options.hs": 0,
       "haskell/pandoc/Pandoc.hs": 0,
       "haskell/pandoc/Parsing.hs": 0,
-      "haskell/pandoc/Shared.hs": 2
+      "haskell/pandoc/Shared.hs": 0
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": 0,

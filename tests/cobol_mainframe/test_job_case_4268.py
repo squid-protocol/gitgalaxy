@@ -96,6 +96,55 @@ def test_the_cbstm03a_port_carries_the_called_program_for_the_java_side():
     assert {f.name for f in port.glob("*.java")} >= {"Cbstm03aService.java", "Cbstm03bService.java"}
 
 
+# -- CREASTMT (#8884): SORT -> IDCAMS REPRO -> CBSTM03A (a step with `subprograms`) -----------------------------------
+CREASTMT = "carddemo-job-creastmt"
+
+
+def _creastmt():
+    job = eq.load_case(CREASTMT)
+    return job, {n: eq.load_case(n) for n in ej.step_names(job) if "idcams" not in next(
+        s for s in job["steps"] if s["case"] == n)}  # fmt: skip
+
+
+def test_creastmt_steps_run_in_jcl_order_and_the_program_step_carries_its_subprogram():
+    job, _ = _creastmt()
+    assert ej.step_names(job) == ["carddemo-sort-creastmt", "creastmt-step020", "carddemo-cbstm03a"]
+    assert "idcams" in job["steps"][1]
+    assert job["steps"][2]["feeds"] == {"TRNXFILE": {"step": "creastmt-step020", "dd": "OUTFILE"}}
+    assert eq.load_case("carddemo-cbstm03a")["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
+
+
+def test_creastmt_is_refused_by_name_at_the_outrec_length_join_not_padded():
+    """STEP010's OUTREC writes 328-byte records; the JCL says LRECL 350. No IBM citation says what DFSORT does, so
+    the join is refused (register F4), never padded: the job is never `proven`."""
+    job, cases = _creastmt()
+    assert cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] == 328
+    all_cases = ej.load_steps(job, eq.load_case)
+    with pytest.raises(ej.Unsupported, match=r"INFILE has record length 350, carddemo-sort-creastmt\.SORTOUT writes 328"):
+        ej.check_job(job, all_cases)
+
+
+def test_creastmt_chain_is_valid_once_the_sort_record_length_matches_the_jcl():
+    """Everything but the length join is wired right: with SORTOUT at the JCL's 350 the whole job passes check_job,
+    both ends of the IDCAMS step and the CBSTM03A step (and its subprogram) included."""
+    job, _ = _creastmt()
+    all_cases = ej.load_steps(job, eq.load_case)
+    all_cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] = 350
+    ej.check_job(job, all_cases)
+
+
+def test_creastmt_sort_case_is_the_dfsort_lowering_of_the_jcl_sysin():
+    from gitgalaxy.tools.cobol_to_java.det import dfsort
+
+    jcl = " SORT FIELDS=(263,16,CH,A,1,16,CH,A)\n OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)"
+    want = dfsort.cobol_program(dfsort.parse(jcl), 350, ["SORTIN"])
+    assert (eq.CASES / "carddemo-sort-creastmt" / "DFSORTST.cbl").read_text(encoding="utf-8") == want
+    sortin = (eq.CASES / "carddemo-sort-creastmt" / "sortin.txt").read_bytes().split(b"\n")
+    recs = [r for r in sortin if r]
+    assert len(recs) == 100 and {len(r) for r in recs} == {350}
+    assert len({(r[262:278], r[:16]) for r in recs}) == 100  # every sort key distinct: DFSORT's equal-key order never matters
+
+
 def _sort_job(writer_reclen, writer_program, reader_reclen):
     """A DFSORT-shaped writer feeding a reader (stub cases, no corpus): the join `_check_feed` judges."""
     writer = _step()

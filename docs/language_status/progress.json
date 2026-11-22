@@ -1,5 +1,5 @@
 {
- "commit": "f27f18cf2",
+ "commit": "dde59cf83",
  "components": {
   "capabilities": {
    "groups": [
@@ -214,7 +214,7 @@
      "unit": "calls modelled"
     },
     {
-     "done": 1,
+     "done": 2,
      "found": "",
      "group": "Data and messaging",
      "have": "calls run on our own model, so no rule matches yet",
@@ -370,9 +370,9 @@
      "MATCHED": 4
     },
     "DLI": {
-     "ASSUMED": 12,
+     "ASSUMED": 11,
      "DIFFERS": 3,
-     "MATCHED": 1
+     "MATCHED": 2
     },
     "EDIT": {
      "DIFFERS": 1,
@@ -426,9 +426,9 @@
    "measured_on_zos": 0,
    "rules": 194,
    "status": {
-    "ASSUMED": 54,
+    "ASSUMED": 53,
     "DIFFERS": 30,
-    "MATCHED": 96,
+    "MATCHED": 97,
     "REFUSED": 14
    }
   },
@@ -1067,7 +1067,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T00:35:33Z",
+  "as_of": "2026-11-22T01:13:29Z",
   "core": {
    "closed": 253,
    "open": 22,
@@ -1106,8 +1106,8 @@
   },
   "infra": {
    "closed": 265,
-   "open": 29,
-   "total": 294
+   "open": 30,
+   "total": 295
   },
   "measured": true,
   "milestones": [
@@ -1191,9 +1191,9 @@
    {
     "closed": 90,
     "number": 14,
-    "open": 8,
+    "open": 9,
     "title": "Compiler call-graph comparison",
-    "total": 98
+    "total": 99
    },
    {
     "closed": 98,
@@ -1247,9 +1247,9 @@
    {
     "closed": 65,
     "number": 22,
-    "open": 2,
+    "open": 4,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
-    "total": 67
+    "total": 69
    },
    {
     "closed": 20,
@@ -1359,9 +1359,9 @@
    {
     "closed": 17,
     "number": 38,
-    "open": 12,
+    "open": 13,
     "title": "Charisma +10 \ud83d\udcac \u2014 Public Face & Product Presentation",
-    "total": 29
+    "total": 30
    },
    {
     "closed": 0,

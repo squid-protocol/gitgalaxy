@@ -6967,7 +6967,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - EXEC DLI GU, GN and GNP under CICS are translated (#5278) with PCB(n), SEGMENT, WHERE (one field, operator, data
     area) and INTO: `DetDli.get` builds the SSAs and reuses the modelled call, answering DIBSTAT (GE, GB, AC, AK as
     IBM does; a refusal by name with no PSB scheduled or a PCB number the PSB lacks). ASSUMPTION: a PCB with
-    PROCOPT A / R / D is read with hold (GHU / GHN / GHNP), as IBM holds for update; no IBM text is cited for it.
+    PROCOPT A / R / D is read with hold (GHU / GHN / GHNP). IBM text (IMS 15.4 Application Programming, "Comparing
+    call-level and command-level programs", note 1): "Get commands are just like Get Hold calls". IBM therefore holds on
+    every EXEC DLI get; the model holds only on an updating PROCOPT, which no program can tell apart (a REPL / DLET on
+    any other PCB answers AM before it looks for a held segment) -- traced under #8700, release 15.4.
     The CICS harness runs them against `ggdli.c` (below).
   - The oracle side (#5278): `equivalence_cics.py` rewrites each EXEC DLI to a CALL of `ggdli.c`'s `GGDLISCHD`,
     `GGDLIX` and `GGDLITERM` (the batch CBLTDLI core underneath, PCB by number, DIBSTAT = the PCB mask status), stages

@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `f27f18cf2` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `dde59cf83` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -91,7 +91,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Data and messaging | VSAM ESDS | Partial | no denominator | browse by relative byte address under CICS |
 | Data and messaging | VSAM RRDS | Refused | no denominator | relative record access (refused by name, not missing) |
 | Data and messaging | IBM MQ | Partial | 5 of 25 calls modelled | 0 of 7 rules match IBM; CICS calls only |
-| Data and messaging | IMS DL/I | Partial | 1 of 16 rules match IBM | calls run on our own model, so no rule matches yet |
+| Data and messaging | IMS DL/I | Partial | 2 of 16 rules match IBM | calls run on our own model, so no rule matches yet |
 | Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
 | Batch | JCL step flow | Works | 158 of 158 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's manuals before the evaluator ran; plus 25 ASSUMED scenarios (a stated assumption, not IBM text), 25 reproduced) |
@@ -110,7 +110,7 @@ z/OS: 0 of 194 rules measured. Register of named limits: 149 entries, 74 refuse 
 |---|---|---|---|
 | Translator | 154 programs translated whole | 158 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
-| COBOL runtime rules | 96 MATCHED, 30 DIFFERS, 54 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
+| COBOL runtime rules | 97 MATCHED, 30 DIFFERS, 53 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 125 programs, 309 scenarios | pinned at `v0.19.0 (d0e7ebe9)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 120 of 122 horrors pass | pinned at `v0.8.0` | tests/estate_crucible/baseline.json |
@@ -134,7 +134,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-22T00:35:33Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-22T01:13:29Z.
 
 - `scope:core`: 22 open, 253 closed.
 - Milestone 28: 0 open, 136 closed.
@@ -148,4 +148,4 @@ Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and
 - `scope:frontier`: 5 found in the last 7 days, 214 in total (81 open, 133 closed).
 - Milestone 30 (Gap Atlas): 63 issues.
 - `scope:sweep`: 1 open, 106 closed.
-- `scope:infra`: 29 open, 265 closed.
+- `scope:infra`: 30 open, 265 closed.

@@ -3634,10 +3634,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
    "translator": {
-    "files": 183,
-    "sha256": "72ebf6ad6fd9169a6caf5be4b2a5a76e87a700bf724d8b3ddb971a12bb7db925"
+    "files": 185,
+    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
    }
   },
   "sweeps": {}
@@ -4127,7 +4127,7 @@
      },
      {
       "case": "cbsa-crdtagy2",
-      "case_scenarios": 8,
+      "case_scenarios": 11,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4282,7 +4282,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:8f31285aad079b905e8cbc46a1121c1a808a29c386c2dbda9c7c99445d3f0fff",
+       "oracle_image": "sha256:af6647b3dfbd9f1571acbdcd7104de80de0486efd7707f6fba38990d338057ad",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -4380,7 +4380,11 @@
     "accounted": 191,
     "chosen": 427,
     "current": true,
-    "det_port": "raw 53% (218/409 caught; 427 of 427 mutants, seed 0); every survivor accounted for (191)",
+    "det_port": "raw 53% (218/409 caught; 427 of 427 mutants, seed 0); every survivor accounted for (191) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 218,
     "l5": true,
     "mutants": 427,
@@ -4726,447 +4730,6 @@
       "status": "ASSUMED (REFUSED where IBM is silent)"
      }
     ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 100.0,
-    "branches": {
-     "covered": 2,
-     "total": 2
-    },
-    "branches_net": {
-     "covered": 2,
-     "total": 2
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 7,
-     "live": 7
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cbsa-acctctrl",
-      "case_scenarios": 50,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     },
-     {
-      "case": "cbsa-acctctrl-count",
-      "case_scenarios": 2,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     },
-     {
-      "case": "cbsa-acctctrl-generated",
-      "case_scenarios": 2,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cbsa-acctctrl",
-     "case_scenarios": 50,
-     "db2": true,
-     "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L5",
-   "level_current": true,
-   "mutation": {
-    "accounted": 259,
-    "chosen": 490,
-    "current": true,
-    "det_port": "raw 44% (207/466 caught; 490 of 490 mutants, seed 0); every survivor accounted for (259)",
-    "killed": 207,
-    "l5": true,
-    "mutants": 490,
-    "score": 0.4442,
-    "stale_inputs": [],
-    "survived": 259,
-    "unaccounted": 0
-   },
-   "next": [],
-   "options": {
-    "assumed": 5,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 1,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ACTION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
-      "value": "REPLACE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
-      "value": "UR"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.CONCURRENCY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "THREADSAFE"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.EXECKEY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "USER"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
-      "value": "CICS('SP,EDF') via the program's CBL card"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "OPT"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X46"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27",
-      "X42"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/ACCTCTRL.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27",
-     "X42",
-     "X46"
-    ],
-    "branch_outcomes_unrun": 0,
-    "commands": 3,
-    "commands_backed": 1,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 18,
-    "translated": 18,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
-      "id": "X42",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
-      "id": "X46",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
     "reach": {
      "case": "cbsa-updacc",
      "commands_run": [
@@ -5262,7 +4825,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:8f31285aad079b905e8cbc46a1121c1a808a29c386c2dbda9c7c99445d3f0fff",
+       "oracle_image": "sha256:af6647b3dfbd9f1571acbdcd7104de80de0486efd7707f6fba38990d338057ad",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -5374,7 +4937,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:8f31285aad079b905e8cbc46a1121c1a808a29c386c2dbda9c7c99445d3f0fff",
+      "oracle_image": "sha256:af6647b3dfbd9f1571acbdcd7104de80de0486efd7707f6fba38990d338057ad",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -5394,7 +4957,11 @@
     "accounted": 258,
     "chosen": 686,
     "current": true,
-    "det_port": "raw 61% (404/662 caught; 686 of 686 mutants, seed 0); every survivor accounted for (258), of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): eb7aa72523 (COMM-OVERDRAFT (UPDACC COMMAREA, numeric DISPLAY): raw-overdraft-spaces: COMM-OVERDRAFT all spaces)",
+    "det_port": "raw 61% (404/662 caught; 686 of 686 mutants, seed 0); every survivor accounted for (258), of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): eb7aa72523 (COMM-OVERDRAFT (UPDACC COMMAREA, numeric DISPLAY): raw-overdraft-spaces: COMM-OVERDRAFT all spaces) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 404,
     "l5": true,
     "mutants": 686,
@@ -5850,16 +5417,16 @@
    "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 268,
-    "chosen": 690,
+    "accounted": 263,
+    "chosen": 684,
     "current": true,
-    "det_port": "raw 60% (398/666 caught; 690 of 690 mutants, seed 0); every survivor accounted for (268), of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`)",
-    "killed": 398,
+    "det_port": "raw 60% (397/660 caught; 684 of 684 mutants, seed 0); every survivor accounted for (263), of which 1 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`)",
+    "killed": 397,
     "l5": true,
-    "mutants": 690,
-    "score": 0.5976,
+    "mutants": 684,
+    "score": 0.6015,
     "stale_inputs": [],
-    "survived": 268,
+    "survived": 263,
     "unaccounted": 0
    },
    "next": [],
@@ -6210,6 +5777,449 @@
     "source_defects": [],
     "statements": 64,
     "translated": 64,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 2,
+     "total": 2
+    },
+    "branches_net": {
+     "covered": 2,
+     "total": 2
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 7
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-acctctrl",
+      "case_scenarios": 50,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "cbsa-acctctrl-count",
+      "case_scenarios": 2,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "cbsa-acctctrl-generated",
+      "case_scenarios": 2,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-acctctrl",
+     "case_scenarios": 50,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "accounted": 248,
+    "chosen": 477,
+    "current": true,
+    "det_port": "raw 45% (206/455 caught; 477 of 477 mutants, seed 0); 1 of 249 survivors unaccounted",
+    "killed": 206,
+    "l5": false,
+    "mutants": 477,
+    "score": 0.4527,
+    "stale_inputs": [],
+    "survived": 249,
+    "unaccounted": 1
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (206/455 caught; 477 of 477 mutants, seed 0); 1 of 249 survivors unaccounted)"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ACTION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
+      "value": "REPLACE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
+      "value": "UR"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.CONCURRENCY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "THREADSAFE"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.EXECKEY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "USER"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
+      "value": "CICS('SP,EDF') via the program's CBL card"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "OPT"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X46"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27",
+      "X42"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/ACCTCTRL.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27",
+     "X42",
+     "X46"
+    ],
+    "branch_outcomes_unrun": 0,
+    "commands": 3,
+    "commands_backed": 1,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 18,
+    "translated": 18,
     "whole": true
    }
   },
@@ -14092,7 +14102,10 @@
     "accounted": 547,
     "chosen": 1033,
     "current": true,
-    "det_port": "raw 34% (341/999 caught; 1033 of 1033 mutants, seed 0); 111 of 658 survivors unaccounted",
+    "det_port": "raw 34% (341/999 caught; 1033 of 1033 mutants, seed 0); 111 of 658 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator"
+    ],
     "killed": 341,
     "l5": false,
     "mutants": 1033,
@@ -14102,7 +14115,7 @@
     "unaccounted": 111
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 34% (341/999 caught; 1033 of 1033 mutants, seed 0); 111 of 658 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 34% (341/999 caught; 1033 of 1033 mutants, seed 0); 111 of 658 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 5,
@@ -14668,7 +14681,7 @@
      },
      {
       "case": "cbsa-crdtagy2",
-      "case_scenarios": 8,
+      "case_scenarios": 11,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -14702,7 +14715,7 @@
     ],
     "chosen": {
      "case": "cbsa-crdtagy2",
-     "case_scenarios": 8,
+     "case_scenarios": 11,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -14715,13 +14728,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 511,
+    "chosen": 1015,
+    "current": true,
+    "det_port": "raw 34% (334/983 caught; 1015 of 1015 mutants, seed 0); 138 of 649 survivors unaccounted",
+    "killed": 334,
     "l5": false,
-    "score": null
+    "mutants": 1015,
+    "score": 0.3398,
+    "stale_inputs": [],
+    "survived": 649,
+    "unaccounted": 138
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 34% (334/983 caught; 1015 of 1015 mutants, seed 0); 138 of 649 survivors unaccounted)"
    ],
    "options": {
     "assumed": 5,
@@ -18553,20 +18573,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 300,
-    "chosen": 570,
+    "accounted": 294,
+    "chosen": 564,
     "current": true,
-    "det_port": "raw 45% (245/545 caught; 570 of 570 mutants, seed 0); 1 of 300 survivors unaccounted",
-    "killed": 245,
+    "det_port": "raw 45% (244/540 caught; 564 of 564 mutants, seed 0); 2 of 296 survivors unaccounted",
+    "killed": 244,
     "l5": false,
-    "mutants": 570,
-    "score": 0.4495,
+    "mutants": 564,
+    "score": 0.4519,
     "stale_inputs": [],
-    "survived": 300,
-    "unaccounted": 1
+    "survived": 296,
+    "unaccounted": 2
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (245/545 caught; 570 of 570 mutants, seed 0); 1 of 300 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (244/540 caught; 564 of 564 mutants, seed 0); 2 of 296 survivors unaccounted)"
    ],
    "options": {
     "assumed": 5,
@@ -20676,20 +20696,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 112,
-    "chosen": 193,
+    "accounted": 101,
+    "chosen": 180,
     "current": true,
-    "det_port": "raw 36% (64/180 caught; 193 of 193 mutants, seed 0); 4 of 116 survivors unaccounted",
-    "killed": 64,
+    "det_port": "raw 37% (63/169 caught; 180 of 180 mutants, seed 0); 5 of 106 survivors unaccounted",
+    "killed": 63,
     "l5": false,
-    "mutants": 193,
-    "score": 0.3556,
+    "mutants": 180,
+    "score": 0.3728,
     "stale_inputs": [],
-    "survived": 116,
-    "unaccounted": 4
+    "survived": 106,
+    "unaccounted": 5
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (64/180 caught; 193 of 193 mutants, seed 0); 4 of 116 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (63/169 caught; 180 of 180 mutants, seed 0); 5 of 106 survivors unaccounted)"
    ],
    "options": {
     "assumed": 5,
@@ -21069,20 +21089,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 112,
-    "chosen": 200,
+    "accounted": 101,
+    "chosen": 187,
     "current": true,
-    "det_port": "raw 38% (71/187 caught; 200 of 200 mutants, seed 0); 4 of 116 survivors unaccounted",
-    "killed": 71,
+    "det_port": "raw 40% (70/176 caught; 187 of 187 mutants, seed 0); 5 of 106 survivors unaccounted",
+    "killed": 70,
     "l5": false,
-    "mutants": 200,
-    "score": 0.3797,
+    "mutants": 187,
+    "score": 0.3977,
     "stale_inputs": [],
-    "survived": 116,
-    "unaccounted": 4
+    "survived": 106,
+    "unaccounted": 5
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 38% (71/187 caught; 200 of 200 mutants, seed 0); 4 of 116 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (70/176 caught; 187 of 187 mutants, seed 0); 5 of 106 survivors unaccounted)"
    ],
    "options": {
     "assumed": 5,
@@ -21583,7 +21603,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:8f31285aad079b905e8cbc46a1121c1a808a29c386c2dbda9c7c99445d3f0fff",
+       "oracle_image": "sha256:af6647b3dfbd9f1571acbdcd7104de80de0486efd7707f6fba38990d338057ad",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -21644,7 +21664,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:8f31285aad079b905e8cbc46a1121c1a808a29c386c2dbda9c7c99445d3f0fff",
+      "oracle_image": "sha256:af6647b3dfbd9f1571acbdcd7104de80de0486efd7707f6fba38990d338057ad",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -24219,8 +24239,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+   "python tests/tools/cics_census.py survey --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-count,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-beyond,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (41) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -24238,20 +24258,20 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:8f31285aad079b905e8cbc46a1121c1a808a29c386c2dbda9c7c99445d3f0fff"
+   "sha256:af6647b3dfbd9f1571acbdcd7104de80de0486efd7707f6fba38990d338057ad"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
    "translator": {
-    "files": 183,
-    "sha256": "72ebf6ad6fd9169a6caf5be4b2a5a76e87a700bf724d8b3ddb971a12bb7db925"
+    "files": 185,
+    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
    }
   },
-  "translator_commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+  "translator_commit": "42bfd682954ea5353d5e84e92abad0452a9a5756",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24262,8 +24282,8 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 27,
-   "L5": 4
+   "L4": 28,
+   "L5": 3
   },
   "histogram_stale": {
    "L0": 0,
@@ -24294,6 +24314,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "72ebf6ad6fd9169a6caf5be4b2a5a76e87a700bf724d8b3ddb971a12bb7db925"
+  "fingerprint": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
  }
 }

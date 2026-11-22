@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `5733e40eb9107e2337a4a2d3d25e68860be8d4ef` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `42bfd682954ea5353d5e84e92abad0452a9a5756` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `72ebf6ad6fd9`).
+The translation survey matches the translator in the tree (translator fingerprint `bf4dd55ff012`).
 
 ## How to read this report
 
@@ -83,13 +83,13 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Source/ZECSNC.asm | L5 | 54/54 | 0 | zecs-zecsnc | equal | 0 | not measured | 13/13 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 49% | raw 49% (240/492 caught; 513 of 513 mutants, seed 0); every survivor accounted for (252) | — |
-| Source/ECS001.cbl | L4 | 105/105 | 0 | zecs-ecs001 | equal | 0 | not measured | 15/15 (100.0%) | 18/20 (90.0%) | 18/18 (100.0%) | 53% | raw 53% (347/658 caught; 679 of 679 mutants, seed 0); 45 of 311 survivors unaccounted | 3/7 |
+| Source/ZECSNC.asm | L5 | 54/54 | 0 | zecs-zecsnc | equal | 0 | not measured | 13/13 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | 49% | raw 49% (240/492 caught; 513 of 513 mutants, seed 0); every survivor accounted for (252) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh) | — |
+| Source/ECS001.cbl | L4 | 105/105 | 0 | zecs-ecs001 | equal | 0 | not measured | 15/15 (100.0%) | 18/20 (90.0%) | 18/18 (100.0%) | 54% | raw 54% (347/648 caught; 667 of 667 mutants, seed 0); 45 of 301 survivors unaccounted | 3/7 |
 | Source/ZECS000.cbl | L4 | 173/173 | 0 | zecs-zecs000 | equal | 0 | not measured | 38/38 (100.0%) | 48/48 (100.0%) | 48/48 (100.0%) | — | not measured (no det_mutation/ entry) | 5/22 |
 | Source/ZECS001.cbl | L4 | 561/561 | 0 | zecs-zecs001 | equal | 0 | not measured | 119/119 (100.0%) | 206/208 (99.0%) | 206/206 (100.0%) | — | not measured (no det_mutation/ entry) | 3/27 |
 | Source/ZECS002.asm | L4 | 511/511 | 0 | zecs-zecs002 | equal | 0 | not measured | 24/24 (100.0%) | 70/242 (28.9%) | 70/70 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| Source/ZECS003.cbl | L4 | 73/73 | 0 | zecs-zecs003 | equal | 0 | not measured | 21/21 (100.0%) | 30/30 (100.0%) | 30/30 (100.0%) | 50% | raw 50% (455/904 caught; 941 of 941 mutants, seed 0); 26 of 449 survivors unaccounted | 1/12 |
-| Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 0 | not measured | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 41% | raw 41% (136/333 caught; 354 of 355 mutants, seed 0); 9 of 197 survivors unaccounted | 2/5 |
+| Source/ZECS003.cbl | L4 | 73/73 | 0 | zecs-zecs003 | equal | 0 | not measured | 21/21 (100.0%) | 30/30 (100.0%) | 30/30 (100.0%) | 51% | raw 51% (454/898 caught; 935 of 935 mutants, seed 0); 28 of 444 survivors unaccounted | 1/12 |
+| Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 0 | not measured | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 43% | raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted | 2/5 |
 
 ## Per program
 
@@ -106,13 +106,13 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 49% (240/492 caught; 513 of 513 mutants, seed 0); every survivor accounted for (252)
+- **Det-port mutation:** raw 49% (240/492 caught; 513 of 513 mutants, seed 0); every survivor accounted for (252) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### Source/ECS001.cbl -- L4
 
 - **Executed equivalent** on the 24 scenarios of zecs-ecs001 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 53% (347/658 caught; 679 of 679 mutants, seed 0); 45 of 311 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 54% (347/648 caught; 667 of 667 mutants, seed 0); 45 of 301 survivors unaccounted)
 - **Translation:** 105/105 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -136,7 +136,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - runtime facts the harness states for its commands: http_peers, urimaps
   - stated infeasible branch outcome (reviewed claim, family R): A3000-OPEN-CONNECTION:197:false (IF) -- `IF EIBRESP = DFHRESP(NORMAL)` after `WEB OPEN SESSTOKEN(SESSION-TOKEN) URIMAP(URIMAP-NAME)` (190-194): URIMAP-NAME is the copybook-less constant `VALUE 'ECS001'` (line 37), never written, and the region's WEB OPEN by URIMAP (GGCWOPN, register X35) answers NORMAL for the peer the scenario states and refuses (the run stops) for one it does not; the stub raises no condition for the URIMAP form (its LENGERR 21 / INVREQ 40 / 138 belong to the HOST form, which ECS001 does not use). IBM documents more WEB OPEN conditions than the model raises (assumption X35): owner review.
   - stated infeasible branch outcome (reviewed claim, family R): A5000-CLOSE-CONNECTION:353:false (IF) -- `IF EIBRESP = DFHRESP(NORMAL)` after `WEB CLOSE SESSTOKEN(SESSION-TOKEN)` (A5000): the only condition the region raises for WEB CLOSE is NOTOPEN (GGCWCLS, register X35), for a token no open session holds; A5000 runs only after A3000 left through line 197's NORMAL arm with SESSION-TOKEN written by the WEB OPEN, A4000 never closes it, and ECS001 closes it once, so the session is open. IBM's other WEB CLOSE conditions are not raised by the model (assumption X35): owner review.
-- **Det-port mutation:** raw 53% (347/658 caught; 679 of 679 mutants, seed 0); 45 of 311 survivors unaccounted
+- **Det-port mutation:** raw 54% (347/648 caught; 667 of 667 mutants, seed 0); 45 of 301 survivors unaccounted
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X27, X32, X35, X42; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### Source/ZECS000.cbl -- L4
@@ -426,7 +426,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 ### Source/ZECS003.cbl -- L4
 
 - **Executed equivalent** on the 36 scenarios of zecs-zecs003 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 50% (455/904 caught; 941 of 941 mutants, seed 0); 26 of 449 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 51% (454/898 caught; 935 of 935 mutants, seed 0); 28 of 444 survivors unaccounted)
 - **Translation:** 73/73 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -453,18 +453,18 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 9 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: doctemplates, http_peers, http_request, urimaps
-- **Det-port mutation:** raw 50% (455/904 caught; 941 of 941 mutants, seed 0); 26 of 449 survivors unaccounted
+- **Det-port mutation:** raw 51% (454/898 caught; 935 of 935 mutants, seed 0); 28 of 444 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X32, X33, X35, X36, X37, X42; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, INQUIRE URIMAP, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### Source/ZECSPLT.cbl -- L4
 
-- **Executed equivalent** on the 9 scenarios of zecs-zecsplt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 41% (136/333 caught; 354 of 355 mutants, seed 0); 9 of 197 survivors unaccounted)
+- **Executed equivalent** on the 12 scenarios of zecs-zecsplt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted)
 - **Translation:** 27/27 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecsplt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 9 runs (— fault runs)
+  - evidence record (the case's committed port): not measured; its proof: all equal, 0/0 scenarios equal, 0/0 records equal, 12 runs (— fault runs)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -479,7 +479,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: urimaps
-- **Det-port mutation:** raw 41% (136/333 caught; 354 of 355 mutants, seed 0); 9 of 197 survivors unaccounted
+- **Det-port mutation:** raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X32, X42; commands without oracle backing: INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
@@ -517,7 +517,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `5733e40eb9107e2337a4a2d3d25e68860be8d4ef`
+- translator commit (the survey's): `42bfd682954ea5353d5e84e92abad0452a9a5756`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.19.0`, estate `v0.8.0`, language `v1.7.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -527,8 +527,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 5733e40eb9107e2337a4a2d3d25e68860be8d4ef
-python tests/tools/evidence_report.py zecs --baseline --sha 5733e40eb9107e2337a4a2d3d25e68860be8d4ef
+python tests/tools/cics_census.py survey --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756
+python tests/tools/evidence_report.py zecs --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
 python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt

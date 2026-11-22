@@ -2530,10 +2530,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
    "translator": {
-    "files": 183,
-    "sha256": "72ebf6ad6fd9169a6caf5be4b2a5a76e87a700bf724d8b3ddb971a12bb7db925"
+    "files": 185,
+    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
    }
   },
   "sweeps": {}
@@ -2804,20 +2804,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 75,
-    "chosen": 2052,
+    "accounted": 83,
+    "chosen": 2148,
     "current": true,
-    "det_port": "raw 87% (1754/2010 caught; 2052 of 2052 mutants, seed 0); 181 of 256 survivors unaccounted",
-    "killed": 1754,
+    "det_port": "raw 94% (1970/2098 caught; 2148 of 2148 mutants, seed 0); 45 of 128 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 1970,
     "l5": false,
-    "mutants": 2052,
-    "score": 0.8726,
+    "mutants": 2148,
+    "score": 0.939,
     "stale_inputs": [],
-    "survived": 256,
-    "unaccounted": 181
+    "survived": 128,
+    "unaccounted": 45
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 87% (1754/2010 caught; 2052 of 2052 mutants, seed 0); 181 of 256 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (1970/2098 caught; 2148 of 2148 mutants, seed 0); 45 of 128 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 4,
@@ -3448,19 +3452,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 10,
-    "chosen": 226,
+    "chosen": 214,
     "current": true,
-    "det_port": "raw 85% (187/221 caught; 226 of 226 mutants, seed 0); 24 of 34 survivors unaccounted",
-    "killed": 187,
+    "det_port": "raw 84% (177/211 caught; 214 of 214 mutants, seed 0); 24 of 34 survivors unaccounted",
+    "killed": 177,
     "l5": false,
-    "mutants": 226,
-    "score": 0.8462,
+    "mutants": 214,
+    "score": 0.8389,
     "stale_inputs": [],
     "survived": 34,
     "unaccounted": 24
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 85% (187/221 caught; 226 of 226 mutants, seed 0); 24 of 34 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 84% (177/211 caught; 214 of 214 mutants, seed 0); 24 of 34 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -3877,20 +3881,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 2,
-    "chosen": 242,
+    "accounted": 3,
+    "chosen": 254,
     "current": true,
-    "det_port": "raw 91% (216/237 caught; 242 of 242 mutants, seed 0); 19 of 21 survivors unaccounted",
-    "killed": 216,
+    "det_port": "raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 243,
     "l5": false,
-    "mutants": 242,
-    "score": 0.9114,
+    "mutants": 254,
+    "score": 0.9798,
     "stale_inputs": [],
-    "survived": 21,
-    "unaccounted": 19
+    "survived": 5,
+    "unaccounted": 2
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 91% (216/237 caught; 242 of 242 mutants, seed 0); 19 of 21 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 4,
@@ -4308,19 +4316,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 14,
-    "chosen": 578,
+    "chosen": 542,
     "current": true,
-    "det_port": "raw 86% (482/563 caught; 578 of 578 mutants, seed 0); 67 of 81 survivors unaccounted",
-    "killed": 482,
+    "det_port": "raw 85% (452/533 caught; 542 of 542 mutants, seed 0); 67 of 81 survivors unaccounted",
+    "killed": 452,
     "l5": false,
-    "mutants": 578,
-    "score": 0.8561,
+    "mutants": 542,
+    "score": 0.848,
     "stale_inputs": [],
     "survived": 81,
     "unaccounted": 67
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 86% (482/563 caught; 578 of 578 mutants, seed 0); 67 of 81 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 85% (452/533 caught; 542 of 542 mutants, seed 0); 67 of 81 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -4764,19 +4772,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 14,
-    "chosen": 237,
+    "chosen": 225,
     "current": true,
-    "det_port": "raw 84% (194/232 caught; 237 of 237 mutants, seed 0); 24 of 38 survivors unaccounted",
-    "killed": 194,
+    "det_port": "raw 83% (184/222 caught; 225 of 225 mutants, seed 0); 24 of 38 survivors unaccounted",
+    "killed": 184,
     "l5": false,
-    "mutants": 237,
-    "score": 0.8362,
+    "mutants": 225,
+    "score": 0.8288,
     "stale_inputs": [],
     "survived": 38,
     "unaccounted": 24
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 84% (194/232 caught; 237 of 237 mutants, seed 0); 24 of 38 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 83% (184/222 caught; 225 of 225 mutants, seed 0); 24 of 38 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -5198,20 +5206,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 2,
-    "chosen": 204,
+    "accounted": 3,
+    "chosen": 216,
     "current": true,
-    "det_port": "raw 89% (178/199 caught; 204 of 204 mutants, seed 0); 19 of 21 survivors unaccounted",
-    "killed": 178,
+    "det_port": "raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 205,
     "l5": false,
-    "mutants": 204,
-    "score": 0.8945,
+    "mutants": 216,
+    "score": 0.9762,
     "stale_inputs": [],
-    "survived": 21,
-    "unaccounted": 19
+    "survived": 5,
+    "unaccounted": 2
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 89% (178/199 caught; 204 of 204 mutants, seed 0); 19 of 21 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 4,
@@ -5633,19 +5645,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 6,
-    "chosen": 171,
+    "chosen": 159,
     "current": true,
-    "det_port": "raw 82% (136/166 caught; 171 of 171 mutants, seed 0); 24 of 30 survivors unaccounted",
-    "killed": 136,
+    "det_port": "raw 81% (126/156 caught; 159 of 159 mutants, seed 0); 24 of 30 survivors unaccounted",
+    "killed": 126,
     "l5": false,
-    "mutants": 171,
-    "score": 0.8193,
+    "mutants": 159,
+    "score": 0.8077,
     "stale_inputs": [],
     "survived": 30,
     "unaccounted": 24
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 82% (136/166 caught; 171 of 171 mutants, seed 0); 24 of 30 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 81% (126/156 caught; 159 of 159 mutants, seed 0); 24 of 30 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -6042,20 +6054,24 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 6,
-    "chosen": 171,
+    "accounted": 7,
+    "chosen": 183,
     "current": true,
-    "det_port": "raw 82% (136/166 caught; 171 of 171 mutants, seed 0); 24 of 30 survivors unaccounted",
-    "killed": 136,
+    "det_port": "raw 92% (163/177 caught; 183 of 183 mutants, seed 0); 7 of 14 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
+    "killed": 163,
     "l5": false,
-    "mutants": 171,
-    "score": 0.8193,
+    "mutants": 183,
+    "score": 0.9209,
     "stale_inputs": [],
-    "survived": 30,
-    "unaccounted": 24
+    "survived": 14,
+    "unaccounted": 7
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 82% (136/166 caught; 171 of 171 mutants, seed 0); 24 of 30 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (163/177 caught; 183 of 183 mutants, seed 0); 7 of 14 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 4,
@@ -6443,19 +6459,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 55,
-    "chosen": 1899,
+    "chosen": 1803,
     "current": true,
-    "det_port": "raw 88% (1625/1857 caught; 1899 of 1899 mutants, seed 0); 177 of 232 survivors unaccounted",
-    "killed": 1625,
+    "det_port": "raw 87% (1545/1777 caught; 1803 of 1803 mutants, seed 0); 177 of 232 survivors unaccounted",
+    "killed": 1545,
     "l5": false,
-    "mutants": 1899,
-    "score": 0.8751,
+    "mutants": 1803,
+    "score": 0.8694,
     "stale_inputs": [],
     "survived": 232,
     "unaccounted": 177
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 88% (1625/1857 caught; 1899 of 1899 mutants, seed 0); 177 of 232 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 87% (1545/1777 caught; 1803 of 1803 mutants, seed 0); 177 of 232 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -7078,19 +7094,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 6,
-    "chosen": 192,
+    "chosen": 180,
     "current": true,
-    "det_port": "raw 84% (157/187 caught; 192 of 192 mutants, seed 0); 24 of 30 survivors unaccounted",
-    "killed": 157,
+    "det_port": "raw 83% (147/177 caught; 180 of 180 mutants, seed 0); 24 of 30 survivors unaccounted",
+    "killed": 147,
     "l5": false,
-    "mutants": 192,
-    "score": 0.8396,
+    "mutants": 180,
+    "score": 0.8305,
     "stale_inputs": [],
     "survived": 30,
     "unaccounted": 24
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 84% (157/187 caught; 192 of 192 mutants, seed 0); 24 of 30 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 83% (147/177 caught; 180 of 180 mutants, seed 0); 24 of 30 survivors unaccounted)"
    ],
    "options": {
     "assumed": 4,
@@ -7375,8 +7391,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+   "python tests/tools/cics_census.py survey --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -7397,13 +7413,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
    "translator": {
-    "files": 183,
-    "sha256": "72ebf6ad6fd9169a6caf5be4b2a5a76e87a700bf724d8b3ddb971a12bb7db925"
+    "files": 185,
+    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
    }
   },
-  "translator_commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef",
+  "translator_commit": "42bfd682954ea5353d5e84e92abad0452a9a5756",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -7446,6 +7462,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "72ebf6ad6fd9169a6caf5be4b2a5a76e87a700bf724d8b3ddb971a12bb7db925"
+  "fingerprint": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
  }
 }

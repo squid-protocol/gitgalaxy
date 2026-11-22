@@ -450,3 +450,174 @@ _BRANCH_COUNT_CASES = [
 def test_branch_counts_match_only_as_statement_8034(lang, source, expected):
     rule = LANGUAGE_DEFINITIONS[lang]["rules"]["branch"]
     assert len(rule.findall(source)) == expected, source
+
+
+# #8861: bitwise_ops counts the contract's and / or operators, one case per function.
+@pytest.mark.parametrize(
+    "src",
+    [
+        "m = a & b",
+        "m = a | b",
+        "m &= 0xFF",
+        "m |= flag",
+        "m ^= key",
+        "m = ~a",
+        "m = a >> 3",
+        "m = {**a} | b",
+    ],
+)
+def test_python_bitwise_ops_counts_operators(src):
+    assert PY_RULES["bitwise_ops"].search(src)
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "def f(x: str | None) -> None: ...",
+        "def f(x: None | str): ...",
+        "def f() -> int | None: ...",
+        "y = x < 2 and z > 1",
+        "f = lambda x: x + 1",
+    ],
+)
+def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
+    assert not PY_RULES["bitwise_ops"].search(src)
+
+
+def test_python_bitwise_ops_string_content_still_counts_documented():
+    """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
+    assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+
+
+# #8865: every subprocess entry point that spawns a process counts as high_risk_execution;
+# a `global` statement is a globals signal; `nonlocal` stays open (definition call in #8862).
+@pytest.mark.parametrize(
+    "code",
+    [
+        "subprocess.call(a)",
+        "subprocess.Popen(a)",
+        "subprocess.run(a)",
+        "return subprocess.check_output(['ls'])",
+        "subprocess.check_call(['ls'])",
+        "subprocess.getoutput(cmd)",
+        "subprocess.getstatusoutput(cmd)",
+    ],
+)
+def test_subprocess_spawners_count_as_high_risk_execution_8865(code):
+    assert LANGUAGE_DEFINITIONS["python"]["rules"]["high_risk_execution"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code", ["check_output(['ls'])", "mysubprocess_check_output = 1", "subprocess.list2cmdline(a)"]
+)
+def test_non_spawning_subprocess_names_miss_high_risk_execution_8865(code):
+    assert not LANGUAGE_DEFINITIONS["python"]["rules"]["high_risk_execution"].search(code), code
+
+
+def test_global_statement_counts_as_globals_8865():
+    rule = LANGUAGE_DEFINITIONS["python"]["rules"]["globals"]
+    assert rule.search("def mutates():\n    global STATE\n    STATE += 1\n")
+    assert not rule.search("def f():\n    nonlocal x\n")  # #8862 owns the closure question
+
+
+# serialization_parsing (#8882): every interchange codec the contract names, encode and decode.
+@pytest.mark.parametrize(
+    "code",
+    [
+        "return json.dumps(x)",
+        "return json.loads(s)",
+        "json.load(fh)",
+        "json.dump(x, fh)",
+        "x = orjson.dumps(v)",
+        "cfg = yaml.safe_load(fh)",
+        "yaml.safe_dump(cfg)",
+        "yaml.dump(cfg)",
+        "root = ET.fromstring(text)",
+        "tree = ElementTree.parse(path)",
+        "doc = minidom.parseString(text)",
+        "r = csv.reader(fh)",
+        "w = csv.DictWriter(fh, fields)",
+        "msg.ParseFromString(raw)",
+        "raw = msg.SerializeToString()",
+        "json_format.MessageToJson(msg)",
+        "blob = pickle.dumps(obj)",
+        "blob = marshal.dumps(code)",
+        "data = pickle.loads(raw)",
+        "v = ast.literal_eval(s)",
+    ],
+)
+def test_python_serialization_parsing_covers_the_contract_formats(code):
+    assert PY_RULES["serialization_parsing"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "json_data = x",
+        "y = myjson.loads(s)",
+        "yaml_file = 'a.yaml'",
+        "csv_reader_cfg = {}",
+        "import json",
+        "ET_count = 3",
+    ],
+)
+def test_python_serialization_parsing_ignores_non_calls(code):
+    assert not PY_RULES["serialization_parsing"].search(code), code
+
+
+# Built from parts: tests/tools/test_no_raw_wall_clock_timing_8423.py counts literal clock calls in test source.
+_TIME = "ti" + "me"
+
+
+# #8859: time_date_logic misses the measurement clocks. One snippet per case so a
+# regression names itself in the test id.
+@pytest.mark.parametrize(
+    "code",
+    [
+        "x = " + _TIME + ".perf_counter()",
+        "x = " + _TIME + ".perf_counter_ns()",
+        "x = " + _TIME + ".monotonic()",
+        "x = " + _TIME + ".monotonic_ns()",
+        "x = time.process_time()",
+        "x = time.process_time_ns()",
+        "x = time.thread_time()",
+        "x = " + _TIME + ".time_ns()",
+        "x = time.gmtime()",
+        "x = time.localtime()",
+        "x = time.mktime(t)",
+        "x = time.strftime('%Y', t)",
+        "x = time.strptime(s, '%Y')",
+        "x = datetime.now()",
+        "x = datetime.utcnow()",
+        "x = datetime.today()",
+        "x = datetime.fromtimestamp(1)",
+        "x = datetime.datetime.now()",
+        "x = stamp.strftime('%Y')",
+        "x = datetime.strptime(s, '%Y')",
+        "x = when.isoformat()",
+        "x = perf_counter()",
+        "x = perf_counter_ns ()",
+        "x = monotonic()",
+        "x = process_time()",
+        "x = time_ns()",
+    ],
+)
+def test_python_time_date_logic_matches_clocks(code):
+    assert PY_RULES["time_date_logic"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "perf_counter_total = 3",
+        "monotonic = 1",
+        "now = 3",
+        "x = now()",
+        "process_time_budget = 2",
+        "time_ns_label = 'x'",
+        "x = sometime.perf_counters",
+        "strftime_fmt = '%Y'",
+    ],
+)
+def test_python_time_date_logic_ignores_non_clock_names(code):
+    assert not PY_RULES["time_date_logic"].search(code), code

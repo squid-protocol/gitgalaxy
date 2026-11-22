@@ -999,4 +999,31 @@ public final class DetCics {
         }
         return paragraph(paragraphs, label);
     }
+
+    /** A copy of `bytes` (null stays null): what a service's lastAnswerBytes / lastLinkBytes hand out. */
+    public static byte[] copyBytes(byte[] bytes) {
+        return bytes == null ? null : Arrays.copyOf(bytes, bytes.length);
+    }
+
+    /**
+     * The program ends because of an abend (#4534): a LINKed program (task level above 1) writes its COMMAREA back to
+     * its caller first (`caBack`), a level-1 task keeps nothing. Returns the service's own end-of-program exception.
+     */
+    public static <T extends RuntimeException> T abended(CicsTask task, Runnable caBack, Supplier<T> goback) {
+        if (task.level() > 1) {
+            caBack.run();
+        }
+        return goback.get();
+    }
+
+    /**
+     * The store of a program that names no file the generated project stores (#6072, #7487): an empty store for a
+     * name no region can define or install (its command answers FILENOTFOUND); any other name is a hole.
+     */
+    public static <E> Store<E> noStore(CicsTask task, String name, Charset cs) {
+        if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {
+            return Store.undefined(cs);
+        }
+        throw new __PACKAGE__.cobolrt.Hole("CICS file " + name + ": the program names no file the generated project stores");
+    }
 }

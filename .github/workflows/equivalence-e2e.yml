@@ -112,16 +112,16 @@ jobs:
           args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
           if [ "$EVENT" = "pull_request" ]; then
             # the PR's files from the API, whole or not at all (as suite-plan in smoke-test.yml): a short list is `run`
-            labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
-            mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
-            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+            labels=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+            mapfile -t files < <(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+            count=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
             args+=(--labels "$labels" --files)
             if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
           fi
           if [ "$EVENT" = "push" ]; then
             # the files this push brought in, whole or not at all (the compare API lists at most 300): a short list is `run`
             # an empty list (API failure, too many files) is `run`: the planner fails open
-            mapfile -t files < <(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq 'if (.files | length) < 300 then .files[] | .filename, (.previous_filename // empty) else empty end' || true)
+            mapfile -t files < <(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq 'if (.files | length) < 300 then .files[] | .filename, (.previous_filename // empty) else empty end' || true)
             args+=(--files "${files[@]}")
           fi
           python3 tests/tools/equivalence_e2e_plan.py "${args[@]}" > e2e-plan.json || { printf 'mode=run\ndb2=run\n' >> "$GITHUB_OUTPUT"; echo '{"mode": "run", "db2": "run", "reason": "the planner failed"}' > e2e-plan.json; }

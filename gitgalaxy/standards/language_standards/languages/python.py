@@ -275,8 +275,9 @@ DEFINITION: dict[str, Any] = {
         # Process killers and un-sanitized deserialization. EXCLUDES TODO/print.
         # #2878 contract C1a: sys.exit/os._exit/os.abort end the process (embedded_python twin
         # parity); os.exec*/os.spawn* replace or spawn one (C1b).
+        # #8865: subprocess.check_call/check_output/getoutput/getstatusoutput spawn a process like call/run.
         "high_risk_execution": re.compile(
-            r"\b(eval|exec|subprocess\.(?:call|Popen|run)|os\.system|os\.exec[lv]p?e?|os\.spawn[lv]p?e?|pickle\.loads?|yaml\.unsafe_load|shell=True|sys\.exit|os\._exit|os\.abort)\b"
+            r"\b(eval|exec|subprocess\.(?:call|Popen|run|check_call|check_output|getoutput|getstatusoutput)|os\.system|os\.exec[lv]p?e?|os\.spawn[lv]p?e?|pickle\.loads?|yaml\.unsafe_load|shell=True|sys\.exit|os\._exit|os\.abort)\b"
         ),
         # 9. io (I/O & Network Boundaries)
         # #2593: `os\.`/`sys\.` used to match ANY `os.x`/`sys.x` attribute access, which
@@ -484,7 +485,10 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(time\.sleep|asyncio\.sleep|Thread\.join)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|\^|~"),
+        # #8861: the contract's and / or operators too (`a & b`, `a | b`, `m &= x`); a `| None` /
+        # `None |` type union is not a bitwise operator on values. Characters inside strings still
+        # count (documented behaviour, #2535 / #8866).
+        "bitwise_ops": re.compile(r"<<|>>|\^|~" + r"|&" + r"|(?<!None)(?<!None )\|(?!\s*None\b)"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Lock|RLock|Semaphore|BoundedSemaphore|Event|Condition|Barrier)\b"),
         # 45. immutability_locks (Immutability Constraints)
@@ -546,11 +550,33 @@ DEFINITION: dict[str, Any] = {
             r"|\bbcrypt\.checkpw\("
             r"|(?<!def )\bauthenticate\("
         ),
+        # serialization_parsing (#8882): the contract is every structured-interchange codec
+        # (JSON, YAML, XML, CSV, protobuf, marshal/pickle), encode AND decode, not only the
+        # unsafe-deserialization subset (that stays safety_bypasses' `pickle.loads?`).
+        # Call-anchored on the module/receiver name, so `myjson.loads` and `json_data` miss.
         "serialization_parsing": re.compile(
-            r"\b(pickle\.loads?|pickle\.Unpickler|marshal\.loads?|ast\.literal_eval)\b"
+            r"\b(?:json|ujson|orjson|simplejson)\.(?:loads?|dumps?)\b"
+            r"|\byaml\.(?:safe_|full_|unsafe_)?(?:load|load_all|dump|dump_all)\b"
+            r"|\b(?:ElementTree|ET|etree|minidom)\.(?:parse|fromstring|tostring|XML|parseString)\b"
+            r"|\bcsv\.(?:reader|writer|DictReader|DictWriter)\b"
+            r"|\.(?:ParseFromString|SerializeToString)\("
+            r"|\bjson_format\.(?:MessageToJson|MessageToDict|Parse|ParseDict)\b"
+            r"|\b(?:pickle|marshal)\.(?:loads?|dumps?)\b"
+            r"|\bpickle\.Unpickler\b"
+            r"|\bast\.literal_eval\b"
         ),
         "regex_execution": re.compile(r"\b(re\.compile|re\.search|re\.match|re\.sub|re\.findall|re\.split)\b"),
-        "time_date_logic": re.compile(r"\b(datetime\.datetime|timedelta|time\.sleep|time\.time|calendar)\b"),
+        # time_date_logic (#8859): clock reads (qualified, and bare after `from time import`),
+        # datetime constructors, and format/parse calls. A bare `now(` is NOT matched (noisy);
+        # `datetime.now` after `from datetime import datetime` matches via the `datetime.` prefix.
+        "time_date_logic": re.compile(
+            r"\b(?:datetime\.datetime|timedelta|time\.sleep|time\.time|calendar"
+            r"|time\.(?:perf_counter|monotonic|process_time|thread_time)(?:_ns)?"
+            r"|time\.(?:time_ns|gmtime|localtime|mktime|strftime|strptime|ctime|asctime)"
+            r"|datetime\.(?:now|utcnow|today|fromtimestamp|utcfromtimestamp|fromisoformat|strptime)"
+            r"|(?:perf_counter|monotonic|process_time)(?:_ns)?(?=[ \t]*\()|time_ns(?=[ \t]*\())\b"
+            r"|\.(?:strftime|strptime|isoformat)[ \t]*\("
+        ),
         "ipc_rpc_bridges": re.compile(r"\b(multiprocessing|subprocess|xmlrpc|socketserver)\b"),
         # system_config_mutation (#3084): contract-level absence. stdlib winreg
         # exists but crucible incidence is 0; host config is otherwise file I/O

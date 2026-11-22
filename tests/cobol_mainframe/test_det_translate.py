@@ -3202,8 +3202,8 @@ def test_a_linked_programs_commarea_goes_back_to_its_caller_when_an_abend_ends_i
     r = P.translate(tmp_path / "T3.cbl", [], stub, "com.x", {}, tmp_path / "proj")
     assert r.stats["holes"] == []
     body = r.java[r.java.index("private Goback abended()") :]
-    body = body[: body.index("\n    }\n")]
-    assert "if (task.level() > 1) {" in body and "caBack.run();" in body and "return new Goback();" in body
+    body = body[: body.index("\n")]
+    assert "DetCics.abended(task, caBack, Goback::new)" in body  # #8486: the level test lives in cobolrt
     cond = r.java[r.java.index("private int condition(String cond)") :]
     assert "DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended);" in cond[: cond.index("\n    }\n")]
     assert "throw abended();" in r.java[r.java.index("task.abend(") :]

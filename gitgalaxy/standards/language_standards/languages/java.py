@@ -97,13 +97,15 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes modern switch expressions (yield) and pattern guards (when).
-        # EXCLUDES: Exceptions (throw) - moved to bailout_hits.
+        # EXCLUDES: Exceptions (throw) - moved to bailout_hits. A `catch` (and `try`/`finally`) is a
+        # handler, not a decision (branch_rule_contract.md corollary 1; #8867): it stays out.
+        # The short-circuit `&&` / `||` open a runtime choice and count, as in every sibling C-style rule (#8867).
         # A ternary is one decision, counted at its `?`. A `:` is never one: the
         # ternary's own `:`, a `case`/`default` label's (the keyword counts the
         # arm), a statement label, the enhanced-for and assert separators. A
         # generic wildcard (`<?>`, `<? extends T>`, `Map<?, V>`) is a type.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|yield|when)\b|\?(?![ \t]*(?:[>,]|extends\b|super\b))"
+            r"\b(if|else|switch|case|default|for|while|do|yield|when)\b|&&|\|\||\?(?![ \t]*(?:[>,]|extends\b|super\b))"
         ),
         # 2. args (Parameters / Coupling)
         # Captures method/constructor params and lambdas. Bounded to prevent ReDoS.
@@ -525,7 +527,8 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|TimeUnit\.[A-Z_]+\.sleep|delay|CountDownLatch\.await)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>>?|\^|~"),
+        # #8866: a ">>" closing a generic list is not a shift
+        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>>?|(?<=\w)>>>?(?=\w))|\^|~"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|ReentrantLock|ReadWriteLock|Condition)\b",

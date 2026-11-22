@@ -29,6 +29,8 @@ flask_session/
 
 # PYPI PACKAGING & BUILD ARTIFACTS
 build/
+# The vendored three.js files live in a folder called build/ (see site/vendor/README.md).
+!site/vendor/three/build/
 dist/
 *.egg-info/
 
@@ -105,6 +107,7 @@ museum_2/
 !tests/*_baseline.json
 !tests/*_baseline_*.json
 !tests/estate_crucible/levels.json
+!tests/tools/family_oracle_cases.json
 # The DOOM's DNA article's data file, served by the docs site (docs/wiki/museum-of-code/doom-dna/)
 !docs/wiki/museum-of-code/doom-dna/data.json
 # the estate journey page's hand-kept data (tests/tools/estate_journey.py renders the page from it)

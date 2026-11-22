@@ -1352,11 +1352,11 @@
       "fortran/wrf/cleanCMake.sh": 0.93,
       "fortran/wrf/configure_reader.py": 1.074,
       "fortran/wrf/gen_be_wrapper.ksh": 0.429,
-      "fortran/wrf/module_configure.F": 1.636,
-      "fortran/wrf/module_domain.F": 0.913,
-      "fortran/wrf/module_initialize_real.F": 1.549,
+      "fortran/wrf/module_configure.F": 1.616,
+      "fortran/wrf/module_domain.F": 0.911,
+      "fortran/wrf/module_initialize_real.F": 1.508,
       "fortran/wrf/module_physics_init.F": 0.791,
-      "fortran/wrf/module_sf_noahdrv.F": 0.925,
+      "fortran/wrf/module_sf_noahdrv.F": 0.923,
       "fortran/wrf/regtest.csh": 0.274,
       "fortran/wrf/regtest_hwrf.csh": 0.344,
       "fortran/wrf/regtest_nmmnest.csh": 0.338,
@@ -1446,7 +1446,7 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 1.125,
-      "groovy/gradle/DefaultProject.java": 0.244,
+      "groovy/gradle/DefaultProject.java": 0.245,
       "groovy/gradle/DefaultTask.java": 0.0
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1633,9 +1633,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 0.0
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 0.593,
-      "groovy/spock/SpecParser.java": 0.934,
-      "groovy/spock/SpecRewriter.java": 0.565,
+      "groovy/spock/DeepBlockRewriter.java": 0.687,
+      "groovy/spock/SpecParser.java": 0.949,
+      "groovy/spock/SpecRewriter.java": 0.568,
       "groovy/spock/SpockTransform.java": 0.06
     },
     "groovy/spock_core_groovy": {
@@ -1909,17 +1909,17 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0.0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.391
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.403
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.696,
-      "java/springboot/Binder.java": 0.452,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.703,
+      "java/springboot/Binder.java": 0.475,
       "java/springboot/JarLauncher.java": 0.0,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 0.526,
-      "java/springboot/ServletWebServerApplicationContext.java": 0.191,
-      "java/springboot/SpringApplication.java": 0.688,
-      "java/springboot/WebMvcAutoConfiguration.java": 0.327
+      "java/springboot/OnClassCondition.java": 0.531,
+      "java/springboot/ServletWebServerApplicationContext.java": 0.266,
+      "java/springboot/SpringApplication.java": 0.696,
+      "java/springboot/WebMvcAutoConfiguration.java": 0.335
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0

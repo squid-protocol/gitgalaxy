@@ -1352,11 +1352,11 @@
       "fortran/wrf/cleanCMake.sh": 63.32,
       "fortran/wrf/configure_reader.py": 595.4,
       "fortran/wrf/gen_be_wrapper.ksh": 68.96,
-      "fortran/wrf/module_configure.F": 539.48,
-      "fortran/wrf/module_domain.F": 2843.1,
-      "fortran/wrf/module_initialize_real.F": 12881.98,
-      "fortran/wrf/module_physics_init.F": 13658.6,
-      "fortran/wrf/module_sf_noahdrv.F": 12731.28,
+      "fortran/wrf/module_configure.F": 529.48,
+      "fortran/wrf/module_domain.F": 2838.6,
+      "fortran/wrf/module_initialize_real.F": 12140.98,
+      "fortran/wrf/module_physics_init.F": 13653.0,
+      "fortran/wrf/module_sf_noahdrv.F": 12670.98,
       "fortran/wrf/regtest.csh": 2122.82,
       "fortran/wrf/regtest_hwrf.csh": 2335.82,
       "fortran/wrf/regtest_nmmnest.csh": 2212.5,
@@ -1446,7 +1446,7 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 216.48,
-      "groovy/gradle/DefaultProject.java": 704.3,
+      "groovy/gradle/DefaultProject.java": 705.7,
       "groovy/gradle/DefaultTask.java": 153.9
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1633,9 +1633,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 15.34
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 186.1,
-      "groovy/spock/SpecParser.java": 178.72,
-      "groovy/spock/SpecRewriter.java": 383.06,
+      "groovy/spock/DeepBlockRewriter.java": 221.3,
+      "groovy/spock/SpecParser.java": 182.92,
+      "groovy/spock/SpecRewriter.java": 385.86,
       "groovy/spock/SpockTransform.java": 19.44
     },
     "groovy/spock_core_groovy": {
@@ -1909,17 +1909,17 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 1.0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 60.74
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 62.14
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 234.16,
-      "java/springboot/Binder.java": 260.68,
+      "java/springboot/AutoConfigurationImportSelector.java": 237.56,
+      "java/springboot/Binder.java": 274.88,
       "java/springboot/JarLauncher.java": 8.52,
       "java/springboot/LICENSE.txt": 4.04,
-      "java/springboot/OnClassCondition.java": 98.14,
-      "java/springboot/ServletWebServerApplicationContext.java": 75.58,
-      "java/springboot/SpringApplication.java": 677.18,
-      "java/springboot/WebMvcAutoConfiguration.java": 244.14
+      "java/springboot/OnClassCondition.java": 99.94,
+      "java/springboot/ServletWebServerApplicationContext.java": 76.58,
+      "java/springboot/SpringApplication.java": 686.38,
+      "java/springboot/WebMvcAutoConfiguration.java": 249.84
     },
     "javascript": {
       "javascript/SOURCES.md": 1.0

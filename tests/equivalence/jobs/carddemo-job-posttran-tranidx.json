@@ -1,0 +1,17 @@
+{
+  "kind": "job",
+  "job": "POSTTRAN-TRANIDX",
+  "steps": [
+    {"case": "carddemo-posttran"},
+    {"case": "carddemo-tranidx",
+     "idcams": {
+       "deck": "carddemo-tranidx.idc",
+       "dds": {
+         "TRANKSDS": {"cluster": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS", "reclen": 350, "keys": [{"offset": 0, "length": 16}]},
+         "TRANPATH": {"path": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH", "reclen": 350}
+       }
+     },
+     "feeds": {"TRANKSDS": {"step": "carddemo-posttran", "dd": "TRANFILE"}}}
+  ],
+  "notes": "CardDemo's transaction file and its alternate index: POSTTRAN STEP15 (CBTRN02C) writes TRANFILE, then TRANIDX (STEP20 DEFINE ALTERNATEINDEX KEYS(26 304) NONUNIQUEKEY UPGRADE, STEP25 DEFINE PATH, STEP30 BLDINDEX; app/jcl/TRANIDX.jcl, SC23-6846-60) builds the index over it. TRANKSDS is the base KSDS loaded with the COBOL side's unload of TRANFILE (primary-key order); TRANPATH is the path's records in alternate-key order (the processed timestamp, offset 304 length 26), records sharing a key in the base's primary-key order, as BLDINDEX sorts them. Compared: those records and the step's condition code, on the model (det/idcams_model.py) and the Java runtime (cobolrt/job/Idcams.java), which must agree line for line. Assumptions: the three IDCAMS steps are one deck because the harness catalog lives for one step; the order BLDINDEX gives duplicate keys is IBM's documented rule as register F6 states it, cross-checked on GnuCOBOL BDB alternate keys for a KSDS base (test_idcams_aix_oracle_8881.py); the oracle for IDCAMS is that model, not z/OS."
+}

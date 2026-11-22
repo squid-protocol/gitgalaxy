@@ -144,7 +144,7 @@ def test_excerpt_copies_files_license_and_provenance(upstream, tmp_path, monkeyp
 
 
 def test_unsafe_path_parts_flags_ignored_directory_names(tmp_path):
-    assert mc.unsafe_path_parts(Path("/srv/tmp/corpora")) == ["tmp"]
+    assert mc.unsafe_path_parts(Path("/srv/node_modules/corpora")) == ["node_modules"]
     assert mc.unsafe_path_parts(Path("/srv/corpora")) == []
 
 

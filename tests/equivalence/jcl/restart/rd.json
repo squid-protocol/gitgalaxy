@@ -1,0 +1,181 @@
+{
+  "fixture": "library_jcl (in this file)",
+  "issue": 8413,
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385): the EXEC statement's RD parameter (R, RNC, NR, NC: whether the system performs an automatic step or checkpoint restart when the step abends, and whether checkpoints are taken), the JOB statement's RD and RESTART parameters, and JCLLIB ORDER. RD governs what the system does DURING a run after an abend; RESTART= on the JOB statement is a deferred restart of a resubmitted job. So RD never changes which steps a deferred restart runs. Written before the resolver was checked on RD in a procedure. Not run on the MVS 3.8J box (no library, and RD there is probed in restart/mvs38j_probe.json).",
+  "libraries": {
+    "LIB.A": {
+      "RDP": [
+        "//RDP      PROC",
+        "//M1       EXEC PGM=PGMA,RD=R",
+        "//M2       EXEC PGM=PGMB,RD=NR",
+        "//M3       EXEC PGM=PGMC,RD=RNC,COND=(4,LT,M2)"
+      ],
+      "RDQ": [
+        "//RDQ      PROC",
+        "//Q1       EXEC PGM=PGMQ1",
+        "//Q2       EXEC PGM=PGMQ2"
+      ],
+      "RDBADP": [
+        "//RDBADP   PROC",
+        "//Q1       EXEC PGM=PGMQ1",
+        "//Q2       EXEC PGM=PGMQ2,RD=ZZ"
+      ]
+    }
+  },
+  "library_jcl": [
+    "//*********************************************************************",
+    "//* #8413 restart, RD on a library procedure: RD= coded on a step of a",
+    "//* JCLLIB member, on the EXEC that calls it, and on the JOB statement.",
+    "//*********************************************************************",
+    "//RDJ1     JOB (ACCT),'RD STEP',CLASS=A,RESTART=CALL1.M2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RDP",
+    "//U2       EXEC PGM=PGMV,COND=(4,LT,CALL1.M2)",
+    "//*",
+    "//RDJ2     JOB (ACCT),'RD CALL',CLASS=A,RESTART=CALL1.Q2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC RDQ,RD=NC",
+    "//*",
+    "//RDJ3     JOB (ACCT),'RD CKPT',CLASS=A,RESTART=(CALL1.M2,CK1)",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//SYSCHK   DD DSN=CHK.RD,DISP=OLD",
+    "//U1       EXEC PGM=PGMU",
+    "//CALL1    EXEC RDP,RD=R",
+    "//*",
+    "//RDJ4     JOB (ACCT),'RD JOB',CLASS=A,RESTART=CALL1.Q1,RD=NR",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC RDQ",
+    "//CALL2    EXEC RDQ,RD=RNC",
+    "//*",
+    "//RDBAD1   JOB (ACCT),'RD VALUE',CLASS=A,RESTART=CALL1.Q2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC RDQ,RD=XX",
+    "//*",
+    "//RDBAD2   JOB (ACCT),'RD MEMBER',CLASS=A,RESTART=CALL1.Q2",
+    "//LIB      JCLLIB ORDER=(LIB.A)",
+    "//CALL1    EXEC RDBADP"
+  ],
+  "assumed": [
+    {
+      "id": "A1",
+      "text": "RD= on a step of a library procedure, and RD= on the EXEC that calls one, are accepted and ignored by a deferred restart. The manual lets the calling EXEC's RD override the RD of the procedure's steps, but only for the automatic restart of a running job; it states no effect on a resubmission with RESTART=, so none is modelled."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "rd-on-procedure-steps-does-not-change-the-steps",
+      "job": "RDJ1",
+      "given": {
+        "CALL1.M2": {
+          "rc": 0
+        },
+        "CALL1.M3": {
+          "rc": 0
+        },
+        "U2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.M1": "skipped",
+        "CALL1.M2": "run",
+        "CALL1.M3": "run",
+        "U2": "run"
+      },
+      "basis": "RESTART=CALL1.M2 is a deferred step restart: U1 and M1 are before it, M2 and every later step execute. The RD values on M1 (R), M2 (NR) and M3 (RNC) govern automatic restart after an abend during a run, not this resubmission."
+    },
+    {
+      "id": "rd-on-procedure-steps-cond-still-reads-restart-step",
+      "job": "RDJ1",
+      "given": {
+        "CALL1.M2": {
+          "rc": 8
+        }
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.M1": "skipped",
+        "CALL1.M2": "run",
+        "CALL1.M3": "bypass",
+        "U2": "bypass"
+      },
+      "basis": "M3's COND=(4,LT,M2) and U2's COND=(4,LT,CALL1.M2) name the restart step, which ends rc 8: both are true and the steps are bypassed. RD=RNC on M3 does not change COND."
+    },
+    {
+      "id": "rd-on-the-calling-exec-does-not-change-the-steps",
+      "job": "RDJ2",
+      "given": {
+        "CALL1.Q2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.Q1": "skipped",
+        "CALL1.Q2": "run"
+      },
+      "basis": "RESTART=CALL1.Q2 skips Q1 and starts Q2. RD=NC on the calling EXEC applies to the steps of RDQ for an automatic restart during a run; it does not move the deferred restart step."
+    },
+    {
+      "id": "rd-on-the-calling-exec-checkpoint-restart",
+      "job": "RDJ3",
+      "given": {
+        "CALL1.M2": {
+          "rc": 0
+        },
+        "CALL1.M3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U1": "skipped",
+        "CALL1.M1": "skipped",
+        "CALL1.M2": "run",
+        "CALL1.M3": "run"
+      },
+      "basis": "RESTART=(CALL1.M2,CK1) with a SYSCHK DD before the first EXEC is a deferred checkpoint restart: M2 resumes at CK1, earlier steps are not executed, M3 runs. RD=R on the calling EXEC does not change that."
+    },
+    {
+      "id": "rd-on-the-job-statement-and-a-second-call",
+      "job": "RDJ4",
+      "given": {
+        "CALL1.Q1": {
+          "rc": 0
+        },
+        "CALL1.Q2": {
+          "rc": 0
+        },
+        "CALL2.Q1": {
+          "rc": 0
+        },
+        "CALL2.Q2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "CALL1.Q1": "run",
+        "CALL1.Q2": "run",
+        "CALL2.Q1": "run",
+        "CALL2.Q2": "run"
+      },
+      "basis": "RESTART=CALL1.Q1 is the first step of the job, so every step runs. RD=NR on the JOB statement and RD=RNC on the second call are automatic-restart controls and leave that unchanged."
+    }
+  ],
+  "refused": [
+    {
+      "id": "rd-value-on-the-calling-exec-is-not-an-rd-value",
+      "job": "RDBAD1",
+      "match": "RD",
+      "construct": "EXEC RDQ,RD=XX: RD= with a value that is not R, RNC, NR or NC",
+      "reason": "IBM: RD takes R, RNC, NR or NC only; any other value is a JCL error"
+    },
+    {
+      "id": "rd-value-on-a-procedure-step-is-not-an-rd-value",
+      "job": "RDBAD2",
+      "match": "RD",
+      "construct": "a library procedure step coded RD=ZZ",
+      "reason": "IBM: RD takes R, RNC, NR or NC only; any other value is a JCL error"
+    }
+  ]
+}

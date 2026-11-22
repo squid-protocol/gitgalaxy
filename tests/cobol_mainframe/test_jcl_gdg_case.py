@@ -77,6 +77,8 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "if-not-equal-false",
         "pass-then-delete-never",
         "pass-then-delete-leaves",
+        "pass-then-keep-is",
+        "pass-then-uncatlg-is",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])

@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice. Read again 2026-11-21 for the rest of the checklist line (User's Guide, Appendix A): 'Disposition of SMS-managed generation data sets' p. 237 (DISP=(NEW,PASS): 'At job termination, the deferred generation data set is scratched and uncataloged'), the GDGBIAS=STEP note on wraparound p. 237 (G9999Vyy then G0001Vyy), and Examples 1 and 2 of 'Creating an SMS-managed generation data set' pp. 243-244 (three (+n) added in one step, retrieved by (-2) (-1) (0)). Read again 2026-11-22 from DFSMS Using Data Sets (idad400), 'Generation data groups' and 'Controlling Expiration of a Rolled-Off Generation Data Set' for the SCRATCH / NOSCRATCH fate of a rolled-off generation.",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice. Read again 2026-11-21 for the rest of the checklist line (User's Guide, Appendix A): 'Disposition of SMS-managed generation data sets' p. 237 (DISP=(NEW,PASS): 'At job termination, the deferred generation data set is scratched and uncataloged'), the GDGBIAS=STEP note on wraparound p. 237 (G9999Vyy then G0001Vyy), and Examples 1 and 2 of 'Creating an SMS-managed generation data set' pp. 243-244 (three (+n) added in one step, retrieved by (-2) (-1) (0)).",
   "scenario_input": "catalog (or catalog_from: another scenario's catalog_after): per GDG base, limit and the cataloged absolute generations, oldest first. given: per step that starts, {rc: n} or {abend: code}.",
   "scenario_answer": "expect: per STEP.DDNAME of each step that runs, the absolute generation number the DD names. catalog_after: per base the cataloged generations, oldest first, after the job ends.",
   "flow_jcl": [
@@ -366,7 +366,24 @@
     "//C1       EXEC PGM=MAKE",
     "//COUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
     "//C2       EXEC PGM=USE",
-    "//CNEW     DD DSN=PAY.GDG.G0009V00,DISP=SHR"
+    "//CNEW     DD DSN=PAY.GDG.G0009V00,DISP=SHR",
+    "//*",
+    "//* #8413 slice 10: a PASSed (+1) received with KEEP or UNCATLG.",
+    "//PKJOB    JOB (ACCT),'GDG PASS KEEP',CLASS=A,MSGCLASS=X",
+    "//K1       EXEC PGM=MAKE",
+    "//KOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//K2       EXEC PGM=USE",
+    "//KIN      DD DSN=PAY.GDG(+1),DISP=(OLD,KEEP)",
+    "//K3       EXEC PGM=USE2",
+    "//KCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//PUJOB    JOB (ACCT),'GDG PASS UNCATLG',CLASS=A,MSGCLASS=X",
+    "//L1       EXEC PGM=MAKE",
+    "//LOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//L2       EXEC PGM=USE",
+    "//LIN      DD DSN=PAY.GDG(+1),DISP=(OLD,UNCATLG)",
+    "//L3       EXEC PGM=USE2",
+    "//LCUR     DD DSN=PAY.GDG(0),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -2599,6 +2616,96 @@
       "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DSNAME: a generation data set can be named by its absolute name, 'dsname.GxxxxVyy', as well as relatively (z/OS DFSMS Using Data Sets, Appendix A, 'Absolute generation and version number'; GxxxxVyy is the generation and version number the system assigns). An absolute name is the data set itself, not a position in the index: A2 reads G0006V00, which is generation 6 whatever A1 did to the relative numbers; the (+1) A1 made is 9, rolled in at job end, and (0) at A2 is still 8: the relative numbers were fixed at A1's first reference and hold for the job (User's Guide p. 235), so the new 9 is named only by (+1). Nothing is rolled off (limit 5, 4 held). ASSUMED (A13): the DD names a data set directly, so reading it neither changes nor is changed by the job's relative numbers; the manual states the absolute name and the job-long relationship separately."
     },
     {
+      "id": "pass-then-keep-is-a-deferred-roll-in",
+      "job": "PKJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "K1": {
+          "rc": 0
+        },
+        "K2": {
+          "rc": 0
+        },
+        "K3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "K1.KOUT": 8,
+        "K2.KIN": 8,
+        "K3.KCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "DISP, PASS and KEEP: K1 creates (+1) = 8 and passes it; K2 receives it by the same (+1) with (OLD,KEEP), so the data set is kept at the end of K2 instead of being scratched at job end. A kept generation is a NEW,KEEP one (new-keep-is-a-deferred-roll-in, A5): it waits in deferred roll-in and is not in the active group, so K3's (0) is still 7."
+    },
+    {
+      "id": "pass-then-uncatlg-is-a-deferred-roll-in",
+      "job": "PUJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "L1": {
+          "rc": 0
+        },
+        "L2": {
+          "rc": 0
+        },
+        "L3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "L1.LOUT": 8,
+        "L2.LIN": 8,
+        "L3.LCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A14",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'By default, if the system retrieves volume information from the catalog, UNCATLG is processed. If not, the UNCATLG request is rejected and UNCATLG is treated as KEEP.' The generation L1 created and passed was never cataloged, so its volume information comes from the pass, not the catalog: L2's UNCATLG is rejected and treated as KEEP (as for new-uncatlg-is-rejected-and-treated-as-keep), 8 waits in deferred roll-in and L3's (0) is still 7."
+    },
+    {
       "id": "limit-roll-off-scratch-deletes-the-oldest",
       "job": "MAKEJOB",
       "catalog": {
@@ -2893,8 +3000,8 @@
       "text": "DISP=(OLD,UNCATLG) of the oldest generation of a group that is not SMS-managed removes only that entry from the group, as A6 does for DELETE; the manuals work no example that uncatalogs one generation, and state the SMS case ('ignored, KEEP implied') only in the DISP text. The group's SMS state is a field of the catalog entry given (sms: true / false): a group that does not give it is refused by name."
     },
     {
-      "id": "A13",
-      "text": "The group's SCRATCH / NOSCRATCH attribute is a field of the catalog entry given (scratch: true / false), and no expiration date is coded on the rolled-off data set and no management class EXPIRE applies: the manual lists those two as controlling expiration of a rolled-off generation ahead of / after the base attribute, and gives no example that combines them. A group that does not give scratch states no roll-off fate (the answer carries no rolled_off entry)."
+      "id": "A14",
+      "text": "A PASSed new generation received with DISP=(OLD,UNCATLG) takes its volume information from the pass, not the catalog, so UNCATLG is rejected and treated as KEEP (JCL Reference, DISP: UNCATLG, 'for new data sets'); the manual states the rule for a NEW data set and does not name a passed one. With SMS the text says UNCATLG is ignored and KEEP implied: the answer is KEEP either way."
     }
   ],
   "refused": [
@@ -2973,10 +3080,6 @@
     {
       "construct": "a DD naming a generation by absolute name (GnnnnVnn) that is not cataloged when its step starts, was made or deleted earlier in the job, has a version other than V00, or whose DD creates, deletes or uncatalogs",
       "why": "the manual names the data set directly but states no step-flow outcome for an uncataloged or job-created generation, and no version rule beyond V00 here; DELETE or UNCATLG by absolute name is not answered (the orientation warning is stated for relative references)"
-    },
-    {
-      "construct": "the roll-off fate of a generation when the group's catalog entry gives neither scratch nor noscratch, or when the attempt to scratch fails",
-      "why": "the text names the SCRATCH and NOSCRATCH outcomes only; no default for a group that states neither is given in the text read, and a failed scratch is stated for system-managed generations as 'recataloged' only in the absolute-version replacement paragraph"
     }
   ]
 }

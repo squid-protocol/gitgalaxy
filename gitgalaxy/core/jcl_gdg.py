@@ -44,7 +44,7 @@ def resolve_gdg(
     catalogs: dict[str, dict[str, Any]],
     flow: FlowResult,
     skipped: Collection[str] = (),
-) -> tuple[dict[str, int], dict[str, dict[str, Any]]]:
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     """-> ({"STEP.DDNAME": absolute generation} for each GDG DD of a step that ran, the catalog after the job)."""
     start = {b: list(c["generations"]) for b, c in catalogs.items()}
     live = {
@@ -55,7 +55,7 @@ def resolve_gdg(
     created: dict[
         tuple[str, int], str
     ] = {}  # (base, absolute) -> "pending" | "cataloged" | "passed" | "kept" | "deleted"
-    names: dict[str, int] = {}
+    names: dict[str, Any] = {}  # an int, or a list (read order) for a concatenation or a GDG ALL read
     current = None
     dds: dict[str, list[dict[str, Any]]] = {}  # job step -> its DDs
     proc_dds: dict[tuple[str, str], list[dict[str, Any]]] = {}  # (procedure, its step) -> its DDs
@@ -123,6 +123,8 @@ def resolve_gdg(
                     wipe.append(base)
                 elif end == "UNCATLG":
                     raise JclGdgRefused(f"{step}.{dd['dd_name']}: UNCATLG of a generation group is not answered here")
+                elif dd["disp"] in ("SHR", "OLD") and base in start:
+                    _put(names, f"{step}.{dd['dd_name']}", _gdg_all(dd, base, live[base], catalogs[base], created))
                 continue
             n = _int_generation(dd["generation"])
             if base not in start:
@@ -136,7 +138,7 @@ def resolve_gdg(
                 absolute = seen[n - 1]  # (0) / (-n) is a position in the index: a skipped number is not counted
             else:
                 raise JclGdgRefused(f"{key}: no cataloged generation ({n}) of {base}")
-            names[key] = absolute
+            _put(names, key, absolute)
             if n <= 0 and (base, absolute) in deleted:
                 raise JclGdgRefused(f"{key}: generation {absolute} of {base} was deleted earlier in the job")
             if n > 0:
@@ -182,12 +184,44 @@ def resolve_gdg(
     for b in start:
         if catalogs[b].get("empty"):
             after[b]["empty"] = True
+        if catalogs[b].get("gdgorder"):
+            after[b]["gdgorder"] = catalogs[b][
+                "gdgorder"
+            ]  # the catalog entry's retrieval order is carried to the next job
     for (base, absolute), state in sorted(created.items(), key=lambda kv: _since(anchor, *kv[0])):
         if state == "cataloged":  # a generation still passed at the end of the job is scratched and uncataloged
             _roll_in(after[base]["generations"], absolute, catalogs[base])
         elif state == "deferred":
             after[base].setdefault("deferred_rollin", []).append(absolute)
     return names, after
+
+
+def _put(names: dict[str, Any], key: str, value: Any) -> None:
+    """Record what a DD names; a DD name used again (an unnamed DD concatenated onto it) extends a list, in read order."""
+    new = value if isinstance(value, list) else [value]
+    if key not in names:
+        names[key] = value
+    else:
+        names[key] = [*(names[key] if isinstance(names[key], list) else [names[key]]), *new]
+
+
+def _gdg_all(
+    dd: dict[str, Any], base: str, live: list[int], catalog: dict[str, Any], created: dict[tuple[str, int], str]
+) -> list[int]:
+    """A GDG ALL read (the group named with no generation number, DISP=SHR / OLD): every cataloged generation, newest
+    first by default (LIFO), oldest first for FIFO; GDGORDER=USECATLG takes the catalog entry's order (User's Guide,
+    Appendix A, 'Retrieving all generation data sets', pp. 240-241)."""
+    where = f"{dd['step_name']}.{dd['dd_name']}"
+    order = dd.get("gdgorder", "USECATLG")
+    if order == "USECATLG":
+        order = catalog.get("gdgorder", "LIFO")
+    if order not in ("LIFO", "FIFO"):
+        raise JclGdgRefused(f"{where}: GDGORDER={order} is not LIFO, FIFO or USECATLG")
+    if any(b == base for b, _ in created):
+        raise JclGdgRefused(f"{where}: a whole-group read in a job that creates a generation of {base} is not answered")
+    if not live:
+        raise JclGdgRefused(f"{where}: a whole-group read of {base}, which has no cataloged generation")
+    return list(live) if order == "FIFO" else list(reversed(live))
 
 
 def _next_generation(seen: list[int], n: int) -> int:

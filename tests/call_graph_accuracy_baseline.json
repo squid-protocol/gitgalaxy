@@ -198,13 +198,13 @@
     "tp": 302
   },
   "tcl": {
-    "fn": 685,
-    "fp": 684,
+    "fn": 219,
+    "fp": 100,
     "matched_functions": 369,
     "parse_failures": 0,
-    "precision_pct": 69.3,
-    "recall_pct": 69.3,
-    "tp": 1546
+    "precision_pct": 95.2,
+    "recall_pct": 90.0,
+    "tp": 1980
   },
   "typescript": {
     "fn": 173,

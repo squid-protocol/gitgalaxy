@@ -334,13 +334,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "c",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 203,
@@ -387,10 +389,10 @@
         }
       ],
       "metric": "call_expression/identifier",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read in c/cpython/ceval.c:1421-1435 (`dump_stack(frame, stack_pointer)`, `dump_cache_item(...)`, `_PyUOpPrint(next_uop)` inside `_PyTier2Interpreter`): genuine C function calls inside a large `#ifdef`/computed-goto function body that the engine drops. Engine gap."
     },
     "c/call/call_expression/parenthesized_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -1228,13 +1230,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "c",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 80,
@@ -1281,10 +1285,10 @@
         }
       ],
       "metric": "ts-parse-error",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Read in c/cpython/dictobject.c:7232-7285 (`FT_ATOMIC_STORE_PTR_RELEASE`, `FT_ATOMIC_STORE_SSIZE_RELAXED`, `DK_SIZE`, `PyErr_NoMemory`): genuine C macro/function calls inside functions where tree-sitter hits a parse ERROR node and drops calls from the reference."
     },
     "c/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5266,13 +5270,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-11-12T02:28:58Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "erlang",
       "last_reconciled_at": "2026-11-12T06:06:28Z",
       "last_seen_count": 24,
@@ -5319,10 +5325,10 @@
         }
       ],
       "metric": "token-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read in cowboy/src/cowboy_compress_h.erl:16 (`-behavior(cowboy_stream).`) and `examples/.../directory_lister.erl` (`-behaviour(cowboy_middleware).`): real behaviour imports where the engine captures the token but fails to resolve it to `src/<mod>.erl`. Engine gap."
     },
     "fortran/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5518,13 +5524,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "fortran",
       "last_reconciled_at": "2026-11-12T06:06:28Z",
       "last_seen_count": 29,
@@ -5571,10 +5579,10 @@
         }
       ],
       "metric": "truth-names-several-files",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy partial. Read in fpm/example_packages/app_with_submodule/app/app1/main1.f90:2 (`use parent`): multiple example packages in fpm declare `module`/`submodule` with the same name; the reference lists all matching files while the engine picks one."
     },
     "fortran/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5679,8 +5687,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "go",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 19,
@@ -5727,10 +5735,10 @@
         }
       ],
       "metric": "call_expression/func_literal",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. Read in dockerfile/moby/builder/dockerfile/builder.go:75-81 (`defer func() { ... err := source.Close() ... }()`): an immediately-invoked anonymous function literal has no written callee name (C8); the harness names it by the last identifier in the literal (`err`/`retErr`, a local variable). Leaves the FN count."
     },
     "go/call/call_expression/identifier/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -9834,13 +9842,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-11-12T04:00:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "ocaml",
       "last_reconciled_at": "2026-11-12T06:06:28Z",
       "last_seen_count": 46,
@@ -9887,10 +9897,10 @@
         }
       ],
       "metric": "truth-names-several-files",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy partial. Read in cmdliner/src/cmdliner.ml:11-12 (`include Cmdliner_cmd`, `include Cmdliner_eval`): each OCaml module consists of both `.ml` and `.mli`; the reference names both files while the engine resolves to one."
     },
     "perl/call/ambiguous_function_call_expression/function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -14340,13 +14350,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "php",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 23,
@@ -14393,10 +14405,10 @@
         }
       ],
       "metric": "object_creation_expression/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read in php/guzzle/Pool.php:101 (`new static($client, $requests, $options)`) and RequestException.php:71 (`new self(...)`): constructor calls (C3) dropped because `static`/`self` are in `_calls_out_ignore`. Engine gap."
     },
     "php/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17685,8 +17697,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "scala",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 21,
@@ -17733,10 +17745,10 @@
         }
       ],
       "metric": "call_expression/call_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. Read in scala/kafka/KafkaApis.scala:3277-3282 (`authHelper.filterByAuthorized(..., topicIdPartitionSeq)(_.topicPartition.topic)`): a multi-parameter-list Scala call has one callee (`filterByAuthorized`); the harness reads the second argument list as a nested call and names it by the variable `topicIdPartitionSeq`. Leaves the FN count."
     },
     "scala/call/call_expression/field_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19033,8 +19045,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:00:33Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "solidity",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 18,
@@ -19081,10 +19093,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:yul_evm_builtin<yul_function_call",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read in solidity/openzeppelin/ERC2771Forwarder.sol:296-299 (`assembly (\"memory-safe\") { success := call(..., add(data, 0x20), mload(data), ...) }`): inline Yul EVM opcodes inside `assembly { ... }` are not Solidity function calls (fixed in #8921 by blanking inline assembly blocks)."
     },
     "solidity/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -20991,8 +21003,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22T16:53:00Z",
+      "investigated_by": "antigravity",
       "language": "typescript",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 23,
@@ -21039,10 +21051,10 @@
         }
       ],
       "metric": "call_expression/call_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. Read in typescript/fp-ts/Either.ts:1803 (`getApplySemigroup_(getApplicativeValidation(SE))(SA)`): a curried call where the outer call invokes a returned function (no written callee name, C1); the harness names it by the last identifier inside the callee expression (`SE`, an argument). Leaves the FN count."
     },
     "typescript/call/call_expression/identifier/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

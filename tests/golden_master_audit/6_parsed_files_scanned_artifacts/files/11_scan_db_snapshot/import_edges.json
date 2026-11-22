@@ -4185,6 +4185,12 @@
       ]
     },
     "tcl/macports_port_api": {
+      "tcl/macports_port_api/fetch_common.tcl": [
+        "fcall:tcl/macports_port_api/portfetch.tcl"
+      ],
+      "tcl/macports_port_api/library.tcl": [
+        "fcall:tcl/macports_port_api/portmain.tcl"
+      ],
       "tcl/macports_port_api/portbump.tcl": [
         "fcall:tcl/sqlite/tester.tcl",
         "import:tcl/macports_port_api/portchecksum.tcl"
@@ -4193,9 +4199,11 @@
         "fcall:tcl/sqlite/tester.tcl"
       ],
       "tcl/macports_port_api/portdistcheck.tcl": [
+        "fcall:tcl/macports_port_api/fetch_common.tcl",
         "import:tcl/macports_port_api/portfetch.tcl"
       ],
       "tcl/macports_port_api/portdistfiles.tcl": [
+        "fcall:tcl/macports_port_api/fetch_common.tcl",
         "import:tcl/macports_port_api/portchecksum.tcl",
         "import:tcl/macports_port_api/portfetch.tcl"
       ],
@@ -4214,9 +4222,6 @@
       ]
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": [
-        "fcall:tcl/sqlite/tester.tcl"
-      ],
       "tcl/macports_registry/depends.tcl": [
         "import:tcl/macports_registry/common.tcl"
       ],

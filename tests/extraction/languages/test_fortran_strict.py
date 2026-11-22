@@ -724,3 +724,44 @@ def test_fortran_internal_discriminator():
     assert_redos_immune(disc, "PARAMETER (" + "a" * 40000, timeout_sec=2.0)
     assert_redos_immune(disc, " " * 40000, timeout_sec=2.0)
     assert_redos_immune(disc, "." + "A" * 40000, timeout_sec=2.0)
+
+
+def _fortran_count(signal, text):
+    return len(LANGUAGE_DEFINITIONS["fortran"]["rules"][signal].findall(text))
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("y = .not. x", 0),
+        ("y = .NOT.x", 0),
+        ("y = .Not. (a .and. b)", 0),
+        ("k = not(i)", 1),
+        ("k = NOT (i)", 1),
+        ("k = iand(i, j) + ior(i, j)", 2),
+    ],
+)
+def test_fortran_bitwise_ops_excludes_logical_not_8911(text, expected):
+    assert _fortran_count("bitwise_ops", text) == expected
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("if (x > 1) return", 0),
+        ("return", 0),
+        ("stop", 1),
+        ("error stop 'bad'", 1),
+        ("call exit(1)", 1),
+        ("call abort()", 1),
+    ],
+)
+def test_fortran_panics_excludes_plain_return_8911(text, expected):
+    assert _fortran_count("panics_and_aborts", text) == expected
+
+
+def test_fortran_exit_cycle_are_boundaries_not_branches_8911():
+    src = "do i = 1, n\n  if (i == 2) cycle\n  if (i == 3) exit\nend do\n"
+    # do + 2 ifs = 3 decisions; cycle/exit are unconditional transfers
+    assert _fortran_count("branch", src) == 3
+    assert _fortran_count("structural_boundaries", "cycle\nexit\nreturn") == 3

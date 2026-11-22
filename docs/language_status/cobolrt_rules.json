@@ -48,13 +48,16 @@
    "title": "IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)"
   },
   "mvs-da": {
-   "title": "IBM z/OS MVS Data Areas (PSA, TCB, TIOT)"
+   "title": "IBM z/OS 3.1 MVS Data Areas (PSA: Volume 3 GA32-0937-60; TCB, TIOT: Volume 4 GA32-0938-60)"
   },
   "mq-refdev": {
    "title": "IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)"
   },
   "mq-dev": {
    "title": "IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)"
+  },
+  "cics-ap": {
+   "title": "IBM CICS Transaction Server for z/OS 6.x Application Programming (designing applications for CICS)"
   },
   "idcams": {
    "title": "IBM z/OS DFSMS Access Method Services Commands",
@@ -611,6 +614,7 @@
     "doc": "cobol-lr",
     "section": "USAGE clause: COMPUTATIONAL-5"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, USAGE clause, COMPUTATIONAL-5 or COMP-5 (native binary), and the binary table below it). IBM: \"Binary data is big-endian: the operational sign is contained in the leftmost bit.\" and COMP-5 items \"are represented in storage as binary data\" of 2, 4 or 8 bytes, \"truncation occurs at the binary field size rather than at the COBOL picture size limit\". MATCHED: the z/OS big-endian order the rule applies when switched on, and the 2 / 4 / 8 byte widths. DIFFERS (declared in C7): the oracle's default is little-endian, so COMP-5 bytes seen through a group MOVE or a redefinition differ from z/OS until the switch is on; the rule's per-run set-and-restore of the order is a harness device the manual does not mention. Declared in C7",
    "options": [],
    "register": [
     "C7"
@@ -678,6 +682,7 @@
     "doc": "cobol-lr",
     "section": "SIZE ERROR phrases"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, SIZE ERROR phrases): a size error occurs \"When division by zero occurs.\" MATCHED: the size error is raised for a zero divisor. DIFFERS: IBM states no result for the receivers; the manual lists only the size-error condition, so the NaN intermediate, NaN in / NaN out through + - * and unary minus, and 'a store of NaN leaves the receiver unchanged' are libcob's behaviour (the oracle), not IBM's text. IBM's rule for any size error without the phrase is \"truncation rules apply and the value of the affected resultant identifier is computed\", which cannot be applied to a zero divisor. Declared in C14.",
    "options": [],
    "register": [
     "C14"
@@ -697,6 +702,7 @@
     "doc": "cobol-pg",
     "section": "Intermediate results and arithmetic precision"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Programming Guide SC27-8714-03, Appendix A, Fixed-point data and intermediate results, Addition, subtraction, multiplication, and division): for '/' \"Integer places i2 + d1; Decimal places (d2 - d1) or dmax, whichever is greater\", carried in compatibility mode as 'i integer and d decimal places' when i + d is 30 or less, else capped at 30 digits (31 under ARITH(EXTEND)). DIFFERS: the runtime forms the quotient as cob_decimal_div does (scale a.scale - b.scale, the dividend shifted 38 digits more, truncated), not IBM's place table or its 30 / 31-digit cap; where the two disagree the result of a division reaching the cap is not IBM's. Declared in C2 (its 'To settle' line: the IBM side needs z/OS measurements).",
    "options": [
     "ARITH"
    ],
@@ -772,8 +778,11 @@
    "methods": [
     "divideIntr"
    ],
-   "ibm": null,
-   "ibm_note": "z/OS leaves a zero divisor's result undefined; the oracle's value is modelled",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SIZE ERROR phrases"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, SIZE ERROR phrases): \"A size error condition can occur in different ways ... When division by zero occurs.\" The same section gives no value for the quotient (register C14 re-read the section: no abend and no value are stated), and a division inside a function argument is an arithmetic expression like any other (Arithmetic expressions). So the size error raised by divideIntr matches IBM; DIFFERS only in the value: the oracle's cob_intr_binop gives 0 where IBM states none, and, unlike a final result, the size error is raised for an intermediate that IBM says applies to \"final results only\" (C14). Declared in C14.",
    "options": [],
    "register": [
     "C14"
@@ -813,8 +822,11 @@
     "trim"
    ],
    "site": "reset",
-   "ibm": null,
-   "ibm_note": "IBM documents literal operands as constants; the in-place scale change is the oracle's (cob_decimal_* on dc_N)",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Numeric literals"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, Numeric literals): \"The value of a numeric literal is the algebraic quantity expressed by the characters in the literal. The size of a numeric literal is equal to the number of digits specified by the user.\" IBM states a literal's value and size and no mutable scale: a literal never changes between uses. The runtime keeps the literal's value (raising its scale adds trailing zeros, the same algebraic quantity) and so matches IBM on value; DIFFERS only because libcob mutates the constant's representation in place (c.v.setScale), which can change a later result's scale and truncation where IBM has nothing to say. The manual does not address the mechanism. Declared in C2.",
    "options": [
     "ARITHMETIC-OSVS"
    ],
@@ -836,6 +848,7 @@
     "doc": "cobol-lr",
     "section": "SIZE ERROR phrases (Table 32: exponentiation size errors)"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, SIZE ERROR phrases, Table 32; Enterprise COBOL for z/OS 6.4 Programming Guide SC27-8714-03, Appendix A, Exponentiation): Table 32: zero raised to zero power - the imperative runs / \"The value returned is 1, and a message is issued\"; zero raised to a negative number - the imperative runs / \"The program is terminated abnormally\"; a negative number raised to a fractional power - the imperative runs / the absolute value of the base is used. Programming Guide: \"If op2 is equal to 0, the result is 1. Division-by-0 and exponentiation SIZE ERROR conditions apply\"; \"When op2 is expressed with decimals, floating-point instructions are used\"; a negative op2 divides 1 by the preliminary result. MATCHED: 0 ** 0 is 1 with the size error raised (with the phrase), a whole exponent computed exactly, a decimal exponent through floating point. DIFFERS: 0 ** -n without the phrase stores 0 here but ends the program on IBM; a negative base to a fractional power without the phrase leaves the receiver here but uses the absolute base on IBM; a non-finite result is NaN here, which IBM does not name. Declared in C14.",
    "options": [],
    "register": [
     "C14"
@@ -918,8 +931,11 @@
     "nonDigitSign",
     "refuseUndefinedSign"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents no result for such data",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Data items with invalid contents; INVDATA / ZONEDATA"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Programming Guide SC27-8714-03, Defining numeric data: \"When you give an item a value that is incompatible with its data description, references to that item in the PROCEDURE DIVISION are undefined and your results are unpredictable\"; compiler options INVDATA and ZONEDATA). For INVDATA: the option governs \"MOVE statements, comparisons, and computations for USAGE DISPLAY or PACKED-DECIMAL data items that could contain invalid digits, an invalid sign code, or invalid zone bits\"; \"CLEANSIGN does not apply to USAGE DISPLAY items defined with SIGN IS SEPARATE\"; \"the sign code must be a valid sign code according to the NUMPROC option setting\". No text gives the value of a MOVE of a sign byte that is no digit, overpunch, sign or space, so the port refuses by name: REFUSED, IBM leaves it undefined (register C11).",
    "options": [],
    "register": [
     "C11"
@@ -1304,6 +1320,7 @@
     "doc": "cobol-lr",
     "section": "Comparison of alphanumeric operands"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, Relation condition, Alphanumeric comparisons, Comparison of two alphanumeric operands). IBM: \"For the EBCDIC character set, the EBCDIC collating sequence is used. For the ASCII character set, the ASCII collating sequence is used.\" and \"When the PROGRAM COLLATING SEQUENCE clause is specified in the object-computer paragraph, the collating sequence used is the one associated in the special-names paragraph with the specified alphabet-name.\" Equal size: \"Characters in corresponding positions of the two operands are compared, beginning with the leftmost character\", the greater operand holds the higher character. Unequal size: \"the comparison is made as though the shorter operand were extended to the right with enough spaces to make the operands equal in size.\" MATCHED: leftmost-first byte comparison, the space padding of the shorter operand, and the PROGRAM COLLATING SEQUENCE alphabet when one is given. DIFFERS (declared in D1): with no clause the oracle's data is ASCII and compares in ASCII order, where z/OS data is EBCDIC and compares in EBCDIC order (letters before digits, lower case before upper). Declared in D1",
    "options": [
     "PROGRAM-COLLATING-SEQUENCE"
    ],
@@ -1549,6 +1566,7 @@
     "doc": "cics-apr",
     "section": "LINK"
    },
+   "ibm_note": "IBM (CICS TS 6 Application Programming, \"Passing data to other programs by using COMMAREA\" and the data-transfer guidance for LINK). IBM: \"When one program links to another, the COMMAREA can be any data area to which the linking program has access. It is often in the working storage or LINKAGE SECTION of that program.\" and \"ensure that you specify a LENGTH value that matches the length of the data being passed in the COMMAREA ... Discrepancies might result in storage violations or system failures.\" MATCHED: the COMMAREA is the caller's own storage, passed from its first byte, and the callee reads and writes it in place. Still ASSUMED by IBM: nothing in the manual says what lies past the caller's record when a LENGTH runs beyond it (\"unpredictable\" for LENGTH 0, \"storage violations\" for a mismatch). The rule's LOW-VALUES there is a stand-in for storage z/OS leaves undefined, which is why the register records it as a difference. Declared in X10",
    "options": [],
    "register": [
     "X10"
@@ -2030,8 +2048,11 @@
     "fbits",
     "cmp2"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents no IEEE converter for a COMP-1 / COMP-2 item; the model's choice (det/hfp.py from_ieee / to_ieee). The one documented HFP-IEEE conversion is the Java interop's (Language Reference, the note on COMP-1 / COMP-2 against Java float / double: LE __fp_htob / __fp_btoh, biased round to nearest = ties away from 0): from_ieee agrees with it, to_ieee rounds ties to even and does not (register C6, #8700)",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Communicating with Java: data conversions (COMP-1 / COMP-2 against float / double)"
+   },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, the Java interoperability note on data conversions, local manual text): \"For conversions between COBOL COMP-1/COMP-2 items and Java float/double items, a loss of precision may occur due to the difference in the underlying representation. That is, COMP-1/COMP-2 are stored in IBM hex float format, and float/double are stored in IEEE binary float format: Conversions between IBM hexadecimal floating point format and IEEE floating point format are done via Language Environment special purpose C/C++ interface __fp_htob(), using rounding mode _FP_HB_BRN (biased round to nearest). Conversions between IEEE floating point format and IBM hexadecimal floating point format are done via Language Environment special purpose C/C++ interface __fp_btoh(), using rounding mode _FP_HB_BRN (biased round to nearest).\" That is the only IBM text on an IEEE-HFP conversion and it covers Java interop, not a COBOL statement: IBM documents no IEEE converter for a COMP-1 / COMP-2 item, so the model (det/hfp.py from_ieee / to_ieee) is the runtime's choice and the rule stays ASSUMED. Biased round to nearest is ties away from zero: from_ieee agrees; to_ieee rounds ties to even and so differs from the Java-interop rounding (not declared as DIFFERS in the register, so the status is not changed). Declared in C6 (#8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2054,8 +2075,11 @@
     "exact",
     "cmpScaled"
    ],
-   "ibm": null,
-   "ibm_note": "IBM says only that a fixed-point number is converted to the internal floating-point numbering system, and that up to 15 digits survive a COMP-2 round trip (Programming Guide, 'Conversions and precision'); it does not say truncated or rounded: truncation is the model's choice, consistent with the round trip (register C6, #8700)",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Conversions and precision"
+   },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Programming Guide SC27-8714-03, \"Conversions and precision\", p. 52, local manual text): \"When the compiler converts from fixed-point to internal floating-point format, fixed-point numbers in base 10 are converted to the numbering system used internally.\" Also \"If a fixed-point data item that has 15 or fewer digits is moved to a USAGE COMP-2 data item and then returned to the fixed-point data item, the original value is recovered\" (six or fewer digits for COMP-1). IBM does not say whether the conversion truncates or rounds the last hex digit, only that these round trips recover the value; truncation to 14 hex digits (consistent with the round trips) is the runtime's choice and stays ASSUMED. No DIFFERS is claimed. Declared in C6 (#8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2074,8 +2098,11 @@
    "methods": [
     "power"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents long floating-point arithmetic for a floating-point exponentiation and an undefined negative base to a fractional power (Programming Guide, Appendix A, 'Exponentiations evaluated in floating-point arithmetic'), no result digits; the capture kit's reference power() is the model until captured z/OS output agrees",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Exponentiations evaluated in floating-point arithmetic"
+   },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Programming Guide SC27-8714-03, Appendix A, \"Exponentiations evaluated in floating-point arithmetic\", p. 800, local manual text): \"In compatibility mode, floating-point exponentiations are always evaluated using long floating-point arithmetic. In extended mode, floating-point exponentiations are always evaluated using extended-precision floating-point arithmetic. The value of a negative number raised to a fractional power is undefined in COBOL.... When an exponentiation is evaluated in floating point and there is a possibility that the result is undefined, the exponent is evaluated at run time to determine if it has an integral value. If not, a diagnostic message is issued.\" MATCHED: long arithmetic in compatibility mode (the runtime's result is long HFP). IBM gives no algorithm or result digits for a power, so exact-for-integer-exponent and exp(b ln a) at 60 digits then truncated is the runtime's choice and stays ASSUMED until captured z/OS output agrees (the capture kit's reference power()). Declared in C6 (#8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2358,6 +2385,7 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: MOD, REM"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, MOD and REM): MOD \"is defined as: argument-1 - (argument-2 * FUNCTION INTEGER (argument-1 / argument-2))\" with -11 MOD 5 = 4, 11 MOD -5 = -4; REM \"is defined as the expression: argument-1 - (argument-2 * FUNCTION INTEGER-PART (argument-1 / argument-2))\". MATCHED: both formulas (INTEGER is the greatest integer not above the quotient, i.e. FLOOR). DIFFERS: for argument-2 IBM says \"Must not be zero\" and gives no result; the runtime returns 0 with no size error, as the oracle does (libcob). Declared in C14.",
    "options": [],
    "features": [
     "intrinsic_functions: MOD"
@@ -2473,6 +2501,7 @@
     "doc": "cobol-lr",
     "section": "Intrinsic functions: RANDOM"
    },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, RANDOM): argument-1 \"must be zero or a positive integer. However, only values in the range from zero up to and including 2,147,483,645 yield a distinct sequence\"; \"If the first reference to this function in the run unit does not specify argument-1, the seed value used will be zero\"; \"If a subsequent reference specifies argument-1, a new sequence of pseudorandom numbers is started\"; \"The returned value is exclusively between zero and one\"; \"For a given seed value, the sequence of pseudorandom numbers is always the same\". MATCHED: the interface (seed, restart, first-reference seed 0, same sequence per seed). DIFFERS: IBM does not publish the generator, so the numbers are glibc random_r's (the oracle's), not z/OS's; the oracle can also return exactly 0 or 1 where IBM says exclusively between. Declared in C12.",
    "options": [],
    "features": [
     "intrinsic_functions: RANDOM"
@@ -2533,8 +2562,11 @@
    "methods": [
     "sysin"
    ],
-   "ibm": null,
-   "ibm_note": "IBM leaves the target undefined when the input stream is exhausted; the port refuses by name instead of blanking it",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "ACCEPT statement: Format 1, system input device"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, ACCEPT statement, Data transfer, \"System input device\"). DIFFERS from the earlier note, which said IBM leaves the target undefined when the input is exhausted: IBM defines it. \"If EOF is encountered before any data has been moved to the receiving area, padding will not take place and the contents of the receiving area are unchanged.\" The port refuses by name instead (a stricter choice than IBM, so REFUSED stays). A second DIFFERS: IBM reads \"until the receiving area is filled or EOF is encountered\", each record \"concatenated with the previous input record\", the final record truncated, and \"If EOF is encountered after data has been moved and before the receiving area has been filled, the receiving area is padded with spaces\"; the port moves one line per ACCEPT as an alphanumeric MOVE (a short line is space-padded, a long one truncated), so a receiving area longer than one record, or two ACCEPTs against one record, read differently from IBM. MATCHED: a fixed-length record is used whole (\"No editing is performed to remove trailing or leading blanks\"), the length of a transfer is the record length \"with a maximum of 32,760 bytes\", and \"There is no editing or error checking of the incoming data\". Neither DIFFERS is declared in the register (no entry names ACCEPT FROM SYSIN), so this note records them and the rule is not re-statused.",
    "options": [],
    "register": [],
    "status": "REFUSED",
@@ -3195,8 +3227,11 @@
     "bllFromData",
     "bllReload"
    ],
-   "ibm": null,
-   "ibm_note": "CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, 'BLL and chained storage areas' (p. 22): not an online IBM doc; the token is assumed (a real address does not fit a fullword in the instrument)",
+   "ibm": {
+    "doc": "cics-ap",
+    "section": "Designing applications for CICS TS: Address CICS areas correctly"
+   },
+   "ibm_note": "IBM (CICS TS 6 Application Programming, Chapter 5 \"Designing applications for CICS TS\", \"Address CICS areas correctly\", local manual text): \"Ensure that: Each COBOL program with a LINKAGE SECTION structure that exceeds 4KB has the required definition and the setting of more than one contiguous BLL cell. Every BLL pointer points to an area that is a 01-level item.\" That confirms BLL cells (one per 4 KB of a LINKAGE 01) still exist in IBM's text and each addresses a 01-level item; it says nothing of an address moved between a cell and a fullword of data. The 1.x-era chapter the register cites (CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, \"BLL and chained storage areas\", p. 22) is not an online manual and is not on disk. The token numbering (0 NULL, the n-th address n * 65536) is the oracle's choice, as a real address does not fit a fullword in the instrument, so the rule stays ASSUMED. Declared in X56 (#8700)",
    "options": [],
    "register": [
     "X56"
@@ -3212,8 +3247,11 @@
     "withFaults",
     "injected"
    ],
-   "ibm": null,
-   "ibm_note": "the faults are the harness's; the SQLCA a fault leaves is assumed",
+   "ibm": {
+    "doc": "db2-sql",
+    "section": "Appendix F. SQL communication area (SQLCA), Description of SQLCA fields (Table 262)"
+   },
+   "ibm_note": "IBM (Db2 13 for z/OS SQL Reference, Appendix F, Description of SQLCA fields, Table 262; the faults themselves are the harness's, not IBM's). MATCHED parts of the SQLCA a fault leaves: SQLCODE \"Contains the SQL return code\" (0 successful, positive a warning, negative an error condition); SQLERRML \"Length indicator for SQLERRMC, in the range 0 through 70\"; SQLERRMC holds \"one or more tokens, separated by X'FF'\", which the port fills with the declared token cut to 70 bytes; SQLERRD(3) holds the reason code for SQLCODEs -911 and -913 (the port's optional seventh field). ASSUMED: IBM does not say what a statement leaves in SQLERRP, SQLWARN or SQLERRD(1,2,4-6) for an arbitrary failure the harness plans, nor that a planned fault makes the statement leave all its host variables and cursor state untouched; those are the port's choices. Declared in M2.",
    "options": [],
    "features": [
     "sql_forms: STATIC"
@@ -4794,8 +4832,9 @@
    ],
    "ibm": {
     "doc": "mvs-da",
-    "section": "PSA, TCB, TIOT"
+    "section": "PSA (Vol. 3 Table 763), TCB (Vol. 4), TIOT (Vol. 4 Table 541)"
    },
+   "ibm_note": "IBM (z/OS 3.1 MVS Data Areas, Volume 3 GA32-0937-60, Table 763 Structure PSA; Volume 4 GA32-0938-60, TCB Table and TIOT Table 541). MATCHED parts: the PSA field \"536 (218) ADDRESS 4 PSATNEW\" (X'218'); the TCB field \"12 (C) ADDRESS 4 TCBTIO - ADDRESS OF THE TASK I/O TABLE (TIOT)\"; the TIOT header \"0 (0) CHARACTER 8 TIOCNJOB - JOB NAME\", the step information at +8 and +16 (TIOCSTPN \"8-BYTE STEP NAME FOR NON-PROCS\" and TIOCPSTN \"8-BYTE PROC STEP NAME FOR PROCS\" at +8, TIOCJSTN \"8-BYTE JOBSTEP NAME FOR PROCS\" at +16), the first DD entry at +24 (\"The first TIOT DD entry is located immediately after the TIOT1 structure\"), \"24 (18) SIGNED 1 TIOELNGH - LENGTH, IN BYTES, OF THIS ENTRY (INCLUDING ALL DEVICE ENTRIES)\", \"28 (1C) CHARACTER 8 TIOEDDNM - DD NAME\", a 4-byte device entry whose \"remaining 3 bytes is TIOEFSRT\" at +41 (\"DURING PROBLEM PROGRAM, ADDRESS OF UCB\"; 16-byte DD entry plus one 4-byte device entry = the 20 the runtime lays), and \"60 (3C) CHARACTER 4 TIOTFEND - FINAL END OF THE TIOT - BINARY ZEROS\" (the zero fullword that ends the walk). DIFFERS in wording only (code comments, not behaviour; each needs its own code PR): the runtime, register A2 and ggtiot.c call the +16 field TIOCJSTP and gloss it 'procedure step'; IBM's +16 field is TIOCJSTN, the JOB step name for a procedure, and the procedure step name sits at +8 (TIOCPSTN), so for a procedure step the run's second and third names land in IBM's +8 and +16 slots only if the case states them in that order. Still ASSUMED because IBM leaves it open or documents against it: PSATNEW is described \"TCB pointer. Field maintained for code compatability with previous MVS releases. DO NOT USE.\" while PSATOLD (X'21C') is \"Pointer to current TCB or zero if in SRB mode\", so IBM never says PSATNEW is the running program's own TCB (CVTTCBP is \"Address of PSATNEW\", and IHSANTCB / IHSAOTCB name PSATNEW and PSATOLD as separate values); pointers are 4 bytes in IBM (ADDRESS 4) and 8-byte handles in the runtime (C9); the length of a DD entry with no allocated device (SYSOUT, DUMMY, in-stream) is not stated (\"ONE DEVICE ENTRY FOR EACH ALLOCATED DEVICE\"), the runtime lays 20 bytes with a zero token; the token value is the runtime's. The manuals' PSA, TCB and TIOT tables are the only IBM text for these blocks (no JOBLIB / dynamic-allocation entries are laid). Declared in A2 and C9",
    "options": [],
    "register": [
     "A2",

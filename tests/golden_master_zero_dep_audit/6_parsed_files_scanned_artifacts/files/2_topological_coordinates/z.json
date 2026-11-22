@@ -187,23 +187,23 @@
       "assembly/cpm65_6502/lib_bdos.S": 8772.95
     },
     "assembly/freebsd_kernel_arch": {
-      "assembly/freebsd_kernel_arch/COPYRIGHT": -5852.61,
-      "assembly/freebsd_kernel_arch/amd64_acpica_acpi_wakecode.S": -5507.68,
-      "assembly/freebsd_kernel_arch/amd64_amd64_apic_vector.S": -6538.29,
-      "assembly/freebsd_kernel_arch/amd64_amd64_atpic_vector.S": -6910.1,
-      "assembly/freebsd_kernel_arch/amd64_amd64_cpu_switch.S": -6659.52,
-      "assembly/freebsd_kernel_arch/amd64_amd64_efirt_support.S": -6845.44,
-      "assembly/freebsd_kernel_arch/amd64_amd64_exception.S": -6086.88,
-      "assembly/freebsd_kernel_arch/amd64_amd64_kexec_tramp.S": -5540.36,
-      "assembly/freebsd_kernel_arch/amd64_amd64_locore.S": -6483.7,
-      "assembly/freebsd_kernel_arch/amd64_amd64_mpboot.S": -6416.55,
-      "assembly/freebsd_kernel_arch/amd64_amd64_sigtramp.S": -6135.16,
-      "assembly/freebsd_kernel_arch/amd64_amd64_support.S": -6073.91,
-      "assembly/freebsd_kernel_arch/amd64_amd64_xen-locore.S": -6559.39,
-      "assembly/freebsd_kernel_arch/amd64_ia32_ia32_exception.S": -5701.68,
-      "assembly/freebsd_kernel_arch/amd64_ia32_ia32_sigtramp.S": -6002.43,
-      "assembly/freebsd_kernel_arch/amd64_linux32_linux32_support.S": -5740.81,
-      "assembly/freebsd_kernel_arch/amd64_linux_linux_support.S": -6373.67
+      "assembly/freebsd_kernel_arch/COPYRIGHT": -5853.22,
+      "assembly/freebsd_kernel_arch/amd64_acpica_acpi_wakecode.S": -5508.29,
+      "assembly/freebsd_kernel_arch/amd64_amd64_apic_vector.S": -6538.9,
+      "assembly/freebsd_kernel_arch/amd64_amd64_atpic_vector.S": -6910.71,
+      "assembly/freebsd_kernel_arch/amd64_amd64_cpu_switch.S": -6660.14,
+      "assembly/freebsd_kernel_arch/amd64_amd64_efirt_support.S": -6846.05,
+      "assembly/freebsd_kernel_arch/amd64_amd64_exception.S": -6087.5,
+      "assembly/freebsd_kernel_arch/amd64_amd64_kexec_tramp.S": -5540.97,
+      "assembly/freebsd_kernel_arch/amd64_amd64_locore.S": -6484.32,
+      "assembly/freebsd_kernel_arch/amd64_amd64_mpboot.S": -6417.16,
+      "assembly/freebsd_kernel_arch/amd64_amd64_sigtramp.S": -6135.78,
+      "assembly/freebsd_kernel_arch/amd64_amd64_support.S": -6074.52,
+      "assembly/freebsd_kernel_arch/amd64_amd64_xen-locore.S": -6560.01,
+      "assembly/freebsd_kernel_arch/amd64_ia32_ia32_exception.S": -5702.3,
+      "assembly/freebsd_kernel_arch/amd64_ia32_ia32_sigtramp.S": -6003.05,
+      "assembly/freebsd_kernel_arch/amd64_linux32_linux32_support.S": -5741.43,
+      "assembly/freebsd_kernel_arch/amd64_linux_linux_support.S": -6374.28
     },
     "assembly/freebsd_libc_string": {
       "assembly/freebsd_libc_string/COPYRIGHT": -4602.41,
@@ -261,25 +261,25 @@
       "assembly/hellosilicon_aarch64/Chapter_09_debug.s": 4356.9
     },
     "assembly/linux_1_0_kernel": {
-      "assembly/linux_1_0_kernel/COPYING": -4380.49,
-      "assembly/linux_1_0_kernel/boot_bootsect.S": -4232.73,
-      "assembly/linux_1_0_kernel/boot_head.S": -4188.51,
-      "assembly/linux_1_0_kernel/boot_setup.S": -4634.66,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -4996.76,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": -4722.01,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -3921.91,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": -3892.69,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": -3801.52,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": -3941.59,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": -4152.47,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": -4406.58,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": -5004.96,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": -5117.07,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_sub.S": -4813.47,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": -4809.96,
-      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": -4500.07,
-      "assembly/linux_1_0_kernel/kernel_ksyms.S": -5185.59,
-      "assembly/linux_1_0_kernel/kernel_sys_call.S": -4928.53
+      "assembly/linux_1_0_kernel/COPYING": -8144.3,
+      "assembly/linux_1_0_kernel/boot_bootsect.S": -7996.54,
+      "assembly/linux_1_0_kernel/boot_head.S": -7952.32,
+      "assembly/linux_1_0_kernel/boot_setup.S": -8398.47,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": -8760.57,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": -8485.82,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": -7685.72,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": -7656.5,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": -7565.33,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": -7705.4,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": -7916.28,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": -8170.39,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": -8768.77,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": -8880.88,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_sub.S": -8577.28,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": -8573.77,
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": -8263.88,
+      "assembly/linux_1_0_kernel/kernel_ksyms.S": -8949.4,
+      "assembly/linux_1_0_kernel/kernel_sys_call.S": -8692.34
     },
     "assembly/nasm_testsuite": {
       "assembly/nasm_testsuite/a32offs.asm": 5122.74,
@@ -410,10 +410,10 @@
       "bms/genapp/ssmap.bms": -119.43
     },
     "c": {
-      "c/SOURCES.md": -4868.06
+      "c/SOURCES.md": -4868.46
     },
     "c/cosmopolitan_intrin": {
-      "c/cosmopolitan_intrin/countbits.c": -10350.91
+      "c/cosmopolitan_intrin/countbits.c": -10351.81
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 9303.71,
@@ -607,11 +607,11 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": 11031.3
     },
     "cobol/che-che4z-lsp-for-cobol": {
-      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -6219.99,
-      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": -5911.69,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -6558.24,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -6185.33,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -5765.28
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -6221.38,
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": -5913.09,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -6559.64,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -6186.73,
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -5766.68
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": 6287.35,
@@ -1085,7 +1085,7 @@
       "cobol/zopeneditor-sample/TRANREC.cpy": 2576.59
     },
     "cpp": {
-      "cpp/SOURCES.md": -10689.84
+      "cpp/SOURCES.md": -10690.11
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 7527.04,
@@ -1173,7 +1173,7 @@
       "csharp/roslyn/Workspace.cs": 8705.57
     },
     "css": {
-      "css/SOURCES.md": -6728.7
+      "css/SOURCES.md": -6729.35
     },
     "css/bootstrap_dist": {
       "css/bootstrap_dist/bootstrap-grid.css": 2118.47,
@@ -1186,8 +1186,8 @@
       "css/cytoscape_docs/style.css": 7083.66
     },
     "css/element": {
-      "css/element/common.css": -9451.88,
-      "css/element/fonts-baseline.css": -9674.74
+      "css/element/common.css": -9452.87,
+      "css/element/fonts-baseline.css": -9675.73
     },
     "css/gutenberg_css_modules": {
       "css/gutenberg_css_modules/LICENSE.md": 8170.09,
@@ -1209,46 +1209,46 @@
       "css/odoo/icons-baseline.css": -2312.21
     },
     "css/tailwindcss_atrules": {
-      "css/tailwindcss_atrules/index.css": -9784.97,
-      "css/tailwindcss_atrules/playground_vite_index.css": -10126.13,
-      "css/tailwindcss_atrules/preflight.css": -10099.4,
-      "css/tailwindcss_atrules/theme.css": -9987.45,
-      "css/tailwindcss_atrules/utilities.css": -9536.92
+      "css/tailwindcss_atrules/index.css": -9785.26,
+      "css/tailwindcss_atrules/playground_vite_index.css": -10126.43,
+      "css/tailwindcss_atrules/preflight.css": -10099.69,
+      "css/tailwindcss_atrules/theme.css": -9987.74,
+      "css/tailwindcss_atrules/utilities.css": -9537.22
     },
     "css/threejs_app_ui": {
-      "css/threejs_app_ui/editor_main.css": -8632.16,
-      "css/threejs_app_ui/examples_main.css": -8906.62,
-      "css/threejs_app_ui/threejs-lessons.css": -8378.87
+      "css/threejs_app_ui/editor_main.css": -8632.65,
+      "css/threejs_app_ui/examples_main.css": -8907.11,
+      "css/threejs_app_ui/threejs-lessons.css": -8379.35
     },
     "css/wordpress": {
-      "css/wordpress/LICENSE.txt": -9735.29
+      "css/wordpress/LICENSE.txt": -9736.0
     },
     "dart": {
       "dart/SOURCES.md": -9823.56
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": -8960.74,
-      "dart/flutter/events.dart": -8419.33,
-      "dart/flutter/framework.dart": -8108.56,
-      "dart/flutter/navigator.dart": -8903.53,
-      "dart/flutter/object.dart": -8268.31,
-      "dart/flutter/semantics.dart": -9260.95,
-      "dart/flutter/theme_data.dart": -8722.98
+      "dart/flutter/editable_text.dart": -8961.96,
+      "dart/flutter/events.dart": -8420.55,
+      "dart/flutter/framework.dart": -8109.78,
+      "dart/flutter/navigator.dart": -8904.75,
+      "dart/flutter/object.dart": -8269.53,
+      "dart/flutter/semantics.dart": -9262.17,
+      "dart/flutter/theme_data.dart": -8724.2
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 7439.38
     },
     "db2_sql/db2unit": {
-      "db2_sql/db2unit/00-Prereqs.sql": -5994.36,
-      "db2_sql/db2unit/01-ObjectsAdmin.sql": -5941.22,
-      "db2_sql/db2unit/02-Objects.sql": -5382.69,
-      "db2_sql/db2unit/03-Headers.sql": -5445.62,
-      "db2_sql/db2unit/06-AssertsNoMessage.sql": -5668.05,
-      "db2_sql/db2unit/07-Version.sql": -5036.96,
-      "db2_sql/db2unit/98-Clean.sql": -5809.98,
-      "db2_sql/db2unit/99-CleanAdmin.sql": -5334.92,
-      "db2_sql/db2unit/LICENSE.txt": -5950.51,
-      "db2_sql/db2unit/PROVENANCE.md": -5261.75
+      "db2_sql/db2unit/00-Prereqs.sql": -5994.98,
+      "db2_sql/db2unit/01-ObjectsAdmin.sql": -5941.84,
+      "db2_sql/db2unit/02-Objects.sql": -5383.31,
+      "db2_sql/db2unit/03-Headers.sql": -5446.24,
+      "db2_sql/db2unit/06-AssertsNoMessage.sql": -5668.66,
+      "db2_sql/db2unit/07-Version.sql": -5037.58,
+      "db2_sql/db2unit/98-Clean.sql": -5810.6,
+      "db2_sql/db2unit/99-CleanAdmin.sql": -5335.54,
+      "db2_sql/db2unit/LICENSE.txt": -5951.13,
+      "db2_sql/db2unit/PROVENANCE.md": -5262.37
     },
     "dockerfile": {
       "dockerfile/SOURCES.md": 8680.44
@@ -1316,8 +1316,8 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": -9080.77
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": -10124.61,
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": -10197.29
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": -10124.9,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": -10197.57
     },
     "dockerfile/moby/test_targets": {
       "dockerfile/moby/test_targets/daemon.Dockerfile": 7336.03,
@@ -1326,23 +1326,23 @@
       "dockerfile/moby/test_targets/windows.Dockerfile": 7765.31
     },
     "embedded_python": {
-      "embedded_python/SOURCES.md": -7470.43
+      "embedded_python/SOURCES.md": -7470.96
     },
     "embedded_python/meow_turtle": {
-      "embedded_python/meow_turtle/actuators.py": -7026.13,
-      "embedded_python/meow_turtle/app.py": -7421.04,
-      "embedded_python/meow_turtle/bldc_driver.py": -6689.11,
-      "embedded_python/meow_turtle/boot.py": -7047.37,
-      "embedded_python/meow_turtle/diagnostics.py": -7824.65,
-      "embedded_python/meow_turtle/logging.py": -7916.64,
-      "embedded_python/meow_turtle/meowprotocol.py": -7204.13,
-      "embedded_python/meow_turtle/mpu6050.py": -7463.22,
-      "embedded_python/meow_turtle/ota.py": -7478.97,
-      "embedded_python/meow_turtle/pio_programs.py": -7548.29,
-      "embedded_python/meow_turtle/sensors.py": -7646.47,
-      "embedded_python/meow_turtle/tester.py": -6772.64,
-      "embedded_python/meow_turtle/tsl2591.py": -7020.47,
-      "embedded_python/meow_turtle/vibration_driver.py": -6908.32
+      "embedded_python/meow_turtle/actuators.py": -7026.9,
+      "embedded_python/meow_turtle/app.py": -7421.81,
+      "embedded_python/meow_turtle/bldc_driver.py": -6689.88,
+      "embedded_python/meow_turtle/boot.py": -7048.14,
+      "embedded_python/meow_turtle/diagnostics.py": -7825.41,
+      "embedded_python/meow_turtle/logging.py": -7917.41,
+      "embedded_python/meow_turtle/meowprotocol.py": -7204.9,
+      "embedded_python/meow_turtle/mpu6050.py": -7463.99,
+      "embedded_python/meow_turtle/ota.py": -7479.74,
+      "embedded_python/meow_turtle/pio_programs.py": -7549.06,
+      "embedded_python/meow_turtle/sensors.py": -7647.24,
+      "embedded_python/meow_turtle/tester.py": -6773.41,
+      "embedded_python/meow_turtle/tsl2591.py": -7021.23,
+      "embedded_python/meow_turtle/vibration_driver.py": -6909.09
     },
     "fortran": {
       "fortran/SOURCES.md": -8568.3
@@ -1381,13 +1381,13 @@
       "go/go_runtime_rand/rand.go": 11130.39
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": -4685.42,
-      "go/kubernetes/generic.go": -4742.47,
-      "go/kubernetes/kubelet.go": -5382.14,
-      "go/kubernetes/options.go": -4515.17,
-      "go/kubernetes/proxier.go": -4919.25,
-      "go/kubernetes/replica_set.go": -5557.87,
-      "go/kubernetes/scheduler.go": -5191.51
+      "go/kubernetes/csi_plugin.go": -4686.78,
+      "go/kubernetes/generic.go": -4743.83,
+      "go/kubernetes/kubelet.go": -5383.5,
+      "go/kubernetes/options.go": -4516.53,
+      "go/kubernetes/proxier.go": -4920.61,
+      "go/kubernetes/replica_set.go": -5559.22,
+      "go/kubernetes/scheduler.go": -5192.87
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10332.48
@@ -1396,15 +1396,15 @@
       "groovy/SOURCES.md": 7342.11
     },
     "groovy/fineract_gradle_plugin": {
-      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 934.06,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 229.28,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 1168.19,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 854.02,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 126.82,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 614.43,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 577.86,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 164.1,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 481.25
+      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 933.42,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 230.57,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 1166.58,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 852.68,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 128.29,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 396.89,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 794.29,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 164.84,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 481.43
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": 235.07,
@@ -1433,16 +1433,16 @@
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": -173.29
     },
     "groovy/godot_android_gradle": {
-      "groovy/godot_android_gradle/LICENSE.txt": -7322.55,
-      "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": -6914.51,
-      "groovy/godot_android_gradle/java_app_build.gradle": -7458.1,
-      "groovy/godot_android_gradle/java_app_settings.gradle": -7430.85,
-      "groovy/godot_android_gradle/java_editor_build.gradle": -7194.56,
-      "groovy/godot_android_gradle/java_lib_build.gradle": -7252.72,
-      "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": -7923.41,
-      "groovy/godot_android_gradle/java_scripts_publish-module.gradle": -7333.19,
-      "groovy/godot_android_gradle/java_scripts_publish-root.gradle": -7714.53,
-      "groovy/godot_android_gradle/java_settings.gradle": -7872.42
+      "groovy/godot_android_gradle/LICENSE.txt": -7323.16,
+      "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": -6915.12,
+      "groovy/godot_android_gradle/java_app_build.gradle": -7032.73,
+      "groovy/godot_android_gradle/java_app_settings.gradle": -7431.46,
+      "groovy/godot_android_gradle/java_editor_build.gradle": -7195.0,
+      "groovy/godot_android_gradle/java_lib_build.gradle": -7679.3,
+      "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": -7924.02,
+      "groovy/godot_android_gradle/java_scripts_publish-module.gradle": -7333.8,
+      "groovy/godot_android_gradle/java_scripts_publish-root.gradle": -7715.15,
+      "groovy/godot_android_gradle/java_settings.gradle": -7873.04
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 2782.88,
@@ -1450,30 +1450,30 @@
       "groovy/gradle/DefaultTask.java": 2225.88
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": -289.86,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 27.17,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": -1299.67,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": -1174.03,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": -1163.34,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": -1504.3,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": 85.47,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": -1199.64,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": -625.99,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": -38.15,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": -195.17,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": -1591.36,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": -787.03,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": -1035.65,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": -971.85,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": -1086.13,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": -206.16,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": -353.29,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_ExplodeZipAndFindJars.groovy": -283.12,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": -76.48,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": -643.68,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": -657.71,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": -382.82,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": -1061.24
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": -6103.5,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": -5786.21,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": -7115.43,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": -6989.61,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": -6788.21,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": -7320.16,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": -5727.97,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": -6346.42,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": -6065.35,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": -6894.91,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": -6008.78,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": -7407.2,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": -6601.66,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": -6851.98,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": -6977.93,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": -6902.33,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": -6018.41,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": -6166.5,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_ExplodeZipAndFindJars.groovy": -6097.27,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": -5890.31,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": -6458.25,
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": -6472.56,
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": -6197.03,
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": -6876.78
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": 2952.19,
@@ -1503,90 +1503,90 @@
       "groovy/gradle_dsl_snippets/testing_filtering_groovy_build.gradle": 2511.1
     },
     "groovy/gradle_integtest_specs": {
-      "groovy/gradle_integtest_specs/core-configuration_base-diagnostics_src_integTest_groovy_org_gradle_api_plugins_HelpTasksPluginIntegrationTest.groovy": -4394.37,
-      "groovy/gradle_integtest_specs/core-configuration_base-diagnostics_src_integTest_groovy_org_gradle_api_tasks_diagnostics_PropertyReportTaskIntegrationTest.groovy": -4769.7,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_AbstractConfigurationCacheIntegrationTest.groovy": -4756.33,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": -4916.2,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": -3765.86,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": -4377.18,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": -4276.81,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": -3784.61,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": -4418.3,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": -3918.7,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": -3671.14,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": -3777.55,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": -3318.08,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": -3785.81,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": -4569.29,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": -3688.99,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": -3776.32,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": -4597.86,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": -3983.57,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": -4106.42,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": -4795.54,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFeatureFlagsIntegrationTest.groovy": -5159.38,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileCollectionIntegrationTest.groovy": -4064.54,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileTreeIntegrationTest.groovy": -4932.18,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFlowScopeIntegrationTest.groovy": -4098.87,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheGradlePropertiesFileIntegrationTest.groovy": -3762.84,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildInputsChangesIntegrationTest.groovy": -3452.16,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicChangesIntegrationTest.groovy": -3194.13,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicIntegrationTest.groovy": -4809.06,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildScriptChangesIntegrationTest.groovy": -3264.5
+      "groovy/gradle_integtest_specs/core-configuration_base-diagnostics_src_integTest_groovy_org_gradle_api_plugins_HelpTasksPluginIntegrationTest.groovy": -4396.19,
+      "groovy/gradle_integtest_specs/core-configuration_base-diagnostics_src_integTest_groovy_org_gradle_api_tasks_diagnostics_PropertyReportTaskIntegrationTest.groovy": -4771.51,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_AbstractConfigurationCacheIntegrationTest.groovy": -4758.14,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": -4918.02,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": -3767.68,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": -4379.0,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": -4278.63,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": -3786.43,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": -4420.12,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": -3920.52,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": -3672.96,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": -3779.36,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": -3319.89,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": -4204.38,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": -4571.11,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": -3690.8,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": -3778.13,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": -3991.1,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": -3985.38,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": -4108.23,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": -4797.35,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFeatureFlagsIntegrationTest.groovy": -5161.2,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileCollectionIntegrationTest.groovy": -4258.32,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileTreeIntegrationTest.groovy": -4934.0,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFlowScopeIntegrationTest.groovy": -4100.69,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheGradlePropertiesFileIntegrationTest.groovy": -3764.65,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildInputsChangesIntegrationTest.groovy": -3453.97,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicChangesIntegrationTest.groovy": -3195.95,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicIntegrationTest.groovy": -4810.88,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildScriptChangesIntegrationTest.groovy": -3266.32
     },
     "groovy/gradle_sample_task_classes": {
-      "groovy/gradle_sample_task_classes/base_buildDashboard_common_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": -8600.4,
-      "groovy/gradle_sample_task_classes/base_customExternalTask_groovy_task_src_main_groovy_org_gradle_GreetingTask.groovy": -8788.6,
-      "groovy/gradle_sample_task_classes/base_customExternalTask_kotlin_task_src_main_groovy_org_gradle_GreetingTask.groovy": -7530.08,
-      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_groovy_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": -7984.03,
-      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_kotlin_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": -8398.31,
-      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_GroovyPerson.groovy": -8670.82,
-      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_PersonList.groovy": -7699.79,
-      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": -7749.06,
-      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": -8063.3,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": -8197.14,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": -8121.63,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": -7894.91,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": -8630.45,
-      "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": -8943.99,
-      "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": -7767.63,
-      "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": -8028.9,
-      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionCustomTestSourceSet_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": -8558.4,
-      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionQuickstart_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": -7602.49,
-      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": -8808.22,
-      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": -9020.06
+      "groovy/gradle_sample_task_classes/base_buildDashboard_common_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": -4837.54,
+      "groovy/gradle_sample_task_classes/base_customExternalTask_groovy_task_src_main_groovy_org_gradle_GreetingTask.groovy": -5025.56,
+      "groovy/gradle_sample_task_classes/base_customExternalTask_kotlin_task_src_main_groovy_org_gradle_GreetingTask.groovy": -3766.0,
+      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_groovy_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": -4220.07,
+      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_kotlin_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": -4634.94,
+      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_GroovyPerson.groovy": -4907.68,
+      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_PersonList.groovy": -3935.93,
+      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": -3985.0,
+      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": -4299.8,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": -4433.67,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": -4357.95,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": -4131.03,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": -4867.29,
+      "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": -5181.08,
+      "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": -4003.58,
+      "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": -4265.2,
+      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionCustomTestSourceSet_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": -4795.06,
+      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionQuickstart_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": -3838.52,
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": -5045.3,
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": -5257.2
     },
     "groovy/jenkins_view_groovy": {
-      "groovy/jenkins_view_groovy/Jenkinsfile": -2639.95,
-      "groovy/jenkins_view_groovy/LICENSE.txt": -2109.25,
-      "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": -1725.57,
-      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": -2425.94,
-      "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": -2778.29,
-      "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": -1558.16,
-      "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": -3056.39,
-      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": -2047.95,
-      "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": -2869.51,
-      "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": -2840.75,
-      "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": -2050.0,
-      "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": -2271.62,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -2368.07,
-      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -2632.07,
-      "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": -1985.34,
-      "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": -2348.13,
-      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": -2271.79,
-      "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": -2141.72,
-      "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": -2275.0,
-      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": -2957.87,
-      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": -1861.71,
-      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": -3366.94,
-      "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": -3421.77,
-      "groovy/jenkins_view_groovy/jenkins_model_GlobalNodePropertiesConfiguration_config.groovy": -2727.59,
-      "groovy/jenkins_view_groovy/jenkins_model_GlobalPluginConfiguration_config.groovy": -3179.73,
-      "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": -2959.76,
-      "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": -1708.92,
-      "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": -1750.73,
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": -3235.05,
-      "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": -2697.7
+      "groovy/jenkins_view_groovy/Jenkinsfile": -2640.56,
+      "groovy/jenkins_view_groovy/LICENSE.txt": -2109.37,
+      "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": -1725.17,
+      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": -2018.09,
+      "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": -2779.12,
+      "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": -1557.78,
+      "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": -3057.95,
+      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": -2047.53,
+      "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": -2871.04,
+      "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": -2841.88,
+      "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": -2049.93,
+      "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": -2272.17,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -2851.25,
+      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -2440.91,
+      "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": -1985.07,
+      "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": -2348.6,
+      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": -2977.51,
+      "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": -2141.91,
+      "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": -2275.25,
+      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": -2371.33,
+      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": -1861.7,
+      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": -3368.53,
+      "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": -3423.4,
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalNodePropertiesConfiguration_config.groovy": -2728.64,
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalPluginConfiguration_config.groovy": -3181.38,
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": -2961.11,
+      "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": -1708.61,
+      "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": -1750.28,
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": -3236.45,
+      "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": -2698.61
     },
     "groovy/kotlin_build_gradle": {
       "groovy/kotlin_build_gradle/LICENSE.txt": 4474.73,
@@ -1639,23 +1639,23 @@
       "groovy/spock/SpockTransform.java": -8416.63
     },
     "groovy/spock_core_groovy": {
-      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": -5084.04,
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": -4657.15,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": -4294.3,
-      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": -4779.19,
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": -4778.88,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": -5547.06,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": -5209.71,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": -4677.68,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": -5515.39,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": -4477.56,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": -4620.18,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": -5573.56,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_org_spockframework_util_GroovyUtil.groovy": -5069.14,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": -5502.68,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": -5417.37,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": -4568.89,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_org_spockframework_util_GroovyUtil.groovy": -4889.91,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": -5503.0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": -4982.15,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_concurrent_BlockingVariables.groovy": -4651.05,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_concurrent_BlockingVariables.groovy": -4627.99,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_HamcrestMatchers.groovy": -4457.42,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": -4555.63,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": -5327.41,
       "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_extension_SpockSnapshotter.groovy": -5309.34,
-      "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_jacoco_JacocoAstDumpTrigger.groovy": -5447.75
+      "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_jacoco_JacocoAstDumpTrigger.groovy": -4673.68
     },
     "groovy/spock_smoke_specs": {
       "groovy/spock_smoke_specs/AccessingOldValues.groovy": 6229.7,
@@ -1685,35 +1685,35 @@
     },
     "groovy/spock_specs": {
       "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 4017.38,
-      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 4987.2,
+      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 3843.87,
       "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 4603.48,
       "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 4636.53,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 4860.73,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 4602.12,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 5551.54,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": 5227.07,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": 4248.06,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 4683.49,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 3962.61,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": 5047.99,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": 5119.58,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": 3737.32,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 3703.39,
-      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 4302.22,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 4401.52,
+      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 4482.51,
       "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 4288.91,
-      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 4264.95,
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 5395.04,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 4118.79,
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 4569.34,
-      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 3983.01,
-      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 5145.18,
+      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 5520.48,
+      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 4275.04,
       "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 4429.21,
       "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 4903.73,
-      "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 4770.75,
+      "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 4383.79,
       "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 4872.25,
-      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 4050.72,
+      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 5093.94,
       "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 4044.75,
       "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 3940.15,
       "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 5096.44,
-      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": 5417.53,
+      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": 3764.33,
       "groovy/spock_specs/org_spockframework_docs_extension_TempDirDocSpec.groovy": 5019.39,
-      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": 5162.27,
-      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": 4046.93
+      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": 4044.52,
+      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": 5447.36
     },
     "groovy/spring_boot_gradle": {
       "groovy/spring_boot_gradle/LICENSE.txt": 5760.87,
@@ -1724,21 +1724,21 @@
       "groovy/spring_boot_gradle/buildSrc_build.gradle": 4881.03,
       "groovy/spring_boot_gradle/buildpack_spring-boot-buildpack-platform_build.gradle": 4977.91,
       "groovy/spring_boot_gradle/cli_spring-boot-cli_build.gradle": 4736.14,
-      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata-changelog-generator_build.gradle": 4607.42,
-      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata_build.gradle": 5197.83,
-      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-processor_build.gradle": 5848.75,
-      "groovy/spring_boot_gradle/core_spring-boot-autoconfigure-processor_build.gradle": 5566.62,
+      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata-changelog-generator_build.gradle": 5686.13,
+      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata_build.gradle": 5587.56,
+      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-processor_build.gradle": 4407.71,
+      "groovy/spring_boot_gradle/core_spring-boot-autoconfigure-processor_build.gradle": 4215.29,
       "groovy/spring_boot_gradle/core_spring-boot-autoconfigure_build.gradle": 5123.11,
       "groovy/spring_boot_gradle/core_spring-boot-docker-compose_build.gradle": 4500.43,
       "groovy/spring_boot_gradle/core_spring-boot-properties-migrator_build.gradle": 5477.88,
-      "groovy/spring_boot_gradle/core_spring-boot-test-autoconfigure_build.gradle": 4352.3,
+      "groovy/spring_boot_gradle/core_spring-boot-test-autoconfigure_build.gradle": 5089.9,
       "groovy/spring_boot_gradle/core_spring-boot-test_build.gradle": 4442.98,
       "groovy/spring_boot_gradle/core_spring-boot-testcontainers_build.gradle": 4343.4,
       "groovy/spring_boot_gradle/core_spring-boot_build.gradle": 5754.31,
       "groovy/spring_boot_gradle/documentation_spring-boot-actuator-docs_build.gradle": 4381.71,
       "groovy/spring_boot_gradle/gradle_plugins_cycle-detection-plugin_build.gradle": 5556.11,
-      "groovy/spring_boot_gradle/integration-test_spring-boot-actuator-integration-tests_build.gradle": 3999.47,
-      "groovy/spring_boot_gradle/integration-test_spring-boot-configuration-processor-integration-tests_build.gradle": 5728.15,
+      "groovy/spring_boot_gradle/integration-test_spring-boot-actuator-integration-tests_build.gradle": 5623.53,
+      "groovy/spring_boot_gradle/integration-test_spring-boot-configuration-processor-integration-tests_build.gradle": 4690.43,
       "groovy/spring_boot_gradle/integration-test_spring-boot-integration-tests_build.gradle": 4328.46,
       "groovy/spring_boot_gradle/integration-test_spring-boot-loader-integration-tests_build.gradle": 4852.48,
       "groovy/spring_boot_gradle/integration-test_spring-boot-loader-integration-tests_spring-boot-loader-tests-app_build.gradle": 5109.72,
@@ -1746,7 +1746,7 @@
       "groovy/spring_boot_gradle/integration-test_spring-boot-server-integration-tests_build.gradle": 4772.73
     },
     "haskell": {
-      "haskell/SOURCES.md": -9146.73
+      "haskell/SOURCES.md": -9147.22
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 3057.66,
@@ -1762,8 +1762,8 @@
       "haskell/pandoc/Shared.hs": 3500.39
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": -10021.85,
-      "hlasm/SOURCES.md": -9900.89
+      "hlasm/PROVENANCE.md": -10022.41,
+      "hlasm/SOURCES.md": -9901.45
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 4084.42,
@@ -1796,9 +1796,9 @@
       "hlo/SOURCES.md": -6105.82
     },
     "hlo/xla/gpu_emitters": {
-      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -6537.74,
-      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -6391.5,
-      "hlo/xla/gpu_emitters/side_output.hlo": -6215.59
+      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -6538.38,
+      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -6392.14,
+      "hlo/xla/gpu_emitters/side_output.hlo": -6216.22
     },
     "html": {
       "html/SOURCES.md": 9032.6
@@ -1835,13 +1835,13 @@
       "html/html5_boilerplate/src_index.html": 7362.83
     },
     "html/jquery_test_fixtures": {
-      "html/jquery_test_fixtures/LICENSE.txt": -9815.54,
-      "html/jquery_test_fixtures/csp-nonce.html": -9995.95,
-      "html/jquery_test_fixtures/iframe.html": -9921.68,
-      "html/jquery_test_fixtures/name.html": -9329.03,
-      "html/jquery_test_fixtures/qunit-fixture.html": -9605.1,
-      "html/jquery_test_fixtures/table.html": -10193.39,
-      "html/jquery_test_fixtures/trusted-html.html": -9599.59
+      "html/jquery_test_fixtures/LICENSE.txt": -9816.46,
+      "html/jquery_test_fixtures/csp-nonce.html": -9996.87,
+      "html/jquery_test_fixtures/iframe.html": -9922.6,
+      "html/jquery_test_fixtures/name.html": -9329.95,
+      "html/jquery_test_fixtures/qunit-fixture.html": -9606.02,
+      "html/jquery_test_fixtures/table.html": -10194.3,
+      "html/jquery_test_fixtures/trusted-html.html": -9600.5
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": -3531.71,
@@ -1870,11 +1870,11 @@
       "html/polyglot_vscode/vscode_builtin.html": 10301.34
     },
     "html/revealjs_decks": {
-      "html/revealjs_decks/500-slides.html": -8680.12,
-      "html/revealjs_decks/auto-animate.html": -8709.12,
-      "html/revealjs_decks/barebones.html": -9242.53,
-      "html/revealjs_decks/demo.html": -9107.72,
-      "html/revealjs_decks/math.html": -9504.02
+      "html/revealjs_decks/500-slides.html": -8680.82,
+      "html/revealjs_decks/auto-animate.html": -8709.83,
+      "html/revealjs_decks/barebones.html": -9243.23,
+      "html/revealjs_decks/demo.html": -9108.42,
+      "html/revealjs_decks/math.html": -9504.73
     },
     "html/threejs_shader_examples": {
       "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": -5093.77,
@@ -1901,7 +1901,7 @@
       "java/SOURCES.md": 5210.36
     },
     "java/flutter_android_editing_tests": {
-      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -10228.82
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -10229.88
     },
     "java/jenkins_cli": {
       "java/jenkins_cli/LICENSE.txt": -10677.7,
@@ -1922,7 +1922,7 @@
       "java/springboot/WebMvcAutoConfiguration.java": -1755.19
     },
     "javascript": {
-      "javascript/SOURCES.md": -10165.62
+      "javascript/SOURCES.md": -10166.13
     },
     "javascript/cesium_particle_emitters": {
       "javascript/cesium_particle_emitters/CircleEmitter.js": 2787.67,
@@ -1942,13 +1942,13 @@
       "javascript/jquery/tokenize.js": 2668.52
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -9265.28,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -8933.95,
-      "javascript/node_tls_security_tests/test-fs-lchown.js": -9490.1,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": -9702.5,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -9148.13,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": -9350.71,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -8850.08
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -9265.84,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -8934.5,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": -9490.66,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": -9703.05,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -9148.69,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": -9351.27,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -8850.63
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 6615.66,
@@ -1962,13 +1962,13 @@
       "javascript/react_error_codes/extract-errors.js": 11215.22
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -9097.24,
-      "javascript/threejs/Editor.js": -9274.23,
-      "javascript/threejs/GLTFLoader.js": -8697.03,
-      "javascript/threejs/Matrix4.js": -9650.37,
-      "javascript/threejs/Nodes.js": -8682.57,
-      "javascript/threejs/WebGLProgram.js": -8628.15,
-      "javascript/threejs/WebGLRenderer.js": -9183.52
+      "javascript/threejs/BufferGeometry.js": -9098.33,
+      "javascript/threejs/Editor.js": -9275.32,
+      "javascript/threejs/GLTFLoader.js": -8698.12,
+      "javascript/threejs/Matrix4.js": -9651.46,
+      "javascript/threejs/Nodes.js": -8683.66,
+      "javascript/threejs/WebGLProgram.js": -8629.24,
+      "javascript/threejs/WebGLRenderer.js": -9184.61
     },
     "jcl": {
       "jcl/SOURCES.md": -4521.8
@@ -2195,7 +2195,7 @@
       "kotlin/okhttp/build.gradle.kts": 8389.88
     },
     "livecode": {
-      "livecode/SOURCES.md": -9562.48
+      "livecode/SOURCES.md": -9563.64
     },
     "livecode/livecode": {
       "livecode/livecode/_clipboard_private_setter.livecodescript": -1074.44,
@@ -2346,32 +2346,32 @@
       "lua/cosmopolitan/tracegc.lua": 6798.21
     },
     "lua/darwin-xnu": {
-      "lua/darwin-xnu/benchmark.lua": -8227.88,
-      "lua/darwin-xnu/bridgetime.lua": -8694.31,
-      "lua/darwin-xnu/fault_throughput.lua": -8534.52,
-      "lua/darwin-xnu/kqtrace.lua": -8308.55,
-      "lua/darwin-xnu/ktruss.lua": -7905.85,
-      "lua/darwin-xnu/perf_madvise.lua": -8550.46,
-      "lua/darwin-xnu/wqtrace.lua": -8593.72
+      "lua/darwin-xnu/benchmark.lua": -8228.41,
+      "lua/darwin-xnu/bridgetime.lua": -8694.84,
+      "lua/darwin-xnu/fault_throughput.lua": -8535.05,
+      "lua/darwin-xnu/kqtrace.lua": -8309.09,
+      "lua/darwin-xnu/ktruss.lua": -7906.38,
+      "lua/darwin-xnu/perf_madvise.lua": -8550.99,
+      "lua/darwin-xnu/wqtrace.lua": -8594.25
     },
     "lua/freebsd-src": {
-      "lua/freebsd-src/COPYRIGHT": -4220.86,
-      "lua/freebsd-src/cli.lua": -4694.41,
-      "lua/freebsd-src/color.lua": -4851.04,
-      "lua/freebsd-src/config.lua": -4610.72,
-      "lua/freebsd-src/core.lua": -4399.68,
-      "lua/freebsd-src/drawer.lua": -5034.33,
-      "lua/freebsd-src/gfx-beastie.lua": -4841.46,
-      "lua/freebsd-src/gfx-beastiebw.lua": -3976.1,
-      "lua/freebsd-src/gfx-fbsdbw.lua": -5477.8,
-      "lua/freebsd-src/gfx-install.lua": -4038.36,
-      "lua/freebsd-src/gfx-orb.lua": -5055.2,
-      "lua/freebsd-src/gfx-orbbw.lua": -5062.09,
-      "lua/freebsd-src/hook.lua": -5007.25,
-      "lua/freebsd-src/loader.lua": -4328.68,
-      "lua/freebsd-src/menu.lua": -4118.87,
-      "lua/freebsd-src/password.lua": -4112.67,
-      "lua/freebsd-src/screen.lua": -4354.26
+      "lua/freebsd-src/COPYRIGHT": -4222.33,
+      "lua/freebsd-src/cli.lua": -4695.88,
+      "lua/freebsd-src/color.lua": -4852.5,
+      "lua/freebsd-src/config.lua": -4612.19,
+      "lua/freebsd-src/core.lua": -4401.14,
+      "lua/freebsd-src/drawer.lua": -5035.8,
+      "lua/freebsd-src/gfx-beastie.lua": -4842.93,
+      "lua/freebsd-src/gfx-beastiebw.lua": -3977.57,
+      "lua/freebsd-src/gfx-fbsdbw.lua": -5479.27,
+      "lua/freebsd-src/gfx-install.lua": -4039.83,
+      "lua/freebsd-src/gfx-orb.lua": -5056.67,
+      "lua/freebsd-src/gfx-orbbw.lua": -5063.55,
+      "lua/freebsd-src/hook.lua": -5008.71,
+      "lua/freebsd-src/loader.lua": -4330.14,
+      "lua/freebsd-src/menu.lua": -4120.34,
+      "lua/freebsd-src/password.lua": -4114.14,
+      "lua/freebsd-src/screen.lua": -4355.73
     },
     "lua/pandoc": {
       "lua/pandoc/COPYING.md": -4085.95,
@@ -2441,8 +2441,8 @@
       "m4/curl/m4/zz40-xc-ovr.m4": 5267.44
     },
     "m4/gnucobol": {
-      "m4/gnucobol/COPYING": -9432.73,
-      "m4/gnucobol/configure.ac": -9856.51
+      "m4/gnucobol/COPYING": -9433.24,
+      "m4/gnucobol/configure.ac": -9857.02
     },
     "makefile": {
       "makefile/SOURCES.md": 2130.08
@@ -2452,11 +2452,11 @@
       "makefile/freebsd/Makefile": 8876.01
     },
     "markdown": {
-      "markdown/SOURCES.md": -10564.0
+      "markdown/SOURCES.md": -10565.0
     },
     "markdown/airflow_job_lifecycle": {
-      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": -9277.89,
-      "markdown/airflow_job_lifecycle/NOTICE": -8888.77
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": -9278.42,
+      "markdown/airflow_job_lifecycle/NOTICE": -8889.31
     },
     "markdown/kubernetes_client_go": {
       "markdown/kubernetes_client_go/ARCHITECTURE.md": -3546.28
@@ -2487,9 +2487,9 @@
       "nix/SOURCES.md": 301.23
     },
     "nix/bun": {
-      "nix/bun/LICENSE.md": -4997.84,
-      "nix/bun/flake.nix": -4673.73,
-      "nix/bun/shell.nix": -4436.82
+      "nix/bun/LICENSE.md": -4998.24,
+      "nix/bun/flake.nix": -4674.13,
+      "nix/bun/shell.nix": -4437.22
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 9047.28,
@@ -2498,7 +2498,7 @@
       "nix/ghostty/shell.nix": 9220.88
     },
     "objective-c": {
-      "objective-c/SOURCES.md": -10752.56
+      "objective-c/SOURCES.md": -10753.41
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 4645.99,
@@ -2596,14 +2596,14 @@
       "php/symfony_emoji_data/emoji-ccp.php": 12196.73
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": -8456.16,
-      "php/wordpress/class-wp-query.php": -8447.85,
-      "php/wordpress/formatting.php": -9457.98,
-      "php/wordpress/functions.php": -9036.12,
-      "php/wordpress/license.txt": -9600.2,
-      "php/wordpress/plugin.php": -9042.93,
-      "php/wordpress/wp-login.php": -8677.32,
-      "php/wordpress/wp-settings.php": -9068.42
+      "php/wordpress/admin-ajax.php": -8456.45,
+      "php/wordpress/class-wp-query.php": -8448.15,
+      "php/wordpress/formatting.php": -9458.28,
+      "php/wordpress/functions.php": -9036.42,
+      "php/wordpress/license.txt": -9600.5,
+      "php/wordpress/plugin.php": -9043.23,
+      "php/wordpress/wp-login.php": -8677.62,
+      "php/wordpress/wp-settings.php": -9068.72
     },
     "plaintext": {
       "plaintext/SOURCES.md": -1544.07
@@ -2616,7 +2616,7 @@
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 4901.25
     },
     "plaintext/cpython/Tools/unittestgui": {
-      "plaintext/cpython/Tools/unittestgui/README.txt": -10479.33
+      "plaintext/cpython/Tools/unittestgui/README.txt": -10479.88
     },
     "plaintext/opencv/data": {
       "plaintext/opencv/data/CMakeLists.txt": -3839.11
@@ -2733,32 +2733,32 @@
       "powershell/nvda/unitTests.ps1": 6664.18
     },
     "powershell/roslyn": {
-      "powershell/roslyn/CommonLibrary.psm1": -5903.05,
-      "powershell/roslyn/CreateAndUploadNugetZip.ps1": -5879.02,
-      "powershell/roslyn/Get-CIStatus.ps1": -5765.96,
-      "powershell/roslyn/Get-CodeflowStatus.ps1": -5242.93,
-      "powershell/roslyn/License.txt": -6061.64,
-      "powershell/roslyn/PSScriptAnalyzerSettings.psd1": -6433.5,
-      "powershell/roslyn/PowerShell__install.ps1": -4805.8,
-      "powershell/roslyn/PowerShell__uninstall.ps1": -6228.98,
-      "powershell/roslyn/SetupNugetSources.ps1": -4960.18,
-      "powershell/roslyn/Test.ps1": -6119.08,
-      "powershell/roslyn/UploadPerfProject.ps1": -6201.18,
-      "powershell/roslyn/build-utils-win.ps1": -4939.5,
-      "powershell/roslyn/build-utils.ps1": -5268.67,
-      "powershell/roslyn/build.ps1": -6204.31,
-      "powershell/roslyn/check-channel-consistency.ps1": -5558.9,
-      "powershell/roslyn/check-for-loc-changes.ps1": -5741.69,
-      "powershell/roslyn/cleanup_perf.ps1": -5202.17,
-      "powershell/roslyn/common__build.ps1": -6352.15,
-      "powershell/roslyn/configure-sdl-tool.ps1": -5642.18,
-      "powershell/roslyn/execute-all-sdl-tools.ps1": -5325.57,
-      "powershell/roslyn/install-tool.ps1": -6458.57,
-      "powershell/roslyn/install.ps1": -5190.83,
-      "powershell/roslyn/mark-shipped.ps1": -6085.73,
-      "powershell/roslyn/nuget-validation.ps1": -5157.07,
-      "powershell/roslyn/nuget-verification.ps1": -4978.27,
-      "powershell/roslyn/uninstall.ps1": -6423.7
+      "powershell/roslyn/CommonLibrary.psm1": -5903.81,
+      "powershell/roslyn/CreateAndUploadNugetZip.ps1": -5879.78,
+      "powershell/roslyn/Get-CIStatus.ps1": -5766.72,
+      "powershell/roslyn/Get-CodeflowStatus.ps1": -5243.69,
+      "powershell/roslyn/License.txt": -6062.4,
+      "powershell/roslyn/PSScriptAnalyzerSettings.psd1": -6434.26,
+      "powershell/roslyn/PowerShell__install.ps1": -4806.56,
+      "powershell/roslyn/PowerShell__uninstall.ps1": -6229.74,
+      "powershell/roslyn/SetupNugetSources.ps1": -4960.94,
+      "powershell/roslyn/Test.ps1": -6119.84,
+      "powershell/roslyn/UploadPerfProject.ps1": -6201.94,
+      "powershell/roslyn/build-utils-win.ps1": -4940.26,
+      "powershell/roslyn/build-utils.ps1": -5269.43,
+      "powershell/roslyn/build.ps1": -6205.07,
+      "powershell/roslyn/check-channel-consistency.ps1": -5559.66,
+      "powershell/roslyn/check-for-loc-changes.ps1": -5742.45,
+      "powershell/roslyn/cleanup_perf.ps1": -5202.93,
+      "powershell/roslyn/common__build.ps1": -6352.91,
+      "powershell/roslyn/configure-sdl-tool.ps1": -5642.94,
+      "powershell/roslyn/execute-all-sdl-tools.ps1": -5326.33,
+      "powershell/roslyn/install-tool.ps1": -6459.33,
+      "powershell/roslyn/install.ps1": -5191.59,
+      "powershell/roslyn/mark-shipped.ps1": -6086.49,
+      "powershell/roslyn/nuget-validation.ps1": -5157.83,
+      "powershell/roslyn/nuget-verification.ps1": -4979.03,
+      "powershell/roslyn/uninstall.ps1": -6424.46
     },
     "powershell/runtime": {
       "powershell/runtime/Build-IssueComment.ps1": 2331.83,
@@ -2800,7 +2800,7 @@
       "protobuf/SOURCES.md": -3741.12
     },
     "protobuf/baseline": {
-      "protobuf/baseline/control.proto": -10221.8
+      "protobuf/baseline/control.proto": -10222.09
     },
     "python": {
       "python/SOURCES.md": -11051.65
@@ -2819,8 +2819,8 @@
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": -1484.81
     },
     "python/airflow_opsgenie_tests": {
-      "python/airflow_opsgenie_tests/NOTICE": -8777.64,
-      "python/airflow_opsgenie_tests/test_opsgenie.py": -9134.92
+      "python/airflow_opsgenie_tests/NOTICE": -8778.81,
+      "python/airflow_opsgenie_tests/test_opsgenie.py": -9136.08
     },
     "python/cython": {
       "python/cython/COPYING.txt": 10435.54,
@@ -2831,8 +2831,8 @@
       "python/cython/Nodes.py": 10568.86
     },
     "python/django_db_tests": {
-      "python/django_db_tests/test_iterator.py": -9836.57,
-      "python/django_db_tests/test_utils.py": -10169.59
+      "python/django_db_tests/test_iterator.py": -9837.59,
+      "python/django_db_tests/test_utils.py": -10170.61
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": -9626.68,
@@ -3076,10 +3076,10 @@
       "python/homeassistant_anthropic/coordinator.py": 2231.81
     },
     "python/homeassistant_ble_integrations": {
-      "python/homeassistant_ble_integrations/LICENSE.md": -7692.41,
-      "python/homeassistant_ble_integrations/aranet___init__.py": -7521.34,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": -7943.86,
-      "python/homeassistant_ble_integrations/utils.py": -8418.84
+      "python/homeassistant_ble_integrations/LICENSE.md": -7692.98,
+      "python/homeassistant_ble_integrations/aranet___init__.py": -7521.91,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": -7944.44,
+      "python/homeassistant_ble_integrations/utils.py": -8419.41
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -311.45,
@@ -3113,7 +3113,7 @@
       "python/numpy/verify_c_api_version.py": 8755.2
     },
     "python/opencv_dnn_conversion": {
-      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -6555.13
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -6556.55
     },
     "python/pip_vendored_requests": {
       "python/pip_vendored_requests/LICENSE.txt": -1191.1,
@@ -3144,12 +3144,12 @@
       "python/twisted/transport.py": 11191.87
     },
     "python/wtfpython": {
-      "python/wtfpython/2_tricky_strings.py": -8855.38,
-      "python/wtfpython/README.md": -8360.73,
-      "python/wtfpython/insert_ids.py": -8204.25,
-      "python/wtfpython/mixed_tabs_and_spaces.py": -8740.46,
-      "python/wtfpython/notebook_generator.py": -8578.63,
-      "python/wtfpython/noxfile.py": -8957.42
+      "python/wtfpython/2_tricky_strings.py": -8856.61,
+      "python/wtfpython/README.md": -8361.97,
+      "python/wtfpython/insert_ids.py": -8205.48,
+      "python/wtfpython/mixed_tabs_and_spaces.py": -8741.69,
+      "python/wtfpython/notebook_generator.py": -8579.87,
+      "python/wtfpython/noxfile.py": -8958.66
     },
     "rexx": {
       "rexx/PROVENANCE.md": -3908.66,
@@ -3227,13 +3227,13 @@
       "rust/bevy_asset_examples/rotation.rs": 4209.99
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": -6520.2,
-      "rust/holylang/compile.rs": -6971.41,
-      "rust/holylang/error.rs": -7056.82,
-      "rust/holylang/main.rs": -6362.39,
-      "rust/holylang/parser.rs": -6493.71,
-      "rust/holylang/semantic.rs": -6999.06,
-      "rust/holylang/transpiler.rs": -7168.75
+      "rust/holylang/ast.rs": -6520.77,
+      "rust/holylang/compile.rs": -6971.98,
+      "rust/holylang/error.rs": -7057.4,
+      "rust/holylang/main.rs": -6362.97,
+      "rust/holylang/parser.rs": -6494.28,
+      "rust/holylang/semantic.rs": -6999.64,
+      "rust/holylang/transpiler.rs": -7169.32
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 5351.87,
@@ -3257,19 +3257,19 @@
       "rust/syn/derive.rs": -10193.09
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": -8674.57,
-      "rust/tokio/block_on.rs": -8480.35,
-      "rust/tokio/blocking.rs": -7820.64,
-      "rust/tokio/builder.rs": -8367.64,
-      "rust/tokio/config.rs": -7719.34,
-      "rust/tokio/fuzz.rs": -7327.52,
-      "rust/tokio/interval.rs": -8435.31,
-      "rust/tokio/lib.rs": -7515.68,
-      "rust/tokio/maybe_done.rs": -8491.97,
-      "rust/tokio/tests.rs": -8213.83,
-      "rust/tokio/tokio_mpsc_bounded.rs": -7477.76,
-      "rust/tokio/tokio_named_pipe.rs": -8122.73,
-      "rust/tokio/tokio_udp.rs": -7745.72
+      "rust/tokio/addr_of.rs": -8675.72,
+      "rust/tokio/block_on.rs": -8481.51,
+      "rust/tokio/blocking.rs": -7821.79,
+      "rust/tokio/builder.rs": -8368.79,
+      "rust/tokio/config.rs": -7720.49,
+      "rust/tokio/fuzz.rs": -7328.67,
+      "rust/tokio/interval.rs": -8436.47,
+      "rust/tokio/lib.rs": -7516.83,
+      "rust/tokio/maybe_done.rs": -8493.12,
+      "rust/tokio/tests.rs": -8214.99,
+      "rust/tokio/tokio_mpsc_bounded.rs": -7478.91,
+      "rust/tokio/tokio_named_pipe.rs": -8123.88,
+      "rust/tokio/tokio_udp.rs": -7746.87
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 3499.39
@@ -3282,7 +3282,7 @@
       "rust/wasmtime/wasmtime_pulley_interp.rs": 10045.35
     },
     "scala": {
-      "scala/SOURCES.md": -5641.15
+      "scala/SOURCES.md": -5641.67
     },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 10814.72,
@@ -3294,7 +3294,7 @@
       "scala/kafka/SocketServer.scala": 10225.37
     },
     "scheme": {
-      "scheme/SOURCES.md": -10490.35
+      "scheme/SOURCES.md": -10490.65
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3981.97,
@@ -3332,15 +3332,15 @@
       "shell/ansible/windows.sh": 9836.94
     },
     "shell/brew": {
-      "shell/brew/Dockerfile": -6178.56,
-      "shell/brew/LICENSE.txt": -5639.98,
-      "shell/brew/brew": -6124.48,
-      "shell/brew/brew.rb": -5476.86,
-      "shell/brew/cask.rb": -5787.01,
-      "shell/brew/download_strategy.rb": -5747.13,
-      "shell/brew/formula.rb": -5424.33,
-      "shell/brew/formula_installer.rb": -5293.83,
-      "shell/brew/sandbox.rb": -6280.62
+      "shell/brew/Dockerfile": -6180.08,
+      "shell/brew/LICENSE.txt": -5641.49,
+      "shell/brew/brew": -6125.99,
+      "shell/brew/brew.rb": -5478.38,
+      "shell/brew/cask.rb": -5788.52,
+      "shell/brew/download_strategy.rb": -5748.64,
+      "shell/brew/formula.rb": -5425.85,
+      "shell/brew/formula_installer.rb": -5295.34,
+      "shell/brew/sandbox.rb": -6282.13
     },
     "shell/curl": {
       "shell/curl/COPYING": -1231.29,
@@ -3505,29 +3505,29 @@
       "shell/kubernetes/util.sh": 3913.09
     },
     "shell/linux": {
-      "shell/linux/COPYING": -5920.29,
-      "shell/linux/autoload.sh": -6682.53,
-      "shell/linux/boot__install.sh": -6745.26,
-      "shell/linux/check-fpatchable-function-entry.sh": -5915.73,
-      "shell/linux/config3270.sh": -6274.58,
-      "shell/linux/deflate_xip_data.sh": -6512.02,
-      "shell/linux/gen_compat_vdso_offsets.sh": -6954.83,
-      "shell/linux/gen_vdso32_offsets.sh": -7122.3,
-      "shell/linux/gen_vdso_offsets.sh": -5924.78,
-      "shell/linux/generic-board-config.sh": -6742.98,
-      "shell/linux/install.sh": -5885.22,
-      "shell/linux/kasan-offsets.sh": -6618.76,
-      "shell/linux/m68k__install.sh": -5655.13,
-      "shell/linux/multisound.sh": -6595.45,
-      "shell/linux/parisc__install.sh": -7147.66,
-      "shell/linux/prom_init_check.sh": -6094.96,
-      "shell/linux/relocs_check.sh": -6934.6,
-      "shell/linux/so2s.sh": -6278.7,
-      "shell/linux/syscallnr.sh": -6207.25,
-      "shell/linux/syscalls__syscallnr.sh": -6112.21,
-      "shell/linux/vdso32__gen_vdso_offsets.sh": -6434.16,
-      "shell/linux/vdso64__gen_vdso_offsets.sh": -7085.08,
-      "shell/linux/vdso__gen_vdso_offsets.sh": -5575.93
+      "shell/linux/COPYING": -106.25,
+      "shell/linux/autoload.sh": -868.49,
+      "shell/linux/boot__install.sh": -931.22,
+      "shell/linux/check-fpatchable-function-entry.sh": -101.69,
+      "shell/linux/config3270.sh": -460.54,
+      "shell/linux/deflate_xip_data.sh": -697.98,
+      "shell/linux/gen_compat_vdso_offsets.sh": -1140.79,
+      "shell/linux/gen_vdso32_offsets.sh": -1308.26,
+      "shell/linux/gen_vdso_offsets.sh": -110.74,
+      "shell/linux/generic-board-config.sh": -928.94,
+      "shell/linux/install.sh": -71.18,
+      "shell/linux/kasan-offsets.sh": -804.72,
+      "shell/linux/m68k__install.sh": 158.91,
+      "shell/linux/multisound.sh": -781.41,
+      "shell/linux/parisc__install.sh": -1333.62,
+      "shell/linux/prom_init_check.sh": -280.92,
+      "shell/linux/relocs_check.sh": -1120.56,
+      "shell/linux/so2s.sh": -464.66,
+      "shell/linux/syscallnr.sh": -393.21,
+      "shell/linux/syscalls__syscallnr.sh": -298.17,
+      "shell/linux/vdso32__gen_vdso_offsets.sh": -620.12,
+      "shell/linux/vdso64__gen_vdso_offsets.sh": -1271.04,
+      "shell/linux/vdso__gen_vdso_offsets.sh": 238.11
     },
     "shell/moby": {
       "shell/moby/check-config.sh": 6097.91,
@@ -3591,20 +3591,20 @@
       "shell/serenity/run-tests-and-shutdown.sh": 949.82
     },
     "shell/sqlite": {
-      "shell/sqlite/LICENSE.md": -7864.03,
-      "shell/sqlite/build-shell.sh": -7866.31,
-      "shell/sqlite/cktclsh.sh": -7288.99,
-      "shell/sqlite/fts3cov.sh": -6877.82,
-      "shell/sqlite/json-speed-check.sh": -7382.68,
-      "shell/sqlite/mkautoconfamal.sh": -7862.0,
-      "shell/sqlite/mkdist.sh": -7460.28,
-      "shell/sqlite/run-wordcount.sh": -7374.61,
-      "shell/sqlite/split-speedtest1-script.sh": -8003.77,
-      "shell/sqlite/symbols-mingw.sh": -7405.78,
-      "shell/sqlite/symbols.sh": -8061.72,
-      "shell/sqlite/tclConfigShToMake.sh": -7810.99,
-      "shell/sqlite/time-wordcount.sh": -7922.49,
-      "shell/sqlite/warnings-clang.sh": -6844.67
+      "shell/sqlite/LICENSE.md": -7865.3,
+      "shell/sqlite/build-shell.sh": -7867.59,
+      "shell/sqlite/cktclsh.sh": -7290.27,
+      "shell/sqlite/fts3cov.sh": -6879.09,
+      "shell/sqlite/json-speed-check.sh": -7383.95,
+      "shell/sqlite/mkautoconfamal.sh": -7863.27,
+      "shell/sqlite/mkdist.sh": -7461.56,
+      "shell/sqlite/run-wordcount.sh": -7375.88,
+      "shell/sqlite/split-speedtest1-script.sh": -8005.04,
+      "shell/sqlite/symbols-mingw.sh": -7407.06,
+      "shell/sqlite/symbols.sh": -8062.99,
+      "shell/sqlite/tclConfigShToMake.sh": -7812.26,
+      "shell/sqlite/time-wordcount.sh": -7923.76,
+      "shell/sqlite/warnings-clang.sh": -6845.95
     },
     "solidity": {
       "solidity/SOURCES.md": 6352.43
@@ -3646,16 +3646,16 @@
       "sql/sqlmap_postgresql/dns_request.sql": -5044.35
     },
     "sqlite": {
-      "sqlite/SOURCES.md": -6420.57
+      "sqlite/SOURCES.md": -6421.8
     },
     "sqlite/dancer2_sqlite": {
       "sqlite/dancer2_sqlite/entries.sql": 9393.31,
       "sqlite/dancer2_sqlite/users.sql": 9134.74
     },
     "sqlite/flask_tutorial_sqlite": {
-      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -7431.2,
-      "sqlite/flask_tutorial_sqlite/data.sql": -6774.89,
-      "sqlite/flask_tutorial_sqlite/schema.sql": -7122.34
+      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -7431.73,
+      "sqlite/flask_tutorial_sqlite/data.sql": -6775.42,
+      "sqlite/flask_tutorial_sqlite/schema.sql": -7122.87
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
       "sqlite/mediawiki_sqlite_alterpatches/COPYING": 5519.7,
@@ -3692,10 +3692,10 @@
       "sqlite/mediawiki_sqlite_tables/tables-generated.sql": 10597.47
     },
     "sqlite/prisma_sqlite_migrations": {
-      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9907.44,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9627.69,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -10108.1,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9692.05
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9908.49,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9628.74,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -10109.15,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9693.1
     },
     "sqlite/prisma_typed_sql": {
       "sqlite/prisma_typed_sql/findBigInt.sql": -6163.79,
@@ -3716,11 +3716,11 @@
       "sqlite/prisma_typed_sql/getString.sql": -7161.28
     },
     "sqlite/sqitch_sqlite_engine": {
-      "sqlite/sqitch_sqlite_engine/LICENSE.md": -5870.34,
-      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": -5484.86,
-      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": -6150.49,
-      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": -5661.23,
-      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": -5497.03
+      "sqlite/sqitch_sqlite_engine/LICENSE.md": -5870.89,
+      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": -5485.41,
+      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": -6151.04,
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": -5661.78,
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": -5497.58
     },
     "sqlite/sqlite_cli_scripts": {
       "sqlite/sqlite_cli_scripts/LICENSE.md": -7768.11,
@@ -3761,13 +3761,13 @@
       "tabular/SOURCES.md": 8041.19
     },
     "tabular/baseline": {
-      "tabular/baseline/control_standard.csv": -7785.96,
-      "tabular/baseline/control_standard.tsv": -7666.34
+      "tabular/baseline/control_standard.csv": -7786.41,
+      "tabular/baseline/control_standard.tsv": -7666.79
     },
     "tabular/csv_erp": {
-      "tabular/csv_erp/LICENSE.txt": -10482.66,
-      "tabular/csv_erp/ir.model.access.csv": -10068.72,
-      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10696.65
+      "tabular/csv_erp/LICENSE.txt": -10482.94,
+      "tabular/csv_erp/ir.model.access.csv": -10069.0,
+      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10696.93
     },
     "tabular/devsecops_payloads": {
       "tabular/devsecops_payloads/weaponized_export.csv": -9221.01
@@ -3822,7 +3822,7 @@
       "tcl/sqlite_core_dml/LICENSE.md": 2497.98
     },
     "tcl/sqlite_cte_window": {
-      "tcl/sqlite_cte_window/LICENSE.md": -10276.69
+      "tcl/sqlite_cte_window/LICENSE.md": -10277.85
     },
     "tcl/sqlite_fts5": {
       "tcl/sqlite_fts5/LICENSE.md": -1925.79
@@ -3831,21 +3831,21 @@
       "tcl/sqlite_json_triggers/LICENSE.md": 10080.86
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": 717.16
+      "tcl/sqlite_query_planner/LICENSE.md": 716.85
     },
     "tcl/sqlite_rtree": {
-      "tcl/sqlite_rtree/LICENSE.md": -10620.39
+      "tcl/sqlite_rtree/LICENSE.md": -10621.43
     },
     "td": {
-      "td/SOURCES.md": -8251.9
+      "td/SOURCES.md": -8252.35
     },
     "td/tensorflow/compiler/mlir/tfrt": {
       "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -1277.15,
       "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -1058.32
     },
     "td/tensorflow/core/ir": {
-      "td/tensorflow/core/ir/dialect.td": -10276.46,
-      "td/tensorflow/core/ir/ops.td": -10470.82
+      "td/tensorflow/core/ir/dialect.td": -10277.33,
+      "td/tensorflow/core/ir/ops.td": -10471.69
     },
     "text": {
       "text/SOURCES.md": -6877.15
@@ -3860,12 +3860,12 @@
       "typescript/angular_zonejs_mocha/mocha.ts": -338.87
     },
     "typescript/assemblyscript": {
-      "typescript/assemblyscript/asconfig.json": -4831.69,
-      "typescript/assemblyscript/ast.ts": -4308.11,
-      "typescript/assemblyscript/builtins.ts": -4216.41,
-      "typescript/assemblyscript/compiler.ts": -4813.36,
-      "typescript/assemblyscript/package.json": -4989.43,
-      "typescript/assemblyscript/parser.ts": -5069.79
+      "typescript/assemblyscript/asconfig.json": -4832.15,
+      "typescript/assemblyscript/ast.ts": -4308.57,
+      "typescript/assemblyscript/builtins.ts": -4216.86,
+      "typescript/assemblyscript/compiler.ts": -4813.82,
+      "typescript/assemblyscript/package.json": -4989.88,
+      "typescript/assemblyscript/parser.ts": -5070.24
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": -10707.09
@@ -3886,8 +3886,8 @@
       "typescript/fp-ts/pipeable.ts": -123.46
     },
     "typescript/nx_util_ai": {
-      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": -5989.87,
-      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": -5894.51
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": -5991.09,
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": -5895.73
     },
     "typescript/pixijs_examples": {
       "typescript/pixijs_examples/events_dragging.ts": -2067.29
@@ -3944,13 +3944,13 @@
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 3102.51
     },
     "xml/jenkins": {
-      "xml/jenkins/LICENSE.txt": -9279.34,
-      "xml/jenkins/XStreamDOMTest.data1.xml": -9353.36,
-      "xml/jenkins/XStreamDOMTest.data2.xml": -9227.01,
-      "xml/jenkins/excludesFilter.xml": -9785.78
+      "xml/jenkins/LICENSE.txt": -9280.51,
+      "xml/jenkins/XStreamDOMTest.data1.xml": -9354.53,
+      "xml/jenkins/XStreamDOMTest.data2.xml": -9228.18,
+      "xml/jenkins/excludesFilter.xml": -9786.95
     },
     "xml/odoo": {
-      "xml/odoo/__manifest__.py": -6339.47
+      "xml/odoo/__manifest__.py": -6340.04
     },
     "xml/odoo/views": {
       "xml/odoo/views/menu.xml": 6967.65,
@@ -3965,7 +3965,7 @@
       "xml/springboot/LICENSE.txt": -8967.04
     },
     "xml/springboot/build-info": {
-      "xml/springboot/build-info/pom.xml": -8499.66
+      "xml/springboot/build-info/pom.xml": -8500.23
     },
     "xml/springboot/getting-started": {
       "xml/springboot/getting-started/pom.xml": -6430.6
@@ -3974,12 +3974,12 @@
       "xml/springboot/resources/pom.xml": 8189.4
     },
     "yacc": {
-      "yacc/SOURCES.md": -9609.21
+      "yacc/SOURCES.md": -9609.73
     },
     "yacc/freebsd": {
-      "yacc/freebsd/COPYRIGHT": 517.64,
-      "yacc/freebsd/config.y": 892.94,
-      "yacc/freebsd/jailparse.y": 1225.24
+      "yacc/freebsd/COPYRIGHT": 517.25,
+      "yacc/freebsd/config.y": 892.54,
+      "yacc/freebsd/jailparse.y": 1224.84
     },
     "yaml": {
       "yaml/SOURCES.md": -5550.66
@@ -3988,8 +3988,8 @@
       "yaml/ansible/COPYING": 8762.85
     },
     "yaml/ansible/blocks": {
-      "yaml/ansible/blocks/block_fail_tasks.yml": -5061.67,
-      "yaml/ansible/blocks/block_in_rescue.yml": -5410.16
+      "yaml/ansible/blocks/block_fail_tasks.yml": -5062.15,
+      "yaml/ansible/blocks/block_in_rescue.yml": -5410.64
     },
     "yaml/ansible/include_import_tasks/tasks": {
       "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": -9372.64,
@@ -4051,21 +4051,21 @@
       "zig/SOURCES.md": 9720.28
     },
     "zig/bun": {
-      "zig/bun/LICENSE.md": -9792.87,
-      "zig/bun/MimallocArena.zig": -9125.63,
-      "zig/bun/Parser.zig": -9228.87,
-      "zig/bun/comptime_string_map.zig": -9934.0,
-      "zig/bun/napi.zig": -9711.85
+      "zig/bun/LICENSE.md": -9793.94,
+      "zig/bun/MimallocArena.zig": -9126.7,
+      "zig/bun/Parser.zig": -9229.95,
+      "zig/bun/comptime_string_map.zig": -9935.07,
+      "zig/bun/napi.zig": -9712.92
     },
     "zig/mach": {
-      "zig/mach/Core.zig": -8558.95,
-      "zig/mach/StringTable.zig": -8129.34,
-      "zig/mach/collision.zig": -8996.14,
-      "zig/mach/graph.zig": -8099.44,
-      "zig/mach/main.zig": -9222.23,
-      "zig/mach/module.zig": -8285.19,
-      "zig/mach/testing.zig": -8670.55,
-      "zig/mach/win32.zig": -8372.05
+      "zig/mach/Core.zig": -8559.7,
+      "zig/mach/StringTable.zig": -8130.09,
+      "zig/mach/collision.zig": -8996.89,
+      "zig/mach/graph.zig": -8100.19,
+      "zig/mach/main.zig": -9222.98,
+      "zig/mach/module.zig": -8285.94,
+      "zig/mach/testing.zig": -8671.3,
+      "zig/mach/win32.zig": -8372.8
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 1303.98,
@@ -4082,12 +4082,12 @@
       "zig/tigerbeetle/state_machine.zig": 870.89
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": -9021.47,
-      "zig/zig/InternPool.zig": -10049.19,
-      "zig/zig/Sema.zig": -9584.35,
-      "zig/zig/Type.zig": -9548.09,
-      "zig/zig/Zcu.zig": -9810.85,
-      "zig/zig/main.zig": -9441.87
+      "zig/zig/Compilation.zig": -9021.76,
+      "zig/zig/InternPool.zig": -10049.48,
+      "zig/zig/Sema.zig": -9584.64,
+      "zig/zig/Type.zig": -9548.38,
+      "zig/zig/Zcu.zig": -9811.14,
+      "zig/zig/main.zig": -9442.16
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 1237.29

@@ -1946,7 +1946,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 14.2,
+        "cognitive_load": 14.63,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 88.89,
@@ -1959,13 +1959,13 @@
         "verification": 2.13
       },
       "file_count": 9,
-      "total_mass": 254.94
+      "total_mass": 247.34
     },
     "groovy/flutter_android_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 19.26,
+        "cognitive_load": 19.4,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 4.17,
@@ -1984,7 +1984,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 13.81,
+        "cognitive_load": 15.73,
         "concurrency": 5.26,
         "dead_code": 0.0,
         "documentation": 40.0,
@@ -1997,7 +1997,7 @@
         "verification": 2.08
       },
       "file_count": 10,
-      "total_mass": 325.04
+      "total_mass": 328.34
     },
     "groovy/gradle": {
       "avg_exposures": {
@@ -2022,7 +2022,7 @@
       "avg_exposures": {
         "api_exposure": 0.41,
         "churn": 0.0,
-        "cognitive_load": 9.38,
+        "cognitive_load": 8.86,
         "concurrency": 1.74,
         "dead_code": 0.0,
         "documentation": 83.75,
@@ -2032,16 +2032,16 @@
         "stability": 50.0,
         "state_flux": 31.83,
         "tech_debt": 48.42,
-        "verification": 5.61
+        "verification": 5.62
       },
       "file_count": 24,
-      "total_mass": 397.36
+      "total_mass": 422.56
     },
     "groovy/gradle_dsl_snippets": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 4.24,
+        "cognitive_load": 4.99,
         "concurrency": 1.13,
         "dead_code": 0.0,
         "documentation": 48.0,
@@ -2060,7 +2060,7 @@
       "avg_exposures": {
         "api_exposure": 0.11,
         "churn": 0.0,
-        "cognitive_load": 5.15,
+        "cognitive_load": 5.25,
         "concurrency": 30.15,
         "dead_code": 0.0,
         "documentation": 100.0,
@@ -2073,13 +2073,13 @@
         "verification": 4.9
       },
       "file_count": 30,
-      "total_mass": 448.4
+      "total_mass": 456.2
     },
     "groovy/gradle_sample_task_classes": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 4.74,
+        "cognitive_load": 4.95,
         "concurrency": 7.76,
         "dead_code": 0.0,
         "documentation": 75.0,
@@ -2092,32 +2092,32 @@
         "verification": 2.33
       },
       "file_count": 20,
-      "total_mass": 195.08
+      "total_mass": 199.28
     },
     "groovy/jenkins_view_groovy": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 5.84,
+        "cognitive_load": 4.9,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 3.33,
-        "safety_score": 17.03,
+        "safety_score": 16.98,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.33,
-        "state_flux": 8.26,
+        "state_flux": 7.15,
         "tech_debt": 0.86,
         "verification": 4.81
       },
       "file_count": 30,
-      "total_mass": 570.26
+      "total_mass": 583.86
     },
     "groovy/kotlin_build_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 1.48,
+        "cognitive_load": 1.44,
         "concurrency": 0.87,
         "dead_code": 0.41,
         "documentation": 12.0,
@@ -2136,7 +2136,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 5.12,
+        "cognitive_load": 5.23,
         "concurrency": 6.67,
         "dead_code": 0.0,
         "documentation": 6.67,
@@ -2174,20 +2174,20 @@
       "avg_exposures": {
         "api_exposure": 0.07,
         "churn": 0.0,
-        "cognitive_load": 9.91,
+        "cognitive_load": 9.88,
         "concurrency": 5.88,
         "dead_code": 0.0,
         "documentation": 85.39,
-        "safety_score": 45.63,
+        "safety_score": 45.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 35.65,
+        "state_flux": 35.66,
         "tech_debt": 58.42,
         "verification": 6.93
       },
       "file_count": 17,
-      "total_mass": 365.02
+      "total_mass": 364.92
     },
     "groovy/spock_smoke_specs": {
       "avg_exposures": {
@@ -2212,7 +2212,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 2.16,
+        "cognitive_load": 3.03,
         "concurrency": 1.3,
         "dead_code": 0.0,
         "documentation": 95.56,
@@ -2225,17 +2225,17 @@
         "verification": 2.32
       },
       "file_count": 30,
-      "total_mass": 314.98
+      "total_mass": 330.88
     },
     "groovy/spring_boot_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 3.03,
+        "cognitive_load": 3.38,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 17.86,
-        "safety_score": 51.58,
+        "safety_score": 51.63,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.21,
@@ -2244,7 +2244,7 @@
         "verification": 2.22
       },
       "file_count": 28,
-      "total_mass": 579.98
+      "total_mass": 581.98
     },
     "haskell": {
       "avg_exposures": {

@@ -3841,7 +3841,7 @@
     "groovy/fineract_gradle_plugin": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "14.2%",
+        "Cognitive Load Exposure": "14.63%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "88.89%",
@@ -3854,7 +3854,7 @@
         "Testing Exposure": "2.13%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 254.94,
+      "Directory Group Magnitude": 247.34,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "11.1%",
         "file_cluster_0": "33.3%",
@@ -3877,7 +3877,7 @@
     "groovy/flutter_android_gradle": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "19.26%",
+        "Cognitive Load Exposure": "19.4%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "4.17%",
@@ -3926,7 +3926,7 @@
     "groovy/godot_android_gradle": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "13.81%",
+        "Cognitive Load Exposure": "15.73%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "5.26%",
         "Documentation Exposure": "40.0%",
@@ -3939,13 +3939,14 @@
         "Testing Exposure": "2.08%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 325.04,
+      "Directory Group Magnitude": 328.34,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "10.0%",
         "file_cluster_10": "10.0%",
-        "file_cluster_12": "20.0%",
+        "file_cluster_12": "10.0%",
         "file_cluster_2": "50.0%",
-        "file_cluster_7": "10.0%"
+        "file_cluster_7": "10.0%",
+        "file_cluster_9": "10.0%"
       },
       "File Count": 10,
       "Files": [
@@ -3992,7 +3993,7 @@
     "groovy/gradle_buildlogic_groovy": {
       "Average Risk Exposures": {
         "API Exposure": "0.41%",
-        "Cognitive Load Exposure": "9.38%",
+        "Cognitive Load Exposure": "8.86%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "1.74%",
         "Documentation Exposure": "83.75%",
@@ -4002,10 +4003,10 @@
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "31.83%",
         "Tech Debt Exposure": "48.42%",
-        "Testing Exposure": "5.61%",
+        "Testing Exposure": "5.62%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 397.36,
+      "Directory Group Magnitude": 422.56,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "16.7%",
         "file_cluster_10": "4.2%",
@@ -4045,7 +4046,7 @@
     "groovy/gradle_dsl_snippets": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "4.24%",
+        "Cognitive Load Exposure": "4.99%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "1.13%",
         "Documentation Exposure": "48.0%",
@@ -4101,7 +4102,7 @@
     "groovy/gradle_integtest_specs": {
       "Average Risk Exposures": {
         "API Exposure": "0.11%",
-        "Cognitive Load Exposure": "5.15%",
+        "Cognitive Load Exposure": "5.25%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "30.15%",
         "Documentation Exposure": "100.0%",
@@ -4114,14 +4115,15 @@
         "Testing Exposure": "4.9%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 448.4,
+      "Directory Group Magnitude": 456.2,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_10": "13.3%",
+        "file_cluster_10": "10.0%",
         "file_cluster_12": "6.7%",
         "file_cluster_13": "13.3%",
         "file_cluster_17": "3.3%",
         "file_cluster_2": "60.0%",
-        "file_cluster_7": "3.3%"
+        "file_cluster_7": "3.3%",
+        "file_cluster_9": "3.3%"
       },
       "File Count": 30,
       "Files": [
@@ -4160,7 +4162,7 @@
     "groovy/gradle_sample_task_classes": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "4.74%",
+        "Cognitive Load Exposure": "4.95%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "7.76%",
         "Documentation Exposure": "75.0%",
@@ -4173,7 +4175,7 @@
         "Testing Exposure": "2.33%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 195.08,
+      "Directory Group Magnitude": 199.28,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "15.0%",
         "file_cluster_10": "10.0%",
@@ -4211,25 +4213,25 @@
     "groovy/jenkins_view_groovy": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "5.84%",
+        "Cognitive Load Exposure": "4.9%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "3.33%",
-        "Error & Exception Exposure": "17.03%",
+        "Error & Exception Exposure": "16.98%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.33%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "8.26%",
+        "State Flux Exposure": "7.15%",
         "Tech Debt Exposure": "0.86%",
         "Testing Exposure": "4.81%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 570.26,
+      "Directory Group Magnitude": 583.86,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "3.3%",
         "file_cluster_10": "23.3%",
-        "file_cluster_15": "3.3%",
         "file_cluster_2": "53.3%",
+        "file_cluster_4": "3.3%",
         "file_cluster_7": "16.7%"
       },
       "File Count": 30,
@@ -4269,7 +4271,7 @@
     "groovy/kotlin_build_gradle": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "1.48%",
+        "Cognitive Load Exposure": "1.44%",
         "Commented Logic Exposure": "0.41%",
         "Concurrency Exposure": "0.87%",
         "Documentation Exposure": "12.0%",
@@ -4322,7 +4324,7 @@
     "groovy/retrofit_gradle": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "5.12%",
+        "Cognitive Load Exposure": "5.23%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "6.67%",
         "Documentation Exposure": "6.67%",
@@ -4392,20 +4394,20 @@
     "groovy/spock_core_groovy": {
       "Average Risk Exposures": {
         "API Exposure": "0.07%",
-        "Cognitive Load Exposure": "9.91%",
+        "Cognitive Load Exposure": "9.88%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "5.88%",
         "Documentation Exposure": "85.39%",
-        "Error & Exception Exposure": "45.63%",
+        "Error & Exception Exposure": "45.68%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "35.65%",
+        "State Flux Exposure": "35.66%",
         "Tech Debt Exposure": "58.42%",
         "Testing Exposure": "6.93%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 365.02,
+      "Directory Group Magnitude": 364.92,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "11.8%",
         "file_cluster_10": "5.9%",
@@ -4491,7 +4493,7 @@
     "groovy/spock_specs": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "2.16%",
+        "Cognitive Load Exposure": "3.03%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "1.3%",
         "Documentation Exposure": "95.56%",
@@ -4504,15 +4506,15 @@
         "Testing Exposure": "2.32%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 314.98,
+      "Directory Group Magnitude": 330.88,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "3.3%",
         "file_cluster_10": "10.0%",
-        "file_cluster_11": "23.3%",
+        "file_cluster_11": "16.7%",
         "file_cluster_12": "6.7%",
         "file_cluster_13": "43.3%",
         "file_cluster_15": "3.3%",
-        "file_cluster_2": "6.7%",
+        "file_cluster_2": "13.3%",
         "file_cluster_7": "3.3%"
       },
       "File Count": 30,
@@ -4552,11 +4554,11 @@
     "groovy/spring_boot_gradle": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "3.03%",
+        "Cognitive Load Exposure": "3.38%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "17.86%",
-        "Error & Exception Exposure": "51.58%",
+        "Error & Exception Exposure": "51.63%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.21%",
         "Specification Exposure": "0.0%",
@@ -4565,7 +4567,7 @@
         "Testing Exposure": "2.22%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 579.98,
+      "Directory Group Magnitude": 581.98,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "3.6%",
         "file_cluster_10": "7.1%",

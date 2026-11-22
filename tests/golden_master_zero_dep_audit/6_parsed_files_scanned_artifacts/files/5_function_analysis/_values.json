@@ -329004,8 +329004,8 @@
       ],
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": [
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "63.2%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "65.0%",
           "End Line": 92,
           "Function Name": "GpgService",
           "Has Header Comment": 0,
@@ -329015,7 +329015,7 @@
           "Lines of Code (LOC)": 43,
           "Reflection Hits": 0,
           "Start Line": 50,
-          "Structural Impact": 20.5
+          "Structural Impact": 21.9
         },
         {
           "Control Flow Branches": 2,
@@ -329076,8 +329076,8 @@
       ],
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": [
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
           "End Line": 110,
           "Function Name": "search",
           "Has Header Comment": 0,
@@ -329087,35 +329087,7 @@
           "Lines of Code (LOC)": 33,
           "Reflection Hits": 0,
           "Start Line": 78,
-          "Structural Impact": 11.5
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 118,
-          "Function Name": "getProjectVersions",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 116,
-          "Structural Impact": 4.4
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 122,
-          "Function Name": "getVersion",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 120,
-          "Structural Impact": 4.4
+          "Structural Impact": 10.1
         },
         {
           "Control Flow Branches": 0,
@@ -329132,20 +329104,6 @@
           "Structural Impact": 3.1
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 114,
-          "Function Name": "getProjects",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 112,
-          "Structural Impact": 3.1
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 58,
@@ -329158,6 +329116,34 @@
           "Reflection Hits": 0,
           "Start Line": 53,
           "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 118,
+          "Function Name": "getProjectVersions",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 116,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 122,
+          "Function Name": "getVersion",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 120,
+          "Structural Impact": 1.6
         },
         {
           "Control Flow Branches": 0,
@@ -329185,6 +329171,20 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 74,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 114,
+          "Function Name": "getProjects",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 112,
           "Structural Impact": 1.1
         }
       ],
@@ -329351,8 +329351,8 @@
       "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": [],
       "groovy/godot_android_gradle/java_app_build.gradle": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
           "End Line": 337,
           "Function Name": "fileTree",
           "Has Header Comment": 1,
@@ -329362,13 +329362,13 @@
           "Lines of Code (LOC)": 284,
           "Reflection Hits": 0,
           "Start Line": 54,
-          "Structural Impact": 11.6
+          "Structural Impact": 13.5
         }
       ],
       "groovy/godot_android_gradle/java_app_settings.gradle": [],
       "groovy/godot_android_gradle/java_editor_build.gradle": [
         {
-          "Control Flow Branches": 3,
+          "Control Flow Branches": 4,
           "Control Flow Ratio": "100.0%",
           "End Line": 244,
           "Function Name": "fileTree",
@@ -329379,7 +329379,7 @@
           "Lines of Code (LOC)": 49,
           "Reflection Hits": 0,
           "Start Line": 196,
-          "Structural Impact": 8.1
+          "Structural Impact": 9.5
         },
         {
           "Control Flow Branches": 1,
@@ -334119,8 +334119,8 @@
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": [
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 43,
           "Function Name": "clean",
           "Has Header Comment": 0,
@@ -334130,7 +334130,7 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 37,
-          "Structural Impact": 3.4
+          "Structural Impact": 1.4
         }
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": [
@@ -334151,8 +334151,8 @@
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": [
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
           "End Line": 33,
           "Function Name": "matches",
           "Has Header Comment": 0,
@@ -334162,7 +334162,7 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 30,
-          "Structural Impact": 1.6
+          "Structural Impact": 3.0
         }
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": [
@@ -334227,8 +334227,8 @@
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": [
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "44.4%",
           "End Line": 201,
           "Function Name": "acceptOrReject",
           "Has Header Comment": 0,
@@ -334238,7 +334238,7 @@
           "Lines of Code (LOC)": 64,
           "Reflection Hits": 0,
           "Start Line": 138,
-          "Structural Impact": 11.2
+          "Structural Impact": 13.2
         },
         {
           "Control Flow Branches": 4,
@@ -334284,7 +334284,21 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "66.7%",
+          "End Line": 114,
+          "Function Name": "isIncubatingOrOverrideMethod",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 112,
+          "Structural Impact": 4.4
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
           "End Line": 222,
           "Function Name": "relativePathToMainApiChanges",
           "Has Header Comment": 0,
@@ -334294,7 +334308,7 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 216,
-          "Structural Impact": 3.4
+          "Structural Impact": 4.3
         },
         {
           "Control Flow Branches": 1,
@@ -334309,6 +334323,48 @@
           "Reflection Hits": 0,
           "Start Line": 124,
           "Structural Impact": 3.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 82,
+          "Function Name": "isAnnotatedWithDeprecated",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 80,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 118,
+          "Function Name": "isIncubatingField",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 116,
+          "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 122,
+          "Function Name": "isIncubatingConstructor",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 120,
+          "Structural Impact": 3.0
         },
         {
           "Control Flow Branches": 0,
@@ -334350,20 +334406,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 76,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 82,
-          "Function Name": "isAnnotatedWithDeprecated",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 80,
           "Structural Impact": 1.6
         },
         {
@@ -334411,48 +334453,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 114,
-          "Function Name": "isIncubatingOrOverrideMethod",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 112,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 118,
-          "Function Name": "isIncubatingField",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 116,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 122,
-          "Function Name": "isIncubatingConstructor",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 120,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 64,
           "Function Name": "getRepository",
           "Has Header Comment": 0,
@@ -334482,6 +334482,20 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": [
         {
           "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 53,
+          "Function Name": "maybeViolation",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 36,
+          "Structural Impact": 8.0
+        },
+        {
+          "Control Flow Branches": 4,
           "Control Flow Ratio": "57.1%",
           "End Line": 67,
           "Function Name": "isInternal",
@@ -334493,20 +334507,6 @@
           "Reflection Hits": 0,
           "Start Line": 59,
           "Structural Impact": 7.5
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
-          "End Line": 53,
-          "Function Name": "maybeViolation",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
-          "Start Line": 36,
-          "Structural Impact": 6.6
         },
         {
           "Control Flow Branches": 0,
@@ -334524,6 +334524,20 @@
         }
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 41,
+          "Function Name": "changed",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 38,
+          "Structural Impact": 4.4
+        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -334551,20 +334565,6 @@
           "Reflection Hits": 0,
           "Start Line": 34,
           "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 41,
-          "Function Name": "changed",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 38,
-          "Structural Impact": 1.6
         }
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": [
@@ -334583,6 +334583,20 @@
           "Structural Impact": 6.8
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 76,
+          "Function Name": "addedInterfaceIsIncubatingOrInternal",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 74,
+          "Structural Impact": 5.3
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "100.0%",
           "End Line": 64,
@@ -334597,8 +334611,8 @@
           "Structural Impact": 4.3
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
           "End Line": 68,
           "Function Name": "filterChangesToReport",
           "Has Header Comment": 0,
@@ -334608,7 +334622,7 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 66,
-          "Structural Impact": 2.1
+          "Structural Impact": 4.2
         },
         {
           "Control Flow Branches": 0,
@@ -334636,20 +334650,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 70,
-          "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 76,
-          "Function Name": "addedInterfaceIsIncubatingOrInternal",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 74,
           "Structural Impact": 1.9
         },
         {
@@ -334697,8 +334697,8 @@
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "33.3%",
           "End Line": 67,
           "Function Name": "maybeViolation",
           "Has Header Comment": 0,
@@ -334708,7 +334708,7 @@
           "Lines of Code (LOC)": 36,
           "Reflection Hits": 0,
           "Start Line": 32,
-          "Structural Impact": 8.9
+          "Structural Impact": 11.7
         },
         {
           "Control Flow Branches": 0,
@@ -334783,8 +334783,8 @@
           "Structural Impact": 3.9
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
           "End Line": 113,
           "Function Name": "methodSignaturesMatch",
           "Has Header Comment": 0,
@@ -334794,7 +334794,35 @@
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 109,
-          "Structural Impact": 2.0
+          "Structural Impact": 3.7
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 107,
+          "Function Name": "containsMethod",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 105,
+          "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 73,
+          "Function Name": "isPublicApi",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 71,
+          "Structural Impact": 3.0
         },
         {
           "Control Flow Branches": 0,
@@ -334827,20 +334855,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 107,
-          "Function Name": "containsMethod",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 105,
-          "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 59,
           "Function Name": "collectAllPublicApiMethods",
           "Has Header Comment": 0,
@@ -334864,20 +334878,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 34,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 73,
-          "Function Name": "isPublicApi",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 71,
           "Structural Impact": 1.6
         },
         {
@@ -335105,20 +335105,6 @@
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
-          "End Line": 50,
-          "Function Name": "createNode",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
-          "Start Line": 43,
-          "Structural Impact": 4.6
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
           "End Line": 84,
           "Function Name": "appendChild",
           "Has Header Comment": 0,
@@ -335129,6 +335115,20 @@
           "Reflection Hits": 0,
           "Start Line": 78,
           "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 50,
+          "Function Name": "createNode",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 43,
+          "Structural Impact": 3.2
         },
         {
           "Control Flow Branches": 1,
@@ -336454,8 +336454,8 @@
       ],
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": [
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "66.7%",
           "End Line": 120,
           "Function Name": "\"logs categorized open/close frame events for state and fingerprint files\"",
           "Has Header Comment": 0,
@@ -336465,11 +336465,11 @@
           "Lines of Code (LOC)": 62,
           "Reflection Hits": 0,
           "Start Line": 59,
-          "Structural Impact": 9.1
+          "Structural Impact": 14.1
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "71.4%",
           "End Line": 139,
           "Function Name": "collectOutputEvents",
           "Has Header Comment": 0,
@@ -336479,7 +336479,7 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 128,
-          "Structural Impact": 6.3
+          "Structural Impact": 9.1
         },
         {
           "Control Flow Branches": 0,
@@ -337265,6 +337265,34 @@
       ],
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": [
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 39,
+          "Function Name": "remove",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 25,
+          "Structural Impact": 6.4
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 71,
+          "Function Name": "get",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 59,
+          "Structural Impact": 6.3
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "100.0%",
           "End Line": 47,
@@ -337277,34 +337305,6 @@
           "Reflection Hits": 0,
           "Start Line": 41,
           "Structural Impact": 5.5
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 39,
-          "Function Name": "remove",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 15,
-          "Reflection Hits": 0,
-          "Start Line": 25,
-          "Structural Impact": 5.0
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 71,
-          "Function Name": "get",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 13,
-          "Reflection Hits": 0,
-          "Start Line": 59,
-          "Structural Impact": 4.9
         },
         {
           "Control Flow Branches": 2,
@@ -337321,8 +337321,8 @@
           "Structural Impact": 4.8
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
           "End Line": 23,
           "Function Name": "tail",
           "Has Header Comment": 0,
@@ -337332,7 +337332,7 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 17,
-          "Structural Impact": 3.2
+          "Structural Impact": 4.6
         },
         {
           "Control Flow Branches": 1,
@@ -337597,8 +337597,8 @@
     "groovy/jenkins_view_groovy": {
       "groovy/jenkins_view_groovy/Jenkinsfile": [
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "47.8%",
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "55.6%",
           "End Line": 214,
           "Function Name": "node",
           "Has Header Comment": 1,
@@ -337608,11 +337608,11 @@
           "Lines of Code (LOC)": 136,
           "Reflection Hits": 0,
           "Start Line": 79,
-          "Structural Impact": 23.8
+          "Structural Impact": 29.4
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "69.2%",
           "End Line": 213,
           "Function Name": "stage",
           "Has Header Comment": 1,
@@ -337622,11 +337622,11 @@
           "Lines of Code (LOC)": 73,
           "Reflection Hits": 0,
           "Start Line": 141,
-          "Structural Impact": 13.5
+          "Structural Impact": 17.8
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "54.5%",
           "End Line": 138,
           "Function Name": "stage",
           "Has Header Comment": 0,
@@ -337636,11 +337636,11 @@
           "Lines of Code (LOC)": 50,
           "Reflection Hits": 0,
           "Start Line": 89,
-          "Structural Impact": 11.0
+          "Structural Impact": 12.4
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "11.1%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "20.0%",
           "End Line": 57,
           "Function Name": "stage",
           "Has Header Comment": 0,
@@ -337650,11 +337650,11 @@
           "Lines of Code (LOC)": 38,
           "Reflection Hits": 0,
           "Start Line": 20,
-          "Structural Impact": 4.7
+          "Structural Impact": 6.1
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "11.1%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "20.0%",
           "End Line": 55,
           "Function Name": "node",
           "Has Header Comment": 0,
@@ -337664,10 +337664,10 @@
           "Lines of Code (LOC)": 34,
           "Reflection Hits": 0,
           "Start Line": 22,
-          "Structural Impact": 4.5
+          "Structural Impact": 5.9
         },
         {
-          "Control Flow Branches": 1,
+          "Control Flow Branches": 2,
           "Control Flow Ratio": "100.0%",
           "End Line": 195,
           "Function Name": "recordIssues",
@@ -337678,7 +337678,7 @@
           "Lines of Code (LOC)": 41,
           "Reflection Hits": 0,
           "Start Line": 155,
-          "Structural Impact": 3.0
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 0,
@@ -339452,8 +339452,8 @@
     "groovy/spock_core_groovy": {
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "30.8%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "50.0%",
           "End Line": 126,
           "Function Name": "verifyLinksAndAnchors",
           "Has Header Comment": 0,
@@ -339463,11 +339463,11 @@
           "Lines of Code (LOC)": 82,
           "Reflection Hits": 0,
           "Start Line": 45,
-          "Structural Impact": 11.2
+          "Structural Impact": 18.2
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
           "End Line": 43,
           "Function Name": "verifyAnchorlessCrossDocumentLinks",
           "Has Header Comment": 0,
@@ -339477,7 +339477,7 @@
           "Lines of Code (LOC)": 20,
           "Reflection Hits": 0,
           "Start Line": 24,
-          "Structural Impact": 5.2
+          "Structural Impact": 6.7
         }
       ],
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": [
@@ -339512,8 +339512,8 @@
       ],
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": [
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
           "End Line": 124,
           "Function Name": "testTasks",
           "Has Header Comment": 0,
@@ -339523,7 +339523,7 @@
           "Lines of Code (LOC)": 25,
           "Reflection Hits": 0,
           "Start Line": 100,
-          "Structural Impact": 5.5
+          "Structural Impact": 6.9
         },
         {
           "Control Flow Branches": 1,
@@ -339658,8 +339658,8 @@
       ],
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": [
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "87.5%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
           "End Line": 78,
           "Function Name": "getImportedFiles",
           "Has Header Comment": 0,
@@ -339669,7 +339669,7 @@
           "Lines of Code (LOC)": 40,
           "Reflection Hits": 0,
           "Start Line": 39,
-          "Structural Impact": 23.2
+          "Structural Impact": 7.7
         },
         {
           "Control Flow Branches": 0,
@@ -339808,8 +339808,8 @@
       ],
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": [
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 190,
           "Function Name": "doCompile",
           "Has Header Comment": 0,
@@ -339819,7 +339819,7 @@
           "Lines of Code (LOC)": 20,
           "Reflection Hits": 0,
           "Start Line": 171,
-          "Structural Impact": 7.9
+          "Structural Impact": 9.7
         },
         {
           "Control Flow Branches": 2,
@@ -340968,7 +340968,7 @@
       ],
       "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_jacoco_JacocoAstDumpTrigger.groovy": [
         {
-          "Control Flow Branches": 2,
+          "Control Flow Branches": 3,
           "Control Flow Ratio": "100.0%",
           "End Line": 36,
           "Function Name": "visit",
@@ -340979,7 +340979,7 @@
           "Lines of Code (LOC)": 14,
           "Reflection Hits": 1,
           "Start Line": 23,
-          "Structural Impact": 5.9
+          "Structural Impact": 7.6
         }
       ]
     },
@@ -344352,8 +344352,8 @@
       ],
       "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": [
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 16,
           "Function Name": "\"maximum of two numbers\"",
           "Has Header Comment": 0,
@@ -344363,13 +344363,13 @@
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 7,
-          "Structural Impact": 1.5
+          "Structural Impact": 5.5
         }
       ],
       "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": [
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 19,
           "Function Name": "\"maximum of two numbers\"",
           "Has Header Comment": 1,
@@ -344379,13 +344379,13 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 8,
-          "Structural Impact": 1.6
+          "Structural Impact": 5.6
         }
       ],
       "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": [
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 17,
           "Function Name": "\"maximum of #a and #b is #c\"",
           "Has Header Comment": 1,
@@ -344395,7 +344395,7 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 7,
-          "Structural Impact": 1.6
+          "Structural Impact": 5.5
         }
       ],
       "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": [
@@ -344416,8 +344416,8 @@
       ],
       "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": [
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 22,
           "Function Name": "\"maximum of two numbers\"",
           "Has Header Comment": 0,
@@ -344427,7 +344427,7 @@
           "Lines of Code (LOC)": 16,
           "Reflection Hits": 0,
           "Start Line": 7,
-          "Structural Impact": 1.8
+          "Structural Impact": 5.8
         }
       ],
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": [

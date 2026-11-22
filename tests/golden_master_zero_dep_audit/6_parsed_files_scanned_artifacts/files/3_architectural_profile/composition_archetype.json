@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": "Callbacks & Closures Files",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": "State Mutators Files",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "Callbacks & Closures Files",
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "Large Core Modules (3)"
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "Encapsulated Accessors Files"
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": "Declarative / Non-Code",
@@ -1690,9 +1690,9 @@
       "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": "Large Core Modules",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": "Interface Declarations Files",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": "Parameter Forwarders Files",
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": "Interface Declarations Files",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": "Large Core Modules",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": "Declarative / Non-Code",
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": "Interface Declarations Files",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": "Large Core Modules",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": "Interface Declarations Files",
       "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": "Large Core Modules",
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": "Interface Declarations Files",

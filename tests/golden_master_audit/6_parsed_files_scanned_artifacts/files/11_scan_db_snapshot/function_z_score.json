@@ -25089,21 +25089,21 @@
         "sign@47": -0.354
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": {
-        "GpgService@50": 1.973,
-        "calc@127": -0.219,
-        "sha512@119": -0.658,
-        "sign@104": -0.439,
-        "sign@94": -0.658
+        "GpgService@50": 1.977,
+        "calc@127": -0.242,
+        "sha512@119": -0.646,
+        "sign@104": -0.444,
+        "sign@94": -0.646
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": {
-        "JiraService@39": -0.775,
-        "getProjectVersions@116": 0.258,
-        "getProjects@112": 0.258,
-        "getVersion@120": 0.258,
-        "intercept@53": -0.775,
-        "search@78": 2.324,
-        "serverInfo@74": -0.775,
-        "updateVersion@124": -0.775
+        "JiraService@39": -0.378,
+        "getProjectVersions@116": -0.378,
+        "getProjects@112": -0.378,
+        "getVersion@120": -0.378,
+        "intercept@53": -0.378,
+        "search@78": 2.646,
+        "serverInfo@74": -0.378,
+        "updateVersion@124": -0.378
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": {
         "SubversionService@37": -0.5,
@@ -25128,11 +25128,11 @@
         "fileTree@54": 0.0
       },
       "groovy/godot_android_gradle/java_editor_build.gradle": {
-        "fileTree@196": 1.886,
-        "generateVersionCode@61": -0.686,
-        "generateVersionName@66": 0.171,
-        "generateVersionName@83": -0.686,
-        "getGodotSigningPassword@125": -0.686
+        "fileTree@196": 1.936,
+        "generateVersionCode@61": -0.645,
+        "generateVersionName@66": 0.0,
+        "generateVersionName@83": -0.645,
+        "getGodotSigningPassword@125": -0.645
       },
       "groovy/godot_android_gradle/java_lib_build.gradle": {
         "singleVariant@170": 0.0,
@@ -25512,45 +25512,45 @@
         "matches@26": 0.0
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": {
-        "AbstractGradleViolationRule@49": 1.664,
-        "acceptOrReject@133": -0.64,
-        "acceptOrReject@138": 1.664,
-        "getCurrentVersion@212": -0.64,
-        "getRepository@62": -0.64,
-        "isAnnotatedWithDeprecated@80": -0.64,
-        "isAnnotatedWithIncubating@76": -0.64,
-        "isAnnotatedWithInject@84": -0.64,
-        "isIncubating@92": 2.433,
-        "isIncubatingClass@108": -0.64,
-        "isIncubatingConstructor@120": -0.64,
-        "isIncubatingField@116": -0.64,
-        "isIncubatingOrOverrideMethod@112": -0.64,
-        "isInject@88": -0.64,
-        "isNewOrRemoved@66": 0.896,
-        "isOverride@124": 0.128,
-        "prettyPrintJson@203": -0.64,
-        "relativePathToMainApiChanges@216": 0.896
+        "AbstractGradleViolationRule@49": 1.273,
+        "acceptOrReject@133": -0.875,
+        "acceptOrReject@138": 1.989,
+        "getCurrentVersion@212": -0.875,
+        "getRepository@62": -0.875,
+        "isAnnotatedWithDeprecated@80": -0.159,
+        "isAnnotatedWithIncubating@76": -0.875,
+        "isAnnotatedWithInject@84": -0.875,
+        "isIncubating@92": 1.989,
+        "isIncubatingClass@108": -0.875,
+        "isIncubatingConstructor@120": -0.159,
+        "isIncubatingField@116": -0.159,
+        "isIncubatingOrOverrideMethod@112": 0.557,
+        "isInject@88": -0.875,
+        "isNewOrRemoved@66": 0.557,
+        "isOverride@124": -0.159,
+        "prettyPrintJson@203": -0.875,
+        "relativePathToMainApiChanges@216": 1.273
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": {
-        "AbstractSuperClassChangesRule@28": -1.373,
-        "isInternal@59": 0.981,
-        "maybeViolation@36": 0.392
+        "AbstractSuperClassChangesRule@28": -1.414,
+        "isInternal@59": 0.707,
+        "maybeViolation@36": 0.707
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": {
-        "BinaryBreakingSuperclassChangeRule@34": 0.0,
-        "changed@38": 0.0,
-        "checkSuperClassChanges@43": 0.0
+        "BinaryBreakingSuperclassChangeRule@34": -0.707,
+        "changed@38": 1.414,
+        "checkSuperClassChanges@43": -0.707
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": {
-        "IncubatingInternalInterfaceAddedRule@27": -0.5,
-        "addedInterfaceIsIncubatingOrInternal@74": -0.5,
-        "changed@31": -0.5,
-        "checkSuperClassChanges@35": 2.5,
-        "collect@58": 1.0,
-        "collectImplementedInterfaces@52": -0.5,
-        "filterChangesToReport@66": -0.5,
-        "implementedDirectly@70": -0.5,
-        "isIncubating@78": -0.5
+        "IncubatingInternalInterfaceAddedRule@27": -0.816,
+        "addedInterfaceIsIncubatingOrInternal@74": 1.633,
+        "changed@31": -0.816,
+        "checkSuperClassChanges@35": 1.633,
+        "collect@58": 0.408,
+        "collectImplementedInterfaces@52": -0.816,
+        "filterChangesToReport@66": 0.408,
+        "implementedDirectly@70": -0.816,
+        "isIncubating@78": -0.816
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": {
         "KotlinModifiersBreakingChangeRule@28": -0.707,
@@ -25558,17 +25558,17 @@
         "modifierChangeDetail@69": -0.707
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": {
-        "MethodsRemovedInInternalSuperClassRule@30": -0.491,
-        "changed@34": -0.491,
-        "checkSuperClassChanges@38": 0.858,
-        "collect@61": 0.184,
-        "collectAllPublicApiMethods@55": -0.491,
-        "containsMethod@105": -0.491,
-        "filterChangesToReport@75": -0.491,
-        "isFirstPublicClassInHierarchy@79": 2.882,
-        "isPublicApi@71": -0.491,
-        "methodParametersFromSignature@118": -0.491,
-        "methodSignaturesMatch@109": -0.491
+        "MethodsRemovedInInternalSuperClassRule@30": -0.707,
+        "changed@34": -0.707,
+        "checkSuperClassChanges@38": 0.707,
+        "collect@61": 0.0,
+        "collectAllPublicApiMethods@55": -0.707,
+        "containsMethod@105": 0.0,
+        "filterChangesToReport@75": -0.707,
+        "isFirstPublicClassInHierarchy@79": 2.828,
+        "isPublicApi@71": 0.0,
+        "methodParametersFromSignature@118": -0.707,
+        "methodSignaturesMatch@109": 0.0
       },
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_ExplodeZipAndFindJars.groovy": {
         "transform@43": 0.0
@@ -25594,18 +25594,18 @@
         "transform@84": 1.0
       },
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": {
-        "DomBuilder@28": -0.677,
-        "DomBuilder@33": -0.677,
-        "DomBuilder@38": -0.677,
-        "appendChild@78": 1.643,
-        "appendChildren@86": 0.483,
-        "appendChildren@90": -0.677,
-        "createNode@43": 1.643,
-        "createNode@52": -0.677,
-        "createNode@60": 1.643,
-        "createNode@70": -0.677,
-        "setParent@74": -0.677,
-        "text@94": -0.677
+        "DomBuilder@28": -0.655,
+        "DomBuilder@33": -0.655,
+        "DomBuilder@38": -0.655,
+        "appendChild@78": 1.964,
+        "appendChildren@86": 0.655,
+        "appendChildren@90": -0.655,
+        "createNode@43": 0.655,
+        "createNode@52": -0.655,
+        "createNode@60": 1.964,
+        "createNode@70": -0.655,
+        "setParent@74": -0.655,
+        "text@94": -0.655
       }
     },
     "groovy/gradle_dsl_snippets": {
@@ -25750,9 +25750,9 @@
         "'reports problem for custom classloader'@21": 0.0
       },
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": {
-        "\"logs categorized open/close frame events for state and fingerprint files\"@59": 1.136,
-        "\"logs oid and hashes\"@28": -1.298,
-        "collectOutputEvents@128": 0.162
+        "\"logs categorized open/close frame events for state and fingerprint files\"@59": 1.225,
+        "\"logs oid and hashes\"@28": -1.225,
+        "collectOutputEvents@128": 0.0
       },
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": {
         "\"configuration cache dir is not created unless needed\"@21": 0.0,
@@ -25841,13 +25841,13 @@
         "find@4": 0.0
       },
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": {
-        "Node@74": -1.961,
-        "add@4": 0.784,
-        "get@59": 0.784,
-        "remove@25": 0.784,
-        "size@49": -0.588,
-        "tail@17": -0.588,
-        "unlink@41": 0.784
+        "Node@74": -1.876,
+        "add@4": 0.144,
+        "get@59": 1.155,
+        "remove@25": 1.155,
+        "size@49": -0.866,
+        "tail@17": 0.144,
+        "unlink@41": 0.144
       },
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": {
         "join@8": 0.0
@@ -25887,17 +25887,17 @@
     },
     "groovy/jenkins_view_groovy": {
       "groovy/jenkins_view_groovy/Jenkinsfile": {
-        "dir@197": -0.666,
-        "dir@94": -0.666,
-        "node@22": -0.373,
-        "node@228": -0.666,
-        "node@79": 2.557,
-        "recordIssues@155": -0.373,
-        "stage@141": 1.092,
-        "stage@20": -0.373,
-        "stage@82": -0.666,
-        "stage@89": 0.799,
-        "withChecks@231": -0.666
+        "dir@197": -0.706,
+        "dir@94": -0.706,
+        "node@22": -0.275,
+        "node@228": -0.706,
+        "node@79": 2.531,
+        "recordIssues@155": -0.275,
+        "stage@141": 1.236,
+        "stage@20": -0.275,
+        "stage@82": -0.706,
+        "stage@89": 0.589,
+        "withChecks@231": -0.706
       }
     },
     "groovy/kotlin_build_gradle": {
@@ -26047,13 +26047,13 @@
         "getName@27": 0.0
       },
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": {
-        "apply@45": -0.588,
-        "applyPlugins@54": -0.588,
-        "compileTasks@61": 0.784,
-        "dependencyInsight@135": -0.588,
-        "jacoco@126": -0.588,
-        "jarTasks@79": -0.588,
-        "testTasks@100": 2.157
+        "apply@45": -0.544,
+        "applyPlugins@54": -0.544,
+        "compileTasks@61": 0.408,
+        "dependencyInsight@135": -0.544,
+        "jacoco@126": -0.544,
+        "jarTasks@79": -0.544,
+        "testTasks@100": 2.313
       },
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": {
         "asArguments@39": 0.0,
@@ -26083,24 +26083,24 @@
         "tryAll@22": 1.414
       },
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": {
-        "EmbeddedSpecCompiler@49": -0.408,
-        "EmbeddedSpecCompiler@65": -0.408,
-        "addClassImport@80": -0.408,
-        "addClassImport@84": 2.041,
-        "addClassMemberImport@92": -0.408,
-        "addClassMemberImport@96": 0.816,
-        "addPackageImport@72": -0.408,
-        "addPackageImport@76": -0.408,
-        "compile@104": -0.408,
-        "compileFeatureBody@121": -0.408,
-        "compileSpecBody@115": -0.408,
-        "compileWithImports@108": -0.408,
-        "doCompile@171": 3.266,
-        "doTranspile@160": -0.408,
-        "transpile@155": -0.408,
-        "transpileFeatureBody@146": -0.408,
-        "transpileSpecBody@137": -0.408,
-        "transpileWithImports@127": -0.408
+        "EmbeddedSpecCompiler@49": -0.386,
+        "EmbeddedSpecCompiler@65": -0.386,
+        "addClassImport@80": -0.386,
+        "addClassImport@84": 1.599,
+        "addClassMemberImport@92": -0.386,
+        "addClassMemberImport@96": 0.606,
+        "addPackageImport@72": -0.386,
+        "addPackageImport@76": -0.386,
+        "compile@104": -0.386,
+        "compileFeatureBody@121": -0.386,
+        "compileSpecBody@115": -0.386,
+        "compileWithImports@108": -0.386,
+        "doCompile@171": 3.584,
+        "doTranspile@160": -0.386,
+        "transpile@155": -0.386,
+        "transpileFeatureBody@146": -0.386,
+        "transpileSpecBody@137": -0.386,
+        "transpileWithImports@127": -0.386
       },
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": {
         "EmbeddedSpecRunner@56": -0.352,

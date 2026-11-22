@@ -132,6 +132,7 @@ _GROOVY_SIMPLE_CASES = [
     ("panics_and_aborts", "throw new RuntimeException('bad')", "return x"),
     ("thread_sleeps", "Thread.sleep(1000)", "String x = 1"),
     ("bitwise_ops", "def flags = mask ^ other", "def flags = mask && other"),
+    ("bitwise_ops", "def inv = ~mask", "def m = s ==~ /a-b/"),
     ("sync_locks", "synchronized(lock) { doWork() }", "String x = 1"),
     ("immutability_locks", "final String name = 'x'", "String name = 'x'"),
     ("cleanup", "connection.close()", "String x = 1"),
@@ -154,7 +155,7 @@ _GROOVY_DEEP_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # branch: ternary, Elvis, safe navigation, ensure map literals are ignored
     ("branch", "def result = (x > 5) ? 'high' : 'low'", "def map = [key: 'value']"),
-    ("branch", "def name = user?.name", "foo(a: 1)"),
+    ("branch", "def ok = a && b || c", "def name = user?.name"),
     ("branch", "def a = b ?: c", "String type"),
     ("branch", "switch(x) { case 1: break }", "def list = [1, 2]"),
     ("branch", "for (String s in list) {", "def map = [a: 1]"),
@@ -887,3 +888,25 @@ def test_groovy_api_contract_2730():
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)
+
+
+@pytest.mark.parametrize(
+    "rule,text,count",
+    [
+        ("branch", "a?.b?.c", 0),
+        ("branch", "a?[0]", 0),
+        ("branch", "xs*.name", 0),
+        ("branch", "a?*.b", 0),
+        ("branch", "a && b || c", 2),
+        ("branch", "def v = a ? b : c", 1),
+        ("branch", "def v = a ?: c", 1),
+        ("bitwise_ops", "s ==~ /a-b/", 0),
+        ("bitwise_ops", "s =~ /a/", 0),
+        ("bitwise_ops", "def p = ~/a+/", 0),
+        ("bitwise_ops", "def f = ~mask", 1),
+        ("bitwise_ops", "def f = a ^ b", 1),
+    ],
+)
+def test_groovy_operator_position_counts_8912(rule, text, count):
+    """#8912: `?.` / `=~` / `==~` are not decisions or bit operations; `&&` / `||` are decisions."""
+    assert len(GROOVY_RULES[rule].findall(text)) == count

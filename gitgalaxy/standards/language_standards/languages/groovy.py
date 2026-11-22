@@ -65,7 +65,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|\?"),
+        # `?` counts only as the ternary / Elvis operator: the safe-navigation `?.`, safe index
+        # `?[` and spread-safe `?*.` are null guards, not decisions. `&&` / `||` open a
+        # runtime choice and count, as in Java (#8867) (#8912).
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|&&|\|\||\?(?![.\[*])"),
         # 2. args (Parameters / Coupling)
         # Captures standard method arguments and Groovy closures (x, y ->)
         # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it
@@ -583,7 +586,9 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # EXCLUDES `<<` and `>>` because Groovy heavily overloads `<<` for list/stream appending.
-        "bitwise_ops": re.compile(r"\^|~"),
+        # The `~` of the regex operators `=~` / `==~` and of a `~/pat/` pattern literal is not a bit
+        # operation (#8912).
+        "bitwise_ops": re.compile(r"\^|(?<!=)~(?![/\"'])"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(synchronized|ReentrantLock|ReadWriteLock|Semaphore|Lock|Mutex)\b"),
         # 45. immutability_locks (Immutability Constraints)

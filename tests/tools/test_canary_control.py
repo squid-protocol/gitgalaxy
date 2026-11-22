@@ -243,6 +243,72 @@ def test_settle_comments_raises_the_miss_issue_then_closes_and_deletes(monkeypat
     assert not any("merge" in c or "edit" in c for c in calls)
 
 
+def _pr(body):
+    return {
+        "number": 9,
+        "headRefName": "canary/x",
+        "headRefOid": "abc",
+        "createdAt": "2020-01-01T00:00:00Z",
+        "body": body,
+    }
+
+
+def test_every_gate_that_stays_green_gets_its_own_priority_high_issue(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cc, "_gh", _fake_gh(calls, []))
+    assert cc.settle(_pr(cc.pr_body())) == "closed"
+    titles = [c[3] for c in calls if c[:2] == ("issue", "create")]
+    gates = [g for d in cc.DEFECTS for g in d.red]
+    assert len(titles) == len(gates) > 0
+    assert all(any(f" {g} " in t for t in titles) for g in gates)
+    assert all("priority: high" in c for c in calls if c[:2] == ("issue", "create"))
+
+
+def test_a_blind_gate_with_an_open_issue_gets_a_comment_not_a_duplicate(monkeypatch):
+    calls = []
+    base = _fake_gh(calls, [])
+
+    def gh(*args, check=True):
+        r = base(*args, check=check)
+        if args[:2] == ("issue", "list"):
+            r.stdout = json.dumps(
+                [{"number": 5, "title": "Canary miss: gate mypy-audit stayed green on a planted defect"}]
+            )
+        return r
+
+    monkeypatch.setattr(cc, "_gh", gh)
+    assert cc.settle(_pr(cc.pr_body((cc.DEFECTS[2],)))) == "closed"
+    assert any(c[:3] == ("issue", "comment", "5") for c in calls)
+    assert not any(c[:2] == ("issue", "create") for c in calls)
+
+
+def test_an_issue_that_cannot_be_raised_leaves_the_pr_open_and_exits_nonzero(monkeypatch):
+    calls = []
+    base = _fake_gh(calls, [])
+
+    def gh(*args, check=True):
+        r = base(*args, check=check)
+        if args[:2] == ("issue", "create"):
+            r.returncode = 1
+        if args[:2] == ("pr", "list"):
+            r.stdout = json.dumps([_pr(cc.pr_body((cc.DEFECTS[2],)))])
+        if args[:3] == ("api", "--paginate", "repos/{owner}/{repo}/git/matching-refs/heads/canary/"):
+            r.stdout = ""
+        return r
+
+    monkeypatch.setattr(cc, "_gh", gh)
+    assert cc.settle(_pr(cc.pr_body((cc.DEFECTS[2],)))) == "issue-failed"
+    assert not any(c[:2] == ("pr", "close") for c in calls)
+    assert cc.results() == 1
+
+
+def test_a_gate_that_went_red_raises_no_issue(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cc, "_gh", _fake_gh(calls, [_run("mypy-audit", "failure")]))
+    assert cc.settle(_pr(cc.pr_body((cc.DEFECTS[2],)))) == "closed"
+    assert not any(c[:2] == ("issue", "create") for c in calls)
+
+
 def test_a_close_that_fails_raises_an_issue_and_a_nonzero_exit(monkeypatch):
     calls = []
     monkeypatch.setattr(cc, "_gh", _fake_gh(calls, [_run("mypy-audit", "failure")], close_rc=1))

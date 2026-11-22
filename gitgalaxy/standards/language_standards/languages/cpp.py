@@ -447,7 +447,7 @@ DEFINITION: dict[str, Any] = {
             + r"|"
             + _ANNOT_MACRO
             + r"){0,10}"
-            r"(?:[ \t\n]*->[ \t]*(?:(?:const|volatile|typename)[ \t]+){0,3}(?:decltype[ \t]*"
+            r"(?:[ \t\n]*->[ \t]*(?:(?:const|volatile|typename|unsigned|signed|long|short|struct|enum)[ \t]+){0,4}(?:decltype[ \t]*"
             + _PARENS
             + r"|"
             + _RET_TOKEN

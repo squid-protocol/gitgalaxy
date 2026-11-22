@@ -2702,7 +2702,7 @@
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 9.034,
       "powershell/core/analyze-pr-test-failures.ps1": 8.918,
       "powershell/core/build.psm1": 9.071,
-      "powershell/core/ci.psm1": 8.015,
+      "powershell/core/ci.psm1": 8.011,
       "powershell/core/ciModule.Tests.ps1": 9.141,
       "powershell/core/install-powershell.ps1": 10.123,
       "powershell/core/nanoserver.tests.ps1": 6.47,

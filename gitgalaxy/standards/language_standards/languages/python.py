@@ -485,7 +485,10 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(time\.sleep|asyncio\.sleep|Thread\.join)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|\^|~"),
+        # #8861: the contract's and / or operators too (`a & b`, `a | b`, `m &= x`); a `| None` /
+        # `None |` type union is not a bitwise operator on values. Characters inside strings still
+        # count (documented behaviour, #2535 / #8866).
+        "bitwise_ops": re.compile(r"<<|>>|\^|~" + r"|&" + r"|(?<!None)(?<!None )\|(?!\s*None\b)"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Lock|RLock|Semaphore|BoundedSemaphore|Event|Condition|Barrier)\b"),
         # 45. immutability_locks (Immutability Constraints)
@@ -563,7 +566,17 @@ DEFINITION: dict[str, Any] = {
             r"|\bast\.literal_eval\b"
         ),
         "regex_execution": re.compile(r"\b(re\.compile|re\.search|re\.match|re\.sub|re\.findall|re\.split)\b"),
-        "time_date_logic": re.compile(r"\b(datetime\.datetime|timedelta|time\.sleep|time\.time|calendar)\b"),
+        # time_date_logic (#8859): clock reads (qualified, and bare after `from time import`),
+        # datetime constructors, and format/parse calls. A bare `now(` is NOT matched (noisy);
+        # `datetime.now` after `from datetime import datetime` matches via the `datetime.` prefix.
+        "time_date_logic": re.compile(
+            r"\b(?:datetime\.datetime|timedelta|time\.sleep|time\.time|calendar"
+            r"|time\.(?:perf_counter|monotonic|process_time|thread_time)(?:_ns)?"
+            r"|time\.(?:time_ns|gmtime|localtime|mktime|strftime|strptime|ctime|asctime)"
+            r"|datetime\.(?:now|utcnow|today|fromtimestamp|utcfromtimestamp|fromisoformat|strptime)"
+            r"|(?:perf_counter|monotonic|process_time)(?:_ns)?(?=[ \t]*\()|time_ns(?=[ \t]*\())\b"
+            r"|\.(?:strftime|strptime|isoformat)[ \t]*\("
+        ),
         "ipc_rpc_bridges": re.compile(r"\b(multiprocessing|subprocess|xmlrpc|socketserver)\b"),
         # system_config_mutation (#3084): contract-level absence. stdlib winreg
         # exists but crucible incidence is 0; host config is otherwise file I/O

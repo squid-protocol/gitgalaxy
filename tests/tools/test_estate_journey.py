@@ -1,6 +1,7 @@
 """The estate journey page (tests/tools/estate_journey.py): sourced numbers, one measure per chart, never stale."""
 
 import copy
+import subprocess
 import sys
 from pathlib import Path
 
@@ -187,3 +188,117 @@ def test_a_blind_l2_series_gets_its_own_chart_never_the_l1_overlay():
     assert "L2 or better" not in files["estate_journey/overlay_l1.svg"]
     page = files["estate_journey.md"]
     assert "Amendment 9: cases allowed" in page and "(estate_journey/b-l2.svg)" in page
+
+
+# ---- review follow-ups from #8406 (#8475) ----------------------------------------------------------------------------
+
+
+def test_a_title_alone_credits_nothing_without_a_committed_case(capsys):
+    prs = [
+        ("2026-12-01T10:00:00Z", 1, "Census: PGMA lower-case names fold, case-insensitive (Part of #9002)"),
+        ("2026-12-01T11:00:00Z", 2, "Equivalence cases for PGMA, PGMB (Part of #9002)"),
+    ]
+    have = {1: set(), 2: {"pgmb"}}  # case-insensitive match on the committed program name
+    series = ej.l2_series_from_prs(prs, ["PGMA", "PGMB"], 2, "T0", lambda n: have[n])
+    assert [(p["prs"], p["value"]) for p in series] == [(0, 0), (2, 1)]
+    assert "PGMB" in series[-1]["source"] and "PGMA" not in series[-1]["source"]
+    err = capsys.readouterr().err
+    assert "PR #1: not credited" in err and "PR #2: not credited" in err
+
+
+@pytest.mark.parametrize("ok", ["2026-11-08T03:32", "2026-11-08T03:32:05", "2026-11-08T03:32Z"])
+def test_parse_utc_accepts_only_utc_iso(ok):
+    assert ej.parse_utc(ok) == ok.rstrip("Z")
+
+
+@pytest.mark.parametrize(
+    "bad",
+    ["2026-11-08 03:32", "2026-11-08T03:32-05:00", "2026-11-08T03:32+00:00", "2026-11-08", "2026-13-08T03:32", "x", ""],
+)
+def test_parse_utc_refuses_everything_else(bad):
+    with pytest.raises(ValueError, match="UTC timestamp"):
+        ej.parse_utc(bad)
+
+
+def test_trial_prs_is_bounded_by_the_trials_close_and_refuses_a_loose_since():
+    rows = [("2026-12-01T10:00:00Z", 1, "A (#9)"), ("2026-12-05T10:00:00Z", 2, "B (#9)")]
+    assert [n for _, n, _ in ej.trial_prs(rows, "2026-12-01T09:00", [9], "e")] == [1, 2]
+    assert [n for _, n, _ in ej.trial_prs(rows, "2026-12-01T09:00", [9], "e", until_utc="2026-12-02T00:00")] == [1]
+    with pytest.raises(ValueError, match="UTC timestamp"):
+        ej.trial_prs(rows, "2026-12-01 09:00", [9], "e")
+
+
+def _run_gh(monkeypatch, lines=None, error=None):
+    def fake(cmd, **kw):
+        if error:
+            raise subprocess.CalledProcessError(1, cmd, stderr=error)
+        return subprocess.CompletedProcess(cmd, 0, stdout="\n".join(lines or []), stderr="")
+
+    monkeypatch.setattr(ej.subprocess, "run", fake)
+
+
+def test_fetch_prs_refuses_a_capped_query_and_a_failing_gh(monkeypatch):
+    _run_gh(monkeypatch, [f"2026-12-01T10:00:00Z\t{i}\tsha{i}\tt" for i in range(ej.FETCH_CAP)])
+    with pytest.raises(ValueError, match="the cap"):
+        ej.fetch_prs([9], "e", "2026-12-01")
+    _run_gh(monkeypatch, error="HTTP 502")
+    with pytest.raises(ValueError, match="gh pr list failed.*502"):
+        ej.fetch_prs([9], "e", "2026-12-01")
+    _run_gh(monkeypatch, ["2026-12-01T10:00:00Z\t7\tabc\tTitle with\ttab"])
+    assert ej.fetch_prs([9], "e", "2026-12-01") == ([("2026-12-01T10:00:00Z", 7, "Title with\ttab")] * 2, {7: "abc"})
+
+
+def test_l2_from_prs_refuses_a_mismatch_with_the_evidence_report_and_a_bad_since(monkeypatch, capsys, tmp_path):
+    d = _with_draws()
+    e = d["estates"][1]
+    e.update({"trial": "t", "trial_issues": [9], "l2_measure_note": "n", "estate": "estate-b"})
+    trials = tmp_path / "trials.json"
+    trials.write_text('{"trials": [{"id": "t", "eligible": ["PGMA"]}]}', encoding="utf-8")
+    monkeypatch.setattr(ej, "load", lambda: d)
+    monkeypatch.setattr(ej, "TRIALS", trials)
+    monkeypatch.setattr(ej, "planned_draws", lambda: 3)
+    monkeypatch.setattr(
+        ej, "fetch_prs", lambda *a: ([("2026-12-01T10:00:00Z", 4, "Case PGMA (Part of #9)")], {4: "abc"})
+    )
+    monkeypatch.setattr(ej, "case_programs_at", lambda sha: {"PGMA"})
+    base = ["l2-from-prs", "--key", "b", "--since", "2026-12-01T09:00"]
+    assert ej.main(base) == 0
+    assert "must match" in capsys.readouterr().err
+    assert ej.main([*base, "--evidence-l2", "0"]) == 1
+    assert "evidence report says L2+ 0" in capsys.readouterr().err
+    assert ej.main([*base, "--evidence-l2", "1"]) == 0
+    assert ej.main(["l2-from-prs", "--key", "b", "--since", "2026-12-01 09:00"]) == 1
+    assert "not a UTC timestamp" in capsys.readouterr().err
+
+
+def test_case_programs_at_reads_case_json_program_fields(monkeypatch):
+    out = '  "program": "GETADDR",\n "program": "pgmb",\n'
+    monkeypatch.setattr(ej.subprocess, "run", lambda c, **k: subprocess.CompletedProcess(c, 0, stdout=out, stderr=""))
+    assert ej.case_programs_at("abc") == {"GETADDR", "PGMB"}
+    monkeypatch.setattr(
+        ej.subprocess, "run", lambda c, **k: subprocess.CompletedProcess(c, 128, stdout="", stderr="bad")
+    )
+    with pytest.raises(ValueError, match="git grep"):
+        ej.case_programs_at("abc")
+
+
+def test_the_singular_draw_remains_is_checked_and_recounted():
+    d = _with_draws()
+    d["intro"] = "1 draw remains."
+    assert any("says 1 draws remain" in p for p in ej.problems(d, planned=3))
+    assert ej._set_remaining("2 draws left, 2 draws remain", 1) == "1 draws left, 1 draws remain"
+    assert ej._set_remaining("2 draw remains", 1) == "1 draw remains"
+
+
+def test_recorders_refuse_a_second_amendment_a_bad_date_and_an_accounted_above_the_basis(tmp_path, monkeypatch):
+    d = ej.add_point(_with_draws(), key="b", measure="L2", prs=1, value=1, total=2, source="s", date="d", l2_note="A1")
+    ej.add_point(d, key="b", measure="L2", prs=2, value=1, total=2, source="s", date="d", l2_note="A1")  # same: fine
+    with pytest.raises(ValueError, match="already recorded"):
+        ej.add_point(d, key="b", measure="L2", prs=2, value=1, total=2, source="s", date="d", l2_note="other")
+    kw = dict(repo="o/r", issue=1, estate="e", basis=3, date="2026-12-01 9:00 AM", whole=1, source="s", planned=3)
+    for bad in ({"date": "2026-12-01"}, {"date": "2026-12-01T09:00"}, {"accounted": 4}, {"whole": 4}):
+        with pytest.raises(ValueError):
+            ej.add_draw(_with_draws(), **(kw | {"draw": 2} | bad))
+    monkeypatch.setattr(ej, "CANDIDATES", tmp_path / "missing.json")
+    with pytest.raises(ValueError, match="is missing"):
+        ej.planned_draws()

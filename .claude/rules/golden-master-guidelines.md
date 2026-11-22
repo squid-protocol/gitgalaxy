@@ -24,6 +24,7 @@ The test scripts resolve the `LANGUAGE_CRUCIBLE_PATH` corpus relative to the rep
 * `crucible_check.py` from a worktree needs `LANGUAGE_CRUCIBLE_PATH`, `CICS_CRUCIBLE_PATH` and `ESTATE_CRUCIBLE_PATH` set
   to the sibling checkouts (`/srv/storage_16tb/projects/gitgalaxy/<name>` on the owner's box; run `sync-pins.sh` first).
   A background shell loses them: pass them explicitly (#5426, #5435, #5471).
+* Before blessing a golden after a pack or callgraph-oracle change, diff the engine-only edge list between the old and new pack (#8938).
 * An aperture change can move a pinned corpus's ground truth with the pin unchanged: check the language baseline when an
   aperture PR merges (#5481, #5504).
 * A fast lane that skips the detector on an ambiguous-extension `.h` file gets the file banished by

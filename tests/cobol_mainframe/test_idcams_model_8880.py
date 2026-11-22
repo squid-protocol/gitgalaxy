@@ -191,7 +191,11 @@ CAT = {"APP.TRAN.VSAM": ksds(rec("0001")), "V": M.Cluster("V", True, 4, 0, 4, 12
         (" DELETE 'A.B'\n", "quoted string"),
         (" DEFINE ALIAS(NAME(A) RELATE(B))\n", "DEFINE ALIAS"),
         (" DEFINE GDG(NAME(A) LIMIT(3))\n", "DEFINE GDG"),
-        (" DEFINE CLUSTER(NAME(A) KEYS(4 0) RECORDSIZE(8 8)) DATA(NAME(A.D))\n", "outside CLUSTER"),
+        (
+            " DEFINE CLUSTER(NAME(A) KEYS(4 0) RECORDSIZE(8 8)) -\n DATA(NAME(A.D) KEYS(1 0))\n",
+            "DATA component operand",
+        ),
+        (" DEFINE CLUSTER(NAME(A) KEYS(4 0) RECORDSIZE(8 8)) CATALOG(X)\n", "outside CLUSTER"),
         (" DEFINE CLUSTER(NAME(A) NUMBERED RECORDSIZE(8 8))\n", "NUMBERED parameter"),
         (" DEFINE CLUSTER(NAME(A) LINEAR)\n", "LINEAR parameter"),
         (" DEFINE CLUSTER(NAME(A) KEYS(4 0) REUSE RECORDSIZE(8 8))\n", "REUSE parameter"),

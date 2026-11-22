@@ -1,0 +1,1596 @@
+{
+"about": "One construct per case: [language, source, function, oracle key, expected count]. Written by two agents against each language's grammar, 2026-11-21; a: csharp kotlin swift scala, b: ruby php lua shell.",
+"a": [
+[
+"csharp",
+"class A {\n  void F(int a, int b) { Func<int,int> g = x => x + 1; }\n}",
+"F",
+"closures",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var h = delegate (int y) { return y; }; }\n}",
+"F",
+"closures",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { int L(int k) => k; L(1); }\n}",
+"F",
+"closures",
+0
+],
+[
+"csharp",
+"class A {\n  int F(int a) { return a << 2 | a & 3; }\n}",
+"F",
+"bitwise",
+3
+],
+[
+"csharp",
+"class A {\n  void F(int a) { a |= 4; a <<= 1; }\n}",
+"F",
+"bitwise",
+2
+],
+[
+"csharp",
+"class A {\n  int F(int a) { return ~a ^ 1; }\n}",
+"F",
+"bitwise",
+2
+],
+[
+"csharp",
+"class A {\n  bool F(bool a, bool b) { return a && b || a; }\n}",
+"F",
+"bitwise",
+0
+],
+[
+"csharp",
+"class A {\n  List<List<int>> F() { return null; }\n}",
+"F",
+"bitwise",
+0
+],
+[
+"csharp",
+"class A {\n  bool F(object o) { return o is int or long; }\n}",
+"F",
+"bitwise",
+0
+],
+[
+"csharp",
+"class A {\n  /// <summary>x</summary>\n  void F() {}\n}",
+"F",
+"doc",
+1
+],
+[
+"csharp",
+"class A {\n  // plain\n  void F() {}\n}",
+"F",
+"doc",
+0
+],
+[
+"csharp",
+"class A {\n  /** block doc */\n  void F() {}\n}",
+"F",
+"doc",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { Console.WriteLine(\"x\"); }\n}",
+"F",
+"print",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { Debug.WriteLine(\"x\"); }\n}",
+"F",
+"print",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { _logger.LogInformation(\"x\"); }\n}",
+"F",
+"print",
+0
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { Thread.Sleep(5); }\n}",
+"F",
+"sleep",
+1
+],
+[
+"csharp",
+"class A {\n  async Task F() { await Task.Delay(5); }\n}",
+"F",
+"sleep",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var n = DateTime.UtcNow; }\n}",
+"F",
+"time",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var d = TimeSpan.FromSeconds(3); }\n}",
+"F",
+"time",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var d = new Stopwatch(); }\n}",
+"F",
+"time",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var s = Path.Combine(\"a\", \"b\"); }\n}",
+"F",
+"time",
+0
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var r = Regex.IsMatch(\"a\", \"b\"); }\n}",
+"F",
+"regex",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var r = new Regex(\"a+\"); }\n}",
+"F",
+"regex",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var s = File.ReadAllText(\"x\"); }\n}",
+"F",
+"io",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { using var w = new StreamWriter(\"x\"); }\n}",
+"F",
+"io",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { var p = Path.GetFileName(\"x\"); }\n}",
+"F",
+"io",
+0
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { throw new Exception(\"x\"); }\n}",
+"F",
+"bailout",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { Environment.Exit(1); }\n}",
+"F",
+"bailout",
+1
+],
+[
+"csharp",
+"class A {\n  void F(int a, int b) { Debug.Assert(a > 0); }\n}",
+"F",
+"bailout",
+0
+],
+[
+"csharp",
+"class A {\n  [Obsolete] [Foo(1)]\n  void F() {}\n}",
+"F",
+"decorators",
+2
+],
+[
+"csharp",
+"class A {\n  [Fact, Trait(\"a\", \"b\")]\n  void F() {}\n}",
+"F",
+"decorators",
+2
+],
+[
+"csharp",
+"class A {\n  void F() {}\n}",
+"F",
+"decorators",
+0
+],
+[
+"csharp",
+"class A {\n  void F(int a, string b, params int[] c) {}\n}",
+"F",
+"args",
+3
+],
+[
+"csharp",
+"class A {\n  int F(int a) { try { return 1; } catch (Exception e) { return 2; } }\n}",
+"F",
+"branch",
+0
+],
+[
+"csharp",
+"class A {\n  int F(int a) { return a > 1 && a < 5 ? a ?? 2 : 0; }\n}",
+"F",
+"branch",
+3
+],
+[
+"kotlin",
+"fun f() { val g = { x: Int -> x + 1 } }",
+"f",
+"closures",
+1
+],
+[
+"kotlin",
+"fun f() { listOf(1).map { it + 1 } }",
+"f",
+"closures",
+1
+],
+[
+"kotlin",
+"fun f() { val h = fun(y: Int): Int { return y } }",
+"f",
+"closures",
+1
+],
+[
+"kotlin",
+"fun f() { fun local(k: Int) = k }",
+"f",
+"closures",
+0
+],
+[
+"kotlin",
+"fun f(a: Int): Int = (a shl 2) or (a and 3)",
+"f",
+"bitwise",
+3
+],
+[
+"kotlin",
+"fun f(a: Int): Int = a.inv() xor a",
+"f",
+"bitwise",
+2
+],
+[
+"kotlin",
+"fun f(a: Boolean, b: Boolean) = a && b",
+"f",
+"bitwise",
+0
+],
+[
+"kotlin",
+"fun f(m: Map<String, List<Int>>) = m",
+"f",
+"bitwise",
+0
+],
+[
+"kotlin",
+"/** KDoc */\nfun f() {}",
+"f",
+"doc",
+1
+],
+[
+"kotlin",
+"// plain\nfun f() {}",
+"f",
+"doc",
+0
+],
+[
+"kotlin",
+"/* block */\nfun f() {}",
+"f",
+"doc",
+0
+],
+[
+"kotlin",
+"fun f() { println(\"x\") }",
+"f",
+"print",
+1
+],
+[
+"kotlin",
+"fun f() { System.err.println(\"x\") }",
+"f",
+"print",
+1
+],
+[
+"kotlin",
+"fun f(w: java.io.Writer) { w.println(\"x\") }",
+"f",
+"print",
+0
+],
+[
+"kotlin",
+"fun f() { Thread.sleep(5) }",
+"f",
+"sleep",
+1
+],
+[
+"kotlin",
+"suspend fun f() { delay(5) }",
+"f",
+"sleep",
+1
+],
+[
+"kotlin",
+"fun f() { val t = System.currentTimeMillis() }",
+"f",
+"time",
+1
+],
+[
+"kotlin",
+"fun f() { val d = Duration.ofSeconds(3) }",
+"f",
+"time",
+1
+],
+[
+"kotlin",
+"fun f() { val d = 5.seconds }",
+"f",
+"time",
+1
+],
+[
+"kotlin",
+"fun f() { val n = TimeUnit.SECONDS.toMillis(3) }",
+"f",
+"time",
+1
+],
+[
+"kotlin",
+"fun f() { val r = Regex(\"a+\") }",
+"f",
+"regex",
+1
+],
+[
+"kotlin",
+"fun f(s: String) { val r = s.toRegex() }",
+"f",
+"regex",
+1
+],
+[
+"kotlin",
+"fun f(s: String) { val r = s.replace(\"a\", \"b\") }",
+"f",
+"regex",
+0
+],
+[
+"kotlin",
+"fun f(p: java.io.File) { val s = p.readText() }",
+"f",
+"io",
+1
+],
+[
+"kotlin",
+"fun f() { val s = readLine() }",
+"f",
+"io",
+1
+],
+[
+"kotlin",
+"fun f(p: String) { val s = p.trim() }",
+"f",
+"io",
+0
+],
+[
+"kotlin",
+"fun f() { throw IllegalStateException(\"x\") }",
+"f",
+"bailout",
+1
+],
+[
+"kotlin",
+"fun f() { TODO() }",
+"f",
+"bailout",
+1
+],
+[
+"kotlin",
+"fun f() { exitProcess(1) }",
+"f",
+"bailout",
+1
+],
+[
+"kotlin",
+"fun f(a: Int) { require(a > 0) }",
+"f",
+"bailout",
+0
+],
+[
+"kotlin",
+"@Deprecated(\"x\") @JvmStatic\nfun f() {}",
+"f",
+"decorators",
+2
+],
+[
+"kotlin",
+"fun f() {}",
+"f",
+"decorators",
+0
+],
+[
+"kotlin",
+"fun f(a: Int, vararg b: Int, c: (Int) -> Int = { it }) {}",
+"f",
+"args",
+3
+],
+[
+"kotlin",
+"fun f(a: Int?): Int { return when (a) { 1 -> 2; else -> a ?: 3 } }",
+"f",
+"branch",
+3
+],
+[
+"kotlin",
+"fun f(a: Int) { try { g() } catch (e: Exception) { } }",
+"f",
+"branch",
+0
+],
+[
+"swift",
+"func f() { let g = { (x: Int) in x + 1 } }",
+"f",
+"closures",
+1
+],
+[
+"swift",
+"func f(a: [Int]) { a.map { $0 + 1 } }",
+"f",
+"closures",
+1
+],
+[
+"swift",
+"func f() { func local(k: Int) -> Int { k } }",
+"f",
+"closures",
+0
+],
+[
+"swift",
+"func f(a: Int) -> Int { return a << 2 | a & 3 }",
+"f",
+"bitwise",
+3
+],
+[
+"swift",
+"func f(a: Int) -> Int { var z = a; z |= 4; z <<= 1; return ~z ^ 1 }",
+"f",
+"bitwise",
+4
+],
+[
+"swift",
+"func f(a: Bool, b: Bool) -> Bool { return a && b || a }",
+"f",
+"bitwise",
+0
+],
+[
+"swift",
+"func f(m: [String: [Int]]) -> Int { return m.count }",
+"f",
+"bitwise",
+0
+],
+[
+"swift",
+"/// doc\nfunc f() {}",
+"f",
+"doc",
+1
+],
+[
+"swift",
+"// plain\nfunc f() {}",
+"f",
+"doc",
+0
+],
+[
+"swift",
+"/** block */\nfunc f() {}",
+"f",
+"doc",
+1
+],
+[
+"swift",
+"func f() { print(\"x\") }",
+"f",
+"print",
+1
+],
+[
+"swift",
+"func f() { debugPrint(\"x\") }",
+"f",
+"print",
+1
+],
+[
+"swift",
+"func f(l: Logger) { l.info(\"x\") }",
+"f",
+"print",
+0
+],
+[
+"swift",
+"func f() { Thread.sleep(forTimeInterval: 1) }",
+"f",
+"sleep",
+1
+],
+[
+"swift",
+"func f() async throws { try await Task.sleep(nanoseconds: 5) }",
+"f",
+"sleep",
+1
+],
+[
+"swift",
+"func f() { let d = Date() }",
+"f",
+"time",
+1
+],
+[
+"swift",
+"func f() { let d = Date.now }",
+"f",
+"time",
+1
+],
+[
+"swift",
+"func f() { let c = Calendar.current }",
+"f",
+"time",
+1
+],
+[
+"swift",
+"func f() { let x = Int(3) }",
+"f",
+"time",
+0
+],
+[
+"swift",
+"func f() { let r = try! NSRegularExpression(pattern: \"a+\") }",
+"f",
+"regex",
+1
+],
+[
+"swift",
+"func f() { let r = /a+/ }",
+"f",
+"regex",
+1
+],
+[
+"swift",
+"func f() { let d = FileManager.default.contents(atPath: \"x\") }",
+"f",
+"io",
+1
+],
+[
+"swift",
+"func f() { let d = try Data(contentsOf: url) }",
+"f",
+"io",
+1
+],
+[
+"swift",
+"func f(p: String) { let s = p.uppercased() }",
+"f",
+"io",
+0
+],
+[
+"swift",
+"func f() throws { throw E.x }",
+"f",
+"bailout",
+1
+],
+[
+"swift",
+"func f() { fatalError(\"x\") }",
+"f",
+"bailout",
+1
+],
+[
+"swift",
+"func f(a: Int) { precondition(a > 0) }",
+"f",
+"bailout",
+0
+],
+[
+"swift",
+"@discardableResult @inlinable\nfunc f() -> Int { 1 }",
+"f",
+"decorators",
+2
+],
+[
+"swift",
+"func f() {}",
+"f",
+"decorators",
+0
+],
+[
+"swift",
+"func f(_ a: Int, b: Int = 3, c: Int...) {}",
+"f",
+"args",
+3
+],
+[
+"swift",
+"func f(a: Int?) -> Int { guard a != nil else { return 0 }; return a ?? 1 }",
+"f",
+"branch",
+2
+],
+[
+"swift",
+"func f(a: Int) { do { try g() } catch { } }",
+"f",
+"branch",
+0
+],
+[
+"swift",
+"func f(a: Int?) -> Int? { return a }",
+"f",
+"branch",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val g = (x: Int) => x + 1\n    1\n  }\n}",
+"f",
+"closures",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    List(1).map(_ + 1)\n    1\n  }\n}",
+"f",
+"closures",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    List(1).foreach { case 1 => () }\n    1\n  }\n}",
+"f",
+"closures",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    def local(k: Int) = k\n    1\n  }\n}",
+"f",
+"closures",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val z = a << 2 | b & 3\n    1\n  }\n}",
+"f",
+"bitwise",
+3
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    var z = a; z |= 4; z <<= 1\n    1\n  }\n}",
+"f",
+"bitwise",
+2
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val z = ~a ^ b\n    1\n  }\n}",
+"f",
+"bitwise",
+2
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val z = a > 1 && b < 2 || a == b\n    1\n  }\n}",
+"f",
+"bitwise",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val m: Map[String, List[Int]] = Map()\n    1\n  }\n}",
+"f",
+"bitwise",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    a match { case 1 | 2 => () ; case _ => () }\n    1\n  }\n}",
+"f",
+"bitwise",
+0
+],
+[
+"scala",
+"object O {\n  /** doc */\n  def f(): Int = 1\n}",
+"f",
+"doc",
+1
+],
+[
+"scala",
+"object O {\n  // plain\n  def f(): Int = 1\n}",
+"f",
+"doc",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    println(\"x\")\n    1\n  }\n}",
+"f",
+"print",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    Console.err.println(\"x\")\n    1\n  }\n}",
+"f",
+"print",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    logger.info(\"x\")\n    1\n  }\n}",
+"f",
+"print",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    Thread.sleep(5)\n    1\n  }\n}",
+"f",
+"sleep",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    Await.result(fut, 5.seconds)\n    1\n  }\n}",
+"f",
+"sleep",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val t = System.nanoTime\n    1\n  }\n}",
+"f",
+"time",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val d = Duration(3, TimeUnit.SECONDS)\n    1\n  }\n}",
+"f",
+"time",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val n = TimeUnit.SECONDS.toMillis(3)\n    1\n  }\n}",
+"f",
+"time",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val d = 5.seconds\n    1\n  }\n}",
+"f",
+"time",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val r = \"a+\".r\n    1\n  }\n}",
+"f",
+"regex",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val r = Pattern.compile(\"a+\")\n    1\n  }\n}",
+"f",
+"regex",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val s = Source.fromFile(\"x\")\n    1\n  }\n}",
+"f",
+"io",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val s = Files.readAllLines(p)\n    1\n  }\n}",
+"f",
+"io",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val s = p.toString\n    1\n  }\n}",
+"f",
+"io",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    throw new RuntimeException(\"x\")\n    1\n  }\n}",
+"f",
+"bailout",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    sys.exit(1)\n    1\n  }\n}",
+"f",
+"bailout",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    val x = ???\n    1\n  }\n}",
+"f",
+"bailout",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    require(a > 0)\n    1\n  }\n}",
+"f",
+"bailout",
+0
+],
+[
+"scala",
+"object O {\n  @deprecated(\"x\", \"1\") @inline\n  def f(): Int = 1\n}",
+"f",
+"decorators",
+2
+],
+[
+"scala",
+"object O {\n  def f(): Int = 1\n}",
+"f",
+"decorators",
+0
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int = 3, c: Int*)(implicit d: Int): Int = 1\n}",
+"f",
+"args",
+4
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    if (a > 1 && b < 2) 1 else 2\n    1\n  }\n}",
+"f",
+"branch",
+2
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    a match { case 1 => 2; case _ => 3 }\n    1\n  }\n}",
+"f",
+"branch",
+2
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    try { 1 } catch { case e: Exception => 2 }\n    1\n  }\n}",
+"f",
+"branch",
+0
+]
+],
+"b": [
+[
+"ruby",
+"def f(a, b = 1, *c, d:, e: 2, **g, &h)\nend",
+"f",
+"args",
+7
+],
+[
+"ruby",
+"def f\n  x = ->(q) { q }\n  y = lambda { |z| z }\n  [1].each { |i| i }\nend",
+"f",
+"closures",
+3
+],
+[
+"ruby",
+"def f\n  def g; end\nend",
+"f",
+"closures",
+0
+],
+[
+"ruby",
+"def f(a, b)\n  if a && b\n    1\n  elsif a\n    2\n  else\n    3\n  end\nend",
+"f",
+"branch",
+4
+],
+[
+"ruby",
+"def f\n  begin\n    1\n  rescue => e\n    2\n  end\nend",
+"f",
+"branch",
+0
+],
+[
+"ruby",
+"def f(x)\n  y = x << 2\n  y ^ 3\nend",
+"f",
+"bitwise",
+2
+],
+[
+"ruby",
+"def f(list, x)\n  list << x\nend",
+"f",
+"bitwise",
+0
+],
+[
+"ruby",
+"def f\n  puts <<~EOS\n    hi\n  EOS\nend",
+"f",
+"bitwise",
+0
+],
+[
+"ruby",
+"def f(x)\n  ~x\nend",
+"f",
+"bitwise",
+1
+],
+[
+"ruby",
+"def f\n  puts 'x'\n  $stderr.puts 'y'\nend",
+"f",
+"print",
+2
+],
+[
+"ruby",
+"def f(io)\n  io.puts 'x'\n  logger.info 'y'\nend",
+"f",
+"print",
+0
+],
+[
+"ruby",
+"def f\n  raise ArgumentError, 'x'\nend",
+"f",
+"bailout",
+1
+],
+[
+"ruby",
+"def f(x)\n  exit 1 if x\nend",
+"f",
+"bailout",
+1
+],
+[
+"ruby",
+"def f(x)\n  assert x\nend",
+"f",
+"bailout",
+0
+],
+[
+"ruby",
+"def f\n  sleep 1\nend",
+"f",
+"sleep",
+1
+],
+[
+"ruby",
+"def f(s)\n  s =~ /a+/\nend",
+"f",
+"regex",
+2
+],
+[
+"ruby",
+"def f(s)\n  s.match?(Regexp.new('a'))\nend",
+"f",
+"regex",
+2
+],
+[
+"ruby",
+"def f\n  Time.now\nend",
+"f",
+"time",
+1
+],
+[
+"ruby",
+"def f(t)\n  t.strftime('%Y')\nend",
+"f",
+"time",
+1
+],
+[
+"ruby",
+"def f(p)\n  File.read(p)\nend",
+"f",
+"io",
+1
+],
+[
+"ruby",
+"def f(p)\n  File.join(p, 'x')\nend",
+"f",
+"io",
+0
+],
+[
+"ruby",
+"# Adds.\n# @param a [Integer]\ndef f(a); end",
+"f",
+"doc",
+1
+],
+[
+"ruby",
+"def f(a); end",
+"f",
+"doc",
+0
+],
+[
+"ruby",
+"# rubocop:disable Metrics\ndef f(a); end",
+"f",
+"doc",
+0
+],
+[
+"php",
+"<?php\nfunction f(int $a, ?string $b = null, ...$rest) {}",
+"f",
+"args",
+3
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  $g = function($x) { return $x; };\n  $h = fn($y) => $y;\n}",
+"f",
+"closures",
+2
+],
+[
+"php",
+"<?php\nfunction f($a, $b) {\n  if ($a && $b) { return 1; } elseif ($a) { return 2; } else { return 3; }\n}",
+"f",
+"branch",
+4
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  try { g(); } catch (Exception $e) { h(); } finally { i(); }\n}",
+"f",
+"branch",
+0
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  return $a ?? 1;\n}",
+"f",
+"branch",
+1
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  return $a << 2 | 1;\n}",
+"f",
+"bitwise",
+2
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  $a ^= 2; return ~$a;\n}",
+"f",
+"bitwise",
+2
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  return <<<EOT\nx\nEOT;\n}",
+"f",
+"bitwise",
+0
+],
+[
+"php",
+"<?php\nfunction f(array|int $a) {}",
+"f",
+"bitwise",
+0
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  echo 'x'; var_dump($a); print_r($a);\n}",
+"f",
+"print",
+3
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  return print_r($a, true);\n}",
+"f",
+"print",
+0
+],
+[
+"php",
+"<?php\nfunction f($a) {\n  error_log('x');\n}",
+"f",
+"print",
+0
+],
+[
+"php",
+"<?php\nfunction f() {\n  throw new Exception('x');\n}",
+"f",
+"bailout",
+1
+],
+[
+"php",
+"<?php\nfunction f() {\n  exit(1);\n}",
+"f",
+"bailout",
+1
+],
+[
+"php",
+"<?php\nfunction f() {\n  die('x');\n}",
+"f",
+"bailout",
+1
+],
+[
+"php",
+"<?php\nfunction f() {\n  sleep(1); usleep(5);\n}",
+"f",
+"sleep",
+2
+],
+[
+"php",
+"<?php\nfunction f($s) {\n  return preg_match('/a/', $s);\n}",
+"f",
+"regex",
+1
+],
+[
+"php",
+"<?php\nfunction f() {\n  return date('Y') . time();\n}",
+"f",
+"time",
+2
+],
+[
+"php",
+"<?php\nfunction f() {\n  return new DateTime();\n}",
+"f",
+"time",
+1
+],
+[
+"php",
+"<?php\nfunction f($p) {\n  return file_get_contents($p);\n}",
+"f",
+"io",
+1
+],
+[
+"php",
+"<?php\nfunction f($p) {\n  return file_exists($p);\n}",
+"f",
+"io",
+0
+],
+[
+"php",
+"<?php\n#[Route('/x')]\n#[Deprecated]\nfunction f() {}",
+"f",
+"decorators",
+2
+],
+[
+"php",
+"<?php\n/**\n * Doc.\n */\nfunction f() {}",
+"f",
+"doc",
+1
+],
+[
+"php",
+"<?php\n// note\nfunction f() {}",
+"f",
+"doc",
+0
+],
+[
+"php",
+"<?php\nclass K {\n  /** d */\n  public function m($a) {}\n}",
+"m",
+"doc",
+1
+],
+[
+"lua",
+"local function f(a, b, ...)\nend",
+"f",
+"args",
+3
+],
+[
+"lua",
+"local function f()\n  local g = function(x) return x end\n  local function h() end\nend",
+"f",
+"closures",
+1
+],
+[
+"lua",
+"local function f(a, b)\n  if a and b then return 1 elseif a then return 2 else return 3 end\nend",
+"f",
+"branch",
+4
+],
+[
+"lua",
+"local function f(a)\n  for i = 1, 3 do end\n  while a do end\n  repeat until a\nend",
+"f",
+"branch",
+3
+],
+[
+"lua",
+"local function f(a)\n  return a ~= 1\nend",
+"f",
+"bitwise",
+0
+],
+[
+"lua",
+"local function f(a, b)\n  return a << 2 | b ~ 1\nend",
+"f",
+"bitwise",
+3
+],
+[
+"lua",
+"local function f(a)\n  return ~a\nend",
+"f",
+"bitwise",
+1
+],
+[
+"lua",
+"local function f(a)\n  return a // 2\nend",
+"f",
+"bitwise",
+0
+],
+[
+"lua",
+"local function f()\n  print('x'); io.write('y')\nend",
+"f",
+"print",
+2
+],
+[
+"lua",
+"local function f()\n  error('x')\nend",
+"f",
+"bailout",
+1
+],
+[
+"lua",
+"local function f()\n  os.exit(1)\nend",
+"f",
+"bailout",
+1
+],
+[
+"lua",
+"local function f(a)\n  assert(a)\nend",
+"f",
+"bailout",
+0
+],
+[
+"lua",
+"local function f()\n  socket.sleep(1)\nend",
+"f",
+"sleep",
+1
+],
+[
+"lua",
+"local function f()\n  os.execute('sleep 1')\nend",
+"f",
+"sleep",
+1
+],
+[
+"lua",
+"local function f(s)\n  return string.match(s, 'a')\nend",
+"f",
+"regex",
+1
+],
+[
+"lua",
+"local function f()\n  return os.time(), os.date('%Y')\nend",
+"f",
+"time",
+2
+],
+[
+"lua",
+"local function f(p)\n  local h = io.open(p)\n  return h:read('a')\nend",
+"f",
+"io",
+2
+],
+[
+"lua",
+"--- Adds.\n-- @param a number\nlocal function f(a) end",
+"f",
+"doc",
+1
+],
+[
+"lua",
+"-- plain\nlocal function f(a) end",
+"f",
+"doc",
+0
+],
+[
+"lua",
+"function M.f(a) end",
+"M.f",
+"args",
+1
+],
+[
+"lua",
+"M.f = function(a, b) return a end",
+"f",
+"args",
+2
+],
+[
+"shell",
+"f() {\n  local a=$1 b=$3\n}",
+"f",
+"args",
+3
+],
+[
+"shell",
+"f() {\n  echo \"$@\"\n}",
+"f",
+"args",
+1
+],
+[
+"shell",
+"f() {\n  echo hi\n}",
+"f",
+"args",
+0
+],
+[
+"shell",
+"f() {\n  if [ -n \"$a\" ] && [ \"$b\" ]; then :; elif x; then :; else :; fi\n}",
+"f",
+"branch",
+4
+],
+[
+"shell",
+"f() {\n  for i in 1 2; do :; done\n  while read l; do :; done\n  case $a in x) y;; *) z;; esac\n}",
+"f",
+"branch",
+4
+],
+[
+"shell",
+"f() {\n  x=$(( a << 2 | 3 & b ^ 4 ))\n}",
+"f",
+"bitwise",
+4
+],
+[
+"shell",
+"f() {\n  cat <<EOF\nx\nEOF\n  ls | grep x > out 2>&1\n}",
+"f",
+"bitwise",
+0
+],
+[
+"shell",
+"f() {\n  (( x <<= 1 ))\n}",
+"f",
+"bitwise",
+1
+],
+[
+"shell",
+"f() {\n  echo hi\n  printf 'x'\n}",
+"f",
+"print",
+2
+],
+[
+"shell",
+"f() {\n  echo hi > out.txt\n}",
+"f",
+"print",
+0
+],
+[
+"shell",
+"f() {\n  x=$(echo hi)\n  echo hi | cat\n}",
+"f",
+"print",
+0
+],
+[
+"shell",
+"f() {\n  exit 1\n}",
+"f",
+"bailout",
+1
+],
+[
+"shell",
+"f() {\n  return 1\n}",
+"f",
+"bailout",
+0
+],
+[
+"shell",
+"f() {\n  sleep 1\n}",
+"f",
+"sleep",
+1
+],
+[
+"shell",
+"f() {\n  grep -q x f; [[ $a =~ y ]]\n}",
+"f",
+"regex",
+2
+],
+[
+"shell",
+"f() {\n  date +%s\n}",
+"f",
+"time",
+1
+],
+[
+"shell",
+"f() {\n  curl -s http://x > out\n}",
+"f",
+"io",
+2
+],
+[
+"shell",
+"f() {\n  cmd 2>/dev/null\n}",
+"f",
+"io",
+0
+]
+]
+}

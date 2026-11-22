@@ -45,6 +45,9 @@ on:
       - "gitgalaxy/core/prism.py"
       - "gitgalaxy/core/network_risk_sensor.py"
       - "gitgalaxy/core/call_resolver.py"
+      - "gitgalaxy/core/aperture.py"  # #8962: which files a scan sees (#8933 moved two baselines unseen)
+      - "gitgalaxy/core/guidestar_lens.py"  # #8962: same
+      - "gitgalaxy/standards/gitgalaxy_config.py"  # #8962: the ignored-directory lists
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/import_graph_accuracy.py"
       - "tests/tools/call_graph_resolution.py"
@@ -171,7 +174,7 @@ jobs:
       # cached: Maven Central rate-limits bursts (scip_callgraph.MAVEN_FLAGS retries 429s).
       - name: Setup JDK 21 (scip-java reference)
         if: steps.sel.outputs.java == 'true'
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: "21"

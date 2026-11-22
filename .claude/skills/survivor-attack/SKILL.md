@@ -11,7 +11,7 @@ checks have found stated verdicts that a new input killed. A confident reason is
 
 ## The loop
 
-Work in a directory outside the repo. Every proof goes through `tests/tools/box/heavy-run.sh`.
+Work in a directory outside the repo. Every proof goes through `tests/tools/box/heavy-run.sh`. `try` needs a fresh `--work` DIR each run (FileExistsError otherwise). A one-JVM direct-mode mutation run must set `prefix_x6` on kept scenarios, else every mutant of a case with an X23 scenario is judged killed (#8513, #8807).
 
 ```bash
 python tests/tools/survivor_attack.py next CASE --limit 20           # the likeliest wrong verdicts first

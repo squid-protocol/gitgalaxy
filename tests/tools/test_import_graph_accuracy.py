@@ -88,6 +88,58 @@ def test_c_quoted_include_prefers_the_including_directory(tmp_path):
 
 
 @needs_ts
+def test_tsconfig_paths_alias_resolves_to_the_file_it_names(tmp_path):
+    """#8962: zod's docs app imports `@/components/tabs` through tsconfig `"@/*": ["./*"]`; that is a real edge, not a package."""
+    g = _group(
+        tmp_path,
+        {
+            "app/tsconfig.json": '{"compilerOptions": {"paths": {"@/*": ["./*"], "@/.source": ["./.source/index.ts"]}}}',
+            "app/components/tabs.tsx": "",
+            "app/loaders/index.ts": "",
+            "app/page/page.tsx": "",
+            "other/page.ts": "",
+        },
+    )
+    src = b'import T from "@/components/tabs";\nimport L from "@/loaders";\nimport G from "@/.source";\nimport r from "react";\n'
+    sets = iga.js_imports("typescript")(src, "app/page/page.tsx", g)
+    assert sets == [
+        {"app/components/tabs.tsx"},
+        {"app/loaders/index.ts"},
+    ]  # a generated target and a package are not scored
+    assert (
+        iga.js_imports("typescript")(b'import T from "@/components/tabs";', "other/page.ts", g) == []
+    )  # no config governs it
+
+
+@needs_ts
+def test_tsconfig_paths_comments_baseurl_extends_and_the_longest_prefix(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "tsconfig.base.json": '{\n  // shared\n  "compilerOptions": {"paths": {"@lib/*": ["./wrong/*"],},},\n}',
+            "tsconfig.json": '{"extends": "./tsconfig.base.json", /* own */ "compilerOptions": {"baseUrl": "src", "paths": {"@/*": ["*"], "@/ui/*": ["ui-kit/*"]}}}',
+            "src/util.ts": "",
+            "src/ui-kit/button.ts": "",
+            "src/ui/button.ts": "",
+            "src/main.ts": "",
+        },
+    )
+    sets = iga.js_imports("typescript")(
+        b'import u from "@/util";\nimport b from "@/ui/button";\nimport x from "@lib/y";\n', "src/main.ts", g
+    )
+    # baseUrl is src; a child's `paths` replace the parent's (so @lib/* is gone); the longest matching prefix wins (@/ui/* over @/*)
+    assert sets == [{"src/util.ts"}, {"src/ui-kit/button.ts"}]
+
+
+@needs_ts
+def test_a_config_without_paths_leaves_bare_specifiers_unscored(tmp_path):
+    g = _group(tmp_path, {"tsconfig.json": '{"compilerOptions": {"strict": true}}', "a.ts": "", "components/x.ts": ""})
+    assert (
+        iga.js_imports("typescript")(b'import x from "components/x";', "a.ts", g) == []
+    )  # no baseUrl, no paths: a package name
+
+
+@needs_ts
 def test_typescript_esm_js_spelling_resolves_to_the_ts_source(tmp_path):
     g = _group(tmp_path, {"src/a.ts": "", "src/lib/index.ts": ""})
     src = b'import { a } from "./a.js";\nexport * from "./lib";\nimport z from "zod";\n'

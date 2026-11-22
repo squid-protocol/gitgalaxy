@@ -50,3 +50,7 @@ updates:
       # #8481: 1.24.0 moves the php / powershell accuracy baselines and the srb2 call-graph golden, and a
       # lockfile-only PR runs neither check. Held at 1.22.1 until that issue takes the bump with its goldens.
       - dependency-name: "tree-sitter-language-pack"
+      # pymdown-extensions 13.x needs Python >= 3.11.5, and the project floor is 3.11 (pyproject requires-python), so
+      # the docs lock cannot resolve it (relock failed on #8761). Held at 12.x until the floor moves to 3.11.5.
+      - dependency-name: "pymdown-extensions"
+        versions: [">=13"]

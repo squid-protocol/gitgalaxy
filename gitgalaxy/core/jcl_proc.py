@@ -20,7 +20,7 @@
 # EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels (invalid, pp. 32, 376), an INCLUDE
 # group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376), a SET inside a procedure naming a symbol its EXEC / PROC assigns, or
 # holding a symbol in its value (a group, job-level or in a procedure, is spliced whole, EXEC and SET included, p. 376), a member found
-# in no library. An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
+# in no library, an IF/THEN/ELSE construct inside a procedure (its relations name procedure steps the call renames). An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
 from __future__ import annotations
 
 import re
@@ -410,6 +410,58 @@ def _flat_steps(
     return steps
 
 
+def _merge_override(
+    r: dict[str, Any], call_steps: dict[str, dict[str, Any]], out: list[dict[str, Any]], calls_of: dict[str, int]
+) -> bool:
+    """Apply a call's `procstep.ddname` DD row to the procedure's DD row in `out` (JCL Reference pp. 28-29: the override
+    merges its parameters into the overridden statement, adds a DD the procedure lacks, and DUMMY nullifies all but
+    DCB). True when `r` was handled (the caller does not append it again)."""
+    ps = call_steps[r["step_name"]]
+    owner = ps["in_proc"]
+    at = next(
+        (
+            i
+            for i, d in enumerate(out)
+            if d["kind"] == "DD"
+            and d["in_proc"] == owner
+            and d["step_name"] == ps["step_name"]
+            and d["dd_name"] == r["dd_name"]
+        ),
+        None,
+    )
+    target = out[at] if at is not None else None
+    if r["kind"] not in ("DD", "DD_DISP", "DUMMY", "SYSOUT"):
+        return False  # TEMP / INSTREAM overrides are kept as rows, as before
+    if r["kind"] == "DD_DISP" and target is None:
+        return False
+    if (r.get("generation") is not None or (target or {}).get("generation") is not None) and calls_of.get(owner, 0) > 1:
+        raise JclProcRefused(
+            f"{r['step_name']}.{r['dd_name']}: a GDG DD override on a procedure called more than once is not answered"
+        )
+    if r["kind"] == "SYSOUT":
+        if target is not None and target.get("generation") is not None:
+            out[at] = dict(target, sysout_over=True)  # type: ignore[index]
+        return True
+    if r["kind"] == "DUMMY":
+        if target is not None:
+            del out[at]  # type: ignore[arg-type]
+        return True
+    new = dict(target) if target is not None else dict(r, step_name=ps["step_name"], in_proc=owner)
+    if r["kind"] == "DD":
+        new.update(dsn=r["dsn"], generation=r["generation"])
+    if r["kind"] == "DD_DISP" or r.get("disp_coded"):
+        for k in ("disp", "disp_normal", "disp_abnormal"):
+            new.pop(k, None)
+            if k in r:
+                new[k] = r[k]
+        new.pop("disp_coded", None)
+    if at is not None:
+        out[at] = new
+    else:
+        out.append(new)
+    return True
+
+
 def expand_flow_rows(
     rows: list[dict[str, Any]],
     job: str,
@@ -433,15 +485,26 @@ def expand_flow_rows(
         if r["kind"] == "STEP" and r["in_proc"]:
             procs.setdefault(r["in_proc"], []).append(r)
     out: list[dict[str, Any]] = []
+    call_steps: dict[str, dict[str, Any]] = {}  # the latest call's procedure steps by name: its DD overrides follow it
+    calls_of: dict[str, int] = {}
+    for r in rows:
+        if r["kind"] == "STEP" and not r["in_proc"] and r["proc"]:
+            calls_of[r["proc"]] = calls_of.get(r["proc"], 0) + 1
     for r in rows:
         if r["kind"] != "STEP" or r["in_proc"]:
-            if r["kind"] != "STEP":
+            if r["kind"] == "STEP":
+                continue
+            if not r["in_proc"] and r["step_name"] in call_steps and _merge_override(r, call_steps, out, calls_of):
+                continue
+            if r["kind"] != "DD_DISP":
                 out.append(r)
             continue
         if not r["proc"]:
+            call_steps = {}
             out.append(r)
             continue
         steps = _flat_steps(r["proc"], procs, out, job, text, libraries, 1)
+        call_steps = {ps["step_name"]: ps for ps in steps}
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}
         if (over or r.get("cond")) and any(ps["proc"] for ps in procs[r["proc"]]):
             raise JclProcRefused(
@@ -449,6 +512,12 @@ def expand_flow_rows(
             )
         call = r["step_name"]
         for ps in steps:
+            if ps.get("if_cond"):
+                # the procedure's own IF/THEN/ELSE: its relations name procedure steps, which the call renames; silently
+                # dropping the IF would run a bypassed step, so it is refused by name
+                raise JclProcRefused(
+                    f"{r['step_name']}.{ps['step_name']}: an IF/THEN/ELSE construct inside a procedure is not answered here"
+                )
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
                 cond = _COND_STEP.sub(rf"\g<1>{call}.\g<2>\g<3>", cond)

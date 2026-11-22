@@ -366,6 +366,7 @@ NOT_GATES.update(
     {
         "blocker-baseline.yml": "ad hoc survey run; the nightly baseline is evidence-refresh's",
         "cache-prune.yml": "deletes stale Actions caches",
+        "canary-control.yml": "opens the weekly control PR (#7155 part 2); the gates it exercises are the ones listed above",
         "call-resolution-history.yml": "appends a measurement row after a push to main",
         "deploy-docs.yml": "publishes the docs site",
         "doc-drift.yml": "files documentation issues from the doc-refs backlog, never fails a change",

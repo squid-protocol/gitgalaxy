@@ -63,6 +63,19 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "after-a-wraparound",
         "one-step-adds-three",
         "next-job-reads-minus-two",
+        "if-then-creates",
+        "if-else-creates",
+        "if-false-creates",
+        "cond-only-runs",
+        "cond-only-is-bypassed",
+        "if-abend-true",
+        "if-abend-false",
+        "if-run-true",
+        "if-run-false",
+        "if-not-equal-true",
+        "if-not-equal-false",
+        "pass-then-delete-never",
+        "pass-then-delete-leaves",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
@@ -175,6 +188,20 @@ def test_mod_of_an_absent_plus_one_is_new_and_mod_of_an_absent_zero_or_minus_n_i
     gone = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-2),DISP=(MOD,CATLG)\n"
     with pytest.raises(JclGdgRefused, match="no cataloged generation"):
         _run(gone, "J", CAT, {"A": {"rc": 0}})
+
+
+def test_uncatlg_of_the_oldest_follows_the_groups_sms_state_and_a_new_uncatlg_is_keep():
+    oldest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,UNCATLG)\n"
+    sms = {"G.B": {"limit": 5, "generations": [1, 2], "sms": True}}
+    assert _run(oldest, "J", sms, {"A": {"rc": 0}})[1] == sms
+    plain = {"G.B": {"limit": 5, "generations": [1, 2], "sms": False}}
+    assert _run(oldest, "J", plain, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [2], "sms": False}}
+    newest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,UNCATLG)\n"
+    with pytest.raises(JclGdgRefused, match="UNCATLG of a generation other than the oldest"):
+        _run(newest, "J", plain, {"A": {"rc": 0}})
+    # a step that abended with no abnormal disposition applies the normal one; a new UNCATLG is KEEP either way
+    new = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,UNCATLG)\n"
+    assert _run(new, "J", CAT, {"A": {"abend": "S0C7"}})[1]["G.B"]["deferred_rollin"] == [3]
 
 
 def test_deleting_the_oldest_removes_it_and_any_other_generation_is_refused_by_name():
@@ -290,3 +317,17 @@ def test_a_library_gdg_restart_that_is_not_answered_is_refused_by_name(r):
         resolve_gdg_restart(
             LIB_ROWS, r["job"], {"PAY.GDG": {"limit": 6, "generations": [6, 7]}}, r["given"], LIB_TEXT, LIBS
         )
+
+
+def test_a_gdg_all_read_beside_a_creation_an_empty_group_or_a_bad_gdgorder_is_refused_by_name():
+    made = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="creates a generation"):
+        _run(made, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
+    empty = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="no cataloged generation"):
+        _run(empty, "J", {"G.B": {"limit": 5, "generations": []}}, {"A": {"rc": 0}})
+    bad = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR,GDGORDER=ODD\n"
+    with pytest.raises(JclGdgRefused, match="GDGORDER=ODD"):
+        _run(bad, "J", CAT, {"A": {"rc": 0}})
+    refused = " ".join(r["construct"] for r in DOC["refused"])
+    assert "GDG ALL read" in refused and "GDGORDER other than" in refused

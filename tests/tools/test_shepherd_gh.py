@@ -406,7 +406,11 @@ class Gh:
         if re.search(r"/commits/[0-9a-f]{40}/pulls$", bare):
             return [self.pr]
         if re.fullmatch(r"repos/[^/]+/[^/]+/commits/[0-9a-f]{40}", bare):
-            return {"parents": [{"sha": x} for x in self.parents.get(bare.rsplit("/", 1)[1], [])]}
+            sha = bare.rsplit("/", 1)[1]
+            return {
+                "parents": [{"sha": x} for x in self.parents.get(sha, [])],
+                "committer": {"login": getattr(self, "committers", {}).get(sha, "someone")},
+            }
         if m := re.search(r"/compare/([^/]+)\.\.\.([0-9a-f]{40})$", bare):
             if (m[1], m[2]) not in self.compare:
                 raise SystemExit("gh api compare failed")
@@ -1761,6 +1765,57 @@ def test_the_bot_main_merge_keeps_the_merge_label_approval():
     s = sg.gather(7, gh.api, main=(MAIN, {"det"}))
     assert s["carried"] and s["approved"]
     assert not any(a["op"] == "unlabel" and a["label"] == sg.MERGE for a in sg.decide(s))
+
+
+def _bot_merge_gh(committer="web-flow", parents=None, other_status="behind", marker_to=SHA):
+    """#8136: the update-branch landed after the `to=` marker was written (it names the old head)."""
+    gh = Gh()
+    _waiting_gh(gh, "behind")
+    new = "d" * 40
+    gh.parents[new] = parents or [SHA, MAIN]
+    gh.committers = {new: committer}
+    gh.compare[("main", gh.parents[new][-1])] = {"status": other_status}
+    gh.pr["head"]["sha"] = new
+    to = f" to={marker_to}" if marker_to else ""
+    gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA}{to} -->"))
+    return gh
+
+
+def test_an_update_branch_that_landed_after_its_marker_keeps_the_approval():
+    for marker_to in (SHA, ""):
+        gh = _bot_merge_gh(marker_to=marker_to)
+        s = sg.gather(7, gh.api, main=(MAIN, {"det"}))
+        assert s["carried"] and s["approved"], marker_to
+        assert not any(a["op"] == "unlabel" and a["label"] == sg.MERGE for a in sg.decide(s))
+
+
+def test_a_merge_that_is_not_the_github_update_of_the_approved_head_is_not_carried():
+    for kw in (
+        {"committer": "joe"},
+        {"parents": [MAIN, SHA]},
+        {"parents": [SHA, "e" * 40], "other_status": "diverged"},
+        {"parents": [SHA]},
+    ):
+        s = sg.gather(7, _bot_merge_gh(**kw).api, main=(MAIN, {"det"}))
+        assert not s["carried"], kw
+
+
+def test_apply_waits_for_the_async_update_branch_to_move_the_head():
+    heads, naps = ["a" * 40, "a" * 40, "d" * 40], []
+    gh = Gh()
+
+    def run(argv):
+        r = gh.run(argv)
+        return subprocess.CompletedProcess(argv, 0, heads.pop(0), "") if "-q" in argv else r
+
+    old = sg._sleep
+    sg._sleep = naps.append
+    try:
+        sg.apply(7, snap(), [{"op": "update_main", "sha": SHA, "main": MAIN}], run=run)
+    finally:
+        sg._sleep = old
+    assert len(naps) == 2
+    assert gh.cmds[-1][-1] == f"body=<!-- shepherd-update from={SHA} to={'d' * 40} -->"
 
 
 def test_main_green_lists_the_checks_green_on_main_s_tip(monkeypatch):

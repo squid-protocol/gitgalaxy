@@ -15,7 +15,9 @@
 # A DD naming the group itself with a deleting disposition removes every generation at that step's end, and DELETE of the
 # oldest (-n) removes that one; the relative / absolute relationship fixed at the job's first relative reference survives
 # both (User's Guide, Appendix A, 'Deleting and uncataloging generation data sets'). A (NEW,PASS) generation no later step
-# receives is scratched and uncataloged at job end (p. 237); a number past G9999 wraps to G0001 (p. 237).
+# receives is scratched and uncataloged at job end (p. 237); a number past G9999 wraps to G0001 (p. 237). UNCATLG of a new
+# generation is rejected and treated as KEEP; of the oldest existing one it is ignored when the group's catalog entry gives
+# sms: true (KEEP implied) and removes the entry when it gives sms: false (JCL Reference, DISP: UNCATLG); absent, refused.
 # GDGBIAS=STEP (JOB statement; User's Guide, Appendix A, 'Relative generation numbers' pp. 235-237) re-fixes the relationship at
 # each step's first reference and rolls its new generations into the catalog at the end of that step. A procedure's step is
 # a job step for this (assumption A7). Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
@@ -31,7 +33,13 @@ class JclGdgRefused(ValueError):
     """A GDG construct IBM's text does not settle here, or a JCL / catalog error: refused by name, never guessed."""
 
 
-_STATE = {"CATLG": "cataloged", "DELETE": "deleted", "PASS": "passed", "KEEP": "deferred", "UNCATLG": "kept"}
+_STATE = {
+    "CATLG": "cataloged",
+    "DELETE": "deleted",
+    "PASS": "passed",
+    "KEEP": "deferred",
+    "UNCATLG": "deferred",
+}  # a new data set's UNCATLG is rejected and treated as KEEP
 
 
 def _int_generation(text: str) -> int:
@@ -156,12 +164,14 @@ def resolve_gdg(
                 continue
             if n > 0:
                 created[(base, absolute)] = _STATE[end]
-            elif end == "DELETE":
-                if not live[base] or absolute != live[base][0]:
-                    raise JclGdgRefused(f"{key}: DELETE of a generation other than the oldest is not answered here")
-                drop.append((base, absolute))
-            elif end == "UNCATLG":
+            elif end == "UNCATLG" and catalogs[base].get("sms") is None:
                 raise JclGdgRefused(f"{key}: a disposition that removes an existing generation is not answered here")
+            elif end == "UNCATLG" and catalogs[base]["sms"]:
+                continue  # SMS-managed: UNCATLG is ignored, KEEP is implied (JCL Reference, DISP: UNCATLG)
+            elif end in ("DELETE", "UNCATLG"):
+                if not live[base] or absolute != live[base][0]:
+                    raise JclGdgRefused(f"{key}: {end} of a generation other than the oldest is not answered here")
+                drop.append((base, absolute))
         for base in wipe:
             if any(b == base for b, _ in created):
                 raise JclGdgRefused(
@@ -184,6 +194,8 @@ def resolve_gdg(
     for b in start:
         if catalogs[b].get("empty"):
             after[b]["empty"] = True
+        if "sms" in catalogs[b]:
+            after[b]["sms"] = catalogs[b]["sms"]  # the group's SMS state is carried to the next job
         if catalogs[b].get("gdgorder"):
             after[b]["gdgorder"] = catalogs[b][
                 "gdgorder"

@@ -63,6 +63,13 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "after-a-wraparound",
         "one-step-adds-three",
         "next-job-reads-minus-two",
+        "if-then-creates",
+        "if-else-creates",
+        "if-false-creates",
+        "cond-only-runs",
+        "cond-only-is-bypassed",
+        "if-abend-true",
+        "if-abend-false",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])

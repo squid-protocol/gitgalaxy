@@ -542,7 +542,7 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(?:die|exitWith|exitFailure|exitSuccess)\b|\berror\s+\""),
         # io: I/O & Network Boundaries. IO Monad and hardware interactions.
         "io": re.compile(
-            r"\b(IO|readFile|writeFile|appendFile|hGetContents|hPutStr|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"
+            r"\b(readFile|writeFile|appendFile|hGetContents|hPutStr|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"
         ),
         # api: Public Surface Area. Captured via module headers. Captures both explicit lists and implicit "all" exports.
         "api": re.compile(
@@ -702,7 +702,7 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\b(threadDelay)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(
-            r"\b(?:shift[LR]?|rotate[LR]?|xor|complement|testBit|setBit|clearBit|complementBit)\b|\.&&\.|\|\.\|\|\."
+            r"\b(?:shift[LR]?|rotate[LR]?|xor|complement|testBit|setBit|clearBit|complementBit)\b|\.&\.|\.\|\."
         ),
         # sync_locks: Barricades preventing races.
         "sync_locks": re.compile(r"\b(takeMVar|putMVar|readMVar|swapMVar|atomically|STM|Mutex|lock|unlock)\b"),

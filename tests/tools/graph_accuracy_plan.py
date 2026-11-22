@@ -53,6 +53,11 @@ EVERYTHING = (
     "gitgalaxy/core/prism.py",
     "gitgalaxy/core/network_risk_sensor.py",
     "gitgalaxy/core/call_resolver.py",
+    # #8962: the file selection. #8933 (Aperture stops pruning docs/) added files to two pinned corpora and moved
+    # two baselines; the audit never ran on it, so every later PR that triggered it went red.
+    "gitgalaxy/core/aperture.py",
+    "gitgalaxy/core/guidestar_lens.py",
+    "gitgalaxy/standards/gitgalaxy_config.py",
     ".github/workflows/graph-accuracy-audit.yml",
     "tests/crucible_pins.toml",
     T + "crucible_pins.py",

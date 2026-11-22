@@ -1,5 +1,5 @@
 {
- "commit": "0b84af02c",
+ "commit": "b3161c07d",
  "components": {
   "capabilities": {
    "groups": [
@@ -283,7 +283,7 @@
      "done": null,
      "found": "",
      "group": "Batch",
-     "have": "4 multi-step job case",
+     "have": "5 multi-step job case",
      "name": "JCL job execution",
      "note": "the programs' steps are wired by the case, not yet run from the JCL",
      "of": null,
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T06:19:58Z",
+  "as_of": "2026-11-22T06:21:44Z",
   "core": {
    "closed": 255,
    "open": 20,
@@ -1557,6 +1557,7 @@
       "INTCALC",
       "POSTTRAN-INTCALC",
       "POSTTRAN-TRANIDX",
+      "POSTTRAN-TRANIDX-ONEKEY",
       "TRANREPT"
      ],
      "jobs": 55,

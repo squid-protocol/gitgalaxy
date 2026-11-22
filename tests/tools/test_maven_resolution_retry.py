@@ -65,9 +65,9 @@ def test_a_resolution_failure_reruns_once_with_dash_u(monkeypatch):
 
 def test_resolution_failures_stop_after_the_last_attempt_not_looped(monkeypatch):
     monkeypatch.setattr(maven_exe.time, "sleep", lambda _s: None)
-    calls = _script(monkeypatch, [_proc(1, err=JCC_LOG)] * 5)
+    calls = _script(monkeypatch, [_proc(1, err=JCC_LOG)] * 9)
     assert maven_exe.run_maven_retrying_resolution([MVN, "test"]).returncode == 1
-    assert len(calls) == 1 + len(maven_exe.RESOLUTION_RETRY_DELAYS_S) == 3
+    assert len(calls) == 1 + len(maven_exe.RESOLUTION_RETRY_DELAYS_S)
 
 
 def test_a_parent_pom_failure_is_retried_with_backoff_until_it_resolves(monkeypatch):
@@ -78,7 +78,7 @@ def test_a_parent_pom_failure_is_retried_with_backoff_until_it_resolves(monkeypa
     proc = maven_exe.run_maven_retrying_resolution([MVN, "-q", "test"])
     assert proc.returncode == 0 and len(calls) == 3
     assert calls[1] == calls[2] == [MVN, "-U", "-q", "test"]
-    assert waits == list(maven_exe.RESOLUTION_RETRY_DELAYS_S)
+    assert waits == list(maven_exe.RESOLUTION_RETRY_DELAYS_S[:2])
     assert "attempt 2" in proc.stdout and "attempt 3" in proc.stdout and "Non-resolvable parent POM" in proc.stdout
 
 
@@ -164,6 +164,18 @@ def test_the_matrix_gradle_build_reruns_a_resolution_failure(monkeypatch, tmp_pa
     calls = _script(monkeypatch, [_proc(1, err=GRADLE_429_LOG), _proc(0)])
     ok, _errors = jtm.build(tmp_path, 17, tmp_path / "m2")
     assert ok and len(calls) == 2 and "--refresh-dependencies" in calls[1]
+
+
+def test_a_gradle_429_is_retried_with_the_full_backoff_until_it_resolves(monkeypatch):
+    """#9050: Central's throttle outlasted the old 25 s of backoff; the last rerun waits the longest."""
+    waits: list[float] = []
+    monkeypatch.setattr(maven_exe.time, "sleep", waits.append)
+    n = len(maven_exe.RESOLUTION_RETRY_DELAYS_S)
+    assert sum(maven_exe.RESOLUTION_RETRY_DELAYS_S) >= 180
+    calls = _script(monkeypatch, [_proc(1, err=GRADLE_429_LOG)] * n + [_proc(0, out="ok")])
+    proc = maven_exe.run_gradle_retrying_resolution([MVN, "compileJava"])
+    assert proc.returncode == 0 and len(calls) == n + 1
+    assert waits == list(maven_exe.RESOLUTION_RETRY_DELAYS_S)
 
 
 def test_a_gradle_compile_error_runs_once(monkeypatch):

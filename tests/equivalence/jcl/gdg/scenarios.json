@@ -2840,6 +2840,250 @@
         }
       },
       "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section; the IF tests the procedure step as stepname.procstepname (C1.M1). S0 ends 4, so the IF around C1 is false and the procedure is bypassed; the JCL User's Guide says the result of testing a step or procedure step that did not execute is false, so ELSE step E1 runs and reads (0) = 7. M1 never ran, so no generation was created."
+    },
+    {
+      "id": "limit-roll-off-scratch-deletes-the-oldest",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "rolled_off": {
+            "scratched": [
+              5
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' LIMIT 3 with 5, 6, 7 cataloged: rolling 8 in at the end of the job rolls 5 off, and the group's SCRATCH attribute means 5 is scratched (deleted), not kept. The relative numbers are those of limit-rolls-off-oldest."
+    },
+    {
+      "id": "limit-roll-off-noscratch-recatalogs-the-oldest",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": false,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": false,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "rolled_off": {
+            "recataloged": [
+              5
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' Same job and catalog, group attribute NOSCRATCH: 5 leaves the group as before, but it is not deleted: it is recataloged as rolled off, disassociated from the group (it stays a data set, no longer one of the group's generations)."
+    },
+    {
+      "id": "empty-roll-off-scratch-deletes-every-generation",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "scratch": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "scratch": true,
+          "generations": [
+            8
+          ],
+          "rolled_off": {
+            "scratched": [
+              5,
+              6,
+              7
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' EMPTY at the limit rolls off all the currently active generations (5, 6, 7) when 8 is rolled in, and SCRATCH scratches each of them."
+    },
+    {
+      "id": "noscratch-below-the-limit-rolls-off-nothing",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "scratch": false,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "scratch": false,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' LIMIT 5 holds 4 generations after 8 is rolled in: nothing is rolled off, so SCRATCH / NOSCRATCH has no generation to act on and the answer carries no rolled_off entry."
+    },
+    {
+      "id": "step-bias-roll-off-scratch-at-step-end",
+      "job": "STPLIM",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "L1": {
+          "rc": 0
+        },
+        "L2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "L1.LOUT": 8,
+        "L2.LCUR": 8,
+        "L2.LOLD": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "rolled_off": {
+            "scratched": [
+              5
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' GDGBIAS=STEP (UG Appendix A p. 237) rolls 8 in at the end of step L1, which is when 5 is rolled off and scratched."
     }
   ],
   "assumed": [

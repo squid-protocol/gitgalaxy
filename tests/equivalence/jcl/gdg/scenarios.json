@@ -383,7 +383,25 @@
     "//L2       EXEC PGM=USE",
     "//LIN      DD DSN=PAY.GDG(+1),DISP=(OLD,UNCATLG)",
     "//L3       EXEC PGM=USE2",
-    "//LCUR     DD DSN=PAY.GDG(0),DISP=SHR"
+    "//LCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//* #8413 slice 11: an IF that tests a procedure step (C1.M1.RC).",
+    "//IFPJOB   JOB (ACCT),'GDG IF PROC STEP',CLASS=A,MSGCLASS=X",
+    "//GP       PROC",
+    "//M1       EXEC PGM=MAKE",
+    "//OUT      DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//         PEND",
+    "//S0       EXEC PGM=GATE",
+    "//   IF (S0.RC = 0) THEN",
+    "//C1       EXEC GP",
+    "//   ENDIF",
+    "//   IF (C1.M1.RC = 0) THEN",
+    "//T1       EXEC PGM=USE",
+    "//TIN      DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//   ELSE",
+    "//E1       EXEC PGM=USE2",
+    "//ECUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//   ENDIF"
   ],
   "scenarios": [
     {
@@ -2704,6 +2722,124 @@
       },
       "assumed": "A14",
       "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'By default, if the system retrieves volume information from the catalog, UNCATLG is processed. If not, the UNCATLG request is rejected and UNCATLG is treated as KEEP.' The generation L1 created and passed was never cataloged, so its volume information comes from the pass, not the catalog: L2's UNCATLG is rejected and treated as KEEP (as for new-uncatlg-is-rejected-and-treated-as-keep), 8 waits in deferred roll-in and L3's (0) is still 7."
+    },
+    {
+      "id": "if-proc-step-true-reads-the-plus-one-it-made",
+      "job": "IFPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S0": {
+          "rc": 0
+        },
+        "C1.M1": {
+          "rc": 0
+        },
+        "T1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "T1.TIN": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section; the IF tests the procedure step as stepname.procstepname (C1.M1). S0 ends 0, so C1 runs; C1.M1 ends 0, the THEN step T1 runs and its (+1) is the generation M1 created, 8; 8 is cataloged at step end."
+    },
+    {
+      "id": "if-proc-step-false-runs-the-else-and-reads-the-same-zero",
+      "job": "IFPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S0": {
+          "rc": 0
+        },
+        "C1.M1": {
+          "rc": 8
+        },
+        "E1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.M1.OUT": 8,
+        "E1.ECUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section; the IF tests the procedure step as stepname.procstepname (C1.M1). C1.M1 ends 8, so (C1.M1.RC = 0) is false: ELSE step E1 runs, T1 is bypassed. M1 ended normally, so its NEW,CATLG generation 8 is cataloged; the relationship was fixed at M1's (+1) = 8, so E1's (0) is 7 (UG p. 235)."
+    },
+    {
+      "id": "if-proc-step-that-did-not-execute-is-false",
+      "job": "IFPJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "S0": {
+          "rc": 4
+        },
+        "E1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E1.ECUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section; the IF tests the procedure step as stepname.procstepname (C1.M1). S0 ends 4, so the IF around C1 is false and the procedure is bypassed; the JCL User's Guide says the result of testing a step or procedure step that did not execute is false, so ELSE step E1 runs and reads (0) = 7. M1 never ran, so no generation was created."
     }
   ],
   "assumed": [

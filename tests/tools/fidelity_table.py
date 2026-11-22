@@ -70,6 +70,25 @@ def _corpus_sha(corpus: Path) -> str:
         return "unknown"
 
 
+def behind_main(corpus: Path) -> str:
+    """Why `corpus` is not a usable reference, or "" when it is (#8131).
+
+    The corpus's docs/bias_data.json is regenerated daily on its main; a checkout on a stale
+    feature branch reads as a false "table is stale". Local origin/main is compared without a
+    fetch: a checkout that does not contain it is behind. A non-git corpus is accepted.
+    """
+    if not _GIT_BIN or not (corpus / ".git").exists():
+        return ""
+    run = [_GIT_BIN, "-C", str(corpus), "merge-base", "--is-ancestor", "origin/main", "HEAD"]
+    rc = subprocess.run(run, capture_output=True, text=True).returncode  # noqa: S603 -- fixed args
+    if rc == 0:
+        return ""
+    return (
+        f"{corpus} does not contain origin/main (stale branch checkout, or no origin/main ref); "
+        "check out a clean worktree of corpus main and pass --corpus"
+    )
+
+
 def build_table(corpus: Path) -> tuple[dict[str, dict[str, float]], list[str], dict[str, str]]:
     bias = json.loads((corpus / "docs" / "bias_data.json").read_text())
     metrics: dict[str, dict[str, float | None]] = bias["metrics"]
@@ -247,6 +266,9 @@ def main(argv: list[str] | None = None) -> int:
         return write_docs()
     if not (args.corpus / "docs" / "bias_data.json").exists():
         print(f"fidelity_table: no corpus at {args.corpus} (set KEYWORD_ROSETTA_PATH)", file=sys.stderr)
+        return 2
+    if args.check and (why := behind_main(args.corpus)):
+        print(f"fidelity_table: cannot check: {why}", file=sys.stderr)
         return 2
     table, signals, prov = build_table(args.corpus)
     text = render(table, signals, prov)

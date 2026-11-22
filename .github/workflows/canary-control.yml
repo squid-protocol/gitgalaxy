@@ -1,0 +1,47 @@
+name: Canary Control
+
+# #7155 part 2: a weekly control PR. A real, ready-for-review PR from a `canary/` branch carries one planted, inert
+# defect per gate (tests/tools/canary_control.py); every gate that should go red must. This workflow only OPENS the PR.
+# The results matrix, the close-and-delete, the clean control PR, the miss issue and the `ci-gate` hold (the shepherd's,
+# owner-only) are later slices of the same item. Never merge the PR it opens; no label is added.
+#
+# Off-peak (Sunday 03:17 UTC) so the control PR does not queue behind working hours on the 20-runner pool.
+# It checks out main only and plants new files; nothing under .github/ or a release path (canary_control.problems).
+
+on:
+  schedule:
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: canary-control
+  cancel-in-progress: false
+
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
+      # A PR opened with the repo GITHUB_TOKEN raises no pull_request run, so the gates would never run on it.
+      - name: Checkout main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
+          persist-credentials: true
+
+      - name: Open the control PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
+        run: python3 tests/tools/canary_control.py open

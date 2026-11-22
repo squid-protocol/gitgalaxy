@@ -44,3 +44,14 @@ def test_tab_led_value_lines_are_read_as_carddemo_ships_them(tmp_path):
 def test_a_tab_between_tokens_past_column_7_and_in_a_comment_is_read(tmp_path):
     body = "      *\tcomment with a tab\n       01  FAKE-ITEM\tPIC X(4).\n"
     assert _lines(tmp_path, body)[4].text == "01  FAKE-ITEM\tPIC X(4)."
+
+
+def test_a_replace_statement_inside_a_copybook_is_refused_by_name_with_the_member_named(tmp_path):
+    """The same refusal holds for a member pulled in by COPY: the program text never carries the statement, the
+    member does, and the message names the member file, not the program."""
+    (tmp_path / "FAKECPY.cpy").write_text("       REPLACE ==FAKEOLD== BY ==FAKENEW==.\n       01  FAKEOLD PIC X(4).\n")
+    body = "       COPY FAKECPY.\n"
+    p = tmp_path / "FAKEPGM.cbl"
+    p.write_text(HEAD + body + TAIL)
+    with pytest.raises(SRC.ReplaceStatementRefused, match=r"FAKECPY\.cpy:1: the REPLACE statement"):
+        SRC.program_lines(p, [tmp_path])

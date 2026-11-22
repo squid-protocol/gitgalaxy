@@ -1,5 +1,5 @@
 {
- "commit": "473b4232b",
+ "commit": "2c713ab84",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T17:06:28Z",
+  "as_of": "2026-11-22T17:15:02Z",
   "core": {
    "closed": 256,
    "open": 19,
@@ -1192,9 +1192,9 @@
     "total": 57
    },
    {
-    "closed": 95,
+    "closed": 96,
     "number": 14,
-    "open": 4,
+    "open": 3,
     "title": "Compiler call-graph comparison",
     "total": 99
    },
@@ -1374,9 +1374,9 @@
     "total": 5
    },
    {
-    "closed": 13,
+    "closed": 14,
     "number": 40,
-    "open": 20,
+    "open": 19,
     "title": "Eagle Eye \ud83e\udd85 \u2014 Structure Accuracy: Do the Signals Measure What They Say?",
     "total": 33
    },

@@ -208,6 +208,19 @@ side, the worker now runs it after a passing `runTask` side, in the same session
 (`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
 named `<scenario> [java-facade]`; `killers` names those for a separate run too.
 
+**Stopping the in-process CICS path at the first kill does not pay (measured 2026-11-22, #8599).** The path runs every
+scenario in one session call and then judges. Tried: split a mutant's proof into two session runs, the 8 scenarios
+with the most kills first (each in a scenario-subset input directory, judged on its own: `evaluate_cics_outputs` is
+per scenario, so the verdict is the union), the rest only when those pass. `det_mutation.py run cbsa-updcust --sample 0
+--jobs 2` (684 mutants, load 2-3, same box, same port, run back to back): **681 s with the split against 556 s without
+(+22%)**, all 684 verdicts identical (`mutation.py compare`: 684 agree, 0 differ). The split loses because a scenario is
+cheap (about 13 ms of a `runTask` in the session log) and the Spring context a run starts is not: the 397 killed
+mutants save a few tens of milliseconds, the 263 survivors (40%) each pay a second context. So the unit of saving is
+the context, not the scenario; an early exit would have to avoid a whole run (a first run of one scenario would pay the
+same context). Not kept: the code is reverted and this paragraph is the record, so the idea is not re-proposed without
+a case whose scenarios cost more than a context (n=1 case; the others are unmeasured). Also from this run, the
+re-measure the #8599 checklist asks for: 556 s here against the 545 s of 2026-11-21 on the same case.
+
 **A baseline proof is kept in its `--work` dir (2026-11-21, #8599).** `mutation.run` proved the baseline every time: a
 `det_mutation.py refresh` or `run` after an earlier run in the same `--work`, or a re-run after a crash, paid it again
 (13-60 s a case). `baseline_proof` now writes `baseline.key.json` beside `baseline/` after a *proven* proof, and reuses the

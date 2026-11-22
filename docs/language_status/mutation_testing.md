@@ -208,6 +208,16 @@ side, the worker now runs it after a passing `runTask` side, in the same session
 (`-Gepoch=<id>:facade`), and judges it with `judge_facade`, as `run_case` judges the baseline. A failure is a kill
 named `<scenario> [java-facade]`; `killers` names those for a separate run too.
 
+**The in-process CICS path stops at the first slice that differs (2026-11-22, #8599).** It ran every scenario in one
+session call, then judged, so a mutant the first scenario killed still paid for the other 63 (UPDCUST). The worker now
+splits a mutant's proof into two session runs once any scenario has killed a mutant: the `CICS_HOT_SCENARIOS` (8)
+scenarios with the most kills so far run first, in a scenario-subset input directory (its own `scenarios.json`, the
+rest of the baseline's `in/` linked), and are judged; a kill there ends the proof, and only a mutant that passes them
+runs the remainder. Each scenario's judgment is independent (`evaluate_cics_outputs` loops per scenario), so a verdict
+is the union of the slices'; a survivor pays one extra Spring context for the split. A scenario's `killed_by` still
+names the scenario, now only those of the slice that killed. Not measured yet: the saving on a box run (see the
+#8599 checklist, re-measure at `--sample 0`); the tests pin the split, the stop, and that a survivor runs every scenario.
+
 **A baseline proof is kept in its `--work` dir (2026-11-21, #8599).** `mutation.run` proved the baseline every time: a
 `det_mutation.py refresh` or `run` after an earlier run in the same `--work`, or a re-run after a crash, paid it again
 (13-60 s a case). `baseline_proof` now writes `baseline.key.json` beside `baseline/` after a *proven* proof, and reuses the

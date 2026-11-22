@@ -79,3 +79,18 @@ def test_the_posttran_intcalc_job_feeds_the_two_indexed_files_posttran_leaves():
     assert set(step["inputs"]) == {"XREFFILE", "DISCGRP"}
     assert all(v.startswith(ej.CORPUS_PREFIX + "app/data/ASCII/") for v in step["inputs"].values())
     assert cases["carddemo-intcalc"]["parm"] == "2022071800"
+
+
+def test_the_real_cbstm03a_case_with_subprograms_is_a_valid_job_step():
+    """#8884: CREASTMT STEP040 (CBSTM03A CALLs CBSTM03B) is a batch case with `subprograms`, so a job may run it."""
+    cbstm = eq.load_case("carddemo-cbstm03a")
+    assert cbstm["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
+    job = {"name": "j", "kind": "job", "job": "CREASTMT",
+           "steps": [{"case": "carddemo-sort-tranrept"}, {"case": "carddemo-cbstm03a"}]}  # fmt: skip
+    ej.check_job(job, {n: eq.load_case(n) for n in ej.step_names(job)})
+
+
+def test_the_cbstm03a_port_carries_the_called_program_for_the_java_side():
+    """#8884: the Java side of a job step runs the step case's own committed port, which holds CBSTM03B too."""
+    port = eq.CASES / "carddemo-cbstm03a" / "port" / "service"
+    assert {f.name for f in port.glob("*.java")} >= {"Cbstm03aService.java", "Cbstm03bService.java"}

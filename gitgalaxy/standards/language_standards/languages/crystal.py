@@ -81,10 +81,9 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions, `case` / `when` / `in`, loops and the `?:` ternary (a `foo?` method name is not one).
         "branch": re.compile(
-            r"\b(?:if|unless|elsif|else|case|when|in|while|until|select)\b|&&|\|\||(?<!["
-            + ID_CONTINUE
-            + r"])\?(?=[ \t])"
+            r"\b(?:if|unless|elsif|else|case|when|in|while|until|select)\b|(?<![" + ID_CONTINUE + r"])\?(?=[ \t])"
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: group 1 is a `def` / `macro` parameter list (type restrictions and `Hash(K, V)` generics nest inside
         # it), group 2 block parameters (`do |a, b|`, `{ |x| }`), group 3 a proc literal's list (`->(x : Int32) { }`).
         "args": re.compile(

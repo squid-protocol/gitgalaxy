@@ -103,8 +103,9 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
         "branch": re.compile(
-            r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|continue|default)\b|&&|\|\||//|\?|(?<!:):(?!:)"
+            r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|continue|default)\b|//|\?|(?<!:):(?!:)"
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
         # #1209: parameter-list span wrapped in its own capture group in
         # the first two alternatives (was only reachable via group(0),

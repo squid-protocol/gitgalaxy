@@ -165,7 +165,7 @@ CASES = {
         ["fi", "esac", "done", '[ "$x" = "y" ]', "[[ -n $y ]]"],
     ),
     "dockerfile": (
-        ["RUN if true; then :; fi", "RUN test -f x && echo y"],
+        ["RUN if true; then :; fi", "RUN test -f x; elif y"],
         ["fi", "esac", "done"],
     ),
     "yaml": (

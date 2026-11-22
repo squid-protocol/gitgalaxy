@@ -185,7 +185,7 @@ DEFINITION: dict[str, Any] = {
         # `[(1 2) ...]` / `[(sym) ...]`: a lone symbol, or literals first. A call test such as `[(null? x) ...]` or
         # `[(f a b) ...]` (symbol first, then more than one datum) is not matched.
         "branch": re.compile(
-            r"(?<![^ \t\n\r(\[])(if|cond|case|and|or|when|unless)(?![^ \t)\]\n\r])"
+            r"(?<![^ \t\n\r(\[])(if|cond|case|when|unless)(?![^ \t)\]\n\r])"
             + r"|\[\((?:"
             + _SYMBOL_DATUM
             + "|"
@@ -196,6 +196,7 @@ DEFINITION: dict[str, Any] = {
             + _SYMBOL_DATUM
             + r"))*)\)"
         ),
+        "short_circuit": re.compile(r"(?<![^ \t\n\r(\[])(?:and|or)(?![^ \t)\]\n\r])"),
         # 2. args (Parameters / Coupling)
         # Captures the parameter list inside a standard function definition: (define (func arg1 arg2) ...)
         "args": re.compile(

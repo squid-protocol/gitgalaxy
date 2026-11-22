@@ -45,7 +45,8 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"\b(?:if|case|of|try|catch|after|receive|andalso|orelse)\b|->"),
+        "branch": re.compile(r"\b(?:if|case|of|try|catch|after|receive)\b|->"),
+        "short_circuit": re.compile(r"\b(?:andalso|orelse)\b"),
         # args: group 1 is the parameter list of a function clause head at the start of a line.
         "args": re.compile(r"^" + _ATOM + r"[ \t]*\((" + _PARAMS + r")\)[ \t]*(?:when\b|->|$)", re.M),
         "structural_boundaries": re.compile(

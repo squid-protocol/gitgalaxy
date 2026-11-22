@@ -2186,6 +2186,16 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   unrelated base, an empty base, an index already built, UNIQUEKEY over duplicate keys, a busiest-key record past RECORDSIZE), REPRO
   through a path or into an index or an indexed base, DELETE of an index, a path or an indexed base. Each is refused by name on the model
   and with the same words by the Java step; a source scan fails when a new `Refused` site about an index, path or BLDINDEX has no deck.
+- **A DFSORT step whose OUTREC is shorter than its SORTOUT LRECL (#8884, CardDemo CREASTMT STEP010).** `OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)`
+  builds 328 bytes while the step's SORTOUT DD says `LRECL=350` (and STEP020's KSDS is `RECORDSIZE(350 350)`). **IBM:** DFSORT ends the
+  step with ICE043A, reason code 9 ("the record format is fixed length and the output record length is larger than the input record
+  length or reformatted record length"; the manual's own example is `OUTREC BUILD=(1,60)` with SORTOUT `LRECL=80`): the program terminates,
+  so on z/OS the job as written stops at STEP010 and `COND=(0,NE)` bypasses STEP020 to STEP040. The manual's remedy is OUTREC padding to the
+  LRECL; SOLRF only sets the LRECL when it is unknown. **IBM.** z/OS 2.5 DFSORT Messages, Codes and Diagnosis Guide SC23-6879, ICE043A
+  (Chapter 3); Application Programming Guide SC23-6878, SOLRF. The job harness (`equivalence_job._check_feed`) refuses that join by name
+  with the citation, only for a lowered DFSORT step (`DFSORTST`) writing fewer bytes than the next DD reads; it never pads, so such a job
+  is wired and checked, never run or `proven`. Not modelled: the ICE043A termination as an expected step outcome. Pinned in
+  `test_job_case_4268.py` on stub steps; the CREASTMT job case that meets it is PR #8978.
 - **GDG generations across a job case (#8883, `tests/tools/equivalence_gdg.py`).** A job case declares `gdgs` (base, LIMIT,
   record length, existing generations beside the case); a step's `gdg_out` {DD: base} writes `(+1)`, catalogued when the step
   ends (never for a step that abends), and `gdg_in` {DD: {base, gen}} reads `(0)` / `(-n)` / `(+1)` / `all`. Relative numbers

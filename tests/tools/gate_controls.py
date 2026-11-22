@@ -177,6 +177,7 @@ GATES = (
         "archetype-validation",
         "archetype-validation.yml",
         "archetype labels moving unseen after a push to main (#4100)",
+        "tests/core_engine/test_archetype_validation.py::test_status_grades_each_level_independently",
         trigger="main",
         job="archetype-validation",
     ),
@@ -211,6 +212,7 @@ GATES = (
         "publish-evidence-current",
         "publish.yml",
         "a release tag cut while the evidence report is stale",
+        "tests/tools/test_evidence_report.py::test_the_release_gate_fails_while_a_level_is_stale",
         trigger="release",
         job="evidence-report-current",
     ),
@@ -284,6 +286,8 @@ GATES = (
         "generated-docs",
         "generated-docs.yml",
         "a generated aggregate page that no longer renders from its committed sources (#5057)",
+        "tests/tools/test_gate_controls_docs.py::test_generated_docs_main_exits_1_on_a_bad_page_and_0_on_good_ones",
+        open_gap="the renderers are stubbed: a page that renders but reads wrong is not caught",
     ),
     Gate(
         "graph-accuracy-audit",
@@ -360,7 +364,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 17
+MAX_UNPROVEN = 14
 
 
 def unproven() -> list[Gate]:

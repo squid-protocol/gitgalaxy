@@ -2194,8 +2194,10 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   LRECL; SOLRF only sets the LRECL when it is unknown. **IBM.** z/OS 2.5 DFSORT Messages, Codes and Diagnosis Guide SC23-6879, ICE043A
   (Chapter 3); Application Programming Guide SC23-6878, SOLRF. The job harness (`equivalence_job._check_feed`) refuses that join by name
   with the citation, only for a lowered DFSORT step (`DFSORTST`) writing fewer bytes than the next DD reads; it never pads, so such a job
-  is wired and checked, never run or `proven`. Not modelled: the ICE043A termination as an expected step outcome. Pinned in
-  `test_job_case_4268.py` on stub steps; the CREASTMT job case that meets it is PR #8978.
+  is wired and checked, never run or `proven`, unless the job declares `"ibm_stops": {"step", "reason": "ICE043A"}`: then the harness
+  proves the steps up to the stop, reports the later ones as not reached, and refuses a declaration no short DFSORT join backs. The
+  CREASTMT job case that declares it is the next slice of #8884 (PR #8978 is stale). Not run: the chain past STEP010 (needs an
+  authored padded OUTREC, not CardDemo's deck). Pinned in `test_job_case_4268.py` on stub steps.
 - **GDG generations across a job case (#8883, `tests/tools/equivalence_gdg.py`).** A job case declares `gdgs` (base, LIMIT,
   record length, existing generations beside the case); a step's `gdg_out` {DD: base} writes `(+1)`, catalogued when the step
   ends (never for a step that abends), and `gdg_in` {DD: {base, gen}} reads `(0)` / `(-n)` / `(+1)` / `all`. Relative numbers

@@ -20,10 +20,13 @@
 # sms: true (KEEP implied) and removes the entry when it gives sms: false (JCL Reference, DISP: UNCATLG); absent, refused.
 # GDGBIAS=STEP (JOB statement; User's Guide, Appendix A, 'Relative generation numbers' pp. 235-237) re-fixes the relationship at
 # each step's first reference and rolls its new generations into the catalog at the end of that step. A procedure's step is
-# a job step for this (assumption A7). A catalog entry that gives scratch: true / false reports the generations a roll-in
-# pushed out of the group as rolled_off scratched / recataloged (DFSMS Using Data Sets, 'Generation data groups'). Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
+# a job step for this (assumption A7). A DD naming a generation absolutely (GnnnnV00) names it whatever the relative
+# numbers say (User's Guide, Appendix A). A catalog entry that gives scratch: true / false reports the generations a roll-in
+# pushed out of the group as rolled_off scratched / recataloged (DFSMS Using Data Sets, 'Generation data groups').
+# Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
 from __future__ import annotations
 
+import re
 from collections.abc import Collection
 from typing import Any
 
@@ -41,6 +44,18 @@ _STATE = {
     "KEEP": "deferred",
     "UNCATLG": "deferred",
 }  # a new data set's UNCATLG is rejected and treated as KEEP
+
+
+_ABSOLUTE = re.compile(r"^(.+)\.G(\d{4})V(\d{2})$")
+
+
+def _absolute_name(dsn: str | None, start: dict[str, Any]) -> tuple[str, int, int] | None:
+    """(base, generation, version) when `dsn` is `<cataloged base>.GnnnnVnn`, else None (User's Guide, Appendix A)."""
+    m = _ABSOLUTE.match(dsn or "")
+    if not m:
+        return None
+    base, gen, ver = m.groups()
+    return (base, int(gen), int(ver)) if base in start else None
 
 
 def _int_generation(text: str) -> int:
@@ -77,7 +92,11 @@ def resolve_gdg(
                 bias = row.get("gdgbias", "JOB")
                 if bias not in ("JOB", "STEP"):
                     raise JclGdgRefused(f"GDGBIAS={bias} is not JOB or STEP")
-        elif current == job and row["kind"] == "DD" and (row.get("generation") is not None or row.get("dsn") in start):
+        elif (
+            current == job
+            and row["kind"] == "DD"
+            and (row.get("generation") is not None or row.get("dsn") in start or _absolute_name(row.get("dsn"), start))
+        ):
             if row.get("in_proc"):
                 proc_dds.setdefault((row["in_proc"], row["step_name"]), []).append(row)
             else:
@@ -122,6 +141,10 @@ def resolve_gdg(
         wipe: list[str] = []  # bases whose whole group this step deletes at its end
         drop: list[tuple[str, int]] = []  # oldest generations this step deletes at its end
         for dd in step_dds:
+            absname = _absolute_name(dd.get("dsn"), start)
+            if absname:
+                _put(names, f"{step}.{dd['dd_name']}", _absolute_read(dd, absname, live, created, deleted))
+                continue
             base = dd["dsn"]
             if bias == "STEP" and dd.get("generation") is not None and base in unreceived:
                 raise JclGdgRefused(
@@ -226,6 +249,27 @@ def _put(names: dict[str, Any], key: str, value: Any) -> None:
         names[key] = value
     else:
         names[key] = [*(names[key] if isinstance(names[key], list) else [names[key]]), *new]
+
+
+def _absolute_read(
+    dd: dict[str, Any],
+    absname: tuple[str, int, int],
+    live: dict[str, list[int]],
+    created: dict[tuple[str, int], str],
+    deleted: set[tuple[str, int]],
+) -> int:
+    """A DD that names a generation by its absolute name (GnnnnV00) names that generation whatever the relative
+    numbers say (User's Guide, Appendix A, 'Absolute generation name'). Answered for a read of a generation cataloged
+    when the step starts, with no disposition that changes it; refused by name otherwise."""
+    base, gen, ver = absname
+    where = f"{dd['step_name']}.{dd['dd_name']}"
+    if ver != 0:
+        raise JclGdgRefused(f"{where}: version V{ver:02d} of a generation is not answered (only V00)")
+    if dd["disp"] not in ("SHR", "OLD") or _step_end(dd, False) in ("DELETE", "UNCATLG"):
+        raise JclGdgRefused(f"{where}: an absolute-name DD that creates, deletes or uncatalogs is not answered here")
+    if (base, gen) in created or (base, gen) in deleted or gen not in live[base]:
+        raise JclGdgRefused(f"{where}: G{gen:04d}V00 of {base} is not a generation cataloged at this step's start")
+    return gen
 
 
 def _gdg_all(

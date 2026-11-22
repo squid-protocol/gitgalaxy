@@ -344,3 +344,28 @@ def test_a_gdg_all_read_beside_a_creation_an_empty_group_or_a_bad_gdgorder_is_re
         _run(bad, "J", CAT, {"A": {"rc": 0}})
     refused = " ".join(r["construct"] for r in DOC["refused"])
     assert "GDG ALL read" in refused and "GDGORDER other than" in refused
+
+
+def _absolute(dd_lines, catalog=None):
+    text = "\n".join(["//ABS      JOB (A),'X',CLASS=A", "//S1       EXEC PGM=USE", *dd_lines]) + "\n"
+    return _run(text, "ABS", catalog or {"PAY.GDG": {"limit": 5, "generations": [6, 7, 8]}}, {"S1": {"rc": 0}})
+
+
+def test_an_absolute_name_dd_is_answered_only_for_a_cataloged_read_of_v00():
+    names, after = _absolute(["//D1       DD DSN=PAY.GDG.G0007V00,DISP=SHR"])
+    assert names == {"S1.D1": 7}
+    assert after["PAY.GDG"]["generations"] == [6, 7, 8]
+    for line in (
+        "//D1       DD DSN=PAY.GDG.G0007V01,DISP=SHR",  # a version other than V00
+        "//D1       DD DSN=PAY.GDG.G0009V00,DISP=SHR",  # not cataloged
+        "//D1       DD DSN=PAY.GDG.G0006V00,DISP=(OLD,DELETE)",
+        "//D1       DD DSN=PAY.GDG.G0006V00,DISP=(OLD,UNCATLG)",
+        "//D1       DD DSN=PAY.GDG.G0009V00,DISP=(NEW,CATLG)",
+    ):
+        with pytest.raises(JclGdgRefused):
+            _absolute([line])
+
+
+def test_the_absolute_name_refusals_are_named_in_the_file():
+    text = " ".join(r["construct"] for r in DOC["refused"])
+    assert "absolute name" in text and "SCRATCH" in text

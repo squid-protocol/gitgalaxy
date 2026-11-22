@@ -53,7 +53,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: MATLAB control flow. EXCLUDES 'error' and 'rethrow' (bailout_hits).
-        "branch": re.compile(r"\b(?:if|elseif|else|switch|case|otherwise|for|while)\b|&&|\|\||~="),
+        "branch": re.compile(r"\b(?:if|elseif|else|switch|case|otherwise|for|while)\b|~="),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: Captures standard function inputs and return signatures `function [out1, out2] = myFun(in1, in2)`.
         # CRITICAL GUARDRAIL: Safely bounds `\([^)]*\)` and `\[[^\]]*\]`.
         # #1209: the trailing input-parameter parens wrapped in its own

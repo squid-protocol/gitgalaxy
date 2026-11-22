@@ -132,8 +132,15 @@ def test_dependencies_capture_the_target():
         "  import indented\n"
         "importantThing = 1\n"
     )
-    got = [m.group(1) for m in RULES["_dependency_capture"].finditer(src)]
-    assert got == ["std/os", "std", "strutils", "../common/defs", "mypkg", "indented"]
+    got = [m.group(1) or m.group(2) or m.group(3) for m in RULES["_dependency_capture"].finditer(src)]
+    assert got == [
+        "std/os, strutils",
+        "std/[tables, sets]",
+        "strutils",
+        "../common/defs",
+        "mypkg",
+        "indented",
+    ]
 
 
 def test_import_capture_blank_hides_comments_and_strings():
@@ -146,7 +153,7 @@ def test_import_capture_blank_hides_comments_and_strings():
     )
     blank = re.compile(NIM["import_capture_blank"])
     kept = blank.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), src)
-    assert [m.group(1) for m in RULES["_dependency_capture"].finditer(kept)] == ["real"]
+    assert [m.group(1) or m.group(2) or m.group(3) for m in RULES["_dependency_capture"].finditer(kept)] == ["real"]
 
 
 def test_safety_bypasses_and_high_risk():

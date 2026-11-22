@@ -62,9 +62,10 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Control flow executing inside RUN shell blocks. High density indicates complex embedded shell scripts.
         "branch": re.compile(
-            r"\b(?:if|elif|else|case|for|while|until)\b|&&|\|\|",
+            r"\b(?:if|elif|else|case|for|while|until)\b",
             re.I,
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Build arguments (`ARG`) passed into the container acting as input parameters to the satellite.
         "args": re.compile(r"^[ \t]*ARG(?:[ \t]|\\[ \t]*\r?\n)+[a-zA-Z0-9_-]+", re.M | re.I),

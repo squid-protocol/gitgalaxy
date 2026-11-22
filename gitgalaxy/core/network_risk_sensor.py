@@ -624,6 +624,8 @@ class NetworkRiskSensor:
             return hit
 
         resolved = by_name(target_token)
+        if resolved is None and src_def.get("import_module_first_segment") and "." in target_token:
+            resolved = by_name(target_token.split(".", 1)[0])
         # #3554: a Java `import static a.b.C.member` / nested `a.b.Outer.Inner`
         # names something INSIDE a class file; when the full name resolves to
         # nothing, the class it belongs to is the file.
@@ -835,6 +837,25 @@ class NetworkRiskSensor:
             return None
 
         candidates = list(dict.fromkeys(candidates))  # de-dupe, preserve order
+        src_def = LANGUAGE_DEFINITIONS.get(src_lang or "", {})
+        target_langs = src_def.get("import_target_langs")
+        if target_langs and file_facts and len(candidates) > 1:
+            lang_filtered = [c for c in candidates if (file_facts.get(c) or ("", False))[0] in target_langs]
+            if lang_filtered:
+                candidates = lang_filtered
+        target_exts = src_def.get("import_target_extensions")
+        if target_exts:
+            ext_filtered = [c for c in candidates if posixpath.splitext(c)[1].lower() in target_exts]
+            candidates = ext_filtered
+            if not candidates:
+                return None
+        preferred_ext = src_def.get("import_preferred_ext")
+        if preferred_ext and len(candidates) > 1:
+            stems = {self._stem_path(c) for c in candidates}
+            if len(stems) == 1:
+                pref = [c for c in candidates if posixpath.splitext(c)[1].lower() == preferred_ext]
+                if len(pref) == 1:
+                    candidates = pref
         if len(candidates) == 1:
             # #3544: in a language whose import path IS the file path, a token
             # that spells a package path (`starlette.requests`) only names a
@@ -977,12 +998,15 @@ class NetworkRiskSensor:
         if ext and ext not in _ESM_EMITTED_EXTS:
             return None
         allowed = _ESM_SOURCE_EXTS if ext else None
+        target_exts = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("import_target_extensions")
         for want in (_without_extension(base), posixpath.join(base, "index")):
             name = posixpath.basename(want)
             same = [
                 c
                 for c in dict.fromkeys(resolution_map.get(name, ()))
-                if self._stem_path(c) == want and (allowed is None or c.lower().endswith(allowed))
+                if self._stem_path(c) == want
+                and (allowed is None or c.lower().endswith(allowed))
+                and (not target_exts or posixpath.splitext(c)[1].lower() in target_exts)
             ]
             if len(same) > 1 and file_facts:
                 same = [c for c in same if (file_facts.get(c) or ("", False))[0] == src_lang] or same

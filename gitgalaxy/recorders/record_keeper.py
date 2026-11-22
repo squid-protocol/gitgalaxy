@@ -296,6 +296,7 @@ class RecordKeeper:
         # The Taxonomy Map (Enforces structural schema consistency)
         self.SHORT_KEY_MAP = {
             "branch": "struct_branch",
+            "short_circuit": "struct_short_circuit",
             "structural_boundaries": "struct_linear",
             "args": "struct_args",
             "func_start": "struct_func_start",

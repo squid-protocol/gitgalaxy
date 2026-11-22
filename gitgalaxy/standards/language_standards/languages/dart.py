@@ -57,7 +57,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_DART,  # #3359 C1; #6454 `f<T>(x)`, `C<T?>()`
         # #3359 (contract C2): keywords and special forms, never calls
@@ -80,9 +80,10 @@ DEFINITION: dict[str, Any] = {
         # #6097: `break`/`continue` are unconditional transfers, so they sit in structural_boundaries beside
         # `return` (branch_rule_contract.md, #2832), as in C.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|when)\b|&&|\|\||\?\?|\?",
+            r"\b(if|else|switch|case|default|for|while|do|when)\b|\?\?|\?",
             re.I,
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Captures parameters in function, method, and lambda signatures.
         # #1209: parameter-list span wrapped in its own capture group in

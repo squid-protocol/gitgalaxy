@@ -43,6 +43,12 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "recursive_block",
     # #6572: an `open` / `include` inside `(* ... *)` (one level, capped, so linear) holds no import.
     "import_capture_blank": r"\(\*(?:[^*]|\*(?!\)))" + r"{0,20000}\*\)",
+    # OCaml module names are capitalized (`Cmdliner_cmd`) while files on disk are lowercase (`cmdliner_cmd.ml` + `.mli`).
+    # A `.ml`/`.mli` pair is one module; prefer `.ml` when both exist. Dotted `open Mod.Sub` resolves `Mod`.
+    "case_insensitive_imports": True,
+    "import_target_langs": frozenset({"ocaml"}),
+    "import_preferred_ext": ".ml",
+    "import_module_first_segment": True,
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
@@ -150,7 +156,7 @@ DEFINITION: dict[str, Any] = {
         # Group 1 is a module path (`open Core.Std`, `include Foo_bar`), group 2 a toplevel directive's string
         # (`#require "lwt"`).
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:open!?|include)[ \t]+("
+            r"^[ \t]*(?:let[ \t]+)?(?:open!?|include)[ \t]+("
             + r"[A-Z]["
             + ID_CONTINUE
             + r"']*(?:\.[A-Z]["

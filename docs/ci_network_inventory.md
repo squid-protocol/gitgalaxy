@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 7 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 12 | 0 | 0 | 0 | 15 |
+| gh-api | 15 | 0 | 0 | 0 | 12 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 119 | 84 | 54 | 208 | 31 |
+| **total** | 122 | 84 | 54 | 208 | 28 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -66,9 +66,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `docker` - db2-part / Build the oracle image and check it against its pin (#4309)
 - `docker` - det-mutation / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - lane / Pin the commit of main this run is of
-- `gh-api` - lane / Full lane - stand down while the open bot PR's checks are running (#6693)
-- `gh-api` - lane / Push lane - stand down while a full run is queued or running
-- `gh-api` - lane / Full lane - close the push lane's open bot PR (superseded)
 - `docker` - records / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - refresh / Push lane - hold the PR back if a full run has started meanwhile (#4743)
 - `git-fetch` - refresh / Advance gitgalaxy to latest origin/main before staging the bot PR

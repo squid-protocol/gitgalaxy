@@ -268,6 +268,7 @@ def _steps(job, api):
 
 
 def test_an_idcams_step_between_program_steps_runs_in_jcl_order_and_is_never_proven(stub, tmp_path, monkeypatch):
+    monkeypatch.setattr(ej_job, "_compare_java", lambda *a: None)  # no JDK: the step stays model only
     api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
     ej_job.check_job(_idcams_job(), _steps(_idcams_job(), api))
     assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1  # the Java side of IDCAMS is not compared
@@ -311,3 +312,25 @@ def test_every_idcams_refusal_is_by_name(step, why, tmp_path, monkeypatch):
     api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
     with pytest.raises(ej_job.Unsupported, match=why):
         ej_job.check_job(_idcams_job(step), _steps(_idcams_job(step), api))
+
+
+def test_an_idcams_step_the_java_runtime_agrees_on_is_no_longer_model_only(stub, tmp_path, monkeypatch):
+    seen = []
+    monkeypatch.setattr(ej_job, "_compare_java", lambda sysin, cat, dds: seen.append(sysin) or
+                        {"equal": True, "lines": 3, "differs": []})  # fmt: skip
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 0
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert seen == [REPRO] and report["steps"][1]["java"]["equal"] and not report["steps"][1]["model_only"]
+    assert report["proven"] is True
+
+
+def test_an_idcams_step_the_java_runtime_differs_on_stops_the_job_by_name(stub, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        ej_job, "_compare_java", lambda *a: {"equal": False, "lines": 3, "differs": [("RC 0 0 0", "RC 4 0 4")]}
+    )
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert "Java IDCAMS step differs from the model" in report["steps"][1]["stopped"]
+    assert len(api.seen) == 1 and report["proven"] is False

@@ -27,8 +27,10 @@ datasets; not modelled in the job). A step that abended feeds nothing (the job s
 A step may be an IDCAMS step (#8884, `"idcams": {"deck": file beside the job case, "dds": {DD: dataset spec}}`): there is no
 COBOL to run, so the oracle is the model of the step (`det/idcams_model.py`, no GnuCOBOL IDCAMS exists), run on the
 datasets fed to it; a DD carrying `"cluster": NAME` is a cluster the step starts with (empty), a later step reads its
-records (key order for a KSDS) as any other output. The Java runtime of the step is not compared yet (#8881), so a job
-with an IDCAMS step reports `model_only` for it and is never `proven`. A model refusal, or a nonzero condition code (the
+records (key order for a KSDS) as any other output. The Java runtime of the step (`cobolrt/job/Idcams.java`) runs the same
+deck on the same input and must agree with the model line for line (`equivalence_idcams_java.py`: return codes, log,
+catalog incl. alternate indexes and paths, datasets, each path's records in alternate-key order, refusals, #8881); with no
+JDK the step reports `model_only` and the job is never `proven`. A model refusal, or a nonzero condition code (the
 JCL's COND=(0,NE) bypasses the later steps), stops the job. Refused by name: GDG, `inputs`, a subprogram on such a step.
 The oracle is GnuCOBOL plus our stub, not z/OS; the JCL that wires the steps is the case's `feeds`, not a read job.
 """
@@ -299,11 +301,19 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
             dds[dd] = idc.Sequential(n, [data[k : k + n] for k in range(0, len(data), n)], d.get("disp", "OLD"))
             if feed is not None:
                 fed[dd] = f"{feed['step']}.{feed['dd']} ({len(data) // n} records)"
-        res = idc.run((JOBS / spec["deck"]).read_text(encoding="utf-8"), catalog, dds)
+        sysin = (JOBS / spec["deck"]).read_text(encoding="utf-8")
+        res = idc.run(sysin, catalog, dds)
     except (idc.Refused, Unsupported) as e:
         entry["stopped"] = f"the IDCAMS model refuses: {e}"
         return False
     entry.update(fed=fed, rc=res.rc, log=res.log)
+    java = _compare_java(sysin, catalog, dds)  # #8881: the Java runtime's step against the model, on the same input
+    if java is not None:
+        entry["java"] = java
+        entry["model_only"] = False
+        if not java["equal"]:
+            entry["stopped"] = f"the Java IDCAMS step differs from the model: {java['differs']}"
+            return False
     outputs[name] = {}
     for dd, d in spec["dds"].items():
         recs = res.catalog[d["cluster"]].records if "cluster" in d else res.datasets[dd].records
@@ -313,6 +323,13 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
         return False
     entry["ok"] = True
     return True
+
+
+def _compare_java(sysin: str, catalog: dict[str, Any], dds: dict[str, Any]) -> dict[str, Any] | None:
+    """The Java step against the model (`equivalence_idcams_java.compare`); None with no JDK. A seam for tests."""
+    import equivalence_idcams_java as eij
+
+    return eij.compare(sysin, catalog, dds)
 
 
 def _catalog(api: Any, job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> gdg.Catalog:

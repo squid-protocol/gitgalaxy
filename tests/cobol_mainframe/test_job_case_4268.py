@@ -122,3 +122,41 @@ def test_the_ice043a_citation_is_only_for_a_dfsort_step_writing_fewer_bytes_than
         with pytest.raises(ej.Unsupported, match=r"writes") as e:
             ej.check_job(job, cases)
         assert "ICE043A" not in str(e.value)
+
+
+# -- ibm_stops (#8884): CREASTMT's SORT -> IDCAMS -> CBSTM03A, IBM ends it at STEP010 (stub cases, no corpus) ------------
+def _stopped_job(writer_reclen=328, reader_reclen=350, program=None, stop=None):
+    """A DFSORT-shaped writer, a middle step that reads it (the join IBM stops at) and a last step: three stub cases."""
+    job, cases = _sort_job(writer_reclen, program or ej.DFSORT_PROGRAM, reader_reclen)
+    job["steps"].append({"case": "z"})
+    cases["z"] = _step()
+    job["ibm_stops"] = stop or {"step": "w", "reason": "ICE043A"}
+    return job, cases
+
+
+def test_a_declared_ice043a_stop_makes_the_short_dfsort_join_acceptable_and_names_the_stopped_step():
+    job, cases = _stopped_job()
+    assert ej.ibm_stop(job) == 0
+    ej.check_job(job, cases)
+    del job["ibm_stops"]  # undeclared, the same join is still refused with the citation
+    with pytest.raises(ej.Unsupported, match=r"record length 350, w\.OUT writes 328") as e:
+        ej.check_job(job, cases)
+    assert "ICE043A" in str(e.value)
+
+
+def test_a_declared_stop_that_does_not_hold_is_refused():
+    """Nothing is declared stopped that IBM would not stop: equal lengths, a non-DFSORT writer, a bad declaration or
+    the last step."""
+    job, cases = _stopped_job(reader_reclen=328)
+    with pytest.raises(ej.Unsupported, match="IBM does not end the job there"):
+        ej.check_job(job, cases)
+    job, cases = _stopped_job(program="NOTDFSORT")
+    with pytest.raises(ej.Unsupported):
+        ej.check_job(job, cases)
+    for bad in ({"step": "nope", "reason": "ICE043A"}, {"step": "w", "reason": "X"}):
+        job, cases = _stopped_job(stop=bad)
+        with pytest.raises(ej.Unsupported):
+            ej.check_job(job, cases)
+    job, cases = _stopped_job(stop={"step": "z", "reason": "ICE043A"})
+    with pytest.raises(ej.Unsupported, match="last step"):
+        ej.check_job(job, cases)

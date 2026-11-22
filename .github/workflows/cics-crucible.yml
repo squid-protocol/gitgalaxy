@@ -188,6 +188,16 @@ jobs:
             cics-crucible-m2-
             java-compile-m2-
 
+      # #8215: a restore-key hit (or a miss) can lack the pinned Spring Boot parent POM, and then every shard asks Central
+      # for it on its own; one throttled answer fails the lot. Fetch it once, retried; a stale "not found" marker goes first.
+      - name: Fetch the Spring Boot parent POM, retried (#8215)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
+
       # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
       # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
       - name: Cache the GnuCOBOL oracle image
@@ -309,6 +319,16 @@ jobs:
           restore-keys: |
             cics-crucible-m2-
             java-compile-m2-
+
+      # #8215: a restore-key hit (or a miss) can lack the pinned Spring Boot parent POM, and then every shard asks Central
+      # for it on its own; one throttled answer fails the lot. Fetch it once, retried; a stale "not found" marker goes first.
+      - name: Fetch the Spring Boot parent POM, retried (#8215)
+        if: steps.maven_dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          version=$(PYTHONPATH=. python3 -c "from gitgalaxy.tools.cobol_to_java.java_target import SpringBoot; print(SpringBoot().version)")
+          find ~/.m2/repository -name '*.lastUpdated' -delete 2>/dev/null || true
+          tests/tools/ci_retry.sh 4 15 -- mvn -B -q -U dependency:get "-Dartifact=org.springframework.boot:spring-boot-starter-parent:${version}:pom"
 
       # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
       # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.

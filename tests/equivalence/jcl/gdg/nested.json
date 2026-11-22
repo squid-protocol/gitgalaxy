@@ -1,0 +1,212 @@
+{
+ "fixture": "library_jcl (in this file)",
+ "issue": 8413,
+ "written_from": "IBM z/OS MVS JCL User's Guide (Appendix A, generation data sets) and JCL Reference (JOB: RESTART, JCLLIB ORDER, nesting procedures); GDG DDs inside a library procedure that calls another library procedure, under JOB RESTART. Written before the resolver ran. Not run on the MVS 3.8J box (no library). Assumption A9 is in gdg/scenarios.json, A2 in restart/nested.json.",
+ "libraries": {
+  "LIB.A": {
+   "OUTR": [
+    "//OUTR     PROC",
+    "//O1       EXEC PGM=PGMO1",
+    "//OA       DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//I1       EXEC INNR",
+    "//O2       EXEC PGM=PGMO2",
+    "//OB       DD DSN=PAY.GDG(0),DISP=SHR"
+   ],
+   "INNR": [
+    "//INNR     PROC",
+    "//N1       EXEC PGM=PGMN1",
+    "//NA       DD DSN=PAY.GDG(+2),DISP=(NEW,CATLG)",
+    "//N2       EXEC PGM=PGMN2",
+    "//NB       DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//NC       DD DSN=PAY.GDG(+2),DISP=SHR"
+   ]
+  }
+ },
+ "library_jcl": [
+  "//*********************************************************************",
+  "//* #8413 restart, GDG DDs in a library procedure that calls another",
+  "//* library procedure (JCL Reference, nesting procedures; JOB RESTART).",
+  "//*********************************************************************",
+  "//NGD1     JOB (ACCT),'NEST GDG A',CLASS=A,RESTART=CALL1.O1",
+  "//LIB      JCLLIB ORDER=(LIB.A)",
+  "//U1       EXEC PGM=PGMU",
+  "//CALL1    EXEC OUTR",
+  "//*",
+  "//NGD2     JOB (ACCT),'NEST GDG B',CLASS=A,RESTART=CALL1.O2",
+  "//LIB      JCLLIB ORDER=(LIB.A)",
+  "//U1       EXEC PGM=PGMU",
+  "//CALL1    EXEC OUTR",
+  "//*",
+  "//NGD3     JOB (ACCT),'NEST GDG C',CLASS=A,RESTART=(CALL1.N2,CK1)",
+  "//LIB      JCLLIB ORDER=(LIB.A)",
+  "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+  "//U1       EXEC PGM=PGMU",
+  "//CALL1    EXEC OUTR",
+  "//*",
+  "//NGDBAD1  JOB (ACCT),'NEST GDG OLD',CLASS=A,RESTART=CALL1.N2",
+  "//LIB      JCLLIB ORDER=(LIB.A)",
+  "//U1       EXEC PGM=PGMU",
+  "//CALL1    EXEC OUTR",
+  "//*",
+  "//NGDBAD2  JOB (ACCT),'G',RESTART=(CALL1.N2,CK2),GDGBIAS=STEP",
+  "//LIB      JCLLIB ORDER=(LIB.A)",
+  "//SYSCHK   DD DSN=CHK.LIB,DISP=OLD",
+  "//U1       EXEC PGM=PGMU",
+  "//CALL1    EXEC OUTR",
+  "//"
+ ],
+ "scenarios": [
+  {
+   "id": "nested-gdg-restart-first-step-creates-both",
+   "job": "NGD1",
+   "catalog": {
+    "PAY.GDG": {
+     "limit": 6,
+     "generations": [
+      6,
+      7
+     ]
+    }
+   },
+   "given": {
+    "CALL1.O1": {
+     "rc": 0
+    },
+    "CALL1.N1": {
+     "rc": 0
+    },
+    "CALL1.N2": {
+     "rc": 0
+    },
+    "CALL1.O2": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "CALL1.O1.OA": 8,
+    "CALL1.N1.NA": 9,
+    "CALL1.N2.NB": 8,
+    "CALL1.N2.NC": 9,
+    "CALL1.O2.OB": 7
+   },
+   "catalog_after": {
+    "PAY.GDG": {
+     "limit": 6,
+     "generations": [
+      6,
+      7,
+      8,
+      9
+     ]
+    }
+   },
+   "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. JCLLIB ORDER=(LIB.A): OUTR calls INNR between its steps O1 and O2, so the job's steps in order are U1, O1, N1, N2, O2 and a nested step is named CALL1.<its own step name> (ASSUMED A2). RESTART=CALL1.O1 skips only U1, which creates nothing, so the restart finds 6, 7. O1's (+1) is 8 and N1's (+2) is 9; N2 reads (+1) and (+2) and names the same two, 8 and 9 (the relationship is fixed at the first relative reference of the job). O2's (0) names 7, the newest when the job began: every relative number in a job is relative to the catalog as the job began, and a (+n) does not move (0). 8 and 9 are rolled in at job end."
+  },
+  {
+   "id": "nested-gdg-step-restart-after-the-inner-call-present-numbers",
+   "job": "NGD2",
+   "catalog": {
+    "PAY.GDG": {
+     "limit": 6,
+     "generations": [
+      6,
+      7,
+      8,
+      9
+     ]
+    }
+   },
+   "given": {
+    "CALL1.O2": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "CALL1.O2.OB": 9
+   },
+   "catalog_after": {
+    "PAY.GDG": {
+     "limit": 6,
+     "generations": [
+      6,
+      7,
+      8,
+      9
+     ]
+    }
+   },
+   "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. JCLLIB ORDER=(LIB.A): OUTR calls INNR between its steps O1 and O2, so the job's steps in order are U1, O1, N1, N2, O2 and a nested step is named CALL1.<its own step name> (ASSUMED A2). RESTART=CALL1.O2 skips U1, O1, N1 and N2. The first run (catalog 6, 7) created and cataloged 8 (O1's +1) and 9 (N1's +2), so the restart finds 6, 7, 8, 9 and uses the PRESENT numbers: O2's (0) is 9. O2 creates nothing, so the catalog is unchanged."
+  },
+  {
+   "id": "nested-gdg-checkpoint-restart-same-numbers",
+   "job": "NGD3",
+   "catalog": {
+    "PAY.GDG": {
+     "limit": 6,
+     "generations": [
+      6,
+      7
+     ]
+    }
+   },
+   "given": {
+    "CALL1.N2": {
+     "rc": 0
+    },
+    "CALL1.O2": {
+     "rc": 0
+    }
+   },
+   "expect": {
+    "CALL1.N2.NB": 8,
+    "CALL1.N2.NC": 9,
+    "CALL1.O2.OB": 7
+   },
+   "catalog_after": {
+    "PAY.GDG": {
+     "limit": 6,
+     "generations": [
+      6,
+      7,
+      8,
+      9
+     ]
+    }
+   },
+   "assumed": "A9",
+   "basis": "z/OS MVS JCL User's Guide (SA23-0393 / ieab500), Appendix A, 'Restarting a job with generation data sets' p. 243, and z/OS MVS JCL Reference (SA23-1385 / ieab600), JOB: RESTART p. 431. JCLLIB ORDER=(LIB.A): OUTR calls INNR between its steps O1 and O2, so the job's steps in order are U1, O1, N1, N2, O2 and a nested step is named CALL1.<its own step name> (ASSUMED A2). 'For checkpoint restart: you can refer to generation data sets created and cataloged in steps before the restart step by the same relative generation numbers that were used to create them.' RESTART=(CALL1.N2,CK1) with a SYSCHK DD is a deferred checkpoint restart; applying that rule to the deferred form is ASSUMED A9. The original run began with 6, 7: O1's (+1) is 8 and N1's (+2) is 9, both cataloged before the restart step, and N2 names them by (+1) and (+2) again, 8 and 9. O2's (0) is 7, relative to the catalog as the original run began."
+  }
+ ],
+ "refused": [
+  {
+   "id": "nested-gdg-step-restart-reads-original-plus-one",
+   "job": "NGDBAD1",
+   "match": "before any step creates",
+   "construct": "a step restart into the inner procedure whose restart step reads a generation by the number that created it in a step before the restart step, (+1)",
+   "reason": "JCL Reference p. 431: the original relative generation numbers are not used in the restart step; the manual states no outcome, so refused as read before any step creates it",
+   "given": {
+    "CALL1.N2": {
+     "rc": 0
+    },
+    "CALL1.O2": {
+     "rc": 0
+    }
+   }
+  },
+  {
+   "id": "nested-gdg-checkpoint-restart-under-step-bias",
+   "job": "NGDBAD2",
+   "match": "GDGBIAS=JOB",
+   "construct": "a checkpoint restart into the inner procedure of a job with GDGBIAS=STEP",
+   "reason": "the manuals state the checkpoint rule by the numbers that created the generations, not how a per-step relationship is rebuilt; refused by name",
+   "given": {
+    "CALL1.N2": {
+     "rc": 0
+    },
+    "CALL1.O2": {
+     "rc": 0
+    }
+   }
+  }
+ ]
+}

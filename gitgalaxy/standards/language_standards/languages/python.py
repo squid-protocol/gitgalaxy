@@ -485,7 +485,10 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(time\.sleep|asyncio\.sleep|Thread\.join)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|\^|~"),
+        # #8861: the contract's and / or operators too (`a & b`, `a | b`, `m &= x`); a `| None` /
+        # `None |` type union is not a bitwise operator on values. Characters inside strings still
+        # count (documented behaviour, #2535 / #8866).
+        "bitwise_ops": re.compile(r"<<|>>|\^|~" + r"|&" + r"|(?<!None)(?<!None )\|(?!\s*None\b)"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Lock|RLock|Semaphore|BoundedSemaphore|Event|Condition|Barrier)\b"),
         # 45. immutability_locks (Immutability Constraints)

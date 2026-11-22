@@ -290,3 +290,17 @@ def test_a_library_gdg_restart_that_is_not_answered_is_refused_by_name(r):
         resolve_gdg_restart(
             LIB_ROWS, r["job"], {"PAY.GDG": {"limit": 6, "generations": [6, 7]}}, r["given"], LIB_TEXT, LIBS
         )
+
+
+def test_a_gdg_all_read_beside_a_creation_an_empty_group_or_a_bad_gdgorder_is_refused_by_name():
+    made = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="creates a generation"):
+        _run(made, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
+    empty = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="no cataloged generation"):
+        _run(empty, "J", {"G.B": {"limit": 5, "generations": []}}, {"A": {"rc": 0}})
+    bad = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR,GDGORDER=ODD\n"
+    with pytest.raises(JclGdgRefused, match="GDGORDER=ODD"):
+        _run(bad, "J", CAT, {"A": {"rc": 0}})
+    refused = " ".join(r["construct"] for r in DOC["refused"])
+    assert "GDG ALL read" in refused and "GDGORDER other than" in refused

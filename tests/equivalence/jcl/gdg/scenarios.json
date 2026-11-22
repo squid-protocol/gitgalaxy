@@ -250,6 +250,20 @@
     "//DDA      DD DSN=NEW.GDG(-2),DISP=OLD",
     "//DDB      DD DSN=NEW.GDG(-1),DISP=OLD",
     "//DDC      DD DSN=NEW.GDG(0),DISP=OLD",
+    "//*",
+    "//*",
+    "//ALLJOB   JOB (ACCT),'GDG ALL',CLASS=A,MSGCLASS=X",
+    "//A1       EXEC PGM=RPT",
+    "//DEF      DD DSN=PAY.GDG,DISP=SHR",
+    "//LIF      DD DSN=PAY.GDG,DISP=SHR,GDGORDER=LIFO",
+    "//FIF      DD DSN=PAY.GDG,DISP=SHR,GDGORDER=FIFO",
+    "//USE      DD DSN=PAY.GDG,DISP=SHR,GDGORDER=USECATLG",
+    "//*",
+    "//CATJOB   JOB (ACCT),'GDG CONCAT',CLASS=A,MSGCLASS=X",
+    "//C1       EXEC PGM=RPT",
+    "//IN       DD DSN=PAY.GDG(0),DISP=SHR",
+    "//         DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//         DD DSN=AUD.GDG(0),DISP=SHR",
     "//*"
   ],
   "scenarios": [
@@ -1645,6 +1659,151 @@
         }
       },
       "basis": "User's Guide, Appendix A, Example 2: the DD statements 'needed to retrieve the SMS-managed generation data sets created in the first example, when the GDG contains no other generation data sets': (-2), (-1), (0) name the first, second and third generation, 1, 2, 3."
+    },
+    {
+      "id": "gdg-all-reads-newest-first-by-default",
+      "job": "ALLJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ]
+        }
+      },
+      "given": {
+        "A1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "A1.DEF": [
+          4,
+          3
+        ],
+        "A1.LIF": [
+          4,
+          3
+        ],
+        "A1.FIF": [
+          3,
+          4
+        ],
+        "A1.USE": [
+          4,
+          3
+        ]
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A, 'Retrieving all generation data sets' (pp. 240-241): DSN=PAYROLL with no generation number is a GDG ALL request, allocated as (0) then (-1) when the catalog entry says LIFO, which is the default and what GDGORDER=LIFO names. GDGORDER=FIFO allocates (-1) then (0), oldest first, 'regardless of the catalog definition'. USECATLG (the default) follows the catalog entry, here LIFO. A read changes no catalog."
+    },
+    {
+      "id": "gdg-all-follows-a-fifo-catalog-entry",
+      "job": "ALLJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ],
+          "gdgorder": "FIFO"
+        }
+      },
+      "given": {
+        "A1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "A1.DEF": [
+          3,
+          4
+        ],
+        "A1.LIF": [
+          4,
+          3
+        ],
+        "A1.FIF": [
+          3,
+          4
+        ],
+        "A1.USE": [
+          3,
+          4
+        ]
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            3,
+            4
+          ],
+          "gdgorder": "FIFO"
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A, 'Retrieving all generation data sets' (pp. 240-241): 'if the GDG named PAYROLL is defined to be retrieved in FIFO order, the allocation is (-1) then (0)'. A DD with no GDGORDER, and one with USECATLG, take the catalog's FIFO; GDGORDER=LIFO overrides the catalog."
+    },
+    {
+      "id": "concatenated-generations-are-read-in-the-order-coded",
+      "job": "CATJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.IN": [
+          7,
+          6,
+          2
+        ]
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        },
+        "AUD.GDG": {
+          "limit": 5,
+          "generations": [
+            1,
+            2
+          ]
+        }
+      },
+      "basis": "z/OS MVS JCL User's Guide, Appendix A, 'Retrieving all generation data sets' (pp. 240-241) (the DD1 example): an unnamed DD concatenates onto the DD above it and the data sets are read in the order coded (relative positions +000, +001, ...). (0) is 7, (-1) is 6 and AUD.GDG(0) is 2, read in that order, not sorted. Only the DDs that name a generation group are listed."
     }
   ],
   "assumed": [
@@ -1745,6 +1904,14 @@
     {
       "construct": "a checkpoint restart (RESTART=(step,checkid)) of a job with GDGBIAS=STEP, or whose steps before the restart step do not create their (+n) with NEW / MOD",
       "why": "the manuals state the checkpoint rule by the numbers that created the generations, not how a per-step relationship is rebuilt; refused by name"
+    },
+    {
+      "construct": "a GDG ALL read (the group named with no generation number) in a job that creates a generation of that group",
+      "why": "the manual says GDG ALL concatenates 'all existing data sets in the GDG' but not whether a generation created earlier in the same job, not yet rolled in, is among them; refused by name"
+    },
+    {
+      "construct": "a GDG ALL read of a group with no cataloged generation, or a GDGORDER other than LIFO, FIFO or USECATLG",
+      "why": "the manual states no outcome for an empty group, and names only these three GDGORDER keywords"
     }
   ]
 }

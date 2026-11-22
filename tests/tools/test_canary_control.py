@@ -145,7 +145,66 @@ def test_settle_skips_a_pr_that_is_not_a_marked_canary(monkeypatch):
     monkeypatch.setattr(cc, "_gh", lambda *a, **k: (_ for _ in ()).throw(AssertionError("touched a PR")))
     base = {"number": 1, "createdAt": "2026-11-22T03:00:00Z", "headRefOid": "abc"}
     assert cc.settle({**base, "headRefName": "feature/x", "body": cc.pr_body()}) == "skipped"
-    assert cc.settle({**base, "headRefName": "canary/x", "body": "no marker"}) == "skipped"
+
+
+def test_a_canary_pr_without_its_marker_is_closed_with_a_comment(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cc, "_gh", _fake_gh(calls, []))
+    pr = {"number": 3, "headRefName": "canary/x", "headRefOid": "abc", "createdAt": "2026-11-22T03:00:00Z", "body": "x"}
+    assert cc.settle(pr) == "closed"
+    assert [c[:2] for c in calls] == [("pr", "comment"), ("pr", "close")]
+    calls.clear()
+    assert cc.settle(pr, dry_run=True) == "dry-run" and calls == []
+
+
+def _orphan_gh(calls, refs, delete_rc=0):
+    class R:
+        def __init__(self, rc=0, out=""):
+            self.returncode, self.stdout, self.stderr = rc, out, "boom"
+
+    def gh(*args, check=True):
+        calls.append(args)
+        if args[0] == "api" and "DELETE" in args:
+            return R(delete_rc)
+        if args[0] == "api":
+            return R(out="\n".join(refs))
+        return R()
+
+    return gh
+
+
+def test_an_orphan_canary_branch_is_deleted_and_an_open_prs_branch_is_kept(monkeypatch):
+    calls = []
+    refs = ["refs/heads/canary/old", "refs/heads/canary/live", "refs/heads/canaryx/no"]
+    monkeypatch.setattr(cc, "_gh", _orphan_gh(calls, refs))
+    assert cc.sweep_orphans({"canary/live"}) == ["orphan-deleted"]
+    deletes = [c for c in calls if "DELETE" in c]
+    assert len(deletes) == 1 and deletes[0][-1].endswith("heads/canary/old")
+
+
+def test_a_dry_run_sweep_deletes_nothing_and_a_failed_delete_raises_an_issue(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cc, "_gh", _orphan_gh(calls, ["refs/heads/canary/old"]))
+    assert cc.sweep_orphans(set(), dry_run=True) == ["orphan:canary/old"]
+    assert not any("DELETE" in c for c in calls)
+    calls.clear()
+    monkeypatch.setattr(cc, "_gh", _orphan_gh(calls, ["refs/heads/canary/old"], delete_rc=1))
+    assert cc.sweep_orphans(set()) == ["orphan-delete-failed"]
+    assert any(c[:2] == ("issue", "create") and "priority: high" in c for c in calls)
+
+
+def test_results_exits_nonzero_when_an_orphan_cannot_be_deleted(monkeypatch, capsys):
+    calls = []
+    out = _orphan_gh(calls, ["refs/heads/canary/old"], delete_rc=1)
+
+    def gh(*args, check=True):
+        r = out(*args, check=check)
+        if args[:2] == ("pr", "list"):
+            r.stdout = "[]"
+        return r
+
+    monkeypatch.setattr(cc, "_gh", gh)
+    assert cc.results() == 1
 
 
 def _fake_gh(calls, runs, close_rc=0):

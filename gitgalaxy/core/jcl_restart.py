@@ -6,13 +6,15 @@
 # starting). The answers in `tests/equivalence/jcl/restart/scenarios.json` were written from IBM's z/OS MVS JCL Reference
 # (SA23-1385, the JOB statement's RESTART parameter) before this module ran on them.
 # RESTART=* is the first step. RESTART=(step,checkid) is a deferred checkpoint restart: it needs a SYSCHK DD before the
-# first EXEC and starts the same steps as a step restart. EXEC RD= (automatic restart during a run) is not read.
+# first EXEC and starts the same steps as a step restart. EXEC RD= (automatic restart during a run) does not move the
+# restart; its value is checked (R, RNC, NR, NC) on the calling EXEC and on every procedure step (#8413).
 # ASSUMED (A1, scenarios.json): a skipped step has no return code in the restarted run, so a bare COND / IF RC reads only
 # the steps that executed in it.
 # A COND test or IF relation naming a step before the restart step is false, and the restart step's own COND is false
 # (z/OS 3.1 JCL Reference, JOB: RESTART cautions and EXEC: COND).
 # Refused by name (JclRestartRefused): a step that is not in the job, a restart at a procedure's calling step with no
-# procstepname, a restart step name that is not unique, a checkid with no SYSCHK DD.
+# procstepname, a restart step name that is not unique, a checkid with no SYSCHK DD, an RD= value that is not R, RNC, NR
+# or NC.
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -21,6 +23,8 @@ from typing import Any
 from gitgalaxy.core.jcl_flow import JclFlow
 from gitgalaxy.core.jcl_gdg import resolve_gdg
 from gitgalaxy.core.jcl_proc import expand_flow_rows
+
+_RD_VALUES = frozenset({"R", "RNC", "NR", "NC"})
 
 
 class JclRestartRefused(ValueError):
@@ -83,6 +87,9 @@ def _restart_run(
     calls = {r["step_name"] for r in mine if r["kind"] == "STEP" and not r["in_proc"] and r["proc"]}
     flat = expand_flow_rows(rows, job, text, libraries)
     steps = [r for r in flat if r["kind"] == "STEP"]
+    for r in [*steps, *(r for r in mine if r["kind"] == "STEP")]:
+        if r.get("rd") and r["rd"].upper() not in _RD_VALUES:
+            raise JclRestartRefused(f"RD={r['rd']} on step {r['step_name']}: IBM's RD takes R, RNC, NR or NC only")
     names = [s["step_name"] for s in steps]
     if restart == "*":
         restart = names[0] if names else None

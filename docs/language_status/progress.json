@@ -1,5 +1,5 @@
 {
- "commit": "4aa4b12ce",
+ "commit": "cb8bd6755",
  "components": {
   "capabilities": {
    "groups": [
@@ -283,7 +283,7 @@
      "done": null,
      "found": "",
      "group": "Batch",
-     "have": "2 multi-step job case",
+     "have": "3 multi-step job case",
      "name": "JCL job execution",
      "note": "the programs' steps are wired by the case, not yet run from the JCL",
      "of": null,
@@ -1070,15 +1070,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T04:38:18Z",
+  "as_of": "2026-11-22T04:50:50Z",
   "core": {
-   "closed": 254,
-   "open": 21,
+   "closed": 255,
+   "open": 20,
    "total": 275
   },
   "core_last_window": {
-   "closed": 6,
-   "net_closed": -4,
+   "closed": 7,
+   "net_closed": -3,
    "opened": 10
   },
   "core_milestone": {
@@ -1388,9 +1388,9 @@
     "total": 1
    },
    {
-    "closed": 0,
+    "closed": 1,
     "number": 42,
-    "open": 7,
+    "open": 6,
     "title": "Graveyard Shift 2 \ud83c\udf19 \u2014 the whole CardDemo nightly",
     "total": 7
    },
@@ -1554,6 +1554,7 @@
     "system": {
      "chain_proven": [],
      "job_cases": [
+      "INTCALC",
       "POSTTRAN-INTCALC",
       "TRANREPT"
      ],

@@ -13,7 +13,8 @@ Every defect is inert: a new file, no network, no secret, nothing under `.github
 a `canary-expect` JSON marker (the gates that must go red) that `results` reads. `results` never merges or labels: it
 closes the PR, deletes the branch, and opens a `priority: high` issue for a miss (a planted defect no gate caught) or a
 false alarm (a red check on the clean PR). The `ci-gate` hold and the merge-label refusal belong to the shepherd
-(owner-only) and are not here.
+(owner-only) and are not here. A `canary/` PR with no marker is closed (it cannot be judged), and a `canary/` branch with
+no open PR is deleted.
 Stdlib only.
 """
 
@@ -283,9 +284,16 @@ def _issue(title: str, body: str) -> None:
 def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> str:
     """Evaluate one canary PR; when settled post the matrix, raise issues, close it and delete the branch."""
     branch = pr["headRefName"]
+    if not branch.startswith(BRANCH_PREFIX):
+        return "skipped"  # never touch a PR that is not from a canary/ branch
     expect = _expect(pr.get("body", ""))
-    if not branch.startswith(BRANCH_PREFIX) or expect is None:
-        return "skipped"  # never touch a PR that is not a marked canary
+    if expect is None:
+        # A canary/ PR whose marker was lost cannot be judged, and would stay open for ever: close it, say why.
+        n = str(pr["number"])
+        if dry_run:
+            return "dry-run"
+        _gh("pr", "comment", n, "--body", "Canary control PR with no `canary-expect` marker: cannot be judged. Closed. #7155")
+        return _close(n, branch)
     created = datetime.fromisoformat(pr["createdAt"].replace("Z", "+00:00"))
     result = evaluate(expect, _runs(pr["headRefOid"]), age=(now or datetime.now(UTC)) - created)
     if dry_run:
@@ -303,6 +311,10 @@ def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> s
     if result["false_alarms"]:
         _issue(f"Canary false alarm: the clean control PR #{n} went red",
                f"A PR with nothing wrong in it failed: {', '.join(result['false_alarms'])}. #7155\n\n{text}")  # fmt: skip
+    return _close(n, branch)
+
+
+def _close(n: str, branch: str) -> str:
     closed = _gh("pr", "close", n, "--delete-branch", check=False)
     if closed.returncode != 0:
         _issue(
@@ -313,12 +325,37 @@ def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> s
     return "closed"
 
 
+def sweep_orphans(open_heads: set[str], *, dry_run: bool = False) -> list[str]:
+    """Delete every `canary/` branch no open PR carries (a failed `gh pr create`, a PR closed by hand)."""
+    out = _gh("api", "--paginate", f"repos/{{owner}}/{{repo}}/git/matching-refs/heads/{BRANCH_PREFIX}",
+              "--jq", ".[].ref").stdout  # fmt: skip
+    outcomes = []
+    for ref in out.split():
+        name = ref.removeprefix("refs/heads/")
+        if not name.startswith(BRANCH_PREFIX) or name in open_heads:
+            continue
+        if dry_run:
+            outcomes.append(f"orphan:{name}")
+            continue
+        gone = _gh("api", "-X", "DELETE", f"repos/{{owner}}/{{repo}}/git/refs/heads/{name}", check=False)
+        if gone.returncode != 0:
+            _issue(f"Canary branch {name} was not deleted",
+                   f"No open PR carries `{name}` and deleting it failed: {gone.stderr.strip()}. Delete it by hand. #7155")  # fmt: skip
+            outcomes.append("orphan-delete-failed")
+        else:
+            outcomes.append("orphan-deleted")
+    return outcomes
+
+
 def results(*, dry_run: bool = False) -> int:
     listed = _gh("pr", "list", "--state", "open", "--limit", "100",
                  "--json", "number,headRefName,headRefOid,body,createdAt").stdout  # fmt: skip
-    outcomes = [settle(pr, dry_run=dry_run) for pr in json.loads(listed) if pr["headRefName"].startswith(BRANCH_PREFIX)]
+    prs = [pr for pr in json.loads(listed) if pr["headRefName"].startswith(BRANCH_PREFIX)]
+    outcomes = [settle(pr, dry_run=dry_run) for pr in prs]
+    # A PR still pending keeps its branch: its head is in `prs`, so only a branch with no open PR is an orphan.
+    outcomes += sweep_orphans({pr["headRefName"] for pr in prs}, dry_run=dry_run)
     print(json.dumps(outcomes))
-    return 1 if "close-failed" in outcomes else 0
+    return 1 if {"close-failed", "orphan-delete-failed"} & set(outcomes) else 0
 
 
 def main(argv: list[str] | None = None) -> int:

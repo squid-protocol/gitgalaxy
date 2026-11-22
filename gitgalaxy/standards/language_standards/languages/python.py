@@ -565,7 +565,13 @@ DEFINITION: dict[str, Any] = {
             r"|\bpickle\.Unpickler\b"
             r"|\bast\.literal_eval\b"
         ),
-        "regex_execution": re.compile(r"\b(re\.compile|re\.search|re\.match|re\.sub|re\.findall|re\.split)\b"),
+        # regex_execution (#8858): the module-level re.* calls, plus the same
+        # operations run as a method on a compiled pattern (PAT.finditer(s)).
+        # `(?<!\bre)` keeps `re.search(` a single site, not module + method.
+        "regex_execution": re.compile(
+            r"\bre\.(?:compile|search|match|fullmatch|sub|subn|findall|finditer|split)\b"
+            r"|(?<!\bre)\.(?:finditer|fullmatch|findall|subn|match|search)[ \t]*\("
+        ),
         # time_date_logic (#8859): clock reads (qualified, and bare after `from time import`),
         # datetime constructors, and format/parse calls. A bare `now(` is NOT matched (noisy);
         # `datetime.now` after `from datetime import datetime` matches via the `datetime.` prefix.

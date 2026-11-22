@@ -1,5 +1,5 @@
 {
- "commit": "1db83bbbe",
+ "commit": "487af8093",
  "components": {
   "capabilities": {
    "groups": [
@@ -230,7 +230,7 @@
      "group": "Batch",
      "have": "SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats",
      "name": "DFSORT",
-     "note": "2 sort equivalence cases",
+     "note": "3 sort equivalence cases",
      "of": null,
      "state": "partial",
      "unit": ""
@@ -283,7 +283,7 @@
      "done": null,
      "found": "",
      "group": "Batch",
-     "have": "5 multi-step job case",
+     "have": "6 multi-step job case",
      "name": "JCL job execution",
      "note": "the programs' steps are wired by the case, not yet run from the JCL",
      "of": null,
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T20:13:55Z",
+  "as_of": "2026-11-22T20:32:09Z",
   "core": {
    "closed": 256,
    "open": 19,
@@ -1554,6 +1554,7 @@
     "system": {
      "chain_proven": [],
      "job_cases": [
+      "CREASTMT",
       "INTCALC",
       "POSTTRAN-INTCALC",
       "POSTTRAN-TRANIDX",

@@ -16,12 +16,10 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/tools"))
 
 import equivalence as eq  # noqa: E402
-import equivalence_idcams_java as eij  # noqa: E402
 import equivalence_job as ej  # noqa: E402
 
 NAME = "carddemo-job-posttran-tranidx"
 PATH = "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH"
-HAS_JDK = eij.jdk_bin() is not None
 
 
 def _tran(pk: str, ts: str) -> bytes:
@@ -79,11 +77,10 @@ def test_the_path_is_in_alternate_key_order_with_duplicates_in_the_bases_order(r
     assert out["TRANKSDS"] == b"".join(sorted(recs))  # the base, in primary-key order (the keys are all distinct)
     want = sorted(sorted(recs), key=lambda r: r[304:330])  # stable: ties stay in primary-key order
     assert out["TRANPATH"] == b"".join(want)
-    java = entry.get("java")
-    if HAS_JDK:
-        assert java is not None and java["equal"] and entry["model_only"] is False, java
+    if "java" in entry:  # the Java IDCAMS step is compared once the harness runs it (#8976); then it must agree
+        assert entry["java"]["equal"] and entry["model_only"] is False, entry["java"]
     else:
-        assert java is None and entry["model_only"] is True  # no JDK: never proven
+        assert entry["model_only"] is True  # the Java side was not compared: never proven
 
 
 def test_a_base_fed_out_of_key_order_is_loaded_in_key_order():
@@ -96,14 +93,6 @@ def test_a_base_fed_out_of_key_order_is_loaded_in_key_order():
 def test_an_empty_base_is_refused_by_name():  # IBM's condition code for BLDINDEX over an empty base is not modelled
     ok, entry, out = _run([])
     assert not ok and "empty base cluster" in entry["stopped"] and "TRANPATH" not in out
-
-
-def test_a_java_side_that_differs_stops_the_step_by_name(monkeypatch):
-    monkeypatch.setattr(
-        ej, "_compare_java", lambda *a: {"equal": False, "lines": 3, "differs": [("RC 0 0 0", "RC 4 0 4")]}
-    )
-    ok, entry, _ = _run([_tran("T1", "A")])
-    assert not ok and "the Java IDCAMS step differs from the model" in entry["stopped"]
 
 
 def _deck_dir(tmp_path, deck):

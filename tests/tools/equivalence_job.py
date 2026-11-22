@@ -33,6 +33,9 @@ catalog incl. alternate indexes and paths, datasets, each path's records in alte
 JDK the step reports `model_only` and the job is never `proven`. A model refusal, or a nonzero condition code (the
 JCL's COND=(0,NE) bypasses the later steps), stops the job. Refused by name: GDG, `inputs`, a subprogram on such a step.
 The oracle is GnuCOBOL plus our stub, not z/OS; the JCL that wires the steps is the case's `feeds`, not a read job.
+An IDCAMS cluster DD fed by an indexed output starts loaded (CardDemo's TRANSACT KSDS from POSTTRAN); a `"path": NAME` DD is
+an output only, the records read through that path in alternate-key order (#8881). The catalog lives for one step, so the
+deck holds all of a job's IDCAMS commands (TRANIDX STEP20-30).
 """
 
 from __future__ import annotations
@@ -73,7 +76,7 @@ def load_steps(job: dict[str, Any], load_case: Any) -> dict[str, dict[str, Any]]
         out[name] = {"kind": "idcams", "program": "IDCAMS", "datasets": {
             dd: {"organization": "indexed" if "cluster" in d else "sequential",
                  **{k: v for k, v in d.items() if k in ("reclen", "keys", "compare")},
-                 **({"compare": True} if "cluster" in d else {})} for dd, d in dds.items()}}  # fmt: skip
+                 **({"compare": True} if "cluster" in d or "path" in d else {})} for dd, d in dds.items()}}  # fmt: skip
     return out
 
 
@@ -128,9 +131,11 @@ def _check_idcams(step: dict[str, Any], case: dict[str, Any]) -> None:
     for dd, d in spec["dds"].items():
         if not isinstance(d.get("reclen"), int) or d["reclen"] < 1:
             raise Unsupported(f"step {name}: idcams DD {dd} needs a record length")
+        if "path" in d and ("cluster" in d or "keys" in d):
+            raise Unsupported(f"step {name}: idcams DD {dd}: a path DD is an output only (no cluster, no keys)")
         if "cluster" in d and not (d.get("keys") and len(d["keys"]) == 1):
             raise Unsupported(f"step {name}: idcams DD {dd}: a cluster needs one key (offset, length)")
-    if not any(d.get("compare") or "cluster" in d for d in case["datasets"].values()):
+    if not any(d.get("compare") or "cluster" in d or "path" in d for d in case["datasets"].values()):
         raise Unsupported(f"step {name}: an IDCAMS step with no output dataset proves nothing")
 
 
@@ -283,10 +288,25 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
     fed = {}
     try:
         for dd, d in spec["dds"].items():
+            if "path" in d:  # an output only: the path's records, read after the step (#8881)
+                continue
             if "cluster" in d:
                 key = d["keys"][0]
+                seed: list[bytes] = []
+                feed = step.get("feeds", {}).get(dd)  # a cluster the step starts loaded (CardDemo's TRANSACT KSDS)
+                if feed is not None:
+                    data = outputs.get(feed["step"], {}).get(feed["dd"])
+                    if data is None:
+                        entry["stopped"] = f"{feed['step']} left no {feed['dd']}"
+                        return False
+                    n = d["reclen"]
+                    if len(data) % n:
+                        raise Unsupported(f"an output of {len(data)} bytes is not whole records of {n}")
+                    seed = sorted((data[k : k + n] for k in range(0, len(data), n)),
+                                  key=lambda r: r[key["offset"] : key["offset"] + key["length"]])  # fmt: skip
+                    fed[dd] = f"{feed['step']}.{feed['dd']} ({len(seed)} records)"
                 catalog[d["cluster"]] = idc.Cluster(
-                    d["cluster"], True, key["length"], key["offset"], d["reclen"], d["reclen"]
+                    d["cluster"], True, key["length"], key["offset"], d["reclen"], d["reclen"], seed
                 )
                 dds[dd] = idc.Vsam(d["cluster"])
                 continue
@@ -316,7 +336,14 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
             return False
     outputs[name] = {}
     for dd, d in spec["dds"].items():
-        recs = res.catalog[d["cluster"]].records if "cluster" in d else res.datasets[dd].records
+        if "path" in d:  # the records read through the path, in alternate-key order (SC23-6846-60 BLDINDEX)
+            try:
+                recs = idc.path_records(res.catalog, d["path"])
+            except idc.Refused as e:
+                entry["stopped"] = f"the IDCAMS model refuses: {e}"
+                return False
+        else:
+            recs = res.catalog[d["cluster"]].records if "cluster" in d else res.datasets[dd].records
         outputs[name][dd] = b"".join(recs)
     if res.rc:  # COND=(0,NE) on the next step: it is bypassed, the job's chain stops
         entry["stopped"] = f"IDCAMS ended with condition code {res.rc}"

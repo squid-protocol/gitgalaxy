@@ -378,7 +378,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 8
+   "tests": 11
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -909,7 +909,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 9
+   "tests": 12
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -1977,7 +1977,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 8
+   "tests": 11
   },
   "cbsa-crdtagy3": {
    "generated": [],
@@ -2746,7 +2746,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 9
+   "tests": 12
   }
  },
  "blockers": [

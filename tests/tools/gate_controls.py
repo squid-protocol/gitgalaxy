@@ -30,6 +30,7 @@ class Gate:
 
 
 HERE = "tests/tools/test_gate_controls.py"
+C = "tests/tools/test_gate_controls_corpora.py"
 
 GATES = (
     # Required
@@ -226,6 +227,8 @@ GATES = (
         "golden-crucible",
         "golden-crucible.yml",
         "structural drift over the pinned language-crucible corpus",
+        f"{C}::test_golden_crucible_run_check_is_red_when_the_wrapped_pytest_fails",
+        open_gap="the pytest run is stubbed: a broken scan or a corpus that is not cloned is not exercised",
         job="crucible-audit",
     ),
     Gate(
@@ -260,6 +263,8 @@ GATES = (
         "doom-rosetta",
         "doom-rosetta.yml",
         "any drift in the pinned DOOM ports against tests/golden_doom_rosetta, and call-graph regressions (#5619)",
+        f"{C}::test_doom_rosetta_main_exits_1_on_drift",
+        open_gap="the scan is stubbed, and the call-graph lane has no control",
     ),
     Gate(
         "equivalence-e2e",
@@ -301,11 +306,14 @@ GATES = (
         "ports-compile",
         "ports-compile.yml",
         "a committed port that no longer compiles against the generator at HEAD (#4423)",
+        f"{C}::test_ports_compile_main_exits_1_on_a_port_that_does_not_compile_and_2_on_nothing_checked",
+        open_gap="the Maven build is stubbed: a compile error is not exercised",
     ),
     Gate(
         "rosetta-audit",
         "rosetta-audit.yml",
         "a keyword-rosetta language that passed against engine main and fails with this PR (#2557)",
+        "tests/tools/test_audit_runners_refuse_empty.py::test_rosetta_audit_regression_against_baseline_exits_1",
     ),
     Gate(
         "tree-sitter-accuracy-audit",
@@ -360,7 +368,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 17
+MAX_UNPROVEN = 13
 
 
 def unproven() -> list[Gate]:

@@ -1,2 +1,2 @@
-Generated output only, never edit by hand. Source: main @ 103a12316cccd6bd24b44e297eedfd1e5853a0f6
+Generated output only, never edit by hand. Source: main @ 3c436c8c57fb24d552a04c8fd5cd710dc21f538b
 Writer: archetype-validation

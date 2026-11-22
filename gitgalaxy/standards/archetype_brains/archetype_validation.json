@@ -207,11 +207,27 @@
         "file": "UNVALIDATED",
         "function": "DEGRADED"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9306,
+        "composition_repo": null,
+        "file": null,
+        "function": 0.9474
+      },
+      "date": "2026-11-22",
+      "engine_commit": "3c436c8c",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "UNVALIDATED",
+        "function": "DEGRADED"
+      }
     }
   ],
   "levels": {
     "composition_file": {
-      "agreement": 0.9339,
+      "agreement": 0.9306,
       "eroding": {
         "Callbacks & Closures Files": {
           "files": 43,
@@ -221,7 +237,7 @@
         "Compute Cores Files": {
           "files": 65,
           "mostly_to": "Large Core Modules (3)",
-          "retained": 0.9538
+          "retained": 0.9385
         },
         "Declarative / Non-Code": {
           "files": 618,
@@ -241,22 +257,22 @@
         "Interface Declarations Files": {
           "files": 397,
           "mostly_to": "Large Core Modules",
-          "retained": 0.9446
+          "retained": 0.9395
         },
         "Large Core Modules": {
           "files": 304,
           "mostly_to": "Interface Declarations Files",
-          "retained": 0.9211
+          "retained": 0.9178
         },
         "Large Core Modules (2)": {
           "files": 234,
           "mostly_to": "Large Core Modules (3)",
-          "retained": 0.9615
+          "retained": 0.9573
         },
         "Large Core Modules (3)": {
           "files": 292,
           "mostly_to": "Interface Declarations Files",
-          "retained": 0.8836
+          "retained": 0.8699
         },
         "Many-Argument Workhorses Files": {
           "files": 70,
@@ -275,7 +291,7 @@
         }
       },
       "files_compared": 2725,
-      "fit_shift": -0.095
+      "fit_shift": -0.09
     },
     "composition_repo": {
       "crucible_label": {
@@ -285,7 +301,7 @@
       "inherits": "composition_file"
     },
     "file": {
-      "agreement": 0.927,
+      "agreement": 0.9152,
       "eroding": {
         "file_cluster_0": {
           "files": 90,
@@ -295,27 +311,32 @@
         "file_cluster_11": {
           "files": 424,
           "mostly_to": "file_cluster_13",
-          "retained": 0.9104
+          "retained": 0.9057
         },
         "file_cluster_12": {
           "files": 206,
           "mostly_to": "file_cluster_13",
-          "retained": 0.8932
+          "retained": 0.8883
         },
         "file_cluster_15": {
           "files": 285,
           "mostly_to": "file_cluster_13",
-          "retained": 0.7719
+          "retained": 0.7509
         },
         "file_cluster_16": {
           "files": 36,
           "mostly_to": "file_cluster_15",
-          "retained": 0.5556
+          "retained": 0.5278
         },
         "file_cluster_17": {
           "files": 31,
           "mostly_to": "file_cluster_2",
           "retained": 0.9355
+        },
+        "file_cluster_4": {
+          "files": 113,
+          "mostly_to": "file_cluster_6",
+          "retained": 0.9381
         },
         "file_cluster_5": {
           "files": 65,
@@ -325,7 +346,7 @@
         "file_cluster_6": {
           "files": 55,
           "mostly_to": "file_cluster_4",
-          "retained": 0.9455
+          "retained": 0.8727
         },
         "file_cluster_7": {
           "files": 208,
@@ -335,54 +356,58 @@
         "file_cluster_8": {
           "files": 38,
           "mostly_to": "file_cluster_6",
-          "retained": 0.8158
+          "retained": 0.7368
         },
         "file_cluster_9": {
           "files": 52,
           "mostly_to": "file_cluster_11",
-          "retained": 0.8654
+          "retained": 0.75
         }
       },
       "files_compared": 2725
     },
     "function": {
-      "agreement": 0.9499,
+      "agreement": 0.9474,
       "eroding": {
         "C Struct Operations": {
           "functions": 82,
           "retained": 0.9512
         },
+        "Compute Cores": {
+          "functions": 3763,
+          "retained": 0.9729
+        },
         "Defensive Guards": {
           "functions": 3651,
-          "retained": 0.9677
+          "retained": 0.9649
         },
         "Encapsulated Accessors": {
           "functions": 2135,
-          "retained": 0.8539
+          "retained": 0.8529
         },
         "Generic / Templated Code": {
           "functions": 2507,
-          "retained": 0.9617
+          "retained": 0.9621
         },
         "I/O & Config Routines": {
           "functions": 7440,
-          "retained": 0.9254
+          "retained": 0.9239
         },
         "Interface Declarations": {
           "functions": 7837,
-          "retained": 0.9624
+          "retained": 0.9621
         },
         "Parameter Forwarders": {
           "functions": 5094,
-          "retained": 0.9142
+          "retained": 0.9119
         },
         "State Mutators": {
           "functions": 3313,
-          "retained": 0.9333
+          "retained": 0.933
         },
         "Stateful Encapsulated Methods": {
           "functions": 2506,
-          "retained": 0.8595
+          "retained": 0.8555
         }
       },
       "functions_compared": 43654
@@ -391,8 +416,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "103a1231",
-    "measured_at": "2026-11-21"
+    "engine_commit": "3c436c8c",
+    "measured_at": "2026-11-22"
   },
   "retrain_issue": 8012,
   "schema": 1,

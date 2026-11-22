@@ -31,6 +31,7 @@ class Gate:
 
 HERE = "tests/tools/test_gate_controls.py"
 C = "tests/tools/test_gate_controls_corpora.py"
+R = "tests/tools/test_gate_controls_release.py"
 
 GATES = (
     # Required
@@ -205,6 +206,8 @@ GATES = (
         "referee-panel",
         "referee-panel.yml",
         "the COBOL and CICS referee tools disagreeing with the engine (#4438)",
+        "tests/cobol_mainframe/test_referee_panel_runner.py::test_a_failing_step_does_not_stop_the_other_corpora",
+        open_gap="the referee tools are stubbed: a broken install is not exercised",
         trigger="nightly",
         job="panel",
     ),
@@ -219,6 +222,8 @@ GATES = (
         "assess-from-pypi",
         "publish-assess-check.yml",
         "the published package failing a clean install and `gitgalaxy assess` (#4726)",
+        f"{R}::test_assess_install_exits_1_on_a_bad_report_and_when_the_command_is_missing",
+        open_gap="pip, the venv and the real `assess` are stubbed: only the script's verdict is exercised",
         trigger="release",
         job="assess-from-pypi",
     ),
@@ -301,6 +306,8 @@ GATES = (
         "java-compile",
         "java-compile.yml",
         "generated Spring Boot projects that fail to compile under a supported target config (#3613)",
+        f"{R}::test_java_compile_goes_red_when_one_config_does_not_build",
+        open_gap="the build is stubbed: a real mvn / gradle failure is not exercised",
     ),
     Gate(
         "ports-compile",
@@ -368,7 +375,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 13
+MAX_UNPROVEN = 10
 
 
 def unproven() -> list[Gate]:

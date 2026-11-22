@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "0d912129a904",
+      "a_dists": "3151319c7b34",
       "a_ids": "18d72688c61b",
       "author_distribution": "702f60aa030f",
       "c_ids": "2977f69f41d7",
@@ -28,7 +28,7 @@
       "tel_cfr": "c3a378a4246a",
       "tel_lt": "407ea6635fae",
       "tel_pid": "fcb5e1bed07e",
-      "tel_pop": "9b6e8006f7b2",
+      "tel_pop": "4f3562ef284d",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -2295,13 +2295,13 @@
       "powershell/core/SSHRemoting.Basic.Tests.ps1": "f385ecb8a55a",
       "powershell/core/analyze-pr-test-failures.ps1": "f67dcd5b357e",
       "powershell/core/build.psm1": "abece8ab7b9c",
-      "powershell/core/ci.psm1": "c72728a972de",
+      "powershell/core/ci.psm1": "f25c640a3cbf",
       "powershell/core/ciModule.Tests.ps1": "3ff9db8f6ba6",
       "powershell/core/install-powershell.ps1": "bbffe1a1884d",
       "powershell/core/nanoserver.tests.ps1": "9078f0ae54cb",
       "powershell/core/package-validation.tests.ps1": "ccd0717c0cfd",
       "powershell/core/packaging.psd1": "770278f35c57",
-      "powershell/core/packaging.psm1": "99b80e9ebce5",
+      "powershell/core/packaging.psm1": "f0300456ad6d",
       "powershell/core/packaging.tests.ps1": "a5cec67ba01c",
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": "78acc95ac8bd",
       "powershell/core/process-pester-results.ps1": "177bebf263b0",
@@ -3411,7 +3411,7 @@
       "ecosystem_audits": "f9f871afcd9e",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "843718932eb8",
-      "network_macro": "9f663253858c",
+      "network_macro": "b145abfb2caa",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "ea74d709164d",
       "typosquat_hits": "5feceb66ffc8",

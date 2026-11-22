@@ -358,7 +358,8 @@ def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
     `.jcl` / `.prc` / `.proc` under `root`. A compile step may call a cataloged proc (`EXEC MYCOB`): the job's
     `JCLLIB ORDER=` names the PROCLIB libraries (directories named after each dataset's last qualifier) searched
     for the member, first hit wins; the proc's compile step supplies the SYSLIB unless the call overrides it
-    (`//STEP.SYSLIB DD`, which replaces the whole concatenation). A program two JCL files compile with different
+    (`//STEP.SYSLIB DD`, which replaces the whole concatenation when it names as many datasets as the proc's, or more;
+    a shorter one leaves the proc's later datasets in place, so that program declares nothing). A program two JCL files compile with different
     orders is ambiguous and declares nothing, never a guess. Reads nothing past `_JCL_FILE_CAP` files."""
     from gitgalaxy.core.source_text import read_source
 
@@ -419,6 +420,10 @@ def jcl_syslib_orders(root: str) -> dict[str, list[str]]:
                 continue
             step = proc_steps[0]
             if call["libs"]:
+                # IBM matches override DDs to the proc's concatenated DDs by position, so one that names fewer leaves the
+                # proc's later libraries in the concatenation: that order is not guessed (as many or more replace it all)
+                if len(call["raw"]) < len(step["raw"]):
+                    continue
                 libs: list[str] | None = call["libs"]
             else:
                 # the proc's own defaults, the call's keyword symbols over them; a job SET that names a proc symbol the

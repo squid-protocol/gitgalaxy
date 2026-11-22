@@ -201,3 +201,23 @@ def test_an_unrunnable_job_exits_by_name(stub, tmp_path):
     api = _api()
     with pytest.raises(SystemExit, match="not runnable faithfully"):
         ej_job.run_case(api, {"name": "j", "steps": [{"case": "a"}]}, tmp_path)
+
+
+def test_a_step_with_subprograms_is_accepted_and_run_whole(stub, tmp_path):  # #8884: CBSTM03A CALLs CBSTM03B
+    api = _api()
+    api.cases["b"]["subprograms"] = ["app/cbl/SUBB.CBL"]
+    ej_job.check_job(_job(), api.cases)
+    assert ej_job.run_case(api, _job(), tmp_path) == 0
+    report = json.loads((tmp_path / "report.json").read_text(encoding="utf-8"))
+    assert report["steps"][1]["subprograms"] == ["app/cbl/SUBB.CBL"] and "subprograms" not in report["steps"][0]
+
+
+@pytest.mark.parametrize(
+    ("subs", "why"),
+    [("x.cbl", "list of corpus-relative"), ([""], "list of corpus-relative"), ([1], "list of corpus-relative"),
+     (["a/S.cbl", "b/s.CBL"], "appears twice"), (["app/PB.cbl"], "step's own program")],
+)  # fmt: skip
+def test_a_malformed_subprograms_list_is_refused_by_name(subs, why):
+    cases = {"a": {**_step(), "program": "PA"}, "b": {**_step(), "program": "PB", "subprograms": subs}}
+    with pytest.raises(ej_job.Unsupported, match=why):
+        ej_job.check_job(_job(), cases)

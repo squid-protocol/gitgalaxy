@@ -229,14 +229,12 @@ def test_a_gdgbias_other_than_job_or_step_and_a_passed_generation_under_step_are
         _run(passed, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
 
 
-def test_a_procedure_step_override_of_a_gdg_dd_is_refused_by_name():
-    text = (
-        HEAD
-        + "//GP PROC\n//M1 EXEC PGM=X\n//OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//  PEND\n//C1 EXEC GP\n"
-        + "//M1.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n"
-    )
+def test_an_override_naming_no_procedure_step_is_refused_by_name_and_a_real_one_is_answered():
+    base = HEAD + "//GP PROC\n//M1 EXEC PGM=X\n//OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//  PEND\n//C1 EXEC GP\n"
     with pytest.raises(JclGdgRefused, match="overrides a procedure step"):
-        _run(text, "J", CAT, {"C1.M1": {"rc": 0}})
+        _run(base + "//ZZ.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n", "J", CAT, {"C1.M1": {"rc": 0}})
+    names, _ = _run(base + "//M1.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n", "J", CAT, {"C1.M1": {"rc": 0}})
+    assert list(names) == ["C1.M1.OUT"]  # #8413: the override merges into the procedure's DD (gdg/library.json)
 
 
 def _restart(text, job, catalog, given):

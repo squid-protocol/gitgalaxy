@@ -122434,6 +122434,7 @@
         "findRoute@773": [
           "dispatch",
           "Routing",
+          "match",
           "setContainer",
           "instance"
         ],
@@ -122697,6 +122698,7 @@
           "currentRouteAction"
         ],
         "view@287": [
+          "match",
           "setDefaults",
           "is_array"
         ]
@@ -125915,11 +125917,13 @@
           "load"
         ],
         "match@175": [
-          "getMatcher"
+          "getMatcher",
+          "match"
         ],
         "matchRequest@180": [
           "matchRequest",
           "getMatcher",
+          "match",
           "getPathInfo"
         ],
         "setConfigCacheFactory@165": [],

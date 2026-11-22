@@ -32868,7 +32868,7 @@
         "dispatch@749": 1,
         "dispatchToRoute@762": 2,
         "fallback@241": 1,
-        "findRoute@773": 3,
+        "findRoute@773": 4,
         "flushMiddlewareGroups@1156": 0,
         "gatherRouteMiddleware@832": 1,
         "get@158": 1,
@@ -32934,7 +32934,7 @@
         "uniqueMiddleware@1472": 0,
         "updateGroupStack@494": 2,
         "uses@1369": 1,
-        "view@287": 0
+        "view@287": 1
       }
     },
     "php/laravel_validation_rules": {
@@ -33521,7 +33521,7 @@
         "getOption@131": 0,
         "getRouteCollection@140": 0,
         "match@175": 1,
-        "matchRequest@180": 1,
+        "matchRequest@180": 2,
         "setConfigCacheFactory@165": 0,
         "setContext@145": 2,
         "setOption@117": 0,

@@ -139,4 +139,6 @@ def test_committed_fidelity_table_is_fresh_against_the_corpus():
         capture_output=True,
         text=True,
     )
+    if res.returncode == 2 and "cannot check" in res.stderr:  # #8131: corpus checkout behind its main
+        pytest.skip(res.stderr.strip())
     assert res.returncode == 0, res.stdout + res.stderr

@@ -194,3 +194,28 @@ def test_a_failed_retry_names_both_errors(tmp_path, monkeypatch):
     assert ps.retry_slow_translations(results, tmp_path, 1, "all") == []
     (msg,) = ps.verdict({"det": results}, {})
     assert "X: first" in msg and "retry error: Y: second" in msg
+
+
+CACHED = "was not found in https://repo.maven.apache.org/maven2 during a previous attempt. This failure was cached in the local repository"
+
+
+def _row(error=None, proved=False):
+    return {"proved": proved, "coverage": "", **({"java_error": error} if error else {})}
+
+
+def test_a_java_build_failure_names_its_cause_8215():
+    out = ps.verdict({"det": {"a": _row("[ERROR] Non-resolvable parent POM")}}, {})
+    assert "[java did not build: [ERROR] Non-resolvable parent POM]" in out[0]
+
+
+def test_a_shard_of_resolution_failures_is_infrastructure_8215():
+    results = {"det": {"a": _row(CACHED), "b": _row("Could not find artifact x"), "c": _row(proved=True)}}
+    assert ps.resolution_infra(results)
+    assert ps.verdict(results, {})[-1] == ps.INFRA_LINE
+
+
+def test_one_real_failure_keeps_the_sweep_real_8215():
+    results = {"det": {"a": _row(CACHED), "b": _row("[ERROR] cannot find symbol"), "c": _row()}}
+    assert not ps.resolution_infra(results)
+    assert ps.INFRA_LINE not in ps.verdict(results, {})
+    assert not ps.resolution_infra({"det": {"a": _row(proved=True)}})

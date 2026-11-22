@@ -129,7 +129,7 @@ def test_a_partial_record_is_refused():
 
 class _Api(types.SimpleNamespace):
     def __init__(self, cases, cobol, java_equal=True):
-        super().__init__(seen=[], cases=cases, cobol=cobol, java_equal=java_equal)
+        super().__init__(seen=[], cobol_subs=[], cases=cases, cobol=cobol, java_equal=java_equal)
 
     def load_case(self, name):
         return json.loads(json.dumps(self.cases[name]))
@@ -142,6 +142,7 @@ class _Api(types.SimpleNamespace):
 
     def run_cobol(self, case, corpus, work):
         self.seen.append((case["program"], dict(case["datasets"])))
+        self.cobol_subs.append((case["program"], case.get("subprograms")))
         return dict(self.cobol[case["program"]])
 
     def compare_run(self, case, corpus, cobol, java):
@@ -150,12 +151,21 @@ class _Api(types.SimpleNamespace):
                 "outputs": {"OUT": {"equal": 1 if ok else 0, "records": 1, "diffs": []}}}  # fmt: skip
 
 
+java_cases: list = []  # (program, subprograms) each stubbed Java run was given
+
+
 @pytest.fixture
 def stub(monkeypatch):
     import equivalence_java as ej
     import mainframe_corpus as mc
 
-    monkeypatch.setattr(ej, "run_java_environments", lambda *a, **k: {"default": {"RETURN-CODE": b"0"}})
+    java_cases.clear()
+
+    def java(case, *a, **k):
+        java_cases.append((case["program"], case.get("subprograms")))
+        return {"default": {"RETURN-CODE": b"0"}}
+
+    monkeypatch.setattr(ej, "run_java_environments", java)
     monkeypatch.setattr(mc, "select", lambda names: [names[0]])
     monkeypatch.setattr(mc, "require_clone", lambda entry: Path("/corpus"))
 
@@ -201,3 +211,126 @@ def test_an_unrunnable_job_exits_by_name(stub, tmp_path):
     api = _api()
     with pytest.raises(SystemExit, match="not runnable faithfully"):
         ej_job.run_case(api, {"name": "j", "steps": [{"case": "a"}]}, tmp_path)
+
+
+def test_a_step_with_subprograms_is_accepted_and_run_whole(stub, tmp_path):  # #8884: CBSTM03A CALLs CBSTM03B
+    api = _api()
+    api.cases["b"]["subprograms"] = ["app/cbl/SUBB.CBL"]
+    ej_job.check_job(_job(), api.cases)
+    assert ej_job.run_case(api, _job(), tmp_path) == 0
+    report = json.loads((tmp_path / "report.json").read_text(encoding="utf-8"))
+    assert report["steps"][1]["subprograms"] == ["app/cbl/SUBB.CBL"] and "subprograms" not in report["steps"][0]
+    # both sides are handed the step's whole case, so each builds the subprograms as the step's own proof does
+    assert api.cobol_subs == [("PA", None), ("PB", ["app/cbl/SUBB.CBL"])]
+    assert java_cases == [("PA", None), ("PB", ["app/cbl/SUBB.CBL"])]
+
+
+@pytest.mark.parametrize(
+    ("subs", "why"),
+    [("x.cbl", "list of corpus-relative"), ([""], "list of corpus-relative"), ([1], "list of corpus-relative"),
+     (["a/S.cbl", "b/s.CBL"], "appears twice"), (["app/PB.cbl"], "step's own program")],
+)  # fmt: skip
+def test_a_malformed_subprograms_list_is_refused_by_name(subs, why):
+    cases = {"a": {**_step(), "program": "PA"}, "b": {**_step(), "program": "PB", "subprograms": subs}}
+    with pytest.raises(ej_job.Unsupported, match=why):
+        ej_job.check_job(_job(), cases)
+
+
+# -- an IDCAMS step (#8884): the model is the oracle, the chain around it is the harness's ---------------------------
+
+REPRO = " REPRO INFILE(INFILE) OUTFILE(OUTFILE)\n"
+
+
+def _idcams(deck="step.idc", reclen=10, **extra):
+    dds = {"INFILE": {"reclen": reclen},
+           "OUTFILE": {"cluster": "A.B.KSDS", "reclen": reclen, "keys": [{"offset": 0, "length": 4}]}}  # fmt: skip
+    return {"case": "idc", "idcams": {"deck": deck, "dds": dds}, "feeds": {"INFILE": {"step": "a", "dd": "OUT"}},
+            **extra}  # fmt: skip
+
+
+def _idcams_job(step=None):
+    return {"name": "j", "kind": "job", "job": "J",
+            "steps": [{"case": "a"}, step or _idcams(),
+                      {"case": "b", "feeds": {"IN": {"step": "idc", "dd": "OUTFILE"}}}]}  # fmt: skip
+
+
+def _idcams_api(deck=REPRO, a_out=b"AAAA000001BBBB000002", tmp_path=None, monkeypatch=None):
+    (tmp_path / "step.idc").write_text(deck, encoding="utf-8")
+    monkeypatch.setattr(ej_job, "JOBS", tmp_path)
+    api = _api(PA={"OUT": a_out, "RETURN-CODE": b"0"})
+    b = api.cases["b"]
+    b["datasets"]["IN"] = {"organization": "indexed", "reclen": 10, "keys": [{"offset": 0, "length": 4}]}
+    return api
+
+
+def _steps(job, api):
+    return ej_job.load_steps(job, api.load_case)
+
+
+def test_an_idcams_step_between_program_steps_runs_in_jcl_order_and_is_never_proven(stub, tmp_path, monkeypatch):
+    monkeypatch.setattr(ej_job, "_compare_java", lambda *a: None)  # no JDK: the step stays model only
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    ej_job.check_job(_idcams_job(), _steps(_idcams_job(), api))
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1  # the Java side of IDCAMS is not compared
+    assert [p for p, _ in api.seen] == ["PA", "PB"]
+    assert Path(api.seen[1][1]["IN"]["input"]).read_bytes() == b"AAAA000001\nBBBB000002\n"
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert [s["case"] for s in report["steps"]] == ["a", "idc", "b"]
+    idc = report["steps"][1]
+    assert idc["model_only"] and idc["ok"] and idc["rc"] == 0 and idc["fed"] == {"INFILE": "a.OUT (2 records)"}
+    assert report["steps"][2]["fed"] == {"IN": "idc.OUTFILE (2 records)"}
+    assert report["proven"] is False and all(s["ok"] for s in report["steps"])
+
+
+def test_a_model_refusal_stops_the_job_by_name(stub, tmp_path, monkeypatch):  # a source out of key order
+    api = _idcams_api(a_out=b"BBBB000002AAAA000001", tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert "the IDCAMS model refuses" in report["steps"][1]["stopped"] and len(api.seen) == 1
+
+
+def test_a_nonzero_condition_code_bypasses_the_later_steps(stub, tmp_path, monkeypatch):
+    api = _idcams_api(deck=" DELETE NO.SUCH.CLUSTER\n", tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert report["steps"][1]["rc"] is None or "condition code" in report["steps"][1]["stopped"]
+    assert len(api.seen) == 1 and len(report["steps"]) == 2
+
+
+@pytest.mark.parametrize(
+    ("step", "why"),
+    [(_idcams(deck="gone.idc"), "no such file beside the job case"),
+     (_idcams(inputs={"INFILE": "x"}), "inputs on an IDCAMS step"),
+     (_idcams(gdg_in={"INFILE": {}}), "gdg_in on an IDCAMS step"),
+     (_idcams(reclen=0), "needs a record length"),
+     (_idcams(reclen=20), "record length"),  # the feed rule reads the DD spec like a program step's
+     ({**_idcams(), "idcams": {"deck": "step.idc", "dds": {"INFILE": {"reclen": 10}}}}, "no output dataset"),
+     ({**_idcams(), "idcams": {"deck": "step.idc", "dds": {"OUTFILE": {"cluster": "X", "reclen": 10}}}}, "one key"),
+     ({**_idcams(), "idcams": {"deck": "step.idc"}}, "idcams needs")],
+)  # fmt: skip
+def test_every_idcams_refusal_is_by_name(step, why, tmp_path, monkeypatch):
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    with pytest.raises(ej_job.Unsupported, match=why):
+        ej_job.check_job(_idcams_job(step), _steps(_idcams_job(step), api))
+
+
+def test_an_idcams_step_the_java_runtime_agrees_on_is_no_longer_model_only(stub, tmp_path, monkeypatch):
+    seen = []
+    monkeypatch.setattr(ej_job, "_compare_java", lambda sysin, cat, dds: seen.append(sysin) or
+                        {"equal": True, "lines": 3, "differs": []})  # fmt: skip
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 0
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert seen == [REPRO] and report["steps"][1]["java"]["equal"] and not report["steps"][1]["model_only"]
+    assert report["proven"] is True
+
+
+def test_an_idcams_step_the_java_runtime_differs_on_stops_the_job_by_name(stub, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        ej_job, "_compare_java", lambda *a: {"equal": False, "lines": 3, "differs": [("RC 0 0 0", "RC 4 0 4")]}
+    )
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert ej_job.run_case(api, _idcams_job(), tmp_path / "w") == 1
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert "Java IDCAMS step differs from the model" in report["steps"][1]["stopped"]
+    assert len(api.seen) == 1 and report["proven"] is False

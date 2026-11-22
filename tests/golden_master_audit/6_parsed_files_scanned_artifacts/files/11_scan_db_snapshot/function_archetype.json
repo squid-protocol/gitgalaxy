@@ -18652,7 +18652,7 @@
         "scrollToCursorOrSelection@3176": "Defensive Guards",
         "setDisplayByName@2772": "Stateful Encapsulated Methods",
         "setTether@2631": "Stateful Encapsulated Methods",
-        "shouldBeUsed@415": "Type Conversions",
+        "shouldBeUsed@415": "Generic / Templated Code",
         "suppressClearBrailleRegions@2616": "Encapsulated Accessors",
         "terminate@2507": "Stateful Encapsulated Methods",
         "terminate@3444": "Interface Declarations",
@@ -37125,8 +37125,8 @@
         "no_response_model_annotation_return_invalid_model@90": "Annotated & Test Methods",
         "no_response_model_annotation_return_same_model@75": "Annotated & Test Methods",
         "no_response_model_annotation_return_submodel_with_extra_data@100": "Annotated & Test Methods",
-        "no_response_model_annotation_union_return_model1@232": "Annotated & Test Methods",
-        "no_response_model_annotation_union_return_model2@237": "Annotated & Test Methods",
+        "no_response_model_annotation_union_return_model1@232": "Generic / Templated Code",
+        "no_response_model_annotation_union_return_model2@237": "Generic / Templated Code",
         "no_response_model_no_annotation_return_dict@36": "Annotated & Test Methods",
         "no_response_model_no_annotation_return_model@31": "Annotated & Test Methods",
         "read_root@504": "Annotated & Test Methods",
@@ -38021,7 +38021,7 @@
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
         "__init__@50": "Many-Argument Workhorses",
         "awrap_model_call@106": "Defensive Guards",
-        "wrap_model_call@72": "Defensive Guards"
+        "wrap_model_call@72": "Many-Argument Workhorses"
       },
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
         "__init__@66": "Many-Argument Workhorses",

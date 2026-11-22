@@ -36,7 +36,7 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import source as S
 from gitgalaxy.tools.cobol_to_java.det import stmt as ST
 from gitgalaxy.tools.readiness.era_tags import asm_members, mark_skipped, summarise, tag_program
-from gitgalaxy.tools.readiness.listings import listing_reason
+from gitgalaxy.tools.readiness.listings import duplicate_reasons, listing_reason
 
 REPO = Path(__file__).resolve().parents[3]  # a checkout's root: `_portable` strips it from a reason
 COPY_EXTS = {".cpy", ".copy", ".cbl", ".cob", ""}  # tests/tools/det_survey.py's
@@ -463,17 +463,24 @@ def scan_estate(
     # #8411: a compile listing or an expanded copy is no program of the estate (cics_census.listing_reason, #8112)
     excluded: dict[str, str] = {}
     kept = []
+    kept_text: dict[str, str] = {}
     for prog in progs:
         rel = prog.relative_to(estate_dir)
+        key = str(rel).replace("\\", "/")
         try:
-            reason = listing_reason(read_source(prog).text, rel.parts)
+            text: str | None = read_source(prog).text
+            reason = listing_reason(text or "", rel.parts)
         except Exception:  # unreadable: keep it, process_program reports it
-            reason = None
+            text, reason = None, None
         if reason:
-            excluded[str(rel).replace("\\", "/")] = reason
+            excluded[key] = reason
         else:
             kept.append(prog)
-    progs = kept
+            if text is not None:
+                kept_text[key] = text
+    # #8412: a member held in several change-management stages (same PROGRAM-ID) is counted once, as in the census
+    excluded.update(duplicate_reasons(kept_text))
+    progs = [p for p in kept if str(p.relative_to(estate_dir)).replace("\\", "/") not in excluded]
 
     # #5121: assembler members (CICS Assembler, macro-level CICS); a macro TABLE source (DFHFCT ...) has no hit
     find_member = _asm_member_finder(estate_dir)

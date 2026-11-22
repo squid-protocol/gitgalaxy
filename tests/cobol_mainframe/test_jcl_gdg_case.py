@@ -63,6 +63,19 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "after-a-wraparound",
         "one-step-adds-three",
         "next-job-reads-minus-two",
+        "if-then-creates",
+        "if-else-creates",
+        "if-false-creates",
+        "cond-only-runs",
+        "cond-only-is-bypassed",
+        "if-abend-true",
+        "if-abend-false",
+        "if-run-true",
+        "if-run-false",
+        "if-not-equal-true",
+        "if-not-equal-false",
+        "pass-then-delete-never",
+        "pass-then-delete-leaves",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
@@ -177,6 +190,20 @@ def test_mod_of_an_absent_plus_one_is_new_and_mod_of_an_absent_zero_or_minus_n_i
         _run(gone, "J", CAT, {"A": {"rc": 0}})
 
 
+def test_uncatlg_of_the_oldest_follows_the_groups_sms_state_and_a_new_uncatlg_is_keep():
+    oldest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,UNCATLG)\n"
+    sms = {"G.B": {"limit": 5, "generations": [1, 2], "sms": True}}
+    assert _run(oldest, "J", sms, {"A": {"rc": 0}})[1] == sms
+    plain = {"G.B": {"limit": 5, "generations": [1, 2], "sms": False}}
+    assert _run(oldest, "J", plain, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [2], "sms": False}}
+    newest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,UNCATLG)\n"
+    with pytest.raises(JclGdgRefused, match="UNCATLG of a generation other than the oldest"):
+        _run(newest, "J", plain, {"A": {"rc": 0}})
+    # a step that abended with no abnormal disposition applies the normal one; a new UNCATLG is KEEP either way
+    new = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,UNCATLG)\n"
+    assert _run(new, "J", CAT, {"A": {"abend": "S0C7"}})[1]["G.B"]["deferred_rollin"] == [3]
+
+
 def test_deleting_the_oldest_removes_it_and_any_other_generation_is_refused_by_name():
     oldest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,DELETE)\n"
     assert _run(oldest, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [2]}}
@@ -229,14 +256,12 @@ def test_a_gdgbias_other_than_job_or_step_and_a_passed_generation_under_step_are
         _run(passed, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
 
 
-def test_a_procedure_step_override_of_a_gdg_dd_is_refused_by_name():
-    text = (
-        HEAD
-        + "//GP PROC\n//M1 EXEC PGM=X\n//OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//  PEND\n//C1 EXEC GP\n"
-        + "//M1.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n"
-    )
+def test_an_override_naming_no_procedure_step_is_refused_by_name_and_a_real_one_is_answered():
+    base = HEAD + "//GP PROC\n//M1 EXEC PGM=X\n//OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//  PEND\n//C1 EXEC GP\n"
     with pytest.raises(JclGdgRefused, match="overrides a procedure step"):
-        _run(text, "J", CAT, {"C1.M1": {"rc": 0}})
+        _run(base + "//ZZ.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n", "J", CAT, {"C1.M1": {"rc": 0}})
+    names, _ = _run(base + "//M1.OUT DD DSN=G.B(+1),DISP=(NEW,CATLG)\n", "J", CAT, {"C1.M1": {"rc": 0}})
+    assert list(names) == ["C1.M1.OUT"]  # #8413: the override merges into the procedure's DD (gdg/library.json)
 
 
 def _restart(text, job, catalog, given):
@@ -266,3 +291,43 @@ def test_the_restart_refusals_are_named_in_the_file():
     refused = " ".join(r["construct"] for r in DOC["refused"])
     assert "original relative generation" in refused or "reads a generation by the number" in refused
     assert "checkpoint restart" in refused
+
+
+LIBDOC = json.loads((ROOT / "tests" / "equivalence" / "jcl" / "gdg" / "library.json").read_text(encoding="utf-8"))
+LIB_TEXT = "\n".join(LIBDOC["library_jcl"]) + "\n"
+LIB_ROWS = job_flow.jcl_job_flow(LIB_TEXT)
+LIBS = {lib: {m: "\n".join(ls) + "\n" for m, ls in ms.items()} for lib, ms in LIBDOC["libraries"].items()}
+
+
+def test_every_library_case_line_fits_columns_1_to_72():
+    members = [ln for ms in LIBDOC["libraries"].values() for ls in ms.values() for ln in ls]
+    assert all(len(ln) <= 72 for ln in LIBDOC["library_jcl"] + members)
+
+
+@pytest.mark.parametrize("sc", LIBDOC["scenarios"], ids=lambda s: s["id"])
+def test_the_resolver_reproduces_every_library_procedure_gdg_restart_answer(sc):
+    names, after = resolve_gdg_restart(LIB_ROWS, sc["job"], sc["catalog"], sc["given"], LIB_TEXT, LIBS)
+    assert names == sc["expect"], sc["id"]
+    assert after == sc["catalog_after"], sc["id"]
+
+
+@pytest.mark.parametrize("r", LIBDOC["refused"], ids=lambda r: r["id"])
+def test_a_library_gdg_restart_that_is_not_answered_is_refused_by_name(r):
+    with pytest.raises(JclGdgRefused, match=r["match"]):
+        resolve_gdg_restart(
+            LIB_ROWS, r["job"], {"PAY.GDG": {"limit": 6, "generations": [6, 7]}}, r["given"], LIB_TEXT, LIBS
+        )
+
+
+def test_a_gdg_all_read_beside_a_creation_an_empty_group_or_a_bad_gdgorder_is_refused_by_name():
+    made = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,CATLG)\n//B EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="creates a generation"):
+        _run(made, "J", CAT, {"A": {"rc": 0}, "B": {"rc": 0}})
+    empty = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR\n"
+    with pytest.raises(JclGdgRefused, match="no cataloged generation"):
+        _run(empty, "J", {"G.B": {"limit": 5, "generations": []}}, {"A": {"rc": 0}})
+    bad = HEAD + "//A EXEC PGM=X\n//R DD DSN=G.B,DISP=SHR,GDGORDER=ODD\n"
+    with pytest.raises(JclGdgRefused, match="GDGORDER=ODD"):
+        _run(bad, "J", CAT, {"A": {"rc": 0}})
+    refused = " ".join(r["construct"] for r in DOC["refused"])
+    assert "GDG ALL read" in refused and "GDGORDER other than" in refused

@@ -97,6 +97,7 @@ enhanced-for and `assert` separators. A generic wildcard (`<?>`,
 Likewise `??` is one value-selection decision: typescript, javascript, dart,
 swift and apex listed `\?` before `\?\?`, so the single `?` arm won and `a ?? b`
 read 2.
+Dart's bare `?` is anchored on a ternary position (whitespace before it, not `?.`, `?[`, `?..`): a nullable type `T?` and null-aware access are not decisions (#8906); an unspaced `a?b:c` is a known undercount.
 
 ## Deliberate duals and deferred residue
 

@@ -2708,7 +2708,7 @@
       "powershell/core/nanoserver.tests.ps1": 0,
       "powershell/core/package-validation.tests.ps1": 0,
       "powershell/core/packaging.psd1": 0,
-      "powershell/core/packaging.psm1": 1,
+      "powershell/core/packaging.psm1": 2,
       "powershell/core/packaging.tests.ps1": 0,
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 0,
       "powershell/core/process-pester-results.ps1": 0,

@@ -2671,6 +2671,9 @@
       "powershell/core/build.psm1": [
         "fcall:powershell/core/RegisterManifest.ps1"
       ],
+      "powershell/core/ci.psm1": [
+        "fcall:powershell/core/packaging.psm1"
+      ],
       "powershell/core/ciModule.Tests.ps1": [
         "import:powershell/core/ci.psm1"
       ],

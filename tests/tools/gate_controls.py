@@ -31,6 +31,7 @@ class Gate:
 
 HERE = "tests/tools/test_gate_controls.py"
 C = "tests/tools/test_gate_controls_corpora.py"
+R = "tests/tools/test_gate_controls_release.py"
 
 GATES = (
     # Required
@@ -169,7 +170,9 @@ GATES = (
     Gate(
         "det-mutation",
         "det-sweep.yml",
-        "a det-port mutant that survives and is not in the survivors ledger",
+        "a det-port mutant ledger gone stale in a case the PR changes (#5862)",
+        "tests/tools/test_det_mutation.py::test_a_case_touch_in_a_real_branch_fails_the_ratchet_and_an_untouched_one_does_not",
+        open_gap="the fingerprints are stubbed, and the det job's shell step that turns a failed detmut into a red check is not exercised",
         job="detmut",
     ),
     Gate("db2", "det-sweep.yml", "a Db2 det port that stops proving against the real database", job="db2"),
@@ -178,6 +181,7 @@ GATES = (
         "archetype-validation",
         "archetype-validation.yml",
         "archetype labels moving unseen after a push to main (#4100)",
+        "tests/core_engine/test_archetype_validation.py::test_status_grades_each_level_independently",
         trigger="main",
         job="archetype-validation",
     ),
@@ -185,6 +189,8 @@ GATES = (
         "os-smoke-grid",
         "os-smoke-grid.yml",
         "an OS- or Python-version-sensitive break: package install, CLI entry points, syntax floor (#5130)",
+        "tests/tools/test_gate_controls_smoke.py::test_a_missing_or_import_broken_entry_point_goes_red",
+        open_gap="runs the smoke commands on one OS and Python: the Windows, macOS and 3.11 legs and the install step are not exercised",
         trigger="main",
         job="smoke-test",
     ),
@@ -199,12 +205,16 @@ GATES = (
         "evidence-refresh",
         "evidence-refresh.yml",
         "a det port or evidence record gone stale or no longer proving, found by the nightly re-proof (#4048)",
+        "tests/tools/test_evidence_refresh_shard_loss_8509.py::test_a_skipped_det_mutation_job_still_fails_the_gate",
+        open_gap="only the det mutation lane's verdict is exercised: the re-proof and record lanes have no control",
         trigger="nightly",
     ),
     Gate(
         "referee-panel",
         "referee-panel.yml",
         "the COBOL and CICS referee tools disagreeing with the engine (#4438)",
+        "tests/cobol_mainframe/test_referee_panel_runner.py::test_a_failing_step_does_not_stop_the_other_corpora",
+        open_gap="the referee tools are stubbed: a broken install is not exercised",
         trigger="nightly",
         job="panel",
     ),
@@ -212,6 +222,7 @@ GATES = (
         "publish-evidence-current",
         "publish.yml",
         "a release tag cut while the evidence report is stale",
+        "tests/tools/test_evidence_report.py::test_the_release_gate_fails_while_a_level_is_stale",
         trigger="release",
         job="evidence-report-current",
     ),
@@ -219,6 +230,8 @@ GATES = (
         "assess-from-pypi",
         "publish-assess-check.yml",
         "the published package failing a clean install and `gitgalaxy assess` (#4726)",
+        f"{R}::test_assess_install_exits_1_on_a_bad_report_and_when_the_command_is_missing",
+        open_gap="pip, the venv and the real `assess` are stubbed: only the script's verdict is exercised",
         trigger="release",
         job="assess-from-pypi",
     ),
@@ -289,6 +302,8 @@ GATES = (
         "generated-docs",
         "generated-docs.yml",
         "a generated aggregate page that no longer renders from its committed sources (#5057)",
+        "tests/tools/test_gate_controls_docs.py::test_generated_docs_main_exits_1_on_a_bad_page_and_0_on_good_ones",
+        open_gap="the renderers are stubbed: a page that renders but reads wrong is not caught",
     ),
     Gate(
         "graph-accuracy-audit",
@@ -301,6 +316,8 @@ GATES = (
         "java-compile",
         "java-compile.yml",
         "generated Spring Boot projects that fail to compile under a supported target config (#3613)",
+        f"{R}::test_java_compile_goes_red_when_one_config_does_not_build",
+        open_gap="the build is stubbed: a real mvn / gradle failure is not exercised",
     ),
     Gate(
         "ports-compile",
@@ -368,7 +385,17 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 13
+MAX_UNPROVEN = 4
+
+
+# The gates with no failure fixture yet, each with why. A gate lacking a proof and absent here fails
+# test_gate_controls.py by name, so a swap (one gate loses its proof while another gains one) cannot hide in the count.
+UNPROVEN = {
+    "Muninn": "an external action with no local entry point to feed a bad input",
+    "db2": "needs the real Db2 container; no stub of the plan yet",
+    "full-suite-matrix": "the OS x Python matrix has no local fixture yet",
+    "equivalence-e2e": "needs the java and GnuCOBOL toolchain; no stubbed failure yet",
+}
 
 
 def unproven() -> list[Gate]:

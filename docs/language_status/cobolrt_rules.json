@@ -48,7 +48,7 @@
    "title": "IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)"
   },
   "mvs-da": {
-   "title": "IBM z/OS MVS Data Areas (PSA, TCB, TIOT)"
+   "title": "IBM z/OS 3.1 MVS Data Areas (PSA: Volume 3 GA32-0937-60; TCB, TIOT: Volume 4 GA32-0938-60)"
   },
   "mq-refdev": {
    "title": "IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)"
@@ -4809,8 +4809,9 @@
    ],
    "ibm": {
     "doc": "mvs-da",
-    "section": "PSA, TCB, TIOT"
+    "section": "PSA (Vol. 3 Table 763), TCB (Vol. 4), TIOT (Vol. 4 Table 541)"
    },
+   "ibm_note": "IBM (z/OS 3.1 MVS Data Areas, Volume 3 GA32-0937-60, Table 763 Structure PSA; Volume 4 GA32-0938-60, TCB Table and TIOT Table 541). MATCHED parts: the PSA field \"536 (218) ADDRESS 4 PSATNEW\" (X'218'); the TCB field \"12 (C) ADDRESS 4 TCBTIO - ADDRESS OF THE TASK I/O TABLE (TIOT)\"; the TIOT header \"0 (0) CHARACTER 8 TIOCNJOB - JOB NAME\", the step information at +8 and +16 (TIOCSTPN \"8-BYTE STEP NAME FOR NON-PROCS\" and TIOCPSTN \"8-BYTE PROC STEP NAME FOR PROCS\" at +8, TIOCJSTN \"8-BYTE JOBSTEP NAME FOR PROCS\" at +16), the first DD entry at +24 (\"The first TIOT DD entry is located immediately after the TIOT1 structure\"), \"24 (18) SIGNED 1 TIOELNGH - LENGTH, IN BYTES, OF THIS ENTRY (INCLUDING ALL DEVICE ENTRIES)\", \"28 (1C) CHARACTER 8 TIOEDDNM - DD NAME\", a 4-byte device entry whose \"remaining 3 bytes is TIOEFSRT\" at +41 (\"DURING PROBLEM PROGRAM, ADDRESS OF UCB\"; 16-byte DD entry plus one 4-byte device entry = the 20 the runtime lays), and \"60 (3C) CHARACTER 4 TIOTFEND - FINAL END OF THE TIOT - BINARY ZEROS\" (the zero fullword that ends the walk). DIFFERS in wording only (code comments, not behaviour; each needs its own code PR): the runtime, register A2 and ggtiot.c call the +16 field TIOCJSTP and gloss it 'procedure step'; IBM's +16 field is TIOCJSTN, the JOB step name for a procedure, and the procedure step name sits at +8 (TIOCPSTN), so for a procedure step the run's second and third names land in IBM's +8 and +16 slots only if the case states them in that order. Still ASSUMED because IBM leaves it open or documents against it: PSATNEW is described \"TCB pointer. Field maintained for code compatability with previous MVS releases. DO NOT USE.\" while PSATOLD (X'21C') is \"Pointer to current TCB or zero if in SRB mode\", so IBM never says PSATNEW is the running program's own TCB (CVTTCBP is \"Address of PSATNEW\", and IHSANTCB / IHSAOTCB name PSATNEW and PSATOLD as separate values); pointers are 4 bytes in IBM (ADDRESS 4) and 8-byte handles in the runtime (C9); the length of a DD entry with no allocated device (SYSOUT, DUMMY, in-stream) is not stated (\"ONE DEVICE ENTRY FOR EACH ALLOCATED DEVICE\"), the runtime lays 20 bytes with a zero token; the token value is the runtime's. The manuals' PSA, TCB and TIOT tables are the only IBM text for these blocks (no JOBLIB / dynamic-allocation entries are laid). Declared in A2 and C9",
    "options": [],
    "register": [
     "A2",

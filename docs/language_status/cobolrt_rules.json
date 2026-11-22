@@ -775,8 +775,11 @@
    "methods": [
     "divideIntr"
    ],
-   "ibm": null,
-   "ibm_note": "z/OS leaves a zero divisor's result undefined; the oracle's value is modelled",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SIZE ERROR phrases"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, SIZE ERROR phrases): \"A size error condition can occur in different ways ... When division by zero occurs.\" The same section gives no value for the quotient (register C14 re-read the section: no abend and no value are stated), and a division inside a function argument is an arithmetic expression like any other (Arithmetic expressions). So the size error raised by divideIntr matches IBM; DIFFERS only in the value: the oracle's cob_intr_binop gives 0 where IBM states none, and, unlike a final result, the size error is raised for an intermediate that IBM says applies to \"final results only\" (C14). Declared in C14.",
    "options": [],
    "register": [
     "C14"
@@ -816,8 +819,11 @@
     "trim"
    ],
    "site": "reset",
-   "ibm": null,
-   "ibm_note": "IBM documents literal operands as constants; the in-place scale change is the oracle's (cob_decimal_* on dc_N)",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Numeric literals"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, Numeric literals): \"The value of a numeric literal is the algebraic quantity expressed by the characters in the literal. The size of a numeric literal is equal to the number of digits specified by the user.\" IBM states a literal's value and size and no mutable scale: a literal never changes between uses. The runtime keeps the literal's value (raising its scale adds trailing zeros, the same algebraic quantity) and so matches IBM on value; DIFFERS only because libcob mutates the constant's representation in place (c.v.setScale), which can change a later result's scale and truncation where IBM has nothing to say. The manual does not address the mechanism. Declared in C2.",
    "options": [
     "ARITHMETIC-OSVS"
    ],
@@ -921,8 +927,11 @@
     "nonDigitSign",
     "refuseUndefinedSign"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents no result for such data",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Data items with invalid contents; INVDATA / ZONEDATA"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Programming Guide SC27-8714-03, Defining numeric data: \"When you give an item a value that is incompatible with its data description, references to that item in the PROCEDURE DIVISION are undefined and your results are unpredictable\"; compiler options INVDATA and ZONEDATA). For INVDATA: the option governs \"MOVE statements, comparisons, and computations for USAGE DISPLAY or PACKED-DECIMAL data items that could contain invalid digits, an invalid sign code, or invalid zone bits\"; \"CLEANSIGN does not apply to USAGE DISPLAY items defined with SIGN IS SEPARATE\"; \"the sign code must be a valid sign code according to the NUMPROC option setting\". No text gives the value of a MOVE of a sign byte that is no digit, overpunch, sign or space, so the port refuses by name: REFUSED, IBM leaves it undefined (register C11).",
    "options": [],
    "register": [
     "C11"
@@ -2545,8 +2554,11 @@
    "methods": [
     "sysin"
    ],
-   "ibm": null,
-   "ibm_note": "IBM leaves the target undefined when the input stream is exhausted; the port refuses by name instead of blanking it",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "ACCEPT statement: Format 1, system input device"
+   },
+   "ibm_note": "IBM (Enterprise COBOL for z/OS 6.4 Language Reference SC27-8713-03, ACCEPT statement, Data transfer, \"System input device\"). DIFFERS from the earlier note, which said IBM leaves the target undefined when the input is exhausted: IBM defines it. \"If EOF is encountered before any data has been moved to the receiving area, padding will not take place and the contents of the receiving area are unchanged.\" The port refuses by name instead (a stricter choice than IBM, so REFUSED stays). A second DIFFERS: IBM reads \"until the receiving area is filled or EOF is encountered\", each record \"concatenated with the previous input record\", the final record truncated, and \"If EOF is encountered after data has been moved and before the receiving area has been filled, the receiving area is padded with spaces\"; the port moves one line per ACCEPT as an alphanumeric MOVE (a short line is space-padded, a long one truncated), so a receiving area longer than one record, or two ACCEPTs against one record, read differently from IBM. MATCHED: a fixed-length record is used whole (\"No editing is performed to remove trailing or leading blanks\"), the length of a transfer is the record length \"with a maximum of 32,760 bytes\", and \"There is no editing or error checking of the incoming data\". Neither DIFFERS is declared in the register (no entry names ACCEPT FROM SYSIN), so this note records them and the rule is not re-statused.",
    "options": [],
    "register": [],
    "status": "REFUSED",
@@ -3227,8 +3239,11 @@
     "withFaults",
     "injected"
    ],
-   "ibm": null,
-   "ibm_note": "the faults are the harness's; the SQLCA a fault leaves is assumed",
+   "ibm": {
+    "doc": "db2-sql",
+    "section": "Appendix F. SQL communication area (SQLCA), Description of SQLCA fields (Table 262)"
+   },
+   "ibm_note": "IBM (Db2 13 for z/OS SQL Reference, Appendix F, Description of SQLCA fields, Table 262; the faults themselves are the harness's, not IBM's). MATCHED parts of the SQLCA a fault leaves: SQLCODE \"Contains the SQL return code\" (0 successful, positive a warning, negative an error condition); SQLERRML \"Length indicator for SQLERRMC, in the range 0 through 70\"; SQLERRMC holds \"one or more tokens, separated by X'FF'\", which the port fills with the declared token cut to 70 bytes; SQLERRD(3) holds the reason code for SQLCODEs -911 and -913 (the port's optional seventh field). ASSUMED: IBM does not say what a statement leaves in SQLERRP, SQLWARN or SQLERRD(1,2,4-6) for an arbitrary failure the harness plans, nor that a planned fault makes the statement leave all its host variables and cursor state untouched; those are the port's choices. Declared in M2.",
    "options": [],
    "features": [
     "sql_forms: STATIC"

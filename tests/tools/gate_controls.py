@@ -388,6 +388,16 @@ NOT_GATES.update(
 MAX_UNPROVEN = 4
 
 
+# The gates with no failure fixture yet, each with why. A gate lacking a proof and absent here fails
+# test_gate_controls.py by name, so a swap (one gate loses its proof while another gains one) cannot hide in the count.
+UNPROVEN = {
+    "Muninn": "an external action with no local entry point to feed a bad input",
+    "db2": "needs the real Db2 container; no stub of the plan yet",
+    "full-suite-matrix": "the OS x Python matrix has no local fixture yet",
+    "equivalence-e2e": "needs the java and GnuCOBOL toolchain; no stubbed failure yet",
+}
+
+
 def unproven() -> list[Gate]:
     return [g for g in GATES if not g.proof and not g.notice]
 

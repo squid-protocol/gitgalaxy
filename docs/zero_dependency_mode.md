@@ -46,6 +46,9 @@ Because every centrality is computed on every install, these all work in every m
 - the brief's "undocumented critical path", "fragile dependency chain" and "cascading state mutation" rankings
 - its blast-radius insights and the AI-topology "Cognitive Choke Point" insight
 
+These are structural rankings. Betweenness and PageRank are not validated as fix-risk predictors (exploratory, temporal-crucible `docs/fix_radius_orchestrators.md`);
+the "choke point" wording names a graph position, not a likelihood of failure.
+
 **In every mode**, betweenness, closeness, average path length and modularity are computed at every repository size. The only limit is a deterministic work budget: 50 million edge scans per search, which counts work, never time. Past it, the metric is `None` / NULL / `n/a`, and the ranking built on it is empty. An import graph stays far below the budget: language-crucible's 2,817 files take about 2 ms per search.
 
 **Average path length changed meaning in #3037.**

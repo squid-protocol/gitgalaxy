@@ -125,6 +125,9 @@ no sigmoid to turn a ±1 count into ±13 points.
 | popularity and silo multipliers, path modifier `mp` | blast radius sits beside the score in the same report row; a coverage ratio does not change because the file lives in a config folder. The popularity term is dead today anyway (#2909), so its removal is score-neutral |
 | `doc_weight` `ownership_weight` `doc_loc_weight` `loc_smoothing` `threshold_base` `sigmoid_slope` | six knobs become two |
 
+Blast radius, as the table uses it, is a structural measure. It is not validated as a predictor of fix-proneness
+beyond size (exploratory, temporal-crucible `docs/fix_radius_orchestrators.md`), and nothing in this contract relies on it as a risk signal.
+
 ## 4. Decisions (to approve on #2908 before Phase 2)
 
 - **D1** The score is a ratio over extracted units; no per-LOC term, no sigmoid, no small-file

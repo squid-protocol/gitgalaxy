@@ -78,7 +78,7 @@ Evidence (`blocker-slice` / `cics-command-slice`): read levels with `generated_b
 Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Edit the shepherd's workflows (`shepherd-*.yml`) without the owner's per-PR OK. Route around a denial or classifier block (STOP and report).
 
 ## After pushing
-To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md); fallback `python tests/tools/box/ci_shepherd.py add N`. Add the label only, never a marker comment (`.claude/rules/shepherd-markers.md`).
+To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md); fallback `python tests/tools/box/ci_shepherd.py add N`. Label `shepherd:merge` only; never write a `shepherd:approved` marker comment (`.claude/rules/shepherd-markers.md`).
 
 **Before the final report** and every later push: `git fetch -q origin; git merge-tree --write-tree origin/main HEAD >/dev/null || echo CONFLICT`. On CONFLICT merge main now and push: a conflicting PR runs no checks (conflicts are the top fix-run cause; main moves after your report, so redo this check at every push). Generated files: take main's, then regenerate, never hand-merge: `tests/tools/docs_read_by_tests.txt` via `change_classifier.py --write`, the doc-refs / ruff / mypy baselines via `audit_check.py --regenerate`, port-blocker and ledger pages via their `report --write` / `update`.
 

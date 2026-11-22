@@ -83,6 +83,8 @@ def _callees(line: str) -> list[str]:
         ("print STDERR 'x';", ["print"]),
         ("my $o = new Foo;", ["new"]),
         ("new Foo::Bar;", ["new"]),
+        ("my $o = new Bugzilla::Bug($alias);", ["new", "Bug"]),
+        ("return [uniq @bug_ids];", ["uniq"]),
         ("Foo::bar $x;", ["bar"]),
         # slice 5: digit-first arguments and `select` with a handle
         ("plan 4;", ["plan"]),
@@ -270,3 +272,39 @@ def test_stray_quote_in_a_comment_does_not_pair_with_a_far_quote():
     by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
     assert by_name["a"] == ["foo"]
     assert by_name["b"] == ["bar"]
+
+
+def test_long_multiline_string_closed_before_newline_concat_does_not_end_unit_early():
+    """#6433: a >200-char single-quoted SQL string closed before `\\n  . $expr` must be shielded
+    so its closing quote does not pair with a later hash key quote (`$vars{'k'}`) and eat `{`."""
+    code = (
+        "sub _set_product {\n"
+        "    if ($a) {\n"
+        "        my $sql = $x . ')\n" + ("            AND col = 1\n" * 16) + "            AND id IN ('\n"
+        "            . $self->groups_as_string . '))';\n"
+        "        $vars{'old_groups'} = Group->new_from_list($sql);\n"
+        "    }\n"
+        "    $self->add_group($g);\n"
+        "}\n"
+    )
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
+    assert {"groups_as_string", "new_from_list", "add_group"} <= set(by_name["_set_product"])
+
+
+def test_defined_or_and_decrement_do_not_blank_perl_calls():
+    """#6433: `//`, `//=` (defined-or) and `--` (decrement) are operators, not line comments."""
+    code = (
+        "sub component {\n"
+        "    my ($self) = @_;\n"
+        "    $self->{component} //= $self->component_obj->name;\n"
+        "    my $x = $y // fallback($self);\n"
+        "    --$n && notify($n);\n"
+        "    return $self->{component};\n"
+        "}\n"
+    )
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
+    assert {"component_obj", "name", "fallback", "notify"} <= set(by_name["component"])

@@ -2516,10 +2516,10 @@
       "perl/ack3_tests/file-permission.t": -96.73
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": -142.76,
+      "perl/bugzilla/Auth.pm": -142.77,
       "perl/bugzilla/Bug.pm": -69.68,
       "perl/bugzilla/CGI.pm": -57.72,
-      "perl/bugzilla/DB.pm": -132.01,
+      "perl/bugzilla/DB.pm": -132.03,
       "perl/bugzilla/Requirements.pm": -40.12
     },
     "perl/exiftool": {

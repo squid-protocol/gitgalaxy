@@ -102,12 +102,30 @@ DEFECTS = (
 )
 
 
-CLEAN = Defect(
-    "clean",
-    "docs/canary_probe_clean.md",
-    "# Canary probe (clean)\n\nA control PR with nothing wrong in it: no gate may go red.\n",
-    (),
-    "a clean doc: every gate must stay green",
+# The clean control: one valid twin per defect area, so the plan jobs run the same gates the defect PR reaches (a
+# docs-only PR makes the code gates skip, and a skipped gate cannot false-alarm).
+CLEAN_SET = (
+    Defect(
+        "clean-code",
+        "gitgalaxy/canary_probe_clean.py",
+        '"""Canary probe: a clean module (typed, formatted, nothing unused)."""\n\n\ndef probe() -> int:\n    return 1\n',
+        (),
+        "a clean typed module: lint, format and mypy-audit must stay green",
+    ),
+    Defect(
+        "clean-test",
+        "tests/tools/test_canary_probe_clean.py",
+        '"""Canary probe: a test that passes."""\n\n\ndef test_the_clean_probe():\n    assert 1 == 1\n',
+        (),
+        "a passing test: the suite must stay green",
+    ),
+    Defect(
+        "clean-doc",
+        "docs/canary_probe_clean.md",
+        "# Canary probe (clean)\n\nSee [the CI page](ci.md). A control PR with nothing wrong in it: no gate may go red.\n",
+        (),
+        "a clean doc with a live link: every gate must stay green",
+    ),
 )
 
 
@@ -137,7 +155,7 @@ def problems(defects: tuple[Defect, ...] = DEFECTS, *, clean: bool = False) -> l
 def plan(defects: tuple[Defect, ...] = DEFECTS) -> dict:
     """The detection matrix to expect: each planted file and the gates that must go red on it."""
     return {
-        "kind": "clean" if defects == (CLEAN,) else "defects",
+        "kind": "clean" if defects == CLEAN_SET else "defects",
         "defects": [{"key": d.key, "path": d.path, "what": d.what, "red": list(d.red)} for d in defects],
         "must_go_red": sorted({g for d in defects for g in d.red}),
     }
@@ -174,7 +192,7 @@ def open_pr(branch: str, *, root: Path = REPO, dry_run: bool = False, clean: boo
     if not branch.startswith(BRANCH_PREFIX):
         print(f"refusing: {branch!r} is not a {BRANCH_PREFIX} branch", file=sys.stderr)
         return 2
-    defects = (CLEAN,) if clean else DEFECTS
+    defects = CLEAN_SET if clean else DEFECTS
     bad = problems(defects, clean=clean)
     if bad:
         print("\n".join(bad), file=sys.stderr)
@@ -243,6 +261,7 @@ def evaluate(expect: dict, runs: list[dict], *, age: timedelta) -> dict:
         "rows": rows,
         "misses": [r["gate"] for r in rows if r["verdict"] == "MISS"],
         "false_alarms": false_alarms,
+        "checks_run": len({r["name"] for r in runs if r.get("conclusion") not in (None, "skipped")}),
         "settled": not pending or age >= MAX_AGE,
     }
 
@@ -258,7 +277,10 @@ def render(result: dict) -> str:
         ]
     if result["kind"] == "clean":
         fa = ", ".join(result["false_alarms"]) or "none"
-        lines += ["", f"Clean control. False alarms (red checks): {fa}."]
+        lines += [
+            "",
+            f"Clean control. False alarms (red checks): {fa}. Checks that ran: {result.get('checks_run', 0)}.",
+        ]
     return "\n".join(lines) + "\n"
 
 
@@ -292,7 +314,13 @@ def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> s
         n = str(pr["number"])
         if dry_run:
             return "dry-run"
-        _gh("pr", "comment", n, "--body", "Canary control PR with no `canary-expect` marker: cannot be judged. Closed. #7155")
+        _gh(
+            "pr",
+            "comment",
+            n,
+            "--body",
+            "Canary control PR with no `canary-expect` marker: cannot be judged. Closed. #7155",
+        )
         return _close(n, branch)
     created = datetime.fromisoformat(pr["createdAt"].replace("Z", "+00:00"))
     result = evaluate(expect, _runs(pr["headRefOid"]), age=(now or datetime.now(UTC)) - created)

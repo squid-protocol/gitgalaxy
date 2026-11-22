@@ -190,6 +190,20 @@ def test_mod_of_an_absent_plus_one_is_new_and_mod_of_an_absent_zero_or_minus_n_i
         _run(gone, "J", CAT, {"A": {"rc": 0}})
 
 
+def test_uncatlg_of_the_oldest_follows_the_groups_sms_state_and_a_new_uncatlg_is_keep():
+    oldest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,UNCATLG)\n"
+    sms = {"G.B": {"limit": 5, "generations": [1, 2], "sms": True}}
+    assert _run(oldest, "J", sms, {"A": {"rc": 0}})[1] == sms
+    plain = {"G.B": {"limit": 5, "generations": [1, 2], "sms": False}}
+    assert _run(oldest, "J", plain, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [2], "sms": False}}
+    newest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(0),DISP=(OLD,UNCATLG)\n"
+    with pytest.raises(JclGdgRefused, match="UNCATLG of a generation other than the oldest"):
+        _run(newest, "J", plain, {"A": {"rc": 0}})
+    # a step that abended with no abnormal disposition applies the normal one; a new UNCATLG is KEEP either way
+    new = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(+1),DISP=(NEW,UNCATLG)\n"
+    assert _run(new, "J", CAT, {"A": {"abend": "S0C7"}})[1]["G.B"]["deferred_rollin"] == [3]
+
+
 def test_deleting_the_oldest_removes_it_and_any_other_generation_is_refused_by_name():
     oldest = HEAD + "//A EXEC PGM=X\n//O DD DSN=G.B(-1),DISP=(OLD,DELETE)\n"
     assert _run(oldest, "J", CAT, {"A": {"rc": 0}})[1] == {"G.B": {"limit": 5, "generations": [2]}}

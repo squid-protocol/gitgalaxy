@@ -121,8 +121,8 @@
     },
     "haskell": {
       "files": 7,
-      "impact": 747.3,
-      "loc": 1805
+      "impact": 747.8,
+      "loc": 1830
     },
     "hlasm": {
       "files": 20,

@@ -2269,20 +2269,20 @@
       "avg_exposures": {
         "api_exposure": 0.4,
         "churn": 0.0,
-        "cognitive_load": 3.3,
+        "cognitive_load": 3.28,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 11.96,
-        "safety_score": 8.88,
+        "safety_score": 8.89,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 31.82,
         "state_flux": 0.8,
-        "tech_debt": 17.51,
+        "tech_debt": 17.33,
         "verification": 15.61
       },
       "file_count": 11,
-      "total_mass": 779.46
+      "total_mass": 779.96
     },
     "hlasm": {
       "avg_exposures": {

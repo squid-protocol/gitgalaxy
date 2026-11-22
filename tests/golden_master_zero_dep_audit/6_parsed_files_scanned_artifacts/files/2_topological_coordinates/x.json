@@ -382,7 +382,7 @@
       "batch/cpython/Tools/msi/buildrelease.bat": -10156.71
     },
     "blueprint": {
-      "blueprint/SOURCES.md": 12555.49
+      "blueprint/SOURCES.md": 12555.5
     },
     "blueprint/ghostty": {
       "blueprint/ghostty/command-palette.blp": 8849.2,
@@ -1751,15 +1751,15 @@
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 11044.02,
       "haskell/pandoc/App.hs": 11060.91,
-      "haskell/pandoc/CONTRIBUTING.md": 11919.86,
+      "haskell/pandoc/CONTRIBUTING.md": 11919.87,
       "haskell/pandoc/COPYING.md": 10707.0,
-      "haskell/pandoc/COPYRIGHT": 11562.88,
-      "haskell/pandoc/Class.hs": 11190.97,
-      "haskell/pandoc/Filter.hs": 11552.52,
-      "haskell/pandoc/Options.hs": 11340.91,
-      "haskell/pandoc/Pandoc.hs": 11761.08,
+      "haskell/pandoc/COPYRIGHT": 11562.89,
+      "haskell/pandoc/Class.hs": 11190.98,
+      "haskell/pandoc/Filter.hs": 11552.54,
+      "haskell/pandoc/Options.hs": 11340.92,
+      "haskell/pandoc/Pandoc.hs": 11761.12,
       "haskell/pandoc/Parsing.hs": 10864.81,
-      "haskell/pandoc/Shared.hs": 11357.68
+      "haskell/pandoc/Shared.hs": 11357.69
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": -4811.5,
@@ -2648,7 +2648,7 @@
       "pli/zopeneditor_sample/PSAM2.pli": 7508.79
     },
     "powershell": {
-      "powershell/SOURCES.md": 13000.87
+      "powershell/SOURCES.md": 13000.89
     },
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": -1800.35,
@@ -2806,10 +2806,10 @@
       "python/SOURCES.md": 4140.75
     },
     "python/airflow": {
-      "python/airflow/NOTICE": 12632.73,
-      "python/airflow/dag.py": 12391.62,
-      "python/airflow/s3.py": 12052.35,
-      "python/airflow/scheduler_job_runner.py": 12322.55
+      "python/airflow/NOTICE": 12632.74,
+      "python/airflow/dag.py": 12391.63,
+      "python/airflow/s3.py": 12052.37,
+      "python/airflow/scheduler_job_runner.py": 12322.56
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": -10327.85,
@@ -3272,7 +3272,7 @@
       "rust/tokio/tokio_udp.rs": -947.29
     },
     "rust/tokio_util_rand": {
-      "rust/tokio_util_rand/rand.rs": 12894.79
+      "rust/tokio_util_rand/rand.rs": 12894.8
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 1620.56,
@@ -4024,9 +4024,9 @@
       "yaml/moby_workflows/windows-2025.yml": -10454.31
     },
     "yaml/serenity_composite_actions": {
-      "yaml/serenity_composite_actions/cache-restore_action.yml": 11966.45,
-      "yaml/serenity_composite_actions/cache-save_action.yml": 12175.09,
-      "yaml/serenity_composite_actions/setup_action.yml": 12138.59
+      "yaml/serenity_composite_actions/cache-restore_action.yml": 11966.46,
+      "yaml/serenity_composite_actions/cache-save_action.yml": 12175.1,
+      "yaml/serenity_composite_actions/setup_action.yml": 12138.6
     },
     "yaml/sqlmap_openapi": {
       "yaml/sqlmap_openapi/sqlmapapi.yaml": -11438.65

@@ -1750,16 +1750,16 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 0.0,
-      "haskell/pandoc/App.hs": 0.303,
+      "haskell/pandoc/App.hs": 0.3,
       "haskell/pandoc/CONTRIBUTING.md": 0.0,
       "haskell/pandoc/COPYING.md": 0.0,
       "haskell/pandoc/COPYRIGHT": 0.0,
       "haskell/pandoc/Class.hs": 0.0,
-      "haskell/pandoc/Filter.hs": 0.327,
-      "haskell/pandoc/Options.hs": 0.302,
+      "haskell/pandoc/Filter.hs": 0.317,
+      "haskell/pandoc/Options.hs": 0.31,
       "haskell/pandoc/Pandoc.hs": 0.0,
       "haskell/pandoc/Parsing.hs": 0.0,
-      "haskell/pandoc/Shared.hs": 0.203
+      "haskell/pandoc/Shared.hs": 0.2
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": 0.0,

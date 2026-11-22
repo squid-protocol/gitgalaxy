@@ -4632,25 +4632,26 @@
     "haskell/pandoc": {
       "Average Risk Exposures": {
         "API Exposure": "0.4%",
-        "Cognitive Load Exposure": "3.3%",
+        "Cognitive Load Exposure": "3.28%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "11.96%",
-        "Error & Exception Exposure": "8.88%",
+        "Error & Exception Exposure": "8.89%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "31.82%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "0.8%",
-        "Tech Debt Exposure": "17.51%",
+        "Tech Debt Exposure": "17.33%",
         "Testing Exposure": "15.61%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 779.46,
+      "Directory Group Magnitude": 779.96,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "36.4%",
         "file_cluster_0": "9.1%",
         "file_cluster_15": "18.2%",
-        "file_cluster_2": "27.3%",
+        "file_cluster_17": "9.1%",
+        "file_cluster_2": "18.2%",
         "file_cluster_4": "9.1%"
       },
       "File Count": 11,

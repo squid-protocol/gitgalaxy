@@ -1757,7 +1757,7 @@
       "haskell/pandoc/Class.hs": "file_cluster_2",
       "haskell/pandoc/Filter.hs": "file_cluster_0",
       "haskell/pandoc/Options.hs": "file_cluster_15",
-      "haskell/pandoc/Pandoc.hs": "file_cluster_2",
+      "haskell/pandoc/Pandoc.hs": "file_cluster_17",
       "haskell/pandoc/Parsing.hs": "file_cluster_2",
       "haskell/pandoc/Shared.hs": "file_cluster_15"
     },

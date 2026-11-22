@@ -1749,15 +1749,15 @@
       "haskell/SOURCES.md": -9145.87
     },
     "haskell/pandoc": {
-      "haskell/pandoc/AUTHORS.md": 3056.98,
+      "haskell/pandoc/AUTHORS.md": 3056.97,
       "haskell/pandoc/App.hs": 3674.9,
-      "haskell/pandoc/CONTRIBUTING.md": 3445.82,
-      "haskell/pandoc/COPYING.md": 3716.87,
+      "haskell/pandoc/CONTRIBUTING.md": 3445.83,
+      "haskell/pandoc/COPYING.md": 3716.88,
       "haskell/pandoc/COPYRIGHT": 2704.59,
-      "haskell/pandoc/Class.hs": 3879.93,
-      "haskell/pandoc/Filter.hs": 3861.92,
-      "haskell/pandoc/Options.hs": 3064.66,
-      "haskell/pandoc/Pandoc.hs": 3055.02,
+      "haskell/pandoc/Class.hs": 3879.94,
+      "haskell/pandoc/Filter.hs": 3861.94,
+      "haskell/pandoc/Options.hs": 3064.63,
+      "haskell/pandoc/Pandoc.hs": 3055.01,
       "haskell/pandoc/Parsing.hs": 3388.29,
       "haskell/pandoc/Shared.hs": 3500.73
     },
@@ -2806,10 +2806,10 @@
       "python/SOURCES.md": -11051.65
     },
     "python/airflow": {
-      "python/airflow/NOTICE": 3646.24,
+      "python/airflow/NOTICE": 3646.25,
       "python/airflow/dag.py": 2820.03,
       "python/airflow/s3.py": 3424.08,
-      "python/airflow/scheduler_job_runner.py": 3076.74
+      "python/airflow/scheduler_job_runner.py": 3076.75
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": -1616.6,
@@ -4024,9 +4024,9 @@
       "yaml/moby_workflows/windows-2025.yml": -3562.91
     },
     "yaml/serenity_composite_actions": {
-      "yaml/serenity_composite_actions/cache-restore_action.yml": 4241.79,
+      "yaml/serenity_composite_actions/cache-restore_action.yml": 4241.8,
       "yaml/serenity_composite_actions/cache-save_action.yml": 3768.26,
-      "yaml/serenity_composite_actions/setup_action.yml": 4132.77
+      "yaml/serenity_composite_actions/setup_action.yml": 4132.78
     },
     "yaml/sqlmap_openapi": {
       "yaml/sqlmap_openapi/sqlmapapi.yaml": -4420.26

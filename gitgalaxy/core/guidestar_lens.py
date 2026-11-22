@@ -22,7 +22,13 @@ import re
 from pathlib import Path
 from typing import Any
 
-from gitgalaxy.core.aperture import VIRTUALENV_CANDIDATE_NAMES, VendorDirectoryDetector, looks_like_virtualenv
+from gitgalaxy.core.aperture import (
+    EVIDENCE_DIRECTORY_NAMES,
+    VIRTUALENV_CANDIDATE_NAMES,
+    VendorDirectoryDetector,
+    is_noise_directory,
+    looks_like_virtualenv,
+)
 from gitgalaxy.core.source_text import open_source, read_source
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
@@ -475,6 +481,10 @@ class GuideStarLens:
                 for d in dirs
                 if d.lower() not in ignored_directories_lower
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root_dir) / d))
+                and not (
+                    d.lower() in EVIDENCE_DIRECTORY_NAMES
+                    and is_noise_directory(Path(root_dir) / d, ignored_directories_lower)
+                )
                 and not vendor_dirs.is_vendored((Path(root_dir) / d).relative_to(self.root).as_posix())
             ]
 

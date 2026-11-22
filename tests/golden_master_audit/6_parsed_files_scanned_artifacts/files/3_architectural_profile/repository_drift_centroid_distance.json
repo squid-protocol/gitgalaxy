@@ -1090,7 +1090,7 @@
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0.0,
       "cpp/NVDA/__init__.py": 7.334,
-      "cpp/NVDA/braille.py": 7.776,
+      "cpp/NVDA/braille.py": 7.814,
       "cpp/NVDA/contributors.txt": 0.0,
       "cpp/NVDA/copying.txt": 0.0,
       "cpp/NVDA/core.py": 7.397,
@@ -2983,7 +2983,7 @@
       "python/fastapi/tests/test_response_class_no_mediatype.py": 5.567,
       "python/fastapi/tests/test_response_code_no_body.py": 6.085,
       "python/fastapi/tests/test_response_dependency.py": 7.655,
-      "python/fastapi/tests/test_response_model_as_return_annotation.py": 6.624,
+      "python/fastapi/tests/test_response_model_as_return_annotation.py": 6.73,
       "python/fastapi/tests/test_response_model_data_filter.py": 6.556,
       "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 6.566,
       "python/fastapi/tests/test_response_model_default_factory.py": 7.005,
@@ -3082,7 +3082,7 @@
       "python/homeassistant_ble_integrations/utils.py": 6.074
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 8.055,
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 8.082,
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 12.471,
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 7.846
     },

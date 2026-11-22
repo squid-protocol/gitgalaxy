@@ -12,9 +12,9 @@
     "Generic / Templated Code Files": "2.2% (75)",
     "Interface Declarations Files": "12.6% (423)",
     "Large Core Modules": "10.7% (361)",
-    "Large Core Modules (2)": "8.4% (284)",
+    "Large Core Modules (2)": "8.4% (283)",
     "Large Core Modules (3)": "8.9% (298)",
-    "Many-Argument Workhorses Files": "2.2% (75)",
+    "Many-Argument Workhorses Files": "2.3% (76)",
     "Parameter Forwarders Files": "4.4% (149)",
     "State Mutators Files": "2.3% (77)",
     "Type Conversions Files": "0.4% (15)"

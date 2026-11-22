@@ -94,7 +94,6 @@ sys.path.insert(0, str(REPO))
 
 import generated_branch  # noqa: E402
 from det_survey import is_program_path  # noqa: E402
-from gitgalaxy.core.cobol_source_format import line_formats  # noqa: E402
 
 CENSUS_ENV = "CICS_CENSUS_CORPORA"
 PROGRAM_EXTS = {".cbl", ".cob", ".cobol"}  # det_survey.EXTS
@@ -126,30 +125,6 @@ def is_burned(corpus: str, burned: set[str] | None = None) -> bool:
 
 
 # ---- reading EXEC CICS commands (names only) --------------------------------------------------------------------
-def source_lines(text: str) -> list[tuple[str, str]]:
-    """(format, line) per line: each line's reference format (fixed / free / variable, `>>SOURCE FORMAT` switches
-    followed, #4264) beside the line itself. #5089: the one place a fact scan learns the columns."""
-    lines = text.replace("\r", "").split("\n")
-    if lines and lines[-1] == "":  # the newline ending the file starts no line
-        lines.pop()
-    return list(zip(line_formats("\n".join(lines)), lines))
-
-
-def fixed_format_text(text: str) -> str:
-    """The program's code area, upper-cased and joined: columns 8-72 of a fixed line (to the end of a variable one),
-    the whole of a free line; comment lines (column-7 `*` or `/`, free `*>`) dropped. #5089: format-aware."""
-    out = []
-    for fmt, ln in source_lines(text):
-        if fmt == "free":
-            if not ln.lstrip().startswith("*>"):
-                out.append(ln)
-            continue
-        if len(ln) > 6 and ln[6] in "*/":
-            continue
-        out.append(ln[6:] if fmt == "variable" else ln[6:72] if len(ln) > 6 else "")
-    return " ".join(out).upper()
-
-
 _DIVISION = re.compile(r"\b(?:IDENTIFICATION|ID|PROCEDURE)\s+DIVISION\b")
 _PROGRAM_ID = re.compile(r"\bPROGRAM-ID\b")
 COPY_MEMBER_REASON = "no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only"
@@ -170,33 +145,12 @@ from gitgalaxy.tools.readiness.listings import (  # noqa: E402, F401 -- #8411: m
     LISTING_NAME,
     LISTING_NUMBER_MIN_LINES,
     _LISTING_NUMBER,
+    duplicate_reasons,
+    fixed_format_text,
     listing_reason,
+    program_id,
+    source_lines,
 )
-
-
-def program_id(text: str) -> str | None:
-    """The upper-cased PROGRAM-ID of a program (fixed or free format), or None."""
-    m = re.search(r"\bPROGRAM-ID\s*\.?\s+([A-Z0-9_$#@-]+)", fixed_format_text(text))
-    return m.group(1) if m else None
-
-
-def duplicate_reasons(texts: dict[str, str]) -> dict[str, str]:
-    """#8112: path -> reason for every program whose PROGRAM-ID an earlier path (sorted order) already has in this
-    estate; `exact` when the normalised code is equal, `near` otherwise. The first path stays the program."""
-    first: dict[str, str] = {}
-    out: dict[str, str] = {}
-    for path in sorted(texts):
-        pid = program_id(texts[path])
-        if pid is None:
-            continue
-        if pid not in first:
-            first[pid] = path
-            continue
-        same = " ".join(fixed_format_text(texts[path]).split()) == " ".join(
-            fixed_format_text(texts[first[pid]]).split()
-        )
-        out[path] = f"duplicate PROGRAM-ID ({'exact' if same else 'near'} copy of another program in the estate)"
-    return out
 
 
 def not_program_rows(texts: dict[str, str], parts: dict[str, tuple[str, ...]]) -> dict[str, str]:

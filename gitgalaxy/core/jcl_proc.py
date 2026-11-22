@@ -20,7 +20,7 @@
 # EXEC PARM= / COND= on a call of a procedure that calls procedures, nesting past 15 levels (invalid, pp. 32, 376), an INCLUDE
 # group holding JOB / PROC / PEND / JCLLIB (invalid, p. 376), a SET inside a procedure naming a symbol its EXEC / PROC assigns, or
 # holding a symbol in its value (a group, job-level or in a procedure, is spliced whole, EXEC and SET included, p. 376), a member found
-# in no library. An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
+# in no library, an IF/THEN/ELSE construct inside a procedure (its relations name procedure steps the call renames). An OUTPUT statement in an INCLUDE group adds no DD and is skipped.
 from __future__ import annotations
 
 import re
@@ -512,6 +512,12 @@ def expand_flow_rows(
             )
         call = r["step_name"]
         for ps in steps:
+            if ps.get("if_cond"):
+                # the procedure's own IF/THEN/ELSE: its relations name procedure steps, which the call renames; silently
+                # dropping the IF would run a bypassed step, so it is refused by name
+                raise JclProcRefused(
+                    f"{r['step_name']}.{ps['step_name']}: an IF/THEN/ELSE construct inside a procedure is not answered here"
+                )
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
                 cond = _COND_STEP.sub(rf"\g<1>{call}.\g<2>\g<3>", cond)

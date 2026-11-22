@@ -1030,6 +1030,46 @@ _BRACE_LITERAL_SHIELD_LANGS = frozenset(
     }
 )  # fmt: skip
 
+# #8908: Perl's `perl_literals` scope filter. Strings and quote-like regex literals
+# (`m//`, `s///`, `qr//`, `tr`, `y`, `q`/`qq`/`qw`/`qx`, a bare `/.../` after an operator)
+# are blanked index-aligned, so a `?:`, `:` or `|` inside one is not read as code.
+_PERL_QOP = r"(?<![\w$@%&:>-])"
+_PERL_SLASH_BODY = r"(?:\\.|[^/\\\n])*"
+_PERL_BRACE_BODY = r"\{(?:\\.|[^{}\\\n]|\{[^{}\n]*\})*\}"
+_PERL_LITERAL_RE = re.compile(
+    r'"(?:\\.|[^"\\])*"'
+    r"|'(?:\\.|[^'\\]){0,200}'"
+    r"|" + _PERL_QOP + r"(?:s|tr|y)[ \t]*/" + _PERL_SLASH_BODY + "/" + _PERL_SLASH_BODY + "/[a-z]*"
+    r"|" + _PERL_QOP + r"(?:qr|qq|qw|qx|q|m)[ \t]*/" + _PERL_SLASH_BODY + "/[a-z]*"
+    r"|" + _PERL_QOP + r"(?:s|tr|y)[ \t]*" + _PERL_BRACE_BODY + r"[ \t]*" + _PERL_BRACE_BODY + "[a-z]*"
+    r"|" + _PERL_QOP + r"(?:qr|qq|qw|qx|q|m)[ \t]*" + _PERL_BRACE_BODY + "[a-z]*"
+    r"|/" + _PERL_SLASH_BODY + "/[a-z]*"
+)
+_PERL_BARE_SLASH_AFTER = re.compile(
+    r"(?:(?:=~|!~|\(|,|;|\{|&&|\|\||[=?:!])[ \t]*$)|(?:\b(?:if|unless|while|split|grep|map|return|and|or|not)[ \t]+$)"
+)
+
+
+def _build_perl_safe_stream(code: str) -> str:
+    """Index-aligned copy of `code` with Perl string and regex literals blanked (#8908)."""
+    out: list[str] = []
+    pos = 0
+    last = 0
+    while True:
+        m = _PERL_LITERAL_RE.search(code, pos)
+        if not m:
+            break
+        text = m.group(0)
+        if text[0] == "/" and not _PERL_BARE_SLASH_AFTER.search(code[max(0, m.start() - 40) : m.start()]):
+            pos = m.start() + 1  # division or defined-or, not a regex
+            continue
+        out.append(code[last : m.start()])
+        out.append("".join("\n" if c == "\n" else " " for c in text))
+        last = pos = m.end()
+    out.append(code[last:])
+    return "".join(out)
+
+
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     # #5638: a Fortran `RETURN` is an early exit (inside `IF ... ENDIF`), the unit runs to its `END`
     "fortran": frozenset({"EXIT", "RETURN"}),
@@ -10926,6 +10966,10 @@ class StructuralExtractor:
             # func_start is the only rule that opts in.
             called = {n.lower() for n in _BATCH_CALL_TARGET_RE.findall(code)}
             return [m for m in matches if m.group(1) and m.group(1).lower() in called]
+        if filter_name == "perl_literals":
+            # #8908: drop a match inside a Perl string or regex literal.
+            safe = _build_perl_safe_stream(code)
+            return [m for m in matches if safe[m.start() : m.end()] == code[m.start() : m.end()]]
         if filter_name == "outside_literals":
             # #4136: drop a match that touches a string literal or a comment.
             # The code stream keeps string literals (the stream contract), so

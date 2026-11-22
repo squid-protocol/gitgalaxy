@@ -88,6 +88,11 @@ through the real extractor, since a bare regex never sees the filter. A
 JS/TS template literal's `${a ? b : c}` is shielded with its literal: a known,
 accepted undercount.
 
+**Perl (#8908).** Perl is not one of the 18, but its `branch`, `decorators` and `bitwise_ops` opt into the
+`perl_literals` scope filter (`detector._build_perl_safe_stream`): a string, or a `m//`, `s///`, `qr//`, `tr`, `q`/`qq`
+or bare `/.../` regex literal, is not code, so `(?:a|b)` and `"dbi:mysql:host"` count nothing. A ternary counts once, at
+its `?`; a `:` is never a decision. Pins: `tests/extraction/languages/test_perl_branch_literals_8908.py`.
+
 **Java's `:` and `?`.** A ternary is one decision, counted at its `?` (the
 "value-selection" dual below; java also counted its `:`, so every ternary read
 2). A `:` is never a decision in java: the ternary's own, a `case`/`default`

@@ -51,6 +51,8 @@ GATE_MAX_PARTS = 4
 GATE_TIMEOUT_FLOOR, GATE_TIMEOUT_CEILING = 20, 35
 STEP_MARGIN_MIN = 3  # step_timeout = leg timeout - 3 (#5764): expressions have no arithmetic
 # #8701: windows 3.12 planned at speed 1.3 got 2 parts (18 min planned) but part 1 measured 25 min; it now plans at 1.6 like 3.11 (3 parts).
+# #8701: the cap is already raised: SLOWEST_SEEN_MIN 25 x SEEN_HEADROOM gives windows 3.12 timeout 33 / step 30, 3+ min over
+# the 25:06 that failed. Lower that 25 only after 5 scheduled runs on the 3-part plan are measured (it was seen on 2 parts).
 # #8572: windows 3.12 part 1 ran 25 min on 2026-11-19 (all tests passed, the 25-min step cap killed it); 3.11 reached 21.
 # #5764: the slowest minutes seen per (os, python) part on the Gate's runs of 2026-10-14..20 (windows 3.11 was 25 min as 2
 # parts; as 3 parts it is an estimate: re-measure). A leg's cap keeps SEEN_HEADROOM over it whatever the durations say: a

@@ -1,5 +1,6 @@
 """#7155: every gate is listed, a named failure proof exists, and the first controls prove gates can go red."""
 
+import functools
 import json
 import shutil
 import sys
@@ -19,14 +20,21 @@ REPO = TOOLS.parents[1]
 WORKFLOWS = REPO / ".github" / "workflows"
 
 
+@functools.cache
+def _load(path: Path) -> dict:
+    """One parse per workflow per session: pure-Python yaml over 54 files, once per gate, cost 25 s on CI (#8963)."""
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+
+
 def _triggers(path: Path) -> set[str]:
-    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    doc = _load(path)
     on = doc.get(True) or doc.get("on") or {}  # YAML reads a bare `on:` key as True
     return set(on if isinstance(on, (dict, list)) else [on])
 
 
-def _pr_workflows() -> set[str]:
-    return {p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p)}
+@functools.cache
+def _pr_workflows() -> frozenset[str]:
+    return frozenset(p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p))
 
 
 def test_every_workflow_is_a_listed_gate_or_says_why_not():
@@ -41,13 +49,19 @@ def test_every_workflow_is_a_listed_gate_or_says_why_not():
 def test_a_named_job_exists_and_the_trigger_matches_the_workflow():
     for g in gc.GATES:
         assert g.trigger in {"pr", "main", "nightly", "release"}, g.name
-        doc = yaml.safe_load((WORKFLOWS / g.workflow).read_text(encoding="utf-8"))
+        doc = _load(WORKFLOWS / g.workflow)
         assert not g.job or g.job in doc["jobs"], f"{g.name}: job {g.job} is not in {g.workflow}"
         if g.trigger == "pr":
             assert g.workflow in _pr_workflows(), f"{g.name}: marked pr but {g.workflow} has no PR trigger"
         else:
             # an off-PR gate may share a workflow with a PR gate only through its own job
             assert g.job or g.workflow not in _pr_workflows(), f"{g.name}: {g.workflow} runs on PRs"
+
+
+def test_a_workflow_is_parsed_once_per_session():
+    """The named-job test re-parsed every workflow per gate and broke the 15 s ratchet on CI (#8963)."""
+    first = next(WORKFLOWS.glob("*.yml"))
+    assert _load(first) is _load(first)
 
 
 def test_every_required_check_is_listed():
@@ -172,3 +186,75 @@ def test_call_graph_accuracy_audit_fails_on_a_regression(tmp_path, monkeypatch, 
     dropped = {k: v for k, v in base.items() if k != lang}
     monkeypatch.setattr(cga, "measure", lambda *a, **k: dropped)
     assert cga.main(["--ci"]) == 1  # a language that is no longer measured is a regression too
+
+
+def test_tree_sitter_accuracy_audit_fails_on_a_regression(monkeypatch, capsys):
+    pytest.importorskip("tree_sitter_language_pack")
+    import tree_sitter_accuracy_audit as tsa
+
+    base = tsa.load_baseline("python")
+    assert base, "the python baseline must be committed"
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: dict(base))
+    assert tsa.run_ci_check("python") == 0
+    worse = {**base, "found_functions": base["found_functions"] - 1}
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: worse)
+    assert tsa.run_ci_check("python") == 1
+    assert "found_functions" in capsys.readouterr().out
+    noisier = {**base, "extra_functions": base["extra_functions"] + 1}
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: noisier)
+    assert tsa.run_ci_check("python") == 1  # a lower-is-better metric rising is a regression too
+    drifted = {**base, "real_functions": base["real_functions"] + 1}
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: drifted)
+    assert tsa.run_ci_check("python") == 1  # the corpus ground truth moved
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: dict(base))
+    monkeypatch.setattr(tsa, "load_baseline", lambda lang: {})
+    assert tsa.run_ci_check("python") == 1  # no committed baseline fails closed
+
+
+def test_tri_comparison_audit_fails_on_a_regression(monkeypatch, capsys):
+    import types
+
+    import tri_comparison_chart as tcc
+
+    lang = "javascript"
+    base = tcc.load_baseline(lang)
+    assert base, "the javascript baseline must be committed"
+    data = types.SimpleNamespace(has_data=True)
+    monkeypatch.setattr(tcc, "run_pipeline", lambda langs, verbose=True: {lang: data})
+    monkeypatch.setattr(tcc, "_extract_precision", lambda d: dict(base))
+    assert tcc.run_ci_check(lang, verbose=False) == 0
+    metric = sorted(base)[0]
+    monkeypatch.setattr(tcc, "_extract_precision", lambda d: {**base, metric: base[metric] - 1.0})
+    assert tcc.run_ci_check(lang, verbose=False) == 1
+    assert metric in capsys.readouterr().out
+    monkeypatch.setattr(tcc, "_extract_precision", lambda d: dict(base))
+    monkeypatch.setattr(tcc, "load_baseline", lambda lang: {})
+    assert tcc.run_ci_check(lang, verbose=False) == 1  # no committed baseline fails closed
+
+
+def test_import_graph_accuracy_audit_fails_on_a_regression(tmp_path, monkeypatch, capsys):
+    import import_graph_accuracy as iga
+
+    monkeypatch.setattr(iga, "render", lambda results: "")
+    base = json.loads(iga.BASELINE.read_text(encoding="utf-8"))
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: json.loads(json.dumps(base)))
+    assert iga.main(["--ci"]) == 0
+    lang = next(
+        k
+        for k, v in sorted(base.items())
+        if max(v.get("imports") or 0, v.get("engine_edges") or 0) >= iga.MIN_GATED_IMPORTS
+        and v.get("precision_pct") is not None
+    )
+    worse = json.loads(json.dumps(base))
+    worse[lang]["precision_pct"] = base[lang]["precision_pct"] - iga.TOLERANCE_PP - 1
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: worse)
+    assert iga.main(["--ci"]) == 1
+    assert lang in capsys.readouterr().out
+    dropped = {k: v for k, v in base.items() if k != lang}
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: dropped)
+    assert iga.main(["--ci"]) == 1  # a language that is no longer measured is a regression too
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: {})
+    assert iga.main(["--ci"]) == 1  # measuring nothing must not pass
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: json.loads(json.dumps(base)))
+    monkeypatch.setattr(iga, "BASELINE", tmp_path / "absent.json")
+    assert iga.main(["--ci"]) == 1  # no committed baseline fails closed

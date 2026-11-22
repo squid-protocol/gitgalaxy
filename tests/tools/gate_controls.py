@@ -281,6 +281,8 @@ GATES = (
         "graph-accuracy-audit",
         "graph-accuracy-audit.yml",
         "import-graph or call-resolution accuracy dropping against committed baselines",
+        f"{HERE}::test_import_graph_accuracy_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed and only the import-graph lane is exercised: the call-resolution and span-anchoring lanes have no proof",
     ),
     Gate(
         "java-compile",
@@ -301,11 +303,15 @@ GATES = (
         "tree-sitter-accuracy-audit",
         "tree-sitter-accuracy-audit.yml",
         "structural-signature recall or precision dropping against tree-sitter, per language",
+        f"{HERE}::test_tree_sitter_accuracy_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed: a broken tree-sitter pairing is not exercised",
     ),
     Gate(
         "tri-comparison-audit",
         "tri-comparison-audit.yml",
         "GitGalaxy's validated precision dropping against tree-sitter and ctags",
+        f"{HERE}::test_tri_comparison_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed: a broken tree-sitter or ctags pairing is not exercised",
     ),
     Gate(
         "unicode-gauntlet",
@@ -344,7 +350,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 25
+MAX_UNPROVEN = 22
 
 
 def unproven() -> list[Gate]:

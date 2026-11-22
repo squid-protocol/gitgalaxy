@@ -7,7 +7,7 @@
     "highest": [
       {
         "file": "module_sf_noahdrv.F",
-        "impact": 6059.1,
+        "impact": 6025.0,
         "loc": 2592,
         "name": "lsm_mosaic"
       },

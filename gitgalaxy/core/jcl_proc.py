@@ -415,7 +415,10 @@ def expand_flow_rows(
             if text is None or libraries is None:
                 raise JclProcRefused(f"procedure {r['proc']} is not in-stream and no libraries were given")
             member = _find(r["proc"], _library_order(text, job), libraries)
-            procs[r["proc"]] = [m for m in jcl_job_flow(member) if m["kind"] == "STEP" and m["in_proc"]]
+            read = jcl_job_flow(member)
+            procs[r["proc"]] = [m for m in read if m["kind"] == "STEP" and m["in_proc"]]
+            # the member's DDs, as an in-stream procedure's are among the job's rows: a DD reader (GDG) finds them there
+            out.extend(m for m in read if m["kind"] == "DD" and m["in_proc"])
         if any(ps["proc"] for ps in procs[r["proc"]]):
             raise JclProcRefused("nested procedure calls in IF flow are not answered")
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}

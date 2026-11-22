@@ -7,7 +7,7 @@ The gate's caps are planner-written (`${{ matrix.timeout }}`), so ci_cap_headroo
 `full-suite-matrix (os, py, part, splits[, even], timeout, step_timeout)` of the latest completed scheduled runs, takes
 the wall minutes of the step named `Full Suite ...` (the job wall when that step is missing), and reports, per leg
 (os, python, part), the worst wall against its step cap. Exit 1 when any leg is within `--min-margin` minutes of its
-cap (a leg cut at its cap has a negative margin) or when fewer than `--runs` scheduled runs were sampled: the check is
+cap (a leg cut at its cap has a negative margin) or when fewer than `--runs` scheduled runs had a measured leg (a leg that never ran its tests to the end is not one): the check is
 unconfirmed until the nightlies have run.
 """
 
@@ -25,6 +25,7 @@ import ci_rerun_stats  # noqa: E402
 WORKFLOW = "full-suite-gate.yml"
 LEG = re.compile(r"^full-suite-matrix \((?P<args>[^)]*)\)$")
 STEP_PREFIX = "Full Suite ("
+CUT_SLACK_S = 60  # a step ending this close to its cap was cut by it
 
 
 def parse_leg(name: str) -> dict | None:
@@ -45,6 +46,27 @@ def parse_leg(name: str) -> dict | None:
     }
 
 
+def full_suite_step(job: dict) -> dict | None:
+    for step in job.get("steps") or []:
+        if str(step.get("name", "")).startswith(STEP_PREFIX):
+            return step
+    return None
+
+
+def is_measured(job: dict, leg: dict) -> bool:
+    """True when the leg's `Full Suite` step ran its tests to the end or was cut at its cap.
+
+    A leg that never reached the step, or whose step failed early (an install or import error, a cancelled run) has a
+    short wall that says nothing about margin, so it is not an observation (#8701).
+    """
+    step = full_suite_step(job)
+    if step is None or step.get("conclusion") == "skipped":
+        return False
+    if step.get("conclusion") == "success":
+        return True
+    return ci_rerun_stats._secs(step) >= leg["step_timeout"] * 60 - CUT_SLACK_S
+
+
 def step_minutes(job: dict) -> float:
     """Wall minutes of the job's `Full Suite (...)` step, else of the whole job."""
     for step in job.get("steps") or []:
@@ -61,7 +83,7 @@ def margins(jobs_by_run: list[list[dict]], os_prefix: str = "") -> dict[tuple, t
             leg = parse_leg(job.get("name", ""))
             if not leg or not leg["os"].startswith(os_prefix) or not job.get("completed_at"):
                 continue
-            if job.get("conclusion") == "skipped":
+            if job.get("conclusion") == "skipped" or not is_measured(job, leg):
                 continue
             key = (leg["os"], leg["python"], leg["part"])
             cap, wall, seen = rows.get(key, (leg["step_timeout"], 0.0, 0))
@@ -71,6 +93,18 @@ def margins(jobs_by_run: list[list[dict]], os_prefix: str = "") -> dict[tuple, t
                 cap, wall = this
             rows[key] = (cap, wall, seen + 1)
     return rows
+
+
+def measured_runs(jobs_by_run: list[list[dict]], os_prefix: str = "") -> int:
+    """Runs with at least one measured leg: only those count toward the required scheduled runs."""
+    n = 0
+    for jobs in jobs_by_run:
+        for job in jobs:
+            leg = parse_leg(job.get("name", ""))
+            if leg and leg["os"].startswith(os_prefix) and job.get("completed_at") and is_measured(job, leg):
+                n += 1
+                break
+    return n
 
 
 def tight(rows: dict[tuple, tuple[int, float, int]], min_margin: float) -> list[tuple]:
@@ -95,7 +129,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--min-margin", type=float, default=3.0, help="minutes a leg must finish under its step cap")
     ap.add_argument("--os", default="windows", help="leg os prefix to check ('' for every leg)")
     ap.add_argument(
-        "--since", default="", help="YYYY-MM-DD: only runs created after it (e.g. the merge of a cap change)"
+        "--since",
+        default="",
+        help="YYYY-MM-DD: only runs created after it (e.g. 2026-11-22, the day #8975 raised the caps)",
     )
     args = ap.parse_args(argv)
     by_run = scheduled_jobs(args.runs, args.since)
@@ -106,9 +142,10 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"{key[0]} {key[1]} part {key[2]}: step cap {cap} min, tightest {wall:.1f} min, margin {cap - wall:.1f} min, {seen} runs{mark}"
         )
-    short = len(by_run) < args.runs
+    used = measured_runs(by_run, args.os)
+    short = used < args.runs
     if short:
-        print(f"UNCONFIRMED: {len(by_run)} of {args.runs} scheduled runs sampled")
+        print(f"UNCONFIRMED: {used} of {args.runs} scheduled runs measured ({len(by_run)} sampled)")
     return 1 if flagged or short or not rows else 0
 
 

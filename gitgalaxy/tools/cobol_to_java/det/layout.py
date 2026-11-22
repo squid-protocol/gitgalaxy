@@ -265,6 +265,10 @@ def _data_only(lines: list[Line]) -> list[Line]:
                 if done:
                     break
             continue
+        hdr = re.match(r"(\s*I-O-CONTROL\s*\.)\s+(?=(?:APPLY|RERUN|SAME|MULTIPLE)\b)", out[k].text, re.I)
+        if hdr:  # #8412: `I-O-CONTROL. RERUN ...` on one row: blank the header, the clause is read past below
+            out[k].text = " " * hdr.end(1) + out[k].text[hdr.end(1) :]
+            t = out[k].text.strip().upper()
         if re.match(
             r"(APPLY\s+(WRITE-ONLY|CORE-INDEX|RECORD-OVERFLOW|REORG-CRITERIA)|RERUN|SAME\s+(RECORD\s+|SORT\s+|SORT-MERGE\s+)?AREA|MULTIPLE\s+FILE)\b",
             t,

@@ -472,3 +472,18 @@ def test_php_internal_discriminator():
     # ReDoS immunity
     assert_redos_immune(disc, "<?" + "p" * 50000, timeout_sec=2.0)
     assert_redos_immune(disc, "<?" + " " * 50000, timeout_sec=2.0)
+
+
+def test_php_calls_out_parenless_new_and_match_ignore():
+    """PHP paren-less constructors (`new Foo`, `new \\Ns\\Foo`) count as calls; `new class` and `match` do not."""
+    pat = PHP_RULES["calls_out"]
+    ignore = PHP_RULES["_calls_out_ignore"]
+    assert "match" in ignore
+    assert [m.group(1) for m in pat.finditer("$x = (new EnvironmentDetector)->detect($cb);")] == [
+        "EnvironmentDetector",
+        "detect",
+    ]
+    assert [m.group(1) for m in pat.finditer("$o = new \\App\\ConsoleOutput;")] == ["ConsoleOutput"]
+    assert [m.group(1) for m in pat.finditer("$o = new Foo($a);")] == ["Foo"]
+    assert [m.group(1) for m in pat.finditer("$o = new class { function f() {} };")] == ["f"]
+    assert_redos_immune(pat, "new " + "A\\" * 5000 + " ", timeout_sec=3.0)

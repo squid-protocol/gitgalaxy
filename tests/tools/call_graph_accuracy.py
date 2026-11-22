@@ -141,7 +141,7 @@ _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
 # both sides score the same contract instead of the engine losing "recall" for
 # following it. Built-ins are NOT here: they are calls (decision 1, #3361).
 CONTRACT_NON_CALLS: dict[str, frozenset[str]] = {
-    "php": frozenset({"isset", "empty", "unset", "die", "exit", "array", "list"}),
+    "php": frozenset({"isset", "empty", "unset", "die", "exit", "array", "list", "match"}),
     "csharp": frozenset({"nameof"}),
     # #5640: shell control-flow keywords and builtins excluded by shell.py's `_calls_out_ignore`,
     # plus POSIX shell special builtins `:` / `[` / `.` (dot-sourcing).
@@ -225,6 +225,11 @@ TOLERANCE_PP = 0.5
 def _leaf_name(node: Any, depth: int = 0) -> str | None:
     """The rightmost identifier a callee expression names."""
     if node is None or depth > 8:
+        return None
+    # An IIFE (`func() { ... }()`), curried / multi-arg-list outer call (`f(a)(b)`), or computed
+    # subscript call (`obj[method](x)`) has no static callee name of its own (the inner call is
+    # visited independently). Walking its children would grab an argument or body identifier.
+    if node.type in ("func_literal", "call_expression", "call", "subscript_expression"):
         return None
     if node.type == "generic_function":  # rust `collect::<Vec<_>>()`: the function, not the type
         return _leaf_name(node.child_by_field_name("function"), depth + 1)
@@ -356,7 +361,11 @@ def _callee(node: Any) -> str | None:
     if node.type in ("apply", "infix"):
         return _hs_callee(node)
     if node.type == "func1op_call_expression":  # perl `shift`, `defined $x`: the built-in is the first token
-        return node.children[0].text.decode("utf-8", "replace") if node.children else None
+        if not node.children:
+            return None
+        tok = node.children[0].text.decode("utf-8", "replace")
+        # File-test unary operators (`-e`, `-f`, `-d`, `-x`, ...) are operators, not function calls.
+        return None if tok.startswith("-") else tok
     if node.type == "FnCallArguments":
         prev = node.prev_named_sibling
         # the engine names a builtin without its sigil: `@intCast(x)` -> `intCast`
@@ -381,7 +390,19 @@ def _callee(node: Any) -> str | None:
     if node.type == "object_creation_expression":  # php: `new Foo(...)` has no field
         for child in node.named_children:
             if child.type in ("name", "qualified_name"):
-                return _leaf_name(child)
+                name = _leaf_name(child)
+                if name in ("self", "static"):
+                    # Mirror detector._php_new_self (#8161): `new self()` / `new static()` construct
+                    # the enclosing class.
+                    cur = node.parent
+                    while cur is not None:
+                        if cur.type in ("class_declaration", "trait_declaration", "enum_declaration"):
+                            cls_name = cur.child_by_field_name("name")
+                            if cls_name is not None:
+                                return cls_name.text.decode("utf-8", "replace")
+                            break
+                        cur = cur.parent
+                return name
     return None
 
 

@@ -427,10 +427,10 @@ CALLS_OUT_PERL = re.compile(
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=(?:print|printf|say)(?![{ID_CONTINUE}])[ \t]+(?:[A-Z][A-Z0-9_]*|\{{[^{{}}\n]{{0,100}}\}})[ \t]+[a-z0-9$\"'@])"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
-    # #6433: an indirect-object constructor, `new Foo;`, and a qualified command, `Foo::bar $x;`.
-    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=new[ \t]+[{ID_START}][{ID_CONTINUE}:]*[ \t]*[;,)])"
+    # #6433: an indirect-object constructor, `new Foo;` / `new Foo($x)`, and a qualified command, `Foo::bar $x;`.
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=new[ \t]+[{ID_START}][{ID_CONTINUE}:]*[ \t]*[;,)(])"
     rf"|(?:^[ \t]*|(?<==[ \t]))(?:{_PERL_NAME}::){{1,6}}(?={_PERL_NAME}[ \t]+{_PERL_ARG})"
-    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
+    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=\[)|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
     # #6433: after a block opener, a statement end, `?`, `.`, a file handle or a `{$fh}` block.
     r"|(?<=[{;?.][ \t])|(?<=[A-Z]{2}[ \t])|(?<=\}[ \t])"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?:or|and|xor|not)[ \t]+)"
@@ -570,6 +570,17 @@ CALLS_OUT_SCALA = re.compile(
     r")"
 )
 
+# PHP calls: C-style `name(` plus paren-less constructor calls `new Foo` / `new \Ns\Foo`
+# (excluding anonymous `new class { ... }`). Group 1 is the callee, so detector.py treats it
+# like CALLS_OUT_C_STYLE (qualifier capture, C5 header drop, `_php_new_self`).
+_PHP_NEW_PREFIX = r"\bnew[ \t]+\\?(?:[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}\\){0,8}(?!class\b)"
+CALLS_OUT_PHP = re.compile(
+    r"(?=(?:" + _PHP_NEW_PREFIX + r")?\b([" + ID_START + r"][" + ID_CONTINUE + r"]*))"
+    r"(?:" + _PHP_NEW_PREFIX + r"[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}(?![ \t]*\()"
+    r"|\b[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\("
+    r")"
+)
+
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
@@ -584,6 +595,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_SCALA,
     CALLS_OUT_RUBY,
     CALLS_OUT_PERL,
+    CALLS_OUT_PHP,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,
     CALLS_OUT_PYTHON,

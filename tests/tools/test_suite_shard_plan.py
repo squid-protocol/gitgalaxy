@@ -297,3 +297,17 @@ def test_windows_312_is_planned_no_faster_than_windows_311_8701():
     # nightly's restored durations differ from the committed file and move the minutes by a few percent.
     speed = {(o, py): s for o, py, s in plan.LEGS}
     assert speed[("windows-latest", "3.12")] >= speed[("windows-latest", "3.11")]
+
+
+def test_a_windows_part_is_planned_to_finish_inside_the_gate_target_8701(durations):
+    # #8701 [c:ab1161f2]: 2 parts planned at 18 min measured 25:06. Every Windows leg must plan at least 3 parts
+    # (part 1 of 2 left no margin) and each part's planned minutes, setup included, must stay inside the target.
+    legs = {(x["os"], x["python-version"]): x["splits"] for x in plan.gate_plan(durations)["matrix"]}
+    mean = sum(durations.values()) / len(durations)
+    for os_name, py, speed in plan.LEGS:
+        if not os_name.startswith("windows"):
+            continue
+        n = legs[(os_name, py)]
+        assert n >= 3, (py, n)
+        weight = {k: mean * speed for k in durations}
+        assert _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S), (py, n)

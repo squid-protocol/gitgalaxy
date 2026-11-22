@@ -211,7 +211,13 @@ def test_a_symbol_assigned_nowhere_is_invalid():
     _refused("//J JOB\n//C EXEC PGM=X\n//D DD DSN=&NOPE\n", "assigned nowhere")
 
 
-def test_nested_calls_are_refused_in_if_flow():
+def test_nested_calls_are_flattened_under_the_outer_call_in_if_flow():
     text = "//J JOB\n//PI PROC\n//B EXEC PGM=X\n// PEND\n//PO PROC\n//S1 EXEC PI\n// PEND\n//C EXEC PO\n"
-    with pytest.raises(JclProcRefused, match="IF flow"):
+    rows = expand_flow_rows(job_flow.jcl_job_flow(text), "J", text, {})
+    assert [r["step_name"] for r in rows if r["kind"] == "STEP"] == ["C.B"]
+
+
+def test_a_procedure_that_calls_itself_is_refused_past_15_levels_in_if_flow():
+    text = "//J JOB\n//PO PROC\n//S1 EXEC PO\n// PEND\n//C EXEC PO\n"
+    with pytest.raises(JclProcRefused, match="15 levels"):
         expand_flow_rows(job_flow.jcl_job_flow(text), "J", text, {})

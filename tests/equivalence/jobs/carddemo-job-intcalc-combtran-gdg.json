@@ -1,0 +1,18 @@
+{
+  "kind": "job",
+  "job": "INTCALC",
+  "gdgs": {
+    "AWS.M2.CARDDEMO.TRANSACT.BKUP": {"limit": 5, "reclen": 350, "generations": ["combtran-transact-bkup-g1.txt"]},
+    "AWS.M2.CARDDEMO.SYSTRAN": {"limit": 5, "reclen": 350},
+    "AWS.M2.CARDDEMO.TRANSACT.COMBINED": {"limit": 5, "reclen": 350}
+  },
+  "steps": [
+    {"case": "carddemo-intcalc", "job": "INTCALC",
+     "gdg_out": {"TRANSACT": "AWS.M2.CARDDEMO.SYSTRAN"}},
+    {"case": "carddemo-sort-combtran", "job": "COMBTRAN",
+     "gdg_in": {"SORTIN1": {"base": "AWS.M2.CARDDEMO.TRANSACT.BKUP", "gen": "0"},
+                "SORTIN2": {"base": "AWS.M2.CARDDEMO.SYSTRAN", "gen": "0"}},
+     "gdg_out": {"SORTOUT": "AWS.M2.CARDDEMO.TRANSACT.COMBINED"}}
+  ],
+  "notes": "CardDemo's INTCALC STEP15 (CBACT04C) then COMBTRAN STEP05R (DFSORT), two jobs chained through GDGs as their JCL wires them: INTCALC writes TRANSACT as AWS.M2.CARDDEMO.SYSTRAN(+1); COMBTRAN reads AWS.M2.CARDDEMO.TRANSACT.BKUP(0) then SYSTRAN(0) as SORTIN and writes AWS.M2.CARDDEMO.TRANSACT.COMBINED(+1). SYSTRAN starts empty, so COMBTRAN's SYSTRAN(0) is the generation INTCALC catalogued (relative numbers are resolved at COMBTRAN's start, after INTCALC ended). BKUP holds one generation, TRANBKP's REPRO of a transaction file, here the 28 records of carddemo-sort-combtran's sortin1.txt (IDCAMS REPRO is a copy, not modelled as a step). COMBINED(+1) is catalogued; CREASTMT reads it and is not chained here. Both sides read the same generation bytes (the COBOL side's). Each step is proven as its own case; the chain is their composition. Assumptions (register F4): the GDG semantics are recalled from the MVS JCL Reference, not checked against its text; the lowered sort stops by name on two equal TRAN-IDs of differing records; the oracle is GnuCOBOL, not z/OS's catalog."
+}

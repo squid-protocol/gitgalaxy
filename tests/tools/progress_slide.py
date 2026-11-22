@@ -55,6 +55,19 @@ L5_LIGHT = ["#1d3f6e", "#4f78ad", "#a9bdd8"]
 SURFACE = "#0f1117"  # the README films' background
 L5_DARK = ["#2f5e9e", "#5a82b8", "#a9bdd8"]
 
+# The system ladder (#8888) is a second axis, per job: S0 shares L0's neutral (inventoried only), S1-S4 one cyan ramp,
+# lightest = wired, darkest = a whole cycle proven. None is a ladder, status or L5 hue.
+S_STATES = [
+    ("S0", "jobs inventoried"),
+    ("S1", "wired: the generated job leaves no hole"),
+    ("S2", "chain proven, hand-wired"),
+    ("S3", "chain proven from the JCL"),
+    ("S4", "operating cycle proven"),
+]
+S_SHORT = [("S0", "inventoried"), ("S1", "wired"), ("S2", "chain proven"), ("S3", "from the JCL"), ("S4", "full cycle")]
+SY_DARK = [LADDER_DARK[0], "#8fd3de", "#2aa6bb", "#1b7f91", "#105a67"]
+SY_LABEL_CLS = ["on-light", "on-light", "on-dark", "on-dark", "on-dark"]
+
 LEVELS = [
     ("L0", "Read", "scanned, not yet translated"),
     ("L1", "Translates whole", "every line becomes Java"),
@@ -178,6 +191,19 @@ def stacked(svg: Svg, x, y, w, h, values, classes, titles, label_min=26, label_c
         if lab is not None:
             svg.text(cx + sw / 2, y + h / 2 + 5, lab, cls=lc or "on-dark", size=13, weight=600, anchor="middle")
         cx += sw + gap
+
+
+def wrap(text: str, width: float, char_w: float) -> list[str]:
+    """`text` broken at spaces into lines of at most `width` px, estimating each character at `char_w` px (the
+    slide's sans at that size); a single word longer than a line stays whole on its own line."""
+    limit = max(1, int(width // char_w))
+    lines: list[str] = []
+    for word in text.split():
+        if lines and len(lines[-1]) + 1 + len(word) <= limit:
+            lines[-1] += " " + word
+        else:
+            lines.append(word)
+    return lines or [""]
 
 
 def pct(a, b) -> str:
@@ -385,6 +411,8 @@ def render(prog: dict[str, Any]) -> str:
     t_l4 = sum(e["l4_plus"] for e in tests_.values())
     dt = det["total"]
     judged = dt["caught"] + dt["survived"]
+    closed_run = dt.get("closed_caught", 0) + dt.get("closed_survived", 0)
+    waiting = judged - closed_run
     ours = (lambda v: f"Our test suite: {v} / {t_n}") if t_n else (lambda v: "")
     gap = 16
     tw, th = (W - 2 * PAD - 3 * gap) / 4, 140
@@ -396,19 +424,13 @@ def render(prog: dict[str, Any]) -> str:
          False),
         (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch",
          f"net of {n_net} reviewed outcomes (L4+)" if n_net else "every branch outcome run (L4+)", ours(t_l4), True),
-        (f"{dt['caught']:,}", pct(dt["caught"], judged), "planted bugs caught by tests",
-         f"of {judged:,} run; {total['L5']} programs pass L5", "Our test suite: L5 not yet started" if t_n else "",
-         False),
+        # owner 2026-11-21: count only the finished programs (every planted bug caught or explained), and say how
+        # many more wait, instead of a rate over every program still open
+        (f"{closed_run:,}", pct(closed_run, closed_run), "planted bugs accounted for",
+         f"caught or explained, in {dt['closed']} finished programs", f"{waiting:,} more waiting evaluation", False),
     ]  # fmt: skip
 
-    # ---------------------------------------------------------------- how to read it: the six steps, defined once
-    lw = (W - 2 * PAD) / len(LEVELS)
-    for i, (lv, name, desc) in enumerate(LEVELS):
-        x = PAD + i * lw
-        s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4)
-        s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
-        s.text(x + 26, y + 33, desc, cls="t3", size=13)
-    y += 92
+    y += 20  # the level key now sits over the codebase rows that use it (owner 2026-11-21), not here
 
     # ---------------------------------------------------------------- blind trials (owner: first, under the level key)
     if fresh.get("blind"):
@@ -496,6 +518,42 @@ def render(prog: dict[str, Any]) -> str:
         )
         l5_bar(e5, nm)
         y += row_h
+        if e.get("system"):
+            s_bar(e["system"], nm)
+
+    def s_bar(sy: dict[str, Any], nm: str) -> None:
+        """#8888: the estate's jobs on the S ladder, a thin bar under its program row; unmeasured levels say so."""
+        nonlocal y
+        h = 16
+        s.text(bar_x - 10, y + 12, "S", cls="t3", size=12, weight=700, anchor="end")
+        if sy.get("jobs") is None:
+            s.rect(bar_x, y, bar_w, h, "track", rx=3, title=f"{nm}: JCL jobs not measured")
+            s.text(r_x, y + 12, "Jobs: not measured", cls="t3", size=12)
+        elif sy["jobs"] == 0:
+            s.rect(bar_x, y, bar_w, h, "track", rx=3, title=f"{nm}: no JCL job in the estate")
+            s.text(r_x, y + 12, "No JCL jobs", cls="t3", size=12)
+        else:
+            vals = [sy["levels"].get(lv) or 0 for lv, _ in S_STATES]
+            stacked(
+                s,
+                bar_x,
+                y,
+                bar_w,
+                h,
+                vals,
+                [f"sy{i}" for i in range(len(S_STATES))],
+                [f"{nm}: {v} job{'s' * (v != 1)} at {lv} ({lab})" for v, (lv, lab) in zip(vals, S_STATES)],
+                label_min=40,
+                label_cls=SY_LABEL_CLS,
+                names=[lv for lv, _ in S_STATES],
+                min_w=22,
+            )
+            line = f"S2 chain-proven: {sy['levels']['S2']} of {sy['jobs']} jobs"
+            if sy.get("job_cases") and not sy["levels"]["S2"]:
+                n = len(sy["job_cases"])
+                line += f" · {n} job case{'s' * (n != 1)} written, not yet run in CI"
+            s.text(r_x, y + 12, line, cls="t3", size=12)
+        y += h + 12
 
     def band(num: int, title: str, sub: str) -> None:
         nonlocal y
@@ -507,6 +565,15 @@ def render(prog: dict[str, Any]) -> str:
             s.text(PAD, y + 35 + 20 * k, line, cls="t3", size=13.5)
         y += 48 + 20 * sub.count("\n")
 
+    # how to read the rows: the six steps, defined once, right above the bars that use them (owner 2026-11-21: the key
+    # was at the top of the slide, a screen away from the rows)
+    lw = (W - 2 * PAD) / len(LEVELS)
+    for i, (lv, name, desc) in enumerate(LEVELS):
+        x = PAD + i * lw
+        s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4, title=f"{lv} {name}: {desc}")
+        s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
+        s.text(x + 26, y + 33, desc, cls="t3", size=13)
+    y += 66
     # column heads, and the L5 legend (its own colours: L5 is a different kind of test)
     s.text(bar_x, y + 4, "Levels L0-L4: how far each program has climbed", cls="t2", size=13.5, weight=700)
     s.text(r_x, y + 4, "L5: the planted-bug test", cls="t2", size=13.5, weight=700)
@@ -516,6 +583,23 @@ def render(prog: dict[str, Any]) -> str:
         s.text(lx + 17, y + 25, short, cls="t3", size=12.5)
         lx += 17 + 7.2 * len(short) + 14
     y += 40
+    # #8888: the S ladder's legend, under the column heads (its own colours: a second axis, per job, not per program)
+    # one line, like the L5 key: short names here, the full meaning in each bar segment's title
+    s.text(bar_x, y + 4, "S: batch jobs on the system ladder (a second axis, per job, the thin bar)", cls="t2",
+           size=13.5, weight=700)  # fmt: skip
+    lx = bar_x
+    y += 14
+    for i, (lv, short) in enumerate(S_SHORT):
+        s.rect(lx, y, 12, 12, f"sy{i}", rx=2)
+        txt = f"{lv} {short}"
+        s.text(lx + 17, y + 11, txt, cls="t3", size=12.5)
+        lx += 17 + 6.6 * len(txt) + 14
+    s_measured = next((e["system"]["measured"] for e in estates.values() if e.get("system")), None)
+    if s_measured is not None:  # said once here, not on every row: a level with no measure counts no job
+        unmeasured = [lv for lv, _ in S_STATES if lv not in s_measured]
+        if unmeasured:
+            s.text(lx + 6, y + 11, f"({', '.join(unmeasured)} not measured yet)", cls="t3", size=12.5)
+    y += 36
 
     band(
         1,
@@ -636,8 +720,11 @@ def render(prog: dict[str, Any]) -> str:
         "Results by age of code",
         "Real codebases mix decades: 1980s programs LINK 1990s ones that call 2010s Db2 code. Each program is dated by "
         f"the features it uses (era_tags.py); {eras.get('none', {}).get('programs', 0)} show no dating clue"
-        + "".join(f"; {ESTATE_NAMES.get(k, k)}'s {n} are not dated yet (no feature inventory)"
-                  for k, n in sorted((prog.get("eras_undated") or {}).items())) + ".",  # fmt: skip
+        + "".join(
+            f"; {ESTATE_NAMES.get(k, k)}'s {n} are not dated yet (no feature inventory)"
+            for k, n in sorted((prog.get("eras_undated") or {}).items())
+        )
+        + ".",  # fmt: skip
         gap_after=42,
     )
     ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 166, 14
@@ -688,15 +775,25 @@ def render(prog: dict[str, Any]) -> str:
             state_icon(s, PAD + 8, y - 4, r["state"])
             s.text(PAD + 22, y, capability_ledger.STATE_LABEL[r["state"]], cls="t3", size=13)
             s.text(PAD + 110, y, r["name"], cls="t1", size=14, weight=600)
-            s.text(PAD + 330, y, r["have"], cls="t3", size=13)
+            bx, bw = W - PAD - 330, 110  # room for the unit after the count ("8 / 13 COND jobs checked")
+            # owner 2026-11-21: a long line ran under the bar (JCL on MVS 3.8J): wrap it in the space left of the bar
+            have = wrap(r["have"], (bx - 14 if r["of"] else W - PAD) - (PAD + 330), 6.4)
+            for k, line in enumerate(have):
+                s.text(PAD + 330, y + 17 * k, line, cls="t3", size=13)
+            extra = 17 * (len(have) - 1)
             if r["of"]:
-                bx, bw = W - PAD - 330, 110  # room for the unit after the count ("8 / 13 COND jobs checked")
                 s.rect(bx, y - 10, bw, 10, "track", rx=4)
                 s.rect(bx, y - 10, bw * r["done"] / r["of"], 10, "meter", rx=4,
                        title=f"{r['name']}: {r['done']} of {r['of']}")  # fmt: skip
-                s.text(bx + bw + 10, y, f"{r['done']} / {r['of']}", cls="t1", size=14, weight=700)
-                s.text(W - PAD, y, r["unit"].replace("modelled on both runtimes", "modelled").replace(
-                    "modelled; the rest refused by name", "modelled"), cls="t3", size=12.5, anchor="end")  # fmt: skip
+                count = f"{r['done']} / {r['of']}"
+                s.text(bx + bw + 10, y, count, cls="t1", size=14, weight=700)
+                unit = r["unit"].replace("modelled on both runtimes", "modelled").replace(
+                    "modelled; the rest refused by name", "modelled")  # fmt: skip
+                units = wrap(unit, (W - PAD) - (bx + bw + 10 + 8.0 * len(count) + 12), 5.9)
+                for k, line in enumerate(units):
+                    s.text(W - PAD, y + 15 * k, line, cls="t3", size=12.5, anchor="end")
+                extra = max(extra, 15 * (len(units) - 1))
+            y += extra
             if r["note"]:
                 s.text(PAD + 330, y + 17, r["note"], cls="t3", size=12.5)
                 y += 17
@@ -811,16 +908,21 @@ def render(prog: dict[str, Any]) -> str:
         if measured
         else (NOT_MEASURED, "", "gaps mapped (Gap Atlas)", "Gap Atlas"),
     ]  # fmt: skip
-    bh = (my - y - 3 * 10) / 4
+    # a box keeps room for its two lines even when the milestone list beside it is empty (no token: "not measured"),
+    # and an unmeasured value is a small grey note, never a big number-sized word over the label
+    bh = max(52.0, (my - y - 3 * 10) / 4)
     for k, (big, p, lab, sub) in enumerate(boxes):
         by = y + k * (bh + 10)
         s.rect(ix, by, iw, bh, "card", rx=10)
-        s.text(ix + 16, by + bh / 2 + 3, big, cls="t1", size=22, weight=700)
+        if big == NOT_MEASURED:
+            s.text(ix + 16, by + bh / 2 + 5, big, cls="t3", size=13.5, weight=600)
+        else:
+            s.text(ix + 16, by + bh / 2 + 3, big, cls="t1", size=22, weight=700)
         if p:
             s.text(ix + iw - 16, by + bh / 2 + 3, p, cls="t2", size=18, weight=600, anchor="end")
         s.text(ix + 150, by + bh / 2 - 6, lab, cls="t1", size=13.5, weight=600)
         s.text(ix + 150, by + bh / 2 + 13, sub, cls="t3", size=12.5)
-    y = my + 26
+    y = max(my, y + 4 * bh + 3 * 10) + 26
     s.text(
         PAD,
         y,
@@ -846,6 +948,7 @@ def render(prog: dict[str, Any]) -> str:
     {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}
     {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_DARK))}
     {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_DARK))}
+    {"".join(f".sy{i} {{ fill: {c}; }} " for i, c in enumerate(SY_DARK))}
     .st-good {{ fill: #3ccf98; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
     .slot {{ fill: none; stroke: #3a3d47; stroke-width: 1.5; stroke-dasharray: 5 5; }}

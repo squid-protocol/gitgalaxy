@@ -367,3 +367,4 @@ Sample is one durations file; the nightly refreshes it.
 | 2026-10 | #4935 / #4964 | tested-tree: skip a main push run when the PR tested the same tree | — |
 | 2026-10 | #4518 | Full Suite Gate off the PR trigger (7-leg matrix on every PR starved the queue) | — |
 | 2026-10-12 | #4847 | cache prune; hash-only pip keys | 10.6 GB / 208 caches -> pruned nightly |
+| 2026-11-21 | #8701 | rebalance Windows 3.12 gate shards: speed factor 1.3 -> 1.6 (2 -> 3 parts) | part 1 measured 25:06 at 2 parts (planned 18.1 min); planned now ~14.8 min work + setup; one more nightly Windows runner; confirm on the next scheduled runs |

@@ -25,9 +25,13 @@ class Gate:
     required: bool = False  # named in REQUIRED_CHECKS
     notice: bool = False  # reports only, never fails
     open_gap: str = ""  # what it can miss even when proven
+    trigger: str = "pr"  # when it runs: pr | main (push) | nightly | release
+    job: str = ""  # the job inside the workflow when the workflow holds several gates ("" = the workflow itself)
 
 
 HERE = "tests/tools/test_gate_controls.py"
+C = "tests/tools/test_gate_controls_corpora.py"
+R = "tests/tools/test_gate_controls_release.py"
 
 GATES = (
     # Required
@@ -135,7 +139,13 @@ GATES = (
         "tests/test_doc_refs_audit.py::test_ci_fails_only_beyond_the_baseline_and_reports_fixed_keys",
         open_gap="checks that a name exists, not that the prose around it is still true",
     ),
-    Gate("ast-accuracy-audit", "small-audits.yml", "function extraction regressing against Python ast"),
+    Gate(
+        "ast-accuracy-audit",
+        "small-audits.yml",
+        "function extraction regressing against Python ast",
+        f"{HERE}::test_ast_accuracy_audit_fails_on_a_regression_drift_or_missing_baseline",
+        open_gap="the corpus measurement is stubbed: a broken scan or ast reader is not exercised",
+    ),
     Gate("golden-master-guard", "small-audits.yml", "flags golden fixture changes", notice=True),
     # Scanners
     Gate(
@@ -148,24 +158,201 @@ GATES = (
     Gate("Muninn", "muninn.yml", "static security findings", open_gap="an external action; a sparse checkout on PRs"),
     # Notices
     Gate("answer-key-guard", "answer-key-guard.yml", "answer key changes without a re-census", notice=True),
-    # On a PR, not audited yet (#7155)
-    Gate("golden-crucible", "golden-crucible.yml", "structural drift over the pinned corpus"),
-    Gate("call-graph-accuracy-audit", "call-graph-accuracy-audit.yml", "not audited yet"),
-    Gate("cics-crucible", "cics-crucible.yml", "not audited yet"),
-    Gate("crucible-path-independence", "crucible-path-independence.yml", "not audited yet"),
-    Gate("detection-accuracy-audit", "detection-accuracy-audit.yml", "not audited yet"),
-    Gate("doom-rosetta", "doom-rosetta.yml", "not audited yet"),
-    Gate("equivalence-e2e", "equivalence-e2e.yml", "not audited yet"),
-    Gate("estate-crucible", "estate-crucible.yml", "not audited yet"),
-    Gate("fact-crosscheck", "fact-crosscheck.yml", "not audited yet"),
-    Gate("generated-docs", "generated-docs.yml", "not audited yet"),
-    Gate("graph-accuracy-audit", "graph-accuracy-audit.yml", "not audited yet"),
-    Gate("java-compile", "java-compile.yml", "not audited yet"),
-    Gate("ports-compile", "ports-compile.yml", "not audited yet"),
-    Gate("rosetta-audit", "rosetta-audit.yml", "not audited yet"),
-    Gate("tree-sitter-accuracy-audit", "tree-sitter-accuracy-audit.yml", "not audited yet"),
-    Gate("tri-comparison-audit", "tri-comparison-audit.yml", "not audited yet"),
-    Gate("unicode-gauntlet", "unicode-gauntlet.yml", "not audited yet"),
+    # Jobs inside a listed workflow that hold a PR on their own
+    Gate(
+        "suite-time",
+        "smoke-test.yml",
+        "a test over 15 s, or a baselined test past 2.5x its recorded time (#5166)",
+        "tests/tools/test_time_ratchet.py::test_an_unmarked_test_fails_only_over_fifteen_seconds",
+        job="suite-time",
+        open_gap="a test gated on GITGALAXY_NIGHTLY is first timed on the scheduled run",
+    ),
+    Gate(
+        "det-mutation",
+        "det-sweep.yml",
+        "a det-port mutant ledger gone stale in a case the PR changes (#5862)",
+        "tests/tools/test_det_mutation.py::test_a_case_touch_in_a_real_branch_fails_the_ratchet_and_an_untouched_one_does_not",
+        open_gap="the fingerprints are stubbed, and the det job's shell step that turns a failed detmut into a red check is not exercised",
+        job="detmut",
+    ),
+    Gate("db2", "det-sweep.yml", "a Db2 det port that stops proving against the real database", job="db2"),
+    # Off the PR path: main, nightly and release checks that can fail
+    Gate(
+        "archetype-validation",
+        "archetype-validation.yml",
+        "archetype labels moving unseen after a push to main (#4100)",
+        "tests/core_engine/test_archetype_validation.py::test_status_grades_each_level_independently",
+        trigger="main",
+        job="archetype-validation",
+    ),
+    Gate(
+        "os-smoke-grid",
+        "os-smoke-grid.yml",
+        "an OS- or Python-version-sensitive break: package install, CLI entry points, syntax floor (#5130)",
+        "tests/tools/test_gate_controls_smoke.py::test_a_missing_or_import_broken_entry_point_goes_red",
+        open_gap="runs the smoke commands on one OS and Python: the Windows, macOS and 3.11 legs and the install step are not exercised",
+        trigger="main",
+        job="smoke-test",
+    ),
+    Gate(
+        "full-suite-matrix",
+        "full-suite-gate.yml",
+        "any test failing on an OS x Python leg the PR run does not cover",
+        trigger="nightly",
+        job="full-suite-matrix",
+    ),
+    Gate(
+        "evidence-refresh",
+        "evidence-refresh.yml",
+        "a det port or evidence record gone stale or no longer proving, found by the nightly re-proof (#4048)",
+        "tests/tools/test_evidence_refresh_shard_loss_8509.py::test_a_skipped_det_mutation_job_still_fails_the_gate",
+        open_gap="only the det mutation lane's verdict is exercised: the re-proof and record lanes have no control",
+        trigger="nightly",
+    ),
+    Gate(
+        "referee-panel",
+        "referee-panel.yml",
+        "the COBOL and CICS referee tools disagreeing with the engine (#4438)",
+        "tests/cobol_mainframe/test_referee_panel_runner.py::test_a_failing_step_does_not_stop_the_other_corpora",
+        open_gap="the referee tools are stubbed: a broken install is not exercised",
+        trigger="nightly",
+        job="panel",
+    ),
+    Gate(
+        "publish-evidence-current",
+        "publish.yml",
+        "a release tag cut while the evidence report is stale",
+        "tests/tools/test_evidence_report.py::test_the_release_gate_fails_while_a_level_is_stale",
+        trigger="release",
+        job="evidence-report-current",
+    ),
+    Gate(
+        "assess-from-pypi",
+        "publish-assess-check.yml",
+        "the published package failing a clean install and `gitgalaxy assess` (#4726)",
+        f"{R}::test_assess_install_exits_1_on_a_bad_report_and_when_the_command_is_missing",
+        open_gap="pip, the venv and the real `assess` are stubbed: only the script's verdict is exercised",
+        trigger="release",
+        job="assess-from-pypi",
+    ),
+    # On a PR, some still without a failure proof (#7155)
+    Gate(
+        "golden-crucible",
+        "golden-crucible.yml",
+        "structural drift over the pinned language-crucible corpus",
+        f"{C}::test_golden_crucible_run_check_is_red_when_the_wrapped_pytest_fails",
+        open_gap="the pytest run is stubbed: a broken scan or a corpus that is not cloned is not exercised",
+        job="crucible-audit",
+    ),
+    Gate(
+        "call-graph-accuracy-audit",
+        "call-graph-accuracy-audit.yml",
+        "calls_out_to precision/recall dropping more than 0.5pp against tree-sitter call nodes (#3332)",
+        f"{HERE}::test_call_graph_accuracy_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed: a broken tree-sitter pairing is not exercised",
+    ),
+    Gate(
+        "cics-crucible",
+        "cics-crucible.yml",
+        "a CICS crucible cell that passed and now fails, against tests/cics_crucible/baseline.json (#3989)",
+        "tests/tools/test_gate_controls_crucibles.py::test_cics_crucible_ratchet_goes_red_on_a_new_failure_a_fixed_cell_and_a_lost_cell",
+        open_gap="the measurement is stubbed: a broken crucible run is not exercised",
+    ),
+    Gate(
+        "crucible-path-independence",
+        "crucible-path-independence.yml",
+        "scan results that differ when the corpus is scanned from two parent paths (#4248)",
+        "tests/tools/test_crucible_path_check.py::test_a_differing_side_fails",
+        open_gap="the scans are stubbed: a rule that reads an absolute path is not exercised",
+    ),
+    Gate(
+        "detection-accuracy-audit",
+        "detection-accuracy-audit.yml",
+        "language-detection accuracy dropping against its baseline (#3117)",
+        f"{HERE}::test_detection_accuracy_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed: a broken corpus walk or labeller is not exercised",
+    ),
+    Gate(
+        "doom-rosetta",
+        "doom-rosetta.yml",
+        "any drift in the pinned DOOM ports against tests/golden_doom_rosetta, and call-graph regressions (#5619)",
+        f"{C}::test_doom_rosetta_main_exits_1_on_drift",
+        open_gap="the scan is stubbed, and the call-graph lane has no control",
+    ),
+    Gate(
+        "equivalence-e2e",
+        "equivalence-e2e.yml",
+        "a mainframe test that needs the GnuCOBOL oracle, JDK 17 and Maven failing (#5954)",
+    ),
+    Gate(
+        "estate-crucible",
+        "estate-crucible.yml",
+        "a horror or fact-channel check that passed against the estate key and now fails (#4317)",
+        "tests/tools/test_gate_controls_crucibles.py::test_estate_crucible_compare_goes_red_on_each_planted_regression",
+        open_gap="the scan and score are stubbed: a broken estate scan is not exercised",
+    ),
+    Gate(
+        "fact-crosscheck",
+        "fact-crosscheck.yml",
+        "engine and det translator disagreeing on a COBOL fact the ledger does not list (#4273)",
+        "tests/cobol_mainframe/test_fact_crosscheck.py::test_check_fails_on_a_stale_ledger_entry",
+        open_gap="the engine and translator readings are stubbed",
+    ),
+    Gate(
+        "generated-docs",
+        "generated-docs.yml",
+        "a generated aggregate page that no longer renders from its committed sources (#5057)",
+        "tests/tools/test_gate_controls_docs.py::test_generated_docs_main_exits_1_on_a_bad_page_and_0_on_good_ones",
+        open_gap="the renderers are stubbed: a page that renders but reads wrong is not caught",
+    ),
+    Gate(
+        "graph-accuracy-audit",
+        "graph-accuracy-audit.yml",
+        "import-graph or call-resolution accuracy dropping against committed baselines",
+        f"{HERE}::test_import_graph_accuracy_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed and only the import-graph lane is exercised: the call-resolution and span-anchoring lanes have no proof",
+    ),
+    Gate(
+        "java-compile",
+        "java-compile.yml",
+        "generated Spring Boot projects that fail to compile under a supported target config (#3613)",
+        f"{R}::test_java_compile_goes_red_when_one_config_does_not_build",
+        open_gap="the build is stubbed: a real mvn / gradle failure is not exercised",
+    ),
+    Gate(
+        "ports-compile",
+        "ports-compile.yml",
+        "a committed port that no longer compiles against the generator at HEAD (#4423)",
+        f"{C}::test_ports_compile_main_exits_1_on_a_port_that_does_not_compile_and_2_on_nothing_checked",
+        open_gap="the Maven build is stubbed: a compile error is not exercised",
+    ),
+    Gate(
+        "rosetta-audit",
+        "rosetta-audit.yml",
+        "a keyword-rosetta language that passed against engine main and fails with this PR (#2557)",
+        "tests/tools/test_audit_runners_refuse_empty.py::test_rosetta_audit_regression_against_baseline_exits_1",
+    ),
+    Gate(
+        "tree-sitter-accuracy-audit",
+        "tree-sitter-accuracy-audit.yml",
+        "structural-signature recall or precision dropping against tree-sitter, per language",
+        f"{HERE}::test_tree_sitter_accuracy_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed: a broken tree-sitter pairing is not exercised",
+    ),
+    Gate(
+        "tri-comparison-audit",
+        "tri-comparison-audit.yml",
+        "GitGalaxy's validated precision dropping against tree-sitter and ctags",
+        f"{HERE}::test_tri_comparison_audit_fails_on_a_regression",
+        open_gap="the measurement is stubbed: a broken tree-sitter or ctags pairing is not exercised",
+    ),
+    Gate(
+        "unicode-gauntlet",
+        "unicode-gauntlet.yml",
+        "a re-encoded or renamed variant whose scanned facts differ from its ASCII twin (#3812)",
+        "tests/tools/test_gate_controls_crucibles.py::test_unicode_gauntlet_ci_fails_on_a_new_failing_cell_only",
+        open_gap="the cell scans are stubbed: a broken re-encoding is not exercised",
+    ),
 )
 
 # PR-triggered workflows that hold nothing: with the reason.
@@ -174,8 +361,42 @@ NOT_GATES = {
     "solver-check.yml": "informational: branch_solver verdicts in the job summary, never fails; the det sweep gates (#4175)",
 }
 
+# Workflows that never trigger on a PR and hold nothing: with the reason (every workflow is a Gate or listed in one of these).
+NOT_GATES.update(
+    {
+        "blocker-baseline.yml": "ad hoc survey run; the nightly baseline is evidence-refresh's",
+        "cache-prune.yml": "deletes stale Actions caches",
+        "canary-control.yml": "opens the weekly control PR (#7155 part 2); the gates it exercises are the ones listed above",
+        "call-resolution-history.yml": "appends a measurement row after a push to main",
+        "deploy-docs.yml": "publishes the docs site",
+        "doc-drift.yml": "files documentation issues from the doc-refs backlog, never fails a change",
+        "engine-coverage-map.yml": "records which test covers which module, for the suite plan",
+        "evidence-pages.yml": "renders evidence pages from committed records",
+        "flake-history.yml": "refreshes the learned-flake cache",
+        "graph-comparison-history.yml": "appends measurements to the generated branch",
+        "java-base-generation.yml": "seeds a cache for java-compile",
+        "main-watch.yml": "reports another workflow's red run on main as an issue (its own control is #7155 part 2)",
+        "mirror-tag-sync.yml": "manual: aligns the mirrors' tags",
+        "post-merge.yml": "dispatches other workflows on main",
+        "release-crucible-archive.yml": "archives release scan output",
+        "shepherd-reconcile.yml": "the shepherd's own pass, which posts ci-gate (owner-only, #6694)",
+        "tree-sitter-accuracy-history.yml": "appends measurements to the generated branch",
+        "tri-comparison-history.yml": "appends measurements to the generated branch",
+    }
+)
+
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 19
+MAX_UNPROVEN = 4
+
+
+# The gates with no failure fixture yet, each with why. A gate lacking a proof and absent here fails
+# test_gate_controls.py by name, so a swap (one gate loses its proof while another gains one) cannot hide in the count.
+UNPROVEN = {
+    "Muninn": "an external action with no local entry point to feed a bad input",
+    "db2": "needs the real Db2 container; no stub of the plan yet",
+    "full-suite-matrix": "the OS x Python matrix has no local fixture yet",
+    "equivalence-e2e": "needs the java and GnuCOBOL toolchain; no stubbed failure yet",
+}
 
 
 def unproven() -> list[Gate]:

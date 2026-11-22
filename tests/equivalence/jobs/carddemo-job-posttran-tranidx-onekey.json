@@ -1,0 +1,38 @@
+{
+  "kind": "job",
+  "job": "POSTTRAN-TRANIDX-ONEKEY",
+  "steps": [
+    {
+      "case": "carddemo-posttran"
+    },
+    {
+      "case": "carddemo-tranidx",
+      "idcams": {
+        "deck": "carddemo-tranidx-onekey.idc",
+        "dds": {
+          "TRANKSDS": {
+            "cluster": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "reclen": 350,
+            "keys": [
+              {
+                "offset": 0,
+                "length": 16
+              }
+            ]
+          },
+          "TRANPATH": {
+            "path": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH",
+            "reclen": 350
+          }
+        }
+      },
+      "feeds": {
+        "TRANKSDS": {
+          "step": "carddemo-posttran",
+          "dd": "TRANFILE"
+        }
+      }
+    }
+  ],
+  "notes": "The same chain as carddemo-job-posttran-tranidx, with TRANIDX's RECORDSIZE(350,350) raised to (4400,4400). Why: the harness's POSTTRAN run stamps all 264 TRANFILE records with one processed timestamp (2022-07-18-10.30.15.000000, from the PARM date), so the non-unique alternate key 26/304 has ONE value shared by 264 records; BLDINDEX's record for that key holds 264 pointers (4255 bytes in the model) and the real deck's RECORDSIZE maximum of 350 cannot hold it (the real-deck case stops there, refused by name: IBM's outcome is not stated). On z/OS the timestamps differ, so the real deck's size is not the question there; this variant exists to compare the path in alternate-key order, all-duplicates, on model and Java. ASSUMED: the RECORDSIZE change only sizes the index record and does not change which records the path returns or their order (register F6). The oracle for IDCAMS is the model, not z/OS."
+}

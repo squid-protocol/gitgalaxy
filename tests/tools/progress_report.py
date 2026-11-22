@@ -65,6 +65,8 @@ MUTATION = STATUS_DOCS / "mutation_scores.json"
 CICS_CRUCIBLE = REPO / "tests" / "cics_crucible" / "coverage.json"
 ESTATE_CRUCIBLE = REPO / "tests" / "estate_crucible" / "baseline.json"
 ESTATE_LEVELS = REPO / "tests" / "estate_crucible" / "levels.json"  # the Open World levels' plan (#7065)
+JOB_CASES = REPO / "tests" / "equivalence" / "jobs"  # multi-step job cases (#4268): the S2 axis's cases (#8888)
+CASES_DIR = REPO / "tests" / "equivalence"
 JOURNEY = STATUS_DOCS / "estate_journey" / "journey.json"  # first contact, then the climb (estate_journey.py)
 TRIALS = REPO / "tests" / "cobol_mainframe" / "trials.json"  # the first-try proof ledger (trial.py)
 CANDIDATES = STATUS_DOCS / "estate4_candidates.json"  # the pre-registered blind draws (estate4_draw.py)
@@ -93,6 +95,9 @@ SOURCES = {
     "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
     "fresh": "docs/language_status/estate_journey/journey.json, tests/cobol_mainframe/trials.json, "
     "docs/language_status/estate4_candidates.json (count only)",
+    "system": "S0: the estate's JCL jobs (estate_size.py jcl_jobs); job cases: tests/equivalence/jobs/*.json (#4268); "
+    "S2 counts a job only from a recorded chain proof, and no CI job records one yet (the det sweep proves step "
+    "cases); S1, S3, S4 are not measured (#8888)",
 }
 
 
@@ -110,6 +115,38 @@ def pct_text(n: int, d: int) -> str:
 
 
 # ---- 1. the burned-estate ladder, and the eras ---------------------------------------------------------------------
+
+
+S_LEVELS = ("S0", "S1", "S2", "S3", "S4")  # the system ladder (#8888), per job; beside L0-L5, never nested in it
+S_MEASURED = ("S0", "S2")  # S1 (wired), S3 (wired from the JCL), S4 (a cycle) have no measure yet: "not measured"
+
+
+def job_cases(jobs_dir: Path = JOB_CASES, cases_dir: Path = CASES_DIR) -> dict[str, list[str]]:
+    """{corpus: [JCL job name]} for the committed job cases (tests/equivalence/jobs/*.json, `"kind": "job"`): the
+    corpus is the first step case's. A job case is written evidence, not a proof: CI does not run one yet."""
+    out: dict[str, list[str]] = {}
+    for f in sorted(jobs_dir.glob("*.json")) if jobs_dir.is_dir() else []:
+        job = _load(f)
+        steps = job.get("steps") or []
+        if job.get("kind") != "job" or not steps:
+            continue
+        case = cases_dir / steps[0]["case"] / "case.json"
+        if case.is_file():
+            out.setdefault(_load(case)["corpus"], []).append(str(job.get("job") or f.stem))
+    return {k: sorted(set(v)) for k, v in out.items()}
+
+
+def system_ladder(jobs: int | None, written: list[str], proven: list[str] | None = None) -> dict[str, Any]:
+    """An estate's S ladder (#8888): its JCL jobs at S0, those with a recorded chain proof at S2. `proven` stays empty
+    until a CI job records a job case's proof; a written job case alone moves nothing. `jobs` None: not measured."""
+    proven = sorted(set(proven or []))
+    n = jobs if jobs is not None else None
+    s2 = min(len(proven), n) if n is not None else 0
+    levels = {lv: None for lv in S_LEVELS}
+    if n is not None:
+        levels.update({"S0": n - s2, "S2": s2})
+    return {"jobs": n, "levels": levels, "measured": list(S_MEASURED), "job_cases": sorted(written),
+            "chain_proven": proven}  # fmt: skip
 
 
 def ladder(programs: list[dict[str, Any]]) -> dict[str, Any]:
@@ -264,6 +301,10 @@ def det_mutation_component(
             r["ready"] += bool(m.get("l5")) and not m.get("current")
             r["caught"] += m.get("killed") or 0
             r["survived"] += m.get("survived") or 0
+            if p["level"] == "L5" or m.get("l5"):  # finished: every planted bug caught or explained (current or not)
+                r["closed"] += 1
+                r["closed_caught"] += m.get("killed") or 0
+                r["closed_survived"] += m.get("survived") or 0
             case = by_program.get(Path(p["program"]).stem.upper())
             if case:
                 r["sampled"] += ledger[case].get("chosen") or 0
@@ -283,6 +324,9 @@ def det_mutation_component(
             "sampled_pct": pct(r["sampled"], r["mutants"]),
             "equivalent": r["equivalent"],
             "unreachable": r["unreachable"],
+            "closed": r["closed"],
+            "closed_caught": r["closed_caught"],
+            "closed_survived": r["closed_survived"],
         }
     keys = (
         "programs",
@@ -295,6 +339,9 @@ def det_mutation_component(
         "mutants",
         "equivalent",
         "unreachable",
+        "closed",
+        "closed_caught",
+        "closed_survived",
     )
     total: dict[str, Any] = {k: sum(e[k] for e in estates.values()) for k in keys}
     total["raw_pct"] = pct(total["caught"], total["caught"] + total["survived"])
@@ -673,6 +720,7 @@ def build(
     estate_levels_plan: dict[str, Any] | None = None,
     sizes: dict[str, dict[str, Any]] | None = None,
     fresh: dict[str, Any] | None = None,
+    jobs: dict[str, list[str]] | None = None,
 ) -> dict[str, Any]:
     per, pairs, undated = {}, {}, {}
     for name in sorted(reports):
@@ -693,6 +741,8 @@ def build(
     for name, size in (sizes or {}).items():  # recorded from the corpora (estate_size.py); shown, never counted
         if name in per:
             per[name]["size"] = size
+    for name, e in per.items():  # #8888: the S ladder beside each estate's L ladder; no size recorded -> not measured
+        e["system"] = system_ladder((e.get("size") or {}).get("jcl_jobs"), (jobs or {}).get(name, []))
     if sizes:
         keys = ("program_lines", "copybooks", "copybook_lines", "jcl_members", "jcl_jobs", "jcl_cond_jobs",
                 "jcl_checked_jobs")  # fmt: skip
@@ -780,6 +830,7 @@ def gather() -> dict[str, Any]:
             _load(TRIALS) if TRIALS.is_file() else None,
             len(_load(CANDIDATES).get("candidates", [])) if CANDIDATES.is_file() else 0,
         ),
+        job_cases(),
     )
 
 

@@ -71,8 +71,10 @@ RESOLUTION RULES (the language's, never the engine's)
               A bare specifier naming the file's own package (`zod/v4` in zod) is the
               file its nearest package.json `exports` declares (Node self-reference,
               #3789), as is a sibling workspace package's name when the root package.json
-              declares `workspaces` (#4254); any other bare specifier is a package (or
-              tsconfig alias), not scored.
+              declares `workspaces` (#4254); a specifier the nearest tsconfig.json /
+              jsconfig.json compilerOptions.paths maps (an @/* alias to the project root, relative to baseUrl or the config,
+              a child's paths replacing its extends parent's) is the file its target names (#8962); any other bare
+              specifier is a package, not scored.
   lua         `require "a.b"` -> a/b.lua, a/b/init.lua (suffix); dofile/loadfile
               string paths by suffix.
   php         include/require of a string literal (a leading __DIR__ . "/x"
@@ -696,10 +698,104 @@ def _workspace_sibling(spec: str, group: Group) -> set[str] | None:
     return None
 
 
+def _json_with_comments(text: str) -> Any:
+    """tsconfig.json / jsconfig.json allow comments and trailing commas; strip both (outside strings) and parse."""
+    text = re.sub(r'("(?:\\.|[^"\\])*")|//[^\n]*|/\*.*?\*/', lambda m: m.group(1) or "", text, flags=re.S)
+    return json.loads(re.sub(r",(\s*[}\]])", r"\1", text))
+
+
+def _ts_path_map(cfg: str, group: Group, depth: int = 0) -> dict[str, list[str]]:
+    """The effective `compilerOptions.paths` of one tsconfig, as {pattern: [group-relative target patterns]}: relative to its
+    `baseUrl` when set, else to the config's own directory (TypeScript >= 4.1). A config that declares `paths` replaces its
+    `extends` parent's; one that does not inherits them."""
+    key = ("tsconfig-paths", cfg)
+    if key in group._cache:
+        return group._cache[key]
+    out: dict[str, list[str]] = {}
+    try:
+        data = _json_with_comments(read_source(group.root / cfg).text) if group.root is not None else None  # type: ignore[operator]
+    except (OSError, ValueError):
+        data = None
+    if isinstance(data, dict):
+        cfg_dir = posixpath.dirname(cfg)
+        parent = data.get("extends")
+        if depth < 4 and isinstance(parent, str) and parent.startswith(".") and group.root is not None:
+            target = posixpath.normpath(
+                posixpath.join(cfg_dir, parent if parent.endswith(".json") else parent + ".json")
+            )
+            if (group.root / target).is_file():
+                out = dict(_ts_path_map(target, group, depth + 1))
+        options = data.get("compilerOptions")
+        paths = options.get("paths") if isinstance(options, dict) else None
+        if isinstance(paths, dict):
+            base_url = options.get("baseUrl")
+            base = posixpath.normpath(posixpath.join(cfg_dir, base_url)) if isinstance(base_url, str) else cfg_dir
+            out = {
+                pattern: [posixpath.normpath(posixpath.join(base, t)) for t in targets if isinstance(t, str)]
+                for pattern, targets in paths.items()
+                if isinstance(targets, list)
+            }
+    group._cache[key] = out
+    return out
+
+
+def _tsconfig_alias(spec: str, rel: str, group: Group) -> set[str] | None:
+    """A bare specifier that the nearest tsconfig.json / jsconfig.json `paths` maps (an `@/*` alias to the project root): the
+    files its targets name, by the compiler's rule (an exact key beats a wildcard, the longest prefix wins). None when no config
+    maps it, or when the mapping names nothing in the repo (a generated or external target is not scored)."""
+    if group.root is None:
+        return None
+    directory = posixpath.dirname(rel)
+    while True:
+        cfg = next(
+            (
+                posixpath.join(directory, n)
+                for n in ("tsconfig.json", "jsconfig.json")
+                if (group.root / directory / n).is_file()
+            ),
+            None,
+        )
+        if cfg is not None or not directory:
+            break
+        directory = posixpath.dirname(directory)
+    if cfg is None:
+        return None
+    mapped = _ts_path_map(cfg, group)
+    if not mapped:
+        return None
+    capture = None
+    targets: list[str] = []
+    if spec in mapped:
+        targets = mapped[spec]
+    else:
+        best = -1
+        for pattern, tgts in mapped.items():
+            if pattern.count("*") != 1:
+                continue
+            head, tail = pattern.split("*")
+            if (
+                spec.startswith(head)
+                and spec.endswith(tail)
+                and len(spec) >= len(head) + len(tail)
+                and len(head) > best
+            ):
+                best, capture, targets = len(head), spec[len(head) : len(spec) - len(tail)], tgts
+    found: set[str] = set()
+    for target in targets:
+        base = target.replace("*", capture) if capture is not None else target
+        cands = [base] + [base + e for e in _JS_EXTS] + [posixpath.join(base, "index" + e) for e in _JS_EXTS]
+        found |= {c for c in cands if c in group.files}
+    return found or None
+
+
 def js_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
     def resolve(spec: str, rel: str, group: Group) -> set[str] | None:
         if not spec.startswith(("./", "../")):
-            return _self_reference(spec, rel, group) or _workspace_sibling(spec, group)  # else not scored
+            return (
+                _tsconfig_alias(spec, rel, group)
+                or _self_reference(spec, rel, group)
+                or _workspace_sibling(spec, group)
+            )  # else not scored
         base = posixpath.normpath(posixpath.join(posixpath.dirname(rel), spec))
         cands = [base] + [base + e for e in _JS_EXTS] + [posixpath.join(base, "index" + e) for e in _JS_EXTS]
         stem, ext = posixpath.splitext(base)

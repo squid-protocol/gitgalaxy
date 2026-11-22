@@ -666,7 +666,8 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\b(?:sleep|delay|Task\.Delay|Thread\.Sleep)\b|\bWait\(\)"),
         # 43. bitwise_ops (Bitwise Operations)
         # Low-level byte manipulation. Safely maps to C# bitwise operators without overlapping language-specific pipelines.
-        "bitwise_ops": re.compile(r"<<|>>|\^|~"),
+        # #8866: a ">>" closing a generic list is not a shift
+        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>|(?<=\w)>>(?=\w))|\^|~"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|Monitor|Semaphore|Interlocked|SpinLock|ReaderWriterLockSlim)\b",

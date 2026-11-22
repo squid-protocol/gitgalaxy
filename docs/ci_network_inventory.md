@@ -15,17 +15,17 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
-| maven-gradle | 2 | 0 | 0 | 0 | 1 |
+| maven-gradle | 7 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 6 | 0 | 0 | 0 | 21 |
+| gh-api | 12 | 0 | 0 | 0 | 15 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 108 | 84 | 54 | 208 | 37 |
+| **total** | 119 | 84 | 54 | 208 | 31 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -55,15 +55,10 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - plan / Plan the sweep
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
-### doom-rosetta.yml
-
-- `gh-api` - callgraph / Scope
-
 ### equivalence-e2e.yml
 
 - `docker` - db2 / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - equivalence-e2e / Every shard passed, or the plan proved none was needed
-- `gh-api` - plan / Plan the shards
 - `docker` - shard / Load or build the oracle image, and check it against its pin (#4309)
 
 ### evidence-refresh.yml
@@ -90,14 +85,4 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 ### smoke-test.yml
 
-- `gh-api` - full-suite-part / Plan the ReDoS sweeps (#5166)
-- `gh-api` - suite-plan / Plan the suite
 - `gh-api` - suite-time / Total against the budget
-
-### tree-sitter-accuracy-history.yml
-
-- `gh-api` - plan / Plan the run
-
-### tri-comparison-history.yml
-
-- `gh-api` - plan / Plan the run

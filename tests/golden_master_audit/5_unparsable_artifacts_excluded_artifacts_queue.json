@@ -156,7 +156,7 @@
       "Size": "1120 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Diagnostic Reason": "Blocked (ignored directory: build)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
@@ -164,7 +164,7 @@
       "Size": "131 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Diagnostic Reason": "Blocked (ignored directory: build)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
@@ -1260,7 +1260,7 @@
       "Size": "14256 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Diagnostic Reason": "Blocked (ignored directory: docs)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",

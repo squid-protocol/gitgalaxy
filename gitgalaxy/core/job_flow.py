@@ -65,6 +65,7 @@ _STATEMENT_LIMIT = 4000
 # JCL operand names (not dict keys): named so the dead-key audit does not read them as payload keys
 _KW_RESTART = "RESTART"
 _KW_GDGBIAS = "GDGBIAS"
+_KW_GDGORDER = "GDGORDER"
 _KW_RD = "RD"
 _KW_MEMBER = "MEMBER"
 _KW_OUTPUT = "OUTPUT"
@@ -604,6 +605,22 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     rows.append(
                         dict(blank, kind="TEMP", step_name=dd_step, dd_name=dd_name or None, in_proc=in_proc, line=line)
                     )
+                elif "." in name and keyed.get("DISP"):
+                    # #8413: a call override that codes only a DISP (JCL Reference pp. 28-29: it merges into the
+                    # procedure's DD); presence-keyed on qualified names, so no other DD changes shape
+                    rows.append(
+                        dict(
+                            blank,
+                            kind="DD_DISP",
+                            step_name=dd_step,
+                            dd_name=dd_name or None,
+                            in_proc=in_proc,
+                            line=line,
+                            disp=_disp(keyed.get("DISP")) or "NEW",
+                            **({"disp_normal": n} if (n := _disp_normal(keyed.get("DISP"))) else {}),
+                            **({"disp_abnormal": n} if (n := _disp_abnormal(keyed.get("DISP"))) else {}),
+                        )
+                    )
                 continue
             dsn = dsn.upper()
             gen = _GEN.search(dsn)
@@ -629,6 +646,10 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     **({"disp_abnormal": abnormal} if abnormal else {}),
                     # #4268: presence-keyed lrecl / recfm; what the DD codes wins over what its referback lends
                     **{**_dcb_from_referback(rows, keyed, dd_step, in_proc), **_dcb(keyed)},
+                    # #8413: presence-keyed on a qualified (call override) DD: which of DISP it codes, for the merge
+                    **({"disp_coded": True} if "." in name and keyed.get("DISP") else {}),
+                    # #8413: presence-keyed GDGORDER of a whole-group (GDG ALL) read
+                    **({"gdgorder": keyed[_KW_GDGORDER].upper()} if keyed.get(_KW_GDGORDER) else {}),
                 )
             )
     return rows

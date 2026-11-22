@@ -104,9 +104,9 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           # the PR's files from the API (whole or not at all, as for the ReDoS sweep plan, #5882): a short list is full
-          labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
-          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
-          count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+          labels=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+          mapfile -t files < <(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+          count=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
           args=(--event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --coverage-map engine-map-cache/engine_test_map.json --files)
           if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
           python3 tests/tools/suite_select_plan.py "${args[@]}" > suite-plan.json || { echo "mode=full" >> "$GITHUB_OUTPUT"; echo '{"mode": "full", "reason": "the planner failed"}' > suite-plan.json; }
@@ -359,10 +359,10 @@ jobs:
           files="$RUNNER_TEMP/pr-files.jsonl"
           : > "$files"
           if [ -n "$PR" ]; then
-            labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true)
+            labels=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true)
             # #5882: the PR's changed files, whole or not at all (sweep_plan.py checks the count): no git history needed
-            gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | {filename, previous_filename}' > "$files" || : > "$files"
-            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || true)
+            CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | {filename, previous_filename}' > "$files" || : > "$files"
+            count=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$REPO/pulls/$PR" --jq .changed_files || true)
           fi
           python3 tests/tools/sweep_plan.py --event "$GITHUB_EVENT_NAME" --pr-files "$files" --pr-file-count "$count" \
             --labels "$labels" --github-output "$GITHUB_OUTPUT" | tee sweep-plan.json

@@ -1,7 +1,7 @@
 {
   "fixture": "flow_jcl (in this file)",
   "issue": 8413,
-  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice. Read again 2026-11-21 for the rest of the checklist line (User's Guide, Appendix A): 'Disposition of SMS-managed generation data sets' p. 237 (DISP=(NEW,PASS): 'At job termination, the deferred generation data set is scratched and uncataloged'), the GDGBIAS=STEP note on wraparound p. 237 (G9999Vyy then G0001Vyy), and Examples 1 and 2 of 'Creating an SMS-managed generation data set' pp. 243-244 (three (+n) added in one step, retrieved by (-2) (-1) (0)).",
+  "written_from": "IBM z/OS MVS JCL Reference (SA23-1385) and z/OS DFSMS Using Data Sets, read by section, not page (page numbers are not cited): the DD statement DSNAME parameter (generation data group relative numbers), the DISP parameter (normal / abnormal-termination dispositions, PASS), the EXEC COND parameter, and DFSMS 'Generation data groups' (relative generation resolution at job start, roll-in at job end, LIMIT). The expected answers were written before any evaluator ran on them. Read again 2026-11-19 from the local JCL User's Guide (ieab500_v3r1.txt, Appendix A, 'DSNAME Parameter - GDGBIAS=JOB', p. 236) and the JCL Reference (GDGBIAS parameter, p. 403: GDGBIAS=JOB is the default): the relationship between a relative and an absolute generation is fixed at the first reference in the job, a generation created by (+1) is read in a later step by the same (+1), cannot be read in its own step, and 'at the end of the job' the relative numbers of the group are updated. That answers the old assumption A1 (roll-in at the end of the job); A2 is still assumed. Read again 2026-11-20 for GDGBIAS=STEP (User's Guide Appendix A, 'Relative generation numbers' p. 235, 'DSNAME Parameter - GDGBIAS=STEP' pp. 236-237 and 238-239, Example 7 p. 246; JCL Reference JOB: GDGBIAS pp. 403-404): the relationship is established at the first reference in each job step and the catalog is updated at the end of the job step. Restarted jobs (User's Guide 'Restarting a job with generation data sets' p. 243; JCL Reference JOB: RESTART, 'Generation data sets in restarted jobs' pp. 431-432) are a later slice. Read again 2026-11-21 for the rest of the checklist line (User's Guide, Appendix A): 'Disposition of SMS-managed generation data sets' p. 237 (DISP=(NEW,PASS): 'At job termination, the deferred generation data set is scratched and uncataloged'), the GDGBIAS=STEP note on wraparound p. 237 (G9999Vyy then G0001Vyy), and Examples 1 and 2 of 'Creating an SMS-managed generation data set' pp. 243-244 (three (+n) added in one step, retrieved by (-2) (-1) (0)). Read again 2026-11-22 from DFSMS Using Data Sets (idad400), 'Generation data groups' and 'Controlling Expiration of a Rolled-Off Generation Data Set' for the SCRATCH / NOSCRATCH fate of a rolled-off generation.",
   "scenario_input": "catalog (or catalog_from: another scenario's catalog_after): per GDG base, limit and the cataloged absolute generations, oldest first. given: per step that starts, {rc: n} or {abend: code}.",
   "scenario_answer": "expect: per STEP.DDNAME of each step that runs, the absolute generation number the DD names. catalog_after: per base the cataloged generations, oldest first, after the job ends.",
   "flow_jcl": [
@@ -2540,6 +2540,250 @@
       },
       "assumed": "A12",
       "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'Indicates that the system is to delete the entry pointing to the data set in the catalog ... The data set is kept. With SMS, UNCATLG is ignored for SMS-managed data sets and VSAM data sets (KEEP is implied).' User's Guide, Appendix A, 'Deleting and uncataloging generation data sets': 'Note that uncataloging is not supported for SMS-managed data sets', and uncataloging the oldest generation is the form the manual leaves safe (any other 'catalog management can lose orientation within the data group'). V1 names (-2) = 6, the oldest of 6, 7, 8, and fixes the relationship, which the system maintains throughout the job, so V2 still reads (0) = 8 and (-1) = 7. The group is not SMS-managed (sms: false) and the DD gives no VOLUME, so the system retrieves volume information from the catalog and 'UNCATLG is processed': the catalog entry for 6 is deleted at V1's end and the data set is kept (off the group; this model tracks the group's entries only). ASSUMED (A12): that the other generations keep their entries and numbers is read from the DISP text, as A6 does for DELETE."
+    },
+    {
+      "id": "limit-roll-off-scratch-deletes-the-oldest",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "rolled_off": {
+            "scratched": [
+              5
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' LIMIT 3 with 5, 6, 7 cataloged: rolling 8 in at the end of the job rolls 5 off, and the group's SCRATCH attribute means 5 is scratched (deleted), not kept. The relative numbers are those of limit-rolls-off-oldest."
+    },
+    {
+      "id": "limit-roll-off-noscratch-recatalogs-the-oldest",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": false,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": false,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "rolled_off": {
+            "recataloged": [
+              5
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' Same job and catalog, group attribute NOSCRATCH: 5 leaves the group as before, but it is not deleted: it is recataloged as rolled off, disassociated from the group (it stays a data set, no longer one of the group's generations)."
+    },
+    {
+      "id": "empty-roll-off-scratch-deletes-every-generation",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "scratch": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "empty": true,
+          "scratch": true,
+          "generations": [
+            8
+          ],
+          "rolled_off": {
+            "scratched": [
+              5,
+              6,
+              7
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' EMPTY at the limit rolls off all the currently active generations (5, 6, 7) when 8 is rolled in, and SCRATCH scratches each of them."
+    },
+    {
+      "id": "noscratch-below-the-limit-rolls-off-nothing",
+      "job": "MAKEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "scratch": false,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "C1": {
+          "rc": 0
+        },
+        "C2": {
+          "rc": 0
+        },
+        "C3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "C1.OUT": 8,
+        "C2.NEW": 8,
+        "C2.CUR": 7,
+        "C3.PRV": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "scratch": false,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' LIMIT 5 holds 4 generations after 8 is rolled in: nothing is rolled off, so SCRATCH / NOSCRATCH has no generation to act on and the answer carries no rolled_off entry."
+    },
+    {
+      "id": "step-bias-roll-off-scratch-at-step-end",
+      "job": "STPLIM",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "L1": {
+          "rc": 0
+        },
+        "L2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "L1.LOUT": 8,
+        "L2.LCUR": 8,
+        "L2.LOLD": 6
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 3,
+          "scratch": true,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "rolled_off": {
+            "scratched": [
+              5
+            ]
+          }
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS DFSMS Using Data Sets, 'Generation data groups' (generation data group attributes, 'Controlling Expiration of a Rolled-Off Generation Data Set'): 'When a GDG contains its maximum number of active generation data sets, and a new generation data set is rolled in at the end-of-job step, the oldest generation data set is rolled off and is no longer active.' 'The parameters you specify on the DEFINE GENERATIONDATAGROUP command determines what happens to rolled off generation data sets. For example, if you specify the SCRATCH parameter, the generation data set is scratched when it is rolled off. If you specify the NOSCRATCH parameter, the rolled off generation data set is recataloged as rolled off and is disassociated with its GDG.' GDGBIAS=STEP (UG Appendix A p. 237) rolls 8 in at the end of step L1, which is when 5 is rolled off and scratched."
     }
   ],
   "assumed": [
@@ -2586,6 +2830,10 @@
     {
       "id": "A12",
       "text": "DISP=(OLD,UNCATLG) of the oldest generation of a group that is not SMS-managed removes only that entry from the group, as A6 does for DELETE; the manuals work no example that uncatalogs one generation, and state the SMS case ('ignored, KEEP implied') only in the DISP text. The group's SMS state is a field of the catalog entry given (sms: true / false): a group that does not give it is refused by name."
+    },
+    {
+      "id": "A13",
+      "text": "The group's SCRATCH / NOSCRATCH attribute is a field of the catalog entry given (scratch: true / false), and no expiration date is coded on the rolled-off data set and no management class EXPIRE applies: the manual lists those two as controlling expiration of a rolled-off generation ahead of / after the base attribute, and gives no example that combines them. A group that does not give scratch states no roll-off fate (the answer carries no rolled_off entry)."
     }
   ],
   "refused": [
@@ -2598,7 +2846,7 @@
       "why": "a JCL or catalog error, not a step-flow answer"
     },
     {
-      "construct": "UNCATLG generations, absolute names (G0007V00), the SCRATCH / NOSCRATCH fate of a rolled-off generation",
+      "construct": "UNCATLG generations, absolute names (G0007V00)",
       "why": "not covered by this slice"
     },
     {
@@ -2660,6 +2908,10 @@
     {
       "construct": "DISP=(OLD,UNCATLG) of a generation of a group whose SMS state the catalog entry does not give, or of a generation other than the oldest",
       "why": "the manual states UNCATLG as ignored for SMS-managed data sets and processed otherwise, so the answer depends on a fact the job does not carry; and for any generation but the oldest it says 'catalog management can lose orientation within the data group' without stating an outcome"
+    },
+    {
+      "construct": "the roll-off fate of a generation when the group's catalog entry gives neither scratch nor noscratch, or when the attempt to scratch fails",
+      "why": "the text names the SCRATCH and NOSCRATCH outcomes only; no default for a group that states neither is given in the text read, and a failed scratch is stated for system-managed generations as 'recataloged' only in the absolute-version replacement paragraph"
     }
   ]
 }

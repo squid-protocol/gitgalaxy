@@ -1,7 +1,10 @@
 """#7155 part 2: the canary catalog is safe and names real gates, and the opener refuses anything but a canary/ branch."""
 
+import ast
 import json
 import re
+import shutil
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -100,8 +103,8 @@ HOUR = cc.timedelta(hours=1)
 
 def test_every_red_gate_has_a_check_and_the_clean_pr_expects_nothing():
     assert {g for d in cc.DEFECTS for g in d.red} <= set(cc.CHECK_OF)
-    assert cc.problems((cc.CLEAN,), clean=True) == []
-    assert cc.plan((cc.CLEAN,))["kind"] == "clean" and cc.plan((cc.CLEAN,))["must_go_red"] == []
+    assert cc.problems(cc.CLEAN_SET, clean=True) == []
+    assert cc.plan(cc.CLEAN_SET)["kind"] == "clean" and cc.plan(cc.CLEAN_SET)["must_go_red"] == []
 
 
 def test_a_gate_that_went_red_is_red_with_its_seconds():
@@ -262,3 +265,37 @@ def test_the_tool_and_workflow_never_merge_or_label():
     doc = yaml.safe_load(text)
     assert set(doc["jobs"]) == {"open", "results"}
     assert doc["permissions"] == {"contents": "read"}
+
+
+def _area(path: str) -> tuple[str, str]:
+    p = Path(path)
+    return p.parts[0] if p.parts[0] != "tests" else "/".join(p.parts[:2]), p.suffix
+
+
+def test_the_clean_set_reaches_every_area_a_defect_reaches():
+    assert {_area(d.path) for d in cc.DEFECTS} <= {_area(d.path) for d in cc.CLEAN_SET}
+    assert all(d.red == () for d in cc.CLEAN_SET)
+
+
+def test_the_clean_twins_are_valid_python_and_a_live_link(tmp_path):
+    for d in cc.CLEAN_SET:
+        if d.path.endswith(".py"):
+            ast.parse(d.content)
+        else:
+            (link,) = re.findall(r"\]\(([^)]+)\)", d.content)
+            assert (cc.REPO / Path(d.path).parent / link).exists(), link
+    ruff = shutil.which("ruff")
+    if ruff:
+        for d in cc.CLEAN_SET:
+            if d.path.endswith(".py"):
+                f = tmp_path / Path(d.path).name
+                f.write_text(d.content, encoding="utf-8", newline="\n")
+                for args in (["format", "--check"], ["check", "--isolated", "--select", "F"]):
+                    r = subprocess.run([ruff, *args, str(f)], capture_output=True, text=True)
+                    assert r.returncode == 0, (d.path, args, r.stdout)
+
+
+def test_the_clean_pr_reports_how_many_checks_ran():
+    runs = [_run("ruff-audit"), _run("full-suite part 1/4"), _run("det", "skipped")]
+    r = cc.evaluate({"kind": "clean", "must_go_red": []}, runs, age=5 * HOUR)
+    assert r["checks_run"] == 2 and "Checks that ran: 2" in cc.render(r)

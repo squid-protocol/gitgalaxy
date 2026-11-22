@@ -1,5 +1,5 @@
 {
- "commit": "536c946ec",
+ "commit": "380d43206",
  "components": {
   "capabilities": {
    "groups": [
@@ -247,13 +247,13 @@
      "unit": ""
     },
     {
-     "done": 163,
+     "done": 168,
      "found": "",
      "group": "Batch",
      "have": "run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers",
      "name": "JCL step flow",
      "note": "answers written from IBM's manuals before the evaluator ran; plus 44 ASSUMED scenarios (a stated assumption, not IBM text), 44 reproduced",
-     "of": 163,
+     "of": 168,
      "state": "works",
      "unit": "IBM-written scenarios"
     },
@@ -261,7 +261,7 @@
      "done": 51,
      "found": "",
      "group": "Batch",
-     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 39); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 11 of 11 agree (file has 25); 154 scenarios in 11 answer files not run on the box",
+     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 39); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 11 of 11 agree (file has 25); 159 scenarios in 12 answer files not run on the box",
      "name": "JCL on MVS 3.8J (tier 2)",
      "note": "not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS",
      "of": 53,
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T09:09:29Z",
+  "as_of": "2026-11-22T09:13:16Z",
   "core": {
    "closed": 256,
    "open": 19,

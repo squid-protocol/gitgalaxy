@@ -187,3 +187,25 @@ FILES = {"q/REC1.cpy": ITEM_B, "p/REC1.cpy": ITEM_A}
 )
 def test_the_declared_order_decides_which_same_name_member_a_copy_reads(tmp_path, order, winner):
     assert edges_of(estate(tmp_path, order, FILES), tmp_path) == {winner}
+
+
+def test_a_comment_ending_in_a_backslash_does_not_swallow_the_next_property(tmp_path):
+    text = "# the copybooks are under C:\\build\\ws\\\ncobol_dependencySearch=" + search("a") + "\n"
+    assert declared(app_tree(tmp_path, ["a"], conf(text))) == ["a"]
+    text = "! old path D:\\fake\\\ncobol_dependencySearch=" + search("b") + "\n"
+    assert declared(app_tree(tmp_path / "x", ["b"], conf(text))) == ["b"]
+
+
+def test_an_even_run_of_trailing_backslashes_does_not_continue_the_line(tmp_path):
+    text = "other=D:\\fake\\\\\ncobol_dependencySearch=" + search("a") + "\n"  # `\\` is a literal backslash
+    assert declared(app_tree(tmp_path, ["a"], conf(text))) == ["a"]
+
+
+def test_a_continuation_line_that_starts_with_a_hash_is_part_of_the_value(tmp_path):
+    text = "cobol_dependencySearch=" + search("a") + ";\\\n    #\\\n    FakeApp/b/*.cpy\n"
+    assert declared(app_tree(tmp_path, ["a", "b"], conf(text))) == ["a"]  # `#` joins the value; no `#` directory
+
+
+def test_the_last_of_two_definitions_of_a_key_in_one_file_wins(tmp_path):
+    text = "cobol_dependencySearch=" + search("a") + "\ncobol_dependencySearch=" + search("b") + "\n"
+    assert declared(app_tree(tmp_path, ["a", "b"], conf(text))) == ["b"]

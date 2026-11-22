@@ -373,11 +373,13 @@ def _dbb_properties(path: str) -> dict[str, str]:
     pending = ""
     for raw in read_source(path).text.splitlines():
         line = pending + raw.strip()
+        if not pending and line[:1] in ("#", "!"):
+            continue  # a comment line never continues, even when it ends in a backslash
         pending = ""
-        if line.endswith("\\"):
+        if (len(line) - len(line.rstrip("\\"))) % 2:  # an odd run of trailing backslashes continues the line
             pending = line[:-1]
             continue
-        if not line or line[0] in "#!":
+        if not line:
             continue
         match = re.match(r"([^=:\s]+)\s*[=:]?\s*(.*)$", line)
         if match and "::" not in match.group(2):

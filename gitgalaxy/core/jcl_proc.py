@@ -380,6 +380,36 @@ def _library_order(text: str, job: str) -> list[str]:
     return []
 
 
+def _flat_steps(
+    name: str,
+    procs: dict[str, list[dict[str, Any]]],
+    dd_rows: list[dict[str, Any]],
+    job: str,
+    text: str | None,
+    libraries: Mapping[str, Mapping[str, str]] | None,
+    depth: int,
+) -> list[dict[str, Any]]:
+    """The executing steps of procedure `name`, a nested call replaced by the called procedure's steps (A4: levels
+    flattened, each step keeps its own name). A library member is read once; its DD rows are appended to `dd_rows`."""
+    if name not in procs:
+        if text is None or libraries is None:
+            raise JclProcRefused(f"procedure {name} is not in-stream and no libraries were given")
+        member = _find(name, _library_order(text, job), libraries)
+        read = jcl_job_flow(member)
+        procs[name] = [m for m in read if m["kind"] == "STEP" and m["in_proc"]]
+        # the member's DDs, as an in-stream procedure's are among the job's rows: a DD reader (GDG) finds them there
+        dd_rows.extend(m for m in read if m["kind"] == "DD" and m["in_proc"])
+    steps: list[dict[str, Any]] = []
+    for ps in procs[name]:
+        if not ps["proc"]:
+            steps.append(ps)
+            continue
+        if depth >= _MAX_LEVELS:
+            raise JclProcRefused(f"procedure nesting past {_MAX_LEVELS} levels is invalid (p. 32)")
+        steps.extend(_flat_steps(ps["proc"], procs, dd_rows, job, text, libraries, depth + 1))
+    return steps
+
+
 def expand_flow_rows(
     rows: list[dict[str, Any]],
     job: str,
@@ -411,19 +441,14 @@ def expand_flow_rows(
         if not r["proc"]:
             out.append(r)
             continue
-        if r["proc"] not in procs:
-            if text is None or libraries is None:
-                raise JclProcRefused(f"procedure {r['proc']} is not in-stream and no libraries were given")
-            member = _find(r["proc"], _library_order(text, job), libraries)
-            read = jcl_job_flow(member)
-            procs[r["proc"]] = [m for m in read if m["kind"] == "STEP" and m["in_proc"]]
-            # the member's DDs, as an in-stream procedure's are among the job's rows: a DD reader (GDG) finds them there
-            out.extend(m for m in read if m["kind"] == "DD" and m["in_proc"])
-        if any(ps["proc"] for ps in procs[r["proc"]]):
-            raise JclProcRefused("nested procedure calls in IF flow are not answered")
+        steps = _flat_steps(r["proc"], procs, out, job, text, libraries, 1)
         over = {o["step"]: o["cond"] for o in r.get("cond_overrides", [])}
+        if (over or r.get("cond")) and any(ps["proc"] for ps in procs[r["proc"]]):
+            raise JclProcRefused(
+                "EXEC COND= / COND.procstep= on a call of a procedure that calls procedures is not answered"
+            )
         call = r["step_name"]
-        for ps in procs[r["proc"]]:
+        for ps in steps:
             cond = over.get(ps["step_name"], ps["cond"])
             if cond:
                 cond = _COND_STEP.sub(rf"\g<1>{call}.\g<2>\g<3>", cond)

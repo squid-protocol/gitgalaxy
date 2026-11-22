@@ -1,5 +1,5 @@
 {
- "commit": "26cc2362d",
+ "commit": "20a05b711",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,15 +1070,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T23:04:43Z",
+  "as_of": "2026-11-22T23:38:21Z",
   "core": {
-   "closed": 256,
-   "open": 19,
+   "closed": 257,
+   "open": 18,
    "total": 275
   },
   "core_last_window": {
-   "closed": 8,
-   "net_closed": -2,
+   "closed": 9,
+   "net_closed": -1,
    "opened": 10
   },
   "core_milestone": {
@@ -1388,9 +1388,9 @@
     "total": 0
    },
    {
-    "closed": 3,
+    "closed": 4,
     "number": 42,
-    "open": 6,
+    "open": 5,
     "title": "Night Shift \ud83c\udf19 \u2014 CardDemo's nightly in the translation proofs",
     "total": 9
    },

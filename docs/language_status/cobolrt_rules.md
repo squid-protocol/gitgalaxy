@@ -292,7 +292,7 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-GSAM | A GSAM PCB in load mode: ISRT appends one record of the DBD's length to the output file, any other function is AM, and the PCB mask's segment level is blank; an SSA or an I/O area shorter than the record is refused | `ims-codes` DL/I status codes | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-SCHD | EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused; a planned TC (#5233) schedules the PSB first | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-TERM | EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
-| RT-DLI-FAULT-INJECTION | A planned DL/I fault (# DLI FUNCTION NTH\|* STATUS; a get-hold counts as its get) replaces that call's execution, the PCB answering the status as for any status it names | none: the faults are the harness's; the PCB feedback a fault leaves is assumed | - | I3 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-DLI-FAULT-INJECTION | A planned DL/I fault (# DLI FUNCTION NTH\|* STATUS; a get-hold counts as its get) replaces that call's execution, the PCB answering the status as for any status it names | `ims-ap` Specifying the DB PCB mask | - | I3 (ASSUMED) | ASSUMED | uncalibrated |
 
 ## MQ: IBM MQ (MQI from CICS)
 

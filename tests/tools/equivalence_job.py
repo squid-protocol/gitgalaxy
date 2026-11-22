@@ -6,6 +6,11 @@ dataset's input (the parameter card the job's JCL shares between steps).
      "steps": [{"case": "sort-step"},
                {"case": "report-step", "feeds": {"TRANFILE": {"step": "sort-step", "dd": "SORTOUT"}}}]}
 
+An IDCAMS step (`{"idcams": NAME, "sysin": ..., "dds": ...}`, #8880, `idcams_job.py`) runs between program steps: its
+sequential DDs are fed from an earlier step's output, its own output feeds a later step, and the step is run through the
+oracle model (`det/idcams_model.py`) and the Java runtime (`cobolrt/job/Idcams.java`), the condition codes, log, catalog
+and datasets compared. The catalog persists across IDCAMS steps; a step the model refuses stops the job.
+
 Each step is proven like a batch case on its own (COBOL under GnuCOBOL, then the port, every compared output and the
 RETURN-CODE), and what a step reads from an earlier step is the COBOL side's output of that step, the very bytes the
 Java side is given too. If every step's Java output equals its COBOL output, the Java job's chain equals the COBOL
@@ -35,6 +40,7 @@ from pathlib import Path
 from typing import Any
 
 import equivalence_gdg as gdg
+import idcams_job as idc
 from equivalence_gdg import Unsupported
 
 JOBS = Path(__file__).resolve().parents[1] / "equivalence" / "jobs"
@@ -44,7 +50,12 @@ CORPUS_PREFIX = "@corpus/"
 
 
 def step_names(job: dict[str, Any]) -> list[str]:
-    return [s["case"] for s in job.get("steps", [])]
+    """Every step's name: a program step's case, an IDCAMS step's `idcams` name (#8880)."""
+    return [s["case"] if "case" in s else str(s.get("idcams")) for s in job.get("steps", [])]
+
+
+def case_names(job: dict[str, Any]) -> list[str]:
+    return [s["case"] for s in job.get("steps", []) if "case" in s]
 
 
 def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
@@ -57,6 +68,12 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         raise Unsupported(f"a step case appears twice ({sorted({n for n in names if names.count(n) > 1})}): "
                           "a feed names its source step by case")  # fmt: skip
     for i, step in enumerate(steps):
+        if "idcams" in step:  # #8880: an IDCAMS deck, run through the model and the Java runtime
+            if "case" in step:
+                raise Unsupported(f"step {i + 1} is both a case and an IDCAMS step")
+            idc.check_step(step, names[:i], cases, JOBS)
+            cases[step["idcams"]] = idc.pseudo_case(step)
+            continue
         name = step["case"]
         case = cases.get(name)
         if case is None:
@@ -67,16 +84,18 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
         _check_subprograms(name, case)
         for dd, feed in step.get("feeds", {}).items():
             _check_feed(name, dd, feed, case, names[:i], cases)
-    for step in steps:  # a dataset the JCL gives the step its own input for (the job's shared parameter card)
+    for step in (
+        s for s in steps if "case" in s
+    ):  # a dataset the JCL gives the step its own input for (the job's shared parameter card)
         for dd, rel in step.get("inputs", {}).items():
             if dd not in cases[step["case"]]["datasets"] or dd in step.get("feeds", {}):
                 raise Unsupported(f"step {step['case']}: input {dd} is not one of its datasets, or is also fed")
             if not rel.startswith(CORPUS_PREFIX) and not (JOBS / rel).is_file():
                 raise Unsupported(f"step {step['case']}: input {dd}: no file {rel} beside the job case")
-    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs", "job", "gdg_in", "gdg_out"}
+    unknown = {k for s in steps if "case" in s for k in s} - {"case", "feeds", "inputs", "job", "gdg_in", "gdg_out"}
     if unknown:
         raise Unsupported(f"unknown step key(s) {sorted(unknown)}")
-    gdg.check_gdg(job, cases)  # #8883: generations across the chain
+    gdg.check_gdg({**job, "steps": [s for s in steps if "case" in s]}, cases)  # #8883: generations across the chain
     for base, spec in gdg.check_declarations(job).items():
         for rel in spec.get("generations", []):
             if not (JOBS / rel).is_file():
@@ -134,7 +153,7 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     import equivalence_java as ej
     import mainframe_corpus as mc
 
-    cases = {n: api.load_case(n) for n in step_names(job)}
+    cases = {n: api.load_case(n) for n in case_names(job)}
     try:
         check_job(job, cases)
     except Unsupported as e:
@@ -146,7 +165,16 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     catalog = _catalog(api, job, cases)
     jobs = gdg.job_names(job)
     ok = True
+    idcams_state: dict[str, Any] = {"catalog": {}}  # the job's catalog, from one IDCAMS step to the next (#8880)
+    idcams_java = idc.JavaSide(work)
     for i, step in enumerate(job["steps"]):
+        if "idcams" in step:
+            entry = idc.run_step(step, JOBS, outputs, idcams_state, idcams_java, {})
+            report["steps"].append(entry)
+            ok &= entry["ok"]
+            if entry.get("stopped"):
+                break
+            continue
         name = step["case"]
         case = cases[name]
         enc = api.data_encoding(case)

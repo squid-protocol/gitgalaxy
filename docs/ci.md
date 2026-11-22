@@ -71,7 +71,7 @@ is neutral: Azure posts "Skipped due to merge conflicts" on a conflicting PR and
 was fixed it held #7673's `ci-gate` red with every other check green. A conflict is read from `mergeable_state` instead.
 
 Every check that can hold a PR is listed in `tests/tools/gate_controls.py` with the test that proves it can fail (#7155).
-`python tests/tools/gate_controls.py` prints the ones with no proof yet; that count may only go down.
+`python tests/tools/gate_controls.py` prints the ones with no proof yet; that count may only go down. The list covers every workflow, not only PR ones: main, nightly and release checks carry a `trigger`, a gate that is one job of a workflow names it (`job`), and a workflow that holds nothing is in `NOT_GATES` with the reason.
 
 ## Other rules
 

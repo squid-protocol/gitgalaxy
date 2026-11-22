@@ -32,14 +32,13 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+import equivalence_gdg as gdg
+from equivalence_gdg import Unsupported
+
 JOBS = Path(__file__).resolve().parents[1] / "equivalence" / "jobs"
 
 
 CORPUS_PREFIX = "@corpus/"
-
-
-class Unsupported(Exception):
-    """The job asks for what this harness does not model: named, never guessed."""
 
 
 def step_names(job: dict[str, Any]) -> list[str]:
@@ -71,9 +70,14 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
                 raise Unsupported(f"step {step['case']}: input {dd} is not one of its datasets, or is also fed")
             if not rel.startswith(CORPUS_PREFIX) and not (JOBS / rel).is_file():
                 raise Unsupported(f"step {step['case']}: input {dd}: no file {rel} beside the job case")
-    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs"}
+    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs", "job", "gdg_in", "gdg_out"}
     if unknown:
         raise Unsupported(f"unknown step key(s) {sorted(unknown)}")
+    gdg.check_gdg(job, cases)  # #8883: generations across the chain
+    for base, spec in gdg.check_declarations(job).items():
+        for rel in spec.get("generations", []):
+            if not (JOBS / rel).is_file():
+                raise Unsupported(f"GDG {base}: no generation file {rel} beside the job case")
 
 
 def _check_feed(name: str, dd: str, feed: dict[str, Any], case: dict[str, Any], earlier: list[str],
@@ -124,12 +128,23 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     report: dict[str, Any] = {"case": job["name"], "kind": "job", "job": job.get("job"), "steps": [],
                               "java": "ported" if port else "generated"}  # fmt: skip
     outputs: dict[str, dict[str, bytes]] = {}  # step case -> {dd: COBOL output bytes}
+    catalog = _catalog(api, job, cases)
+    jobs = gdg.job_names(job)
     ok = True
     for i, step in enumerate(job["steps"]):
         name = step["case"]
         case = cases[name]
         enc = api.data_encoding(case)
         fed = {}
+        catalog.begin_step(jobs[i])
+        for dd, ref in step.get("gdg_in", {}).items():  # both sides read the same generation bytes (the COBOL side's)
+            what, parts = catalog.read(ref["base"], ref["gen"])
+            data = b"".join(parts)
+            path = work / "feeds" / f"{i + 1}-{name}-{dd}.txt"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(records_as_lines(data, case["datasets"][dd]["reclen"], enc))
+            case["datasets"][dd] = {**case["datasets"][dd], "input": str(path.resolve())}
+            fed[dd] = f"{what} ({len(data) // case['datasets'][dd]['reclen']} records)"
         for dd, rel in step.get("inputs", {}).items():
             path = rel[len(CORPUS_PREFIX) :] if rel.startswith(CORPUS_PREFIX) else str((JOBS / rel).resolve())
             case["datasets"][dd] = {**case["datasets"][dd], "input": path}
@@ -150,6 +165,9 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
             sw = work / f"step{i + 1}-{name}"
             cobol = api.run_cobol(case, corpus, sw / "cobol")
             outputs[name] = cobol
+            if "ABEND" not in cobol:  # a step that abends catalogues nothing
+                for dd, base in step.get("gdg_out", {}).items():
+                    fed[f"{dd} (out)"] = catalog.create(base, cobol[dd])
             if cobol_only:
                 report["steps"].append({"case": name, "ok": True, "cobol_only": True, "fed": fed})
                 continue
@@ -175,6 +193,21 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {len(job['steps'])} steps")
     print(f"report: {work / 'report.json'}")
     return 0 if report["proven"] or cobol_only else 1
+
+
+def _catalog(api: Any, job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> gdg.Catalog:
+    """The job's GDG catalog, its declared generations read from files beside the job case as the consuming steps
+    read a dataset (one data page for every step that touches a base)."""
+    import equivalence_common as common
+
+    gdgs = gdg.check_declarations(job)
+    encs = {api.data_encoding(cases[s["case"]]) for s in job["steps"] if "gdg_in" in s or "gdg_out" in s}
+    if len(encs) > 1:
+        raise SystemExit(f"{job['name']}: not runnable faithfully: steps that share a GDG use different data pages")
+    enc = next(iter(encs), "latin-1")
+    loaded = {b: [common._fixed(JOBS / rel, spec["reclen"], enc) for rel in spec.get("generations", [])]
+              for b, spec in gdgs.items()}  # fmt: skip
+    return gdg.Catalog(gdgs, loaded)
 
 
 def work_dir(keep: Path | None, name: str) -> Path:

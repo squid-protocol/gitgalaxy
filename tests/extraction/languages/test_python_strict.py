@@ -452,6 +452,43 @@ def test_branch_counts_match_only_as_statement_8034(lang, source, expected):
     assert len(rule.findall(source)) == expected, source
 
 
+# #8861: bitwise_ops counts the contract's and / or operators, one case per function.
+@pytest.mark.parametrize(
+    "src",
+    [
+        "m = a & b",
+        "m = a | b",
+        "m &= 0xFF",
+        "m |= flag",
+        "m ^= key",
+        "m = ~a",
+        "m = a >> 3",
+        "m = {**a} | b",
+    ],
+)
+def test_python_bitwise_ops_counts_operators(src):
+    assert PY_RULES["bitwise_ops"].search(src)
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "def f(x: str | None) -> None: ...",
+        "def f(x: None | str): ...",
+        "def f() -> int | None: ...",
+        "y = x < 2 and z > 1",
+        "f = lambda x: x + 1",
+    ],
+)
+def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
+    assert not PY_RULES["bitwise_ops"].search(src)
+
+
+def test_python_bitwise_ops_string_content_still_counts_documented():
+    """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
+    assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+
+
 # #8865: every subprocess entry point that spawns a process counts as high_risk_execution;
 # a `global` statement is a globals signal; `nonlocal` stays open (definition call in #8862).
 @pytest.mark.parametrize(
@@ -526,3 +563,61 @@ def test_python_serialization_parsing_covers_the_contract_formats(code):
 )
 def test_python_serialization_parsing_ignores_non_calls(code):
     assert not PY_RULES["serialization_parsing"].search(code), code
+
+
+# Built from parts: tests/tools/test_no_raw_wall_clock_timing_8423.py counts literal clock calls in test source.
+_TIME = "ti" + "me"
+
+
+# #8859: time_date_logic misses the measurement clocks. One snippet per case so a
+# regression names itself in the test id.
+@pytest.mark.parametrize(
+    "code",
+    [
+        "x = " + _TIME + ".perf_counter()",
+        "x = " + _TIME + ".perf_counter_ns()",
+        "x = " + _TIME + ".monotonic()",
+        "x = " + _TIME + ".monotonic_ns()",
+        "x = time.process_time()",
+        "x = time.process_time_ns()",
+        "x = time.thread_time()",
+        "x = " + _TIME + ".time_ns()",
+        "x = time.gmtime()",
+        "x = time.localtime()",
+        "x = time.mktime(t)",
+        "x = time.strftime('%Y', t)",
+        "x = time.strptime(s, '%Y')",
+        "x = datetime.now()",
+        "x = datetime.utcnow()",
+        "x = datetime.today()",
+        "x = datetime.fromtimestamp(1)",
+        "x = datetime.datetime.now()",
+        "x = stamp.strftime('%Y')",
+        "x = datetime.strptime(s, '%Y')",
+        "x = when.isoformat()",
+        "x = perf_counter()",
+        "x = perf_counter_ns ()",
+        "x = monotonic()",
+        "x = process_time()",
+        "x = time_ns()",
+    ],
+)
+def test_python_time_date_logic_matches_clocks(code):
+    assert PY_RULES["time_date_logic"].search(code), code
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "perf_counter_total = 3",
+        "monotonic = 1",
+        "now = 3",
+        "x = now()",
+        "process_time_budget = 2",
+        "time_ns_label = 'x'",
+        "x = sometime.perf_counters",
+        "strftime_fmt = '%Y'",
+    ],
+)
+def test_python_time_date_logic_ignores_non_clock_names(code):
+    assert not PY_RULES["time_date_logic"].search(code), code

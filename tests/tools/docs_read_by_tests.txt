@@ -329,10 +329,12 @@ docs/domain_sensor_contracts.md	gitgalaxy,tests/signal_contract_audit.py
 docs/ecosystem.md	tests/tools/test_progress_report.py
 docs/encapsulation_rule_contract.md	gitgalaxy,tests/test_signal_contract_sheet.py
 docs/ex.py	tests/tools/test_doom_speedrun.py
+docs/examples/demo.c/	tests/core_engine
 docs/examples/demo.py	tests/tools/test_doom_speedrun.py
 docs/func_start_rule_contract.md	gitgalaxy
 docs/gitgalaxy_architecture_brief.md	tests/tools/test_generated_branch.py
 docs/globals_rule_contract.md	gitgalaxy
+docs/guide/intro.md	tests/core_engine
 docs/h.csv	tests/tools/test_generated_branch.py
 docs/high_risk_execution_rule_contract.md	gitgalaxy
 docs/immutability_locks_rule_contract.md	gitgalaxy
@@ -442,6 +444,7 @@ docs/language_status/zos_calibration.json	tests/tools/register.py
 docs/language_status/zos_probes.json	tests/tools/zos_probes.py
 docs/mainframe_ingestion_checklist.md	gitgalaxy
 docs/new.md	tests/tools/test_generated_docs.py
+docs/node_modules/x.c/	tests/core_engine
 docs/nope.csv	tests/tools/test_generated_branch.py
 docs/not-published.csv	tests/tools/test_generated_branch.py
 docs/other.json	tests/tools/test_generated_branch.py
@@ -550,6 +553,7 @@ holes.md	tests/tools/test_det_hole_groups.py
 how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/core_engine,tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
 indented4.md	tests/core_engine
+intro.md	tests/core_engine
 issue.md	tests/tools/test_context_pack.py
 jcl_oracle_mvs38j.md	tests/tools/capability_ledger.py
 journey.json	tests/tools/estate_journey.py,tests/tools/progress_report.py

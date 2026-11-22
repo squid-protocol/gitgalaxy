@@ -3082,7 +3082,7 @@
       "python/homeassistant_ble_integrations/utils.py": "Generic / Templated Code Files"
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Large Core Modules (2)",
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Many-Argument Workhorses Files",
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Many-Argument Workhorses Files",
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Generic / Templated Code Files"
     },

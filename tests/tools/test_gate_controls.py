@@ -19,20 +19,35 @@ REPO = TOOLS.parents[1]
 WORKFLOWS = REPO / ".github" / "workflows"
 
 
+def _triggers(path: Path) -> set[str]:
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    on = doc.get(True) or doc.get("on") or {}  # YAML reads a bare `on:` key as True
+    return set(on if isinstance(on, (dict, list)) else [on])
+
+
 def _pr_workflows() -> set[str]:
-    out = set()
-    for path in WORKFLOWS.glob("*.yml"):
-        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-        on = doc.get(True) or doc.get("on") or {}  # YAML reads a bare `on:` key as True
-        if {"pull_request", "pull_request_target"} & set(on if isinstance(on, (dict, list)) else [on]):
-            out.add(path.name)
-    return out
+    return {p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p)}
 
 
-def test_every_workflow_on_a_pr_is_a_listed_gate_or_says_why_not():
+def test_every_workflow_is_a_listed_gate_or_says_why_not():
+    """Not only the PR ones: a nightly or release check that can fail is a gate too (#7155)."""
     listed = {g.workflow for g in gc.GATES} | set(gc.NOT_GATES)
-    assert not _pr_workflows() - listed, "add it to gate_controls.GATES, or NOT_GATES with the reason"
+    every = {p.name for p in WORKFLOWS.glob("*.yml")}
+    assert not every - listed, "add it to gate_controls.GATES, or NOT_GATES with the reason"
     assert not {w for w in listed if not (WORKFLOWS / w).exists()}, "a listed workflow is gone"
+    assert not {g.workflow for g in gc.GATES} & set(gc.NOT_GATES), "a workflow is both a gate and not one"
+
+
+def test_a_named_job_exists_and_the_trigger_matches_the_workflow():
+    for g in gc.GATES:
+        assert g.trigger in {"pr", "main", "nightly", "release"}, g.name
+        doc = yaml.safe_load((WORKFLOWS / g.workflow).read_text(encoding="utf-8"))
+        assert not g.job or g.job in doc["jobs"], f"{g.name}: job {g.job} is not in {g.workflow}"
+        if g.trigger == "pr":
+            assert g.workflow in _pr_workflows(), f"{g.name}: marked pr but {g.workflow} has no PR trigger"
+        else:
+            # an off-PR gate may share a workflow with a PR gate only through its own job
+            assert g.job or g.workflow not in _pr_workflows(), f"{g.name}: {g.workflow} runs on PRs"
 
 
 def test_every_required_check_is_listed():
@@ -47,6 +62,13 @@ def test_every_named_proof_is_a_real_test():
         if g.proof:
             path, _, name = g.proof.partition("::")
             assert f"def {name}(" in (REPO / path).read_text(encoding="utf-8"), f"{g.name}: {g.proof} is gone"
+
+
+def test_every_gate_says_what_it_claims_to_catch():
+    """A placeholder claim is a gate nobody has read: every entry names what it catches (#7155)."""
+    placeholders = ("not audited", "todo", "tbd", "unknown")
+    bad = [g.name for g in gc.GATES if len(g.claims.split()) < 3 or any(w in g.claims.lower() for w in placeholders)]
+    assert not bad, f"write a real claim for: {bad}"
 
 
 def test_a_notice_cannot_also_claim_a_proof():

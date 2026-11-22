@@ -25,6 +25,8 @@ class Gate:
     required: bool = False  # named in REQUIRED_CHECKS
     notice: bool = False  # reports only, never fails
     open_gap: str = ""  # what it can miss even when proven
+    trigger: str = "pr"  # when it runs: pr | main (push) | nightly | release
+    job: str = ""  # the job inside the workflow when the workflow holds several gates ("" = the workflow itself)
 
 
 HERE = "tests/tools/test_gate_controls.py"
@@ -148,24 +150,158 @@ GATES = (
     Gate("Muninn", "muninn.yml", "static security findings", open_gap="an external action; a sparse checkout on PRs"),
     # Notices
     Gate("answer-key-guard", "answer-key-guard.yml", "answer key changes without a re-census", notice=True),
-    # On a PR, not audited yet (#7155)
-    Gate("golden-crucible", "golden-crucible.yml", "structural drift over the pinned corpus"),
-    Gate("call-graph-accuracy-audit", "call-graph-accuracy-audit.yml", "not audited yet"),
-    Gate("cics-crucible", "cics-crucible.yml", "not audited yet"),
-    Gate("crucible-path-independence", "crucible-path-independence.yml", "not audited yet"),
-    Gate("detection-accuracy-audit", "detection-accuracy-audit.yml", "not audited yet"),
-    Gate("doom-rosetta", "doom-rosetta.yml", "not audited yet"),
-    Gate("equivalence-e2e", "equivalence-e2e.yml", "not audited yet"),
-    Gate("estate-crucible", "estate-crucible.yml", "not audited yet"),
-    Gate("fact-crosscheck", "fact-crosscheck.yml", "not audited yet"),
-    Gate("generated-docs", "generated-docs.yml", "not audited yet"),
-    Gate("graph-accuracy-audit", "graph-accuracy-audit.yml", "not audited yet"),
-    Gate("java-compile", "java-compile.yml", "not audited yet"),
-    Gate("ports-compile", "ports-compile.yml", "not audited yet"),
-    Gate("rosetta-audit", "rosetta-audit.yml", "not audited yet"),
-    Gate("tree-sitter-accuracy-audit", "tree-sitter-accuracy-audit.yml", "not audited yet"),
-    Gate("tri-comparison-audit", "tri-comparison-audit.yml", "not audited yet"),
-    Gate("unicode-gauntlet", "unicode-gauntlet.yml", "not audited yet"),
+    # Jobs inside a listed workflow that hold a PR on their own
+    Gate(
+        "suite-time",
+        "smoke-test.yml",
+        "a test over 15 s, or a baselined test past 2.5x its recorded time (#5166)",
+        "tests/tools/test_time_ratchet.py::test_an_unmarked_test_fails_only_over_fifteen_seconds",
+        job="suite-time",
+        open_gap="a test gated on GITGALAXY_NIGHTLY is first timed on the scheduled run",
+    ),
+    Gate(
+        "det-mutation",
+        "det-sweep.yml",
+        "a det-port mutant that survives and is not in the survivors ledger",
+        job="detmut",
+    ),
+    Gate("db2", "det-sweep.yml", "a Db2 det port that stops proving against the real database", job="db2"),
+    # Off the PR path: main, nightly and release checks that can fail
+    Gate(
+        "archetype-validation",
+        "archetype-validation.yml",
+        "archetype labels moving unseen after a push to main (#4100)",
+        trigger="main",
+        job="archetype-validation",
+    ),
+    Gate(
+        "os-smoke-grid",
+        "os-smoke-grid.yml",
+        "an OS- or Python-version-sensitive break: package install, CLI entry points, syntax floor (#5130)",
+        trigger="main",
+        job="smoke-test",
+    ),
+    Gate(
+        "full-suite-matrix",
+        "full-suite-gate.yml",
+        "any test failing on an OS x Python leg the PR run does not cover",
+        trigger="nightly",
+        job="full-suite-matrix",
+    ),
+    Gate(
+        "evidence-refresh",
+        "evidence-refresh.yml",
+        "a det port or evidence record gone stale or no longer proving, found by the nightly re-proof (#4048)",
+        trigger="nightly",
+    ),
+    Gate(
+        "referee-panel",
+        "referee-panel.yml",
+        "the COBOL and CICS referee tools disagreeing with the engine (#4438)",
+        trigger="nightly",
+        job="panel",
+    ),
+    Gate(
+        "publish-evidence-current",
+        "publish.yml",
+        "a release tag cut while the evidence report is stale",
+        trigger="release",
+        job="evidence-report-current",
+    ),
+    Gate(
+        "assess-from-pypi",
+        "publish-assess-check.yml",
+        "the published package failing a clean install and `gitgalaxy assess` (#4726)",
+        trigger="release",
+        job="assess-from-pypi",
+    ),
+    # On a PR, no failure proof yet (#7155)
+    Gate(
+        "golden-crucible",
+        "golden-crucible.yml",
+        "structural drift over the pinned language-crucible corpus",
+        job="crucible-audit",
+    ),
+    Gate(
+        "call-graph-accuracy-audit",
+        "call-graph-accuracy-audit.yml",
+        "calls_out_to precision/recall dropping more than 0.5pp against tree-sitter call nodes (#3332)",
+    ),
+    Gate(
+        "cics-crucible",
+        "cics-crucible.yml",
+        "a CICS crucible cell that passed and now fails, against tests/cics_crucible/baseline.json (#3989)",
+    ),
+    Gate(
+        "crucible-path-independence",
+        "crucible-path-independence.yml",
+        "scan results that differ when the corpus is scanned from two parent paths (#4248)",
+    ),
+    Gate(
+        "detection-accuracy-audit",
+        "detection-accuracy-audit.yml",
+        "language-detection accuracy dropping against its baseline (#3117)",
+    ),
+    Gate(
+        "doom-rosetta",
+        "doom-rosetta.yml",
+        "any drift in the pinned DOOM ports against tests/golden_doom_rosetta, and call-graph regressions (#5619)",
+    ),
+    Gate(
+        "equivalence-e2e",
+        "equivalence-e2e.yml",
+        "a mainframe test that needs the GnuCOBOL oracle, JDK 17 and Maven failing (#5954)",
+    ),
+    Gate(
+        "estate-crucible",
+        "estate-crucible.yml",
+        "a horror or fact-channel check that passed against the estate key and now fails (#4317)",
+    ),
+    Gate(
+        "fact-crosscheck",
+        "fact-crosscheck.yml",
+        "engine and det translator disagreeing on a COBOL fact the ledger does not list (#4273)",
+    ),
+    Gate(
+        "generated-docs",
+        "generated-docs.yml",
+        "a generated aggregate page that no longer renders from its committed sources (#5057)",
+    ),
+    Gate(
+        "graph-accuracy-audit",
+        "graph-accuracy-audit.yml",
+        "import-graph or call-resolution accuracy dropping against committed baselines",
+    ),
+    Gate(
+        "java-compile",
+        "java-compile.yml",
+        "generated Spring Boot projects that fail to compile under a supported target config (#3613)",
+    ),
+    Gate(
+        "ports-compile",
+        "ports-compile.yml",
+        "a committed port that no longer compiles against the generator at HEAD (#4423)",
+    ),
+    Gate(
+        "rosetta-audit",
+        "rosetta-audit.yml",
+        "a keyword-rosetta language that passed against engine main and fails with this PR (#2557)",
+    ),
+    Gate(
+        "tree-sitter-accuracy-audit",
+        "tree-sitter-accuracy-audit.yml",
+        "structural-signature recall or precision dropping against tree-sitter, per language",
+    ),
+    Gate(
+        "tri-comparison-audit",
+        "tri-comparison-audit.yml",
+        "GitGalaxy's validated precision dropping against tree-sitter and ctags",
+    ),
+    Gate(
+        "unicode-gauntlet",
+        "unicode-gauntlet.yml",
+        "a re-encoded or renamed variant whose scanned facts differ from its ASCII twin (#3812)",
+    ),
 )
 
 # PR-triggered workflows that hold nothing: with the reason.
@@ -174,8 +310,31 @@ NOT_GATES = {
     "solver-check.yml": "informational: branch_solver verdicts in the job summary, never fails; the det sweep gates (#4175)",
 }
 
+# Workflows that never trigger on a PR and hold nothing: with the reason (every workflow is a Gate or listed in one of these).
+NOT_GATES.update(
+    {
+        "blocker-baseline.yml": "ad hoc survey run; the nightly baseline is evidence-refresh's",
+        "cache-prune.yml": "deletes stale Actions caches",
+        "call-resolution-history.yml": "appends a measurement row after a push to main",
+        "deploy-docs.yml": "publishes the docs site",
+        "doc-drift.yml": "files documentation issues from the doc-refs backlog, never fails a change",
+        "engine-coverage-map.yml": "records which test covers which module, for the suite plan",
+        "evidence-pages.yml": "renders evidence pages from committed records",
+        "flake-history.yml": "refreshes the learned-flake cache",
+        "graph-comparison-history.yml": "appends measurements to the generated branch",
+        "java-base-generation.yml": "seeds a cache for java-compile",
+        "main-watch.yml": "reports another workflow's red run on main as an issue (its own control is #7155 part 2)",
+        "mirror-tag-sync.yml": "manual: aligns the mirrors' tags",
+        "post-merge.yml": "dispatches other workflows on main",
+        "release-crucible-archive.yml": "archives release scan output",
+        "shepherd-reconcile.yml": "the shepherd's own pass, which posts ci-gate (owner-only, #6694)",
+        "tree-sitter-accuracy-history.yml": "appends measurements to the generated branch",
+        "tri-comparison-history.yml": "appends measurements to the generated branch",
+    }
+)
+
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 19
+MAX_UNPROVEN = 28
 
 
 def unproven() -> list[Gate]:

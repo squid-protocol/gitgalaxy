@@ -336,7 +336,20 @@
     "//D2       EXEC PGM=USE",
     "//DIN      DD DSN=PAY.GDG(+1),DISP=(OLD,DELETE)",
     "//D3       EXEC PGM=USE2",
-    "//DCUR     DD DSN=PAY.GDG(0),DISP=SHR"
+    "//DCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//UNCNEW   JOB (ACCT),'GDG NEW UNCATLG',CLASS=A,MSGCLASS=X",
+    "//U1       EXEC PGM=MAKE",
+    "//UOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,UNCATLG)",
+    "//U2       EXEC PGM=USE",
+    "//UIN      DD DSN=PAY.GDG(+1),DISP=SHR",
+    "//*",
+    "//UNCOLD   JOB (ACCT),'GDG OLD UNCATLG',CLASS=A,MSGCLASS=X",
+    "//V1       EXEC PGM=TRIM",
+    "//VOLD     DD DSN=PAY.GDG(-2),DISP=(OLD,UNCATLG)",
+    "//V2       EXEC PGM=USE",
+    "//VCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//VPRV     DD DSN=PAY.GDG(-1),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -2406,6 +2419,127 @@
       },
       "assumed": "A11",
       "basis": "The group is unchanged after the PASS-then-DELETE job (5, 6, 7), so the next job's (+1) is generation 8 again (the number of a generation deleted before roll-in is not consumed, as for a generation deleted after an abend, A2)."
+    },
+    {
+      "id": "new-uncatlg-is-rejected-and-treated-as-keep",
+      "job": "UNCNEW",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "U1": {
+          "rc": 0
+        },
+        "U2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "U1.UOUT": 8,
+        "U2.UIN": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ],
+          "deferred_rollin": [
+            8
+          ]
+        }
+      },
+      "assumed": "A5",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'By default, if the system retrieves volume information from the catalog, UNCATLG is processed. If not, the UNCATLG request is rejected and UNCATLG is treated as KEEP. Volume information is not retrieved from the catalog when VOLUME=REF or VOLUME=SER is specified on the DD statement, or for new data sets.' and 'With SMS, UNCATLG is ignored for SMS-managed data sets ... (KEEP is implied)'. Either way a (NEW,UNCATLG) generation is a NEW,KEEP one: U2 reads (+1) = 8, the generation U1 made, and 8 waits in deferred roll-in, not rolled into the active group (the same answer as new-keep-is-a-deferred-roll-in, A5)."
+    },
+    {
+      "id": "old-uncatlg-of-the-oldest-sms-is-ignored",
+      "job": "UNCOLD",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "sms": true
+        }
+      },
+      "given": {
+        "V1": {
+          "rc": 0
+        },
+        "V2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "V1.VOLD": 6,
+        "V2.VCUR": 8,
+        "V2.VPRV": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "sms": true
+        }
+      },
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'Indicates that the system is to delete the entry pointing to the data set in the catalog ... The data set is kept. With SMS, UNCATLG is ignored for SMS-managed data sets and VSAM data sets (KEEP is implied).' User's Guide, Appendix A, 'Deleting and uncataloging generation data sets': 'Note that uncataloging is not supported for SMS-managed data sets', and uncataloging the oldest generation is the form the manual leaves safe (any other 'catalog management can lose orientation within the data group'). V1 names (-2) = 6, the oldest of 6, 7, 8, and fixes the relationship, which the system maintains throughout the job, so V2 still reads (0) = 8 and (-1) = 7. The group is SMS-managed (the catalog entry is given sms: true), so UNCATLG is ignored, KEEP is implied, and 6 stays cataloged."
+    },
+    {
+      "id": "old-uncatlg-of-the-oldest-non-sms-leaves-the-group",
+      "job": "UNCOLD",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ],
+          "sms": false
+        }
+      },
+      "given": {
+        "V1": {
+          "rc": 0
+        },
+        "V2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "V1.VOLD": 6,
+        "V2.VCUR": 8,
+        "V2.VPRV": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            7,
+            8
+          ],
+          "sms": false
+        }
+      },
+      "assumed": "A12",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'Indicates that the system is to delete the entry pointing to the data set in the catalog ... The data set is kept. With SMS, UNCATLG is ignored for SMS-managed data sets and VSAM data sets (KEEP is implied).' User's Guide, Appendix A, 'Deleting and uncataloging generation data sets': 'Note that uncataloging is not supported for SMS-managed data sets', and uncataloging the oldest generation is the form the manual leaves safe (any other 'catalog management can lose orientation within the data group'). V1 names (-2) = 6, the oldest of 6, 7, 8, and fixes the relationship, which the system maintains throughout the job, so V2 still reads (0) = 8 and (-1) = 7. The group is not SMS-managed (sms: false) and the DD gives no VOLUME, so the system retrieves volume information from the catalog and 'UNCATLG is processed': the catalog entry for 6 is deleted at V1's end and the data set is kept (off the group; this model tracks the group's entries only). ASSUMED (A12): that the other generations keep their entries and numbers is read from the DISP text, as A6 does for DELETE."
     }
   ],
   "assumed": [
@@ -2448,6 +2582,10 @@
     {
       "id": "A11",
       "text": "A PASSed new generation received by a later step with DISP=(OLD,DELETE) is deleted without ever being rolled into the group, like a PASSed generation never received (User's Guide p. 237: scratched and uncataloged at job end); the manual states the DELETE of a received PASSed generation for data sets in general, not for a deferred generation, and so does not say the number is free for the next job."
+    },
+    {
+      "id": "A12",
+      "text": "DISP=(OLD,UNCATLG) of the oldest generation of a group that is not SMS-managed removes only that entry from the group, as A6 does for DELETE; the manuals work no example that uncatalogs one generation, and state the SMS case ('ignored, KEEP implied') only in the DISP text. The group's SMS state is a field of the catalog entry given (sms: true / false): a group that does not give it is refused by name."
     }
   ],
   "refused": [
@@ -2518,6 +2656,10 @@
     {
       "construct": "a GDG ALL read of a group with no cataloged generation, or a GDGORDER other than LIFO, FIFO or USECATLG",
       "why": "the manual states no outcome for an empty group, and names only these three GDGORDER keywords"
+    },
+    {
+      "construct": "DISP=(OLD,UNCATLG) of a generation of a group whose SMS state the catalog entry does not give, or of a generation other than the oldest",
+      "why": "the manual states UNCATLG as ignored for SMS-managed data sets and processed otherwise, so the answer depends on a fact the job does not carry; and for any generation but the oldest it says 'catalog management can lose orientation within the data group' without stating an outcome"
     }
   ]
 }

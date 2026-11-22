@@ -204,7 +204,7 @@ def test_new_tier_columns_do_not_collide_with_existing_file_data_columns():
 
 def test_family_count_and_member_totals_match_the_reconciled_design():
     """Pins the reconciliation performed for gitgalaxy#2994: 22 families
-    covering 62 of SIGNAL_SCHEMA's 97 names, the remaining 35 exempt. A
+    covering 62 of SIGNAL_SCHEMA's 98 names, the remaining 36 exempt. A
     change to either number is a deliberate edit to the taxonomy, not an
     accident -- update this pin alongside the map.
 
@@ -219,8 +219,11 @@ def test_family_count_and_member_totals_match_the_reconciled_design():
     98 -> 97 / 64 -> 63 (#4111): feature_flags (no detector in any language)
     left SIGNAL_SCHEMA and the debt family.
 
-    63 -> 62 / 34 -> 35 (#4548): pointers (a dereference count) left the memory family for exempt."""
-    assert len(SIGNAL_SCHEMA) == 97, f"SIGNAL_SCHEMA grew/shrank ({len(SIGNAL_SCHEMA)}); re-reconcile the tier map"
+    63 -> 62 / 34 -> 35 (#4548): pointers (a dereference count) left the memory family for exempt.
+
+    97 -> 98 / 35 -> 36 (#8862): short_circuit joined SIGNAL_SCHEMA beside branch (boolean operators split out of
+    branch), and is exempt as a structural-shape leaf like branch."""
+    assert len(SIGNAL_SCHEMA) == 98, f"SIGNAL_SCHEMA grew/shrank ({len(SIGNAL_SCHEMA)}); re-reconcile the tier map"
     assert len(SURFACE_FAMILIES) == 22
     assert len(_all_family_members()) == 62
-    assert len(SURFACE_FAMILY_EXEMPT) == 35
+    assert len(SURFACE_FAMILY_EXEMPT) == 36

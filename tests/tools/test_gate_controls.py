@@ -1,5 +1,6 @@
 """#7155: every gate is listed, a named failure proof exists, and the first controls prove gates can go red."""
 
+import functools
 import json
 import shutil
 import sys
@@ -25,8 +26,9 @@ def _triggers(path: Path) -> set[str]:
     return set(on if isinstance(on, (dict, list)) else [on])
 
 
-def _pr_workflows() -> set[str]:
-    return {p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p)}
+@functools.lru_cache(maxsize=1)  # called once per gate: parsing every workflow each time took 25 s on CI
+def _pr_workflows() -> frozenset[str]:
+    return frozenset(p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p))
 
 
 def test_every_workflow_is_a_listed_gate_or_says_why_not():
@@ -39,9 +41,12 @@ def test_every_workflow_is_a_listed_gate_or_says_why_not():
 
 
 def test_a_named_job_exists_and_the_trigger_matches_the_workflow():
+    docs: dict[str, dict] = {}  # parse each workflow once: many gates share one (25 s on CI otherwise)
     for g in gc.GATES:
         assert g.trigger in {"pr", "main", "nightly", "release"}, g.name
-        doc = yaml.safe_load((WORKFLOWS / g.workflow).read_text(encoding="utf-8"))
+        if g.workflow not in docs:
+            docs[g.workflow] = yaml.safe_load((WORKFLOWS / g.workflow).read_text(encoding="utf-8"))
+        doc = docs[g.workflow]
         assert not g.job or g.job in doc["jobs"], f"{g.name}: job {g.job} is not in {g.workflow}"
         if g.trigger == "pr":
             assert g.workflow in _pr_workflows(), f"{g.name}: marked pr but {g.workflow} has no PR trigger"

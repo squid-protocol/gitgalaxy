@@ -19,6 +19,41 @@ from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PL
 _SOLIDITY_EVENT_OR_ERROR = re.compile(
     r"\b(?:emit|revert)[ \t]+(?:[A-Za-z_]\w*\.){0,4}(?P<pat>[A-Za-z_]\w*)(?=[ \t]*\()"
 )
+# Solidity call options (`target.call{value: v, gas: g}(data)`): blank `{...}` (when it holds no
+# nested call) to spaces so `CALLS_OUT_C_STYLE` sees `call   (data)` with its receiver intact.
+_SOLIDITY_CALL_OPTIONS = re.compile(r"(?<=\w)\{[^{}()\n]{1,200}\}(?=[ \t]*\()")
+_SOLIDITY_ASSEMBLY_START = re.compile(r"\bassembly\b[ \t]*(?:\"[^\"]*\"[ \t]*)?(?:\([^()\n]{0,120}\)[ \t]*)?\{")
+
+
+def _blank_solidity_assembly(text: str) -> str:
+    """Blank inline Yul `assembly { ... }` blocks (preserving newlines) because Yul EVM opcodes
+    (`mload`, `add`, `call`, `staticcall`, `invalid`, ...) are inline assembly, not Solidity calls."""
+    if "assembly" not in text:
+        return text
+    out: list[str] | None = None
+    pos = 0
+    n = len(text)
+    while (m := _SOLIDITY_ASSEMBLY_START.search(text, pos)) is not None:
+        brace = m.end() - 1
+        depth = 0
+        j = brace
+        while j < n:
+            ch = text[j]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    j += 1
+                    break
+            j += 1
+        if out is None:
+            out = list(text)
+        for k in range(brace + 1, min(j - 1, n)):
+            if out[k] != "\n":
+                out[k] = " "
+        pos = j
+    return text if out is None else "".join(out)
 
 
 def _blank_solidity_non_calls(text: str) -> str:
@@ -27,7 +62,11 @@ def _blank_solidity_non_calls(text: str) -> str:
         lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
         return raw[:lo] + " " * (hi - lo) + raw[hi:]
 
-    return _SOLIDITY_EVENT_OR_ERROR.sub(_blank, text)
+    text = _blank_solidity_assembly(text)
+    text = _SOLIDITY_EVENT_OR_ERROR.sub(_blank, text)
+    if "{" in text:
+        text = _SOLIDITY_CALL_OPTIONS.sub(lambda m: " " * len(m.group(0)), text)
+    return text
 
 
 DEFINITION: dict[str, Any] = {

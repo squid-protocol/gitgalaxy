@@ -21,7 +21,9 @@
 # GDGBIAS=STEP (JOB statement; User's Guide, Appendix A, 'Relative generation numbers' pp. 235-237) re-fixes the relationship at
 # each step's first reference and rolls its new generations into the catalog at the end of that step. A procedure's step is
 # a job step for this (assumption A7). A DD naming a generation absolutely (GnnnnV00) names it whatever the relative
-# numbers say (User's Guide, Appendix A). Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
+# numbers say (User's Guide, Appendix A). A catalog entry that gives scratch: true / false reports the generations a roll-in
+# pushed out of the group as rolled_off scratched / recataloged (DFSMS Using Data Sets, 'Generation data groups').
+# Refused by name (JclGdgRefused): see the `scenarios.json` "refused" list.
 from __future__ import annotations
 
 import re
@@ -123,6 +125,7 @@ def resolve_gdg(
             absolute = _next_generation(seen, _int_generation(dd["generation"]))
             end = _step_end(dd, False)
             created[(base, absolute)] = _STATE[end] if end else "pending"
+    rolled: dict[str, list[int]] = {}  # base -> generations the job's roll-ins pushed out of the group (LIMIT / EMPTY)
     unreceived: set[str] = (
         set()
     )  # STEP bias: groups with a passed / deferred generation, which no later step may reference
@@ -208,7 +211,7 @@ def resolve_gdg(
         if bias == "STEP":  # the step's new generations are rolled into the catalog as it ends
             for (base, absolute), state in sorted(created.items(), key=lambda kv: _since(anchor, *kv[0])):
                 if state == "cataloged":
-                    _roll_in(live[base], absolute, catalogs[base])
+                    rolled.setdefault(base, []).extend(_roll_in(live[base], absolute, catalogs[base]))
                     created[(base, absolute)] = "rolled"
                 elif state in ("passed", "deferred"):
                     unreceived.add(base)
@@ -222,11 +225,20 @@ def resolve_gdg(
             after[b]["gdgorder"] = catalogs[b][
                 "gdgorder"
             ]  # the catalog entry's retrieval order is carried to the next job
+    for b in start:
+        if "scratch" in catalogs[b]:
+            after[b]["scratch"] = catalogs[b]["scratch"]  # the group's SCRATCH / NOSCRATCH attribute is carried on
     for (base, absolute), state in sorted(created.items(), key=lambda kv: _since(anchor, *kv[0])):
         if state == "cataloged":  # a generation still passed at the end of the job is scratched and uncataloged
-            _roll_in(after[base]["generations"], absolute, catalogs[base])
+            rolled.setdefault(base, []).extend(_roll_in(after[base]["generations"], absolute, catalogs[base]))
         elif state == "deferred":
             after[base].setdefault("deferred_rollin", []).append(absolute)
+    for (
+        base,
+        gens,
+    ) in rolled.items():  # DFSMS Using Data Sets, 'Generation data groups': the fate of a rolled-off generation
+        if gens and "scratch" in catalogs[base]:
+            after[base]["rolled_off"] = {("scratched" if catalogs[base]["scratch"] else "recataloged"): gens}
     return names, after
 
 
@@ -290,11 +302,17 @@ def _since(anchor: dict[str, list[int]], base: str, absolute: int) -> int:
     return (absolute - (seen[-1] if seen else 0)) % 9999
 
 
-def _roll_in(gens: list[int], absolute: int, catalog: dict[str, Any]) -> None:
+def _roll_in(gens: list[int], absolute: int, catalog: dict[str, Any]) -> list[int]:
+    """Roll a generation in; return the generations it pushed out of the group, oldest first."""
+    off: list[int] = []
     if catalog.get("empty") and len(gens) >= catalog["limit"]:
-        gens.clear()  # EMPTY: a roll-in at the limit rolls off every active generation
+        off = list(gens)  # EMPTY: a roll-in at the limit rolls off every active generation
+        gens.clear()
     gens.append(absolute)
-    del gens[: max(0, len(gens) - catalog["limit"])]  # LIMIT: the oldest rolls off
+    extra = max(0, len(gens) - catalog["limit"])
+    off += gens[:extra]  # LIMIT: the oldest rolls off
+    del gens[:extra]
+    return off
 
 
 def _step_end(dd: dict[str, Any], abended: bool) -> str | None:

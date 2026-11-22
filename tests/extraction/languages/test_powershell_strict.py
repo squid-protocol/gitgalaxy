@@ -533,9 +533,9 @@ def test_powershell_calls_out_strict():
     assert calls_out.findall("Write-Verbose 'hello'") == ["Write-Verbose"]
 
     # 2. Negatives (ignored keywords)
-    assert calls_out.findall("param($flag)")[0].casefold() in ignore
-    assert calls_out.findall("begin {")[0].casefold() in ignore
-    assert calls_out.findall("foreach ($x in $y) {")[0].casefold() in ignore
+    assert all(c.casefold() in ignore for c in calls_out.findall("param($flag)"))
+    assert all(c.casefold() in ignore for c in calls_out.findall("begin {"))
+    assert all(c.casefold() in ignore for c in calls_out.findall("foreach ($x in $y) {"))
 
     # 3. Capture groups
     assert calls_out.groups == 1

@@ -459,6 +459,10 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
     func_types = spec["func_node_types"]
     non_calls = CONTRACT_NON_CALLS.get(lang, frozenset())
     out: list[tuple[str, int, set[str], Any]] = []
+    # Haskell defines a multi-clause function as consecutive sibling `function` nodes with the
+    # same name (`compactify [] = []` followed by `compactify items = ...`); merge their calls
+    # into the first clause so the whole function is compared like-for-like against the engine.
+    hs_last_by_parent: dict[int, tuple[str, set[str]]] = {}
     stack: list[tuple[Any, list[tuple[str, set[str]]]]] = [(tree.root_node, [])]
     # iterative walk; `owners` is the chain of enclosing function call-sets
     body_owners: dict[int, list[tuple[str, set[str]]]] = {}
@@ -470,8 +474,15 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
             # C8 (#3641): an anonymous function is no unit of its own -- its calls stay with the
             # enclosing named unit. Only a named function starts a new owner.
             if name:
-                calls: set[str] = set()
-                out.append((name, node.start_point[0] + 1, calls, node))
+                parent_id = node.parent.id if node.parent is not None else -1
+                prev = hs_last_by_parent.get(parent_id) if lang == "haskell" else None
+                if prev is not None and prev[0] == name:
+                    calls = prev[1]
+                else:
+                    calls = set()
+                    out.append((name, node.start_point[0] + 1, calls, node))
+                    if lang == "haskell":
+                        hs_last_by_parent[parent_id] = (name, calls)
                 owners = [*owners, (name, calls)]
                 for body in _bodies_of(node):
                     body_owners[body.id] = owners

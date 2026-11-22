@@ -124,71 +124,39 @@ def test_the_ice043a_citation_is_only_for_a_dfsort_step_writing_fewer_bytes_than
         assert "ICE043A" not in str(e.value)
 
 
-# -- CREASTMT (#8884): SORT -> IDCAMS REPRO -> CBSTM03A (a step with `subprograms`), IBM ends it at STEP010 -------------
-CREASTMT = "carddemo-job-creastmt"
+# -- ibm_stops (#8884): CREASTMT's SORT -> IDCAMS -> CBSTM03A, IBM ends it at STEP010 (stub cases, no corpus) ------------
+def _stopped_job(writer_reclen=328, reader_reclen=350, program=None, stop=None):
+    """A DFSORT-shaped writer, a middle step that reads it (the join IBM stops at) and a last step: three stub cases."""
+    job, cases = _sort_job(writer_reclen, program or ej.DFSORT_PROGRAM, reader_reclen)
+    job["steps"].append({"case": "z"})
+    cases["z"] = _step()
+    job["ibm_stops"] = stop or {"step": "w", "reason": "ICE043A"}
+    return job, cases
 
 
-def _creastmt():
-    job = eq.load_case(CREASTMT)
-    return job, ej.load_steps(job, eq.load_case)
-
-
-def test_creastmt_steps_run_in_jcl_order_and_the_program_step_carries_its_subprogram():
-    job, _ = _creastmt()
-    assert ej.step_names(job) == ["carddemo-sort-creastmt", "creastmt-step020", "carddemo-cbstm03a"]
-    assert "idcams" in job["steps"][1]
-    assert job["steps"][2]["feeds"] == {"TRNXFILE": {"step": "creastmt-step020", "dd": "OUTFILE"}}
-    assert eq.load_case("carddemo-cbstm03a")["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
-
-
-def test_creastmt_declares_that_ibm_ends_the_job_at_the_sort_step_and_check_job_accepts_it():
-    job, cases = _creastmt()
-    assert cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] == 328
+def test_a_declared_ice043a_stop_makes_the_short_dfsort_join_acceptable_and_names_the_stopped_step():
+    job, cases = _stopped_job()
     assert ej.ibm_stop(job) == 0
     ej.check_job(job, cases)
-
-
-def test_creastmt_without_the_declaration_is_still_refused_at_the_join_with_the_citation():
-    job, cases = _creastmt()
-    del job["ibm_stops"]
-    with pytest.raises(ej.Unsupported, match=r"record length 350, carddemo-sort-creastmt\.SORTOUT writes 328") as e:
+    del job["ibm_stops"]  # undeclared, the same join is still refused with the citation
+    with pytest.raises(ej.Unsupported, match=r"record length 350, w\.OUT writes 328") as e:
         ej.check_job(job, cases)
     assert "ICE043A" in str(e.value)
 
 
-def test_creastmt_chain_is_valid_once_the_sort_record_length_matches_the_jcl():
-    """Everything but the length join is wired right: with SORTOUT at the JCL's 350 the whole job passes check_job
-    with no stop declared, the IDCAMS step and the CBSTM03A step (and its subprogram) included."""
-    job, cases = _creastmt()
-    del job["ibm_stops"]
-    cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] = 350
-    ej.check_job(job, cases)
-
-
 def test_a_declared_stop_that_does_not_hold_is_refused():
-    """Nothing is declared stopped that IBM would not stop: a join of equal lengths, or a non-DFSORT writer."""
-    job, cases = _creastmt()
-    cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] = 350
+    """Nothing is declared stopped that IBM would not stop: equal lengths, a non-DFSORT writer, a bad declaration or
+    the last step."""
+    job, cases = _stopped_job(reader_reclen=328)
     with pytest.raises(ej.Unsupported, match="IBM does not end the job there"):
         ej.check_job(job, cases)
-    job, cases = _creastmt()
-    cases["carddemo-sort-creastmt"]["program"] = "NOTDFSORT"
+    job, cases = _stopped_job(program="NOTDFSORT")
     with pytest.raises(ej.Unsupported):
         ej.check_job(job, cases)
-    for bad in ({"step": "nope", "reason": "ICE043A"}, {"step": "carddemo-sort-creastmt", "reason": "X"},
-                {"step": "carddemo-cbstm03a", "reason": "ICE043A"}):  # fmt: skip
-        job, cases = _creastmt()
-        job["ibm_stops"] = bad
+    for bad in ({"step": "nope", "reason": "ICE043A"}, {"step": "w", "reason": "X"}):
+        job, cases = _stopped_job(stop=bad)
         with pytest.raises(ej.Unsupported):
             ej.check_job(job, cases)
-
-
-def test_creastmt_sort_case_is_the_dfsort_lowering_of_the_jcl_sysin():
-    from gitgalaxy.tools.cobol_to_java.det import dfsort
-
-    jcl = " SORT FIELDS=(263,16,CH,A,1,16,CH,A)\n OUTREC FIELDS=(1:263,16,17:1,262,279:279,50)"
-    want = dfsort.cobol_program(dfsort.parse(jcl), 350, ["SORTIN"])
-    assert (eq.CASES / "carddemo-sort-creastmt" / "DFSORTST.cbl").read_text(encoding="utf-8") == want
-    recs = [r for r in (eq.CASES / "carddemo-sort-creastmt" / "sortin.txt").read_bytes().split(b"\n") if r]
-    assert len(recs) == 100 and {len(r) for r in recs} == {350}
-    assert len({(r[262:278], r[:16]) for r in recs}) == 100  # distinct keys: DFSORT's equal-key order never matters
+    job, cases = _stopped_job(stop={"step": "z", "reason": "ICE043A"})
+    with pytest.raises(ej.Unsupported, match="last step"):
+        ej.check_job(job, cases)

@@ -1,5 +1,5 @@
 {
- "commit": "afbeca19f",
+ "commit": "0d5647731",
  "components": {
   "capabilities": {
    "groups": [
@@ -1067,15 +1067,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T01:39:25Z",
+  "as_of": "2026-11-22T01:42:58Z",
   "core": {
-   "closed": 253,
-   "open": 22,
+   "closed": 254,
+   "open": 21,
    "total": 275
   },
   "core_last_window": {
-   "closed": 5,
-   "net_closed": -5,
+   "closed": 6,
+   "net_closed": -4,
    "opened": 10
   },
   "core_milestone": {
@@ -1378,9 +1378,9 @@
     "total": 33
    },
    {
-    "closed": 0,
+    "closed": 1,
     "number": 41,
-    "open": 1,
+    "open": 0,
     "title": "Graveyard Shift 1 \ud83c\udf19 \u2014 POSTTRAN \u2192 INTCALC, one chain",
     "total": 1
    },

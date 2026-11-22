@@ -129,22 +129,22 @@ The full record is in [the validation program](docs/validation.md) (continued â†
 - Every disagreement is checked against the real source, with a verdict: 200 of 201 logged shapes are validated
   ([ledger](docs/self_scan/tri_comparison_ledger.json)).
 
-![Function, class and argument agreement: GitGalaxy vs Tree-sitter vs Ctags](docs/self_scan/tri_comparison_chart.svg)
+![Function, class and argument agreement: GitGalaxy vs Tree-sitter vs Ctags](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
 
 **The graphs.** Blast radius and the "structural pillars" come from the import graph. The function rankings come from
 the call graph.
 
 <p><img src="docs/media/callgraph-c.gif" width="760" alt="From one function to the whole call graph: functions inside their files, joined by call and import lines"></p>
 
-- **Call links:** measured in 8 languages against a reference analyser on pinned real repos (as of 2026-11-09):
-  86.7% (C++) to 100.0% (C, TypeScript) precise, and 93.7% or better in every language except C++.
-- **Recall:** from about a third (C++, 31.1%) to nearly nine in ten (JavaScript, 87.9%) of calls are linked, so
+- **Call links:** measured in 10 languages against a reference analyser on pinned real repos (as of 2026-11-22):
+  95.7% (C++) to 100.0% (C, TypeScript) precise across all 10 languages.
+- **Recall:** from 41.5% (C++) and 42.5% (Kotlin) to 87.9% (JavaScript) and 97.9% (PHP) of calls are linked, so
   function fan-in and PageRank are a lower bound ([graph accuracy](docs/graph_accuracy.md),
   [epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161)).
-- **Import graph:** measured in 20 of 59 languages. The chart names every language not yet measured
+- **Import graph:** measured in 34 of 73 languages (49 repos). The chart names every language not yet measured
   ([epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772)).
 
-![Graph accuracy coverage by language](docs/self_scan/graph_coverage_chart.svg)
+![Graph accuracy coverage by language](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
 
 **Keyword families.** Every per-function signal (I/O, regex, time, decorators, bitwise, ...) is a keyword family with a
 written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.py): 71 families, 73 code languages).

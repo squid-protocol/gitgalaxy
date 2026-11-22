@@ -311,6 +311,7 @@ docs/a/b.json	tests/tools/test_post_merge_dispatch.py
 docs/api_rule_contract.md	gitgalaxy
 docs/architecture.md	tests/core_engine
 docs/args_rule_contract.md	gitgalaxy
+docs/bad.md	tests/tools/test_gate_controls_docs.py
 docs/benchmarks/det-refine-	tests/tools/cobolrt_api.py
 docs/benchmarks/det-refine-cbact02c/C.java	tests/cobol_mainframe
 docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
@@ -331,6 +332,7 @@ docs/encapsulation_rule_contract.md	gitgalaxy,tests/test_signal_contract_sheet.p
 docs/ex.py	tests/tools/test_doom_speedrun.py
 docs/examples/demo.c/	tests/core_engine
 docs/examples/demo.py	tests/tools/test_doom_speedrun.py
+docs/flaky.md	tests/tools/test_gate_controls_docs.py
 docs/func_start_rule_contract.md	gitgalaxy
 docs/gitgalaxy_architecture_brief.md	tests/tools/test_generated_branch.py
 docs/globals_rule_contract.md	gitgalaxy
@@ -447,9 +449,11 @@ docs/new.md	tests/tools/test_generated_docs.py
 docs/node_modules/x.c/	tests/core_engine
 docs/nope.csv	tests/tools/test_generated_branch.py
 docs/not-published.csv	tests/tools/test_generated_branch.py
+docs/ok.md	tests/tools/test_gate_controls_docs.py
 docs/other.json	tests/tools/test_generated_branch.py
 docs/ownership_rule_contract.md	gitgalaxy
 docs/p.md	tests/tools/test_generated_docs.py
+docs/raises.md	tests/tools/test_gate_controls_docs.py
 docs/readme.md	tests/tools/test_evidence_report.py
 docs/report	tests/tools/test_generated_branch.py
 docs/report/README.md	tests/tools/test_generated_branch.py
@@ -574,6 +578,7 @@ mutation_testing.md	tests/tools/mutation_scores.py
 my-post.md	tests/core_engine
 none.md	tests/core_engine
 notes.md	tests/cobol_mainframe,tests/tools/test_activity_sensor.py
+ok.md	tests/tools/test_gate_controls_docs.py
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
 p.md	tests/core_engine,tests/tools/test_generated_docs.py

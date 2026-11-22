@@ -239,11 +239,15 @@ GATES = (
         "cics-crucible",
         "cics-crucible.yml",
         "a CICS crucible cell that passed and now fails, against tests/cics_crucible/baseline.json (#3989)",
+        "tests/tools/test_gate_controls_crucibles.py::test_cics_crucible_ratchet_goes_red_on_a_new_failure_a_fixed_cell_and_a_lost_cell",
+        open_gap="the measurement is stubbed: a broken crucible run is not exercised",
     ),
     Gate(
         "crucible-path-independence",
         "crucible-path-independence.yml",
         "scan results that differ when the corpus is scanned from two parent paths (#4248)",
+        "tests/tools/test_crucible_path_check.py::test_a_differing_side_fails",
+        open_gap="the scans are stubbed: a rule that reads an absolute path is not exercised",
     ),
     Gate(
         "detection-accuracy-audit",
@@ -266,11 +270,15 @@ GATES = (
         "estate-crucible",
         "estate-crucible.yml",
         "a horror or fact-channel check that passed against the estate key and now fails (#4317)",
+        "tests/tools/test_gate_controls_crucibles.py::test_estate_crucible_compare_goes_red_on_each_planted_regression",
+        open_gap="the scan and score are stubbed: a broken estate scan is not exercised",
     ),
     Gate(
         "fact-crosscheck",
         "fact-crosscheck.yml",
         "engine and det translator disagreeing on a COBOL fact the ledger does not list (#4273)",
+        "tests/cobol_mainframe/test_fact_crosscheck.py::test_check_fails_on_a_stale_ledger_entry",
+        open_gap="the engine and translator readings are stubbed",
     ),
     Gate(
         "generated-docs",
@@ -317,6 +325,8 @@ GATES = (
         "unicode-gauntlet",
         "unicode-gauntlet.yml",
         "a re-encoded or renamed variant whose scanned facts differ from its ASCII twin (#3812)",
+        "tests/tools/test_gate_controls_crucibles.py::test_unicode_gauntlet_ci_fails_on_a_new_failing_cell_only",
+        open_gap="the cell scans are stubbed: a broken re-encoding is not exercised",
     ),
 )
 
@@ -350,7 +360,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 22
+MAX_UNPROVEN = 17
 
 
 def unproven() -> list[Gate]:

@@ -52,10 +52,11 @@ DEFINITION: dict[str, Any] = {
         # A keyword inside a string literal is not a decision.
         "_scope_filters": {"branch": "outside_literals"},
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        # branch: if / elif / else / when / case / of arms / loops / try-except-finally. An `of` counts only as a
-        # case arm (line-leading): `object of RootObj` is inheritance.
+        # branch: if / elif / else / when / case / of arms / loops. `try` / `except` / `finally` are a handler, not a
+        # decision (branch contract corollary 1, #8926): `safety` owns them. An `of` counts only as a case arm
+        # (line-leading): `object of RootObj` is inheritance.
         "branch": re.compile(
-            r"\b(?:if|elif|else|when|case|for|while|try|except|finally)\b|^[ \t]*of\b",
+            r"\b(?:if|elif|else|when|case|for|while)\b|^[ \t]*of\b",
             re.M,
         ),
         # args: group 1 is the parenthesised parameter list of a routine, after an optional `*` export mark and

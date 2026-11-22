@@ -172,6 +172,21 @@ def test_branches_and_case_arms():
     assert _hits("branch", src) == ["if", "elif", "case", "of", "for"]
 
 
+def test_handlers_are_not_branches_8926():
+    src = (
+        "proc tryProc(a: int): int =\n  try:\n    result = a\n  except ValueError:\n    result = 0\n"
+        "  finally:\n    discard\n"
+    )
+    assert _hits("branch", src) == []
+    assert _hits("safety", src) == ["try", "except", "finally"]
+    # a bare except, `except X as e`, and a try nested in a real decision: only the decision counts
+    assert _hits("branch", "if a:\n  try:\n    f()\n  except:\n    g()\n") == ["if"]
+    assert _hits("branch", "try:\n  f()\nexcept IOError as e:\n  g()\nfinally:\n  h()\n") == []
+    # handler words inside a string or comment are nothing
+    assert _hits("branch", 'let s = "try except finally"\n# try\n') == []
+    assert _hits("branch", "proc realIf(a: int): int =\n  if a > 1:\n    return 1\n  return 0\n") == ["if"]
+
+
 def test_state_mutation_and_concurrency():
     assert _hits("state_mutation", "x += 1\ninc n\ns.add(1)\nif a <= b: discard\nif a == b: discard\n") == [
         "+=",

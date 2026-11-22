@@ -1,5 +1,5 @@
 {
- "commit": "9fb24da34",
+ "commit": "4efbff07f",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T14:35:24Z",
+  "as_of": "2026-11-22T15:04:48Z",
   "core": {
    "closed": 256,
    "open": 19,
@@ -1381,25 +1381,25 @@
     "total": 33
    },
    {
-    "closed": 1,
+    "closed": 0,
     "number": 41,
     "open": 0,
     "title": "Graveyard Shift 1 \ud83c\udf19 \u2014 POSTTRAN \u2192 INTCALC, one chain",
-    "total": 1
+    "total": 0
    },
    {
-    "closed": 2,
+    "closed": 3,
     "number": 42,
-    "open": 5,
-    "title": "Graveyard Shift 2 \ud83c\udf19 \u2014 the whole CardDemo nightly",
-    "total": 7
+    "open": 6,
+    "title": "Night Shift \ud83c\udf19 \u2014 CardDemo's nightly in the translation proofs",
+    "total": 9
    },
    {
     "closed": 0,
     "number": 43,
-    "open": 1,
+    "open": 0,
     "title": "Graveyard Shift 3 \ud83c\udf19 \u2014 the nightly as Spring Batch",
-    "total": 1
+    "total": 0
    }
   ],
   "sweep": {

@@ -65,6 +65,7 @@ _STATEMENT_LIMIT = 4000
 # JCL operand names (not dict keys): named so the dead-key audit does not read them as payload keys
 _KW_RESTART = "RESTART"
 _KW_GDGBIAS = "GDGBIAS"
+_KW_GDGORDER = "GDGORDER"
 _KW_RD = "RD"
 _KW_MEMBER = "MEMBER"
 _KW_OUTPUT = "OUTPUT"
@@ -647,6 +648,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     **{**_dcb_from_referback(rows, keyed, dd_step, in_proc), **_dcb(keyed)},
                     # #8413: presence-keyed on a qualified (call override) DD: which of DISP it codes, for the merge
                     **({"disp_coded": True} if "." in name and keyed.get("DISP") else {}),
+                    # #8413: presence-keyed GDGORDER of a whole-group (GDG ALL) read
+                    **({"gdgorder": keyed[_KW_GDGORDER].upper()} if keyed.get(_KW_GDGORDER) else {}),
                 )
             )
     return rows

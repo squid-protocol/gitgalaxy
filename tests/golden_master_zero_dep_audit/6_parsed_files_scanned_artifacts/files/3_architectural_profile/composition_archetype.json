@@ -2544,7 +2544,7 @@
       "perl/spamassassin/Makefile.PL": "Large Core Modules (3)",
       "perl/spamassassin/Message.pm": "Large Core Modules (3)",
       "perl/spamassassin/Parser.pm": "Large Core Modules (3)",
-      "perl/spamassassin/PerMsgStatus.pm": "Compute Cores Files",
+      "perl/spamassassin/PerMsgStatus.pm": "Large Core Modules (3)",
       "perl/spamassassin/SpamAssassin.pm": "Large Core Modules (3)"
     },
     "php": {

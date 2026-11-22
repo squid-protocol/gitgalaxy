@@ -7543,46 +7543,45 @@
         "Parameter Forwarders": 2
       },
       "perl/bugzilla/Bug.pm": {
-        "Callbacks & Closures": 2,
-        "Compute Cores": 79,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 70,
         "I/O & Config Routines": 5,
-        "Interface Declarations": 45,
+        "Interface Declarations": 47,
         "Many-Argument Workhorses": 29,
-        "Parameter Forwarders": 20,
-        "Type Conversions": 14
+        "Parameter Forwarders": 25,
+        "Type Conversions": 17
       },
       "perl/bugzilla/CGI.pm": {
         "Annotated & Test Methods": 1,
-        "Compute Cores": 14,
+        "Compute Cores": 12,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 4,
+        "Parameter Forwarders": 6,
         "Type Conversions": 2
       },
       "perl/bugzilla/DB.pm": {
-        "Compute Cores": 21,
+        "Compute Cores": 20,
         "Defensive Guards": 6,
         "I/O & Config Routines": 3,
         "Interface Declarations": 4,
         "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 34,
+        "Parameter Forwarders": 35,
         "Type Conversions": 1
       },
       "perl/bugzilla/Requirements.pm": {
-        "Compute Cores": 9,
+        "Compute Cores": 10,
         "I/O & Config Routines": 2,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 1
       }
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": {
-        "Annotated & Test Methods": 1,
-        "Compute Cores": 47,
+        "Annotated & Test Methods": 2,
+        "Compute Cores": 41,
         "Defensive Guards": 7,
-        "Interface Declarations": 36,
+        "Interface Declarations": 37,
         "Many-Argument Workhorses": 27,
-        "Parameter Forwarders": 32,
+        "Parameter Forwarders": 36,
         "Type Conversions": 11
       },
       "perl/exiftool/META.json": {},
@@ -7594,21 +7593,21 @@
         "Type Conversions": 1
       },
       "perl/exiftool/exiftool": {
-        "Compute Cores": 25,
+        "Compute Cores": 23,
         "Defensive Guards": 5,
         "I/O & Config Routines": 1,
         "Interface Declarations": 9,
-        "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 4,
+        "Many-Argument Workhorses": 8,
+        "Parameter Forwarders": 5,
         "Type Conversions": 4
       }
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": {
         "Callbacks & Closures": 3,
-        "Compute Cores": 12,
+        "Compute Cores": 11,
         "Defensive Guards": 2,
-        "Parameter Forwarders": 6,
+        "Parameter Forwarders": 7,
         "Type Conversions": 3
       },
       "perl/mojo/Makefile.PL": {},
@@ -7635,10 +7634,9 @@
     },
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": {
-        "Annotated & Test Methods": 2,
         "Compute Cores": 3,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 5,
         "Type Conversions": 1
       },
       "perl/spamassassin/Bayes.pm": {
@@ -7647,46 +7645,46 @@
         "Type Conversions": 1
       },
       "perl/spamassassin/HTML.pm": {
-        "Compute Cores": 17,
-        "Many-Argument Workhorses": 6,
+        "Compute Cores": 16,
+        "Many-Argument Workhorses": 7,
         "Parameter Forwarders": 5
       },
       "perl/spamassassin/Makefile.PL": {
-        "Compute Cores": 10,
+        "Compute Cores": 4,
         "Defensive Guards": 1,
         "I/O & Config Routines": 6,
-        "Interface Declarations": 12,
-        "Parameter Forwarders": 2
+        "Interface Declarations": 17,
+        "Parameter Forwarders": 3
       },
       "perl/spamassassin/Message.pm": {
-        "Compute Cores": 16,
+        "Compute Cores": 12,
         "I/O & Config Routines": 2,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 10
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 13
       },
       "perl/spamassassin/Parser.pm": {
-        "Compute Cores": 23,
+        "Compute Cores": 19,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 10,
-        "Parameter Forwarders": 11,
+        "Many-Argument Workhorses": 11,
+        "Parameter Forwarders": 14,
         "Type Conversions": 1
       },
       "perl/spamassassin/PerMsgStatus.pm": {
-        "Compute Cores": 45,
+        "Callbacks & Closures": 2,
+        "Compute Cores": 37,
         "I/O & Config Routines": 1,
         "Interface Declarations": 6,
-        "Many-Argument Workhorses": 8,
-        "Parameter Forwarders": 17,
-        "Type Conversions": 3
+        "Many-Argument Workhorses": 9,
+        "Parameter Forwarders": 21,
+        "Type Conversions": 4
       },
       "perl/spamassassin/SpamAssassin.pm": {
-        "Annotated & Test Methods": 2,
-        "Compute Cores": 25,
+        "Compute Cores": 23,
         "Defensive Guards": 2,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 24,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 27,
         "Type Conversions": 1
       }
     },

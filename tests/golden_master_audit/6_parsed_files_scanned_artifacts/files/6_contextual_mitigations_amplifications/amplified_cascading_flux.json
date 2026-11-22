@@ -892,30 +892,30 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "11 instances",
-      "perl/bugzilla/Bug.pm": "416 instances",
-      "perl/bugzilla/CGI.pm": "42 instances",
-      "perl/bugzilla/DB.pm": "51 instances",
+      "perl/bugzilla/Bug.pm": "401 instances",
+      "perl/bugzilla/CGI.pm": "40 instances",
+      "perl/bugzilla/DB.pm": "50 instances",
       "perl/bugzilla/Requirements.pm": "26 instances"
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": "1537 instances",
+      "perl/exiftool/ExifTool.pm": "1516 instances",
       "perl/exiftool/RandomAccess.pm": "69 instances",
-      "perl/exiftool/exiftool": "1005 instances"
+      "perl/exiftool/exiftool": "993 instances"
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": "16 instances",
-      "perl/mojo/Promise.pm": "23 instances",
-      "perl/mojo/Template.pm": "62 instances",
+      "perl/mojo/Promise.pm": "21 instances",
+      "perl/mojo/Template.pm": "61 instances",
       "perl/mojo/WebSocket.pm": "18 instances"
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": "97 instances",
-      "perl/spamassassin/HTML.pm": "186 instances",
-      "perl/spamassassin/Makefile.PL": "70 instances",
-      "perl/spamassassin/Message.pm": "154 instances",
-      "perl/spamassassin/Parser.pm": "201 instances",
-      "perl/spamassassin/PerMsgStatus.pm": "391 instances",
-      "perl/spamassassin/SpamAssassin.pm": "171 instances"
+      "perl/spamassassin/AsyncLoop.pm": "96 instances",
+      "perl/spamassassin/HTML.pm": "163 instances",
+      "perl/spamassassin/Makefile.PL": "65 instances",
+      "perl/spamassassin/Message.pm": "147 instances",
+      "perl/spamassassin/Parser.pm": "196 instances",
+      "perl/spamassassin/PerMsgStatus.pm": "355 instances",
+      "perl/spamassassin/SpamAssassin.pm": "164 instances"
     },
     "php/guzzle": {
       "php/guzzle/Client.php": "57 instances",

@@ -2512,40 +2512,40 @@
       "perl/SOURCES.md": 259.15
     },
     "perl/ack3_tests": {
-      "perl/ack3_tests/LICENSE.md": -29.8,
+      "perl/ack3_tests/LICENSE.md": -30.17,
       "perl/ack3_tests/file-permission.t": -96.73
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": -142.76,
+      "perl/bugzilla/Auth.pm": -142.32,
       "perl/bugzilla/Bug.pm": -69.68,
-      "perl/bugzilla/CGI.pm": -57.72,
-      "perl/bugzilla/DB.pm": -132.01,
-      "perl/bugzilla/Requirements.pm": -40.12
+      "perl/bugzilla/CGI.pm": -57.97,
+      "perl/bugzilla/DB.pm": -131.36,
+      "perl/bugzilla/Requirements.pm": -40.41
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": -1.39,
       "perl/exiftool/META.json": 6.69,
       "perl/exiftool/Makefile.PL": 30.07,
       "perl/exiftool/README": -36.78,
-      "perl/exiftool/RandomAccess.pm": -83.49,
-      "perl/exiftool/exiftool": 50.56
+      "perl/exiftool/RandomAccess.pm": -83.47,
+      "perl/exiftool/exiftool": 50.31
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": -193.42,
-      "perl/mojo/Makefile.PL": -177.5,
-      "perl/mojo/Promise.pm": -218.74,
+      "perl/mojo/IOLoop.pm": -193.5,
+      "perl/mojo/Makefile.PL": -177.54,
+      "perl/mojo/Promise.pm": -218.71,
       "perl/mojo/Template.pm": -162.8,
-      "perl/mojo/WebSocket.pm": -214.3
+      "perl/mojo/WebSocket.pm": -214.2
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 179.0,
-      "perl/spamassassin/Bayes.pm": 102.2,
-      "perl/spamassassin/HTML.pm": 123.11,
-      "perl/spamassassin/Makefile.PL": 89.63,
-      "perl/spamassassin/Message.pm": 31.77,
-      "perl/spamassassin/Parser.pm": 51.58,
+      "perl/spamassassin/AsyncLoop.pm": 16.32,
+      "perl/spamassassin/Bayes.pm": 101.98,
+      "perl/spamassassin/HTML.pm": 122.19,
+      "perl/spamassassin/Makefile.PL": 89.25,
+      "perl/spamassassin/Message.pm": 194.55,
+      "perl/spamassassin/Parser.pm": 51.82,
       "perl/spamassassin/PerMsgStatus.pm": 91.42,
-      "perl/spamassassin/SpamAssassin.pm": 70.89
+      "perl/spamassassin/SpamAssassin.pm": 71.38
     },
     "php": {
       "php/SOURCES.md": 215.25

@@ -2513,39 +2513,39 @@
     },
     "perl/ack3_tests": {
       "perl/ack3_tests/LICENSE.md": 0,
-      "perl/ack3_tests/file-permission.t": 9
+      "perl/ack3_tests/file-permission.t": 5
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 79,
-      "perl/bugzilla/Bug.pm": 854,
-      "perl/bugzilla/CGI.pm": 125,
-      "perl/bugzilla/DB.pm": 321,
-      "perl/bugzilla/Requirements.pm": 112
+      "perl/bugzilla/Auth.pm": 51,
+      "perl/bugzilla/Bug.pm": 647,
+      "perl/bugzilla/CGI.pm": 97,
+      "perl/bugzilla/DB.pm": 254,
+      "perl/bugzilla/Requirements.pm": 84
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 2697,
+      "perl/exiftool/ExifTool.pm": 2218,
       "perl/exiftool/META.json": 0,
-      "perl/exiftool/Makefile.PL": 22,
+      "perl/exiftool/Makefile.PL": 5,
       "perl/exiftool/README": 0,
-      "perl/exiftool/RandomAccess.pm": 95,
-      "perl/exiftool/exiftool": 3007
+      "perl/exiftool/RandomAccess.pm": 92,
+      "perl/exiftool/exiftool": 2178
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 73,
-      "perl/mojo/Makefile.PL": 14,
-      "perl/mojo/Promise.pm": 88,
-      "perl/mojo/Template.pm": 128,
-      "perl/mojo/WebSocket.pm": 69
+      "perl/mojo/IOLoop.pm": 59,
+      "perl/mojo/Makefile.PL": 0,
+      "perl/mojo/Promise.pm": 56,
+      "perl/mojo/Template.pm": 90,
+      "perl/mojo/WebSocket.pm": 47
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 237,
-      "perl/spamassassin/Bayes.pm": 18,
-      "perl/spamassassin/HTML.pm": 350,
-      "perl/spamassassin/Makefile.PL": 181,
-      "perl/spamassassin/Message.pm": 312,
-      "perl/spamassassin/Parser.pm": 539,
-      "perl/spamassassin/PerMsgStatus.pm": 1056,
-      "perl/spamassassin/SpamAssassin.pm": 566
+      "perl/spamassassin/AsyncLoop.pm": 142,
+      "perl/spamassassin/Bayes.pm": 16,
+      "perl/spamassassin/HTML.pm": 250,
+      "perl/spamassassin/Makefile.PL": 89,
+      "perl/spamassassin/Message.pm": 223,
+      "perl/spamassassin/Parser.pm": 315,
+      "perl/spamassassin/PerMsgStatus.pm": 585,
+      "perl/spamassassin/SpamAssassin.pm": 356
     },
     "php": {
       "php/SOURCES.md": 0

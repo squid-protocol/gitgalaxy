@@ -2520,7 +2520,7 @@
       "perl/bugzilla/Bug.pm": "file_cluster_4",
       "perl/bugzilla/CGI.pm": "file_cluster_4",
       "perl/bugzilla/DB.pm": "file_cluster_15",
-      "perl/bugzilla/Requirements.pm": "file_cluster_6"
+      "perl/bugzilla/Requirements.pm": "file_cluster_4"
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": "file_cluster_6",
@@ -2538,14 +2538,14 @@
       "perl/mojo/WebSocket.pm": "file_cluster_15"
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": "file_cluster_8",
+      "perl/spamassassin/AsyncLoop.pm": "file_cluster_6",
       "perl/spamassassin/Bayes.pm": "file_cluster_15",
       "perl/spamassassin/HTML.pm": "file_cluster_8",
-      "perl/spamassassin/Makefile.PL": "file_cluster_4",
+      "perl/spamassassin/Makefile.PL": "file_cluster_15",
       "perl/spamassassin/Message.pm": "file_cluster_6",
-      "perl/spamassassin/Parser.pm": "file_cluster_6",
-      "perl/spamassassin/PerMsgStatus.pm": "file_cluster_6",
-      "perl/spamassassin/SpamAssassin.pm": "file_cluster_6"
+      "perl/spamassassin/Parser.pm": "file_cluster_4",
+      "perl/spamassassin/PerMsgStatus.pm": "file_cluster_4",
+      "perl/spamassassin/SpamAssassin.pm": "file_cluster_4"
     },
     "php": {
       "php/SOURCES.md": "Static: Literature & Documentation"

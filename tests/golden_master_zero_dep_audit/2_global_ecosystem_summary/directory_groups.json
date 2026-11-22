@@ -3713,7 +3713,7 @@
       "avg_exposures": {
         "api_exposure": 2.45,
         "churn": 0.0,
-        "cognitive_load": 10.38,
+        "cognitive_load": 8.11,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 25.0,
@@ -3723,39 +3723,39 @@
         "stability": 25.0,
         "state_flux": 44.68,
         "tech_debt": 0.0,
-        "verification": 1.18
+        "verification": 1.16
       },
       "file_count": 2,
-      "total_mass": 25.86
+      "total_mass": 21.66
     },
     "perl/bugzilla": {
       "avg_exposures": {
         "api_exposure": 9.13,
         "churn": 0.0,
-        "cognitive_load": 39.78,
+        "cognitive_load": 35.38,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 99.58,
-        "safety_score": 59.25,
+        "safety_score": 59.1,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 90.06,
+        "state_flux": 89.89,
         "tech_debt": 45.18,
         "verification": 80.0
       },
       "file_count": 5,
-      "total_mass": 5752.36
+      "total_mass": 5198.36
     },
     "perl/exiftool": {
       "avg_exposures": {
         "api_exposure": 5.2,
         "churn": 0.0,
-        "cognitive_load": 47.99,
+        "cognitive_load": 45.55,
         "concurrency": 4.19,
         "dead_code": 1.63,
         "documentation": 50.0,
-        "safety_score": 37.5,
+        "safety_score": 37.45,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
@@ -3764,36 +3764,36 @@
         "verification": 40.77
       },
       "file_count": 6,
-      "total_mass": 16512.28
+      "total_mass": 15420.58
     },
     "perl/mojo": {
       "avg_exposures": {
         "api_exposure": 6.99,
         "churn": 0.0,
-        "cognitive_load": 69.82,
+        "cognitive_load": 64.86,
         "concurrency": 40.0,
         "dead_code": 0.0,
         "documentation": 80.0,
-        "safety_score": 48.73,
+        "safety_score": 48.59,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 79.41,
+        "state_flux": 79.38,
         "tech_debt": 16.12,
         "verification": 64.46
       },
       "file_count": 5,
-      "total_mass": 1352.42
+      "total_mass": 1275.02
     },
     "perl/spamassassin": {
       "avg_exposures": {
         "api_exposure": 9.46,
         "churn": 0.0,
-        "cognitive_load": 64.68,
+        "cognitive_load": 58.58,
         "concurrency": 15.69,
         "dead_code": 3.2,
         "documentation": 70.87,
-        "safety_score": 68.25,
+        "safety_score": 67.61,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -3802,7 +3802,7 @@
         "verification": 80.0
       },
       "file_count": 8,
-      "total_mass": 12407.42
+      "total_mass": 10045.22
     },
     "php": {
       "avg_exposures": {

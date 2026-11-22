@@ -8,7 +8,7 @@
     "dominant_language": "typescript",
     "file_composition_distribution": {
       "Callbacks & Closures Files": 66,
-      "Compute Cores Files": 72,
+      "Compute Cores Files": 71,
       "Data / Markup / Trivial": 691,
       "Declarative / Non-Code": 727,
       "Encapsulated Accessors Files": 51,
@@ -16,7 +16,7 @@
       "Interface Declarations Files": 424,
       "Large Core Modules": 363,
       "Large Core Modules (2)": 283,
-      "Large Core Modules (3)": 293,
+      "Large Core Modules (3)": 294,
       "Many-Argument Workhorses Files": 76,
       "Parameter Forwarders Files": 151,
       "State Mutators Files": 77,

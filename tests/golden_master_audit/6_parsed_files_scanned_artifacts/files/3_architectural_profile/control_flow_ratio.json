@@ -2513,39 +2513,39 @@
     },
     "perl/ack3_tests": {
       "perl/ack3_tests/LICENSE.md": "0.0%",
-      "perl/ack3_tests/file-permission.t": "18.9%"
+      "perl/ack3_tests/file-permission.t": "11.3%"
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": "24.8%",
-      "perl/bugzilla/Bug.pm": "30.4%",
-      "perl/bugzilla/CGI.pm": "32.9%",
-      "perl/bugzilla/DB.pm": "18.8%",
-      "perl/bugzilla/Requirements.pm": "17.4%"
+      "perl/bugzilla/Auth.pm": "17.3%",
+      "perl/bugzilla/Bug.pm": "24.5%",
+      "perl/bugzilla/CGI.pm": "27.2%",
+      "perl/bugzilla/DB.pm": "15.1%",
+      "perl/bugzilla/Requirements.pm": "13.4%"
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": "33.8%",
+      "perl/exiftool/ExifTool.pm": "28.1%",
       "perl/exiftool/META.json": "0.0%",
-      "perl/exiftool/Makefile.PL": "43.1%",
+      "perl/exiftool/Makefile.PL": "9.8%",
       "perl/exiftool/README": "0.0%",
-      "perl/exiftool/RandomAccess.pm": "30.3%",
-      "perl/exiftool/exiftool": "46.1%"
+      "perl/exiftool/RandomAccess.pm": "29.4%",
+      "perl/exiftool/exiftool": "33.6%"
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": "23.5%",
-      "perl/mojo/Makefile.PL": "43.8%",
-      "perl/mojo/Promise.pm": "27.2%",
-      "perl/mojo/Template.pm": "36.3%",
-      "perl/mojo/WebSocket.pm": "27.3%"
+      "perl/mojo/IOLoop.pm": "19.5%",
+      "perl/mojo/Makefile.PL": "0.0%",
+      "perl/mojo/Promise.pm": "18.7%",
+      "perl/mojo/Template.pm": "27.3%",
+      "perl/mojo/WebSocket.pm": "19.3%"
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": "43.1%",
-      "perl/spamassassin/Bayes.pm": "21.5%",
-      "perl/spamassassin/HTML.pm": "45.7%",
-      "perl/spamassassin/Makefile.PL": "26.9%",
-      "perl/spamassassin/Message.pm": "40.3%",
-      "perl/spamassassin/Parser.pm": "47.4%",
-      "perl/spamassassin/PerMsgStatus.pm": "46.5%",
-      "perl/spamassassin/SpamAssassin.pm": "38.0%"
+      "perl/spamassassin/AsyncLoop.pm": "27.1%",
+      "perl/spamassassin/Bayes.pm": "19.4%",
+      "perl/spamassassin/HTML.pm": "34.3%",
+      "perl/spamassassin/Makefile.PL": "13.6%",
+      "perl/spamassassin/Message.pm": "30.5%",
+      "perl/spamassassin/Parser.pm": "29.4%",
+      "perl/spamassassin/PerMsgStatus.pm": "27.7%",
+      "perl/spamassassin/SpamAssassin.pm": "25.7%"
     },
     "php": {
       "php/SOURCES.md": "0.0%"

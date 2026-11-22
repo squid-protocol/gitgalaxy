@@ -375,11 +375,11 @@
       "batch/SOURCES.md": 3302.22
     },
     "batch/cpython/Tools/buildbot": {
-      "batch/cpython/Tools/buildbot/clean.bat": -10438.29
+      "batch/cpython/Tools/buildbot/clean.bat": -10435.11
     },
     "batch/cpython/Tools/msi": {
-      "batch/cpython/Tools/msi/build.bat": -10016.48,
-      "batch/cpython/Tools/msi/buildrelease.bat": -10156.71
+      "batch/cpython/Tools/msi/build.bat": -10013.25,
+      "batch/cpython/Tools/msi/buildrelease.bat": -10153.48
     },
     "blueprint": {
       "blueprint/SOURCES.md": 12555.49
@@ -1138,8 +1138,8 @@
       "cpp/powertoys/powertoy_module.h": -6878.74
     },
     "cpp/serenity_ak_siphash_cpu": {
-      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 5389.15,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 5630.82
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 5382.98,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 5624.65
     },
     "csd": {
       "csd/SOURCES.md": 11781.41
@@ -1153,8 +1153,8 @@
       "csd/carddemo/PROVENANCE.md": -43.59
     },
     "csd/cbsa": {
-      "csd/cbsa/BANK.csd": 4352.71,
-      "csd/cbsa/PROVENANCE.md": 4072.33
+      "csd/cbsa/BANK.csd": 4352.25,
+      "csd/cbsa/PROVENANCE.md": 4071.87
     },
     "csd/z_sms_gateway": {
       "csd/z_sms_gateway/PROVENANCE.md": 8446.36,
@@ -1789,8 +1789,8 @@
       "hlasm/zecs/ZECSNC.asm": 2413.49
     },
     "hlasm/zopeneditor_sample": {
-      "hlasm/zopeneditor_sample/ASAM1.asm": -11366.58,
-      "hlasm/zopeneditor_sample/REGISTRS.asm": -11647.37
+      "hlasm/zopeneditor_sample/ASAM1.asm": -2977.34,
+      "hlasm/zopeneditor_sample/REGISTRS.asm": -3258.12
     },
     "hlo": {
       "hlo/SOURCES.md": 8894.29
@@ -1801,7 +1801,7 @@
       "hlo/xla/gpu_emitters/side_output.hlo": -10188.36
     },
     "html": {
-      "html/SOURCES.md": 5688.46
+      "html/SOURCES.md": 5682.58
     },
     "html/angular_adev_templates": {
       "html/angular_adev_templates/api-reference-list.component.html": -7572.23,
@@ -1828,11 +1828,11 @@
       "html/cpython_jinja/search.html": 1189.69
     },
     "html/html5_boilerplate": {
-      "html/html5_boilerplate/LICENSE.txt": 5707.51,
-      "html/html5_boilerplate/dist_404.html": 5984.07,
-      "html/html5_boilerplate/dist_index.html": 5545.79,
-      "html/html5_boilerplate/src_404.html": 5324.34,
-      "html/html5_boilerplate/src_index.html": 5746.39
+      "html/html5_boilerplate/LICENSE.txt": 5702.0,
+      "html/html5_boilerplate/dist_404.html": 5978.56,
+      "html/html5_boilerplate/dist_index.html": 5540.28,
+      "html/html5_boilerplate/src_404.html": 5318.82,
+      "html/html5_boilerplate/src_index.html": 5740.87
     },
     "html/jquery_test_fixtures": {
       "html/jquery_test_fixtures/LICENSE.txt": 369.76,
@@ -1866,8 +1866,8 @@
       "html/polyglot_odoo/database_manager.qweb.html": 11853.61
     },
     "html/polyglot_vscode": {
-      "html/polyglot_vscode/LICENSE.txt": 3712.11,
-      "html/polyglot_vscode/vscode_builtin.html": 3567.65
+      "html/polyglot_vscode/LICENSE.txt": 3711.79,
+      "html/polyglot_vscode/vscode_builtin.html": 3567.33
     },
     "html/revealjs_decks": {
       "html/revealjs_decks/500-slides.html": -5535.93,
@@ -1904,12 +1904,12 @@
       "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -1049.2
     },
     "java/jenkins_cli": {
-      "java/jenkins_cli/LICENSE.txt": 3514.76,
-      "java/jenkins_cli/SetBuildDescriptionCommand.java": 3750.56
+      "java/jenkins_cli/LICENSE.txt": -11656.82,
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": -11421.03
     },
     "java/selenium_grid_session_queue": {
-      "java/selenium_grid_session_queue/NOTICE": -9848.22,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": -9694.24
+      "java/selenium_grid_session_queue/NOTICE": -9844.43,
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": -9690.45
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 9475.61,
@@ -1959,7 +1959,7 @@
       "javascript/react/build.js": 8485.72
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": -1672.28
+      "javascript/react_error_codes/extract-errors.js": -1671.79
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": -687.54,
@@ -2172,7 +2172,7 @@
       "jcl/zopeneditor-sample/RUNPSAM1.jcl": -6594.89
     },
     "json": {
-      "json/SOURCES.md": 4307.85
+      "json/SOURCES.md": 4307.42
     },
     "json/baseline": {
       "json/baseline/control-package.json": 12204.99
@@ -2183,16 +2183,16 @@
       "json/kafka/message/VoteRequest.json": 11510.73
     },
     "kotlin": {
-      "kotlin/SOURCES.md": -10182.5
+      "kotlin/SOURCES.md": -10178.75
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 4938.67,
-      "kotlin/okhttp/Dispatcher.kt": 4885.93,
-      "kotlin/okhttp/LICENSE.txt": 4699.26,
-      "kotlin/okhttp/OkHttp.android.kt": 5266.69,
-      "kotlin/okhttp/OkHttp.jvm.kt": 5144.75,
-      "kotlin/okhttp/OkHttp.kt": 4378.5,
-      "kotlin/okhttp/build.gradle.kts": 4643.8
+      "kotlin/okhttp/Call.kt": 4932.64,
+      "kotlin/okhttp/Dispatcher.kt": 4879.9,
+      "kotlin/okhttp/LICENSE.txt": 4693.24,
+      "kotlin/okhttp/OkHttp.android.kt": 5260.66,
+      "kotlin/okhttp/OkHttp.jvm.kt": 5138.72,
+      "kotlin/okhttp/OkHttp.kt": 4372.48,
+      "kotlin/okhttp/build.gradle.kts": 4637.78
     },
     "livecode": {
       "livecode/SOURCES.md": -3127.15
@@ -2512,43 +2512,43 @@
       "perl/SOURCES.md": 12322.0
     },
     "perl/ack3_tests": {
-      "perl/ack3_tests/LICENSE.md": -3254.35,
-      "perl/ack3_tests/file-permission.t": -3028.87
+      "perl/ack3_tests/LICENSE.md": 3530.17,
+      "perl/ack3_tests/file-permission.t": 3754.26
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 3120.46,
-      "perl/bugzilla/Bug.pm": 3653.17,
-      "perl/bugzilla/CGI.pm": 3734.24,
-      "perl/bugzilla/DB.pm": 3347.73,
-      "perl/bugzilla/Requirements.pm": 3999.75
+      "perl/bugzilla/Auth.pm": -9748.72,
+      "perl/bugzilla/Bug.pm": -9217.86,
+      "perl/bugzilla/CGI.pm": -9137.05,
+      "perl/bugzilla/DB.pm": -9521.13,
+      "perl/bugzilla/Requirements.pm": -8873.0
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": 11438.23,
       "perl/exiftool/META.json": 11664.97,
       "perl/exiftool/Makefile.PL": 10875.37,
       "perl/exiftool/README": 11900.21,
-      "perl/exiftool/RandomAccess.pm": 11474.27,
-      "perl/exiftool/exiftool": 11116.4
+      "perl/exiftool/RandomAccess.pm": 11474.26,
+      "perl/exiftool/exiftool": 11117.51
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": -1324.79,
-      "perl/mojo/Makefile.PL": -1835.58,
-      "perl/mojo/Promise.pm": -1625.59,
-      "perl/mojo/Template.pm": -1320.88,
-      "perl/mojo/WebSocket.pm": -1014.0
+      "perl/mojo/IOLoop.pm": -1324.77,
+      "perl/mojo/Makefile.PL": -1833.94,
+      "perl/mojo/Promise.pm": -1624.1,
+      "perl/mojo/Template.pm": -1320.7,
+      "perl/mojo/WebSocket.pm": -1014.96
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 4353.9,
-      "perl/spamassassin/Bayes.pm": 4655.97,
-      "perl/spamassassin/HTML.pm": 4630.15,
-      "perl/spamassassin/Makefile.PL": 4726.08,
-      "perl/spamassassin/Message.pm": 5435.85,
-      "perl/spamassassin/Parser.pm": 4933.07,
-      "perl/spamassassin/PerMsgStatus.pm": 4943.28,
-      "perl/spamassassin/SpamAssassin.pm": 5232.07
+      "perl/spamassassin/AsyncLoop.pm": 5385.75,
+      "perl/spamassassin/Bayes.pm": 4655.66,
+      "perl/spamassassin/HTML.pm": 4633.33,
+      "perl/spamassassin/Makefile.PL": 4725.56,
+      "perl/spamassassin/Message.pm": 4399.53,
+      "perl/spamassassin/Parser.pm": 4930.21,
+      "perl/spamassassin/PerMsgStatus.pm": 4941.08,
+      "perl/spamassassin/SpamAssassin.pm": 5226.0
     },
     "php": {
-      "php/SOURCES.md": -1218.91
+      "php/SOURCES.md": -1218.4
     },
     "php/guzzle": {
       "php/guzzle/Client.php": 6719.18,
@@ -2622,7 +2622,7 @@
       "plaintext/opencv/data/CMakeLists.txt": 10088.02
     },
     "plaintext/opencv/include": {
-      "plaintext/opencv/include/CMakeLists.txt": 3683.17
+      "plaintext/opencv/include/CMakeLists.txt": 3682.87
     },
     "pli": {
       "pli/SOURCES.md": 2039.18
@@ -2797,13 +2797,13 @@
       "proto/tensorflow/framework/tensor.proto": -6195.86
     },
     "protobuf": {
-      "protobuf/SOURCES.md": -11735.3
+      "protobuf/SOURCES.md": -11734.14
     },
     "protobuf/baseline": {
       "protobuf/baseline/control.proto": 6518.51
     },
     "python": {
-      "python/SOURCES.md": 4140.75
+      "python/SOURCES.md": 4140.73
     },
     "python/airflow": {
       "python/airflow/NOTICE": 12632.73,
@@ -3156,8 +3156,8 @@
       "rexx/SOURCES.md": 9412.48
     },
     "rexx/hercules_390_hyperion": {
-      "rexx/hercules_390_hyperion/COPYRIGHT": -1183.81,
-      "rexx/hercules_390_hyperion/sample.rexx": -933.75
+      "rexx/hercules_390_hyperion/COPYRIGHT": -1183.4,
+      "rexx/hercules_390_hyperion/sample.rexx": -933.33
     },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/COPYRIGHT": 6275.97,
@@ -3935,13 +3935,13 @@
       "xml/SOURCES.md": -9267.16
     },
     "xml/apex": {
-      "xml/apex/CanTheUser_Tests.cls": -9216.59,
-      "xml/apex/CanTheUser_Tests.cls-meta.xml": -9137.2,
-      "xml/apex/IterationRecipes_Tests.cls": -8838.19,
-      "xml/apex/IterationRecipes_Tests.cls-meta.xml": -8919.87,
-      "xml/apex/LICENSE.md": -9344.55,
-      "xml/apex/ListSortingRecipes_Tests.cls": -9455.01,
-      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": -9616.74
+      "xml/apex/CanTheUser_Tests.cls": 3655.73,
+      "xml/apex/CanTheUser_Tests.cls-meta.xml": 3735.11,
+      "xml/apex/IterationRecipes_Tests.cls": 4034.13,
+      "xml/apex/IterationRecipes_Tests.cls-meta.xml": 3952.44,
+      "xml/apex/LICENSE.md": 3527.77,
+      "xml/apex/ListSortingRecipes_Tests.cls": 3417.31,
+      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 3255.57
     },
     "xml/jenkins": {
       "xml/jenkins/LICENSE.txt": -2034.55,
@@ -3971,7 +3971,7 @@
       "xml/springboot/getting-started/pom.xml": 8076.83
     },
     "xml/springboot/resources": {
-      "xml/springboot/resources/pom.xml": 5923.6
+      "xml/springboot/resources/pom.xml": 5918.29
     },
     "yacc": {
       "yacc/SOURCES.md": -6429.55

@@ -49,6 +49,17 @@ def test_every_named_proof_is_a_real_test():
             assert f"def {name}(" in (REPO / path).read_text(encoding="utf-8"), f"{g.name}: {g.proof} is gone"
 
 
+def test_every_gate_says_what_it_claims_to_catch():
+    """A placeholder claim is a gate nobody has read: every entry names what it catches (#7155)."""
+    placeholders = ("not audited", "todo", "tbd", "unknown")
+    bad = [
+        g.name
+        for g in gc.GATES
+        if len(g.claims.split()) < 3 or any(w in g.claims.lower() for w in placeholders)
+    ]
+    assert not bad, f"write a real claim for: {bad}"
+
+
 def test_a_notice_cannot_also_claim_a_proof():
     assert not [g.name for g in gc.GATES if g.notice and g.proof]
 

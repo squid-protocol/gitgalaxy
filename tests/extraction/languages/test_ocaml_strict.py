@@ -130,7 +130,7 @@ def test_dependencies_capture_the_target():
         "  open Indented\n"
     )
     got = [m.group(1) or m.group(2) for m in RULES["_dependency_capture"].finditer(src)]
-    assert got == ["Core.Std", "Base", "Foo_bar", "lwt.unix", "Indented"]
+    assert got == ["Core.Std", "Base", "Foo_bar", "lwt.unix", "Local", "Indented"]
 
 
 def test_import_capture_blank_hides_comments():

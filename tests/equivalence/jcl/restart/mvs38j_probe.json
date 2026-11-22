@@ -10,13 +10,7 @@
   "restart-if-referback-false": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
   "restart-if-referback-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
   "restart-star-checkpoint": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-  "procstep-checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-  "procstep-restart-cond-override-on-restart-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
-  "procstep-restart-cond-override-on-restart-step-later-cond-kept": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
-  "procstep-restart-cond-override-names-restart-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
-  "procstep-restart-cond-override-names-restart-step-run": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
-  "procstep-restart-cond-override-names-skipped-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)",
-  "procstep-restart-cond-on-call-replaces-every-step": "added by #8835 after the #8837 box run; needs a box rerun (a later slice)"
+  "procstep-checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)"
  },
  "unobserved": [
   "what a program does (every step is IDCAMS with SET MAXCC)",
@@ -559,6 +553,286 @@
     {
      "step": "G3",
      "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-override-on-restart-step",
+   "job": "RSTJOB13",
+   "expect": {
+    "U0": "skipped",
+    "CALL3.K1": "skipped",
+    "CALL3.K2": "run",
+    "CALL3.K3": "run",
+    "AFTER": "run"
+   },
+   "engine": {
+    "U0": "skipped",
+    "CALL3.K1": "skipped",
+    "CALL3.K2": "run",
+    "CALL3.K3": "run",
+    "AFTER": "run"
+   },
+   "box": {
+    "U0": "skipped",
+    "CALL3.K1": "skipped",
+    "CALL3.K2": "run",
+    "CALL3.K3": "run",
+    "AFTER": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL3",
+     "procstep": "K2",
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL3",
+     "procstep": "K3",
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "AFTER",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-override-on-restart-step-later-cond-kept",
+   "job": "RSTJOB13",
+   "expect": {
+    "U0": "skipped",
+    "CALL3.K1": "skipped",
+    "CALL3.K2": "run",
+    "CALL3.K3": "bypass",
+    "AFTER": "run"
+   },
+   "engine": {
+    "U0": "skipped",
+    "CALL3.K1": "skipped",
+    "CALL3.K2": "run",
+    "CALL3.K3": "bypass",
+    "AFTER": "run"
+   },
+   "box": {
+    "U0": "skipped",
+    "CALL3.K1": "skipped",
+    "CALL3.K2": "run",
+    "CALL3.K3": "bypass",
+    "AFTER": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL3",
+     "procstep": "K2",
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL3",
+     "procstep": "K3",
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "CALL3",
+     "procstep": "K3",
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "AFTER",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-override-names-restart-step",
+   "job": "RSTJOB14",
+   "expect": {
+    "CALL4.K1": "skipped",
+    "CALL4.K2": "run",
+    "CALL4.K3": "bypass"
+   },
+   "engine": {
+    "CALL4.K1": "skipped",
+    "CALL4.K2": "run",
+    "CALL4.K3": "bypass"
+   },
+   "box": {
+    "CALL4.K1": "skipped",
+    "CALL4.K2": "run",
+    "CALL4.K3": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL4",
+     "procstep": "K2",
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL4",
+     "procstep": "K3",
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "CALL4",
+     "procstep": "K3",
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-override-names-restart-step-run",
+   "job": "RSTJOB14",
+   "expect": {
+    "CALL4.K1": "skipped",
+    "CALL4.K2": "run",
+    "CALL4.K3": "run"
+   },
+   "engine": {
+    "CALL4.K1": "skipped",
+    "CALL4.K2": "run",
+    "CALL4.K3": "run"
+   },
+   "box": {
+    "CALL4.K1": "skipped",
+    "CALL4.K2": "run",
+    "CALL4.K3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL4",
+     "procstep": "K2",
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL4",
+     "procstep": "K3",
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-override-names-skipped-step",
+   "job": "RSTJOB15",
+   "expect": {
+    "U0": "skipped",
+    "CALL5.K1": "skipped",
+    "CALL5.K2": "run",
+    "CALL5.K3": "run"
+   },
+   "engine": {
+    "U0": "skipped",
+    "CALL5.K1": "skipped",
+    "CALL5.K2": "run",
+    "CALL5.K3": "run"
+   },
+   "box": {
+    "U0": "skipped",
+    "CALL5.K1": "skipped",
+    "CALL5.K2": "run",
+    "CALL5.K3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL5",
+     "procstep": "K2",
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL5",
+     "procstep": "K3",
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "procstep-restart-cond-on-call-replaces-every-step",
+   "job": "RSTJOB16",
+   "expect": {
+    "U0": "skipped",
+    "CALL6.K1": "skipped",
+    "CALL6.K2": "run",
+    "CALL6.K3": "run"
+   },
+   "engine": {
+    "U0": "skipped",
+    "CALL6.K1": "skipped",
+    "CALL6.K2": "run",
+    "CALL6.K3": "run"
+   },
+   "box": {
+    "U0": "skipped",
+    "CALL6.K1": "skipped",
+    "CALL6.K2": "run",
+    "CALL6.K3": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "CALL6",
+     "procstep": "K2",
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CALL6",
+     "procstep": "K3",
      "executed": true,
      "cond_code": 0,
      "message": "IEF142I"

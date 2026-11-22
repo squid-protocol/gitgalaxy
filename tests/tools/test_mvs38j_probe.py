@@ -301,3 +301,19 @@ def test_the_committed_dsutil_results_cover_every_scenario_and_name_the_one_disa
     assert differ == {"iebgener-dummy-input-empty-output": "differ:box"}
     row = next(r for r in got["results"] if r["id"] in differ)
     assert row["expect"]["steps"]["S1"]["rc"] == 0 and row["box"]["steps"]["S1"]["rc"] == 12
+
+
+def test_an_over_long_job_card_is_folded_after_a_comma_within_column_71():
+    head = "//RSTJOB13 JOB (ACCT),'RESTART COND OVR',CLASS=A,MSGCLASS=A,RESTART=CALL3.K2"
+    cards = probe.fold_card(head)
+    assert len(cards) == 2 and all(len(c) <= 71 for c in cards)
+    assert cards[0].endswith(",") and cards[1].startswith("//" + " " * 13) and cards[1].strip("/ ") == "RESTART=CALL3.K2"
+    assert probe.fold_card("//SHORT    JOB (ACCT),'A,B',CLASS=A") == ["//SHORT    JOB (ACCT),'A,B',CLASS=A"]
+
+
+def test_every_restart_deck_card_fits_in_column_71():
+    doc, scs = probe.restart_scenarios()
+    assert any(sc["job"] == "RSTJOB13" for sc in scs)
+    for sc in scs:
+        for card in probe.restart_deck(doc["flow_jcl"], sc["job"], sc["given"]).splitlines():
+            assert len(card) <= 71, (sc["id"], card)

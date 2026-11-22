@@ -49,7 +49,10 @@ Jay Moseley's sysgen is staged: starter system (stand-alone programs), then IPL 
 (`smp1.cnf`, `smp2.cnf`), stage 1 (`jcl/sysgen01.jcl`), stage 2 (`stage2.rexx`, `stage2.awk`), then user mods.
 
 `tests/tools/box/mvs38j/sysgen.py` (stdlib, host side) drives it: it starts Hercules in the image with `docker run -i`, writes console commands to
-its stdin and reads its log, which carries the integrated 1052-C console (input prefixed `/`). `mvs38j.sh sysgen starter`
+its stdin and reads its log, which carries the integrated 1052-C console (input prefixed `/`). For the generated system (`ipl`, `custom`,
+`serve`) it also tails the master-console hardcopy `mvslog.txt` (the 1403 at 015) into the same lines: once JES2 starts the
+integrated console stops echoing to Hercules' stdout, and on 2026-11-21 the IPL waited 900 s for `$HASP436` / `$HASP099` that only
+reached the hardcopy. The previous run's hardcopy is kept as `mvslog.prev.txt`. `mvs38j.sh sysgen starter`
 is verified (2026-11-14): for each volume it IPLs the stand-alone DASDI from the starter tape (tape 280 for START1, 281 for
 SPOOL0), waits for PSW `...FFFF`, sends `/`, answers the `IBC105A DEFINE INPUT DEVICE` prompt with `/input=1442,00c`, waits for
 PSW `...1111`, then does the same with DUMP/RESTORE (`/input=1442,00d`, done at PSW `...EEEE`). Both volumes then carry their
@@ -288,17 +291,19 @@ A5: 3.8J has the VSAM-catalog form), and the model DSCB after a base-name delete
 
 ## Probe run (#8414): JOB RESTART= (deferred step restart)
 
-`probe.py restart --printer FILE` runs the eleven `tests/equivalence/jcl/restart` scenarios of the jobs 3.8J can express: `RSTJOB1` (`RESTART=S3`),
+`probe.py restart --printer FILE` runs the seventeen `tests/equivalence/jcl/restart` scenarios of the jobs 3.8J can express: `RSTJOB1` (`RESTART=S3`),
 `RSTJOB2` (`RESTART=*`), `RSTJOB3` (`RESTART=CALL1.P2`, a procedure step), `RSTJOB6` / `RSTJOB7` (COND naming a skipped step, a mixed COND) and
-`RSTJOB8` (`COND=ONLY` on the restart step). Every `PGM=` becomes IDCAMS with `SET MAXCC=n` from `given`; a procedure's steps run `SYSIN DD DUMMY`
+`RSTJOB8` (`COND=ONLY` on the restart step) and `RSTJOB13` to `16` (#8835: a COND override on the procedure call, `COND.K2=` and a bare
+`COND=` on the EXEC of the procedure, with the restart step inside it). Every `PGM=` becomes IDCAMS with `SET MAXCC=n` from `given`; a procedure's steps run `SYSIN DD DUMMY`
 and the call overrides each `procstep.SYSIN`. The JOB card keeps `RESTART=` and every COND stays as written. The log gives each step one of
 `skipped` (no step record: the box did not start it and did not bypass it), `run` (`IEF142I`) or `bypass` (`IEF202I`).
 `tests/equivalence/jcl/restart/mvs38j_probe.json` holds `expect` (IBM text), `engine` (`jcl_restart.restart_flow`) and `box`.
-Run 2026-11-21: **11 of 11 agree three ways**, `unparsed_ief` 0, no JCL error. Notably the box ignores a `COND` stepname that names a skipped
+Run 2026-11-21: **11 of 11 agree three ways**; rerun 2026-11-22 with `RSTJOB13` to `16`: **17 of 17 agree three ways**, `unparsed_ief` 0, no JCL error. Notably the box ignores a `COND` stepname that names a skipped
 step (`RSTJOB6` Z3 runs) and a bare `COND=(0,NE)` reads only the steps that ran (assumption A1 on its outcome: S5 runs). Internal only (Q16).
 
 Skipped, with the reason in the file: the checkpoint restarts (`RSTJOB4`, `11`, `12`: a SYSCHK dataset from a checkpointed run is needed) and the
-IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. `RSTJOB13` to `16` (the COND-override-on-a-procedure-call scenarios of #8835, added after this run) are skipped until the probe is rerun on the box. Not observed: what a program does (every step is IDCAMS).
+IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. A JOB card longer than column 71 is folded after a comma onto a `//` continuation card (`fold_card`:
+unfolded, `RSTJOB13`'s `RESTART=CALL3.K2` read as `RESTART=CALL`, IEF618I / IEF621I). Not observed: what a program does (every step is IDCAMS).
 
 ## Probe run (#8414): IEBGENER / IEBCOPY / IEFBR14
 

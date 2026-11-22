@@ -817,6 +817,25 @@ def main_gdg(args):
     return 0 if all(r["verdict"] == "agree" for r in results) else 1
 
 
+def fold_card(card, width=71):
+    """`card` as JCL cards of at most `width` columns: an over-long statement is broken after an operand's comma (outside
+    quotes) and continued on a `//` card from column 16. 2026-11-22: RSTJOB13-16's JOB card with `,MSGCLASS=A` added
+    ran past column 71 (`RESTART=CALL3.K2` read as `RESTART=CALL`: IEF618I / IEF621I, JOB NOT RUN - JCL ERROR)."""
+    out, cont = [], "//" + " " * 13
+    while len(card) > width:
+        quoted, cut = False, None
+        for i, ch in enumerate(card[:width]):
+            if ch == "'":
+                quoted = not quoted
+            elif ch == "," and not quoted:
+                cut = i
+        if cut is None or len(cont) + len(card) - cut - 1 >= len(card):
+            break  # nothing to break on: leave the card as written (the box then reports the JCL error)
+        out.append(card[: cut + 1])
+        card = cont + card[cut + 1 :]
+    return [*out, card]
+
+
 def restart_deck(lines, job, given):
     """The probe deck for one restart job: its JOB card (RESTART= kept), EXEC cards with COND as written, each program IDCAMS.
 
@@ -824,7 +843,7 @@ def restart_deck(lines, job, given):
     """
     block = _job_block(lines, job)
     head = next(ln for ln in lines if ln.split()[:2] == [f"//{job}", "JOB"])
-    out = [head.replace(",CLASS=A", ",CLASS=A,MSGCLASS=A") if ",CLASS=A" in head else head + ",MSGCLASS=A"]
+    out = fold_card(head.replace(",CLASS=A", ",CLASS=A,MSGCLASS=A") if ",CLASS=A" in head else head + ",MSGCLASS=A")
     in_proc, proc_steps, call = False, [], None
     for ln in block:
         f = ln.split()

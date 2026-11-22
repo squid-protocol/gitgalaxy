@@ -1350,19 +1350,19 @@
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0.0,
       "fortran/wrf/cleanCMake.sh": 8.123,
-      "fortran/wrf/configure_reader.py": 8.273,
+      "fortran/wrf/configure_reader.py": 8.332,
       "fortran/wrf/gen_be_wrapper.ksh": 5.132,
-      "fortran/wrf/module_configure.F": 8.075,
-      "fortran/wrf/module_domain.F": 7.764,
-      "fortran/wrf/module_initialize_real.F": 6.707,
-      "fortran/wrf/module_physics_init.F": 12.55,
-      "fortran/wrf/module_sf_noahdrv.F": 7.057,
+      "fortran/wrf/module_configure.F": 8.05,
+      "fortran/wrf/module_domain.F": 7.588,
+      "fortran/wrf/module_initialize_real.F": 7.314,
+      "fortran/wrf/module_physics_init.F": 12.552,
+      "fortran/wrf/module_sf_noahdrv.F": 7.058,
       "fortran/wrf/regtest.csh": 17.979,
       "fortran/wrf/regtest_hwrf.csh": 19.18,
       "fortran/wrf/regtest_nmmnest.csh": 19.007,
       "fortran/wrf/run_convert_e2c.ksh": 4.946,
       "fortran/wrf/sourcetree.py": 8.026,
-      "fortran/wrf/wrf_timeseries.F": 23.266
+      "fortran/wrf/wrf_timeseries.F": 23.267
     },
     "go": {
       "go/SOURCES.md": 0.0
@@ -3097,10 +3097,10 @@
       "python/numpy/_linalg.py": 7.925,
       "python/numpy/cfuncs.py": 10.123,
       "python/numpy/core.py": 8.036,
-      "python/numpy/crackfortran.py": 9.521,
+      "python/numpy/crackfortran.py": 9.585,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 11.48,
-      "python/numpy/genapi.py": 6.284,
+      "python/numpy/genapi.py": 6.296,
       "python/numpy/generate_numpy_api.py": 7.695,
       "python/numpy/generate_ufunc_api.py": 6.944,
       "python/numpy/generate_umath.py": 6.04,
@@ -3139,7 +3139,7 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 6.469,
-      "python/twisted/http.py": 6.98,
+      "python/twisted/http.py": 6.981,
       "python/twisted/reflect.py": 7.485,
       "python/twisted/transport.py": 6.488
     },

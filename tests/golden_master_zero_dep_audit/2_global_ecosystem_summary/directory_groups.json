@@ -1813,11 +1813,11 @@
       "avg_exposures": {
         "api_exposure": 13.62,
         "churn": 0.0,
-        "cognitive_load": 44.31,
+        "cognitive_load": 44.24,
         "concurrency": 3.06,
         "dead_code": 7.98,
         "documentation": 76.91,
-        "safety_score": 72.78,
+        "safety_score": 72.75,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
@@ -1826,7 +1826,7 @@
         "verification": 59.15
       },
       "file_count": 15,
-      "total_mass": 51506.92
+      "total_mass": 50685.52
     },
     "go": {
       "avg_exposures": {

@@ -119,6 +119,24 @@ def test_arguments_are_counted():
     assert fns["run"] == 1
 
 
+def test_arguments_span_lines_8924():
+    src = (
+        "function f_multi(\n    a,\n    b,\n)\n    return a + b\nend\n"
+        "function f_one(a, b)\n    return a + b\nend\n"
+        "function g(\n    a::Int = 1,\n    b::T;\n    k = 2,\n) where {T}\n    a\nend\n"
+        "function h{T}(\n    x::T,\n)\n    x\nend\n"
+    )
+    fns = {f["name"]: f["args"] for f in _splice(src)["functions"]}
+    assert fns["f_multi"] == 2
+    assert fns["f_one"] == 2
+    one_line = {
+        f["name"]: f["args"]
+        for f in _splice("function g(a::Int = 1, b::T; k = 2) where {T}\n    a\nend\n")["functions"]
+    }
+    assert fns["g"] == one_line["g"]  # a multi-line list counts exactly as its one-line form
+    assert fns["h"] == 1
+
+
 def test_dependencies_capture_the_module():
     caps = [m.group(1) for m in RULES["_dependency_capture"].finditer(SRC)]
     assert caps == ["LinearAlgebra", "Base", ".Local"]

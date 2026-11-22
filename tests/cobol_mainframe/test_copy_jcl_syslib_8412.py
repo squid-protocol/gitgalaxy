@@ -154,10 +154,25 @@ def test_the_first_jcllib_library_holding_the_proc_wins(tmp_path):
     assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYZ", "COPYA"]}
 
 
-def test_a_call_override_replaces_the_whole_concatenation(tmp_path):
+def test_a_call_override_naming_as_many_datasets_replaces_the_concatenation(tmp_path):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC)
+    dds = syslib("FAKE.OWN.COPYQ", "FAKE.OWN.COPYR", name="COB.SYSLIB")
+    write(tmp_path, "jcl/BUILD.jcl", call_job(dds))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYQ", "COPYR"]}
+
+
+def test_a_call_override_naming_more_datasets_replaces_and_extends(tmp_path):
+    write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC)
+    dds = syslib("FAKE.OWN.COPYQ", "FAKE.OWN.COPYR", "FAKE.OWN.COPYS", name="COB.SYSLIB")
+    write(tmp_path, "jcl/BUILD.jcl", call_job(dds))
+    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYQ", "COPYR", "COPYS"]}
+
+
+def test_a_call_override_naming_fewer_datasets_is_not_guessed(tmp_path):
+    # IBM overrides a concatenation DD by DD in position: the proc's second library may still follow the first
     write(tmp_path, "pl/PROCLIB1/FAKECOB.prc", PROC)
     write(tmp_path, "jcl/BUILD.jcl", call_job(syslib("FAKE.OWN.COPYQ", name="COB.SYSLIB")))
-    assert jcl_syslib_orders(str(tmp_path)) == {"MAINPG": ["COPYQ"]}
+    assert jcl_syslib_orders(str(tmp_path)) == {}
 
 
 @pytest.mark.parametrize(

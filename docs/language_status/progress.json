@@ -1,5 +1,5 @@
 {
- "commit": "03329b000",
+ "commit": "98f2c048e",
  "components": {
   "capabilities": {
    "groups": [
@@ -258,13 +258,13 @@
      "unit": "IBM-written scenarios"
     },
     {
-     "done": 51,
+     "done": 57,
      "found": "",
      "group": "Batch",
-     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 57); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 11 of 11 agree (file has 25); 177 scenarios in 12 answer files not run on the box",
+     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 57); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 17 of 17 agree (file has 25); 171 scenarios in 12 answer files not run on the box",
      "name": "JCL on MVS 3.8J (tier 2)",
      "note": "not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS",
-     "of": 53,
+     "of": 59,
      "state": "works",
      "unit": "scenarios agreeing on the box"
     },
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T17:34:52Z",
+  "as_of": "2026-11-22T17:48:15Z",
   "core": {
    "closed": 256,
    "open": 19,
@@ -1096,9 +1096,9 @@
   },
   "eta": "not converging",
   "frontier": {
-   "closed": 135,
+   "closed": 134,
    "found_last_window": 5,
-   "open": 79,
+   "open": 80,
    "total": 214
   },
   "frontier_milestone": {
@@ -1192,11 +1192,11 @@
     "total": 57
    },
    {
-    "closed": 96,
+    "closed": 95,
     "number": 14,
-    "open": 3,
+    "open": 5,
     "title": "Compiler call-graph comparison",
-    "total": 99
+    "total": 100
    },
    {
     "closed": 98,

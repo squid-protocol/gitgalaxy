@@ -65,26 +65,26 @@
       "avg_exposures": {
         "api_exposure": 0.31,
         "churn": 0.0,
-        "cognitive_load": 16.63,
+        "cognitive_load": 15.36,
         "concurrency": 6.11,
         "dead_code": 0.21,
         "documentation": 96.3,
-        "safety_score": 42.06,
+        "safety_score": 42.05,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.15,
-        "state_flux": 23.13,
-        "tech_debt": 23.86,
+        "state_flux": 23.03,
+        "tech_debt": 26.46,
         "verification": 77.04
       },
       "file_count": 27,
-      "total_mass": 7464.24
+      "total_mass": 9070.34
     },
     "ada/functional": {
       "avg_exposures": {
-        "api_exposure": 3.0,
+        "api_exposure": 3.19,
         "churn": 0.0,
-        "cognitive_load": 5.14,
+        "cognitive_load": 5.13,
         "concurrency": 0.0,
         "dead_code": 5.47,
         "documentation": 56.52,
@@ -93,11 +93,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 5.74,
-        "tech_debt": 19.25,
-        "verification": 12.46
+        "tech_debt": 32.31,
+        "verification": 12.47
       },
       "file_count": 23,
-      "total_mass": 688.5
+      "total_mass": 709.0
     },
     "agc_assembly": {
       "avg_exposures": {

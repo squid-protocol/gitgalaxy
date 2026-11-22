@@ -48,19 +48,21 @@
     "ada/alire": {
       "ada/alire/LICENSE.txt": {},
       "ada/alire/alire-conditional_trees.adb": {
-        "Compute Cores": 17,
+        "Compute Cores": 16,
+        "Generic / Templated Code": 1,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 18,
-        "Type Conversions": 2
+        "Parameter Forwarders": 17,
+        "Type Conversions": 3
       },
       "ada/alire/alire-crate_configuration.adb": {
-        "Compute Cores": 8,
+        "Compute Cores": 9,
         "Defensive Guards": 1,
+        "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
-        "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 12,
-        "Type Conversions": 1
+        "Many-Argument Workhorses": 10,
+        "Parameter Forwarders": 8,
+        "Type Conversions": 2
       },
       "ada/alire/alire-dependencies-states.ads": {
         "Annotated & Test Methods": 5,
@@ -70,52 +72,54 @@
         "Type Conversions": 1
       },
       "ada/alire/alire-directories.adb": {
-        "Compute Cores": 14,
+        "Compute Cores": 17,
         "Defensive Guards": 2,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 4,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 23,
-        "Stateful Encapsulated Methods": 1
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 15,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
       },
       "ada/alire/alire-index_on_disk-loading.adb": {
-        "Compute Cores": 6,
-        "Interface Declarations": 3,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 6
-      },
-      "ada/alire/alire-origins.adb": {
-        "Compute Cores": 17,
-        "Defensive Guards": 4,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 22,
-        "Type Conversions": 2
-      },
-      "ada/alire/alire-properties-configurations.adb": {
-        "Compute Cores": 15,
+        "Compute Cores": 5,
         "Defensive Guards": 1,
         "I/O & Config Routines": 1,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 4
+      },
+      "ada/alire/alire-origins.adb": {
+        "Compute Cores": 18,
+        "Defensive Guards": 4,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 21,
+        "Type Conversions": 1
+      },
+      "ada/alire/alire-properties-configurations.adb": {
+        "Compute Cores": 16,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 6,
+        "Parameter Forwarders": 4,
         "Type Conversions": 1
       },
       "ada/alire/alire-publish.adb": {
-        "Compute Cores": 15,
+        "Compute Cores": 19,
         "Defensive Guards": 2,
         "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 12,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 7,
         "Stateful Encapsulated Methods": 1
       },
       "ada/alire/alire-releases.adb": {
-        "Compute Cores": 16,
+        "Compute Cores": 21,
         "Defensive Guards": 1,
-        "Generic / Templated Code": 1,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 2,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 29
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 23
       },
       "ada/alire/alire-releases.ads": {
         "Compute Cores": 3,
@@ -126,15 +130,17 @@
       "ada/alire/alire-roots-editable.adb": {
         "Compute Cores": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 3,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 9
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 6
       },
       "ada/alire/alire-roots.adb": {
-        "Compute Cores": 29,
+        "Compute Cores": 22,
         "Defensive Guards": 1,
-        "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 37,
+        "I/O & Config Routines": 3,
+        "Many-Argument Workhorses": 15,
+        "Parameter Forwarders": 33,
         "Type Conversions": 1
       },
       "ada/alire/alire-roots.ads": {
@@ -143,16 +149,17 @@
         "Parameter Forwarders": 5
       },
       "ada/alire/alire-solutions-diffs.adb": {
-        "Compute Cores": 4,
+        "Compute Cores": 6,
         "I/O & Config Routines": 6,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 7
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 5
       },
       "ada/alire/alire-solutions.adb": {
-        "Compute Cores": 18,
+        "Compute Cores": 28,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 47
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 36
       },
       "ada/alire/alire-solutions.ads": {
         "Compute Cores": 1,
@@ -160,62 +167,64 @@
         "Parameter Forwarders": 6
       },
       "ada/alire/alire-solver.adb": {
-        "Compute Cores": 12,
-        "Generic / Templated Code": 1,
-        "I/O & Config Routines": 16,
-        "Interface Declarations": 11,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 10
+        "Compute Cores": 8,
+        "I/O & Config Routines": 21,
+        "Interface Declarations": 8,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 9,
+        "State Mutators": 1
       },
       "ada/alire/alire-test-runner.adb": {
-        "Compute Cores": 9,
+        "Compute Cores": 11,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 3,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 15,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 10,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 1
       },
       "ada/alire/alire-toml_index.adb": {
         "Compute Cores": 5,
         "Defensive Guards": 1,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 4,
-        "Stateful Encapsulated Methods": 1
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 3
       },
       "ada/alire/alire-toolchains.adb": {
-        "Compute Cores": 10,
+        "Compute Cores": 12,
+        "Defensive Guards": 1,
         "I/O & Config Routines": 2,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 8
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 6
       },
       "ada/alire/alire-user_pins.adb": {
-        "Compute Cores": 8,
-        "I/O & Config Routines": 3,
-        "Parameter Forwarders": 9
+        "Compute Cores": 7,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 5,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 6
       },
       "ada/alire/alire-vcss-git.adb": {
-        "Compute Cores": 7,
+        "Compute Cores": 10,
         "Defensive Guards": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 13,
+        "Parameter Forwarders": 11,
         "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 2
+        "Type Conversions": 1
       },
       "ada/alire/alr-commands-init.adb": {
-        "Compute Cores": 8,
+        "Compute Cores": 7,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 4,
-        "Many-Argument Workhorses": 1,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 5,
+        "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 2
       },
       "ada/alire/alr-commands-self_update.adb": {
         "Compute Cores": 7,
-        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 1
       },
@@ -225,13 +234,12 @@
         "Parameter Forwarders": 2
       },
       "ada/alire/alr-commands.adb": {
-        "Compute Cores": 4,
+        "Compute Cores": 5,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 6,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 8,
-        "Type Conversions": 1
+        "Parameter Forwarders": 7
       }
     },
     "ada/functional": {
@@ -241,9 +249,9 @@
       },
       "ada/functional/functional-either.ads": {},
       "ada/functional/functional-option.adb": {
-        "Compute Cores": 14,
+        "Compute Cores": 11,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 7
+        "Parameter Forwarders": 10
       },
       "ada/functional/functional-option.ads": {},
       "ada/functional/functional-result.adb": {
@@ -294,8 +302,8 @@
       "ada/functional/test_framework.ads": {},
       "ada/functional/test_try_map_to_result.adb": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 14,
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 7,
         "Parameter Forwarders": 7
       }
     },

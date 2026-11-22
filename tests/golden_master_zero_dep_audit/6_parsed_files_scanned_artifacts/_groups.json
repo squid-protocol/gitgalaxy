@@ -89,25 +89,25 @@
     "ada/alire": {
       "Average Risk Exposures": {
         "API Exposure": "0.31%",
-        "Cognitive Load Exposure": "16.63%",
+        "Cognitive Load Exposure": "15.36%",
         "Commented Logic Exposure": "0.21%",
         "Concurrency Exposure": "6.11%",
         "Documentation Exposure": "96.3%",
-        "Error & Exception Exposure": "42.06%",
+        "Error & Exception Exposure": "42.05%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.15%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "23.13%",
-        "Tech Debt Exposure": "23.86%",
+        "State Flux Exposure": "23.03%",
+        "Tech Debt Exposure": "26.46%",
         "Testing Exposure": "77.04%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 7464.24,
+      "Directory Group Magnitude": 9070.34,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "3.7%",
-        "file_cluster_15": "55.6%",
-        "file_cluster_4": "29.6%",
-        "file_cluster_6": "7.4%",
+        "file_cluster_15": "33.3%",
+        "file_cluster_4": "48.1%",
+        "file_cluster_6": "11.1%",
         "file_cluster_8": "3.7%"
       },
       "File Count": 27,
@@ -143,8 +143,8 @@
     },
     "ada/functional": {
       "Average Risk Exposures": {
-        "API Exposure": "3.0%",
-        "Cognitive Load Exposure": "5.14%",
+        "API Exposure": "3.19%",
+        "Cognitive Load Exposure": "5.13%",
         "Commented Logic Exposure": "5.47%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "56.52%",
@@ -153,11 +153,11 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "5.74%",
-        "Tech Debt Exposure": "19.25%",
-        "Testing Exposure": "12.46%",
+        "Tech Debt Exposure": "32.31%",
+        "Testing Exposure": "12.47%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 688.5,
+      "Directory Group Magnitude": 709.0,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "39.1%",
         "file_cluster_11": "13.0%",

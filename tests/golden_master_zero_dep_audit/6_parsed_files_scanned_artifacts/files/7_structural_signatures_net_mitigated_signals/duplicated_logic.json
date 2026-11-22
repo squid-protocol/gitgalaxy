@@ -69,7 +69,7 @@
       "ada/functional/functional_tests_config.ads": 0,
       "ada/functional/test_framework.adb": 0,
       "ada/functional/test_framework.ads": 0,
-      "ada/functional/test_try_map_to_result.adb": 2
+      "ada/functional/test_try_map_to_result.adb": 0
     },
     "agc_assembly": {
       "agc_assembly/SOURCES.md": 0

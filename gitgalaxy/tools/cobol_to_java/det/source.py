@@ -46,6 +46,8 @@ from gitgalaxy.core.cobol_source_format import (
 from gitgalaxy.core.compiler_options import cards, compiler_options
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.det import hlasm
+from gitgalaxy.tools.cobol_to_java.det import replace as REPLACE
+from gitgalaxy.tools.cobol_to_java.det.replace import ReplaceStatementRefused
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
 # (.dcl: a DCLGEN member; #8412: the four after it are claimed by no language, aperture admits them and the body decides)
@@ -347,13 +349,6 @@ def _headers(code: str) -> str:
     return _PROGRAM_ID_NO_PERIOD.sub(lambda m: m.group(1) + ".", code, count=1)
 
 
-_REPLACE_STATEMENT = re.compile(r"\s*REPLACE(?:\s+(?:OFF|==)|\s*$)", re.I)
-
-
-class ReplaceStatementRefused(ValueError):
-    """#8412: a REPLACE statement (`REPLACE ==A== BY ==B==.` / `REPLACE OFF.`), which this reader does not apply."""
-
-
 class TabInSequenceAreaRefused(ValueError):
     """#8412: a tab in columns 1-7 with program text after it inside those columns (`\\t\\t   05 ITEM`): columns 1-7 are
     cut as the sequence area and indicator, so the text would be lost or misread. A tab followed only by blanks (CardDemo's
@@ -399,7 +394,7 @@ def _lost_text(line: str) -> str:
     return tail
 
 
-def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]:
+def logical_lines(raw: list[str], file: str, member: bool = False, keep_replace: bool = False) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
     #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
@@ -471,8 +466,8 @@ def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]
             row.lost_joined = len(line) > 72 and line[71] != " " and line[72] != " "
         out.append(row)
     cond.finish(Path(file).name)
-    for ln in out:  # #8412: the REPLACE statement (not COPY ... REPLACING) is not applied by this reader
-        if _REPLACE_STATEMENT.match(ln.text):
+    for ln in out if not keep_replace else ():  # #8412: only program_lines applies a REPLACE statement (det/replace.py)
+        if REPLACE.is_statement(ln.text):
             raise ReplaceStatementRefused(
                 f"{Path(ln.file).name}:{ln.line}: the REPLACE statement is not read (it rewrites the text that "
                 "follows it; refused by name rather than translated unreplaced)"
@@ -821,7 +816,7 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     if not unmasked("cics-macro-level"):
         raw = assembler_lowered(raw, str(program))
     check_cobol(raw, str(program))
-    own = logical_lines(raw, str(program))
+    own = logical_lines(raw, str(program), keep_replace=True)
     # #5121: named before COPY expansion, so a macro-level program's missing DFHCSADS / DFHTCADS is not `missing copybook`
     why = None if unmasked("cics-macro-level") else assembler_refusal(raw, str(program)) or macro_level(own)
     if why:
@@ -830,7 +825,7 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
     if engine is not None:
         engine.check_all_expanded(names)
-    return out
+    return REPLACE.apply(out)  # #8412: the REPLACE statement, after COPY ... REPLACING, as IBM orders them
 
 
 def assembler_refusal(raw: list[str], file: str) -> str | None:

@@ -102,12 +102,30 @@ DEFECTS = (
 )
 
 
-CLEAN = Defect(
-    "clean",
-    "docs/canary_probe_clean.md",
-    "# Canary probe (clean)\n\nA control PR with nothing wrong in it: no gate may go red.\n",
-    (),
-    "a clean doc: every gate must stay green",
+# The clean control: one valid twin per defect area, so the plan jobs run the same gates the defect PR reaches (a
+# docs-only PR makes the code gates skip, and a skipped gate cannot false-alarm).
+CLEAN_SET = (
+    Defect(
+        "clean-code",
+        "gitgalaxy/canary_probe_clean.py",
+        '"""Canary probe: a clean module (typed, formatted, nothing unused)."""\n\n\ndef probe() -> int:\n    return 1\n',
+        (),
+        "a clean typed module: lint, format and mypy-audit must stay green",
+    ),
+    Defect(
+        "clean-test",
+        "tests/tools/test_canary_probe_clean.py",
+        '"""Canary probe: a test that passes."""\n\n\ndef test_the_clean_probe():\n    assert 1 == 1\n',
+        (),
+        "a passing test: the suite must stay green",
+    ),
+    Defect(
+        "clean-doc",
+        "docs/canary_probe_clean.md",
+        "# Canary probe (clean)\n\nSee [the CI page](ci.md). A control PR with nothing wrong in it: no gate may go red.\n",
+        (),
+        "a clean doc with a live link: every gate must stay green",
+    ),
 )
 
 
@@ -137,7 +155,7 @@ def problems(defects: tuple[Defect, ...] = DEFECTS, *, clean: bool = False) -> l
 def plan(defects: tuple[Defect, ...] = DEFECTS) -> dict:
     """The detection matrix to expect: each planted file and the gates that must go red on it."""
     return {
-        "kind": "clean" if defects == (CLEAN,) else "defects",
+        "kind": "clean" if defects == CLEAN_SET else "defects",
         "defects": [{"key": d.key, "path": d.path, "what": d.what, "red": list(d.red)} for d in defects],
         "must_go_red": sorted({g for d in defects for g in d.red}),
     }
@@ -174,7 +192,7 @@ def open_pr(branch: str, *, root: Path = REPO, dry_run: bool = False, clean: boo
     if not branch.startswith(BRANCH_PREFIX):
         print(f"refusing: {branch!r} is not a {BRANCH_PREFIX} branch", file=sys.stderr)
         return 2
-    defects = (CLEAN,) if clean else DEFECTS
+    defects = CLEAN_SET if clean else DEFECTS
     bad = problems(defects, clean=clean)
     if bad:
         print("\n".join(bad), file=sys.stderr)
@@ -243,6 +261,7 @@ def evaluate(expect: dict, runs: list[dict], *, age: timedelta) -> dict:
         "rows": rows,
         "misses": [r["gate"] for r in rows if r["verdict"] == "MISS"],
         "false_alarms": false_alarms,
+        "checks_run": len({r["name"] for r in runs if r.get("conclusion") not in (None, "skipped")}),
         "settled": not pending or age >= MAX_AGE,
     }
 
@@ -258,7 +277,10 @@ def render(result: dict) -> str:
         ]
     if result["kind"] == "clean":
         fa = ", ".join(result["false_alarms"]) or "none"
-        lines += ["", f"Clean control. False alarms (red checks): {fa}."]
+        lines += [
+            "",
+            f"Clean control. False alarms (red checks): {fa}. Checks that ran: {result.get('checks_run', 0)}.",
+        ]
     return "\n".join(lines) + "\n"
 
 
@@ -277,8 +299,23 @@ def _runs(sha: str) -> list[dict]:
     return [json.loads(line) for line in out.splitlines() if line.strip()]
 
 
-def _issue(title: str, body: str) -> None:
-    _gh("issue", "create", "--title", title, "--label", "priority: high", "--body", body)
+def _issue(title: str, body: str) -> bool:
+    """Raise a `priority: high` issue, or comment on the open one with the same title (a blind gate is one issue, not one a week).
+
+    Returns False when neither could be done: the caller leaves the canary PR open so the next run tries again.
+    """
+    found = _gh("issue", "list", "--state", "open", "--label", "priority: high", "--search", f'"{title}" in:title',
+                "--json", "number,title", check=False)  # fmt: skip
+    try:
+        same = [i["number"] for i in json.loads(found.stdout or "[]") if i.get("title") == title]
+    except (ValueError, TypeError, KeyError):
+        same = []
+    if same:
+        return _gh("issue", "comment", str(same[0]), "--body", body, check=False).returncode == 0
+    return (
+        _gh("issue", "create", "--title", title, "--label", "priority: high", "--body", body, check=False).returncode
+        == 0
+    )
 
 
 def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> str:
@@ -292,7 +329,13 @@ def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> s
         n = str(pr["number"])
         if dry_run:
             return "dry-run"
-        _gh("pr", "comment", n, "--body", "Canary control PR with no `canary-expect` marker: cannot be judged. Closed. #7155")
+        _gh(
+            "pr",
+            "comment",
+            n,
+            "--body",
+            "Canary control PR with no `canary-expect` marker: cannot be judged. Closed. #7155",
+        )
         return _close(n, branch)
     created = datetime.fromisoformat(pr["createdAt"].replace("Z", "+00:00"))
     result = evaluate(expect, _runs(pr["headRefOid"]), age=(now or datetime.now(UTC)) - created)
@@ -304,13 +347,23 @@ def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> s
     n = str(pr["number"])
     text = render(result)
     _gh("pr", "comment", n, "--body", text)
-    if result["misses"]:
-        _issue(f"Canary miss: gate(s) stayed green on a planted defect (PR #{n})",
-               f"The weekly control PR #{n} planted a defect each of these gates should have failed, and none did: "
-               f"{', '.join(result['misses'])}. The gate is blind, not the code. #7155\n\n{text}")  # fmt: skip
+    raised = [
+        _issue(
+            f"Canary miss: gate {gate} stayed green on a planted defect",
+            f"The control PR #{n} planted a defect the `{gate}` gate should have failed, and it did not. "
+            f"The gate is blind, not the code. #7155\n\n{text}",
+        )  # fmt: skip
+        for gate in result["misses"]
+    ]
     if result["false_alarms"]:
-        _issue(f"Canary false alarm: the clean control PR #{n} went red",
-               f"A PR with nothing wrong in it failed: {', '.join(result['false_alarms'])}. #7155\n\n{text}")  # fmt: skip
+        raised.append(
+            _issue(
+                f"Canary false alarm: the clean control PR #{n} went red",
+                f"A PR with nothing wrong in it failed: {', '.join(result['false_alarms'])}. #7155\n\n{text}",
+            )  # fmt: skip
+        )
+    if not all(raised):
+        return "issue-failed"  # the PR stays open: the next run settles it again
     return _close(n, branch)
 
 
@@ -355,7 +408,7 @@ def results(*, dry_run: bool = False) -> int:
     # A PR still pending keeps its branch: its head is in `prs`, so only a branch with no open PR is an orphan.
     outcomes += sweep_orphans({pr["headRefName"] for pr in prs}, dry_run=dry_run)
     print(json.dumps(outcomes))
-    return 1 if {"close-failed", "orphan-delete-failed"} & set(outcomes) else 0
+    return 1 if {"close-failed", "orphan-delete-failed", "issue-failed"} & set(outcomes) else 0
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -1,7 +1,10 @@
 """#7155 part 2: the canary catalog is safe and names real gates, and the opener refuses anything but a canary/ branch."""
 
+import ast
 import json
 import re
+import shutil
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -100,8 +103,8 @@ HOUR = cc.timedelta(hours=1)
 
 def test_every_red_gate_has_a_check_and_the_clean_pr_expects_nothing():
     assert {g for d in cc.DEFECTS for g in d.red} <= set(cc.CHECK_OF)
-    assert cc.problems((cc.CLEAN,), clean=True) == []
-    assert cc.plan((cc.CLEAN,))["kind"] == "clean" and cc.plan((cc.CLEAN,))["must_go_red"] == []
+    assert cc.problems(cc.CLEAN_SET, clean=True) == []
+    assert cc.plan(cc.CLEAN_SET)["kind"] == "clean" and cc.plan(cc.CLEAN_SET)["must_go_red"] == []
 
 
 def test_a_gate_that_went_red_is_red_with_its_seconds():
@@ -240,6 +243,72 @@ def test_settle_comments_raises_the_miss_issue_then_closes_and_deletes(monkeypat
     assert not any("merge" in c or "edit" in c for c in calls)
 
 
+def _pr(body):
+    return {
+        "number": 9,
+        "headRefName": "canary/x",
+        "headRefOid": "abc",
+        "createdAt": "2020-01-01T00:00:00Z",
+        "body": body,
+    }
+
+
+def test_every_gate_that_stays_green_gets_its_own_priority_high_issue(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cc, "_gh", _fake_gh(calls, []))
+    assert cc.settle(_pr(cc.pr_body())) == "closed"
+    titles = [c[3] for c in calls if c[:2] == ("issue", "create")]
+    gates = [g for d in cc.DEFECTS for g in d.red]
+    assert len(titles) == len(gates) > 0
+    assert all(any(f" {g} " in t for t in titles) for g in gates)
+    assert all("priority: high" in c for c in calls if c[:2] == ("issue", "create"))
+
+
+def test_a_blind_gate_with_an_open_issue_gets_a_comment_not_a_duplicate(monkeypatch):
+    calls = []
+    base = _fake_gh(calls, [])
+
+    def gh(*args, check=True):
+        r = base(*args, check=check)
+        if args[:2] == ("issue", "list"):
+            r.stdout = json.dumps(
+                [{"number": 5, "title": "Canary miss: gate mypy-audit stayed green on a planted defect"}]
+            )
+        return r
+
+    monkeypatch.setattr(cc, "_gh", gh)
+    assert cc.settle(_pr(cc.pr_body((cc.DEFECTS[2],)))) == "closed"
+    assert any(c[:3] == ("issue", "comment", "5") for c in calls)
+    assert not any(c[:2] == ("issue", "create") for c in calls)
+
+
+def test_an_issue_that_cannot_be_raised_leaves_the_pr_open_and_exits_nonzero(monkeypatch):
+    calls = []
+    base = _fake_gh(calls, [])
+
+    def gh(*args, check=True):
+        r = base(*args, check=check)
+        if args[:2] == ("issue", "create"):
+            r.returncode = 1
+        if args[:2] == ("pr", "list"):
+            r.stdout = json.dumps([_pr(cc.pr_body((cc.DEFECTS[2],)))])
+        if args[:3] == ("api", "--paginate", "repos/{owner}/{repo}/git/matching-refs/heads/canary/"):
+            r.stdout = ""
+        return r
+
+    monkeypatch.setattr(cc, "_gh", gh)
+    assert cc.settle(_pr(cc.pr_body((cc.DEFECTS[2],)))) == "issue-failed"
+    assert not any(c[:2] == ("pr", "close") for c in calls)
+    assert cc.results() == 1
+
+
+def test_a_gate_that_went_red_raises_no_issue(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cc, "_gh", _fake_gh(calls, [_run("mypy-audit", "failure")]))
+    assert cc.settle(_pr(cc.pr_body((cc.DEFECTS[2],)))) == "closed"
+    assert not any(c[:2] == ("issue", "create") for c in calls)
+
+
 def test_a_close_that_fails_raises_an_issue_and_a_nonzero_exit(monkeypatch):
     calls = []
     monkeypatch.setattr(cc, "_gh", _fake_gh(calls, [_run("mypy-audit", "failure")], close_rc=1))
@@ -262,3 +331,37 @@ def test_the_tool_and_workflow_never_merge_or_label():
     doc = yaml.safe_load(text)
     assert set(doc["jobs"]) == {"open", "results"}
     assert doc["permissions"] == {"contents": "read"}
+
+
+def _area(path: str) -> tuple[str, str]:
+    p = Path(path)
+    return p.parts[0] if p.parts[0] != "tests" else "/".join(p.parts[:2]), p.suffix
+
+
+def test_the_clean_set_reaches_every_area_a_defect_reaches():
+    assert {_area(d.path) for d in cc.DEFECTS} <= {_area(d.path) for d in cc.CLEAN_SET}
+    assert all(d.red == () for d in cc.CLEAN_SET)
+
+
+def test_the_clean_twins_are_valid_python_and_a_live_link(tmp_path):
+    for d in cc.CLEAN_SET:
+        if d.path.endswith(".py"):
+            ast.parse(d.content)
+        else:
+            (link,) = re.findall(r"\]\(([^)]+)\)", d.content)
+            assert (cc.REPO / Path(d.path).parent / link).exists(), link
+    ruff = shutil.which("ruff")
+    if ruff:
+        for d in cc.CLEAN_SET:
+            if d.path.endswith(".py"):
+                f = tmp_path / Path(d.path).name
+                f.write_text(d.content, encoding="utf-8", newline="\n")
+                for args in (["format", "--check"], ["check", "--isolated", "--select", "F"]):
+                    r = subprocess.run([ruff, *args, str(f)], capture_output=True, text=True)
+                    assert r.returncode == 0, (d.path, args, r.stdout)
+
+
+def test_the_clean_pr_reports_how_many_checks_ran():
+    runs = [_run("ruff-audit"), _run("full-suite part 1/4"), _run("det", "skipped")]
+    r = cc.evaluate({"kind": "clean", "must_go_red": []}, runs, age=5 * HOUR)
+    assert r["checks_run"] == 2 and "Checks that ran: 2" in cc.render(r)

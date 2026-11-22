@@ -354,6 +354,12 @@ class ReplaceStatementRefused(ValueError):
     """#8412: a REPLACE statement (`REPLACE ==A== BY ==B==.` / `REPLACE OFF.`), which this reader does not apply."""
 
 
+class TabInSequenceAreaRefused(ValueError):
+    """#8412: a tab in columns 1-7 with program text after it inside those columns (`\\t\\t   05 ITEM`): columns 1-7 are
+    cut as the sequence area and indicator, so the text would be lost or misread. A tab followed only by blanks (CardDemo's
+    CSLKPCDY.cpy value lines, proven) loses nothing and is read."""
+
+
 class SourceFormatRefused(ValueError):
     """#5648: a source-format directive this reader does not follow (`>>SOURCE FORMAT IS VARIABLE`)."""
 
@@ -431,6 +437,12 @@ def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]
             if code.strip() and not code.lstrip().startswith(">>D ") and not _LISTING.fullmatch(code):
                 out.append(Line(_headers(code), file, n))
             continue
+        head = line[:7]
+        if "\t" in head and head[head.rindex("\t") + 1 :].strip():
+            raise TabInSequenceAreaRefused(
+                f"{where}: a tab in columns 1-7 with text after it inside them is not read (the sequence area and "
+                "indicator would swallow the text; refused by name rather than translated cut)"
+            )
         if len(line) < 7:
             continue
         ind = line[6]

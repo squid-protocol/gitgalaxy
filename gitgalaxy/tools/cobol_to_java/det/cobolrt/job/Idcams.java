@@ -277,6 +277,7 @@ public final class Idcams {
     }
 
     /** Each command of {@code sysin}, comments dropped and continuation lines joined (det/idcams.py _commands). */
+    // [rule RT-IDC-COMMAND-STREAM]
     static List<String> commands(String sysin) {
         String text = COMMENT.matcher(sysin).replaceAll(" ");
         if (text.contains("/*") || text.contains("*/")) {
@@ -540,6 +541,7 @@ public final class Idcams {
             log.add(note + ": condition code " + cc);
         }
 
+        // [rule RT-IDC-RUN]
         void run(List<Stmt> stmts) {
             for (Stmt s : stmts) {
                 if (s instanceof SetMax m) {
@@ -572,6 +574,7 @@ public final class Idcams {
                 || n.equals("NOERASE");
         }
 
+        // [rule RT-IDC-DELETE]
         void delete(List<Op> ops) {
             if (ops.isEmpty() || ops.get(0).args != null || plainDeleteWord(ops.get(0).name)) {
                 throw new Refused("the IDCAMS DELETE without one entry name (an entry list is not modelled)");
@@ -656,6 +659,7 @@ public final class Idcams {
             }
         }
 
+        // [rule RT-IDC-DEFINE]
         void define(List<Op> ops) {
             String kind = ops.isEmpty() ? "" : (ops.get(0).name.equals("AIX") ? "ALTERNATEINDEX" : ops.get(0).name);
             if (!VALUED.containsKey(kind)) {
@@ -781,6 +785,7 @@ public final class Idcams {
             end(0, "DEFINE PATH " + name);
         }
 
+        // [rule RT-IDC-BLDINDEX]
         void bldindex(List<Op> ops) {
             Map<String, String> ends = new HashMap<>();
             for (Op op : ops) {
@@ -890,6 +895,7 @@ public final class Idcams {
             return s;
         }
 
+        // [rule RT-IDC-REPRO]
         @SuppressWarnings("unchecked")
         void repro(List<Op> ops) {
             Map<String, String[]> ends = new HashMap<>();

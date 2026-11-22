@@ -55,6 +55,10 @@
   },
   "mq-dev": {
    "title": "IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)"
+  },
+  "idcams": {
+   "title": "IBM z/OS DFSMS Access Method Services Commands",
+   "number": "SC23-6846-60"
   }
  },
  "options": {
@@ -539,6 +543,35 @@
     "put",
     "pointerValue",
     "setPointer"
+   ]
+  },
+  {
+   "id": "IDC",
+   "prefix": "IDC",
+   "title": "IDCAMS step (job harness)",
+   "files": [
+    "job/Idcams.java"
+   ],
+   "done": true,
+   "about": "The IDCAMS step (REPRO, DELETE, DEFINE CLUSTER/AIX/PATH, BLDINDEX, SET MAXCC, IF) as a second implementation of det/idcams_model.py, checked against the model by tests/cobol_mainframe/test_idcams_java_8881.py (SC23-6846-60). Not wired into the job harness yet (#8880 item 3), so no rules are catalogued (#8881).",
+   "plumbing": [
+    "copy",
+    "key",
+    "up",
+    "upAll",
+    "toks",
+    "num",
+    "head",
+    "slice",
+    "hex",
+    "cmpKey",
+    "end",
+    "entry",
+    "pair",
+    "hexRecords",
+    "hexRecordsOut",
+    "main",
+    "describe"
    ]
   }
  ],
@@ -4769,6 +4802,131 @@
     "C9"
    ],
    "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-IDC-COMMAND-STREAM",
+   "family": "IDC",
+   "title": "A SYSIN deck read as commands (continuation, comments, SET MAXCC, IF/THEN/ELSE condition codes); a verb or operand the step does not model is refused by name",
+   "methods": [
+    "commands",
+    "ops",
+    "parseOne",
+    "parseBody",
+    "parseIf",
+    "parse"
+   ],
+   "ibm": {
+    "doc": "idcams",
+    "section": "Modal commands; Command syntax"
+   },
+   "options": [],
+   "register": [
+    "F6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-IDC-RUN",
+   "family": "IDC",
+   "title": "The command sequence run against the catalog: condition codes, the log, and IF tests of the last or maximum code",
+   "methods": [
+    "run"
+   ],
+   "ibm": {
+    "doc": "idcams",
+    "section": "IF-THEN-ELSE command sequence"
+   },
+   "options": [],
+   "register": [
+    "F6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-IDC-DELETE",
+   "family": "IDC",
+   "title": "DELETE of a cluster, alternate index or path: a base takes its alternate indexes and paths with it only with CLUSTER named, otherwise refused",
+   "methods": [
+    "delete",
+    "plainDeleteWord",
+    "hasAix",
+    "components"
+   ],
+   "ibm": {
+    "doc": "idcams",
+    "section": "DELETE"
+   },
+   "options": [],
+   "register": [
+    "F6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-IDC-DEFINE",
+   "family": "IDC",
+   "title": "DEFINE CLUSTER, ALTERNATEINDEX and PATH: the entry, its keys and its record sizes; a name already cataloged or an unmodelled attribute is refused",
+   "methods": [
+    "define",
+    "scan",
+    "componentsFree",
+    "defineAix",
+    "definePath"
+   ],
+   "ibm": {
+    "doc": "idcams",
+    "section": "DEFINE CLUSTER; DEFINE ALTERNATEINDEX; DEFINE PATH"
+   },
+   "options": [],
+   "register": [
+    "F6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-IDC-BLDINDEX",
+   "family": "IDC",
+   "title": "BLDINDEX builds an alternate index from its base: records ordered by alternate key, ties in primary-key order (checked against GnuCOBOL BDB alternate keys)",
+   "methods": [
+    "bldindex",
+    "pathRecords"
+   ],
+   "ibm": {
+    "doc": "idcams",
+    "section": "BLDINDEX"
+   },
+   "options": [],
+   "register": [
+    "F6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-IDC-REPRO",
+   "family": "IDC",
+   "title": "REPRO between sequential, ESDS, KSDS and a path: the record copy, the order of a KSDS, and a duplicate key refused",
+   "methods": [
+    "repro",
+    "endpoint",
+    "readPath",
+    "recordsOf",
+    "reclen"
+   ],
+   "ibm": {
+    "doc": "idcams",
+    "section": "REPRO"
+   },
+   "options": [],
+   "register": [
+    "F6"
+   ],
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   }
  ]

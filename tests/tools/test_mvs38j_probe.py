@@ -245,7 +245,7 @@ def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agr
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
     doc, scs = probe.restart_scenarios()
     assert [r["id"] for r in got["results"]] == [s["id"] for s in scs]
-    assert len(scs) == 11  # the 2026-11-21 box run; a scenario added later is a stated skip until a rerun
+    assert len(scs) == 17  # the 2026-11-21 box rerun (11 at #8837, six added by #8835); a scenario added later is a stated skip until a rerun
     assert set(got["skipped"]) == {s["id"] for s in doc["scenarios"]} - {s["id"] for s in scs}
     assert all(
         got["skipped"][s["id"]] == probe.RESTART_SKIP[s["job"]]
@@ -301,3 +301,19 @@ def test_the_committed_dsutil_results_cover_every_scenario_and_name_the_one_disa
     assert differ == {"iebgener-dummy-input-empty-output": "differ:box"}
     row = next(r for r in got["results"] if r["id"] in differ)
     assert row["expect"]["steps"]["S1"]["rc"] == 0 and row["box"]["steps"]["S1"]["rc"] == 12
+
+
+def test_an_over_long_job_card_is_folded_after_a_comma_within_column_71():
+    head = "//RSTJOB13 JOB (ACCT),'RESTART COND OVR',CLASS=A,MSGCLASS=A,RESTART=CALL3.K2"
+    cards = probe.fold_card(head)
+    assert len(cards) == 2 and all(len(c) <= 71 for c in cards)
+    assert cards[0].endswith(",") and cards[1].startswith("//" + " " * 13) and cards[1].strip("/ ") == "RESTART=CALL3.K2"
+    assert probe.fold_card("//SHORT    JOB (ACCT),'A,B',CLASS=A") == ["//SHORT    JOB (ACCT),'A,B',CLASS=A"]
+
+
+def test_every_restart_deck_card_fits_in_column_71():
+    doc, scs = probe.restart_scenarios()
+    assert any(sc["job"] == "RSTJOB13" for sc in scs)
+    for sc in scs:
+        for card in probe.restart_deck(doc["flow_jcl"], sc["job"], sc["given"]).splitlines():
+            assert len(card) <= 71, (sc["id"], card)

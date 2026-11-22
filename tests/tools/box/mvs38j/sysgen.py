@@ -44,8 +44,12 @@ class SysgenError(RuntimeError):
 class Hercules:
     """One Hercules process in the box image, with its log collected on a thread."""
 
-    def __init__(self, work, conf, image, name, user=None, console_port=None, publish=()):
+    def __init__(self, work, conf, image, name, user=None, console_port=None, publish=(), hardcopy=None):
         self.work, self.conf, self.image, self.name = Path(work), conf, image, name
+        # The generated system's master-console hardcopy (the 1403 at 015, `mvslog.txt`), tailed into `lines`: after JES2
+        # starts, the integrated 009 console stops echoing to Hercules' stdout (2026-11-21: `$HASP436` and `$HASP099` reached
+        # mvslog.txt only, so the IPL waited 900 s for a line it never saw). None for the stand-alone/starter stages.
+        self.hardcopy = self.work / hardcopy if hardcopy else None
         self.publish = tuple(publish)  # more loopback-only ports to publish (the card reader socket, 3505)
         self.console_port = console_port  # publish the telnet 3215 console (loopback only) when set
         self.user = user or f"{os.getuid()}:{os.getgid()}"
@@ -60,6 +64,8 @@ class Hercules:
         for port in self.publish:
             cmd[3:3] = ["-p", f"127.0.0.1:{port}:{port}"]
         cmd += ["-w", "/mvs", "--entrypoint", "hercules", self.image, "-f", self.conf, "--daemon"]
+        if self.hardcopy is not None and self.hardcopy.exists():  # never read the last run's lines as this run's
+            self.hardcopy.replace(self.hardcopy.with_name(self.hardcopy.stem + ".prev" + self.hardcopy.suffix))
         self.proc = subprocess.Popen(  # noqa: S603
             cmd,
             stdin=subprocess.PIPE,
@@ -69,6 +75,8 @@ class Hercules:
             errors="backslashreplace",
         )
         threading.Thread(target=self._pump, daemon=True).start()
+        if self.hardcopy is not None:
+            threading.Thread(target=self._tail_hardcopy, daemon=True).start()
         self.wait(r"HHC01603I|HHC00100I Thread id \S+, prio -?\d+, name 'timer_thread'", 60)
         return self
 
@@ -77,6 +85,29 @@ class Hercules:
             with self._cv:
                 self.lines.append(line.rstrip("\n"))
                 self._cv.notify_all()
+
+    def _tail_hardcopy(self):
+        """Append each complete line Hercules writes to the hardcopy file to `lines`, until the process ends."""
+        pos, part = 0, ""
+        while self.proc.poll() is None:
+            try:
+                size = self.hardcopy.stat().st_size
+            except FileNotFoundError:
+                size = 0
+            if size < pos:  # truncated or replaced: start again
+                pos, part = 0, ""
+            if size > pos:
+                with self.hardcopy.open("rb") as f:
+                    f.seek(pos)
+                    data = f.read()
+                pos += len(data)
+                part += data.decode("latin-1")
+                *done, part = part.split("\n")
+                if done:
+                    with self._cv:
+                        self.lines.extend(ln.rstrip("\r") for ln in done)
+                        self._cv.notify_all()
+            time.sleep(0.5)
 
     def send(self, command):
         self.proc.stdin.write(command + "\n")
@@ -615,6 +646,7 @@ IPL_REPLIES = (  # (message pattern, reply)
 IPL_DONE_MARKER = "ipl.done"
 CUSTOM_MARKER = "custom.done"
 IPL_READY_RE = r"\$HASP099\s+ALL AVAILABLE FUNCTIONS COMPLETE"
+HARDCOPY = "mvslog.txt"  # conf/mvs.cnf: `0015 1403 mvslog.txt  # hardcopy of master console`
 IPL_FATAL_RE = re.compile(r"IEA317A|IEA3\d\dI.*UNACCEPTABLE|IEA\d{3}W|\bWAIT STATE\b|HHC00828E")
 
 
@@ -698,7 +730,7 @@ def ipl(work, image, name, probe=None, job_timeout=90):
             raise SysgenError(f"{syscpk} missing: run `mvs38j.sh tapes` (downloads SYSCPK) first")
         shutil.copyfile(src, syscpk)
     conf = ipl_conf(work)
-    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    herc = Hercules(work, conf, image, name, publish=(3505,), hardcopy=HARDCOPY).start()
     try:
         marker = Path(work) / IPL_DONE_MARKER
         since = ipl_system(herc, warm=marker.exists())
@@ -765,7 +797,7 @@ def custom(work, image, name, job_timeout=900):
 
     (work / CUSTOM_MARKER).unlink(missing_ok=True)  # the volumes are not initialized yet: IPL without them
     conf = ipl_conf(work)
-    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    herc = Hercules(work, conf, image, name, publish=(3505,), hardcopy=HARDCOPY).start()
     con = SlashConsole(herc)
     try:
         ipl_system(herc, warm=(work / IPL_DONE_MARKER).exists())
@@ -813,7 +845,7 @@ def serve(work, image, name, ready_timeout=900):
     stop = threading.Event()
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_: stop.set())
-    herc = Hercules(work, conf, image, name, publish=(3505,)).start()
+    herc = Hercules(work, conf, image, name, publish=(3505,), hardcopy=HARDCOPY).start()
     try:
         marker = work / IPL_DONE_MARKER
         ipl_system(herc, timeout=ready_timeout, warm=marker.exists())

@@ -170,3 +170,40 @@ def test_a_gradle_compile_error_runs_once(monkeypatch):
     calls = _script(monkeypatch, [_proc(1, err="error: cannot find symbol")])
     assert maven_exe.run_gradle_retrying_resolution([MVN, "compileJava"]).returncode == 1
     assert len(calls) == 1
+
+
+# #8215: "(present, but unavailable)" is a cached artifact whose recorded origin is not the repository asked.
+def test_present_but_unavailable_drops_the_origin_files_before_the_rerun(monkeypatch, tmp_path):
+    monkeypatch.setattr(maven_exe.time, "sleep", lambda _s: None)
+    pom = tmp_path / "org" / "spring-boot-starter-parent" / "3.2.4"
+    pom.mkdir(parents=True)
+    (pom / "spring-boot-starter-parent-3.2.4.pom").write_text("<project/>", encoding="utf-8")
+    origin = pom / "_remote.repositories"
+    origin.write_text("x.pom>other=\n", encoding="utf-8")
+    seen = []
+
+    def fake(cmd, **_kwargs):
+        seen.append((list(cmd), origin.exists()))
+        return _proc(1, err=CACHED_MISS_LOG) if len(seen) == 1 else _proc(0, out="ok")
+
+    monkeypatch.setattr(maven_exe, "run_decoded", fake)
+    proc = maven_exe.run_maven_retrying_resolution([MVN, f"-Dmaven.repo.local={tmp_path}", "test"])
+    assert proc.returncode == 0
+    assert seen[0][1] is True and seen[1][1] is False
+    assert seen[1][0][1] == "-U"
+    assert (pom / "spring-boot-starter-parent-3.2.4.pom").exists()
+
+
+def test_a_compile_error_or_plain_miss_keeps_the_origin_files(monkeypatch, tmp_path):
+    monkeypatch.setattr(maven_exe.time, "sleep", lambda _s: None)
+    origin = tmp_path / "_remote.repositories"
+    origin.write_text("", encoding="utf-8")
+    _script(monkeypatch, [_proc(1, err=JCC_LOG), _proc(0)])
+    maven_exe.run_maven_retrying_resolution([MVN, f"-Dmaven.repo.local={tmp_path}", "test"])
+    assert origin.exists()
+    _script(monkeypatch, [_proc(1, err="COMPILATION ERROR present, but unavailable")])
+    assert maven_exe.forget_remote_origins(tmp_path / "missing") == 0
+
+
+def test_the_default_local_repository_is_the_users_m2():
+    assert maven_exe.local_repository([MVN, "test"]).parts[-2:] == (".m2", "repository")

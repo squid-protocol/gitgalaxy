@@ -158,7 +158,9 @@ def writer(permission: str | None) -> bool:
 
 def _gates(check: str) -> bool:
     """Whether a check's result holds the merge (#6919): not the shepherd's own jobs, not an ADVISORY check."""
-    own = check == "shepherd" or check.startswith("shepherd (")  # "shepherd (label event)", its base name, a pending one
+    own = check == "shepherd" or check.startswith(
+        "shepherd ("
+    )  # "shepherd (label event)", its base name, a pending one
     return not own and _base_name(check) not in ADVISORY
 
 
@@ -438,6 +440,23 @@ def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
     return merged == theirs and not (set(mine) & set(theirs))
 
 
+def bot_update_result(api: Api, approved: str, head: str, base_ref: str) -> bool:
+    """True when `head` is the shepherd's own update-branch merge of main into the approved head (#8136).
+
+    update-branch is asynchronous, so the shepherd's `to=` marker can name the old head (or be missing) when the merge
+    lands a moment later. The shape is then read from the commit: two parents, the approved head first, a second parent
+    already on main, and GitHub's own `web-flow` as committer (a hand-made merge has another committer)."""
+    try:
+        c = api(f"repos/{REPO_SLUG}/commits/{head}") or {}
+        parents = [x["sha"] for x in c.get("parents", [])]
+        if len(parents) != 2 or parents[0] != approved or (c.get("committer") or {}).get("login") != "web-flow":
+            return False
+        st = (api(f"repos/{REPO_SLUG}/compare/{quote(base_ref, safe='')}...{parents[1]}") or {}).get("status")
+    except (SystemExit, KeyError, TypeError):
+        return False
+    return st in ("behind", "identical")
+
+
 TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
 
 
@@ -708,6 +727,12 @@ def gather(
         if frm == approved_sha and to == sha:
             parents = [x["sha"] for x in api(f"repos/{REPO_SLUG}/commits/{sha}").get("parents", [])]
             carried = approved = len(parents) == 2 and parents[0] == approved_sha
+        elif (
+            frm == approved_sha
+            and to in ("", frm)
+            and bot_update_result(api, approved_sha, sha, (pr.get("base") or {}).get("ref") or "main")
+        ):  # #8136: the marker was written before the async update-branch landed
+            carried = approved = True
         elif frm == approved_sha and not to:
             pending = True
         else:  # someone else's plain merge of main (the web "update branch", a local `git merge`): same approval
@@ -804,6 +829,11 @@ def gather(
 
 
 # --- apply: the actions, through gh ----------------------------------------------------------------------------------
+
+
+HEAD_POLLS = 6
+HEAD_POLL_S = 2.0
+_sleep = time.sleep  # a test replaces it
 
 
 def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run) -> list[str]:
@@ -928,9 +958,14 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
             )
             new = old
             if not r.returncode:
-                g = run(["gh", "api", f"repos/{REPO_SLUG}/pulls/{n}", "-q", ".head.sha"])
-                got = (g.stdout or "").strip()
-                new = got if re.fullmatch(r"[0-9a-f]{40}", got) else old
+                for attempt in range(HEAD_POLLS):  # #8136: update-branch returns 202; the head moves a moment later
+                    if attempt:
+                        _sleep(HEAD_POLL_S)
+                    g = run(["gh", "api", f"repos/{REPO_SLUG}/pulls/{n}", "-q", ".head.sha"])
+                    got = (g.stdout or "").strip()
+                    new = got if re.fullmatch(r"[0-9a-f]{40}", got) else old
+                    if new != old:
+                        break
             run(["gh", "api", f"repos/{REPO_SLUG}/issues/{n}/comments", "-f",
                  f"body=<!-- shepherd-update from={old} to={new} -->"])  # fmt: skip
             if r.returncode:

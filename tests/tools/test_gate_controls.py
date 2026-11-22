@@ -1,8 +1,11 @@
 """#7155: every gate is listed, a named failure proof exists, and the first controls prove gates can go red."""
 
+import ast
+import functools
 import json
 import shutil
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -19,20 +22,48 @@ REPO = TOOLS.parents[1]
 WORKFLOWS = REPO / ".github" / "workflows"
 
 
-def _pr_workflows() -> set[str]:
-    out = set()
-    for path in WORKFLOWS.glob("*.yml"):
-        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-        on = doc.get(True) or doc.get("on") or {}  # YAML reads a bare `on:` key as True
-        if {"pull_request", "pull_request_target"} & set(on if isinstance(on, (dict, list)) else [on]):
-            out.add(path.name)
-    return out
+@functools.cache
+def _load(path: Path) -> dict:
+    """One parse per workflow per session: pure-Python yaml over 54 files, once per gate, cost 25 s on CI (#8963)."""
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
 
 
-def test_every_workflow_on_a_pr_is_a_listed_gate_or_says_why_not():
+def _triggers(path: Path) -> set[str]:
+    doc = _load(path)
+    on = doc.get(True) or doc.get("on") or {}  # YAML reads a bare `on:` key as True
+    return set(on if isinstance(on, (dict, list)) else [on])
+
+
+@functools.cache
+def _pr_workflows() -> frozenset[str]:
+    return frozenset(p.name for p in WORKFLOWS.glob("*.yml") if {"pull_request", "pull_request_target"} & _triggers(p))
+
+
+def test_every_workflow_is_a_listed_gate_or_says_why_not():
+    """Not only the PR ones: a nightly or release check that can fail is a gate too (#7155)."""
     listed = {g.workflow for g in gc.GATES} | set(gc.NOT_GATES)
-    assert not _pr_workflows() - listed, "add it to gate_controls.GATES, or NOT_GATES with the reason"
+    every = {p.name for p in WORKFLOWS.glob("*.yml")}
+    assert not every - listed, "add it to gate_controls.GATES, or NOT_GATES with the reason"
     assert not {w for w in listed if not (WORKFLOWS / w).exists()}, "a listed workflow is gone"
+    assert not {g.workflow for g in gc.GATES} & set(gc.NOT_GATES), "a workflow is both a gate and not one"
+
+
+def test_a_named_job_exists_and_the_trigger_matches_the_workflow():
+    for g in gc.GATES:
+        assert g.trigger in {"pr", "main", "nightly", "release"}, g.name
+        doc = _load(WORKFLOWS / g.workflow)
+        assert not g.job or g.job in doc["jobs"], f"{g.name}: job {g.job} is not in {g.workflow}"
+        if g.trigger == "pr":
+            assert g.workflow in _pr_workflows(), f"{g.name}: marked pr but {g.workflow} has no PR trigger"
+        else:
+            # an off-PR gate may share a workflow with a PR gate only through its own job
+            assert g.job or g.workflow not in _pr_workflows(), f"{g.name}: {g.workflow} runs on PRs"
+
+
+def test_a_workflow_is_parsed_once_per_session():
+    """The named-job test re-parsed every workflow per gate and broke the 15 s ratchet on CI (#8963)."""
+    first = next(WORKFLOWS.glob("*.yml"))
+    assert _load(first) is _load(first)
 
 
 def test_every_required_check_is_listed():
@@ -52,11 +83,7 @@ def test_every_named_proof_is_a_real_test():
 def test_every_gate_says_what_it_claims_to_catch():
     """A placeholder claim is a gate nobody has read: every entry names what it catches (#7155)."""
     placeholders = ("not audited", "todo", "tbd", "unknown")
-    bad = [
-        g.name
-        for g in gc.GATES
-        if len(g.claims.split()) < 3 or any(w in g.claims.lower() for w in placeholders)
-    ]
+    bad = [g.name for g in gc.GATES if len(g.claims.split()) < 3 or any(w in g.claims.lower() for w in placeholders)]
     assert not bad, f"write a real claim for: {bad}"
 
 
@@ -64,10 +91,119 @@ def test_a_notice_cannot_also_claim_a_proof():
     assert not [g.name for g in gc.GATES if g.notice and g.proof]
 
 
+def _check_unproven(n: int, limit: int) -> None:
+    """The ceiling is hard. A count below it only warns: two control PRs that each lower the limit against their own
+    base can merge back to back and leave it above the real count, and failing there turned main red (#8995)."""
+    assert n <= limit, f"{n} gates have no failure proof, the limit is {limit}: add a control"
+    if n < limit:
+        warnings.warn(f"good news: {n} unproven now, so lower MAX_UNPROVEN to {n}", stacklevel=2)
+
+
 def test_the_unproven_count_only_goes_down():
-    n = len(gc.unproven())
-    assert n <= gc.MAX_UNPROVEN, f"{n} gates have no failure proof, the limit is {gc.MAX_UNPROVEN}: add a control"
-    assert n == gc.MAX_UNPROVEN, f"good news: {n} unproven now, so lower MAX_UNPROVEN to {n}"
+    _check_unproven(len(gc.unproven()), gc.MAX_UNPROVEN)
+
+
+def test_an_unproven_count_above_the_limit_fails_and_below_it_only_warns():
+    with pytest.raises(AssertionError, match="add a control"):
+        _check_unproven(5, 4)
+    with pytest.warns(UserWarning, match="lower MAX_UNPROVEN to 3"):
+        _check_unproven(3, 4)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        _check_unproven(4, 4)
+
+
+def _is_unconditional_skip(dec: ast.expr) -> bool:
+    """`@pytest.mark.skip` / `xfail` / `skipif(True)`: a proof that never runs (a conditional skipif is fine)."""
+    node = dec.func if isinstance(dec, ast.Call) else dec
+    name = node.attr if isinstance(node, ast.Attribute) else ""
+    if name in {"skip", "xfail"}:
+        return True
+    if name == "skipif" and isinstance(dec, ast.Call) and dec.args:
+        return isinstance(dec.args[0], ast.Constant) and dec.args[0].value is True
+    return False
+
+
+def gate_fixture_problems(gates, unproven, read) -> list[str]:
+    """Every non-notice gate has a real, run-able failure test, or is named in `unproven` with a reason (#7155)."""
+    out = []
+    by_name = {g.name: g for g in gates}
+    for g in gates:
+        if g.notice:
+            continue
+        if not g.proof:
+            if g.name not in unproven:
+                out.append(f"{g.name}: no fixture and not in UNPROVEN: add a control that makes it fail")
+            continue
+        path, _, name = g.proof.partition("::")
+        try:
+            tree = ast.parse(read(path))
+        except (OSError, SyntaxError):
+            out.append(f"{g.name}: {path} cannot be read")
+            continue
+        fn = next((n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == name), None)
+        if fn is None or not name.startswith("test_"):
+            out.append(f"{g.name}: {g.proof} is not a test_* function")
+        elif any(_is_unconditional_skip(d) for d in fn.decorator_list):
+            out.append(f"{g.name}: {g.proof} is skipped unconditionally")
+        elif any(
+            isinstance(n, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == "pytestmark" for t in n.targets)
+            and "skip" in ast.dump(n.value)
+            for n in tree.body
+        ):
+            out.append(f"{g.name}: {path} skips at module level")
+    for name, why in unproven.items():
+        g = by_name.get(name)
+        if g is None or g.notice or g.proof:
+            out.append(f"UNPROVEN lists {name}, which is not a gate without a proof: drop the entry")
+        elif not why.strip():
+            out.append(f"UNPROVEN {name}: say why it has no fixture")
+    return out
+
+
+def _read(path: str) -> str:
+    return (REPO / path).read_text(encoding="utf-8")
+
+
+def test_every_gate_has_a_fixture_or_is_named_as_unproven():
+    assert not gate_fixture_problems(gc.GATES, gc.UNPROVEN, _read)
+
+
+_PROOF = "tests/p.py::test_it"
+
+
+@pytest.mark.parametrize(
+    "gate, unproven, source, expect",
+    [
+        (gc.Gate("g", "w.yml", "a claim of words"), {}, "", "no fixture and not in UNPROVEN"),
+        (gc.Gate("g", "w.yml", "a claim of words", _PROOF), {}, "def helper(): pass\n", "not a test_* function"),
+        (
+            gc.Gate("g", "w.yml", "a claim of words", _PROOF),
+            {},
+            "import pytest\n@pytest.mark.skip\ndef test_it(): pass\n",
+            "unconditionally",
+        ),
+        (
+            gc.Gate("g", "w.yml", "a claim of words", _PROOF),
+            {},
+            "import pytest\npytestmark = pytest.mark.skip\ndef test_it(): pass\n",
+            "module level",
+        ),
+        (gc.Gate("g", "w.yml", "a claim of words", _PROOF), {"g": "later"}, "def test_it(): pass\n", "drop the entry"),
+        (gc.Gate("g", "w.yml", "a claim of words"), {"g": " "}, "", "say why"),
+        (gc.Gate("g", "w.yml", "a claim of words"), {"gone": "x", "g": "later"}, "", "gone"),
+    ],
+)
+def test_the_fixture_check_itself_goes_red(gate, unproven, source, expect):
+    problems = gate_fixture_problems([gate], unproven, lambda _p: source)
+    assert any(expect in p for p in problems), problems
+
+
+def test_a_conditional_skip_and_a_proven_gate_pass():
+    src = "import pytest\n@pytest.mark.skipif(False, reason='x')\ndef test_it(): pass\n"
+    g = gc.Gate("g", "w.yml", "a claim of words", _PROOF)
+    assert gate_fixture_problems([g], {}, lambda _p: src) == []
 
 
 def _audit_at(tmp_path, monkeypatch, module, baseline=None):
@@ -109,3 +245,127 @@ def test_mypy_audit_fails_on_a_new_error(tmp_path, monkeypatch, capsys):
     assert "1 NEW type error" in capsys.readouterr().out
     _audit_at(tmp_path, monkeypatch, mypy_audit, {k: "known" for k in found})
     assert mypy_audit.run_ci_check() == 0  # the same error, baselined, passes: the ratchet, not a blanket failure
+
+
+def test_ast_accuracy_audit_fails_on_a_regression_drift_or_missing_baseline(tmp_path, monkeypatch, capsys):
+    """The negative control: the real --ci path over the committed baseline, with one metric made worse."""
+    import ast_accuracy_audit as aaa
+
+    base = json.loads(aaa.BASELINE_PATH.read_text(encoding="utf-8"))
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: dict(base))
+    assert aaa.run_ci_check() == 0  # the committed numbers pass: the gate is not a blanket failure
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: {**base, "found_functions": base["found_functions"] - 1})
+    assert aaa.run_ci_check() == 1
+    assert "found_functions" in capsys.readouterr().out
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: {**base, "real_functions": base["real_functions"] + 1})
+    assert aaa.run_ci_check() == 1  # ground truth drifted from the pinned corpus
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: dict(base))
+    monkeypatch.setattr(aaa, "BASELINE_PATH", tmp_path / "absent.json")
+    assert aaa.run_ci_check() == 1  # no baseline: fails closed
+
+
+def test_detection_accuracy_audit_fails_on_a_regression(monkeypatch, capsys):
+    import detection_accuracy_audit as daa
+
+    base = json.loads(daa.BASELINE_PATH.read_text(encoding="utf-8"))
+    monkeypatch.setattr(sys, "argv", ["detection_accuracy_audit.py", "--ci"])
+    monkeypatch.setattr(daa, "measure", lambda: dict(base))
+    assert daa.main() == 0
+    worse = {**base, "determinable_accuracy": base["determinable_accuracy"] - 0.05}
+    monkeypatch.setattr(daa, "measure", lambda: worse)
+    assert daa.main() == 1
+    assert "determinable_accuracy" in capsys.readouterr().out
+    monkeypatch.setattr(daa, "measure", lambda: {**base, "tier_5_conflicts": base["tier_5_conflicts"] + 1})
+    assert daa.main() == 1
+
+
+def test_call_graph_accuracy_audit_fails_on_a_regression(tmp_path, monkeypatch, capsys):
+    import call_graph_accuracy as cga
+
+    (tmp_path / "data").mkdir()
+    monkeypatch.setattr(cga, "CRUCIBLE", tmp_path)
+    monkeypatch.setattr(cga, "render", lambda results: "")
+    base = json.loads(cga.BASELINE.read_text(encoding="utf-8"))
+    monkeypatch.setattr(cga, "measure", lambda *a, **k: json.loads(json.dumps(base)))
+    assert cga.main(["--ci"]) == 0
+    lang = sorted(base)[0]
+    worse = json.loads(json.dumps(base))
+    worse[lang]["precision_pct"] = base[lang]["precision_pct"] - cga.TOLERANCE_PP - 1
+    monkeypatch.setattr(cga, "measure", lambda *a, **k: worse)
+    assert cga.main(["--ci"]) == 1
+    assert lang in capsys.readouterr().out
+    dropped = {k: v for k, v in base.items() if k != lang}
+    monkeypatch.setattr(cga, "measure", lambda *a, **k: dropped)
+    assert cga.main(["--ci"]) == 1  # a language that is no longer measured is a regression too
+
+
+def test_tree_sitter_accuracy_audit_fails_on_a_regression(monkeypatch, capsys):
+    pytest.importorskip("tree_sitter_language_pack")
+    import tree_sitter_accuracy_audit as tsa
+
+    base = tsa.load_baseline("python")
+    assert base, "the python baseline must be committed"
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: dict(base))
+    assert tsa.run_ci_check("python") == 0
+    worse = {**base, "found_functions": base["found_functions"] - 1}
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: worse)
+    assert tsa.run_ci_check("python") == 1
+    assert "found_functions" in capsys.readouterr().out
+    noisier = {**base, "extra_functions": base["extra_functions"] + 1}
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: noisier)
+    assert tsa.run_ci_check("python") == 1  # a lower-is-better metric rising is a regression too
+    drifted = {**base, "real_functions": base["real_functions"] + 1}
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: drifted)
+    assert tsa.run_ci_check("python") == 1  # the corpus ground truth moved
+    monkeypatch.setattr(tsa, "measure", lambda *a, **k: dict(base))
+    monkeypatch.setattr(tsa, "load_baseline", lambda lang: {})
+    assert tsa.run_ci_check("python") == 1  # no committed baseline fails closed
+
+
+def test_tri_comparison_audit_fails_on_a_regression(monkeypatch, capsys):
+    import types
+
+    import tri_comparison_chart as tcc
+
+    lang = "javascript"
+    base = tcc.load_baseline(lang)
+    assert base, "the javascript baseline must be committed"
+    data = types.SimpleNamespace(has_data=True)
+    monkeypatch.setattr(tcc, "run_pipeline", lambda langs, verbose=True: {lang: data})
+    monkeypatch.setattr(tcc, "_extract_precision", lambda d: dict(base))
+    assert tcc.run_ci_check(lang, verbose=False) == 0
+    metric = sorted(base)[0]
+    monkeypatch.setattr(tcc, "_extract_precision", lambda d: {**base, metric: base[metric] - 1.0})
+    assert tcc.run_ci_check(lang, verbose=False) == 1
+    assert metric in capsys.readouterr().out
+    monkeypatch.setattr(tcc, "_extract_precision", lambda d: dict(base))
+    monkeypatch.setattr(tcc, "load_baseline", lambda lang: {})
+    assert tcc.run_ci_check(lang, verbose=False) == 1  # no committed baseline fails closed
+
+
+def test_import_graph_accuracy_audit_fails_on_a_regression(tmp_path, monkeypatch, capsys):
+    import import_graph_accuracy as iga
+
+    monkeypatch.setattr(iga, "render", lambda results: "")
+    base = json.loads(iga.BASELINE.read_text(encoding="utf-8"))
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: json.loads(json.dumps(base)))
+    assert iga.main(["--ci"]) == 0
+    lang = next(
+        k
+        for k, v in sorted(base.items())
+        if max(v.get("imports") or 0, v.get("engine_edges") or 0) >= iga.MIN_GATED_IMPORTS
+        and v.get("precision_pct") is not None
+    )
+    worse = json.loads(json.dumps(base))
+    worse[lang]["precision_pct"] = base[lang]["precision_pct"] - iga.TOLERANCE_PP - 1
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: worse)
+    assert iga.main(["--ci"]) == 1
+    assert lang in capsys.readouterr().out
+    dropped = {k: v for k, v in base.items() if k != lang}
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: dropped)
+    assert iga.main(["--ci"]) == 1  # a language that is no longer measured is a regression too
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: {})
+    assert iga.main(["--ci"]) == 1  # measuring nothing must not pass
+    monkeypatch.setattr(iga, "measure", lambda *a, **k: json.loads(json.dumps(base)))
+    monkeypatch.setattr(iga, "BASELINE", tmp_path / "absent.json")
+    assert iga.main(["--ci"]) == 1  # no committed baseline fails closed

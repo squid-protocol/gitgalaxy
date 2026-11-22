@@ -211,6 +211,19 @@ def test_a_windows_part_that_took_its_measured_minutes_fits_its_step_timeout_857
             assert leg["step_timeout"] >= minutes + 1, leg
 
 
+def test_a_windows_step_cap_keeps_3_min_over_the_slowest_seen_part_whatever_the_cache_8701(durations):
+    # #8701 [c:35ac4f04]: the issue's confirm item asks that no Windows leg finish within 3 min of its limit. The planner
+    # side of that: the step cap stays >= 3 min over the slowest minutes seen (25:06 on windows 3.12), for the committed
+    # durations and for a wall-calibrated cache a quarter of their size (which plans the fewest parts and the floor cap).
+    for cache in (durations, {k: v / 4 for k, v in durations.items()}):
+        legs = [x for x in plan.gate_plan(cache)["matrix"] if x["os"].startswith("windows")]
+        assert {x["python-version"] for x in legs} == {"3.11", "3.12"}
+        for leg in legs:
+            seen = plan.SLOWEST_SEEN_MIN[(leg["os"], leg["python-version"])]
+            assert leg["step_timeout"] - seen >= 3, leg
+        assert min(x["step_timeout"] for x in legs if x["python-version"] == "3.12") >= 30
+
+
 def _e2e_fits(weight, n):
     return sp.shard_seconds(weight, n, plan.E2E_SETUP_S, plan.E2E_JOBS) <= plan.E2E_TARGET_S
 
@@ -297,3 +310,18 @@ def test_windows_312_is_planned_no_faster_than_windows_311_8701():
     # nightly's restored durations differ from the committed file and move the minutes by a few percent.
     speed = {(o, py): s for o, py, s in plan.LEGS}
     assert speed[("windows-latest", "3.12")] >= speed[("windows-latest", "3.11")]
+
+
+def test_a_windows_part_is_planned_to_finish_inside_the_gate_target_8701(durations):
+    # #8701 [c:ab1161f2]: 2 parts planned at 18 min measured 25:06. Every Windows leg must plan at least 3 parts
+    # (part 1 of 2 left no margin) and each part's planned minutes, setup included, must stay inside the target.
+    legs = {(x["os"], x["python-version"]): x["splits"] for x in plan.gate_plan(durations)["matrix"]}
+    mean = sum(durations.values()) / len(durations)
+    for os_name, py, speed in plan.LEGS:
+        if not os_name.startswith("windows"):
+            continue
+        n = legs[(os_name, py)]
+        assert n >= 3, (py, n)
+        weight = dict.fromkeys(durations, mean * speed)
+        # a busy durations cache can need more than the part cap: then the plan is at the cap, not under the target
+        assert n == plan.GATE_MAX_PARTS or _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S), (py, n)

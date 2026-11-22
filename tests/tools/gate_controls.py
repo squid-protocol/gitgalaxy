@@ -385,7 +385,7 @@ NOT_GATES.update(
 )
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
-MAX_UNPROVEN = 7
+MAX_UNPROVEN = 4
 
 
 def unproven() -> list[Gate]:

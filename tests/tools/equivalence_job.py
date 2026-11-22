@@ -55,6 +55,16 @@ JOBS = Path(__file__).resolve().parents[1] / "equivalence" / "jobs"
 
 CORPUS_PREFIX = "@corpus/"
 
+# The program id `det/dfsort.py` gives a lowered DFSORT step, and what IBM does when that step's fixed-length SORTOUT
+# LRECL is larger than the length OUTREC builds (#8884, register F4): the step ends, it never pads.
+DFSORT_PROGRAM = "DFSORTST"
+DFSORT_SHORT_OUTREC = (
+    " (IBM: DFSORT ends the step with ICE043A, reason code 9, 'the record format is fixed length and the output record"
+    " length is larger than the input record length or reformatted record length', example OUTREC BUILD=(1,60) with"
+    " SORTOUT LRECL=80; z/OS DFSORT Messages, Codes and Diagnosis Guide SC23-6879, ICE043A. It terminates and the JCL's"
+    " COND=(0,NE) bypasses the later steps. The manual's remedy is to pad the record with OUTREC; no pad is guessed)"
+)
+
 
 def step_names(job: dict[str, Any]) -> list[str]:
     return [s["case"] for s in job.get("steps", [])]
@@ -171,8 +181,11 @@ def _check_feed(name: str, dd: str, feed: dict[str, Any], case: dict[str, Any], 
             raise Unsupported(f"step {name}: feed {dd} is keyed {spec.get('keys')}, {src}.{feed['dd']} "
                               f"is keyed {out.get('keys')}")  # fmt: skip
     if spec["reclen"] != out["reclen"]:
+        why = ""
+        if out["reclen"] < spec["reclen"] and cases[src].get("program") == DFSORT_PROGRAM:
+            why = DFSORT_SHORT_OUTREC  # a lowered DFSORT step that writes fewer bytes than the DD's LRECL (#8884)
         raise Unsupported(f"step {name}: feed {dd} has record length {spec['reclen']}, {src}.{feed['dd']} "
-                          f"writes {out['reclen']}")  # fmt: skip
+                          f"writes {out['reclen']}{why}")  # fmt: skip
 
 
 def records_as_lines(data: bytes, reclen: int, enc: str) -> bytes:

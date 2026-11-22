@@ -94,3 +94,31 @@ def test_the_cbstm03a_port_carries_the_called_program_for_the_java_side():
     """#8884: the Java side of a job step runs the step case's own committed port, which holds CBSTM03B too."""
     port = eq.CASES / "carddemo-cbstm03a" / "port" / "service"
     assert {f.name for f in port.glob("*.java")} >= {"Cbstm03aService.java", "Cbstm03bService.java"}
+
+
+def _sort_job(writer_reclen, writer_program, reader_reclen):
+    """A DFSORT-shaped writer feeding a reader (stub cases, no corpus): the join `_check_feed` judges."""
+    writer = _step()
+    writer["program"] = writer_program
+    writer["datasets"]["OUT"]["reclen"] = writer_reclen
+    reader = _step()
+    reader["datasets"]["IN"]["reclen"] = reader_reclen
+    job = {"steps": [{"case": "w"}, {"case": "r", "feeds": {"IN": {"step": "w", "dd": "OUT"}}}]}
+    return job, {"w": writer, "r": reader}
+
+
+def test_a_dfsort_outrec_shorter_than_the_next_lrecl_is_refused_with_the_ibm_citation_never_padded():
+    """CardDemo CREASTMT STEP010 writes 328 bytes under a 350-byte SORTOUT LRECL. IBM: ICE043A reason code 9 ends the
+    step (SC23-6879), so the join is refused with that citation; it is never padded (register F4)."""
+    job, cases = _sort_job(328, ej.DFSORT_PROGRAM, 350)
+    with pytest.raises(ej.Unsupported, match=r"record length 350, w\.OUT writes 328") as e:
+        ej.check_job(job, cases)
+    assert all(t in str(e.value) for t in ("ICE043A", "reason code 9", "no pad is guessed"))
+
+
+def test_the_ice043a_citation_is_only_for_a_dfsort_step_writing_fewer_bytes_than_read():
+    for writer_reclen, program in ((400, ej.DFSORT_PROGRAM), (328, "NOTDFSORT")):
+        job, cases = _sort_job(writer_reclen, program, 350)
+        with pytest.raises(ej.Unsupported, match=r"writes") as e:
+            ej.check_job(job, cases)
+        assert "ICE043A" not in str(e.value)

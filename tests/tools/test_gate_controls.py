@@ -4,6 +4,7 @@ import functools
 import json
 import shutil
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -89,10 +90,26 @@ def test_a_notice_cannot_also_claim_a_proof():
     assert not [g.name for g in gc.GATES if g.notice and g.proof]
 
 
+def _check_unproven(n: int, limit: int) -> None:
+    """The ceiling is hard. A count below it only warns: two control PRs that each lower the limit against their own
+    base can merge back to back and leave it above the real count, and failing there turned main red (#8995)."""
+    assert n <= limit, f"{n} gates have no failure proof, the limit is {limit}: add a control"
+    if n < limit:
+        warnings.warn(f"good news: {n} unproven now, so lower MAX_UNPROVEN to {n}", stacklevel=2)
+
+
 def test_the_unproven_count_only_goes_down():
-    n = len(gc.unproven())
-    assert n <= gc.MAX_UNPROVEN, f"{n} gates have no failure proof, the limit is {gc.MAX_UNPROVEN}: add a control"
-    assert n == gc.MAX_UNPROVEN, f"good news: {n} unproven now, so lower MAX_UNPROVEN to {n}"
+    _check_unproven(len(gc.unproven()), gc.MAX_UNPROVEN)
+
+
+def test_an_unproven_count_above_the_limit_fails_and_below_it_only_warns():
+    with pytest.raises(AssertionError, match="add a control"):
+        _check_unproven(5, 4)
+    with pytest.warns(UserWarning, match="lower MAX_UNPROVEN to 3"):
+        _check_unproven(3, 4)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        _check_unproven(4, 4)
 
 
 def _audit_at(tmp_path, monkeypatch, module, baseline=None):

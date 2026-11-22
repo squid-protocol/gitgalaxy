@@ -1168,13 +1168,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "c",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 152,
@@ -1221,10 +1223,10 @@
         }
       ],
       "metric": "outside-ts-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Source-verified in c/cpython/dictobject.c:4656 (PyErr_BadInternalCall -> PyErr_SetString) and c/cpython/compile.c (_PyCompile_CodeGen -> PyDict_SetItemString, PyLong_FromLong): these are real callees expanded from in-repo C macros via _C_REPO_MACRO_CALLS that unexpanded tree-sitter cannot see."
     },
     "c/call/ts-parse-error/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -1476,13 +1478,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "cpp",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 17,
@@ -1529,10 +1533,10 @@
         }
       ],
       "metric": "call_expression/identifier",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Source-verified in cpp/godot/editor_node.cpp:1171,8635 (`_touch_actions_panel_mode_changed();` inside `#ifdef ANDROID_ENABLED`) and gdscript_vm.cpp:170 (`_get_var_type`): all are real calls missed by the engine."
     },
     "cpp/call/call_expression/parenthesized_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -3316,13 +3320,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "cpp",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 39,
@@ -3369,10 +3375,10 @@
         }
       ],
       "metric": "outside-ts-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Source-verified in cpp/godot/node.cpp:2365 (ERR_FAIL_NULL_V -> unlikely, _err_print_error) and cpp/godot/editor_node.cpp (ClassDB::bind_method -> get_gdtype_static_mutable): these are real callees expanded from in-repo C++ macros via _C_REPO_MACRO_CALLS that unexpanded tree-sitter cannot see."
     },
     "cpp/call/ts-parse-error/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4152,13 +4158,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 12,
@@ -4205,10 +4213,10 @@
         }
       ],
       "metric": "argument_part/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Source-verified in dart/flutter/framework.dart:216,218,5257 (`'[GlobalKey#${shortHash(this)}...]'`, `'${describeIdentity(this)}'`): calls inside Dart string interpolation are blanked by _apply_literal_shield."
     },
     "dart/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -9068,13 +9076,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "lua",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 12,
@@ -9121,10 +9131,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Source-verified in lua/cosmopolitan/closure.lua:17 (`assert(dummy() == a[1])`), coroutine.lua:310 (`error{a + b}`), and db.lua:614 (`print\"+\"`): real calls missed or mis-attributed by the engine (including Lua paren-less table/string-arg calls)."
     },
     "lua/call/function_call/dot_index_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -12942,13 +12952,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "perl",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 12,
@@ -12995,22 +13007,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<assignment_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Source-verified in perl/bugzilla/Bug.pm:3486,3435,2655 (`$self->{'actual_time'} = undef;`): `undef` is a Perl built-in function (0-arg or 1-arg)."
     },
     "perl/call/not-a-call-in-ts:undef_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "perl",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 11,
@@ -13057,10 +13071,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<conditional_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Source-verified in perl/bugzilla/Bug.pm:1330,1657,3347 (`... ? ... : undef;`): `undef` is a Perl built-in function."
     },
     "perl/call/not-a-call-in-ts:undef_expression<expression_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -13364,13 +13378,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "perl",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 12,
@@ -13417,10 +13433,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<variable_declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Source-verified in perl/bugzilla/Bug.pm:1488,1990,1934 (`my ($invocant, $new_status, undef, $params) = @_;`): `undef` is a Perl built-in function."
     },
     "perl/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -13626,13 +13642,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "php",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 13,
@@ -13679,10 +13697,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Source-verified in php/laravel_core/BladeCompiler.php:234 (`\"...{$this->getPath()}...\"`) and Container.php:1428 (`\"...{$parameter->getDeclaringClass()->getName()}...\"`): calls inside PHP double-quoted string interpolation are blanked by _apply_literal_shield."
     },
     "php/call/function_call_expression/name/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -21805,8 +21823,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-22",
+      "investigated_by": "claude",
       "language": "typescript",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 18,
@@ -21853,10 +21871,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:for_in_statement<statement_block",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Source-verified in typescript/typescript_compiler/binder.ts:1823 and checker.ts:51814 (`for (const e of (node as ...).elements)`): `of` is the `for ... of` contextual keyword followed by a parenthesized expression, not a call to `of()`."
     },
     "typescript/call/not-a-call-in-ts:for_in_statement<switch_case/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [

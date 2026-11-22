@@ -14,7 +14,6 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_COMMAND_POSITION,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
     commented_keyword_statement,
@@ -27,6 +26,179 @@ _PS_STR = r"""(?:"(?:[^"`]|`.)*"|'[^']*')"""
 _PS_PAREN1 = r"\((?:[^()\"']|" + _PS_STR + r")*\)"
 _PS_PAREN2 = r"\((?:[^()\"']|" + _PS_STR + r"|" + _PS_PAREN1 + r")*\)"
 _PS_PARENS = r"\((?:[^()\"']|" + _PS_STR + r"|" + _PS_PAREN2 + r")*\)"
+
+
+def _ps_skip_single_quoted(text: str, i: int) -> int:
+    """Index after a PowerShell `'...'` literal (`''` escapes a single quote)."""
+    n, j = len(text), i + 1
+    while j < n:
+        if text[j] == "'":
+            if j + 1 < n and text[j + 1] == "'":
+                j += 2
+                continue
+            return j + 1
+        j += 1
+    return n
+
+
+def _ps_subexpr_end(text: str, i: int) -> int:
+    """Index of the `)` closing a `$(...)` subexpression whose body starts at `i`."""
+    n, depth = len(text), 0
+    while i < n:
+        ch = text[i]
+        if ch == "`":
+            i += 2
+            continue
+        if ch == "'":
+            i = _ps_skip_single_quoted(text, i)
+            continue
+        if ch == '"':
+            i += 1
+            while i < n:
+                c = text[i]
+                if c == "`":
+                    i += 2
+                    continue
+                if c == '"':
+                    if i + 1 < n and text[i + 1] == '"':
+                        i += 2
+                        continue
+                    i += 1
+                    break
+                if c == "$" and i + 1 < n and text[i + 1] == "(":
+                    i = _ps_subexpr_end(text, i + 2) + 1
+                    continue
+                i += 1
+            continue
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            if depth == 0:
+                return i
+            depth -= 1
+        i += 1
+    return n
+
+
+def _ps_expose_subexpressions(text: str) -> str:
+    """`_calls_out_pre_shield`: expose `$(...)` subexpressions inside PowerShell double-quoted
+    strings (`"$(Join-Path $a $b)"`, `"$($x.ToLower())"`) and blank `@" ... "@` / `@' ... '@`
+    here-string bodies (which the generic literal shield does not recognize) while exposing
+    any `$(...)` inside `@" ... "@`. Single-pass linear scan; preserves newlines."""
+    if "$(" not in text and '@"' not in text and "@'" not in text:
+        return text
+    out: list[str] = []
+    n, i = len(text), 0
+    while i < n:
+        ch = text[i]
+        # Block comment <# ... #>
+        if ch == "<" and i + 1 < n and text[i + 1] == "#":
+            end = text.find("#>", i + 2)
+            j = n if end == -1 else end + 2
+            out.append(text[i:j])
+            i = j
+            continue
+        # Line comment # ...
+        if ch == "#":
+            end = text.find("\n", i + 1)
+            j = n if end == -1 else end
+            out.append(text[i:j])
+            i = j
+            continue
+        # Single-quoted here-string @' ... '@ -> blank body (preserving newlines)
+        if ch == "@" and i + 1 < n and text[i + 1] == "'":
+            end = text.find("\n'@", i + 2)
+            j = n if end == -1 else end + 3
+            out.append("''" + "\n" * text[i:j].count("\n"))
+            i = j
+            continue
+        # Single-quoted string '...'
+        if ch == "'":
+            j = _ps_skip_single_quoted(text, i)
+            out.append(text[i:j])
+            i = j
+            continue
+        # Double-quoted here-string @" ... "@ or normal "..."
+        is_here = ch == "@" and i + 1 < n and text[i + 1] == '"'
+        if is_here or ch == '"':
+            start = i
+            j = i + (2 if is_here else 1)
+            holes: list[str] = []
+            while j < n:
+                c = text[j]
+                if c == "`":
+                    j += 2
+                    continue
+                if is_here:
+                    if c == "\n" and text[j : j + 3] == '\n"@':
+                        j += 3
+                        break
+                else:
+                    if c == '"':
+                        if j + 1 < n and text[j + 1] == '"':
+                            j += 2
+                            continue
+                        j += 1
+                        break
+                if c == "$" and j + 1 < n and text[j + 1] == "(":
+                    end = _ps_subexpr_end(text, j + 2)
+                    holes.append(text[j + 2 : end])
+                    j = end + 1
+                    continue
+                j += 1
+            if holes:
+                newlines = text[start:j].count("\n")
+                exposed = "; ".join(f"$({_ps_expose_subexpressions(h)})" for h in holes)
+                out.append('""' + "\n" * newlines + " ; " + exposed + " ")
+            elif is_here:
+                out.append('""' + "\n" * text[start:j].count("\n"))
+            else:
+                out.append(text[start:j])
+            i = j
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
+_PS_ENUM_BLOCK = re.compile(r"\benum[ \t]+[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t\n]*\{[^{}]{0,4000}\}", re.I)
+_PS_ATTR_BLOCK = re.compile(
+    r"\[(?:Parameter|CmdletBinding|OutputType|Alias|Validate[A-Za-z]+|SuppressMessage|Diagnostics\.CodeAnalysis\.[A-Za-z]+)[ \t]*\([^()\n]{0,300}\)\]",
+    re.I,
+)
+
+
+def _blank_preserving_newlines(m: "re.Match[str]") -> str:
+    return "".join("\n" if c == "\n" else " " for c in m.group(0))
+
+
+def _ps_blank_non_calls(text: str) -> str:
+    """`_calls_out_rewrite`: blank `enum { ... }` bodies and `[Parameter(...)]` attribute args."""
+    if "enum" in text.lower():
+        text = _PS_ENUM_BLOCK.sub(_blank_preserving_newlines, text)
+    if "[" in text:
+        text = _PS_ATTR_BLOCK.sub(_blank_preserving_newlines, text)
+    return text
+
+
+_PS_CALLS_OUT = re.compile(
+    r"(?:"
+    r"(?:(?<!\.)\.|::)(?=[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:\[[^\]\n]{1,120}\])?[ \t]*\()"
+    r"|(?:^[ \t]*|(?:[|;{&]|&&|\|\||(?<![=!<>])=|\$\(|@\(|\()[ \t]*|\b(?:return|throw|else)\b[ \t]+)"
+    r"(?:(?:global|script|local|private):)?"
+    r"(?=["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"-]*(?<=["
+    + ID_CONTINUE
+    + r"])(?![="
+    + ID_CONTINUE
+    + r".(-])(?![ \t]*=))"
+    r")"
+    r"([" + ID_START + r"][" + ID_CONTINUE + r"-]*)(?<=[" + ID_CONTINUE + r"])",
+    re.I | re.M,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -63,8 +235,10 @@ DEFINITION: dict[str, Any] = {
     # TOP LEVEL, never inside `rules` (#2806).
     "identifier_case": "insensitive",
     "rules": {
-        # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_COMMAND_POSITION,
+        # Epic #3264: PowerShell commands (statement/pipeline/RHS/subexpression) + .NET method/static calls
+        "calls_out": _PS_CALLS_OUT,
+        "_calls_out_pre_shield": _ps_expose_subexpressions,
+        "_calls_out_rewrite": _ps_blank_non_calls,
         "_calls_out_ignore": frozenset(
             {
                 "param",

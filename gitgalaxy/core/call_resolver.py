@@ -1205,6 +1205,10 @@ _ALIAS_DECL = re.compile(
     r"\btypedef\b\s*(?:typename\s+)?(" + _UQID + r")\s*(?:<[^;{}()]*>)?[\s*&]*(" + _UCAP + r")\s*;"
     r"|\busing\s+(" + _UCAP + r")\s*=\s*(?:typename\s+)?(" + _UQID + r")"
 )
+_TYPE_ALIAS_DECL = re.compile(
+    r"\btypedef\b\s*(?:typename\s+)?(" + _UQID + r")\s*(?:<[^;{}()]*>)?[\s*&]*(" + _UID + r")\s*;"
+    r"|\busing\s+(" + _UID + r")\s*=\s*(?:typename\s+)?(" + _UQID + r")"
+)
 _CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?(" + _UID + r")\s*[:{<;]")
 # a data member `PType *Type = nullptr;` (the declared type, then the name, at a line start)
 _FIELD_DECL = re.compile(
@@ -1223,16 +1227,12 @@ def class_alias_names(texts: Any) -> frozenset[str]:
     return class_alias_tables(("", t) for t in texts)[0]
 
 
-def class_alias_tables(sources: Any) -> tuple[frozenset[str], dict[str, frozenset[str]]]:
-    """#6266: over `(path, text)` C++ sources, the names that alias a class the sources declare (`Base` of
-    `typedef Private<P> Base;`), and per path the names it aliases to a type no source declares (`using Base =
-    std::vector<T>;` of doomsday's `List`).
-    A name some class also declares as a data member (gzdoom's `PType *Type;` beside rapidjson's `typedef T1 Type;`) is
-    a member more than an alias: its init-list entry `Type(ty)` must stay no base. A name aliased to a foreign type is
-    no base call either, whatever class of that name another header declares: `List : std::vector` calls the standard
-    library's constructor."""
+def class_alias_tables_full(sources: Any) -> tuple[frozenset[str], dict[str, frozenset[str]], dict[str, str]]:
+    """Like `class_alias_tables`, plus an unambiguous `alias -> target_class` map for C++
+    receiver typing (`using string_view = basic_string_view<char>;` -> `string_view: basic_string_view`)."""
     declared: set[str] = set()
     aliases: set[tuple[str, str]] = set()
+    type_aliases: set[tuple[str, str]] = set()
     by_path: dict[str, set[tuple[str, str]]] = {}
     fields: set[str] = set()
     for path, text in sources:
@@ -1242,6 +1242,8 @@ def class_alias_tables(sources: Any) -> tuple[frozenset[str], dict[str, frozense
             pair = (m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1])
             aliases.add(pair)
             by_path.setdefault(path, set()).add(pair)
+        for m in _TYPE_ALIAS_DECL.finditer(clean):
+            type_aliases.add((m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1]))
         fields.update(
             m.group(2) for m in _FIELD_DECL.finditer(_ALIAS_DECL.sub(" ", clean)) if m.group(1) not in _NOT_A_TYPE
         )
@@ -1250,7 +1252,21 @@ def class_alias_tables(sources: Any) -> tuple[frozenset[str], dict[str, frozense
         path: frozenset(name for name, target in pairs if target not in declared and name not in fields)
         for path, pairs in by_path.items()
     }
-    return names, {path: names_ for path, names_ in foreign.items() if names_}
+    # Build unambiguous alias -> target map (only when an alias maps to a single declared class)
+    targets_by_alias: dict[str, set[str]] = {}
+    for name, target in type_aliases:
+        if target in declared and name != target and name not in declared:
+            targets_by_alias.setdefault(name, set()).add(target)
+    alias_map = {name: next(iter(tgts)) for name, tgts in targets_by_alias.items() if len(tgts) == 1}
+    return names, {path: names_ for path, names_ in foreign.items() if names_}, alias_map
+
+
+def class_alias_tables(sources: Any) -> tuple[frozenset[str], dict[str, frozenset[str]]]:
+    """#6266: over `(path, text)` C++ sources, the names that alias a class the sources declare (`Base` of
+    `typedef Private<P> Base;`), and per path the names it aliases to a type no source declares (`using Base =
+    std::vector<T>;` of doomsday's `List`)."""
+    names, foreign, _ = class_alias_tables_full(sources)
+    return names, foreign
 
 
 def _init_entry_not_a_base(
@@ -1452,6 +1468,13 @@ def _expand_super_ctor(
 def _is_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, lang: str) -> bool:
     bucket = index.get((group, _key(name, lang)))
     return bucket is not None and any(d.kind == "class" for d in bucket.defs)
+
+
+def _is_unique_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, lang: str) -> bool:
+    """True when `name` names exactly one class in the repository (avoids nested same-named
+    classes like Kotlin's `AnnotationSpec.Builder` / `FunSpec.Builder` / `TypeSpec.Builder`)."""
+    bucket = index.get((group, _key(name, lang)))
+    return bucket is not None and sum(1 for d in bucket.defs if d.kind == "class") == 1
 
 
 def _lineage(owner: str | None, group: str, lang: str, parents: dict[tuple[str, str], set[str]]) -> list[str]:
@@ -2150,11 +2173,32 @@ def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> _Defi
 OVERLOAD_LANGS = frozenset({"java", "cpp", "csharp", "kotlin"})
 
 
-def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str) -> list[_Definition]:
-    """Every definition of `dst`'s name on `dst`'s class in `dst`'s file (itself included)."""
+def _overloads(
+    index: dict[tuple[str, str], "_Bucket"],
+    dst: _Definition,
+    group: str,
+    lang: str,
+    visible_paths: set[str] | None = None,
+    src_path: str | None = None,
+) -> list[_Definition]:
+    """Every definition of `dst`'s name on `dst`'s class in `dst`'s file (itself included).
+
+    For C++ free functions resolved via `file`/`import`, overloads live across the caller's
+    `#include` closure (`visible_paths`), excluding `static` internal-linkage functions from
+    other translation units.
+    """
     bucket = index.get((group, _key(_leaf(dst.name)[0], lang)))
     if bucket is None:
         return [dst]
+    if visible_paths is not None and lang == "cpp" and not dst.owner_key:
+        return [
+            d
+            for d in bucket.defs
+            if d.kind == "function"
+            and not d.owner_key
+            and d.path in visible_paths
+            and not (d.shape == C_STATIC_SHAPE and d.path != src_path)
+        ]
     return [d for d in bucket.defs if d.kind == "function" and d.path == dst.path and d.owner_key == dst.owner_key]
 
 
@@ -2444,7 +2488,7 @@ def _resolve_call_return_type(
     static_memo: dict[tuple[int, str], _Bucket],
 ) -> tuple[list[str], set[str] | None] | None:
     """Resolve a call expression or chain (`get_store()`, `svc.get_store()`) to `(return_lineage, scope_files)`."""
-    if not expr or lang in _GUARD_ONLY_RECEIVER_TYPES:
+    if not expr:
         return None
     segments = [s for s in expr.split(".") if s]
     if not segments or len(segments) > 4:
@@ -2514,6 +2558,7 @@ def resolve_calls(
     star_exports: dict[str, set[str]] | None = None,
     class_aliases: frozenset[str] = frozenset(),
     foreign_aliases: dict[str, frozenset[str]] | None = None,
+    class_alias_targets: dict[str, str] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
 
@@ -2614,7 +2659,7 @@ def resolve_calls(
             # #3362: calls, then unconditional transfers (COBOL GO TO). A transfer
             # resolves by the same ladder (it names a unit the same way) but is
             # its own `kind`: it never counts toward the call-resolution rates.
-            if lang in OVERLOAD_LANGS and "super" in (func.get("calls_out_to") or []):
+            if lang in OVERLOAD_LANGS and lang != "kotlin" and "super" in (func.get("calls_out_to") or []):
                 _expand_super_ctor(func, index, parents, group, lang, file_parents)
             callees = [(c, "call") for c in func.get("calls_out_to") or []]
             callees += [(t, "transfer") for t in func.get("transfers_to") or []]
@@ -2646,10 +2691,17 @@ def resolve_calls(
             # knows. A name the function binds itself with no known class ("")
             # hides the module's type for it rather than inheriting it.
             receiver_types = {**module_types, **(func.get("calls_out_receiver_types") or {})}
+            if lang == "cpp" and class_alias_targets:
+                receiver_types = {q: class_alias_targets.get(str(c), c) if c else c for q, c in receiver_types.items()}
             typed = {
                 q: _lineage(c, group, lang, parents)
                 for q, c in receiver_types.items()
-                if c and _is_class(index, group, str(c), lang) and lang not in _GUARD_ONLY_RECEIVER_TYPES
+                if c
+                and (
+                    _is_unique_class(index, group, str(c), lang)
+                    if lang in _GUARD_ONLY_RECEIVER_TYPES
+                    else _is_class(index, group, str(c), lang)
+                )
             }
             typed_scope: dict[str, set[str]] = {}
             for q, c in receiver_types.items():
@@ -2894,7 +2946,12 @@ def resolve_calls(
                     and dst.kind == "function"
                     and RESOLUTION_OF_STEP[step] in CONFIDENT_RESOLUTIONS
                 ):
-                    overloads = _overloads(index, dst, group, lang)
+                    vis = (
+                        ({src_path} | caller.imported)
+                        if (lang == "cpp" and not dst.owner_key and step in ("file", "import"))
+                        else None
+                    )
+                    overloads = _overloads(index, dst, group, lang, visible_paths=vis, src_path=src_path)
                     if len(overloads) > 1:
                         arities = (
                             list(dict.fromkeys(int(n) for _, n in ctor_forms.get(callee) or []))
@@ -2908,7 +2965,10 @@ def resolve_calls(
                             _java_subtype(index, parents, group, lang),
                             lang,
                         )
-                        targets = [(step, d) for d in picked]
+                        targets = [
+                            (("file" if d.path == src_path else "import") if vis is not None else step, d)
+                            for d in picked
+                        ]
                         if ambiguous:
                             # #8161 (J2): the guess is an overload the call's argument count fits, when one does
                             fits = [d for d in [dst, *overloads] if d not in picked and any(map(d.fits, arities))]

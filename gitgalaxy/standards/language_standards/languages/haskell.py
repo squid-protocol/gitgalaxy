@@ -509,7 +509,7 @@ DEFINITION: dict[str, Any] = {
             + SMALL
             + r"]["
             + ID_CONTINUE
-            + r"\']*)(?=[ \t]+[^\s=][^\n=]*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
+            + r"\']*)(?=[ \t]+[^\s={}](?:[^\n={}]|\{[^{}\n]{0,200}\})*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
             re.M,
         ),
         # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.

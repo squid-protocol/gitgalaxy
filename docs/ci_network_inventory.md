@@ -15,7 +15,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
-| maven-gradle | 2 | 0 | 0 | 0 | 1 |
+| maven-gradle | 7 | 0 | 0 | 0 | 1 |
 | git-fetch | 22 | 0 | 0 | 0 | 4 |
 | gh-download | 0 | 0 | 0 | 0 | 1 |
 | gh-api | 12 | 0 | 0 | 0 | 15 |
@@ -25,7 +25,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 114 | 84 | 54 | 208 | 31 |
+| **total** | 119 | 84 | 54 | 208 | 31 |
 
 ## Bare steps (the shrink-only backlog)
 

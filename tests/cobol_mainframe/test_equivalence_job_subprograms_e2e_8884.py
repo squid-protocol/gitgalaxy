@@ -50,7 +50,7 @@ def test_the_called_program_source_is_in_the_case_corpus():
     (entry,) = mc.select([case["corpus"]])
     try:
         corpus = mc.require_clone(entry)
-    except Exception as e:  # no CardDemo clone on this box
+    except (Exception, SystemExit) as e:  # no CardDemo clone at its pinned ref (require_clone exits)
         pytest.skip(f"no corpus clone: {e}")
     for rel in case["subprograms"]:
         assert (Path(corpus) / rel).is_file(), rel

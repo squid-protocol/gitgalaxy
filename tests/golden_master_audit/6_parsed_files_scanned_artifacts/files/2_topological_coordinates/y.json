@@ -1227,12 +1227,12 @@
       "dart/SOURCES.md": 139.72
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 56.66,
-      "dart/flutter/events.dart": 57.1,
-      "dart/flutter/framework.dart": 45.46,
-      "dart/flutter/navigator.dart": 186.04,
-      "dart/flutter/object.dart": 63.98,
-      "dart/flutter/semantics.dart": 224.64,
+      "dart/flutter/editable_text.dart": 41.49,
+      "dart/flutter/events.dart": 20.96,
+      "dart/flutter/framework.dart": 125.55,
+      "dart/flutter/navigator.dart": 184.35,
+      "dart/flutter/object.dart": 179.83,
+      "dart/flutter/semantics.dart": 83.25,
       "dart/flutter/theme_data.dart": 123.59
     },
     "db2_sql": {

@@ -3189,20 +3189,20 @@
     "dart/flutter": {
       "Average Risk Exposures": {
         "API Exposure": "3.19%",
-        "Cognitive Load Exposure": "29.66%",
+        "Cognitive Load Exposure": "24.98%",
         "Commented Logic Exposure": "0.72%",
         "Concurrency Exposure": "12.89%",
         "Documentation Exposure": "44.0%",
-        "Error & Exception Exposure": "36.66%",
+        "Error & Exception Exposure": "36.06%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "85.99%",
+        "State Flux Exposure": "85.64%",
         "Tech Debt Exposure": "37.45%",
-        "Testing Exposure": "24.63%",
+        "Testing Exposure": "13.53%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 22808.5,
+      "Directory Group Magnitude": 16851.8,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_12": "28.6%",
         "file_cluster_4": "42.9%",

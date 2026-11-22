@@ -1566,20 +1566,20 @@
       "avg_exposures": {
         "api_exposure": 3.19,
         "churn": 0.0,
-        "cognitive_load": 29.66,
+        "cognitive_load": 24.98,
         "concurrency": 12.89,
         "dead_code": 0.72,
         "documentation": 44.0,
-        "safety_score": 36.66,
+        "safety_score": 36.06,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 85.99,
+        "state_flux": 85.64,
         "tech_debt": 37.45,
-        "verification": 24.63
+        "verification": 13.53
       },
       "file_count": 7,
-      "total_mass": 22808.5
+      "total_mass": 16851.8
     },
     "db2_sql": {
       "avg_exposures": {

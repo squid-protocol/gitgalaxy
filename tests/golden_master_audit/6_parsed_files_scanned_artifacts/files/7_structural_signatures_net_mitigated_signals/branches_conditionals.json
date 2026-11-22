@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": 0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 906,
-      "dart/flutter/events.dart": 705,
-      "dart/flutter/framework.dart": 525,
-      "dart/flutter/navigator.dart": 658,
-      "dart/flutter/object.dart": 789,
-      "dart/flutter/semantics.dart": 971,
-      "dart/flutter/theme_data.dart": 493
+      "dart/flutter/editable_text.dart": 638,
+      "dart/flutter/events.dart": 268,
+      "dart/flutter/framework.dart": 280,
+      "dart/flutter/navigator.dart": 307,
+      "dart/flutter/object.dart": 539,
+      "dart/flutter/semantics.dart": 471,
+      "dart/flutter/theme_data.dart": 279
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0

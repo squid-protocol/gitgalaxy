@@ -473,12 +473,12 @@
       "csharp/roslyn/Workspace.cs": 102
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 538,
+      "dart/flutter/editable_text.dart": 518,
       "dart/flutter/events.dart": 33,
-      "dart/flutter/framework.dart": 632,
-      "dart/flutter/navigator.dart": 632,
-      "dart/flutter/object.dart": 1230,
-      "dart/flutter/semantics.dart": 1325,
+      "dart/flutter/framework.dart": 572,
+      "dart/flutter/navigator.dart": 588,
+      "dart/flutter/object.dart": 1162,
+      "dart/flutter/semantics.dart": 1191,
       "dart/flutter/theme_data.dart": 414
     },
     "db2_sql/db2unit": {

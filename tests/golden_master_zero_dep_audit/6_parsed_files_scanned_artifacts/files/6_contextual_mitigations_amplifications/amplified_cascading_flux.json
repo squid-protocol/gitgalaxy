@@ -473,12 +473,12 @@
       "csharp/roslyn/Workspace.cs": "27 instances"
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": "157 instances",
+      "dart/flutter/editable_text.dart": "147 instances",
       "dart/flutter/events.dart": "1 instances",
-      "dart/flutter/framework.dart": "180 instances",
-      "dart/flutter/navigator.dart": "188 instances",
-      "dart/flutter/object.dart": "375 instances",
-      "dart/flutter/semantics.dart": "366 instances",
+      "dart/flutter/framework.dart": "150 instances",
+      "dart/flutter/navigator.dart": "166 instances",
+      "dart/flutter/object.dart": "341 instances",
+      "dart/flutter/semantics.dart": "299 instances",
       "dart/flutter/theme_data.dart": "109 instances"
     },
     "db2_sql/db2unit": {

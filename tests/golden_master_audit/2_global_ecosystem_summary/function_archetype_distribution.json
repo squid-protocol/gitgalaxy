@@ -4,19 +4,19 @@
     "Function Archetype Distribution"
   ],
   "value": {
-    "Annotated & Test Methods": "3.0% (1565)",
+    "Annotated & Test Methods": "3.1% (1625)",
     "C Struct Operations": "0.2% (82)",
-    "Callbacks & Closures": "3.1% (1642)",
-    "Compute Cores": "10.5% (5545)",
-    "Defensive Guards": "8.4% (4440)",
-    "Encapsulated Accessors": "3.6% (1883)",
-    "Generic / Templated Code": "5.7% (3012)",
-    "I/O & Config Routines": "15.3% (8092)",
-    "Interface Declarations": "15.7% (8295)",
+    "Callbacks & Closures": "2.8% (1472)",
+    "Compute Cores": "10.5% (5547)",
+    "Defensive Guards": "8.3% (4369)",
+    "Encapsulated Accessors": "3.6% (1894)",
+    "Generic / Templated Code": "5.8% (3052)",
+    "I/O & Config Routines": "15.3% (8095)",
+    "Interface Declarations": "15.9% (8415)",
     "Many-Argument Workhorses": "6.6% (3489)",
-    "Parameter Forwarders": "12.6% (6671)",
-    "State Mutators": "8.5% (4511)",
-    "Stateful Encapsulated Methods": "4.1% (2168)",
-    "Type Conversions": "2.6% (1368)"
+    "Parameter Forwarders": "12.7% (6682)",
+    "State Mutators": "8.6% (4513)",
+    "Stateful Encapsulated Methods": "4.1% (2158)",
+    "Type Conversions": "2.6% (1370)"
   }
 }

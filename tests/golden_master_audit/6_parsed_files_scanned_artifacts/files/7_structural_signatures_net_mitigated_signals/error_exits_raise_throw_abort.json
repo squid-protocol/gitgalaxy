@@ -1352,17 +1352,17 @@
       "fortran/wrf/cleanCMake.sh": 4,
       "fortran/wrf/configure_reader.py": 7,
       "fortran/wrf/gen_be_wrapper.ksh": 0,
-      "fortran/wrf/module_configure.F": 9,
-      "fortran/wrf/module_domain.F": 18,
-      "fortran/wrf/module_initialize_real.F": 9,
-      "fortran/wrf/module_physics_init.F": 6,
+      "fortran/wrf/module_configure.F": 0,
+      "fortran/wrf/module_domain.F": 0,
+      "fortran/wrf/module_initialize_real.F": 1,
+      "fortran/wrf/module_physics_init.F": 3,
       "fortran/wrf/module_sf_noahdrv.F": 0,
       "fortran/wrf/regtest.csh": 41,
       "fortran/wrf/regtest_hwrf.csh": 45,
       "fortran/wrf/regtest_nmmnest.csh": 43,
       "fortran/wrf/run_convert_e2c.ksh": 1,
       "fortran/wrf/sourcetree.py": 0,
-      "fortran/wrf/wrf_timeseries.F": 5
+      "fortran/wrf/wrf_timeseries.F": 0
     },
     "go": {
       "go/SOURCES.md": 0

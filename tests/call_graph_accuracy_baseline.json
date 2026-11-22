@@ -59,7 +59,7 @@
     "matched_functions": 120,
     "parse_failures": 0,
     "precision_pct": 66.8,
-    "recall_pct": 71.5,
+    "recall_pct": 67.4,
     "tp": 278
   },
   "go": {

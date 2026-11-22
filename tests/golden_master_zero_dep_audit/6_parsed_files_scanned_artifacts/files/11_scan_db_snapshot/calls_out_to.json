@@ -112884,6 +112884,7 @@
           "trim",
           "length",
           "ThrowUserError",
+          "new",
           "Bug",
           "id"
         ],
@@ -113272,7 +113273,8 @@
           "extra_data",
           "already_wrapped",
           "body",
-          "E"
+          "E",
+          "uniq"
         ],
         "_extract_multi_selects@1232": [
           "type",
@@ -113372,7 +113374,12 @@
           "process",
           "ThrowTemplateError",
           "error",
-          "exit"
+          "exit",
+          "groups_in",
+          "group_is_valid",
+          "remove_group",
+          "groups_mandatory",
+          "add_group"
         ],
         "_sync_fulltext@1249": [
           "dbh",
@@ -113484,6 +113491,7 @@
         ],
         "assigned_to@3542": [
           "exists",
+          "new",
           "User"
         ],
         "attachments@3531": [
@@ -113590,12 +113598,20 @@
           "components",
           "versions",
           "milestones",
+          "new",
           "Field",
           "legal_values",
           "is_active"
         ],
-        "classification@3633": [],
-        "classification_id@3626": [],
+        "classification@3633": [
+          "product_obj",
+          "classification",
+          "name"
+        ],
+        "classification_id@3626": [
+          "product_obj",
+          "classification_id"
+        ],
         "clear_resolution@2933": [
           "shift",
           "status",
@@ -113619,10 +113635,14 @@
           "datetime_from",
           "creation_ts"
         ],
-        "component@3609": [],
+        "component@3609": [
+          "component_obj",
+          "name"
+        ],
         "component_id@3395": [],
         "component_obj@3617": [
           "defined",
+          "new",
           "Component"
         ],
         "create@704": [
@@ -113880,16 +113900,21 @@
           "visible_bugs"
         ],
         "priority@3404": [],
-        "product@3821": [],
+        "product@3821": [
+          "product_obj",
+          "name"
+        ],
         "product_id@3405": [],
         "product_obj@3829": [
           "shift",
+          "new",
           "Product"
         ],
         "qa_contact@3837": [
           "exists",
           "undef",
           "params",
+          "new",
           "User"
         ],
         "related_bugs@3570": [
@@ -113965,6 +113990,7 @@
         "rep_platform@3408": [],
         "reporter@3852": [
           "exists",
+          "new",
           "User"
         ],
         "reporter_accessible@3407": [],
@@ -114112,6 +114138,7 @@
           "resolution",
           "set_bug_status",
           "params",
+          "new",
           "Bug",
           "delete",
           "add_cc",
@@ -114184,6 +114211,7 @@
         "status@3877": [
           "shift",
           "undef",
+          "new",
           "Status"
         ],
         "status_whiteboard@3411": [],
@@ -114467,7 +114495,8 @@
           "keys",
           "ref",
           "can",
-          "on_dbi_connected"
+          "on_dbi_connected",
+          "new"
         ],
         "_build_qi@39": [
           "tie"
@@ -115050,6 +115079,7 @@
           "_checking_for",
           "install_string",
           "bz_locations",
+          "new",
           "File",
           "die",
           "grep",
@@ -116928,6 +116958,8 @@
           "_stream",
           "_id",
           "max_accepts",
+          "int",
+          "rand",
           "stop_gracefully",
           "_not_accepting",
           "_limit",
@@ -119957,7 +119989,6 @@
           "getCachedConfigPath"
         ],
         "configure@234": [
-          "match",
           "is_string",
           "inferBasePath",
           "ApplicationBuilder",
@@ -119976,6 +120007,7 @@
         ],
         "detectEnvironment@786": [
           "runningInConsole",
+          "EnvironmentDetector",
           "detect"
         ],
         "dontMergeFrameworkConfiguration@1260": [],
@@ -120054,6 +120086,7 @@
         "handleCommand@1231": [
           "make",
           "handle",
+          "ConsoleOutput",
           "terminate"
         ],
         "handleRequest@1216": [
@@ -120067,7 +120100,6 @@
           "get"
         ],
         "inferBasePath@253": [
-          "match",
           "dirname",
           "array_values",
           "array_filter",
@@ -120152,6 +120184,7 @@
           "instance",
           "singleton",
           "PackageManifest",
+          "Filesystem",
           "basePath",
           "getCachedPackagesPath"
         ],
@@ -120171,6 +120204,7 @@
           "splice",
           "providers",
           "ProviderRepository",
+          "Filesystem",
           "getCachedServicesPath",
           "load",
           "collapse",
@@ -120661,7 +120695,8 @@
           "operatorForWhere",
           "func_get_args",
           "stdClass",
-          "first"
+          "first",
+          "ItemNotFoundException"
         ],
         "flatten@453": [
           "flatten",
@@ -120693,7 +120728,6 @@
           "is_array",
           "array_shift",
           "valueRetriever",
-          "match",
           "is_bool",
           "enum_value",
           "is_null",
@@ -120964,6 +120998,7 @@
           "unless",
           "filter",
           "count",
+          "ItemNotFoundException",
           "MultipleItemsFoundException",
           "first"
         ],
@@ -120979,7 +121014,6 @@
           "sortByMany",
           "valueRetriever",
           "callback",
-          "match",
           "asort",
           "arsort",
           "array_keys",
@@ -120994,7 +121028,6 @@
         "sortByMany@1623": [
           "uasort",
           "wrap",
-          "match",
           "get",
           "is_string",
           "is_callable",
@@ -121013,7 +121046,6 @@
           "newInstance"
         ],
         "sortKeys@1705": [
-          "match",
           "ksort",
           "krsort",
           "newInstance"
@@ -121271,7 +121303,6 @@
           "getAttributes",
           "newInstance",
           "currentEnvironmentIs",
-          "match",
           "getScopedTyped",
           "scoped",
           "singleton",
@@ -121284,7 +121315,9 @@
         "getExtenders@1666": [
           "getAlias"
         ],
-        "getInstance@1778": [],
+        "getInstance@1778": [
+          "Container"
+        ],
         "getLastParameterOverride@1283": [
           "count",
           "array_last"
@@ -121575,7 +121608,8 @@
         "__callStatic@2819": [
           "isScopeMethodWithAttribute",
           "query",
-          "method"
+          "method",
+          "Model"
         ],
         "__construct@315": [
           "bootIfNotBooted",
@@ -121703,6 +121737,7 @@
           "all",
           "is_array",
           "func_get_args",
+          "Model",
           "getKeyName",
           "whereIn",
           "get",
@@ -121971,6 +122006,7 @@
           "resolveCustomBuilderClass",
           "is_subclass_of",
           "builderClass",
+          "Model",
           "builder"
         ],
         "newFromBuilder@797": [
@@ -121981,6 +122017,7 @@
           "fireModelEvent"
         ],
         "newInstance@768": [
+          "Model",
           "setConnection",
           "getConnectionName",
           "setTable",
@@ -122030,6 +122067,7 @@
         ],
         "offsetUnset@2755": [],
         "on@816": [
+          "Model",
           "setConnection",
           "newQuery"
         ],
@@ -122106,6 +122144,7 @@
           "all"
         ],
         "query@1814": [
+          "Model",
           "newQuery"
         ],
         "refresh@2081": [
@@ -122138,6 +122177,7 @@
           "array_unique",
           "array_merge",
           "tap",
+          "Model",
           "setRawAttributes",
           "setRelations",
           "fireModelEvent"
@@ -122305,7 +122345,10 @@
           "startsWith",
           "array_key_exists"
         ],
-        "__construct@144": [],
+        "__construct@144": [
+          "RouteCollection",
+          "Container"
+        ],
         "actionReferencesController@598": [
           "is_string"
         ],
@@ -122391,7 +122434,6 @@
         "findRoute@773": [
           "dispatch",
           "Routing",
-          "match",
           "setContainer",
           "instance"
         ],
@@ -122632,6 +122674,7 @@
         "substituteImplicitBindingsUsing@993": [],
         "toResponse@918": [
           "toResponse",
+          "HttpFoundationFactory",
           "createResponse",
           "JsonResponse",
           "Response",
@@ -122654,7 +122697,6 @@
           "currentRouteAction"
         ],
         "view@287": [
-          "match",
           "setDefaults",
           "is_array"
         ]
@@ -124227,7 +124269,6 @@
         "configureIO@1002": [
           "hasParameterOption",
           "setDecorated",
-          "match",
           "getParameterOption",
           "getenv",
           "setVerbosity",
@@ -124492,7 +124533,6 @@
           "get",
           "setArgumentResolver",
           "setCommandLoader",
-          "match",
           "hasParameter",
           "getParameter",
           "addCommand"
@@ -124745,7 +124785,6 @@
           "getTextWithContext"
         ],
         "escapeParameters@1823": [
-          "match",
           "is_array",
           "is_string",
           "str_replace"
@@ -125876,13 +125915,11 @@
           "load"
         ],
         "match@175": [
-          "match",
           "getMatcher"
         ],
         "matchRequest@180": [
           "matchRequest",
           "getMatcher",
-          "match",
           "getPathInfo"
         ],
         "setConfigCacheFactory@165": [],

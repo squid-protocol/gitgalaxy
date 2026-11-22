@@ -1362,7 +1362,7 @@
       "fortran/wrf/regtest_nmmnest.csh": -0.575,
       "fortran/wrf/run_convert_e2c.ksh": -0.523,
       "fortran/wrf/sourcetree.py": 2.015,
-      "fortran/wrf/wrf_timeseries.F": -0.881
+      "fortran/wrf/wrf_timeseries.F": -1.03
     },
     "go": {
       "go/SOURCES.md": 0.0

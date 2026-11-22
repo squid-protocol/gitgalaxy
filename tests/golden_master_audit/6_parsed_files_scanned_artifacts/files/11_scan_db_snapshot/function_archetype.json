@@ -24101,7 +24101,7 @@
       "fortran/wrf/wrf_timeseries.F": {
         "calc_p8w@1150": "Many-Argument Workhorses",
         "calc_ts@327": "Many-Argument Workhorses",
-        "calc_ts_locations@12": "Many-Argument Workhorses",
+        "calc_ts_locations@12": "Compute Cores",
         "write_ts@640": "Many-Argument Workhorses"
       }
     },

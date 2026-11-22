@@ -4383,7 +4383,8 @@
         "Stateful Encapsulated Methods": 3
       },
       "fortran/wrf/wrf_timeseries.F": {
-        "Many-Argument Workhorses": 4
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 3
       }
     },
     "go": {

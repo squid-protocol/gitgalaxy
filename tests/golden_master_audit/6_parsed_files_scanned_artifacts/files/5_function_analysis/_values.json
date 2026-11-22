@@ -244655,8 +244655,8 @@
       ],
       "cpp/NVDA/ensureuv.ps1": [
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "65.0%",
           "End Line": 86,
           "Function Name": "Install-Uv",
           "Has Header Comment": 0,
@@ -244666,7 +244666,7 @@
           "Lines of Code (LOC)": 71,
           "Reflection Hits": 1,
           "Start Line": 16,
-          "Structural Impact": 24.8
+          "Structural Impact": 23.3
         },
         {
           "Control Flow Branches": 0,
@@ -435943,8 +435943,8 @@
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": [
         {
-          "Control Flow Branches": 17,
-          "Control Flow Ratio": "85.0%",
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "83.3%",
           "End Line": 374,
           "Function Name": "Invoke-BuildWithSpinner",
           "Has Header Comment": 0,
@@ -435954,11 +435954,11 @@
           "Lines of Code (LOC)": 112,
           "Reflection Hits": 0,
           "Start Line": 263,
-          "Structural Impact": 49.7
+          "Structural Impact": 44.8
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 151,
           "Function Name": "Write-TaskStatus",
           "Has Header Comment": 0,
@@ -435968,7 +435968,7 @@
           "Lines of Code (LOC)": 14,
           "Reflection Hits": 0,
           "Start Line": 138,
-          "Structural Impact": 12.7
+          "Structural Impact": 10.7
         },
         {
           "Control Flow Branches": 2,
@@ -436001,20 +436001,6 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
-          "End Line": 136,
-          "Function Name": "Write-Task",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 131,
-          "Structural Impact": 7.2
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
           "End Line": 162,
           "Function Name": "Write-BuildTree",
           "Has Header Comment": 0,
@@ -436025,6 +436011,20 @@
           "Reflection Hits": 0,
           "Start Line": 153,
           "Structural Impact": 6.2
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 136,
+          "Function Name": "Write-Task",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 131,
+          "Structural Impact": 5.5
         },
         {
           "Control Flow Branches": 2,
@@ -436174,8 +436174,8 @@
       ],
       "powershell/PowerToys/Check preview handler registration.ps1": [
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "50.0%",
           "End Line": 76,
           "Function Name": "PublicStaticVoidMain",
           "Has Header Comment": 0,
@@ -436185,11 +436185,11 @@
           "Lines of Code (LOC)": 69,
           "Reflection Hits": 0,
           "Start Line": 8,
-          "Structural Impact": 10.4
+          "Structural Impact": 9.4
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
           "End Line": 48,
           "Function Name": "WriteMyProgress",
           "Has Header Comment": 0,
@@ -436199,7 +436199,7 @@
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 39,
-          "Structural Impact": 6.5
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 1,
@@ -436226,8 +436226,8 @@
       "powershell/PowerToys/InstallWinAppDriver.ps1": [],
       "powershell/PowerToys/Invoke-WinMdQuery.ps1": [
         {
-          "Control Flow Branches": 24,
-          "Control Flow Ratio": "88.9%",
+          "Control Flow Branches": 23,
+          "Control Flow Ratio": "88.5%",
           "End Line": 398,
           "Function Name": "Search-WinMd",
           "Has Header Comment": 1,
@@ -436237,7 +436237,7 @@
           "Lines of Code (LOC)": 85,
           "Reflection Hits": 0,
           "Start Line": 314,
-          "Structural Impact": 47.6
+          "Structural Impact": 45.8
         },
         {
           "Control Flow Branches": 14,
@@ -436254,8 +436254,8 @@
           "Structural Impact": 31.4
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "64.7%",
           "End Line": 492,
           "Function Name": "Get-EnumValues",
           "Has Header Comment": 0,
@@ -436265,7 +436265,7 @@
           "Lines of Code (LOC)": 43,
           "Reflection Hits": 0,
           "Start Line": 450,
-          "Structural Impact": 20.5
+          "Structural Impact": 19.1
         },
         {
           "Control Flow Branches": 11,
@@ -436296,8 +436296,8 @@
           "Structural Impact": 18.5
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "43.8%",
           "End Line": 137,
           "Function Name": "Resolve-ProjectManifest",
           "Has Header Comment": 0,
@@ -436307,11 +436307,11 @@
           "Lines of Code (LOC)": 43,
           "Reflection Hits": 0,
           "Start Line": 95,
-          "Structural Impact": 16.3
+          "Structural Impact": 13.5
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "80.0%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
           "End Line": 232,
           "Function Name": "Get-Namespaces",
           "Has Header Comment": 0,
@@ -436321,7 +436321,7 @@
           "Lines of Code (LOC)": 19,
           "Reflection Hits": 0,
           "Start Line": 214,
-          "Structural Impact": 8.0
+          "Structural Impact": 6.6
         },
         {
           "Control Flow Branches": 2,
@@ -436394,8 +436394,8 @@
           "Structural Impact": 3.6
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
           "End Line": 93,
           "Function Name": "Get-CachedProjects",
           "Has Header Comment": 0,
@@ -436405,7 +436405,7 @@
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 89,
-          "Structural Impact": 3.2
+          "Structural Impact": 2.2
         }
       ],
       "powershell/PowerToys/Invoke-XamlFormat.ps1": [],
@@ -436662,8 +436662,8 @@
       "powershell/PowerToys/generate-interface.ps1": [],
       "powershell/PowerToys/generateAllFileComponents.ps1": [
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "85.7%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
           "End Line": 70,
           "Function Name": "Generate-FileList",
           "Has Header Comment": 0,
@@ -436673,11 +436673,11 @@
           "Lines of Code (LOC)": 64,
           "Reflection Hits": 0,
           "Start Line": 7,
-          "Structural Impact": 10.2
+          "Structural Impact": 8.0
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
           "End Line": 127,
           "Function Name": "Generate-FileComponents",
           "Has Header Comment": 0,
@@ -436687,7 +436687,7 @@
           "Lines of Code (LOC)": 56,
           "Reflection Hits": 0,
           "Start Line": 72,
-          "Structural Impact": 6.8
+          "Structural Impact": 5.5
         }
       ],
       "powershell/PowerToys/generateMonacoWxs.ps1": []
@@ -436726,8 +436726,8 @@
       ],
       "powershell/core/Install-PowerShellRemoting.ps1": [
         {
-          "Control Flow Branches": 18,
-          "Control Flow Ratio": "69.2%",
+          "Control Flow Branches": 17,
+          "Control Flow Ratio": "68.0%",
           "End Line": 225,
           "Function Name": "Install-PluginEndpoint",
           "Has Header Comment": 0,
@@ -436737,7 +436737,7 @@
           "Lines of Code (LOC)": 113,
           "Reflection Hits": 0,
           "Start Line": 113,
-          "Structural Impact": 38.6
+          "Structural Impact": 36.8
         },
         {
           "Control Flow Branches": 2,
@@ -436827,8 +436827,8 @@
       ],
       "powershell/core/PowerShell__build.psm1": [
         {
-          "Control Flow Branches": 116,
-          "Control Flow Ratio": "92.1%",
+          "Control Flow Branches": 99,
+          "Control Flow Ratio": "90.8%",
           "End Line": 763,
           "Function Name": "Start-PSBuild",
           "Has Header Comment": 0,
@@ -436838,11 +436838,11 @@
           "Lines of Code (LOC)": 481,
           "Reflection Hits": 1,
           "Start Line": 283,
-          "Structural Impact": 560.2
+          "Structural Impact": 482.3
         },
         {
-          "Control Flow Branches": 87,
-          "Control Flow Ratio": "93.5%",
+          "Control Flow Branches": 72,
+          "Control Flow Ratio": "92.3%",
           "End Line": 1743,
           "Function Name": "Start-PSPester",
           "Has Header Comment": 0,
@@ -436852,11 +436852,11 @@
           "Lines of Code (LOC)": 363,
           "Reflection Hits": 3,
           "Start Line": 1381,
-          "Structural Impact": 430.9
+          "Structural Impact": 360.6
         },
         {
-          "Control Flow Branches": 66,
-          "Control Flow Ratio": "97.1%",
+          "Control Flow Branches": 63,
+          "Control Flow Ratio": "96.9%",
           "End Line": 2578,
           "Function Name": "Start-PSBootstrap",
           "Has Header Comment": 0,
@@ -436866,11 +436866,11 @@
           "Lines of Code (LOC)": 264,
           "Reflection Hits": 6,
           "Start Line": 2315,
-          "Structural Impact": 190.5
+          "Structural Impact": 182.5
         },
         {
-          "Control Flow Branches": 31,
-          "Control Flow Ratio": "93.9%",
+          "Control Flow Branches": 29,
+          "Control Flow Ratio": "93.5%",
           "End Line": 2301,
           "Function Name": "Install-Dotnet",
           "Has Header Comment": 0,
@@ -436880,11 +436880,11 @@
           "Lines of Code (LOC)": 150,
           "Reflection Hits": 4,
           "Start Line": 2152,
-          "Structural Impact": 103.5
+          "Structural Impact": 97.5
         },
         {
-          "Control Flow Branches": 30,
-          "Control Flow Ratio": "90.9%",
+          "Control Flow Branches": 26,
+          "Control Flow Ratio": "89.7%",
           "End Line": 1151,
           "Function Name": "New-PSOptions",
           "Has Header Comment": 0,
@@ -436894,11 +436894,11 @@
           "Lines of Code (LOC)": 145,
           "Reflection Hits": 0,
           "Start Line": 1007,
-          "Structural Impact": 94.9
+          "Structural Impact": 83.6
         },
         {
-          "Control Flow Branches": 36,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Branches": 29,
+          "Control Flow Ratio": "51.8%",
           "End Line": 3459,
           "Function Name": "ConvertFrom-PesterLog",
           "Has Header Comment": 0,
@@ -436908,11 +436908,11 @@
           "Lines of Code (LOC)": 366,
           "Reflection Hits": 0,
           "Start Line": 3094,
-          "Structural Impact": 92.3
+          "Structural Impact": 78.3
         },
         {
-          "Control Flow Branches": 31,
-          "Control Flow Ratio": "93.9%",
+          "Control Flow Branches": 27,
+          "Control Flow Ratio": "93.1%",
           "End Line": 966,
           "Function Name": "Restore-PSPackage",
           "Has Header Comment": 0,
@@ -436922,7 +436922,7 @@
           "Lines of Code (LOC)": 113,
           "Reflection Hits": 0,
           "Start Line": 854,
-          "Structural Impact": 84.0
+          "Structural Impact": 74.2
         },
         {
           "Control Flow Branches": 45,
@@ -436939,8 +436939,8 @@
           "Structural Impact": 51.0
         },
         {
-          "Control Flow Branches": 17,
-          "Control Flow Ratio": "77.3%",
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "75.0%",
           "End Line": 2059,
           "Function Name": "Test-PSPesterResults",
           "Has Header Comment": 1,
@@ -436950,11 +436950,11 @@
           "Lines of Code (LOC)": 75,
           "Reflection Hits": 0,
           "Start Line": 1985,
-          "Structural Impact": 44.0
+          "Structural Impact": 39.5
         },
         {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "92.9%",
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "90.9%",
           "End Line": 2670,
           "Function Name": "Start-DevPowerShell",
           "Has Header Comment": 0,
@@ -436964,11 +436964,11 @@
           "Lines of Code (LOC)": 65,
           "Reflection Hits": 0,
           "Start Line": 2606,
-          "Structural Impact": 42.8
+          "Structural Impact": 34.4
         },
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "82.4%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "81.2%",
           "End Line": 2150,
           "Function Name": "Start-PSxUnit",
           "Has Header Comment": 0,
@@ -436978,39 +436978,11 @@
           "Lines of Code (LOC)": 90,
           "Reflection Hits": 0,
           "Start Line": 2061,
-          "Structural Impact": 34.5
+          "Structural Impact": 32.5
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "92.3%",
-          "End Line": 3383,
-          "Function Name": "convert-pesterlog",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 63,
-          "Reflection Hits": 0,
-          "Start Line": 3321,
-          "Structural Impact": 29.1
-        },
-        {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "93.8%",
-          "End Line": 1252,
-          "Function Name": "Get-PesterTag",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 62,
-          "Reflection Hits": 6,
-          "Start Line": 1191,
-          "Structural Impact": 25.7
-        },
-        {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "93.3%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "92.9%",
           "End Line": 2837,
           "Function Name": "Find-Dotnet",
           "Has Header Comment": 0,
@@ -437020,7 +436992,21 @@
           "Lines of Code (LOC)": 65,
           "Reflection Hits": 0,
           "Start Line": 2773,
-          "Structural Impact": 24.5
+          "Structural Impact": 23.0
+        },
+        {
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "92.9%",
+          "End Line": 1252,
+          "Function Name": "Get-PesterTag",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 62,
+          "Reflection Hits": 6,
+          "Start Line": 1191,
+          "Structural Impact": 22.9
         },
         {
           "Control Flow Branches": 13,
@@ -437035,34 +437021,6 @@
           "Reflection Hits": 0,
           "Start Line": 1548,
           "Structural Impact": 22.2
-        },
-        {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "88.9%",
-          "End Line": 1803,
-          "Function Name": "Publish-TestResults",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 59,
-          "Reflection Hits": 0,
-          "Start Line": 1745,
-          "Structural Impact": 20.9
-        },
-        {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "72.7%",
-          "End Line": 3050,
-          "Function Name": "Copy-PSGalleryModules",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 58,
-          "Reflection Hits": 0,
-          "Start Line": 2993,
-          "Structural Impact": 20.9
         },
         {
           "Control Flow Branches": 8,
@@ -437107,8 +437065,50 @@
           "Structural Impact": 19.6
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "90.0%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 3383,
+          "Function Name": "convert-pesterlog",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 63,
+          "Reflection Hits": 0,
+          "Start Line": 3321,
+          "Structural Impact": 19.1
+        },
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 1803,
+          "Function Name": "Publish-TestResults",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 59,
+          "Reflection Hits": 0,
+          "Start Line": 1745,
+          "Structural Impact": 18.9
+        },
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "70.0%",
+          "End Line": 3050,
+          "Function Name": "Copy-PSGalleryModules",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 58,
+          "Reflection Hits": 0,
+          "Start Line": 2993,
+          "Structural Impact": 18.9
+        },
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "88.9%",
           "End Line": 76,
           "Function Name": "Sync-PSTags",
           "Has Header Comment": 1,
@@ -437118,11 +437118,11 @@
           "Lines of Code (LOC)": 41,
           "Reflection Hits": 0,
           "Start Line": 36,
-          "Structural Impact": 16.2
+          "Structural Impact": 14.8
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "71.4%",
           "End Line": 3776,
           "Function Name": "New-TestPackage",
           "Has Header Comment": 0,
@@ -437132,21 +437132,7 @@
           "Lines of Code (LOC)": 71,
           "Reflection Hits": 1,
           "Start Line": 3706,
-          "Structural Impact": 15.7
-        },
-        {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
-          "End Line": 4031,
-          "Function Name": "Clear-NativeDependencies",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 65,
-          "Reflection Hits": 0,
-          "Start Line": 3967,
-          "Structural Impact": 14.6
+          "Structural Impact": 13.9
         },
         {
           "Control Flow Branches": 6,
@@ -437178,16 +437164,16 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 2913,
-          "Function Name": "Write-Log",
+          "Control Flow Ratio": "62.5%",
+          "End Line": 4031,
+          "Function Name": "Clear-NativeDependencies",
           "Has Header Comment": 0,
-          "Input Parameters": 2,
+          "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 27,
+          "Lines of Code (LOC)": 65,
           "Reflection Hits": 0,
-          "Start Line": 2887,
+          "Start Line": 3967,
           "Structural Impact": 11.7
         },
         {
@@ -437207,16 +437193,16 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "80.0%",
-          "End Line": 2744,
-          "Function Name": "Add-PSEnvironmentPath",
+          "End Line": 2913,
+          "Function Name": "Write-Log",
           "Has Header Comment": 0,
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 29,
+          "Lines of Code (LOC)": 27,
           "Reflection Hits": 0,
-          "Start Line": 2716,
-          "Structural Impact": 10.1
+          "Start Line": 2887,
+          "Structural Impact": 10.0
         },
         {
           "Control Flow Branches": 8,
@@ -437276,6 +437262,20 @@
         },
         {
           "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 2744,
+          "Function Name": "Add-PSEnvironmentPath",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 29,
+          "Reflection Hits": 0,
+          "Start Line": 2716,
+          "Structural Impact": 8.4
+        },
+        {
+          "Control Flow Branches": 3,
           "Control Flow Ratio": "37.5%",
           "End Line": 1980,
           "Function Name": "Test-XUnitTestResults",
@@ -437287,20 +437287,6 @@
           "Reflection Hits": 0,
           "Start Line": 1930,
           "Structural Impact": 8.2
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
-          "End Line": 1167,
-          "Function Name": "Get-PSOptions",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 14,
-          "Reflection Hits": 0,
-          "Start Line": 1154,
-          "Structural Impact": 7.8
         },
         {
           "Control Flow Branches": 3,
@@ -437319,20 +437305,6 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "60.0%",
-          "End Line": 2867,
-          "Function Name": "Convert-TxtResourceToXml",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 24,
-          "Reflection Hits": 0,
-          "Start Line": 2844,
-          "Structural Impact": 6.9
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
           "End Line": 3704,
           "Function Name": "Get-UniquePackageFolderName",
           "Has Header Comment": 0,
@@ -437343,48 +437315,6 @@
           "Reflection Hits": 0,
           "Start Line": 3681,
           "Structural Impact": 6.9
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 2604,
-          "Function Name": "Find-RequiredSDK",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 23,
-          "Reflection Hits": 0,
-          "Start Line": 2582,
-          "Structural Impact": 6.8
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 3508,
-          "Function Name": "Restore-PSOptions",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
-          "Start Line": 3479,
-          "Structural Impact": 6.7
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 108,
-          "Function Name": "Get-PSVersion",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 16,
-          "Reflection Hits": 0,
-          "Start Line": 93,
-          "Structural Impact": 6.5
         },
         {
           "Control Flow Branches": 4,
@@ -437399,6 +437329,20 @@
           "Reflection Hits": 0,
           "Start Line": 3174,
           "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 1167,
+          "Function Name": "Get-PSOptions",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 1154,
+          "Structural Impact": 6.4
         },
         {
           "Control Flow Branches": 3,
@@ -437430,20 +437374,6 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 255,
-          "Function Name": "Test-IsPreview",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 17,
-          "Reflection Hits": 0,
-          "Start Line": 239,
-          "Structural Impact": 6.0
-        },
-        {
-          "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 3475,
           "Function Name": "Save-PSOptions",
@@ -437455,6 +437385,20 @@
           "Reflection Hits": 0,
           "Start Line": 3462,
           "Structural Impact": 5.9
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 2604,
+          "Function Name": "Find-RequiredSDK",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 23,
+          "Reflection Hits": 0,
+          "Start Line": 2582,
+          "Structural Impact": 5.4
         },
         {
           "Control Flow Branches": 0,
@@ -437469,6 +437413,34 @@
           "Reflection Hits": 0,
           "Start Line": 3510,
           "Structural Impact": 5.3
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 108,
+          "Function Name": "Get-PSVersion",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 93,
+          "Structural Impact": 5.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 3508,
+          "Function Name": "Restore-PSOptions",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 3479,
+          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 2,
@@ -437527,20 +437499,6 @@
           "Structural Impact": 4.7
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 1379,
-          "Function Name": "Get-ExperimentalFeatureTests",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 1369,
-          "Structural Impact": 4.5
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 2933,
@@ -437553,6 +437511,20 @@
           "Reflection Hits": 0,
           "Start Line": 2915,
           "Structural Impact": 4.4
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 255,
+          "Function Name": "Test-IsPreview",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 239,
+          "Structural Impact": 4.3
         },
         {
           "Control Flow Branches": 2,
@@ -437594,20 +437566,6 @@
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 265,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 982,
-          "Function Name": "Restore-PSModuleToBuild",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 15,
-          "Reflection Hits": 0,
-          "Start Line": 968,
           "Structural Impact": 3.6
         },
         {
@@ -437695,6 +437653,20 @@
           "Structural Impact": 2.6
         },
         {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 2867,
+          "Function Name": "Convert-TxtResourceToXml",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 24,
+          "Reflection Hits": 0,
+          "Start Line": 2844,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 3889,
@@ -437725,15 +437697,15 @@
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
-          "End Line": 2990,
-          "Function Name": "Clear-PSRepo",
-          "Has Header Comment": 1,
+          "End Line": 1379,
+          "Function Name": "Get-ExperimentalFeatureTests",
+          "Has Header Comment": 0,
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 10,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
-          "Start Line": 2981,
+          "Start Line": 1369,
           "Structural Impact": 2.5
         },
         {
@@ -437763,6 +437735,20 @@
           "Reflection Hits": 0,
           "Start Line": 4053,
           "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 982,
+          "Function Name": "Restore-PSModuleToBuild",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 968,
+          "Structural Impact": 2.2
         },
         {
           "Control Flow Branches": 0,
@@ -437874,6 +437860,20 @@
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 376,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 2990,
+          "Function Name": "Clear-PSRepo",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 2981,
           "Structural Impact": 1.5
         },
         {
@@ -438019,8 +438019,8 @@
       ],
       "powershell/core/RegisterManifest.ps1": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
           "End Line": 48,
           "Function Name": "Start-NativeExecution",
           "Has Header Comment": 0,
@@ -438030,7 +438030,7 @@
           "Lines of Code (LOC)": 19,
           "Reflection Hits": 1,
           "Start Line": 30,
-          "Structural Impact": 9.6
+          "Structural Impact": 7.9
         },
         {
           "Control Flow Branches": 0,
@@ -438324,8 +438324,8 @@
       ],
       "powershell/core/build.psm1": [
         {
-          "Control Flow Branches": 116,
-          "Control Flow Ratio": "92.1%",
+          "Control Flow Branches": 99,
+          "Control Flow Ratio": "90.8%",
           "End Line": 763,
           "Function Name": "Start-PSBuild",
           "Has Header Comment": 0,
@@ -438335,11 +438335,11 @@
           "Lines of Code (LOC)": 481,
           "Reflection Hits": 1,
           "Start Line": 283,
-          "Structural Impact": 560.2
+          "Structural Impact": 482.3
         },
         {
-          "Control Flow Branches": 87,
-          "Control Flow Ratio": "93.5%",
+          "Control Flow Branches": 72,
+          "Control Flow Ratio": "92.3%",
           "End Line": 1743,
           "Function Name": "Start-PSPester",
           "Has Header Comment": 0,
@@ -438349,11 +438349,11 @@
           "Lines of Code (LOC)": 363,
           "Reflection Hits": 3,
           "Start Line": 1381,
-          "Structural Impact": 430.9
+          "Structural Impact": 360.6
         },
         {
-          "Control Flow Branches": 66,
-          "Control Flow Ratio": "97.1%",
+          "Control Flow Branches": 63,
+          "Control Flow Ratio": "96.9%",
           "End Line": 2578,
           "Function Name": "Start-PSBootstrap",
           "Has Header Comment": 0,
@@ -438363,11 +438363,11 @@
           "Lines of Code (LOC)": 264,
           "Reflection Hits": 6,
           "Start Line": 2315,
-          "Structural Impact": 190.5
+          "Structural Impact": 182.5
         },
         {
-          "Control Flow Branches": 31,
-          "Control Flow Ratio": "93.9%",
+          "Control Flow Branches": 29,
+          "Control Flow Ratio": "93.5%",
           "End Line": 2301,
           "Function Name": "Install-Dotnet",
           "Has Header Comment": 0,
@@ -438377,11 +438377,11 @@
           "Lines of Code (LOC)": 150,
           "Reflection Hits": 4,
           "Start Line": 2152,
-          "Structural Impact": 103.5
+          "Structural Impact": 97.5
         },
         {
-          "Control Flow Branches": 30,
-          "Control Flow Ratio": "90.9%",
+          "Control Flow Branches": 26,
+          "Control Flow Ratio": "89.7%",
           "End Line": 1151,
           "Function Name": "New-PSOptions",
           "Has Header Comment": 0,
@@ -438391,11 +438391,11 @@
           "Lines of Code (LOC)": 145,
           "Reflection Hits": 0,
           "Start Line": 1007,
-          "Structural Impact": 94.9
+          "Structural Impact": 83.6
         },
         {
-          "Control Flow Branches": 36,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Branches": 29,
+          "Control Flow Ratio": "51.8%",
           "End Line": 3459,
           "Function Name": "ConvertFrom-PesterLog",
           "Has Header Comment": 0,
@@ -438405,11 +438405,11 @@
           "Lines of Code (LOC)": 366,
           "Reflection Hits": 0,
           "Start Line": 3094,
-          "Structural Impact": 92.3
+          "Structural Impact": 78.3
         },
         {
-          "Control Flow Branches": 31,
-          "Control Flow Ratio": "93.9%",
+          "Control Flow Branches": 27,
+          "Control Flow Ratio": "93.1%",
           "End Line": 966,
           "Function Name": "Restore-PSPackage",
           "Has Header Comment": 0,
@@ -438419,7 +438419,7 @@
           "Lines of Code (LOC)": 113,
           "Reflection Hits": 0,
           "Start Line": 854,
-          "Structural Impact": 84.0
+          "Structural Impact": 74.2
         },
         {
           "Control Flow Branches": 45,
@@ -438436,8 +438436,8 @@
           "Structural Impact": 51.0
         },
         {
-          "Control Flow Branches": 17,
-          "Control Flow Ratio": "77.3%",
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "75.0%",
           "End Line": 2059,
           "Function Name": "Test-PSPesterResults",
           "Has Header Comment": 1,
@@ -438447,11 +438447,11 @@
           "Lines of Code (LOC)": 75,
           "Reflection Hits": 0,
           "Start Line": 1985,
-          "Structural Impact": 44.0
+          "Structural Impact": 39.5
         },
         {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "92.9%",
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "90.9%",
           "End Line": 2670,
           "Function Name": "Start-DevPowerShell",
           "Has Header Comment": 0,
@@ -438461,11 +438461,11 @@
           "Lines of Code (LOC)": 65,
           "Reflection Hits": 0,
           "Start Line": 2606,
-          "Structural Impact": 42.8
+          "Structural Impact": 34.4
         },
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "82.4%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "81.2%",
           "End Line": 2150,
           "Function Name": "Start-PSxUnit",
           "Has Header Comment": 0,
@@ -438475,39 +438475,11 @@
           "Lines of Code (LOC)": 90,
           "Reflection Hits": 0,
           "Start Line": 2061,
-          "Structural Impact": 34.5
+          "Structural Impact": 32.5
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "92.3%",
-          "End Line": 3383,
-          "Function Name": "convert-pesterlog",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 63,
-          "Reflection Hits": 0,
-          "Start Line": 3321,
-          "Structural Impact": 29.1
-        },
-        {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "93.8%",
-          "End Line": 1252,
-          "Function Name": "Get-PesterTag",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 62,
-          "Reflection Hits": 6,
-          "Start Line": 1191,
-          "Structural Impact": 25.7
-        },
-        {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "93.3%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "92.9%",
           "End Line": 2837,
           "Function Name": "Find-Dotnet",
           "Has Header Comment": 0,
@@ -438517,7 +438489,21 @@
           "Lines of Code (LOC)": 65,
           "Reflection Hits": 0,
           "Start Line": 2773,
-          "Structural Impact": 24.5
+          "Structural Impact": 23.0
+        },
+        {
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "92.9%",
+          "End Line": 1252,
+          "Function Name": "Get-PesterTag",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 62,
+          "Reflection Hits": 6,
+          "Start Line": 1191,
+          "Structural Impact": 22.9
         },
         {
           "Control Flow Branches": 13,
@@ -438532,34 +438518,6 @@
           "Reflection Hits": 0,
           "Start Line": 1548,
           "Structural Impact": 22.2
-        },
-        {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "88.9%",
-          "End Line": 1803,
-          "Function Name": "Publish-TestResults",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 59,
-          "Reflection Hits": 0,
-          "Start Line": 1745,
-          "Structural Impact": 20.9
-        },
-        {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "72.7%",
-          "End Line": 3050,
-          "Function Name": "Copy-PSGalleryModules",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 58,
-          "Reflection Hits": 0,
-          "Start Line": 2993,
-          "Structural Impact": 20.9
         },
         {
           "Control Flow Branches": 8,
@@ -438604,8 +438562,50 @@
           "Structural Impact": 19.6
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "90.0%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 3383,
+          "Function Name": "convert-pesterlog",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 63,
+          "Reflection Hits": 0,
+          "Start Line": 3321,
+          "Structural Impact": 19.1
+        },
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 1803,
+          "Function Name": "Publish-TestResults",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 59,
+          "Reflection Hits": 0,
+          "Start Line": 1745,
+          "Structural Impact": 18.9
+        },
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "70.0%",
+          "End Line": 3050,
+          "Function Name": "Copy-PSGalleryModules",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 58,
+          "Reflection Hits": 0,
+          "Start Line": 2993,
+          "Structural Impact": 18.9
+        },
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "88.9%",
           "End Line": 76,
           "Function Name": "Sync-PSTags",
           "Has Header Comment": 1,
@@ -438615,11 +438615,11 @@
           "Lines of Code (LOC)": 41,
           "Reflection Hits": 0,
           "Start Line": 36,
-          "Structural Impact": 16.2
+          "Structural Impact": 14.8
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "71.4%",
           "End Line": 3776,
           "Function Name": "New-TestPackage",
           "Has Header Comment": 0,
@@ -438629,21 +438629,7 @@
           "Lines of Code (LOC)": 71,
           "Reflection Hits": 1,
           "Start Line": 3706,
-          "Structural Impact": 15.7
-        },
-        {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
-          "End Line": 4031,
-          "Function Name": "Clear-NativeDependencies",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 65,
-          "Reflection Hits": 0,
-          "Start Line": 3967,
-          "Structural Impact": 14.6
+          "Structural Impact": 13.9
         },
         {
           "Control Flow Branches": 6,
@@ -438675,16 +438661,16 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 2913,
-          "Function Name": "Write-Log",
+          "Control Flow Ratio": "62.5%",
+          "End Line": 4031,
+          "Function Name": "Clear-NativeDependencies",
           "Has Header Comment": 0,
-          "Input Parameters": 2,
+          "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 27,
+          "Lines of Code (LOC)": 65,
           "Reflection Hits": 0,
-          "Start Line": 2887,
+          "Start Line": 3967,
           "Structural Impact": 11.7
         },
         {
@@ -438704,16 +438690,16 @@
         {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "80.0%",
-          "End Line": 2744,
-          "Function Name": "Add-PSEnvironmentPath",
+          "End Line": 2913,
+          "Function Name": "Write-Log",
           "Has Header Comment": 0,
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 29,
+          "Lines of Code (LOC)": 27,
           "Reflection Hits": 0,
-          "Start Line": 2716,
-          "Structural Impact": 10.1
+          "Start Line": 2887,
+          "Structural Impact": 10.0
         },
         {
           "Control Flow Branches": 8,
@@ -438773,6 +438759,20 @@
         },
         {
           "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 2744,
+          "Function Name": "Add-PSEnvironmentPath",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 29,
+          "Reflection Hits": 0,
+          "Start Line": 2716,
+          "Structural Impact": 8.4
+        },
+        {
+          "Control Flow Branches": 3,
           "Control Flow Ratio": "37.5%",
           "End Line": 1980,
           "Function Name": "Test-XUnitTestResults",
@@ -438784,20 +438784,6 @@
           "Reflection Hits": 0,
           "Start Line": 1930,
           "Structural Impact": 8.2
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
-          "End Line": 1167,
-          "Function Name": "Get-PSOptions",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 14,
-          "Reflection Hits": 0,
-          "Start Line": 1154,
-          "Structural Impact": 7.8
         },
         {
           "Control Flow Branches": 3,
@@ -438816,20 +438802,6 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "60.0%",
-          "End Line": 2867,
-          "Function Name": "Convert-TxtResourceToXml",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 24,
-          "Reflection Hits": 0,
-          "Start Line": 2844,
-          "Structural Impact": 6.9
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
           "End Line": 3704,
           "Function Name": "Get-UniquePackageFolderName",
           "Has Header Comment": 0,
@@ -438840,48 +438812,6 @@
           "Reflection Hits": 0,
           "Start Line": 3681,
           "Structural Impact": 6.9
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 2604,
-          "Function Name": "Find-RequiredSDK",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 23,
-          "Reflection Hits": 0,
-          "Start Line": 2582,
-          "Structural Impact": 6.8
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 3508,
-          "Function Name": "Restore-PSOptions",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
-          "Start Line": 3479,
-          "Structural Impact": 6.7
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 108,
-          "Function Name": "Get-PSVersion",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 16,
-          "Reflection Hits": 0,
-          "Start Line": 93,
-          "Structural Impact": 6.5
         },
         {
           "Control Flow Branches": 4,
@@ -438896,6 +438826,20 @@
           "Reflection Hits": 0,
           "Start Line": 3174,
           "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 1167,
+          "Function Name": "Get-PSOptions",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 1154,
+          "Structural Impact": 6.4
         },
         {
           "Control Flow Branches": 3,
@@ -438927,20 +438871,6 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 255,
-          "Function Name": "Test-IsPreview",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 17,
-          "Reflection Hits": 0,
-          "Start Line": 239,
-          "Structural Impact": 6.0
-        },
-        {
-          "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 3475,
           "Function Name": "Save-PSOptions",
@@ -438952,6 +438882,20 @@
           "Reflection Hits": 0,
           "Start Line": 3462,
           "Structural Impact": 5.9
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 2604,
+          "Function Name": "Find-RequiredSDK",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 23,
+          "Reflection Hits": 0,
+          "Start Line": 2582,
+          "Structural Impact": 5.4
         },
         {
           "Control Flow Branches": 0,
@@ -438966,6 +438910,34 @@
           "Reflection Hits": 0,
           "Start Line": 3510,
           "Structural Impact": 5.3
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 108,
+          "Function Name": "Get-PSVersion",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 93,
+          "Structural Impact": 5.0
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 3508,
+          "Function Name": "Restore-PSOptions",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 3479,
+          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 2,
@@ -439024,20 +438996,6 @@
           "Structural Impact": 4.7
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 1379,
-          "Function Name": "Get-ExperimentalFeatureTests",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 1369,
-          "Structural Impact": 4.5
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 2933,
@@ -439050,6 +439008,20 @@
           "Reflection Hits": 0,
           "Start Line": 2915,
           "Structural Impact": 4.4
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 255,
+          "Function Name": "Test-IsPreview",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 239,
+          "Structural Impact": 4.3
         },
         {
           "Control Flow Branches": 2,
@@ -439091,20 +439063,6 @@
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 265,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 982,
-          "Function Name": "Restore-PSModuleToBuild",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 15,
-          "Reflection Hits": 0,
-          "Start Line": 968,
           "Structural Impact": 3.6
         },
         {
@@ -439192,6 +439150,20 @@
           "Structural Impact": 2.6
         },
         {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 2867,
+          "Function Name": "Convert-TxtResourceToXml",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 24,
+          "Reflection Hits": 0,
+          "Start Line": 2844,
+          "Structural Impact": 2.6
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 3889,
@@ -439222,15 +439194,15 @@
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
-          "End Line": 2990,
-          "Function Name": "Clear-PSRepo",
-          "Has Header Comment": 1,
+          "End Line": 1379,
+          "Function Name": "Get-ExperimentalFeatureTests",
+          "Has Header Comment": 0,
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 10,
+          "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
-          "Start Line": 2981,
+          "Start Line": 1369,
           "Structural Impact": 2.5
         },
         {
@@ -439260,6 +439232,20 @@
           "Reflection Hits": 0,
           "Start Line": 4053,
           "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 982,
+          "Function Name": "Restore-PSModuleToBuild",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 968,
+          "Structural Impact": 2.2
         },
         {
           "Control Flow Branches": 0,
@@ -439371,6 +439357,20 @@
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 376,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 2990,
+          "Function Name": "Clear-PSRepo",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 2981,
           "Structural Impact": 1.5
         },
         {
@@ -439516,8 +439516,8 @@
       ],
       "powershell/core/ci.psm1": [
         {
-          "Control Flow Branches": 29,
-          "Control Flow Ratio": "93.5%",
+          "Control Flow Branches": 27,
+          "Control Flow Ratio": "93.1%",
           "End Line": 895,
           "Function Name": "Invoke-LinuxTestsCore",
           "Has Header Comment": 0,
@@ -439527,11 +439527,11 @@
           "Lines of Code (LOC)": 147,
           "Reflection Hits": 0,
           "Start Line": 749,
-          "Structural Impact": 80.8
+          "Structural Impact": 75.9
         },
         {
-          "Control Flow Branches": 28,
-          "Control Flow Ratio": "84.8%",
+          "Control Flow Branches": 27,
+          "Control Flow Ratio": "84.4%",
           "End Line": 1241,
           "Function Name": "Test-MergeConflictMarker",
           "Has Header Comment": 0,
@@ -439541,11 +439541,11 @@
           "Lines of Code (LOC)": 222,
           "Reflection Hits": 0,
           "Start Line": 1020,
-          "Structural Impact": 75.9
+          "Structural Impact": 73.7
         },
         {
-          "Control Flow Branches": 26,
-          "Control Flow Ratio": "83.9%",
+          "Control Flow Branches": 25,
+          "Control Flow Ratio": "83.3%",
           "End Line": 699,
           "Function Name": "Invoke-CIFinish",
           "Has Header Comment": 1,
@@ -439555,7 +439555,7 @@
           "Lines of Code (LOC)": 146,
           "Reflection Hits": 0,
           "Start Line": 554,
-          "Structural Impact": 61.3
+          "Structural Impact": 59.3
         },
         {
           "Control Flow Branches": 17,
@@ -439572,8 +439572,8 @@
           "Structural Impact": 48.8
         },
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "91.7%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "90.0%",
           "End Line": 199,
           "Function Name": "Invoke-CIInstall",
           "Has Header Comment": 1,
@@ -439583,11 +439583,11 @@
           "Lines of Code (LOC)": 60,
           "Reflection Hits": 0,
           "Start Line": 140,
-          "Structural Impact": 20.0
+          "Structural Impact": 17.1
         },
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "66.7%",
           "End Line": 268,
           "Function Name": "Install-CIPester",
           "Has Header Comment": 1,
@@ -439597,7 +439597,7 @@
           "Lines of Code (LOC)": 37,
           "Reflection Hits": 0,
           "Start Line": 232,
-          "Structural Impact": 17.9
+          "Structural Impact": 15.8
         },
         {
           "Control Flow Branches": 7,
@@ -439642,8 +439642,8 @@
           "Structural Impact": 15.2
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "80.0%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
           "End Line": 82,
           "Function Name": "Set-BuildVariable",
           "Has Header Comment": 1,
@@ -439653,11 +439653,11 @@
           "Lines of Code (LOC)": 30,
           "Reflection Hits": 0,
           "Start Line": 53,
-          "Structural Impact": 11.5
+          "Structural Impact": 9.5
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "66.7%",
           "End Line": 229,
           "Function Name": "Invoke-CIxUnit",
           "Has Header Comment": 0,
@@ -439667,35 +439667,7 @@
           "Lines of Code (LOC)": 29,
           "Reflection Hits": 0,
           "Start Line": 201,
-          "Structural Impact": 9.9
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 728,
-          "Function Name": "Set-Path",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 28,
-          "Reflection Hits": 0,
-          "Start Line": 701,
-          "Structural Impact": 8.3
-        },
-        {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 479,
-          "Function Name": "New-CodeCoverageAndTestPackage",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 37,
-          "Reflection Hits": 0,
-          "Start Line": 443,
-          "Structural Impact": 7.8
+          "Structural Impact": 8.5
         },
         {
           "Control Flow Branches": 2,
@@ -439712,18 +439684,32 @@
           "Structural Impact": 7.5
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 99,
-          "Function Name": "Invoke-CIFull",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
+          "End Line": 479,
+          "Function Name": "New-CodeCoverageAndTestPackage",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 37,
+          "Reflection Hits": 0,
+          "Start Line": 443,
+          "Structural Impact": 6.8
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 728,
+          "Function Name": "Set-Path",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 15,
+          "Lines of Code (LOC)": 28,
           "Reflection Hits": 0,
-          "Start Line": 85,
-          "Structural Impact": 6.4
+          "Start Line": 701,
+          "Structural Impact": 6.6
         },
         {
           "Control Flow Branches": 2,
@@ -439738,6 +439724,20 @@
           "Reflection Hits": 0,
           "Start Line": 102,
           "Structural Impact": 6.0
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 99,
+          "Function Name": "Invoke-CIFull",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 85,
+          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 2,
@@ -439813,8 +439813,8 @@
       "powershell/core/ciModule.Tests.ps1": [],
       "powershell/core/install-powershell.ps1": [
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "81.8%",
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "80.0%",
           "End Line": 139,
           "Function Name": "Remove-Destination",
           "Has Header Comment": 0,
@@ -439824,7 +439824,7 @@
           "Lines of Code (LOC)": 24,
           "Reflection Hits": 0,
           "Start Line": 116,
-          "Structural Impact": 15.3
+          "Structural Impact": 13.9
         },
         {
           "Control Flow Branches": 5,
@@ -439841,8 +439841,8 @@
           "Structural Impact": 12.8
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "50.0%",
           "End Line": 182,
           "Function Name": "Test-PathNotInSettings",
           "Has Header Comment": 1,
@@ -439852,7 +439852,7 @@
           "Lines of Code (LOC)": 31,
           "Reflection Hits": 0,
           "Start Line": 152,
-          "Structural Impact": 11.4
+          "Structural Impact": 10.0
         },
         {
           "Control Flow Branches": 2,
@@ -439874,8 +439874,8 @@
       "powershell/core/packaging.psd1": [],
       "powershell/core/packaging.psm1": [
         {
-          "Control Flow Branches": 141,
-          "Control Flow Ratio": "95.3%",
+          "Control Flow Branches": 125,
+          "Control Flow Ratio": "94.7%",
           "End Line": 748,
           "Function Name": "Start-PSPackage",
           "Has Header Comment": 0,
@@ -439885,11 +439885,11 @@
           "Lines of Code (LOC)": 711,
           "Reflection Hits": 0,
           "Start Line": 38,
-          "Structural Impact": 547.5
+          "Structural Impact": 489.8
         },
         {
-          "Control Flow Branches": 61,
-          "Control Flow Ratio": "80.3%",
+          "Control Flow Branches": 58,
+          "Control Flow Ratio": "79.5%",
           "End Line": 1438,
           "Function Name": "New-UnixPackage",
           "Has Header Comment": 0,
@@ -439899,11 +439899,11 @@
           "Lines of Code (LOC)": 398,
           "Reflection Hits": 0,
           "Start Line": 1041,
-          "Structural Impact": 225.5
+          "Structural Impact": 215.6
         },
         {
-          "Control Flow Branches": 23,
-          "Control Flow Ratio": "88.5%",
+          "Control Flow Branches": 18,
+          "Control Flow Ratio": "85.7%",
           "End Line": 1958,
           "Function Name": "New-NativeDeb",
           "Has Header Comment": 0,
@@ -439913,7 +439913,7 @@
           "Lines of Code (LOC)": 210,
           "Reflection Hits": 0,
           "Start Line": 1749,
-          "Structural Impact": 103.5
+          "Structural Impact": 84.1
         },
         {
           "Control Flow Branches": 16,
@@ -439930,34 +439930,6 @@
           "Structural Impact": 73.7
         },
         {
-          "Control Flow Branches": 19,
-          "Control Flow Ratio": "90.5%",
-          "End Line": 4378,
-          "Function Name": "New-MSIXPackage",
-          "Has Header Comment": 0,
-          "Input Parameters": 9,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 160,
-          "Reflection Hits": 3,
-          "Start Line": 4219,
-          "Structural Impact": 71.2
-        },
-        {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "88.2%",
-          "End Line": 2113,
-          "Function Name": "New-MacOSPackage",
-          "Has Header Comment": 0,
-          "Input Parameters": 13,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 154,
-          "Reflection Hits": 0,
-          "Start Line": 1960,
-          "Structural Impact": 67.6
-        },
-        {
           "Control Flow Branches": 20,
           "Control Flow Ratio": "83.3%",
           "End Line": 3011,
@@ -439972,22 +439944,36 @@
           "Structural Impact": 66.9
         },
         {
-          "Control Flow Branches": 18,
-          "Control Flow Ratio": "78.3%",
-          "End Line": 832,
-          "Function Name": "New-TarballPackage",
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 2113,
+          "Function Name": "New-MacOSPackage",
+          "Has Header Comment": 0,
+          "Input Parameters": 13,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 154,
+          "Reflection Hits": 0,
+          "Start Line": 1960,
+          "Structural Impact": 63.8
+        },
+        {
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "88.2%",
+          "End Line": 4378,
+          "Function Name": "New-MSIXPackage",
           "Has Header Comment": 0,
           "Input Parameters": 9,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 83,
-          "Reflection Hits": 0,
-          "Start Line": 750,
-          "Structural Impact": 64.2
+          "Lines of Code (LOC)": 160,
+          "Reflection Hits": 3,
+          "Start Line": 4219,
+          "Structural Impact": 58.6
         },
         {
-          "Control Flow Branches": 17,
-          "Control Flow Ratio": "81.0%",
+          "Control Flow Branches": 16,
+          "Control Flow Ratio": "80.0%",
           "End Line": 4933,
           "Function Name": "New-GlobalToolNupkgSource",
           "Has Header Comment": 0,
@@ -439997,11 +439983,25 @@
           "Lines of Code (LOC)": 207,
           "Reflection Hits": 0,
           "Start Line": 4727,
-          "Structural Impact": 61.3
+          "Structural Impact": 58.4
         },
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "80.0%",
+          "Control Flow Ratio": "76.2%",
+          "End Line": 832,
+          "Function Name": "New-TarballPackage",
+          "Has Header Comment": 0,
+          "Input Parameters": 9,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 83,
+          "Reflection Hits": 0,
+          "Start Line": 750,
+          "Structural Impact": 57.9
+        },
+        {
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "78.9%",
           "End Line": 1582,
           "Function Name": "New-MacOsDistributionPackage",
           "Has Header Comment": 0,
@@ -440011,7 +440011,7 @@
           "Lines of Code (LOC)": 114,
           "Reflection Hits": 0,
           "Start Line": 1469,
-          "Structural Impact": 53.8
+          "Structural Impact": 51.0
         },
         {
           "Control Flow Branches": 19,
@@ -440028,8 +440028,8 @@
           "Structural Impact": 49.5
         },
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "81.8%",
           "End Line": 3975,
           "Function Name": "New-MSIPackage",
           "Has Header Comment": 0,
@@ -440039,11 +440039,11 @@
           "Lines of Code (LOC)": 149,
           "Reflection Hits": 1,
           "Start Line": 3827,
-          "Structural Impact": 45.6
+          "Structural Impact": 42.1
         },
         {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "88.2%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "86.7%",
           "End Line": 5773,
           "Function Name": "Test-Bom",
           "Has Header Comment": 1,
@@ -440053,49 +440053,7 @@
           "Lines of Code (LOC)": 117,
           "Reflection Hits": 0,
           "Start Line": 5657,
-          "Structural Impact": 41.6
-        },
-        {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 2585,
-          "Function Name": "New-ZipPackage",
-          "Has Header Comment": 0,
-          "Input Parameters": 7,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 73,
-          "Reflection Hits": 0,
-          "Start Line": 2513,
-          "Structural Impact": 34.8
-        },
-        {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "72.2%",
-          "End Line": 2510,
-          "Function Name": "New-StagingFolder",
-          "Has Header Comment": 0,
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 61,
-          "Reflection Hits": 0,
-          "Start Line": 2450,
-          "Structural Impact": 34.4
-        },
-        {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 2658,
-          "Function Name": "New-PdbZipPackage",
-          "Has Header Comment": 0,
-          "Input Parameters": 6,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 71,
-          "Reflection Hits": 0,
-          "Start Line": 2588,
-          "Structural Impact": 32.7
+          "Structural Impact": 37.2
         },
         {
           "Control Flow Branches": 14,
@@ -440112,6 +440070,34 @@
           "Structural Impact": 32.7
         },
         {
+          "Control Flow Branches": 12,
+          "Control Flow Ratio": "70.6%",
+          "End Line": 2510,
+          "Function Name": "New-StagingFolder",
+          "Has Header Comment": 0,
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 61,
+          "Reflection Hits": 0,
+          "Start Line": 2450,
+          "Structural Impact": 32.1
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "81.8%",
+          "End Line": 2585,
+          "Function Name": "New-ZipPackage",
+          "Has Header Comment": 0,
+          "Input Parameters": 7,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 73,
+          "Reflection Hits": 0,
+          "Start Line": 2513,
+          "Structural Impact": 31.9
+        },
+        {
           "Control Flow Branches": 9,
           "Control Flow Ratio": "60.0%",
           "End Line": 3366,
@@ -440124,6 +440110,20 @@
           "Reflection Hits": 1,
           "Start Line": 3249,
           "Structural Impact": 30.4
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "81.8%",
+          "End Line": 2658,
+          "Function Name": "New-PdbZipPackage",
+          "Has Header Comment": 0,
+          "Input Parameters": 6,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 71,
+          "Reflection Hits": 0,
+          "Start Line": 2588,
+          "Structural Impact": 30.0
         },
         {
           "Control Flow Branches": 12,
@@ -440154,20 +440154,6 @@
           "Structural Impact": 27.0
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "92.3%",
-          "End Line": 4587,
-          "Function Name": "Get-PackageVersionAsMajorMinorBuildRevision",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 44,
-          "Reflection Hits": 0,
-          "Start Line": 4544,
-          "Structural Impact": 24.7
-        },
-        {
           "Control Flow Branches": 9,
           "Control Flow Ratio": "64.3%",
           "End Line": 4497,
@@ -440182,6 +440168,20 @@
           "Structural Impact": 23.4
         },
         {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "91.7%",
+          "End Line": 4587,
+          "Function Name": "Get-PackageVersionAsMajorMinorBuildRevision",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 44,
+          "Reflection Hits": 0,
+          "Start Line": 4544,
+          "Structural Impact": 23.0
+        },
+        {
           "Control Flow Branches": 9,
           "Control Flow Ratio": "90.0%",
           "End Line": 2830,
@@ -440194,34 +440194,6 @@
           "Reflection Hits": 0,
           "Start Line": 2734,
           "Structural Impact": 22.2
-        },
-        {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "71.4%",
-          "End Line": 4658,
-          "Function Name": "ReduceFxDependentPackage",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 60,
-          "Reflection Hits": 0,
-          "Start Line": 4599,
-          "Structural Impact": 22.1
-        },
-        {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
-          "End Line": 5114,
-          "Function Name": "Invoke-AzDevOpsLinuxPackageCreation",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 115,
-          "Reflection Hits": 0,
-          "Start Line": 5000,
-          "Structural Impact": 21.8
         },
         {
           "Control Flow Branches": 12,
@@ -440252,32 +440224,18 @@
           "Structural Impact": 20.9
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 2409,
-          "Function Name": "New-MacOSLauncher",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 5114,
+          "Function Name": "Invoke-AzDevOpsLinuxPackageCreation",
           "Has Header Comment": 0,
-          "Input Parameters": 2,
+          "Input Parameters": 3,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 59,
+          "Lines of Code (LOC)": 115,
           "Reflection Hits": 0,
-          "Start Line": 2351,
-          "Structural Impact": 20.3
-        },
-        {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "81.8%",
-          "End Line": 2436,
-          "Function Name": "Get-PwshExecutablePath",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 26,
-          "Reflection Hits": 0,
-          "Start Line": 2411,
-          "Structural Impact": 18.6
+          "Start Line": 5000,
+          "Structural Impact": 19.8
         },
         {
           "Control Flow Branches": 5,
@@ -440295,7 +440253,35 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "80.0%",
+          "Control Flow Ratio": "72.7%",
+          "End Line": 2409,
+          "Function Name": "New-MacOSLauncher",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 59,
+          "Reflection Hits": 0,
+          "Start Line": 2351,
+          "Structural Impact": 18.5
+        },
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "63.6%",
+          "End Line": 4658,
+          "Function Name": "ReduceFxDependentPackage",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 60,
+          "Reflection Hits": 0,
+          "Start Line": 4599,
+          "Structural Impact": 16.9
+        },
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "77.8%",
           "End Line": 1039,
           "Function Name": "Expand-PSSignedBuild",
           "Has Header Comment": 0,
@@ -440305,34 +440291,20 @@
           "Lines of Code (LOC)": 45,
           "Reflection Hits": 0,
           "Start Line": 995,
-          "Structural Impact": 17.8
+          "Structural Impact": 16.1
         },
         {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "80.0%",
-          "End Line": 2307,
-          "Function Name": "New-ManGzip",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "77.8%",
+          "End Line": 2436,
+          "Function Name": "Get-PwshExecutablePath",
           "Has Header Comment": 0,
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 39,
+          "Lines of Code (LOC)": 26,
           "Reflection Hits": 0,
-          "Start Line": 2269,
-          "Structural Impact": 17.5
-        },
-        {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 5357,
-          "Function Name": "Export-LinuxFilePermission",
-          "Has Header Comment": 0,
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 36,
-          "Reflection Hits": 0,
-          "Start Line": 5322,
+          "Start Line": 2411,
           "Structural Impact": 15.2
         },
         {
@@ -440380,16 +440352,16 @@
         {
           "Control Flow Branches": 6,
           "Control Flow Ratio": "75.0%",
-          "End Line": 3685,
-          "Function Name": "Get-PackageSemanticVersion",
+          "End Line": 2307,
+          "Function Name": "New-ManGzip",
           "Has Header Comment": 0,
           "Input Parameters": 2,
           "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 31,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 39,
           "Reflection Hits": 0,
-          "Start Line": 3655,
-          "Structural Impact": 13.7
+          "Start Line": 2269,
+          "Structural Impact": 14.1
         },
         {
           "Control Flow Branches": 4,
@@ -440420,18 +440392,18 @@
           "Structural Impact": 13.4
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 5433,
-          "Function Name": "Test-PackageManifest",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "44.4%",
+          "End Line": 5357,
+          "Function Name": "Export-LinuxFilePermission",
           "Has Header Comment": 0,
-          "Input Parameters": 1,
+          "Input Parameters": 4,
           "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 61,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 36,
           "Reflection Hits": 0,
-          "Start Line": 5373,
-          "Structural Impact": 12.9
+          "Start Line": 5322,
+          "Structural Impact": 13.0
         },
         {
           "Control Flow Branches": 6,
@@ -440448,18 +440420,18 @@
           "Structural Impact": 12.0
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 3651,
-          "Function Name": "New-SubFolder",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "71.4%",
+          "End Line": 3685,
+          "Function Name": "Get-PackageSemanticVersion",
           "Has Header Comment": 0,
-          "Input Parameters": 3,
+          "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 26,
+          "Lines of Code (LOC)": 31,
           "Reflection Hits": 0,
-          "Start Line": 3626,
-          "Structural Impact": 11.3
+          "Start Line": 3655,
+          "Structural Impact": 11.9
         },
         {
           "Control Flow Branches": 3,
@@ -440476,20 +440448,6 @@
           "Structural Impact": 10.7
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
-          "End Line": 5302,
-          "Function Name": "Set-LinuxFilePermission",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 33,
-          "Reflection Hits": 0,
-          "Start Line": 5270,
-          "Structural Impact": 10.3
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
           "End Line": 4701,
@@ -440502,6 +440460,20 @@
           "Reflection Hits": 0,
           "Start Line": 4676,
           "Structural Impact": 10.2
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 5433,
+          "Function Name": "Test-PackageManifest",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 61,
+          "Reflection Hits": 0,
+          "Start Line": 5373,
+          "Structural Impact": 10.1
         },
         {
           "Control Flow Branches": 5,
@@ -440534,6 +440506,20 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "60.0%",
+          "End Line": 3651,
+          "Function Name": "New-SubFolder",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 26,
+          "Reflection Hits": 0,
+          "Start Line": 3626,
+          "Structural Impact": 9.3
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
           "End Line": 895,
           "Function Name": "New-PSBuildZip",
           "Has Header Comment": 0,
@@ -440544,6 +440530,20 @@
           "Reflection Hits": 0,
           "Start Line": 871,
           "Structural Impact": 9.2
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 5302,
+          "Function Name": "Set-LinuxFilePermission",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 5270,
+          "Structural Impact": 8.6
         },
         {
           "Control Flow Branches": 6,
@@ -440558,20 +440558,6 @@
           "Reflection Hits": 0,
           "Start Line": 2200,
           "Structural Impact": 8.2
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 2348,
-          "Function Name": "Get-MacOSPackageIdentifierInfo",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 24,
-          "Reflection Hits": 0,
-          "Start Line": 2325,
-          "Structural Impact": 8.1
         },
         {
           "Control Flow Branches": 2,
@@ -440688,16 +440674,16 @@
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
-          "End Line": 3624,
-          "Function Name": "Publish-NugetToMyGet",
+          "End Line": 2348,
+          "Function Name": "Get-MacOSPackageIdentifierInfo",
           "Has Header Comment": 0,
           "Input Parameters": 2,
           "Is Documented": 1,
           "Is Public": 0,
-          "Lines of Code (LOC)": 22,
+          "Lines of Code (LOC)": 24,
           "Reflection Hits": 0,
-          "Start Line": 3603,
-          "Structural Impact": 6.3
+          "Start Line": 2325,
+          "Structural Impact": 6.4
         },
         {
           "Control Flow Branches": 1,
@@ -440740,6 +440726,20 @@
           "Reflection Hits": 0,
           "Start Line": 1440,
           "Structural Impact": 4.9
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 3624,
+          "Function Name": "Publish-NugetToMyGet",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 22,
+          "Reflection Hits": 0,
+          "Start Line": 3603,
+          "Structural Impact": 4.6
         },
         {
           "Control Flow Branches": 1,
@@ -440927,8 +440927,8 @@
       "powershell/core/packaging.tests.ps1": [],
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": [
         {
-          "Control Flow Branches": 18,
-          "Control Flow Ratio": "69.2%",
+          "Control Flow Branches": 17,
+          "Control Flow Ratio": "68.0%",
           "End Line": 225,
           "Function Name": "Install-PluginEndpoint",
           "Has Header Comment": 0,
@@ -440938,7 +440938,7 @@
           "Lines of Code (LOC)": 113,
           "Reflection Hits": 0,
           "Start Line": 113,
-          "Structural Impact": 38.6
+          "Structural Impact": 36.8
         },
         {
           "Control Flow Branches": 2,
@@ -440972,8 +440972,8 @@
       "powershell/core/process-pester-results.ps1": [],
       "powershell/core/pwsh.profile.resource.ps1": [
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "76.9%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "75.0%",
           "End Line": 132,
           "Function Name": "GetOperation",
           "Has Header Comment": 0,
@@ -440983,7 +440983,7 @@
           "Lines of Code (LOC)": 36,
           "Reflection Hits": 0,
           "Start Line": 97,
-          "Structural Impact": 20.9
+          "Structural Impact": 19.1
         },
         {
           "Control Flow Branches": 4,
@@ -441081,8 +441081,8 @@
       ],
       "powershell/nvda/ensureuv.ps1": [
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "65.0%",
           "End Line": 86,
           "Function Name": "Install-Uv",
           "Has Header Comment": 0,
@@ -441092,7 +441092,7 @@
           "Lines of Code (LOC)": 71,
           "Reflection Hits": 1,
           "Start Line": 16,
-          "Structural Impact": 24.8
+          "Structural Impact": 23.3
         },
         {
           "Control Flow Branches": 0,
@@ -441122,8 +441122,8 @@
     "powershell/roslyn": {
       "powershell/roslyn/CommonLibrary.psm1": [
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "64.3%",
           "End Line": 185,
           "Function Name": "Get-File",
           "Has Header Comment": 0,
@@ -441133,11 +441133,11 @@
           "Lines of Code (LOC)": 66,
           "Reflection Hits": 0,
           "Start Line": 120,
-          "Structural Impact": 30.2
+          "Structural Impact": 27.8
         },
         {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "58.3%",
           "End Line": 95,
           "Function Name": "DownloadAndExtract",
           "Has Header Comment": 1,
@@ -441147,11 +441147,11 @@
           "Lines of Code (LOC)": 70,
           "Reflection Hits": 0,
           "Start Line": 26,
-          "Structural Impact": 25.5
+          "Structural Impact": 23.1
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
           "End Line": 392,
           "Function Name": "Expand-Zip",
           "Has Header Comment": 1,
@@ -441161,11 +441161,11 @@
           "Lines of Code (LOC)": 48,
           "Reflection Hits": 1,
           "Start Line": 345,
-          "Structural Impact": 16.4
+          "Structural Impact": 14.4
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
           "End Line": 256,
           "Function Name": "New-ScriptShim",
           "Has Header Comment": 1,
@@ -441175,7 +441175,7 @@
           "Lines of Code (LOC)": 48,
           "Reflection Hits": 0,
           "Start Line": 209,
-          "Structural Impact": 14.6
+          "Structural Impact": 12.2
         },
         {
           "Control Flow Branches": 3,
@@ -441251,8 +441251,8 @@
           "Structural Impact": 65.9
         },
         {
-          "Control Flow Branches": 24,
-          "Control Flow Ratio": "96.0%",
+          "Control Flow Branches": 22,
+          "Control Flow Ratio": "95.7%",
           "End Line": 1185,
           "Function Name": "Show-KnownIssues",
           "Has Header Comment": 0,
@@ -441262,7 +441262,7 @@
           "Lines of Code (LOC)": 68,
           "Reflection Hits": 0,
           "Start Line": 1118,
-          "Structural Impact": 59.3
+          "Structural Impact": 54.8
         },
         {
           "Control Flow Branches": 19,
@@ -441293,20 +441293,6 @@
           "Structural Impact": 37.5
         },
         {
-          "Control Flow Branches": 22,
-          "Control Flow Ratio": "73.3%",
-          "End Line": 421,
-          "Function Name": "Get-AzDOBuildIdFromPR",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 81,
-          "Reflection Hits": 0,
-          "Start Line": 341,
-          "Structural Impact": 36.6
-        },
-        {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "73.3%",
           "End Line": 997,
@@ -441321,32 +441307,18 @@
           "Structural Impact": 35.8
         },
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 310,
-          "Function Name": "Invoke-CachedRestMethod",
-          "Has Header Comment": 0,
-          "Input Parameters": 5,
+          "Control Flow Branches": 21,
+          "Control Flow Ratio": "72.4%",
+          "End Line": 421,
+          "Function Name": "Get-AzDOBuildIdFromPR",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 44,
+          "Lines of Code (LOC)": 81,
           "Reflection Hits": 0,
-          "Start Line": 267,
-          "Structural Impact": 34.0
-        },
-        {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "77.8%",
-          "End Line": 1457,
-          "Function Name": "Find-WorkItemsWithBinlogs",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 54,
-          "Reflection Hits": 0,
-          "Start Line": 1404,
-          "Structural Impact": 32.7
+          "Start Line": 341,
+          "Structural Impact": 35.2
         },
         {
           "Control Flow Branches": 15,
@@ -441363,8 +441335,8 @@
           "Structural Impact": 31.8
         },
         {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "82.4%",
           "End Line": 582,
           "Function Name": "Get-PRCorrelation",
           "Has Header Comment": 0,
@@ -441374,7 +441346,35 @@
           "Lines of Code (LOC)": 40,
           "Reflection Hits": 0,
           "Start Line": 543,
-          "Structural Impact": 29.7
+          "Structural Impact": 28.0
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "69.2%",
+          "End Line": 310,
+          "Function Name": "Invoke-CachedRestMethod",
+          "Has Header Comment": 0,
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 44,
+          "Reflection Hits": 0,
+          "Start Line": 267,
+          "Structural Impact": 26.7
+        },
+        {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "73.3%",
+          "End Line": 1457,
+          "Function Name": "Find-WorkItemsWithBinlogs",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 54,
+          "Reflection Hits": 0,
+          "Start Line": 1404,
+          "Structural Impact": 26.7
         },
         {
           "Control Flow Branches": 12,
@@ -441490,20 +441490,6 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1389,
-          "Function Name": "Get-HelixWorkItemDetails",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
-          "Start Line": 1360,
-          "Structural Impact": 8.4
-        },
-        {
-          "Control Flow Branches": 3,
           "Control Flow Ratio": "60.0%",
           "End Line": 265,
           "Function Name": "Set-CachedResponse",
@@ -441560,17 +441546,17 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 697,
-          "Function Name": "Get-AzDOTimeline",
+          "Control Flow Ratio": "40.0%",
+          "End Line": 1389,
+          "Function Name": "Get-HelixWorkItemDetails",
           "Has Header Comment": 0,
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 22,
+          "Lines of Code (LOC)": 30,
           "Reflection Hits": 0,
-          "Start Line": 676,
-          "Structural Impact": 6.3
+          "Start Line": 1360,
+          "Structural Impact": 6.7
         },
         {
           "Control Flow Branches": 3,
@@ -441602,6 +441588,20 @@
         },
         {
           "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 697,
+          "Function Name": "Get-AzDOTimeline",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 22,
+          "Reflection Hits": 0,
+          "Start Line": 676,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 799,
           "Function Name": "Extract-TestFailures",
@@ -441627,20 +441627,6 @@
           "Reflection Hits": 0,
           "Start Line": 1222,
           "Structural Impact": 3.8
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 192,
-          "Function Name": "Clear-ExpiredCache",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
-          "Start Line": 175,
-          "Structural Impact": 3.7
         },
         {
           "Control Flow Branches": 1,
@@ -441697,6 +441683,20 @@
           "Reflection Hits": 0,
           "Start Line": 744,
           "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 192,
+          "Function Name": "Clear-ExpiredCache",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 175,
+          "Structural Impact": 2.3
         },
         {
           "Control Flow Branches": 0,
@@ -441785,8 +441785,8 @@
           "Structural Impact": 32.6
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "37.5%",
           "End Line": 87,
           "Function Name": "Invoke-GitHubApi",
           "Has Header Comment": 0,
@@ -441796,7 +441796,7 @@
           "Lines of Code (LOC)": 24,
           "Reflection Hits": 0,
           "Start Line": 64,
-          "Structural Impact": 9.9
+          "Structural Impact": 8.1
         },
         {
           "Control Flow Branches": 1,
@@ -442036,8 +442036,8 @@
       ],
       "powershell/roslyn/build-utils.ps1": [
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "53.8%",
           "End Line": 127,
           "Function Name": "Exec-CommandCore",
           "Has Header Comment": 0,
@@ -442047,7 +442047,7 @@
           "Lines of Code (LOC)": 56,
           "Reflection Hits": 0,
           "Start Line": 72,
-          "Structural Impact": 25.2
+          "Structural Impact": 20.7
         },
         {
           "Control Flow Branches": 6,
@@ -442064,34 +442064,6 @@
           "Structural Impact": 18.8
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 145,
-          "Function Name": "Exec-Command",
-          "Has Header Comment": 1,
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 140,
-          "Structural Impact": 9.2
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 155,
-          "Function Name": "Exec-DotNet",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 7,
-          "Reflection Hits": 0,
-          "Start Line": 149,
-          "Structural Impact": 8.3
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "57.1%",
           "End Line": 205,
@@ -442106,6 +442078,20 @@
           "Structural Impact": 8.3
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 145,
+          "Function Name": "Exec-Command",
+          "Has Header Comment": 1,
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 140,
+          "Structural Impact": 4.8
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 70,
@@ -442118,6 +442104,20 @@
           "Reflection Hits": 0,
           "Start Line": 62,
           "Structural Impact": 4.7
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 155,
+          "Function Name": "Exec-DotNet",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 149,
+          "Structural Impact": 4.3
         },
         {
           "Control Flow Branches": 1,
@@ -442621,8 +442621,8 @@
       "powershell/runtime/ClearReuseUnicastPort.ps1": [],
       "powershell/runtime/CommonLibrary.psm1": [
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "64.3%",
           "End Line": 185,
           "Function Name": "Get-File",
           "Has Header Comment": 0,
@@ -442632,11 +442632,11 @@
           "Lines of Code (LOC)": 66,
           "Reflection Hits": 0,
           "Start Line": 120,
-          "Structural Impact": 30.2
+          "Structural Impact": 27.8
         },
         {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "58.3%",
           "End Line": 95,
           "Function Name": "DownloadAndExtract",
           "Has Header Comment": 1,
@@ -442646,11 +442646,11 @@
           "Lines of Code (LOC)": 70,
           "Reflection Hits": 0,
           "Start Line": 26,
-          "Structural Impact": 25.5
+          "Structural Impact": 23.1
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
           "End Line": 392,
           "Function Name": "Expand-Zip",
           "Has Header Comment": 1,
@@ -442660,11 +442660,11 @@
           "Lines of Code (LOC)": 48,
           "Reflection Hits": 1,
           "Start Line": 345,
-          "Structural Impact": 16.4
+          "Structural Impact": 14.4
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
           "End Line": 256,
           "Function Name": "New-ScriptShim",
           "Has Header Comment": 1,
@@ -442674,7 +442674,7 @@
           "Lines of Code (LOC)": 48,
           "Reflection Hits": 0,
           "Start Line": 209,
-          "Structural Impact": 14.6
+          "Structural Impact": 12.2
         },
         {
           "Control Flow Branches": 3,
@@ -442755,8 +442755,8 @@
       "powershell/runtime/PSScriptAnalyzerSettings.psd1": [],
       "powershell/runtime/ParallelTestExecution.ps1": [
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "93.3%",
+          "Control Flow Branches": 12,
+          "Control Flow Ratio": "92.3%",
           "End Line": 217,
           "Function Name": "RunMultiple",
           "Has Header Comment": 0,
@@ -442766,7 +442766,7 @@
           "Lines of Code (LOC)": 74,
           "Reflection Hits": 0,
           "Start Line": 144,
-          "Structural Impact": 37.2
+          "Structural Impact": 32.8
         },
         {
           "Control Flow Branches": 5,

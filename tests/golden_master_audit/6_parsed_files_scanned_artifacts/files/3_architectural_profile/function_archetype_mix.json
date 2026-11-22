@@ -8078,22 +8078,24 @@
     },
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": {
-        "Callbacks & Closures": 6,
+        "Callbacks & Closures": 4,
+        "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 2,
-        "Type Conversions": 2
+        "Type Conversions": 3
       },
       "powershell/PowerToys/BuildSDKHelper.ps1": {},
       "powershell/PowerToys/BuildSparsePackage.ps1": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 1,
         "Defensive Guards": 1,
-        "Type Conversions": 1
+        "Type Conversions": 2
       },
       "powershell/PowerToys/Capture-MonitorLayout.ps1": {
         "I/O & Config Routines": 2
       },
       "powershell/PowerToys/Check preview handler registration.ps1": {
-        "Callbacks & Closures": 3
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
       },
       "powershell/PowerToys/Check-ProcessIdentity.ps1": {},
       "powershell/PowerToys/CheckCmdNotFoundRequirements.ps1": {},
@@ -8104,14 +8106,15 @@
       "powershell/PowerToys/Get-GitHubRawFile.ps1": {},
       "powershell/PowerToys/InstallWinAppDriver.ps1": {},
       "powershell/PowerToys/Invoke-WinMdQuery.ps1": {
-        "Callbacks & Closures": 10,
-        "I/O & Config Routines": 1,
+        "Callbacks & Closures": 3,
+        "Compute Cores": 5,
+        "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 1,
         "Type Conversions": 1
       },
       "powershell/PowerToys/Invoke-XamlFormat.ps1": {},
       "powershell/PowerToys/Update-WinMdCache.ps1": {
-        "Callbacks & Closures": 2
+        "Defensive Guards": 2
       },
       "powershell/PowerToys/UpdateVersions.ps1": {
         "Callbacks & Closures": 1,
@@ -8120,12 +8123,12 @@
         "Type Conversions": 1
       },
       "powershell/PowerToys/apply-labels.ps1": {
-        "Callbacks & Closures": 4
+        "Parameter Forwarders": 4
       },
       "powershell/PowerToys/check-extensions.ps1": {},
       "powershell/PowerToys/clear-copilot-context.ps1": {},
       "powershell/PowerToys/collect-or-apply-milestones.ps1": {
-        "Callbacks & Closures": 3
+        "Parameter Forwarders": 3
       },
       "powershell/PowerToys/format_sources.ps1": {
         "Callbacks & Closures": 1
@@ -8161,17 +8164,20 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": {},
       "powershell/core/PSDiagnostics.psd1": {},
       "powershell/core/Parse-MarkdownLink.ps1": {
-        "Callbacks & Closures": 1,
+        "Defensive Guards": 1,
         "Many-Argument Workhorses": 1
       },
       "powershell/core/PowerShell__build.psm1": {
-        "Callbacks & Closures": 42,
-        "Compute Cores": 6,
+        "Annotated & Test Methods": 4,
+        "Callbacks & Closures": 8,
+        "Compute Cores": 12,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 15,
+        "Interface Declarations": 5,
         "Many-Argument Workhorses": 20,
-        "Type Conversions": 8
+        "Parameter Forwarders": 1,
+        "Type Conversions": 14
       },
       "powershell/core/RegisterManifest.ps1": {
         "Annotated & Test Methods": 1,
@@ -8179,10 +8185,11 @@
       },
       "powershell/core/RegisterMicrosoftUpdate.ps1": {},
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": {
-        "Callbacks & Closures": 5,
+        "Callbacks & Closures": 1,
         "Compute Cores": 1,
-        "Defensive Guards": 1,
-        "I/O & Config Routines": 1
+        "Defensive Guards": 2,
+        "I/O & Config Routines": 3,
+        "Type Conversions": 1
       },
       "powershell/core/Run.ps1": {
         "I/O & Config Routines": 2,
@@ -8198,38 +8205,44 @@
         "Type Conversions": 2
       },
       "powershell/core/build.psm1": {
-        "Callbacks & Closures": 42,
-        "Compute Cores": 6,
+        "Annotated & Test Methods": 4,
+        "Callbacks & Closures": 8,
+        "Compute Cores": 12,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 15,
+        "Interface Declarations": 5,
         "Many-Argument Workhorses": 20,
-        "Type Conversions": 8
+        "Parameter Forwarders": 1,
+        "Type Conversions": 14
       },
       "powershell/core/ci.psm1": {
-        "Callbacks & Closures": 8,
-        "Compute Cores": 1,
+        "Compute Cores": 4,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 5,
-        "Many-Argument Workhorses": 6
+        "I/O & Config Routines": 7,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 6,
+        "Type Conversions": 1
       },
       "powershell/core/ciModule.Tests.ps1": {},
       "powershell/core/install-powershell.ps1": {
-        "Callbacks & Closures": 3,
+        "Compute Cores": 3,
         "Defensive Guards": 1
       },
       "powershell/core/nanoserver.tests.ps1": {},
       "powershell/core/package-validation.tests.ps1": {},
       "powershell/core/packaging.psd1": {},
       "powershell/core/packaging.psm1": {
-        "Callbacks & Closures": 11,
-        "Compute Cores": 7,
-        "Defensive Guards": 2,
+        "Annotated & Test Methods": 2,
+        "Callbacks & Closures": 2,
+        "Compute Cores": 10,
+        "Defensive Guards": 3,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 39,
-        "Type Conversions": 11
+        "Many-Argument Workhorses": 38,
+        "State Mutators": 1,
+        "Type Conversions": 12
       },
       "powershell/core/packaging.tests.ps1": {},
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": {
@@ -8238,8 +8251,7 @@
       },
       "powershell/core/process-pester-results.ps1": {},
       "powershell/core/pwsh.profile.resource.ps1": {
-        "Callbacks & Closures": 2,
-        "Compute Cores": 1,
+        "Compute Cores": 3,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 1
       },
@@ -8271,17 +8283,17 @@
       "powershell/roslyn/CommonLibrary.psm1": {
         "Annotated & Test Methods": 1,
         "Callbacks & Closures": 2,
-        "Defensive Guards": 1,
         "I/O & Config Routines": 1,
-        "Many-Argument Workhorses": 3
+        "Many-Argument Workhorses": 4
       },
       "powershell/roslyn/CreateAndUploadNugetZip.ps1": {},
       "powershell/roslyn/Get-CIStatus.ps1": {
-        "Callbacks & Closures": 15,
-        "Compute Cores": 4,
-        "Defensive Guards": 8,
+        "Callbacks & Closures": 7,
+        "Compute Cores": 6,
+        "Defensive Guards": 11,
+        "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 9,
-        "Type Conversions": 1
+        "Type Conversions": 3
       },
       "powershell/roslyn/Get-CodeflowStatus.ps1": {
         "Callbacks & Closures": 1,
@@ -8294,8 +8306,8 @@
       "powershell/roslyn/PowerShell__install.ps1": {},
       "powershell/roslyn/PowerShell__uninstall.ps1": {},
       "powershell/roslyn/SetupNugetSources.ps1": {
-        "Callbacks & Closures": 2,
-        "Many-Argument Workhorses": 3
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 2
       },
       "powershell/roslyn/Test.ps1": {
         "Defensive Guards": 2,
@@ -8306,24 +8318,26 @@
         "Defensive Guards": 1
       },
       "powershell/roslyn/build-utils.ps1": {
-        "Callbacks & Closures": 12,
         "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 8,
         "Many-Argument Workhorses": 1,
-        "Type Conversions": 5
+        "Type Conversions": 7
       },
       "powershell/roslyn/build.ps1": {
-        "Callbacks & Closures": 7,
-        "I/O & Config Routines": 7,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 3,
         "Type Conversions": 1
       },
       "powershell/roslyn/check-channel-consistency.ps1": {},
       "powershell/roslyn/check-for-loc-changes.ps1": {},
       "powershell/roslyn/cleanup_perf.ps1": {
-        "Callbacks & Closures": 1
+        "Defensive Guards": 1
       },
       "powershell/roslyn/common__build.ps1": {
-        "Callbacks & Closures": 1,
-        "I/O & Config Routines": 2
+        "I/O & Config Routines": 3
       },
       "powershell/roslyn/configure-sdl-tool.ps1": {},
       "powershell/roslyn/execute-all-sdl-tools.ps1": {
@@ -8332,7 +8346,7 @@
       "powershell/roslyn/install-tool.ps1": {},
       "powershell/roslyn/install.ps1": {},
       "powershell/roslyn/mark-shipped.ps1": {
-        "Callbacks & Closures": 1
+        "Compute Cores": 1
       },
       "powershell/roslyn/nuget-validation.ps1": {},
       "powershell/roslyn/nuget-verification.ps1": {},
@@ -8345,9 +8359,8 @@
       "powershell/runtime/CommonLibrary.psm1": {
         "Annotated & Test Methods": 1,
         "Callbacks & Closures": 2,
-        "Defensive Guards": 1,
         "I/O & Config Routines": 1,
-        "Many-Argument Workhorses": 3
+        "Many-Argument Workhorses": 4
       },
       "powershell/runtime/GenClrDebugResource.ps1": {
         "Callbacks & Closures": 1
@@ -8357,14 +8370,16 @@
       "powershell/runtime/LICENSE.TXT": {},
       "powershell/runtime/PSScriptAnalyzerSettings.psd1": {},
       "powershell/runtime/ParallelTestExecution.ps1": {
-        "Callbacks & Closures": 5,
+        "Compute Cores": 2,
         "Defensive Guards": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 1
       },
       "powershell/runtime/aspnetcore-sync-checkdiff.ps1": {},
       "powershell/runtime/build-docker-sdk.ps1": {},
       "powershell/runtime/build-local.ps1": {
-        "Callbacks & Closures": 1
+        "Interface Declarations": 1
       },
       "powershell/runtime/build.ps1": {
         "I/O & Config Routines": 2
@@ -8373,7 +8388,7 @@
       "powershell/runtime/collect-coverage.ps1": {},
       "powershell/runtime/copy_version_files.ps1": {},
       "powershell/runtime/download-tools.ps1": {
-        "Callbacks & Closures": 1
+        "Many-Argument Workhorses": 1
       },
       "powershell/runtime/generate-wasi-http-bindings.ps1": {},
       "powershell/runtime/generate-wasi-poll-bindings.ps1": {},
@@ -8383,7 +8398,7 @@
       "powershell/runtime/generateversionscript.ps1": {},
       "powershell/runtime/getRefPackFolderFromArtifacts.ps1": {},
       "powershell/runtime/processrc.ps1": {
-        "Callbacks & Closures": 2
+        "Compute Cores": 2
       },
       "powershell/runtime/run-benchmark.ps1": {},
       "powershell/runtime/update-machine-certs.ps1": {
@@ -12224,7 +12239,7 @@
         "Defensive Guards": 1
       },
       "zig/tigerbeetle/download.win.ps1": {
-        "Callbacks & Closures": 1
+        "Parameter Forwarders": 1
       },
       "zig/tigerbeetle/state_machine.zig": {
         "Compute Cores": 15,

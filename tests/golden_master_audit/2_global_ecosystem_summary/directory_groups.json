@@ -1148,11 +1148,11 @@
       "avg_exposures": {
         "api_exposure": 15.68,
         "churn": 0.0,
-        "cognitive_load": 36.44,
+        "cognitive_load": 36.05,
         "concurrency": 5.31,
         "dead_code": 0.0,
         "documentation": 29.19,
-        "safety_score": 40.67,
+        "safety_score": 40.6,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
@@ -1161,7 +1161,7 @@
         "verification": 40.41
       },
       "file_count": 12,
-      "total_mass": 9143.44
+      "total_mass": 9139.94
     },
     "cpp/godot": {
       "avg_exposures": {
@@ -4150,11 +4150,11 @@
       "avg_exposures": {
         "api_exposure": 1.46,
         "churn": 0.0,
-        "cognitive_load": 45.23,
+        "cognitive_load": 44.29,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 44.0,
-        "safety_score": 70.39,
+        "safety_score": 69.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -4163,36 +4163,36 @@
         "verification": 11.64
       },
       "file_count": 25,
-      "total_mass": 2507.56
+      "total_mass": 2428.06
     },
     "powershell/core": {
       "avg_exposures": {
         "api_exposure": 3.11,
         "churn": 0.0,
-        "cognitive_load": 33.36,
+        "cognitive_load": 32.97,
         "concurrency": 3.71,
         "dead_code": 0.0,
         "documentation": 43.04,
-        "safety_score": 48.56,
+        "safety_score": 48.27,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.61,
         "state_flux": 63.7,
         "tech_debt": 6.9,
-        "verification": 19.52
+        "verification": 15.21
       },
       "file_count": 36,
-      "total_mass": 15343.26
+      "total_mass": 14342.66
     },
     "powershell/nvda": {
       "avg_exposures": {
         "api_exposure": 0.19,
         "churn": 0.0,
-        "cognitive_load": 27.43,
+        "cognitive_load": 26.33,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 13.33,
-        "safety_score": 52.45,
+        "safety_score": 52.08,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
@@ -4201,36 +4201,36 @@
         "verification": 2.16
       },
       "file_count": 15,
-      "total_mass": 414.32
+      "total_mass": 402.82
     },
     "powershell/roslyn": {
       "avg_exposures": {
         "api_exposure": 1.17,
         "churn": 0.0,
-        "cognitive_load": 50.45,
+        "cognitive_load": 48.33,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 43.68,
-        "safety_score": 61.37,
+        "safety_score": 60.87,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.08,
-        "state_flux": 87.8,
+        "state_flux": 87.79,
         "tech_debt": 6.8,
         "verification": 20.16
       },
       "file_count": 26,
-      "total_mass": 4820.02
+      "total_mass": 4666.42
     },
     "powershell/runtime": {
       "avg_exposures": {
         "api_exposure": 0.55,
         "churn": 0.0,
-        "cognitive_load": 30.07,
+        "cognitive_load": 29.09,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 32.14,
-        "safety_score": 54.02,
+        "safety_score": 53.73,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.08,
@@ -4239,7 +4239,7 @@
         "verification": 8.2
       },
       "file_count": 26,
-      "total_mass": 1284.2
+      "total_mass": 1248.6
     },
     "proto": {
       "avg_exposures": {

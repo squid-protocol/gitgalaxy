@@ -66,7 +66,7 @@ _POWERSHELL_SIMPLE_CASES = [
     ("test", "Should -Be 5", "# It works correctly in most cases"),
     ("concurrency", "Start-Job { Get-Process }", "Start-Process notepad.exe"),
     ("ui_framework", "Out-GridView", "[System.Windows.Media.Colors]::Blue"),
-    ("closures", "{ $_.Name }", "if ($x) {"),
+    ("closures", "$x | ForEach-Object { $_.Name }", "if ($x) {"),
     ("globals", "$global:x = 1", "$local:x = 1"),
     ("decorators", "[Parameter(Mandatory=$true)]", "[ValidateNotNull()]"),
     ("generics", "[List[int]]::new()", "[int]$x"),
@@ -288,7 +288,7 @@ def test_powershell_closures_redos_immunity():
     poison = "{" * 80000
     assert_redos_immune(pattern, poison, timeout_sec=3.0)
 
-    assert pattern.search("{ $_.Name }")
+    assert pattern.search("$x | % { $_.Name }")
     assert pattern.search("$sb = { param($x, $y) $x + $y }")
     assert pattern.search("Get-ChildItem | Where-Object { $_.Length -gt 100 }")
 
@@ -468,8 +468,8 @@ def test_powershell_bitwise_ops_and_closures_no_false_collision():
     assert bitwise_ops.search("$a -band $b")
     assert not closures.search("$a -band $b")
 
-    assert closures.search("{ $_.Name }")
-    assert not bitwise_ops.search("{ $_.Name }")
+    assert closures.search("$x | % { $_.Name }")
+    assert not bitwise_ops.search("$x | % { $_.Name }")
 
 
 def test_powershell_return_not_counted_as_branch_regression():
@@ -581,3 +581,42 @@ def test_powershell_args_redos_immunity():
     assert_redos_immune(pattern, "param(" + '"' * 40000, timeout_sec=3.0)
     assert_redos_immune(pattern, "param(" + "(" * 40000, timeout_sec=3.0)
     assert_redos_immune(pattern, "function f(" + "'a" * 20000, timeout_sec=3.0)
+
+
+# ==============================================================================
+# #8903: branch must not count `[switch]` types or ForEach-Object; closures only
+# scriptblock values, never function/if/else bodies or hashtables.
+# ==============================================================================
+
+
+@pytest.mark.parametrize(
+    "src, n",
+    [
+        ("function ps_switch_type { param([switch]$s) 1 }", 0),
+        ("param([switch[]]$s)", 0),
+        ("function ps_not { param($x) return -not $x }", 0),
+        ("function ps_foreach_obj { 1 | ForEach-Object { $_ } }", 0),
+        ("foreach ($i in $l) { $i }", 1),
+        ("switch ($x) { 1 { 'a' } }", 1),
+        ("if ($a) { 1 } else { 2 }", 2),
+    ],
+)
+def test_powershell_branch_is_a_statement_not_a_type_or_cmdlet_8903(src, n):
+    assert len(POWERSHELL_RULES["branch"].findall(src)) == n
+
+
+@pytest.mark.parametrize(
+    "src, n",
+    [
+        ("function ps_write_output { Write-Output 1 }", 0),
+        ("if ($x) { 1 } else { 2 }", 0),
+        ("$h = @{ a = 1 }", 0),
+        ("function f { param($a) $a }", 0),
+        ("$f = { param($a) $a }", 1),
+        ("1 | ForEach-Object { $_ }", 1),
+        ("Start-Job { Get-Process }", 1),
+        ("Invoke-Command -ScriptBlock { 1 }", 1),
+    ],
+)
+def test_powershell_closures_are_scriptblock_values_8903(src, n):
+    assert len(POWERSHELL_RULES["closures"].findall(src)) == n

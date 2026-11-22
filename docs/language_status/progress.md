@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `c566cb9a0` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `9565f7b00` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -94,8 +94,8 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Data and messaging | IMS DL/I | Partial | 2 of 16 rules match IBM | calls run on our own model, so no rule matches yet |
 | Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
-| Batch | JCL step flow | Works | 180 of 180 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's manuals before the evaluator ran; plus 46 ASSUMED scenarios (a stated assumption, not IBM text), 46 reproduced) |
-| Batch | JCL on MVS 3.8J (tier 2) | Works | 51 of 53 scenarios agreeing on the box | dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 53); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 11 of 11 agree (file has 25); 173 scenarios in 12 answer files not run on the box (not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS) |
+| Batch | JCL step flow | Works | 181 of 181 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's manuals before the evaluator ran; plus 48 ASSUMED scenarios (a stated assumption, not IBM text), 48 reproduced) |
+| Batch | JCL on MVS 3.8J (tier 2) | Works | 51 of 53 scenarios agreeing on the box | dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 56); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 11 of 11 agree (file has 25); 176 scenarios in 12 answer files not run on the box (not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS) |
 | Batch | JCL in the real codebases | Partial | 8 of 22 COND jobs answer-checked | 159 jobs read in 230 JCL members; 22 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
 | Batch | JCL job execution | Partial | no denominator | 5 multi-step job case (the programs' steps are wired by the case, not yet run from the JCL) |
 | Other languages | HLASM assembler | Partial | no denominator | 21 opcodes, the zECS subset |
@@ -134,7 +134,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-22T12:48:28Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-22T13:21:54Z.
 
 - `scope:core`: 19 open, 256 closed.
 - Milestone 28: 0 open, 136 closed.

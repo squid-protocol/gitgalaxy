@@ -417,13 +417,13 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 2.022,
-      "c/cpython/ceval.c": 0.329,
+      "c/cpython/ceval.c": 0.303,
       "c/cpython/compile.c": 0.058,
       "c/cpython/dictobject.c": 0.285,
       "c/cpython/frameobject.c": 0.209,
       "c/cpython/gc.c": -0.687,
       "c/cpython/object.c": 0.482,
-      "c/cpython/typeobject.c": 0.181
+      "c/cpython/typeobject.c": 0.155
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
@@ -892,9 +892,9 @@
       "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": -0.245,
-      "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": -0.075,
+      "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": -0.109,
       "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": -0.367,
-      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -0.097,
+      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -0.132,
       "cobol/cics-banking-sample-application-cbsa/RESPSTR.cpy": 1.872,
       "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/STCUSTNO.cpy": 0.0,
@@ -919,7 +919,7 @@
       "cobol/cics-genapp/lgcmarea.cpy": 0.083,
       "cobol/cics-genapp/lgdpdb01.cbl": 2.566,
       "cobol/cics-genapp/lgdpol01.cbl": 3.247,
-      "cobol/cics-genapp/lgdpvs01.cbl": 2.64,
+      "cobol/cics-genapp/lgdpvs01.cbl": 2.612,
       "cobol/cics-genapp/lgicdb01.cbl": 2.37,
       "cobol/cics-genapp/lgicus01.cbl": 2.542,
       "cobol/cics-genapp/lgicvs01.cbl": 3.19,

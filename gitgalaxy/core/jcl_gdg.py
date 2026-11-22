@@ -73,6 +73,11 @@ def resolve_gdg(
                 proc_dds.setdefault((row["in_proc"], row["step_name"]), []).append(row)
             else:
                 dds.setdefault(row["step_name"], []).append(row)
+    for dd in (d for ds in proc_dds.values() for d in ds):
+        if dd.get("sysout_over"):
+            raise JclGdgRefused(
+                f"{dd['step_name']}.{dd['dd_name']}: a SYSOUT override of a DD that names a generation is not answered"
+            )
     for step in dds:
         if step not in flow.steps and step not in skipped and any(d.get("generation") is not None for d in dds[step]):
             raise JclGdgRefused(f"{step}: a GDG DD that overrides a procedure step's DD is not answered here")

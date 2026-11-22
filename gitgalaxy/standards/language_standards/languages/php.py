@@ -98,7 +98,6 @@ DEFINITION: dict[str, Any] = {
                 "exit",
                 "list",
                 "declare",
-                "match",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

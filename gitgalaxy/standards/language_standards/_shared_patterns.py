@@ -571,13 +571,15 @@ CALLS_OUT_SCALA = re.compile(
 )
 
 # PHP calls: C-style `name(` plus paren-less constructor calls `new Foo` / `new \Ns\Foo`
-# (excluding anonymous `new class { ... }`). Group 1 is the callee, so detector.py treats it
-# like CALLS_OUT_C_STYLE (qualifier capture, C5 header drop, `_php_new_self`).
+# (excluding anonymous `new class { ... }`). Bare `match(...)` (PHP 8.0 match expression) is
+# excluded while `$obj->match(...)` / `Cls::match(...)` method calls stay captured. Group 1 is
+# the callee, so detector.py treats it like CALLS_OUT_C_STYLE (qualifier capture, C5 header drop,
+# `_php_new_self`).
 _PHP_NEW_PREFIX = r"\bnew[ \t]+\\?(?:[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}\\){0,8}(?!class\b)"
 CALLS_OUT_PHP = re.compile(
     r"(?=(?:" + _PHP_NEW_PREFIX + r")?\b([" + ID_START + r"][" + ID_CONTINUE + r"]*))"
     r"(?:" + _PHP_NEW_PREFIX + r"[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}(?![ \t]*\()"
-    r"|\b[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\("
+    r"|\b(?!(?<!->)(?<!::)match\s*\()[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\("
     r")"
 )
 

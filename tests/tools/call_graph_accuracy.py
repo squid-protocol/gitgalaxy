@@ -141,7 +141,7 @@ _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
 # both sides score the same contract instead of the engine losing "recall" for
 # following it. Built-ins are NOT here: they are calls (decision 1, #3361).
 CONTRACT_NON_CALLS: dict[str, frozenset[str]] = {
-    "php": frozenset({"isset", "empty", "unset", "die", "exit", "array", "list", "match"}),
+    "php": frozenset({"isset", "empty", "unset", "die", "exit", "array", "list"}),
     "csharp": frozenset({"nameof"}),
     # #5640: shell control-flow keywords and builtins excluded by shell.py's `_calls_out_ignore`,
     # plus POSIX shell special builtins `:` / `[` / `.` (dot-sourcing).

@@ -475,10 +475,9 @@ def test_php_internal_discriminator():
 
 
 def test_php_calls_out_parenless_new_and_match_ignore():
-    """PHP paren-less constructors (`new Foo`, `new \\Ns\\Foo`) count as calls; `new class` and `match` do not."""
+    """PHP paren-less constructors (`new Foo`, `new \\Ns\\Foo`) count as calls; `new class` and bare `match(...)` do not,
+    while `$this->match(...)` method calls still do."""
     pat = PHP_RULES["calls_out"]
-    ignore = PHP_RULES["_calls_out_ignore"]
-    assert "match" in ignore
     assert [m.group(1) for m in pat.finditer("$x = (new EnvironmentDetector)->detect($cb);")] == [
         "EnvironmentDetector",
         "detect",
@@ -486,4 +485,5 @@ def test_php_calls_out_parenless_new_and_match_ignore():
     assert [m.group(1) for m in pat.finditer("$o = new \\App\\ConsoleOutput;")] == ["ConsoleOutput"]
     assert [m.group(1) for m in pat.finditer("$o = new Foo($a);")] == ["Foo"]
     assert [m.group(1) for m in pat.finditer("$o = new class { function f() {} };")] == ["f"]
+    assert [m.group(1) for m in pat.finditer("$x = match ($v) { 1 => $this->match($v) };")] == ["match"]
     assert_redos_immune(pat, "new " + "A\\" * 5000 + " ", timeout_sec=3.0)

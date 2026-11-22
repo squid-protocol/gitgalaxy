@@ -96,8 +96,9 @@ RESOLUTION_FAILURE_MARKERS = (
 )
 UNAVAILABLE_MARKER = "present, but unavailable"
 REMOTE_ORIGIN_FILE = "_remote.repositories"
-# #8373: waits (seconds) before the 2nd and 3rd attempt: a throttled Central needs time, an immediate rerun failed too.
-RESOLUTION_RETRY_DELAYS_S = (5, 20)
+# #8373: waits (seconds) before each rerun: a throttled Central needs time, an immediate rerun failed too.
+# #9050: (5, 20) spent all three attempts inside one 429 window (Gradle, 51 s end to end); 205 s outlasts it.
+RESOLUTION_RETRY_DELAYS_S = (5, 20, 60, 120)
 
 
 def is_resolution_failure(text: str) -> bool:

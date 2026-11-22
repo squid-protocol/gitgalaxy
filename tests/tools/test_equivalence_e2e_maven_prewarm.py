@@ -9,11 +9,12 @@ import pytest
 yaml = pytest.importorskip("yaml")
 
 ROOT = Path(__file__).resolve().parents[2]
-WORKFLOW = ROOT / ".github" / "workflows" / "equivalence-e2e.yml"
+# #8215: det-sweep restores the same cache and needs the same prefetch
+WORKFLOWS = ("equivalence-e2e.yml", "det-sweep.yml")
 
 
-def _jobs_restoring_maven() -> dict[str, list[dict]]:
-    jobs = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]
+def _jobs_restoring_maven(workflow: str = "equivalence-e2e.yml") -> dict[str, list[dict]]:
+    jobs = yaml.safe_load((ROOT / ".github" / "workflows" / workflow).read_text(encoding="utf-8"))["jobs"]
     return {
         name: job["steps"]
         for name, job in jobs.items()
@@ -21,12 +22,24 @@ def _jobs_restoring_maven() -> dict[str, list[dict]]:
     }
 
 
-def test_there_are_maven_cache_jobs():
-    assert len(_jobs_restoring_maven()) >= 2
+@pytest.mark.parametrize("workflow", WORKFLOWS)
+def test_there_are_maven_cache_jobs(workflow):
+    assert len(_jobs_restoring_maven(workflow)) >= 2
 
 
-def test_each_maven_cache_job_prefetches_the_parent_pom_with_retry():
-    for name, steps in _jobs_restoring_maven().items():
+@pytest.mark.parametrize("workflow", WORKFLOWS)
+def test_each_maven_cache_job_drops_cached_resolution_misses(workflow):
+    for name, steps in _jobs_restoring_maven(workflow).items():
+        ids = [s.get("id") for s in steps]
+        cache_at = ids.index("maven_dependencies")
+        drops = [i for i, s in enumerate(steps) if "*.lastUpdated" in s.get("run", "")]
+        assert drops, f"{name}: no step drops the .lastUpdated markers"
+        assert min(drops) > cache_at, f"{name}: the drop must follow the cache restore"
+
+
+@pytest.mark.parametrize("workflow", WORKFLOWS)
+def test_each_maven_cache_job_prefetches_the_parent_pom_with_retry(workflow):
+    for name, steps in _jobs_restoring_maven(workflow).items():
         ids = [s.get("id") for s in steps]
         cache_at = ids.index("maven_dependencies")
         fetch = [

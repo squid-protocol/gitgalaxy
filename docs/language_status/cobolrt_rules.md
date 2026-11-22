@@ -42,7 +42,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 - `ims-apis`: IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)
 - `ims-ap`: IBM IMS Application Programming (DB PCB masks, current position in the database)
 - `ims-codes`: IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)
-- `mvs-da`: IBM z/OS MVS Data Areas (PSA, TCB, TIOT)
+- `mvs-da`: IBM z/OS 3.1 MVS Data Areas (PSA: Volume 3 GA32-0937-60; TCB, TIOT: Volume 4 GA32-0938-60)
 - `mq-refdev`: IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)
 - `mq-dev`: IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)
 - `cics-ap`: IBM CICS Transaction Server for z/OS 6.x Application Programming (designing applications for CICS)
@@ -359,7 +359,7 @@ The PSA -> TCB -> TIOT a batch program walks through pointers to read its own jo
 
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
-| RT-MVS-CONTROL-BLOCKS | SET ADDRESS OF a record TO a pointer into the PSA (a NULL pointer is address 0), the TCB (PSATNEW) or the TIOT (TCBTIO), and the pointer moved along its block through a numeric item it REDEFINES: the blocks laid from the stated job step at IBM's offsets; a record or an advance past what is laid is refused | `mvs-da` PSA, TCB, TIOT | - | A2 (ASSUMED); C9 (DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not)) | ASSUMED | uncalibrated |
+| RT-MVS-CONTROL-BLOCKS | SET ADDRESS OF a record TO a pointer into the PSA (a NULL pointer is address 0), the TCB (PSATNEW) or the TIOT (TCBTIO), and the pointer moved along its block through a numeric item it REDEFINES: the blocks laid from the stated job step at IBM's offsets; a record or an advance past what is laid is refused | `mvs-da` PSA (Vol. 3 Table 763), TCB (Vol. 4), TIOT (Vol. 4 Table 541) | - | A2 (ASSUMED); C9 (DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not)) | ASSUMED | uncalibrated |
 
 ## IDC: IDCAMS step (job harness)
 

@@ -57,7 +57,9 @@ def test_a_replace_statement_inside_a_copybook_is_refused_by_name_with_the_membe
         SRC.program_lines(p, [tmp_path])
 
 
-@pytest.mark.parametrize("lead", ["\t\t   05 FAKE-ITEM PIC X(4).\n", "\t05 FAKE-ITEM PIC X(4).\n", "  \t  FAKE-ITEM PIC X(4).\n"])
+@pytest.mark.parametrize(
+    "lead", ["\t\t   05 FAKE-ITEM PIC X(4).\n", "\t05 FAKE-ITEM PIC X(4).\n", "  \t  FAKE-ITEM PIC X(4).\n"]
+)
 def test_a_tab_with_program_text_inside_columns_1_to_7_is_refused_by_name(tmp_path, lead):
     """The sequence area and indicator are cut at column 7, so `05` (or `FAKE-ITEM`'s head) would be lost: refused."""
     with pytest.raises(SRC.TabInSequenceAreaRefused, match=r"FAKEPGM\.cbl:6: a tab in columns 1-7"):
@@ -68,7 +70,10 @@ def test_a_tab_in_a_copybook_is_read_when_blank_after_it_and_refused_when_text_f
     (tmp_path / "FAKECPY.cpy").write_text("\t\t       05 FAKE-A PIC X(4).\n       01  FAKE-B\tPIC X(4).\n")
     p = tmp_path / "FAKEPGM.cbl"
     p.write_text(HEAD + "       COPY FAKECPY.\n" + TAIL)
-    assert [ln.text.strip() for ln in SRC.program_lines(p, [tmp_path])][4:6] == ["05 FAKE-A PIC X(4).", "01  FAKE-B\tPIC X(4)."]
+    assert [ln.text.strip() for ln in SRC.program_lines(p, [tmp_path])][4:6] == [
+        "05 FAKE-A PIC X(4).",
+        "01  FAKE-B\tPIC X(4).",
+    ]
     (tmp_path / "FAKECPY.cpy").write_text("\t\t   05 FAKE-A PIC X(4).\n")
     with pytest.raises(SRC.TabInSequenceAreaRefused, match=r"FAKECPY\.cpy:1: a tab in columns 1-7"):
         SRC.program_lines(p, [tmp_path])

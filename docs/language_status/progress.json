@@ -1,5 +1,5 @@
 {
- "commit": "aceb9cb39",
+ "commit": "5c2e96ee7",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,15 +1070,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T06:59:47Z",
+  "as_of": "2026-11-22T07:08:41Z",
   "core": {
-   "closed": 255,
-   "open": 20,
+   "closed": 256,
+   "open": 19,
    "total": 275
   },
   "core_last_window": {
-   "closed": 7,
-   "net_closed": -3,
+   "closed": 8,
+   "net_closed": -2,
    "opened": 10
   },
   "core_milestone": {
@@ -1388,9 +1388,9 @@
     "total": 1
    },
    {
-    "closed": 1,
+    "closed": 2,
     "number": 42,
-    "open": 6,
+    "open": 5,
     "title": "Graveyard Shift 2 \ud83c\udf19 \u2014 the whole CardDemo nightly",
     "total": 7
    },

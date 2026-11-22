@@ -79,3 +79,12 @@ def test_the_posttran_intcalc_job_feeds_the_two_indexed_files_posttran_leaves():
     assert set(step["inputs"]) == {"XREFFILE", "DISCGRP"}
     assert all(v.startswith(ej.CORPUS_PREFIX + "app/data/ASCII/") for v in step["inputs"].values())
     assert cases["carddemo-intcalc"]["parm"] == "2022071800"
+
+
+def test_the_real_cbstm03a_case_with_subprograms_is_a_valid_job_step():
+    """#8884: CREASTMT STEP040 (CBSTM03A CALLs CBSTM03B) is a batch case with `subprograms`, so a job may run it."""
+    cbstm = eq.load_case("carddemo-cbstm03a")
+    assert cbstm["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
+    job = {"name": "j", "kind": "job", "job": "CREASTMT",
+           "steps": [{"case": "carddemo-sort-tranrept"}, {"case": "carddemo-cbstm03a"}]}  # fmt: skip
+    ej.check_job(job, {n: eq.load_case(n) for n in ej.step_names(job)})

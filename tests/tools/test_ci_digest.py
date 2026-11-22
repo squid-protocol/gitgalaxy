@@ -645,3 +645,10 @@ def test_digest_asks_main_about_the_checks_the_pr_failed(monkeypatch):
     monkeypatch.setattr(cd, "main_failures", lambda api, **k: asked.append(k.get("wanted")) or set())
     cd.digest(7, fake_api([run(1, "ground-truth", "failure"), run(2, "ruff", "success")]), lambda i: "")
     assert asked == [{"ground-truth"}]
+
+
+def test_det_aggregate_of_resolution_failures_is_infra_8215():
+    import proof_sweep as ps
+
+    assert cd.triage("failure", "det a: NOT PROVEN\n" + ps.INFRA_LINE, []) == "infra"
+    assert cd.triage("failure", "det a: NOT PROVEN [java did not build: [ERROR] cannot find symbol]", []) == "real"

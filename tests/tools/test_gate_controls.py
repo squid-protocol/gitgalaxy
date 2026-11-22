@@ -125,3 +125,55 @@ def test_mypy_audit_fails_on_a_new_error(tmp_path, monkeypatch, capsys):
     assert "1 NEW type error" in capsys.readouterr().out
     _audit_at(tmp_path, monkeypatch, mypy_audit, {k: "known" for k in found})
     assert mypy_audit.run_ci_check() == 0  # the same error, baselined, passes: the ratchet, not a blanket failure
+
+
+def test_ast_accuracy_audit_fails_on_a_regression_drift_or_missing_baseline(tmp_path, monkeypatch, capsys):
+    """The negative control: the real --ci path over the committed baseline, with one metric made worse."""
+    import ast_accuracy_audit as aaa
+
+    base = json.loads(aaa.BASELINE_PATH.read_text(encoding="utf-8"))
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: dict(base))
+    assert aaa.run_ci_check() == 0  # the committed numbers pass: the gate is not a blanket failure
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: {**base, "found_functions": base["found_functions"] - 1})
+    assert aaa.run_ci_check() == 1
+    assert "found_functions" in capsys.readouterr().out
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: {**base, "real_functions": base["real_functions"] + 1})
+    assert aaa.run_ci_check() == 1  # ground truth drifted from the pinned corpus
+    monkeypatch.setattr(aaa, "measure", lambda verbose=False: dict(base))
+    monkeypatch.setattr(aaa, "BASELINE_PATH", tmp_path / "absent.json")
+    assert aaa.run_ci_check() == 1  # no baseline: fails closed
+
+
+def test_detection_accuracy_audit_fails_on_a_regression(monkeypatch, capsys):
+    import detection_accuracy_audit as daa
+
+    base = json.loads(daa.BASELINE_PATH.read_text(encoding="utf-8"))
+    monkeypatch.setattr(sys, "argv", ["detection_accuracy_audit.py", "--ci"])
+    monkeypatch.setattr(daa, "measure", lambda: dict(base))
+    assert daa.main() == 0
+    worse = {**base, "determinable_accuracy": base["determinable_accuracy"] - 0.05}
+    monkeypatch.setattr(daa, "measure", lambda: worse)
+    assert daa.main() == 1
+    assert "determinable_accuracy" in capsys.readouterr().out
+    monkeypatch.setattr(daa, "measure", lambda: {**base, "tier_5_conflicts": base["tier_5_conflicts"] + 1})
+    assert daa.main() == 1
+
+
+def test_call_graph_accuracy_audit_fails_on_a_regression(tmp_path, monkeypatch, capsys):
+    import call_graph_accuracy as cga
+
+    (tmp_path / "data").mkdir()
+    monkeypatch.setattr(cga, "CRUCIBLE", tmp_path)
+    monkeypatch.setattr(cga, "render", lambda results: "")
+    base = json.loads(cga.BASELINE.read_text(encoding="utf-8"))
+    monkeypatch.setattr(cga, "measure", lambda *a, **k: json.loads(json.dumps(base)))
+    assert cga.main(["--ci"]) == 0
+    lang = sorted(base)[0]
+    worse = json.loads(json.dumps(base))
+    worse[lang]["precision_pct"] = base[lang]["precision_pct"] - cga.TOLERANCE_PP - 1
+    monkeypatch.setattr(cga, "measure", lambda *a, **k: worse)
+    assert cga.main(["--ci"]) == 1
+    assert lang in capsys.readouterr().out
+    dropped = {k: v for k, v in base.items() if k != lang}
+    monkeypatch.setattr(cga, "measure", lambda *a, **k: dropped)
+    assert cga.main(["--ci"]) == 1  # a language that is no longer measured is a regression too

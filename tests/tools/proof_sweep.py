@@ -251,6 +251,8 @@ def det_sweep(
                             **({"cobol_compile_failed": True, "cobc_stderr": row.get("cobc_stderr", "")}
                                if row.get("cobol_compile_failed") else {}),  # #4493, only when set
                             **({"error": str(row["error"])[:ERROR_CHARS]} if row.get("error") else {}),  # #8093
+                            **({"java_error": str(row["java_error"])[:ERROR_CHARS]}
+                               if row.get("java_error") else {}),  # #8215: why the Java side never built
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
@@ -322,6 +324,8 @@ def verdict(results: dict[str, dict[str, dict]], known_unproven: dict[tuple[str,
                 why = (
                     f" [translate error: {r['error']}]" if r.get("error") else ""
                 )  # #8093: the cause, not a bare verdict
+                if r.get("java_error"):  # #8215
+                    why += f" [java did not build: {' '.join(str(r['java_error']).split())[:ERROR_CHARS]}]"
                 if r.get("retry_error"):
                     why += f" [retry error: {r['retry_error']}]"
                 problems.append(
@@ -333,7 +337,24 @@ def verdict(results: dict[str, dict[str, dict]], known_unproven: dict[tuple[str,
                     f"{sweep} {case}: now proven -- update the baseline: python tests/tools/proof_sweep.py "
                     f"--update-baseline --work <the same DIR> (or remove it from {BASELINE.relative_to(REPO_ROOT)})"
                 )
+    if resolution_infra(results):
+        problems.append(INFRA_LINE)
     return problems
+
+
+INFRA_LINE = (
+    "INFRASTRUCTURE (not a code defect): every det case not proven failed at Maven dependency resolution "
+    "(Central or the cache did not answer); rerun the shard"
+)  # #8215: ci_digest.INFRA_LOG reads this phrase, so the aggregate triages `infra`, not `real`
+
+
+def resolution_infra(results: dict[str, dict[str, dict]]) -> bool:
+    """#8215: True when the det sweep has unproven cases and every one of them has a Java build error that is a
+    dependency-resolution failure (maven_exe's markers). One case with another cause keeps the failure real."""
+    import maven_exe
+
+    bad = [r for r in results.get("det", {}).values() if not r["proved"]]
+    return bool(bad) and all(maven_exe.is_resolution_failure(str(r.get("java_error") or "")) for r in bad)
 
 
 def prune_baseline(results: dict[str, dict[str, dict]], path: Path = BASELINE) -> list[str]:

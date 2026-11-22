@@ -139,6 +139,7 @@ jobs:
           persist-credentials: false
           sparse-checkout-cone-mode: false
           sparse-checkout: |
+            tests/tools/ci_retry.sh
             tests/tools/det_sweep_plan.py
             tests/tools/ci_shard_plan.py
             tests/equivalence/det_sweep_durations.json
@@ -160,12 +161,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          head=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh-full&per_page=1" --jq '.[0].head.sha // ""')
+          head=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 3 20 -- gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh-full&per_page=1" --jq '.[0].head.sha // ""')
           if [ -z "$head" ]; then
             echo "defer=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          running=$(gh api "repos/$REPO/commits/$head/check-runs?per_page=100" \
+          running=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 3 20 -- gh api "repos/$REPO/commits/$head/check-runs?per_page=100" \
             --jq '[.check_runs[] | select(.status != "completed")] | length')
           if [ "$running" -gt 0 ]; then
             echo "defer=true" >> "$GITHUB_OUTPUT"
@@ -180,7 +181,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          active=$(gh api "repos/$REPO/actions/workflows/evidence-refresh.yml/runs?per_page=50" \
+          active=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 3 20 -- gh api "repos/$REPO/actions/workflows/evidence-refresh.yml/runs?per_page=50" \
             --jq '[.workflow_runs[] | select(.status != "completed" and .event != "push")] | length')
           if [ "$active" -gt 0 ]; then
             echo "defer=true" >> "$GITHUB_OUTPUT"
@@ -205,10 +206,16 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
         run: |
-          prs=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh&per_page=10" --jq '.[].number')
+          # #9031: best-effort. A rate-limit 403 here failed a whole refresh; the full run's own PR supersedes the push
+          # lane's anyway, so after the retries a failure is a warning and the next full run closes the stale PR.
+          if ! prs=$(CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 3 20 -- gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh&per_page=10" --jq '.[].number'); then
+            echo "::warning title=Evidence refresh::could not list the push lane's open bot PR (API error); it is left for the next full run (#9031)"
+            exit 0
+          fi
           for pr in $prs; do
-            gh pr close "$pr" --repo "$REPO" --delete-branch \
-              --comment "Superseded by a full (${EVENT}) evidence refresh, which re-proves everything this one did, plus the Db2 cases (#4743)."
+            tests/tools/ci_retry.sh 3 20 -- gh pr close "$pr" --repo "$REPO" --delete-branch \
+              --comment "Superseded by a full (${EVENT}) evidence refresh, which re-proves everything this one did, plus the Db2 cases (#4743)." \
+              || echo "::warning title=Evidence refresh::could not close the push lane's bot PR #$pr (API error); it is left for the next full run (#9031)"
           done
 
   # #4733: the Db2 half of the sweep and the Db2 records. Its own runners: IBM's Db2 Community container needs --privileged

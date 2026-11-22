@@ -2085,7 +2085,7 @@
    ],
    "ibm": {
     "doc": "cobol-pg",
-    "section": "Converting to numbers"
+    "section": "Converting to numbers (NUMVAL, NUMVAL-C, NUMVAL-F)"
    },
    "options": [
     "ARITH"
@@ -2098,7 +2098,8 @@
     "C6"
    ],
    "status": "ASSUMED",
-   "calibration": "uncalibrated"
+   "calibration": "uncalibrated",
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Programming Guide, SC27-8714-03, \"Converting to numbers\"): \"NUMVAL, NUMVAL-C and NUMVAL-F return long (64-bit) floating-point values in compatibility mode, and return extended-precision (128-bit) floating-point values in extended mode\"; \"At most 15 decimal digits can be converted accurately to long-precision floating point ... Otherwise, the result may lose precision in an unexpected manner.\" Language Reference (SC27-8713-03), NUMVAL: \"If the ARITH(COMPAT) compiler option is in effect, the total number of digits must not exceed 18.\" The long result under ARITH(COMPAT), and the 18-digit and 15-digit refusals (where IBM describes no result), MATCH; ARITH(EXTEND) is refused by name. IBM does not say how the decimal digits become the long value (truncated or rounded), which the runtime truncates (register C6, ASSUMED list): stays ASSUMED. Checked against the text copies"
   },
   {
    "id": "RT-HFP-FLOAT-STATEMENT-STORE",
@@ -4041,13 +4042,16 @@
     "get"
    ],
    "site": "get@1",
-   "ibm": null,
-   "ibm_note": "EXEC DLI has no HOLD option; the hold on an updating PROCOPT is assumed (register I5)",
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Comparing call-level and command-level programs (note 1)"
+   },
+   "ibm_note": "IBM (IMS 15.4 Application Programming, \"Comparing call-level and command-level programs\", note 1 to the table of call and command equivalents): \"Get commands are just like Get Hold calls, and the performance of Get commands and Get calls is the same.\" IMS 15.4 Application Programming APIs, Table 55: \"Get commands (GU, GHU, GN, GHN, GNP, GHNP)\" are valid in Batch, BMP and CICS with DBCTL; GU command usage: \"Use the GU command to retrieve specific segments from the database, or to establish a position in the database for sequential processing\"; REPL command: \"that segment must already have been defined as replace-sensitive in the PCB by specifying PROCOPT=A or PROCOPT=R\" and \"You cannot issue any commands using the same PCB between a Get command and the REPL command\". So IBM documents the hold (the register I5 premise that the command has no HOLD option and the hold is assumed is settled: every EXEC DLI get is a hold). The runtime holds only where the PCB's PROCOPT allows an update (A, R or D); on any other PCB a REPL / DLET answers AM before the held-segment check (change(), DJ comes after AM), so the held/not-held difference is unobservable. MATCHED. Checked against the IMS 15.4 text copies (release 15.4; the register cited 15.3)",
    "options": [],
    "register": [
     "I5"
    ],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -4057,8 +4061,11 @@
    "methods": [
     "execIsrt"
    ],
-   "ibm": null,
-   "ibm_note": "Segments are fixed length (the DBD's); a variable-length SEGLENGTH is refused by name (register I5)",
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "ISRT command"
+   },
+   "ibm_note": "IBM (IMS 15.4 Application Programming APIs, \"ISRT command\"): \"You must include at least a SEGMENT option for each segment you want to add to the database. Unless ISRT is a path command, the lowest level SEGMENT option specifies the segment being inserted. You cannot use a WHERE or KEYS option for this level.\" (the runtime's last SSA unqualified: MATCHES); SEGLENGTH: \"Requirement: The value specified for SEGLENGTH must be greater than or equal to the length of the longest segment that can be processed by this call.\" The runtime stops by name on any SEGLENGTH that differs from the segment's fixed length, so it refuses a longer one IBM accepts (stricter, never a different result). Missing parent SEGMENT options: IBM takes the current position or the first occurrence; the runtime reads the same rule through the CBLTDLI ISRT (not compared here). Stays ASSUMED with the SEGLENGTH refusal named. Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"
@@ -4073,8 +4080,11 @@
    "methods": [
     "execChange"
    ],
-   "ibm": null,
-   "ibm_note": "The command form has no SSA, so SEGMENT is checked against the held segment's type; the hold comes from the get-hold on an updating PROCOPT (register I5)",
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "REPL command; DLET command"
+   },
+   "ibm_note": "IBM (IMS 15.4 Application Programming APIs, \"REPL command\"): \"You must qualify the REPL command with at least one SEGMENT and FROM option, which together indicate the retrieved segments you want replaced\"; \"You cannot issue any commands using the same PCB between a Get command and the REPL command, and you can issue only one REPL command for each Get command\"; \"DLET command\": \"You must first retrieve segments you want to delete, just as if you were replacing segments. The DLET command deletes the retrieved segment and its dependents\" (example: EXEC DLI GU SEGMENT(PATIENT) INTO(PATAREA), then EXEC DLI DLET SEGMENT(PATIENT) FROM(PATAREA)). The held segment, the PROCOPT A / R (REPL) check and the one-REPL-per-get rule MATCH. IBM does not say that SEGMENT must name the held segment's type: the runtime's refusal of a SEGMENT that does not is its own (stricter) check, so the rule stays ASSUMED. Checked against the IMS 15.4 text copies",
    "options": [],
    "register": [
     "I5"

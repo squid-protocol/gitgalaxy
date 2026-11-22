@@ -129,7 +129,7 @@ def test_a_partial_record_is_refused():
 
 class _Api(types.SimpleNamespace):
     def __init__(self, cases, cobol, java_equal=True):
-        super().__init__(seen=[], cases=cases, cobol=cobol, java_equal=java_equal)
+        super().__init__(seen=[], cobol_subs=[], cases=cases, cobol=cobol, java_equal=java_equal)
 
     def load_case(self, name):
         return json.loads(json.dumps(self.cases[name]))
@@ -142,6 +142,7 @@ class _Api(types.SimpleNamespace):
 
     def run_cobol(self, case, corpus, work):
         self.seen.append((case["program"], dict(case["datasets"])))
+        self.cobol_subs.append((case["program"], case.get("subprograms")))
         return dict(self.cobol[case["program"]])
 
     def compare_run(self, case, corpus, cobol, java):
@@ -150,12 +151,21 @@ class _Api(types.SimpleNamespace):
                 "outputs": {"OUT": {"equal": 1 if ok else 0, "records": 1, "diffs": []}}}  # fmt: skip
 
 
+java_cases: list = []  # (program, subprograms) each stubbed Java run was given
+
+
 @pytest.fixture
 def stub(monkeypatch):
     import equivalence_java as ej
     import mainframe_corpus as mc
 
-    monkeypatch.setattr(ej, "run_java_environments", lambda *a, **k: {"default": {"RETURN-CODE": b"0"}})
+    java_cases.clear()
+
+    def java(case, *a, **k):
+        java_cases.append((case["program"], case.get("subprograms")))
+        return {"default": {"RETURN-CODE": b"0"}}
+
+    monkeypatch.setattr(ej, "run_java_environments", java)
     monkeypatch.setattr(mc, "select", lambda names: [names[0]])
     monkeypatch.setattr(mc, "require_clone", lambda entry: Path("/corpus"))
 
@@ -210,6 +220,9 @@ def test_a_step_with_subprograms_is_accepted_and_run_whole(stub, tmp_path):  # #
     assert ej_job.run_case(api, _job(), tmp_path) == 0
     report = json.loads((tmp_path / "report.json").read_text(encoding="utf-8"))
     assert report["steps"][1]["subprograms"] == ["app/cbl/SUBB.CBL"] and "subprograms" not in report["steps"][0]
+    # both sides are handed the step's whole case, so each builds the subprograms as the step's own proof does
+    assert api.cobol_subs == [("PA", None), ("PB", ["app/cbl/SUBB.CBL"])]
+    assert java_cases == [("PA", None), ("PB", ["app/cbl/SUBB.CBL"])]
 
 
 @pytest.mark.parametrize(

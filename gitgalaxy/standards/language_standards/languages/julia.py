@@ -51,8 +51,8 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         "branch": re.compile(r"\b(?:if|elseif|else|for|while|try|catch|finally)\b|[ \t]\?[ \t]"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # args: group 1 is the parenthesised parameter list of `function name(...)`.
-        "args": re.compile(r"\bfunction[ \t]+(?:[\w.]*\.)?" + _NAME + r"(?:\{[^}\n]*\})?[ \t]*\(([^)\n]*)\)"),
+        # args: group 1 is the parenthesised parameter list of `function name(...)`; it may span lines (#8924), capped.
+        "args": re.compile(r"\bfunction[ \t]+(?:[\w.]*\.)?" + _NAME + r"(?:\{[^}\n]*\})?[ \t]*\(([^)]{0,4000})\)"),
         "structural_boundaries": re.compile(
             r"\b(?:module|baremodule|struct|function|macro|abstract[ \t]+type|primitive[ \t]+type|using|import|end)\b"
         ),

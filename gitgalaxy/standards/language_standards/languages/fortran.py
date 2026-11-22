@@ -130,7 +130,7 @@ DEFINITION: dict[str, Any] = {
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.
         # Includes standard conditional blocks, legacy computed GO TO, and modern SELECT TYPE / SELECT RANK.
         "branch": re.compile(
-            r"\b((?<!END[ \t])IF|ELSEIF|ELSE|(?<!END[ \t])DO|SELECT\s+CASE|CASE|DEFAULT|(?<!END[ \t])WHERE|ELSEWHERE|SELECT\s+TYPE|SELECT\s+RANK|EXIT|CYCLE)\b",
+            r"\b((?<!END[ \t])IF|ELSEIF|ELSE|(?<!END[ \t])DO|SELECT\s+CASE|CASE|DEFAULT|(?<!END[ \t])WHERE|ELSEWHERE|SELECT\s+TYPE|SELECT\s+RANK)\b",
             re.I,
         ),
         "short_circuit": re.compile(r"\.(?:AND|OR)\.", re.I),
@@ -163,7 +163,7 @@ DEFINITION: dict[str, Any] = {
         # Structural boundaries defining straight-line execution and data types.
         # CRITICAL GUARDRAIL: Access modifiers (PUBLIC, PRIVATE, PROTECTED) do not belong here. Explicitly omitted to prevent the Structural Complexity Inflation Bug
         "structural_boundaries": re.compile(
-            r"\b(PROGRAM|MODULE|SUBMODULE|BLOCK\s+DATA|CONTAINS|END\s+(?:PROGRAM|MODULE|SUBROUTINE|FUNCTION|BLOCK|TYPE|ASSOCIATE)|RETURN|IMPLICIT|USE|ASSOCIATE|BLOCK|INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE\s+PRECISION|CLASS|WHILE)\b",
+            r"\b(PROGRAM|MODULE|SUBMODULE|BLOCK\s+DATA|CONTAINS|END\s+(?:PROGRAM|MODULE|SUBROUTINE|FUNCTION|BLOCK|TYPE|ASSOCIATE)|RETURN|EXIT|CYCLE|IMPLICIT|USE|ASSOCIATE|BLOCK|INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE\s+PRECISION|CLASS|WHILE)\b",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)
@@ -493,13 +493,13 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"(?i)\b(?:int|real|cmplx|dble|achar|char|iachar|ichar)[ \t]*\([^)]*\)"),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution destruction and unrecoverable exceptions.
-        "panics_and_aborts": re.compile(r"(?i)\b(?:stop|error[ \t]+stop|return)\b"),
+        "panics_and_aborts": re.compile(r"(?i)\b(?:stop|error[ \t]+stop|call[ \t]+(?:exit|abort))\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # Forcing threads to sleep.
         "thread_sleeps": re.compile(r"(?i)\bcall[ \t]+(?:sleep|usleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # Low-level byte manipulation utilizing Fortran's explicit intrinsic bitwise functions.
-        "bitwise_ops": re.compile(r"(?i)\b(?:iand|ior|ieor|not|ishft|ishftc|btest|ibset|ibclr|ibits)\b"),
+        "bitwise_ops": re.compile(r"(?i)\b(?:iand|ior|ieor|not(?=[ \t]*\()|ishft|ishftc|btest|ibset|ibclr|ibits)\b"),
         # 44. sync_locks (Resource Management & Stability)
         # Explicit coordination to prevent race conditions .
         "sync_locks": re.compile(r"(?i)\b(?:lock|unlock|critical|sync[ \t]+all|sync[ \t]+images|sync[ \t]+memory)\b"),

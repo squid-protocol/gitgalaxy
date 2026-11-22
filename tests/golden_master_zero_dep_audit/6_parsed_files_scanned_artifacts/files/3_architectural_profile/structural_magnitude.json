@@ -1402,7 +1402,7 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 35.4,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 35.74,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 49.52,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 59.68,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 49.18,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 16.74,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 34.7
     },
@@ -1457,7 +1457,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": 8.48,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": 4.7,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": 9.1,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 3.82,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 1.82,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": 1.82,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 3.22,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 5.24,
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 3.84,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": 35.0,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": 12.06,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 40.26
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 38.86
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": 17.28,
@@ -1569,7 +1569,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": 15.32,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": 15.24,
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": 15.24,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 18.46,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 16.46,
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": 16.82,
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": 15.28,
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": 13.64,
@@ -1644,7 +1644,7 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 71.88,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 3.1,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 5.16,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 27.48,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 11.98,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 7.92,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 10.0,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 12.48,

@@ -1402,7 +1402,7 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 1.313,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": -0.298,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 1.252,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": -0.05,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": -0.491,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": -0.614,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 0.965
     },
@@ -1457,7 +1457,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": 1.991,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": 2.239,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": -0.443,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": -0.104,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": -0.064,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": 0.162,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 0.172,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 0.272,
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": -0.216,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": 1.213,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": -0.213,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 0.709
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 1.293
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": -0.166,
@@ -1569,7 +1569,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": 0.042,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": 0.103,
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": 0.103,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 0.283,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -0.118,
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -0.244,
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": -0.196,
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": 0.0,
@@ -1585,7 +1585,7 @@
       "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": -0.151,
       "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": 0.0,
       "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": -0.115,
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": -0.044,
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": -0.055,
       "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": 0.0
     },
     "groovy/kotlin_build_gradle": {
@@ -1594,7 +1594,7 @@
       "groovy/kotlin_build_gradle/dependencies_protobuf_settings.gradle": 0.0,
       "groovy/kotlin_build_gradle/js_npm_settings.gradle": 0.0,
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": 0.041,
-      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 0.566,
+      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 0.423,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": 0.024,
       "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 1.84,
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": -0.237,
@@ -1644,7 +1644,7 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 1.129,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 0.132,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 0.095,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 0.225,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 0.047,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 1.426,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 3.047,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": -0.415,

@@ -1396,15 +1396,15 @@
       "groovy/SOURCES.md": -8783.94
     },
     "groovy/fineract_gradle_plugin": {
-      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": -8298.58,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": -9111.62,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": -9013.36,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": -8617.6,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": -8812.86,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": -9084.34,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": -8873.14,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": -8457.82,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": -9349.91
+      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": -8298.47,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": -9108.97,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": -9011.07,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": -8616.89,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": -8811.2,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": -8844.67,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": -9107.8,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": -8457.54,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": -9346.31
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": -6496.3,
@@ -1451,15 +1451,15 @@
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": -669.25,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": -1468.07,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": -978.88,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": -679.5,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": -89.88,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": -1443.47,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": -288.61,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": -1080.11,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": -778.29,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": -410.14,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": -141.92,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": -1656.3,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": -963.57,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": -367.31,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": -1345.47,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": -747.87,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": -933.27,
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": -1700.37,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": -1461.67,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": -386.33,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": -956.46
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": -956.49
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": -6286.06,
@@ -1560,7 +1560,7 @@
       "groovy/jenkins_view_groovy/Jenkinsfile": -3737.46,
       "groovy/jenkins_view_groovy/LICENSE.txt": -2909.8,
       "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": -3515.56,
-      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": -4220.07,
+      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": -3495.28,
       "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": -3058.21,
       "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": -4130.78,
       "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": -3400.99,
@@ -1569,14 +1569,14 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": -4345.18,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": -3158.93,
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": -4513.29,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -3957.97,
-      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -3296.98,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -3287.74,
+      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -4191.49,
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": -4176.88,
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": -2838.95,
-      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": -3428.66,
+      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": -3652.3,
       "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": -4270.17,
       "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": -3115.65,
-      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": -3723.43,
+      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": -3999.93,
       "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": -4464.37,
       "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": -4052.59,
       "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": -3497.47,
@@ -1644,16 +1644,16 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 5549.84,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 5646.81,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 6411.63,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 5271.35,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 5472.25,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 5969.8,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 6052.11,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 5462.47,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_org_spockframework_util_GroovyUtil.groovy": 6203.17,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 5590.46,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_org_spockframework_util_GroovyUtil.groovy": 5329.37,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": 5766.4,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": 5740.86,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_concurrent_BlockingVariables.groovy": 5224.07,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_HamcrestMatchers.groovy": 6351.77,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": 5650.77,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": 6200.57,
       "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_extension_SpockSnapshotter.groovy": 5127.81,
       "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_jacoco_JacocoAstDumpTrigger.groovy": 6258.29
     },
@@ -3831,7 +3831,7 @@
       "tcl/sqlite_json_triggers/LICENSE.md": 1270.06
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": -10287.79
+      "tcl/sqlite_query_planner/LICENSE.md": -10283.48
     },
     "tcl/sqlite_rtree": {
       "tcl/sqlite_rtree/LICENSE.md": -460.92
@@ -3977,9 +3977,9 @@
       "yacc/SOURCES.md": -6429.55
     },
     "yacc/freebsd": {
-      "yacc/freebsd/COPYRIGHT": -9678.52,
-      "yacc/freebsd/config.y": -9694.37,
-      "yacc/freebsd/jailparse.y": -9913.58
+      "yacc/freebsd/COPYRIGHT": -9674.16,
+      "yacc/freebsd/config.y": -9690.01,
+      "yacc/freebsd/jailparse.y": -9909.23
     },
     "yaml": {
       "yaml/SOURCES.md": 9290.05

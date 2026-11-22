@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": "Callbacks & Closures Files",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": "State Mutators Files",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "Callbacks & Closures Files",
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "Large Core Modules (3)"
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "Encapsulated Accessors Files"
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": "Declarative / Non-Code",

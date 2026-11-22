@@ -25096,14 +25096,14 @@
         "sign@94": -0.646
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": {
-        "JiraService@39": -0.728,
-        "getProjectVersions@116": 0.168,
-        "getProjects@112": 0.168,
-        "getVersion@120": 0.168,
-        "intercept@53": -0.728,
-        "search@78": 2.408,
-        "serverInfo@74": -0.728,
-        "updateVersion@124": -0.728
+        "JiraService@39": -0.378,
+        "getProjectVersions@116": -0.378,
+        "getProjects@112": -0.378,
+        "getVersion@120": -0.378,
+        "intercept@53": -0.378,
+        "search@78": 2.646,
+        "serverInfo@74": -0.378,
+        "updateVersion@124": -0.378
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": {
         "SubversionService@37": -0.5,
@@ -25594,18 +25594,18 @@
         "transform@84": 1.0
       },
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": {
-        "DomBuilder@28": -0.677,
-        "DomBuilder@33": -0.677,
-        "DomBuilder@38": -0.677,
-        "appendChild@78": 1.643,
-        "appendChildren@86": 0.483,
-        "appendChildren@90": -0.677,
-        "createNode@43": 1.643,
-        "createNode@52": -0.677,
-        "createNode@60": 1.643,
-        "createNode@70": -0.677,
-        "setParent@74": -0.677,
-        "text@94": -0.677
+        "DomBuilder@28": -0.655,
+        "DomBuilder@33": -0.655,
+        "DomBuilder@38": -0.655,
+        "appendChild@78": 1.964,
+        "appendChildren@86": 0.655,
+        "appendChildren@90": -0.655,
+        "createNode@43": 0.655,
+        "createNode@52": -0.655,
+        "createNode@60": 1.964,
+        "createNode@70": -0.655,
+        "setParent@74": -0.655,
+        "text@94": -0.655
       }
     },
     "groovy/gradle_dsl_snippets": {

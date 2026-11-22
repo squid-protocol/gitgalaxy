@@ -626,7 +626,6 @@
     },
     "groovy/jenkins_view_groovy": {
       "groovy/jenkins_view_groovy/Jenkinsfile": 73,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 3,
       "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": 3
     },
     "groovy/kotlin_build_gradle": {

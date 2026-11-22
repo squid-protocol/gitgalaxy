@@ -329076,8 +329076,8 @@
       ],
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": [
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
           "End Line": 110,
           "Function Name": "search",
           "Has Header Comment": 0,
@@ -329087,35 +329087,7 @@
           "Lines of Code (LOC)": 33,
           "Reflection Hits": 0,
           "Start Line": 78,
-          "Structural Impact": 13.0
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 118,
-          "Function Name": "getProjectVersions",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 116,
-          "Structural Impact": 4.4
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 122,
-          "Function Name": "getVersion",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 120,
-          "Structural Impact": 4.4
+          "Structural Impact": 10.1
         },
         {
           "Control Flow Branches": 0,
@@ -329132,20 +329104,6 @@
           "Structural Impact": 3.1
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 114,
-          "Function Name": "getProjects",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 112,
-          "Structural Impact": 3.1
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 58,
@@ -329158,6 +329116,34 @@
           "Reflection Hits": 0,
           "Start Line": 53,
           "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 118,
+          "Function Name": "getProjectVersions",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 116,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 122,
+          "Function Name": "getVersion",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 120,
+          "Structural Impact": 1.6
         },
         {
           "Control Flow Branches": 0,
@@ -329185,6 +329171,20 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 74,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 114,
+          "Function Name": "getProjects",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 112,
           "Structural Impact": 1.1
         }
       ],
@@ -334119,8 +334119,8 @@
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": [
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 43,
           "Function Name": "clean",
           "Has Header Comment": 0,
@@ -334130,7 +334130,7 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 37,
-          "Structural Impact": 3.4
+          "Structural Impact": 1.4
         }
       ],
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": [
@@ -335105,20 +335105,6 @@
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
-          "End Line": 50,
-          "Function Name": "createNode",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
-          "Start Line": 43,
-          "Structural Impact": 4.6
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
           "End Line": 84,
           "Function Name": "appendChild",
           "Has Header Comment": 0,
@@ -335129,6 +335115,20 @@
           "Reflection Hits": 0,
           "Start Line": 78,
           "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 50,
+          "Function Name": "createNode",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 43,
+          "Structural Impact": 3.2
         },
         {
           "Control Flow Branches": 1,
@@ -339658,8 +339658,8 @@
       ],
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": [
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "87.5%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
           "End Line": 78,
           "Function Name": "getImportedFiles",
           "Has Header Comment": 0,
@@ -339669,7 +339669,7 @@
           "Lines of Code (LOC)": 40,
           "Reflection Hits": 0,
           "Start Line": 39,
-          "Structural Impact": 23.2
+          "Structural Impact": 7.7
         },
         {
           "Control Flow Branches": 0,

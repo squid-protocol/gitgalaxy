@@ -1402,7 +1402,7 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 5.422,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 6.826,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 7.416,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 7.057,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 7.11,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 7.265,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 6.842
     },
@@ -1457,7 +1457,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": 8.728,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": 5.553,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": 7.667,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 7.955,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 7.899,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": 5.241,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 5.312,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 4.124,
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 7.391,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": 7.608,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": 7.928,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 7.34
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 7.283
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": 3.423,
@@ -1569,7 +1569,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": 4.207,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": 2.101,
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": 2.101,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 2.25,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 1.566,
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": 3.901,
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": 4.133,
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": 3.242,
@@ -1585,7 +1585,7 @@
       "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": 3.03,
       "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": 4.929,
       "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": 2.468,
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": 2.381,
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": 2.306,
       "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": 2.574
     },
     "groovy/kotlin_build_gradle": {
@@ -1594,7 +1594,7 @@
       "groovy/kotlin_build_gradle/dependencies_protobuf_settings.gradle": 2.597,
       "groovy/kotlin_build_gradle/js_npm_settings.gradle": 5.595,
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": 3.293,
-      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 6.277,
+      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 5.838,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": 5.723,
       "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 7.552,
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": 5.672,
@@ -1644,7 +1644,7 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 7.45,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 5.611,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 4.771,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 9.689,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 8.176,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 6.765,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 6.733,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 7.296,

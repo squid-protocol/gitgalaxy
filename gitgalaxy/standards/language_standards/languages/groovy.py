@@ -65,7 +65,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|\?"),
+        # #8912: the `?` of the safe-navigation `?.` (and safe index `?[`) is a
+        # null guard on a member access, not a ternary: only a `?` not followed
+        # by `.` / `[` counts (ternary `a ? b : c`; Elvis `?:` counts once).
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|\?(?![.\[])"),
         "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Captures standard method arguments and Groovy closures (x, y ->)
@@ -584,7 +587,9 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # EXCLUDES `<<` and `>>` because Groovy heavily overloads `<<` for list/stream appending.
-        "bitwise_ops": re.compile(r"\^|~"),
+        # #8912: `=~` / `==~` (regex find / match) and the `~/.../` pattern
+        # operator are regex operators, not bit operations.
+        "bitwise_ops": re.compile(r"\^|(?<![=~])~(?![ \t]*/)"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(synchronized|ReentrantLock|ReadWriteLock|Semaphore|Lock|Mutex)\b"),
         # 45. immutability_locks (Immutability Constraints)

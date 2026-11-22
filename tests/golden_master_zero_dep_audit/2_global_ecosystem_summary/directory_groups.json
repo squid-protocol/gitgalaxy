@@ -1946,7 +1946,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 14.28,
+        "cognitive_load": 14.63,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 88.89,
@@ -1959,7 +1959,7 @@
         "verification": 2.13
       },
       "file_count": 9,
-      "total_mass": 257.84
+      "total_mass": 247.34
     },
     "groovy/flutter_android_gradle": {
       "avg_exposures": {
@@ -2022,7 +2022,7 @@
       "avg_exposures": {
         "api_exposure": 0.41,
         "churn": 0.0,
-        "cognitive_load": 9.09,
+        "cognitive_load": 8.86,
         "concurrency": 1.74,
         "dead_code": 0.0,
         "documentation": 83.75,
@@ -2035,7 +2035,7 @@
         "verification": 5.62
       },
       "file_count": 24,
-      "total_mass": 425.96
+      "total_mass": 422.56
     },
     "groovy/gradle_dsl_snippets": {
       "avg_exposures": {
@@ -2098,26 +2098,26 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 5.24,
+        "cognitive_load": 4.9,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 3.33,
-        "safety_score": 17.03,
+        "safety_score": 16.98,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.33,
-        "state_flux": 8.26,
+        "state_flux": 7.15,
         "tech_debt": 0.86,
         "verification": 4.81
       },
       "file_count": 30,
-      "total_mass": 585.86
+      "total_mass": 583.86
     },
     "groovy/kotlin_build_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 1.48,
+        "cognitive_load": 1.44,
         "concurrency": 0.87,
         "dead_code": 0.41,
         "documentation": 12.0,
@@ -2174,7 +2174,7 @@
       "avg_exposures": {
         "api_exposure": 0.07,
         "churn": 0.0,
-        "cognitive_load": 10.1,
+        "cognitive_load": 9.86,
         "concurrency": 5.88,
         "dead_code": 0.0,
         "documentation": 85.39,
@@ -2184,10 +2184,10 @@
         "stability": 50.0,
         "state_flux": 35.65,
         "tech_debt": 58.42,
-        "verification": 6.94
+        "verification": 6.93
       },
       "file_count": 17,
-      "total_mass": 378.42
+      "total_mass": 362.92
     },
     "groovy/spock_smoke_specs": {
       "avg_exposures": {

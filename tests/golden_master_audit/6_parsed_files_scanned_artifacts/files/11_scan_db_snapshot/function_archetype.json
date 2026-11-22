@@ -25097,9 +25097,9 @@
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": {
         "JiraService@39": "Stateful Encapsulated Methods",
-        "getProjectVersions@116": "Compute Cores",
+        "getProjectVersions@116": "Parameter Forwarders",
         "getProjects@112": "Interface Declarations",
-        "getVersion@120": "Compute Cores",
+        "getVersion@120": "Parameter Forwarders",
         "intercept@53": "Defensive Guards",
         "search@78": "Compute Cores",
         "serverInfo@74": "Generic / Templated Code",
@@ -25600,7 +25600,7 @@
         "appendChild@78": "Type Conversions",
         "appendChildren@86": "Callbacks & Closures",
         "appendChildren@90": "Callbacks & Closures",
-        "createNode@43": "Stateful Encapsulated Methods",
+        "createNode@43": "Encapsulated Accessors",
         "createNode@52": "Encapsulated Accessors",
         "createNode@60": "Stateful Encapsulated Methods",
         "createNode@70": "Encapsulated Accessors",
@@ -26064,7 +26064,7 @@
       },
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": {
         "execute@24": "Callbacks & Closures",
-        "getImportedFiles@39": "Stateful Encapsulated Methods"
+        "getImportedFiles@39": "Callbacks & Closures"
       },
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": {
         "PreprocessGithubWorkflow@49": "State Mutators",

@@ -116,7 +116,7 @@
     },
     "groovy": {
       "files": 305,
-      "impact": 5414.46,
+      "impact": 5383.06,
       "loc": 13146
     },
     "haskell": {

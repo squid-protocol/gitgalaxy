@@ -626,7 +626,6 @@
     },
     "groovy/jenkins_view_groovy": {
       "groovy/jenkins_view_groovy/Jenkinsfile": "21 instances",
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": "1 instances",
       "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": "1 instances"
     },
     "groovy/kotlin_build_gradle": {

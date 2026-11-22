@@ -290,3 +290,10 @@ def test_every_gate_leg_is_planned_balanced(durations):
         n = legs[(os_name, py)]
         assert _planned_ratio(weight, n, plan.GATE_SETUP_S) <= RATIO_LIMIT, (os_name, py, n)
         assert _planned_ratio(weight, n, 0) <= RATIO_LIMIT, (os_name, py, n)
+
+
+def test_windows_312_is_planned_no_faster_than_windows_311_8701():
+    # 2026-11-19: 2 parts planned at 18 min at speed 1.3 measured 25:06. The speed is pinned, not the planned minutes: the
+    # nightly's restored durations differ from the committed file and move the minutes by a few percent.
+    speed = {(o, py): s for o, py, s in plan.LEGS}
+    assert speed[("windows-latest", "3.12")] >= speed[("windows-latest", "3.11")]

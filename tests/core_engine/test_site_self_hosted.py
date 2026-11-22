@@ -58,7 +58,7 @@ def test_vendored_files_match_their_checksums():
             f"{name} was modified"
         )
     on_disk = {
-        str(p.relative_to(VENDOR))
+        p.relative_to(VENDOR).as_posix()
         for p in VENDOR.rglob("*")
         if p.is_file() and p.name != "SHA256SUMS"
     }

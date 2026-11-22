@@ -3303,7 +3303,7 @@
       "scheme/racket/fun.c": 8.047,
       "scheme/racket/io.ss": 9.001,
       "scheme/racket/schemify.rkt": 6.856,
-      "scheme/racket/thread.rkt": 7.773
+      "scheme/racket/thread.rkt": 7.769
     },
     "shell": {
       "shell/SOURCES.md": 0.0

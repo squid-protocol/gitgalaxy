@@ -78,7 +78,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,  # #3359 C1 annotation guard; #4124 `X<T>(`
         # #3359 (contract C2): keywords and special forms, never calls
@@ -105,8 +105,9 @@ DEFINITION: dict[str, Any] = {
         # arm), a statement label, the enhanced-for and assert separators. A
         # generic wildcard (`<?>`, `<? extends T>`, `Map<?, V>`) is a type.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|yield|when)\b|&&|\|\||\?(?![ \t]*(?:[>,]|extends\b|super\b))"
+            r"\b(if|else|switch|case|default|for|while|do|yield|when)\b|\?(?![ \t]*(?:[>,]|extends\b|super\b))"
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Captures method/constructor params and lambdas. Bounded to prevent ReDoS.
         "args": re.compile(

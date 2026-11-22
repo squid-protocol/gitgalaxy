@@ -67,7 +67,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
-        "branch": re.compile(r"\b(if|elseif|else|for|while|repeat|and|or|not)\b"),
+        "branch": re.compile(r"\b(if|elseif|else|for|while|repeat)\b"),
+        "short_circuit": re.compile(r"\b(?:and|or)\b"),
         # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
         # #1209: parameter-list span wrapped in its own capture group (was
         # only reachable via group(0), the whole match including the

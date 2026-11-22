@@ -646,19 +646,20 @@ def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
 
 
 # #3595: a brace selector group opens right after an import-path separator
-# (`a.b.{`, `a::{`, `A\\{`). Only then is a brace a group; `${VAR}` and an HTML
-# `{{ placeholder }}` are not, and keep the plain comma split.
-_SELECTOR_GROUP = re.compile(r"(?:\.|::|\\)[ \t]*\{")
+# (`a.b.{`, `a::{`, `A\\{`), or a Nim bracket group after `/` (`chronos/[a, b]`).
+# Only then is a brace/bracket a group; `${VAR}` and an HTML `{{ placeholder }}`
+# are not, and keep the plain comma split.
+_SELECTOR_GROUP = re.compile(r"(?:\.|::|\\)[ \t]*\{|/[ \t]*\[")
 
 
 def _split_top_level(text: str) -> list[str]:
-    """`text` split on the commas that are not inside braces."""
+    """`text` split on the commas that are not inside braces or brackets."""
     parts, depth, start = [], 0, 0
     for i, ch in enumerate(text):
-        if ch == "{":
+        if ch in "{[":
             depth += 1
-        elif ch == "}":
-            depth -= 1
+        elif ch in "}]":
+            depth = max(0, depth - 1)
         elif ch == "," and depth == 0:
             parts.append(text[start:i])
             start = i + 1
@@ -669,28 +670,41 @@ def _split_top_level(text: str) -> list[str]:
 def _expand_import_selectors(text: str, depth: int = 0) -> list[str]:
     """#3595: `io.circe.{ Decoder, Json }` is `io.circe.Decoder` and
     `io.circe.Json` -- the prefix before a brace applies to every selector in
-    it. Deleting the braces and splitting on commas (the old reading) gave
+    it (and Nim `chronos/[a, b]` expands to `chronos/a`, `chronos/b`).
+    Deleting the braces and splitting on commas (the old reading) gave
     `io.circe. Decoder` and a bare `Json`, neither of which resolves. Nested
     groups recurse (bounded); a Rust `self` selector names the prefix itself."""
     out: list[str] = []
     for part in _split_top_level(text):
-        part = part.strip()
+        part = re.split(r"\bexcept\b", part, maxsplit=1)[0].strip()
+        if not part:
+            continue
         brace = part.find("{")
-        # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`) or
-        # opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
+        bracket = part.find("[")
+        # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`, `a/[`)
+        # or opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
         # A part that opens with `{` and closes with its `}` is an unprefixed group
         # (Rust `use { a::B, c::{D, E} };`, #3798): its items expand with no prefix.
         if (brace == 0 and not part.endswith("}")) or (
             brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")
         ):
             brace = -1
-        if brace == -1 or depth > 8:
+        if bracket <= 0 or part[:bracket].rstrip()[-1:] != "/":
+            bracket = -1
+        if brace != -1 and (bracket == -1 or brace < bracket):
+            open_idx, close_ch = brace, "}"
+        elif bracket != -1:
+            open_idx, close_ch = bracket, "]"
+        else:
+            open_idx, close_ch = -1, ""
+        if open_idx == -1 or depth > 8:
             leaf = re.split(r"\s+as\s+|\s*=>\s*", part)[0].replace("{", "").replace("}", "").strip()
             if leaf:
                 out.append(leaf)
             continue
-        prefix = re.sub(r"\s+", "", part[:brace])
-        inner = part[brace + 1 : part.rfind("}") if part.rfind("}") > brace else len(part)]
+        prefix = re.sub(r"\s+", "", part[:open_idx])
+        close_idx = part.rfind(close_ch)
+        inner = part[open_idx + 1 : close_idx if close_idx > open_idx else len(part)]
         for item in _expand_import_selectors(inner, depth + 1):
             if item == "self":
                 out.append(prefix.rstrip(":.\\/"))

@@ -39,13 +39,17 @@ DEFINITION: dict[str, Any] = {
     # lines is blanked: a one-line `-include("x.hrl").` keeps its quoted path.
     "import_capture_blank": r"%[^\n]*" + r'|"(?:[^"\\]|\\[\s\S]){0,20000}"',
     "import_capture_multiline_only": True,
+    # Erlang `-behaviour(mod)` / `-import(mod, ...)` / `-include("x.hrl")` name Erlang source/header files only
+    # (never docs like `doc/src/manual/cowboy_stream.asciidoc`).
+    "import_target_langs": frozenset({"erlang"}),
     # Mode E units are clause/statement buckets, not named routines (#2866 corollary 4).
     "invocation_model": "positional",
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"\b(?:if|case|of|try|catch|after|receive|andalso|orelse)\b|->"),
+        "branch": re.compile(r"\b(?:if|case|of|try|catch|after|receive)\b|->"),
+        "short_circuit": re.compile(r"\b(?:andalso|orelse)\b"),
         # args: group 1 is the parameter list of a function clause head at the start of a line.
         "args": re.compile(r"^" + _ATOM + r"[ \t]*\((" + _PARAMS + r")\)[ \t]*(?:when\b|->|$)", re.M),
         "structural_boundaries": re.compile(

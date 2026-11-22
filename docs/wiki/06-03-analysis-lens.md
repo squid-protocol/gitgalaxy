@@ -16,7 +16,7 @@ Exporting raw syntax counts directly to visualization or audit tools creates inc
 
 ## Design
 The module defines three core schemas in `RECORDING_SCHEMAS` (lengths as of 2026-11; read them from the code, they grow):
-- `SIGNAL_SCHEMA`: A 97-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
+- `SIGNAL_SCHEMA`: A 98-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
 - `RISK_SCHEMA`: A 13-point vector representing the normalized **Structural Surface Profile** (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see [`vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md). `RISK_SCHEMA` and the `risk_*` keys are retained as deprecated schema aliases; `VECTOR_NAMES` maps them to the descriptive names.
 - `SAT_SCHEMA`: An 11-element array for individual function metadata (e.g., LOC, complexity).
 It also includes string translation maps and security thresholds.

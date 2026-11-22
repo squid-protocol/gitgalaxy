@@ -24,6 +24,10 @@ dataset, indexed feeds whose keys or record lengths differ, a feed from a step t
 step does not compare, record lengths that differ across a feed, a fault run on a step (a fault plan names one step's
 datasets; not modelled in the job). A step that abended feeds nothing (the job stops). An `inputs` value beginning
 `@corpus/` names a file in the step's corpus (CardDemo's shipped data) instead of one beside the job case.
+A job may declare `"ibm_stops": {"step": case, "reason": "ICE043A"}` (#8884, CREASTMT): that lowered DFSORT step writes
+fewer bytes than a later step's DD LRECL, so IBM ends the step (ICE043A reason 9, SC23-6879) and COND=(0,NE) bypasses the
+rest. The harness proves the steps up to it, reports the later ones as not reached, and refuses the declaration when no
+later step reads such a short DFSORT output. The job is proven for the steps IBM runs, nothing more.
 A step may be an IDCAMS step (#8884, `"idcams": {"deck": file beside the job case, "dds": {DD: dataset spec}}`): there is no
 COBOL to run, so the oracle is the model of the step (`det/idcams_model.py`, no GnuCOBOL IDCAMS exists), run on the
 datasets fed to it; a DD carrying `"cluster": NAME` is a cluster the step starts with (empty), a later step reads its
@@ -70,6 +74,23 @@ def step_names(job: dict[str, Any]) -> list[str]:
     return [s["case"] for s in job.get("steps", [])]
 
 
+def ibm_stop(job: dict[str, Any]) -> int | None:
+    """The index of the step IBM ends the job at (#8884), `"ibm_stops": {"step": case, "reason": "ICE043A"}`, or None.
+    Only the ICE043A termination of a lowered DFSORT step is modelled (`check_job` verifies the join is short)."""
+    spec = job.get("ibm_stops")
+    if spec is None:
+        return None
+    names = step_names(job)
+    if spec.get("reason") != "ICE043A" or spec.get("step") not in names:
+        raise Unsupported(f"ibm_stops {spec!r}: needs {{'step': a step case, 'reason': 'ICE043A'}}")
+    return names.index(spec["step"])
+
+
+def _is_short_dfsort_join(src: dict[str, Any], feed: dict[str, Any], spec: dict[str, Any]) -> bool:
+    out = src["datasets"].get(feed.get("dd")) or {}
+    return src.get("program") == DFSORT_PROGRAM and out.get("reclen", 0) < spec.get("reclen", 0)
+
+
 def load_steps(job: dict[str, Any], load_case: Any) -> dict[str, dict[str, Any]]:
     """Each step's case by name: `load_case(name)` for a batch step, the pseudo case of an IDCAMS step (its DD specs
     as `datasets`, a cluster DD an indexed one compared as an output) so the feed rules read both alike."""
@@ -99,6 +120,10 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
     if len(set(names)) != len(names):
         raise Unsupported(f"a step case appears twice ({sorted({n for n in names if names.count(n) > 1})}): "
                           "a feed names its source step by case")  # fmt: skip
+    stop = ibm_stop(job)
+    if stop is not None and stop == len(steps) - 1:
+        raise Unsupported("ibm_stops names the last step: nothing follows it to be stopped")
+    stopped_join = False
     for i, step in enumerate(steps):
         name = step["case"]
         case = cases.get(name)
@@ -113,7 +138,14 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
             raise Unsupported(f"step {name}: a {what} step is not modelled in a job case (batch steps only)")
         _check_subprograms(name, case)
         for dd, feed in step.get("feeds", {}).items():
+            if stop is not None and i > stop and feed.get("step") == names[stop] and feed.get("dd") in cases[
+                names[stop]]["datasets"] and _is_short_dfsort_join(cases[names[stop]], feed, case["datasets"].get(dd) or {}):  # fmt: skip
+                stopped_join = True  # the declared ICE043A join: IBM ends the job before this step reads it
+                continue
             _check_feed(name, dd, feed, case, names[:i], cases)
+    if stop is not None and not stopped_join:
+        raise Unsupported(f"ibm_stops {job['ibm_stops']['step']}: no later step reads a DFSORT output shorter than its "
+                          "own LRECL, so IBM does not end the job there (nothing is declared stopped that is not)")  # fmt: skip
     for step in steps:  # a dataset the JCL gives the step its own input for (the job's shared parameter card)
         for dd, rel in step.get("inputs", {}).items():
             if dd not in cases[step["case"]]["datasets"] or dd in step.get("feeds", {}):
@@ -215,6 +247,7 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     catalog = _catalog(api, job, cases)
     jobs = gdg.job_names(job)
     ok = True
+    stop = ibm_stop(job)
     for i, step in enumerate(job["steps"]):
         name = step["case"]
         case = cases[name]
@@ -268,13 +301,18 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
                                     "outputs": run["outputs"],
                                     **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
+            if i == stop:  # IBM ends the job here (ICE043A, COND=(0,NE) bypasses the rest): the later steps are not run
+                report["ibm_stop"] = {"step": name, "reason": "ICE043A",
+                                      "not_reached": [s["case"] for s in job["steps"][i + 1 :]]}  # fmt: skip
+                break
             if "ABEND" in cobol and i + 1 < len(job["steps"]):
                 report["steps"][-1]["stopped"] = "the step abended: its datasets are not defined, the job stops"
                 ok = False
                 break
             continue
         break  # a feed had no source
-    report["proven"] = (ok and not cobol_only and len(report["steps"]) == len(job["steps"])
+    ran = len(job["steps"]) if stop is None else stop + 1
+    report["proven"] = (ok and not cobol_only and len(report["steps"]) == ran
                         and not any(s.get("model_only") for s in report["steps"]))  # fmt: skip
     work.mkdir(parents=True, exist_ok=True)
     (work / "report.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
@@ -285,7 +323,10 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
         outs = ", ".join(f"{dd} {d['equal']}/{d['records']}" for dd, d in s.get("outputs", {}).items())
         print(f"{job['name']} step {s['case']}: {'equal' if s['ok'] else 'DIFFERS'}"
               + (f" ({outs})" if outs else "") + (f" -- {s['stopped']}" if s.get("stopped") else ""))  # fmt: skip
-    print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {len(job['steps'])} steps")
+    if report.get("ibm_stop"):
+        print(f"{job['name']}: IBM ends the job at {report['ibm_stop']['step']} (ICE043A); "
+              f"not reached: {', '.join(report['ibm_stop']['not_reached'])}")  # fmt: skip
+    print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {ran} of {len(job['steps'])} steps")
     print(f"report: {work / 'report.json'}")
     return 0 if report["proven"] or cobol_only else 1
 

@@ -34,7 +34,7 @@ By using our AST-free physics engine, we build import and call graphs without a 
 
 Instead of slicing by lines of code, the engine uses the `func_start` optical sensors to identify the exact boundaries of executable logic. Every method, function, and subroutine becomes a discrete "Satellite."
 
-For every single Satellite, the engine extracts a **97-signal vector** of pure architectural DNA based on our [Taxonomical Equivalence Map](./03-03-claim-3-taxonomy-map.md). 
+For every single Satellite, the engine extracts a **98-signal vector** of pure architectural DNA based on our [Taxonomical Equivalence Map](./03-03-claim-3-taxonomy-map.md). 
 
 For a single function, the database records:
 * **The Raw Geometry:** Big-O Branching complexity, argument counts, total lines of code.

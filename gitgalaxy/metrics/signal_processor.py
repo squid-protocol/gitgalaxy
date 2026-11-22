@@ -810,7 +810,7 @@ class SignalProcessor:
                     temp_branches = 0
                     temp_args = 0
                 else:
-                    temp_branches = signals.get("branch", 0)
+                    temp_branches = signals.get("branch", 0) + signals.get("short_circuit", 0)
                     temp_args = signals.get("args", 0)
 
                 temp_signals = temp_branches + temp_args
@@ -1560,7 +1560,7 @@ class SignalProcessor:
         # and files under 15 were forced to a flat 5.0), which put a cliff at 15 and
         # a discontinuity at 50/51 for the same branchless file (#2655). The old
         # "provably empty tiny file scores a true zero" carve-out is a special case.
-        branches = raw_signals.get("branch", 0)
+        branches = raw_signals.get("branch", 0) + raw_signals.get("short_circuit", 0)
         if branches == 0:
             return 0.0, 0.0
 

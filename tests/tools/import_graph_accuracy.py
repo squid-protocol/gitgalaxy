@@ -2397,6 +2397,10 @@ def _nim_mask(text: str) -> str:
             out.append(tok)
             pos = m.end()
             continue
+        elif not depth and tok in ('"."', '".."') and text[m.end() : m.end() + 1] == "/":
+            out.append(tok[1:-1])
+            pos = m.end()
+            continue
         out.append(blank(tok))
         pos = m.end()
     out.append(blank(text[pos:]) if depth else text[pos:])

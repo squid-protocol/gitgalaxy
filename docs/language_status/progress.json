@@ -1,5 +1,5 @@
 {
- "commit": "fd2274249",
+ "commit": "13cdc7519",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-22T08:21:18Z",
+  "as_of": "2026-11-22T08:29:57Z",
   "core": {
    "closed": 256,
    "open": 19,
@@ -1108,8 +1108,8 @@
    "total": 63
   },
   "infra": {
-   "closed": 266,
-   "open": 29,
+   "closed": 267,
+   "open": 28,
    "total": 295
   },
   "measured": true,
@@ -1346,9 +1346,9 @@
     "total": 17
    },
    {
-    "closed": 63,
+    "closed": 64,
     "number": 36,
-    "open": 8,
+    "open": 7,
     "title": "Pit Crew \ud83d\udd27 \u2014 CI, Shepherd & the Churn Factory",
     "total": 71
    },

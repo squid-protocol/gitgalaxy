@@ -111,16 +111,6 @@
       ]
     },
     "fortran/wrf": {
-      "fortran/wrf/module_domain.F": [
-        {
-          "Call Sites": 3,
-          "Calling Files": 1,
-          "Kind": "function",
-          "Name": "domain_clockprint",
-          "Rule": "panics_and_aborts",
-          "Via": "primitive"
-        }
-      ],
       "fortran/wrf/module_initialize_real.F": [
         {
           "Call Sites": 165,

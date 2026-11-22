@@ -1352,17 +1352,17 @@
       "fortran/wrf/cleanCMake.sh": 8.123,
       "fortran/wrf/configure_reader.py": 8.332,
       "fortran/wrf/gen_be_wrapper.ksh": 5.132,
-      "fortran/wrf/module_configure.F": 8.075,
-      "fortran/wrf/module_domain.F": 7.764,
-      "fortran/wrf/module_initialize_real.F": 6.707,
-      "fortran/wrf/module_physics_init.F": 12.55,
-      "fortran/wrf/module_sf_noahdrv.F": 7.057,
+      "fortran/wrf/module_configure.F": 8.05,
+      "fortran/wrf/module_domain.F": 7.588,
+      "fortran/wrf/module_initialize_real.F": 7.314,
+      "fortran/wrf/module_physics_init.F": 12.552,
+      "fortran/wrf/module_sf_noahdrv.F": 7.058,
       "fortran/wrf/regtest.csh": 17.979,
       "fortran/wrf/regtest_hwrf.csh": 19.18,
       "fortran/wrf/regtest_nmmnest.csh": 19.007,
       "fortran/wrf/run_convert_e2c.ksh": 4.946,
       "fortran/wrf/sourcetree.py": 8.026,
-      "fortran/wrf/wrf_timeseries.F": 23.266
+      "fortran/wrf/wrf_timeseries.F": 23.267
     },
     "go": {
       "go/SOURCES.md": 0.0
@@ -3779,8 +3779,8 @@
       "tcl/SOURCES.md": 0.0
     },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": 8.01,
-      "tcl/macports_port_api/library.tcl": 6.742,
+      "tcl/macports_port_api/fetch_common.tcl": 7.993,
+      "tcl/macports_port_api/library.tcl": 6.653,
       "tcl/macports_port_api/portactivate.tcl": 6.147,
       "tcl/macports_port_api/portbuild.tcl": 5.661,
       "tcl/macports_port_api/portbump.tcl": 6.296,
@@ -3789,8 +3789,8 @@
       "tcl/macports_port_api/portdeactivate.tcl": 7.494,
       "tcl/macports_port_api/portdepends.tcl": 6.095,
       "tcl/macports_port_api/portdestroot.tcl": 8.889,
-      "tcl/macports_port_api/portdistcheck.tcl": 5.558,
-      "tcl/macports_port_api/portdistfiles.tcl": 7.493,
+      "tcl/macports_port_api/portdistcheck.tcl": 5.557,
+      "tcl/macports_port_api/portdistfiles.tcl": 7.633,
       "tcl/macports_port_api/portextract.tcl": 6.705,
       "tcl/macports_port_api/portfetch.tcl": 7.089,
       "tcl/macports_port_api/portinstall.tcl": 6.359,
@@ -3800,7 +3800,7 @@
       "tcl/macports_port_api/portmain.tcl": 7.853
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": 8.488,
+      "tcl/macports_registry/common.tcl": 8.5,
       "tcl/macports_registry/depends.tcl": 4.709,
       "tcl/macports_registry/entry.tcl": 4.875,
       "tcl/macports_registry/portimage.tcl": 6.497,

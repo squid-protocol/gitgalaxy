@@ -75,7 +75,7 @@ def test_branch_names_are_canary_prefixed():
 def test_plant_writes_only_the_catalog_files(tmp_path):
     paths = cc.plant(tmp_path)
     assert paths == [d.path for d in cc.DEFECTS]
-    assert sorted(str(p.relative_to(tmp_path)) for p in tmp_path.rglob("*") if p.is_file()) == sorted(paths)
+    assert sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*") if p.is_file()) == sorted(paths)
 
 
 def test_the_workflow_only_opens_a_pr_never_merges_and_has_no_pr_trigger():

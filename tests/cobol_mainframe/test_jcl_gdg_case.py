@@ -70,6 +70,12 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "cond-only-is-bypassed",
         "if-abend-true",
         "if-abend-false",
+        "if-run-true",
+        "if-run-false",
+        "if-not-equal-true",
+        "if-not-equal-false",
+        "pass-then-delete-never",
+        "pass-then-delete-leaves",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])

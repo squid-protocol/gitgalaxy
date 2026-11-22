@@ -304,7 +304,39 @@
     "//G3       EXEC PGM=USE",
     "//GNEW     DD DSN=PAY.GDG(+1),DISP=SHR",
     "//   ENDIF",
-    "//*"
+    "//*",
+    "//*",
+    "//* #8413 slice 9: RUN and not-equal IF tests that decide which",
+    "//* (+1) a job creates, and a PASSed (+1) received with DELETE.",
+    "//RUNJOB   JOB (ACCT),'GDG IF RUN',CLASS=A,MSGCLASS=X",
+    "//N1       EXEC PGM=CHK",
+    "//N2       EXEC PGM=CHK2,COND=(4,LT,N1)",
+    "//   IF (N2.RUN) THEN",
+    "//N3       EXEC PGM=MAKE",
+    "//NOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ELSE",
+    "//N4       EXEC PGM=MAKE",
+    "//MOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ENDIF",
+    "//N5       EXEC PGM=USE",
+    "//NCUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//NEJOB    JOB (ACCT),'GDG IF NE',CLASS=A,MSGCLASS=X",
+    "//E1       EXEC PGM=CHK",
+    "//   IF (E1.RC NE 0) THEN",
+    "//E2       EXEC PGM=MAKE",
+    "//EOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//   ENDIF",
+    "//E3       EXEC PGM=USE",
+    "//ECUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//PDJOB    JOB (ACCT),'GDG PASS DELETE',CLASS=A,MSGCLASS=X",
+    "//D1       EXEC PGM=MAKE",
+    "//DOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,PASS)",
+    "//D2       EXEC PGM=USE",
+    "//DIN      DD DSN=PAY.GDG(+1),DISP=(OLD,DELETE)",
+    "//D3       EXEC PGM=USE2",
+    "//DCUR     DD DSN=PAY.GDG(0),DISP=SHR"
   ],
   "scenarios": [
     {
@@ -2141,6 +2173,239 @@
         }
       },
       "basis": "IF / THEN / ELSE / ENDIF statement and DD DSNAME (generation data groups) of the z/OS MVS JCL Reference, read by section: G1 ends normally, (G1.ABEND) is false, so the ELSE step G3 runs. Its (+1) names the generation G1 created, 8, which G1 cataloged at its normal disposition."
+    },
+    {
+      "id": "if-run-true-creates-in-the-then",
+      "job": "RUNJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "N1": {
+          "rc": 0
+        },
+        "N2": {
+          "rc": 0
+        },
+        "N3": {
+          "rc": 0
+        },
+        "N5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "N3.NOUT": 8,
+        "N5.NCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: N1 ends RC 0 so the COND on N2 (4 < RC of N1) is false and N2 starts; the relational expression N2.RUN is true, so THEN step N3 runs and the ELSE step N4 does not. N3's (+1) is 8 (one after the newest, 7). N5 reads (0), still 7 because a generation created in the job is rolled in only at the job's end (User's Guide, Appendix A, GDGBIAS=JOB)."
+    },
+    {
+      "id": "if-run-false-after-a-bypassed-step-creates-in-the-else",
+      "job": "RUNJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "N1": {
+          "rc": 8
+        },
+        "N4": {
+          "rc": 0
+        },
+        "N5": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "N4.MOUT": 8,
+        "N5.NCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: N1 ends RC 8 so the COND on N2 (4 < 8) is true and N2 is bypassed; a bypassed step did not start executing, so N2.RUN is false (the RUN keyword is true when the step began execution), the ELSE step N4 runs and N3 does not. N4's (+1) is the same generation 8 N3's would have been: the number depends on the group when the job began, not on which step of the IF made it. N5 reads 7."
+    },
+    {
+      "id": "if-not-equal-true-creates-the-plus-one",
+      "job": "NEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "E1": {
+          "rc": 4
+        },
+        "E2": {
+          "rc": 0
+        },
+        "E3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E2.EOUT": 8,
+        "E3.ECUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: the comparison operator NE (not equal) is a relational operator of the IF statement. E1 ends RC 4, 4 NE 0 is true, so E2 runs and creates (+1) = 8, rolled in at the end of the job; E3 reads (0), still 7."
+    },
+    {
+      "id": "if-not-equal-false-creates-nothing",
+      "job": "NEJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "E1": {
+          "rc": 0
+        },
+        "E3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "E3.ECUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "basis": "IF / THEN / ELSE / ENDIF statement of the z/OS MVS JCL Reference, read by section: E1 ends RC 0, 0 NE 0 is false and there is no ELSE, so E2 is not executed and creates nothing: the group is unchanged and E3 reads (0) = 7."
+    },
+    {
+      "id": "pass-then-delete-never-rolls-in",
+      "job": "PDJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "given": {
+        "D1": {
+          "rc": 0
+        },
+        "D2": {
+          "rc": 0
+        },
+        "D3": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "D1.DOUT": 8,
+        "D2.DIN": 8,
+        "D3.DCUR": 7
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "assumed": "A11",
+      "basis": "DISP, PASS and DELETE: D1 creates (+1) = 8 and passes it; D2 receives it by the same (+1) (a generation created in the job is named by the number that created it, User's Guide Appendix A, GDGBIAS=JOB) with (OLD,DELETE), so the data set is deleted at the end of D2. The generation was deferred (never rolled in) and is now deleted, so the group is unchanged and D3's (0) is still 7."
+    },
+    {
+      "id": "pass-then-delete-leaves-the-number-for-the-next-job",
+      "job": "IFONLY",
+      "catalog_from": "pass-then-delete-never-rolls-in",
+      "given": {
+        "F1": {
+          "rc": 0
+        },
+        "F2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "F2.FOUT": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "assumed": "A11",
+      "basis": "The group is unchanged after the PASS-then-DELETE job (5, 6, 7), so the next job's (+1) is generation 8 again (the number of a generation deleted before roll-in is not consumed, as for a generation deleted after an abend, A2)."
     }
   ],
   "assumed": [
@@ -2179,6 +2444,10 @@
     {
       "id": "A10",
       "text": "After a wraparound the generations stay in the order they were created: G0001 made after G9999 is the most recent, so (0) names it and (-1) names G9999. The manual states the wraparound number (User's Guide p. 237) and that (0) is the most recent generation, but not the order of the index across the wrap."
+    },
+    {
+      "id": "A11",
+      "text": "A PASSed new generation received by a later step with DISP=(OLD,DELETE) is deleted without ever being rolled into the group, like a PASSed generation never received (User's Guide p. 237: scratched and uncataloged at job end); the manual states the DELETE of a received PASSed generation for data sets in general, not for a deferred generation, and so does not say the number is free for the next job."
     }
   ],
   "refused": [

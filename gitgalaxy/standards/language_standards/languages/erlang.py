@@ -39,6 +39,9 @@ DEFINITION: dict[str, Any] = {
     # lines is blanked: a one-line `-include("x.hrl").` keeps its quoted path.
     "import_capture_blank": r"%[^\n]*" + r'|"(?:[^"\\]|\\[\s\S]){0,20000}"',
     "import_capture_multiline_only": True,
+    # Erlang `-behaviour(mod)` / `-import(mod, ...)` / `-include("x.hrl")` name Erlang source/header files only
+    # (never docs like `doc/src/manual/cowboy_stream.asciidoc`).
+    "import_target_langs": frozenset({"erlang"}),
     # Mode E units are clause/statement buckets, not named routines (#2866 corollary 4).
     "invocation_model": "positional",
     "rules": {

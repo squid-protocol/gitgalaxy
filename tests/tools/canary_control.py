@@ -299,8 +299,23 @@ def _runs(sha: str) -> list[dict]:
     return [json.loads(line) for line in out.splitlines() if line.strip()]
 
 
-def _issue(title: str, body: str) -> None:
-    _gh("issue", "create", "--title", title, "--label", "priority: high", "--body", body)
+def _issue(title: str, body: str) -> bool:
+    """Raise a `priority: high` issue, or comment on the open one with the same title (a blind gate is one issue, not one a week).
+
+    Returns False when neither could be done: the caller leaves the canary PR open so the next run tries again.
+    """
+    found = _gh("issue", "list", "--state", "open", "--label", "priority: high", "--search", f'"{title}" in:title',
+                "--json", "number,title", check=False)  # fmt: skip
+    try:
+        same = [i["number"] for i in json.loads(found.stdout or "[]") if i.get("title") == title]
+    except (ValueError, TypeError, KeyError):
+        same = []
+    if same:
+        return _gh("issue", "comment", str(same[0]), "--body", body, check=False).returncode == 0
+    return (
+        _gh("issue", "create", "--title", title, "--label", "priority: high", "--body", body, check=False).returncode
+        == 0
+    )
 
 
 def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> str:
@@ -332,13 +347,23 @@ def settle(pr: dict, *, dry_run: bool = False, now: datetime | None = None) -> s
     n = str(pr["number"])
     text = render(result)
     _gh("pr", "comment", n, "--body", text)
-    if result["misses"]:
-        _issue(f"Canary miss: gate(s) stayed green on a planted defect (PR #{n})",
-               f"The weekly control PR #{n} planted a defect each of these gates should have failed, and none did: "
-               f"{', '.join(result['misses'])}. The gate is blind, not the code. #7155\n\n{text}")  # fmt: skip
+    raised = [
+        _issue(
+            f"Canary miss: gate {gate} stayed green on a planted defect",
+            f"The control PR #{n} planted a defect the `{gate}` gate should have failed, and it did not. "
+            f"The gate is blind, not the code. #7155\n\n{text}",
+        )  # fmt: skip
+        for gate in result["misses"]
+    ]
     if result["false_alarms"]:
-        _issue(f"Canary false alarm: the clean control PR #{n} went red",
-               f"A PR with nothing wrong in it failed: {', '.join(result['false_alarms'])}. #7155\n\n{text}")  # fmt: skip
+        raised.append(
+            _issue(
+                f"Canary false alarm: the clean control PR #{n} went red",
+                f"A PR with nothing wrong in it failed: {', '.join(result['false_alarms'])}. #7155\n\n{text}",
+            )  # fmt: skip
+        )
+    if not all(raised):
+        return "issue-failed"  # the PR stays open: the next run settles it again
     return _close(n, branch)
 
 
@@ -383,7 +408,7 @@ def results(*, dry_run: bool = False) -> int:
     # A PR still pending keeps its branch: its head is in `prs`, so only a branch with no open PR is an orphan.
     outcomes += sweep_orphans({pr["headRefName"] for pr in prs}, dry_run=dry_run)
     print(json.dumps(outcomes))
-    return 1 if {"close-failed", "orphan-delete-failed"} & set(outcomes) else 0
+    return 1 if {"close-failed", "orphan-delete-failed", "issue-failed"} & set(outcomes) else 0
 
 
 def main(argv: list[str] | None = None) -> int:

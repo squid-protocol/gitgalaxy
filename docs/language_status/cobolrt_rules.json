@@ -56,6 +56,9 @@
   "mq-dev": {
    "title": "IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)"
   },
+  "cics-ap": {
+   "title": "IBM CICS Transaction Server for z/OS 6.x Application Programming (designing applications for CICS)"
+  },
   "idcams": {
    "title": "IBM z/OS DFSMS Access Method Services Commands",
    "number": "SC23-6846-60"
@@ -2030,8 +2033,11 @@
     "fbits",
     "cmp2"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents no IEEE converter for a COMP-1 / COMP-2 item; the model's choice (det/hfp.py from_ieee / to_ieee). The one documented HFP-IEEE conversion is the Java interop's (Language Reference, the note on COMP-1 / COMP-2 against Java float / double: LE __fp_htob / __fp_btoh, biased round to nearest = ties away from 0): from_ieee agrees with it, to_ieee rounds ties to even and does not (register C6, #8700)",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Communicating with Java: data conversions (COMP-1 / COMP-2 against float / double)"
+   },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, the Java interoperability note on data conversions, local manual text): \"For conversions between COBOL COMP-1/COMP-2 items and Java float/double items, a loss of precision may occur due to the difference in the underlying representation. That is, COMP-1/COMP-2 are stored in IBM hex float format, and float/double are stored in IEEE binary float format: Conversions between IBM hexadecimal floating point format and IEEE floating point format are done via Language Environment special purpose C/C++ interface __fp_htob(), using rounding mode _FP_HB_BRN (biased round to nearest). Conversions between IEEE floating point format and IBM hexadecimal floating point format are done via Language Environment special purpose C/C++ interface __fp_btoh(), using rounding mode _FP_HB_BRN (biased round to nearest).\" That is the only IBM text on an IEEE-HFP conversion and it covers Java interop, not a COBOL statement: IBM documents no IEEE converter for a COMP-1 / COMP-2 item, so the model (det/hfp.py from_ieee / to_ieee) is the runtime's choice and the rule stays ASSUMED. Biased round to nearest is ties away from zero: from_ieee agrees; to_ieee rounds ties to even and so differs from the Java-interop rounding (not declared as DIFFERS in the register, so the status is not changed). Declared in C6 (#8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2054,8 +2060,11 @@
     "exact",
     "cmpScaled"
    ],
-   "ibm": null,
-   "ibm_note": "IBM says only that a fixed-point number is converted to the internal floating-point numbering system, and that up to 15 digits survive a COMP-2 round trip (Programming Guide, 'Conversions and precision'); it does not say truncated or rounded: truncation is the model's choice, consistent with the round trip (register C6, #8700)",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Conversions and precision"
+   },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Programming Guide SC27-8714-03, \"Conversions and precision\", p. 52, local manual text): \"When the compiler converts from fixed-point to internal floating-point format, fixed-point numbers in base 10 are converted to the numbering system used internally.\" Also \"If a fixed-point data item that has 15 or fewer digits is moved to a USAGE COMP-2 data item and then returned to the fixed-point data item, the original value is recovered\" (six or fewer digits for COMP-1). IBM does not say whether the conversion truncates or rounds the last hex digit, only that these round trips recover the value; truncation to 14 hex digits (consistent with the round trips) is the runtime's choice and stays ASSUMED. No DIFFERS is claimed. Declared in C6 (#8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -2074,8 +2083,11 @@
    "methods": [
     "power"
    ],
-   "ibm": null,
-   "ibm_note": "IBM documents long floating-point arithmetic for a floating-point exponentiation and an undefined negative base to a fractional power (Programming Guide, Appendix A, 'Exponentiations evaluated in floating-point arithmetic'), no result digits; the capture kit's reference power() is the model until captured z/OS output agrees",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Exponentiations evaluated in floating-point arithmetic"
+   },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Programming Guide SC27-8714-03, Appendix A, \"Exponentiations evaluated in floating-point arithmetic\", p. 800, local manual text): \"In compatibility mode, floating-point exponentiations are always evaluated using long floating-point arithmetic. In extended mode, floating-point exponentiations are always evaluated using extended-precision floating-point arithmetic. The value of a negative number raised to a fractional power is undefined in COBOL.... When an exponentiation is evaluated in floating point and there is a possibility that the result is undefined, the exponent is evaluated at run time to determine if it has an integral value. If not, a diagnostic message is issued.\" MATCHED: long arithmetic in compatibility mode (the runtime's result is long HFP). IBM gives no algorithm or result digits for a power, so exact-for-integer-exponent and exp(b ln a) at 60 digits then truncated is the runtime's choice and stays ASSUMED until captured z/OS output agrees (the capture kit's reference power()). Declared in C6 (#8700)",
    "options": [],
    "features": [
     "data_types: COMP-1",
@@ -3195,8 +3207,11 @@
     "bllFromData",
     "bllReload"
    ],
-   "ibm": null,
-   "ibm_note": "CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, 'BLL and chained storage areas' (p. 22): not an online IBM doc; the token is assumed (a real address does not fit a fullword in the instrument)",
+   "ibm": {
+    "doc": "cics-ap",
+    "section": "Designing applications for CICS TS: Address CICS areas correctly"
+   },
+   "ibm_note": "IBM (CICS TS 6 Application Programming, Chapter 5 \"Designing applications for CICS TS\", \"Address CICS areas correctly\", local manual text): \"Ensure that: Each COBOL program with a LINKAGE SECTION structure that exceeds 4KB has the required definition and the setting of more than one contiguous BLL cell. Every BLL pointer points to an area that is a 01-level item.\" That confirms BLL cells (one per 4 KB of a LINKAGE 01) still exist in IBM's text and each addresses a 01-level item; it says nothing of an address moved between a cell and a fullword of data. The 1.x-era chapter the register cites (CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, \"BLL and chained storage areas\", p. 22) is not an online manual and is not on disk. The token numbering (0 NULL, the n-th address n * 65536) is the oracle's choice, as a real address does not fit a fullword in the instrument, so the rule stays ASSUMED. Declared in X56 (#8700)",
    "options": [],
    "register": [
     "X56"

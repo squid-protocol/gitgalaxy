@@ -484,6 +484,8 @@ class ScopeParsingRegistry:
             ],
             "closers": [r"(?<![:.@$])\bend\b(?![:?!])"],
             "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
+            # #8922: a head split before `when` / inside its parameter list / before `do:` is one head.
+            "head_continuation": True,
             "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
         # #6572: Julia blocks (`function`, `if`, `for`, `while`, `let`, `try`, `struct`, `module`, `macro`, `quote`)
@@ -10180,6 +10182,7 @@ class StructuralExtractor:
             # of unclosed/unbalanced "def" lines) can't turn this into an
             # O(n^2) scan -- mirrors Mode B's own bounded search_limit.
             max_trace_lines = 2000
+            head_continuation = bool(config.get("head_continuation"))
 
             # #2438: at top level the primary scan above already emits a satellite
             # for every opener whose net scope change is positive (a real
@@ -10207,6 +10210,9 @@ class StructuralExtractor:
                     local_depth += net_changes[j]
                     block_lines.append(original_lines[j])
                     if local_depth <= 0:
+                        if head_continuation and j + 1 < trace_limit and self._head_continues(safe_lines, i, j, n):
+                            j += 1
+                            continue
                         break
                     j += 1
                 else:
@@ -10239,6 +10245,20 @@ class StructuralExtractor:
 
         self.logger.debug(f"[DIAGNOSTIC] Mode D: Extracted {len(satellites)} satellites.")
         return satellites, sum_fxn_impact
+
+    @staticmethod
+    def _head_continues(safe_lines: list[str], i: int, j: int, n: int) -> bool:
+        """#8922: True when the declaration head on lines i..j is unfinished (no `do` yet): an open
+        parenthesis, a trailing comma, or a next line that starts with `when`."""
+        head = "\n".join(safe_lines[i : j + 1])
+        if re.search(r"\bdo\b", head):
+            return False
+        if head.count("(") > head.count(")") or head.rstrip().endswith(","):
+            return True
+        k = j + 1
+        while k < n and not safe_lines[k].strip():
+            k += 1
+        return k < n and re.match(r"[ \t]*when\b", safe_lines[k]) is not None
 
     def _slice_by_terminator(
         self,

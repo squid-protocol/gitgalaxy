@@ -908,31 +908,6 @@ class _DirectContext:
         return ec.judge_facade(self.case, self.corpus, self.cics_files, self.cics_cobol, facade, {},
                                self.cics_cobol_work, quiet=True)  # fmt: skip
 
-    def cics_slices(self, ranks: dict[str, int]) -> list[list[str]]:
-        """#8599: the scenario names of one CICS mutant proof, as runs of the session JVM, in the case's order within each.
-        The `CICS_HOT_SCENARIOS` scenarios that killed the most mutants so far run first (the batch path's fault order);
-        the rest run only when those pass. One run when nothing has killed yet or the case is that small."""
-        names = [sc["name"] for sc in self.case["scenarios"]]
-        hot = sorted((n for n in names if ranks.get(n, 0) > 0), key=lambda n: (-ranks[n], names.index(n)))
-        hot_set = set(hot[:CICS_HOT_SCENARIOS])
-        if not hot_set or len(hot_set) >= len(names):
-            return [names]
-        return [[n for n in names if n in hot_set], [n for n in names if n not in hot_set]]
-
-    def _scenario_in(self, names: list[str], dest: Path) -> Path:
-        """An input directory holding only the scenarios `names`: its own scenarios.json, every other entry of the
-        baseline's input directory linked."""
-        assert self.cics_in is not None
-        shutil.rmtree(dest, ignore_errors=True)  # a retried proof of the same mutant
-        dest.mkdir(parents=True)
-        keep = set(names)
-        doc = json.loads((self.cics_in / "scenarios.json").read_text(encoding="utf-8"))
-        (dest / "scenarios.json").write_text(json.dumps([sc for sc in doc if sc["name"] in keep]), encoding="utf-8")
-        for entry in self.cics_in.iterdir():
-            if entry.name != "scenarios.json":
-                (dest / entry.name).symlink_to(entry.resolve())
-        return dest
-
     def run_mutant(self, worker: _MutantWorker, m: Mutant, mw: Path, limit: float, keep: bool,
                    fault_ranks: dict[str, int]) -> dict[str, Any] | None:  # fmt: skip
         classes = mw / "classes"
@@ -955,38 +930,33 @@ class _DirectContext:
                 session = worker._ensure()
                 if session is None:
                     return None
+                argline = (
+                    f"{self.base_jvm_flags} -Dequivalence.in={self.cics_in} "
+                    f"-Dequivalence.out={out} -Dequivalence.datasets={datasets}"
+                )
+                proc = session.run(argline, limit, epoch=m.id, cp=worker.cp)
+                secs = round(time.time() - started)
+                if proc.returncode == 124:
+                    poisoned = True
+                    worker.reset()
+                    return {"verdict": "timeout", "seconds": secs}
+                if "the session JVM" in proc.stderr:
+                    poisoned = True
+                    worker.reset()
+                    return None
+                if proc.returncode != 0:
+                    return {"verdict": "killed", "seconds": secs, "killed_by": ["java"]}
                 import equivalence_cics as ec
 
                 assert self.cics_cobol_work is not None
-                slices = self.cics_slices(fault_ranks)
-                for i, names in enumerate(slices):  # #8599: the likeliest killers first, the rest only when they pass
-                    in_dir = self.cics_in if len(slices) == 1 else self._scenario_in(names, proof / "java" / f"in{i}")
-                    argline = (
-                        f"{self.base_jvm_flags} -Dequivalence.in={in_dir} "
-                        f"-Dequivalence.out={out} -Dequivalence.datasets={datasets}"
-                    )
-                    left = max(1.0, deadline - time.monotonic())
-                    proc = session.run(argline, left, epoch=f"{m.id}:{i}", cp=worker.cp)
-                    secs = round(time.time() - started)
-                    if proc.returncode == 124:
-                        poisoned = True
-                        worker.reset()
-                        return {"verdict": "timeout", "seconds": secs}
-                    if "the session JVM" in proc.stderr:
-                        poisoned = True
-                        worker.reset()
-                        return None
-                    if proc.returncode != 0:
-                        return {"verdict": "killed", "seconds": secs, "killed_by": ["java"]}
-                    part = {**self.case, "scenarios": [sc for sc in self.case["scenarios"] if sc["name"] in names]}
-                    java = ec._java_events(part, out, self.cics_shape, self.cics_ret_read)
-                    ok, outs = ec.evaluate_cics_outputs(
-                        part, self.corpus, self.cics_cobol_work, out, self.cics_files,
-                        {n: self.cics_cobol[n] for n in names if n in self.cics_cobol}, java, quiet=True,
-                    )
-                    if not ok:
-                        return {"verdict": "killed", "seconds": secs,
-                                "killed_by": killers({"kind": "cics", "outputs": outs})}  # fmt: skip
+                java = ec._java_events(self.case, out, self.cics_shape, self.cics_ret_read)
+                ok, outs = ec.evaluate_cics_outputs(
+                    self.case, self.corpus, self.cics_cobol_work, out, self.cics_files,
+                    self.cics_cobol, java, quiet=True,
+                )
+                if not ok:
+                    return {"verdict": "killed", "seconds": secs,
+                            "killed_by": killers({"kind": "cics", "outputs": outs})}  # fmt: skip
                 if self.cics_facade:  # #8599: the java-facade side, as the baseline was proven (run_case facades)
                     left = max(1.0, deadline - time.monotonic())
                     judged = self._run_facade(session, worker, m.id, proof / "facade", left)
@@ -1051,9 +1021,6 @@ class _DirectContext:
                 except OSError:
                     worker.reset()
                     shutil.rmtree(worker.classes_dir.parent, ignore_errors=True)
-
-
-CICS_HOT_SCENARIOS = 8  # #8599: how many of the likeliest-killing scenarios a CICS mutant's first session run holds
 
 
 # ---- the in-process time limit (#8599) ---------------------------------------------------------------------------

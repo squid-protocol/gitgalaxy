@@ -1,0 +1,50 @@
+{
+  "kind": "job",
+  "job": "CREASTMT",
+  "steps": [
+    {
+      "case": "carddemo-sort-creastmt"
+    },
+    {
+      "case": "creastmt-step020",
+      "idcams": {
+        "deck": "creastmt-step020.idc",
+        "dds": {
+          "INFILE": {
+            "reclen": 350
+          },
+          "OUTFILE": {
+            "cluster": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+            "reclen": 350,
+            "keys": [
+              {
+                "offset": 0,
+                "length": 32
+              }
+            ]
+          }
+        }
+      },
+      "feeds": {
+        "INFILE": {
+          "step": "carddemo-sort-creastmt",
+          "dd": "SORTOUT"
+        }
+      }
+    },
+    {
+      "case": "carddemo-cbstm03a",
+      "feeds": {
+        "TRNXFILE": {
+          "step": "creastmt-step020",
+          "dd": "OUTFILE"
+        }
+      }
+    }
+  ],
+  "notes": "CardDemo job CREASTMT (app/jcl/CREASTMT.JCL), steps STEP010 (DFSORT, lowered by det/dfsort.py), STEP020 (IDCAMS REPRO, the model in det/idcams_model.py) and STEP040 (CBSTM03A, which CALLs CBSTM03B: a case with subprograms), wired in JCL order. DELDEF01 (DELETE / DEFINE CLUSTER of the KSDS) is not a step here: the KSDS starts empty and its definition is the STEP020 DD spec; STEP030 (IEFBR14 deleting the statement files) is not run. IBM ends this job at STEP010 (`ibm_stops`): its OUTREC builds 328-byte records (16 + 262 + 50) while the JCL states LRECL=350 for SORTOUT, so DFSORT terminates with ICE043A reason code 9 (z/OS DFSORT Messages, Codes and Diagnosis Guide SC23-6879) and COND=(0,NE) bypasses the later steps. The harness proves STEP010 on both sides and reports STEP020 and STEP040 as not reached; no pad is guessed (register F4). The later steps stay declared so the wiring is checked and the chain runs once the join is padded. Assumption: the JCL wiring is this file, not a read job (register F4).",
+  "ibm_stops": {
+    "step": "carddemo-sort-creastmt",
+    "reason": "ICE043A"
+  }
+}

@@ -614,6 +614,7 @@
     "doc": "cobol-lr",
     "section": "USAGE clause: COMPUTATIONAL-5"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, USAGE clause, COMPUTATIONAL-5 or COMP-5 (native binary), and the binary table below it). IBM: \"Binary data is big-endian: the operational sign is contained in the leftmost bit.\" and COMP-5 items \"are represented in storage as binary data\" of 2, 4 or 8 bytes, \"truncation occurs at the binary field size rather than at the COBOL picture size limit\". MATCHED: the z/OS big-endian order the rule applies when switched on, and the 2 / 4 / 8 byte widths. DIFFERS (declared in C7): the oracle's default is little-endian, so COMP-5 bytes seen through a group MOVE or a redefinition differ from z/OS until the switch is on; the rule's per-run set-and-restore of the order is a harness device the manual does not mention. Declared in C7",
    "options": [],
    "register": [
     "C7"
@@ -1316,6 +1317,7 @@
     "doc": "cobol-lr",
     "section": "Comparison of alphanumeric operands"
    },
+   "ibm_note": "IBM (Enterprise COBOL 6.4 Language Reference SC27-8713-03, Relation condition, Alphanumeric comparisons, Comparison of two alphanumeric operands). IBM: \"For the EBCDIC character set, the EBCDIC collating sequence is used. For the ASCII character set, the ASCII collating sequence is used.\" and \"When the PROGRAM COLLATING SEQUENCE clause is specified in the object-computer paragraph, the collating sequence used is the one associated in the special-names paragraph with the specified alphabet-name.\" Equal size: \"Characters in corresponding positions of the two operands are compared, beginning with the leftmost character\", the greater operand holds the higher character. Unequal size: \"the comparison is made as though the shorter operand were extended to the right with enough spaces to make the operands equal in size.\" MATCHED: leftmost-first byte comparison, the space padding of the shorter operand, and the PROGRAM COLLATING SEQUENCE alphabet when one is given. DIFFERS (declared in D1): with no clause the oracle's data is ASCII and compares in ASCII order, where z/OS data is EBCDIC and compares in EBCDIC order (letters before digits, lower case before upper). Declared in D1",
    "options": [
     "PROGRAM-COLLATING-SEQUENCE"
    ],
@@ -1561,6 +1563,7 @@
     "doc": "cics-apr",
     "section": "LINK"
    },
+   "ibm_note": "IBM (CICS TS 6 Application Programming, \"Passing data to other programs by using COMMAREA\" and the data-transfer guidance for LINK). IBM: \"When one program links to another, the COMMAREA can be any data area to which the linking program has access. It is often in the working storage or LINKAGE SECTION of that program.\" and \"ensure that you specify a LENGTH value that matches the length of the data being passed in the COMMAREA ... Discrepancies might result in storage violations or system failures.\" MATCHED: the COMMAREA is the caller's own storage, passed from its first byte, and the callee reads and writes it in place. Still ASSUMED by IBM: nothing in the manual says what lies past the caller's record when a LENGTH runs beyond it (\"unpredictable\" for LENGTH 0, \"storage violations\" for a mismatch). The rule's LOW-VALUES there is a stand-in for storage z/OS leaves undefined, which is why the register records it as a difference. Declared in X10",
    "options": [],
    "register": [
     "X10"

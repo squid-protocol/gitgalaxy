@@ -190,20 +190,57 @@ def test_objectivec_args_and_macros_no_false_collision():
     assert not args.search("if (x) {"), "args incorrectly matched a bare if statement as a function signature"
 
 
-def test_objectivec_ampersand_dual_classification_is_known_not_a_bug():
-    """
-    `&foo` (address-of) intentionally triggers both bitwise_ops and pointers
-    -- the `&` token is genuinely overloaded in C-family syntax for both
-    unary address-of and binary bitwise-AND, and disambiguating requires
-    real parsing, not a regex fix. This documents the current, accepted
-    dual-classification rather than treating it as a bug.
-    """
+def test_objectivec_address_of_is_not_bitwise_8907():
+    """`&foo` (address-of) is a pointer signal only; a binary `&` stays bitwise (#8907)."""
     bitwise = OBJC_RULES["bitwise_ops"]
     pointers = OBJC_RULES["pointers"]
-    assert bitwise.search("&foo"), "bitwise_ops no longer matches address-of syntax"
+    assert not bitwise.search("int *p = &a;")
     assert pointers.search("&foo"), "pointers no longer matches address-of syntax"
     assert bitwise.search("a & b"), "bitwise_ops failed on a real binary AND"
     assert not pointers.search("a & b"), "pointers incorrectly matched a spaced binary AND as address-of"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "void (^blk)(void) = ^{ int x = 1; };",
+        "NSString *(^b)(int) = ^NSString *(int i) { return @\"\"; };",
+        "[x foo:^{ }];",
+        "dispatch_async(q, ^(void){ });",
+        "return ^{ };",
+        "int *p = &a;",
+        "f(&a, &b);",
+        "return &a;",
+        "if (a && b) {",
+    ],
+)
+def test_objectivec_bitwise_ops_rejects_unary_and_block_8907(text):
+    assert not OBJC_RULES["bitwise_ops"].search(text)
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["a & b", "f(x) & m", "a[i] ^ b", "x ^ y", "x &= m;", "x ^= 1;", "a | b", "a << 2", "~a"],
+)
+def test_objectivec_bitwise_ops_accepts_binary_8907(text):
+    assert OBJC_RULES["bitwise_ops"].search(text)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "[NSThread sleepForTimeInterval:1.0];",
+        "[NSThread sleepUntilDate:d];",
+        "dispatch_after(t, q, ^{ });",
+        "[self performSelector:@selector(go) withObject:nil afterDelay:1.0];",
+    ],
+)
+def test_objectivec_thread_sleeps_foundation_forms_8907(text):
+    assert OBJC_RULES["thread_sleeps"].search(text)
+
+
+def test_objectivec_thread_sleeps_ignores_other_nsthread_8907():
+    assert not OBJC_RULES["thread_sleeps"].search("[NSThread currentThread];")
 
 
 def test_objectivec_at_prefixed_directives_regression():

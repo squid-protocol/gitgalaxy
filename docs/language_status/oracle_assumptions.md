@@ -112,7 +112,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps: a DFSORT SORT / MERGE / COPY subset is lowered to a COBOL SORT program and proven; IEBGENER, an IDCAMS REPRO copy and a lowered SORT / MERGE step run in a generated job, the rest are not run; the COBOL SORT / MERGE verbs are translated (#4268) | PARTIAL (DFSORT subset modelled; other utility steps refused) | — |
 | F5 | files | a key item that is not in a record of its own FD (WORKING-STORAGE, another file's record) is refused by name; GnuCOBOL does not compile it either (#4804) | REFUSED (key outside the record) | — |
-| F6 | files | GnuCOBOL has no IDCAMS, so det/idcams_model.py models a step (REPRO seq <-> KSDS / ESDS, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF LASTCC / MAXCC) and its condition code; every other command or keyword is refused by name (#8880, #8881) | PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime and job harness not yet) | — |
+| F6 | files | GnuCOBOL has no IDCAMS, so det/idcams_model.py models a step (REPRO seq <-> KSDS / ESDS, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF LASTCC / MAXCC) and its condition code; every other command or keyword is refused by name (#8880, #8881) | PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet) | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
 | X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
@@ -2383,8 +2383,10 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
 - `gitgalaxy/tools/cobol_to_java/det/idcams_model.py` (`run(sysin, catalog, dds)`, tests `test_idcams_model_8880.py`) runs a
   step's commands against a catalog of clusters, alternate indexes and paths and the step's sequential DDs and returns the step's return code (MAXCC at
   its end). It is the oracle for an IDCAMS step in a job case; `det/idcams.py` (one REPRO lowered onto COBOL, F4) is
-  unchanged. **Not wired yet (#8880 slices 2 and 3, #8881):** the Java runtime and the job harness do not run an IDCAMS step, and no GnuCOBOL BDB alternate-key run has checked the path order, so no
-  job case compares one. Evidence level: modelled and unit-tested on authored decks; one behaviour is executed-equivalent
+  unchanged. **Java runtime (#8881):** `cobolrt/job/Idcams.java` is a second implementation of the model (it is not shipped in
+  generated ports: `program.runtime_files` skips `job/`), and `test_idcams_java_8881.py` runs authored decks through both and compares
+  return codes, log, catalog, datasets, path records and refusal text. **Not wired yet (#8880 item 3):** the job harness does not run an
+  IDCAMS step, so no job case compares one. Evidence level: modelled, unit-tested on authored decks and the Java checked against the model on them; one behaviour is executed-equivalent
   (next bullet), the rest is not.
 - **Path order against GnuCOBOL (#8881, `test_idcams_aix_oracle_8881.py`).** A KSDS base's path order (alternate key, then
   the base's primary-key order for equal keys) equals what GnuCOBOL's Berkeley DB alternate key returns through START and

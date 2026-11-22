@@ -23,8 +23,9 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
+| IDC: IDCAMS step (job harness) | `job/Idcams.java` | 6 | yes |
 
-194 rules: 97 MATCHED, 30 DIFFERS, 14 REFUSED, 53 ASSUMED; 0 measured on z/OS (#4702).
+200 rules: 103 MATCHED, 30 DIFFERS, 14 REFUSED, 53 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -44,6 +45,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 - `mvs-da`: IBM z/OS MVS Data Areas (PSA, TCB, TIOT)
 - `mq-refdev`: IBM MQ 9.4 Developing Applications Reference (MQI calls and structures: MQOPEN, MQCLOSE, MQGET, MQPUT, MQMD, MQGMO, MQPMO, queue attributes)
 - `mq-dev`: IBM MQ 9.4 Developing Applications (syncpoints in CICS applications)
+- `idcams`: IBM z/OS DFSMS Access Method Services Commands, SC23-6846-60
 
 ## Options
 
@@ -357,3 +359,16 @@ The PSA -> TCB -> TIOT a batch program walks through pointers to read its own jo
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
 | RT-MVS-CONTROL-BLOCKS | SET ADDRESS OF a record TO a pointer into the PSA (a NULL pointer is address 0), the TCB (PSATNEW) or the TIOT (TCBTIO), and the pointer moved along its block through a numeric item it REDEFINES: the blocks laid from the stated job step at IBM's offsets; a record or an advance past what is laid is refused | `mvs-da` PSA, TCB, TIOT | - | A2 (ASSUMED); C9 (DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not)) | ASSUMED | uncalibrated |
+
+## IDC: IDCAMS step (job harness)
+
+The IDCAMS step (REPRO, DELETE, DEFINE CLUSTER/AIX/PATH, BLDINDEX, SET MAXCC, IF) as a second implementation of det/idcams_model.py, checked against the model by tests/cobol_mainframe/test_idcams_java_8881.py (SC23-6846-60). Not wired into the job harness yet (#8880 item 3), so no rules are catalogued (#8881).
+
+| id | rule | IBM | options | register (its status) | status | calibration |
+|---|---|---|---|---|---|---|
+| RT-IDC-COMMAND-STREAM | A SYSIN deck read as commands (continuation, comments, SET MAXCC, IF/THEN/ELSE condition codes); a verb or operand the step does not model is refused by name | `idcams` Modal commands; Command syntax | - | F6 (PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet)) | MATCHED | uncalibrated |
+| RT-IDC-RUN | The command sequence run against the catalog: condition codes, the log, and IF tests of the last or maximum code | `idcams` IF-THEN-ELSE command sequence | - | F6 (PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet)) | MATCHED | uncalibrated |
+| RT-IDC-DELETE | DELETE of a cluster, alternate index or path: a base takes its alternate indexes and paths with it only with CLUSTER named, otherwise refused | `idcams` DELETE | - | F6 (PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet)) | MATCHED | uncalibrated |
+| RT-IDC-DEFINE | DEFINE CLUSTER, ALTERNATEINDEX and PATH: the entry, its keys and its record sizes; a name already cataloged or an unmodelled attribute is refused | `idcams` DEFINE CLUSTER; DEFINE ALTERNATEINDEX; DEFINE PATH | - | F6 (PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet)) | MATCHED | uncalibrated |
+| RT-IDC-BLDINDEX | BLDINDEX builds an alternate index from its base: records ordered by alternate key, ties in primary-key order (checked against GnuCOBOL BDB alternate keys) | `idcams` BLDINDEX | - | F6 (PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet)) | MATCHED | uncalibrated |
+| RT-IDC-REPRO | REPRO between sequential, ESDS, KSDS and a path: the record copy, the order of a KSDS, and a duplicate key refused | `idcams` REPRO | - | F6 (PARTIAL (IDCAMS step model: REPRO, DELETE, DEFINE CLUSTER / ALTERNATEINDEX / PATH, BLDINDEX, SET MAXCC, IF; path order cross-checked on GnuCOBOL BDB alternate keys for a KSDS base; Java runtime `cobolrt/job/Idcams.java` agrees with the model on authored decks; job harness not yet)) | MATCHED | uncalibrated |

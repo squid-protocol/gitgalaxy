@@ -349,7 +349,24 @@
     "//VOLD     DD DSN=PAY.GDG(-2),DISP=(OLD,UNCATLG)",
     "//V2       EXEC PGM=USE",
     "//VCUR     DD DSN=PAY.GDG(0),DISP=SHR",
-    "//VPRV     DD DSN=PAY.GDG(-1),DISP=SHR"
+    "//VPRV     DD DSN=PAY.GDG(-1),DISP=SHR",
+    "//*",
+    "//ABSJOB   JOB (ACCT),'GDG ABSOLUTE',CLASS=A,MSGCLASS=X",
+    "//A1       EXEC PGM=MAKE",
+    "//AOUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//A2       EXEC PGM=USE",
+    "//AOLD     DD DSN=PAY.GDG.G0006V00,DISP=SHR",
+    "//ACUR     DD DSN=PAY.GDG(0),DISP=SHR",
+    "//*",
+    "//ABSDEL   JOB (ACCT),'GDG ABSOLUTE DELETE',CLASS=A,MSGCLASS=X",
+    "//B1       EXEC PGM=TRIM",
+    "//BOLD     DD DSN=PAY.GDG.G0006V00,DISP=(OLD,DELETE)",
+    "//*",
+    "//ABSNEW   JOB (ACCT),'GDG ABSOLUTE NEW',CLASS=A,MSGCLASS=X",
+    "//C1       EXEC PGM=MAKE",
+    "//COUT     DD DSN=PAY.GDG(+1),DISP=(NEW,CATLG)",
+    "//C2       EXEC PGM=USE",
+    "//CNEW     DD DSN=PAY.GDG.G0009V00,DISP=SHR"
   ],
   "scenarios": [
     {
@@ -2540,9 +2557,53 @@
       },
       "assumed": "A12",
       "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DISP, UNCATLG: 'Indicates that the system is to delete the entry pointing to the data set in the catalog ... The data set is kept. With SMS, UNCATLG is ignored for SMS-managed data sets and VSAM data sets (KEEP is implied).' User's Guide, Appendix A, 'Deleting and uncataloging generation data sets': 'Note that uncataloging is not supported for SMS-managed data sets', and uncataloging the oldest generation is the form the manual leaves safe (any other 'catalog management can lose orientation within the data group'). V1 names (-2) = 6, the oldest of 6, 7, 8, and fixes the relationship, which the system maintains throughout the job, so V2 still reads (0) = 8 and (-1) = 7. The group is not SMS-managed (sms: false) and the DD gives no VOLUME, so the system retrieves volume information from the catalog and 'UNCATLG is processed': the catalog entry for 6 is deleted at V1's end and the data set is kept (off the group; this model tracks the group's entries only). ASSUMED (A12): that the other generations keep their entries and numbers is read from the DISP text, as A6 does for DELETE."
+    },
+    {
+      "id": "absolute-name-names-its-own-generation",
+      "job": "ABSJOB",
+      "catalog": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8
+          ]
+        }
+      },
+      "given": {
+        "A1": {
+          "rc": 0
+        },
+        "A2": {
+          "rc": 0
+        }
+      },
+      "expect": {
+        "A1.AOUT": 9,
+        "A2.AOLD": 6,
+        "A2.ACUR": 8
+      },
+      "catalog_after": {
+        "PAY.GDG": {
+          "limit": 5,
+          "generations": [
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      },
+      "assumed": "A13",
+      "basis": "z/OS MVS JCL Reference (SA23-1385), DD statement, DSNAME: a generation data set can be named by its absolute name, 'dsname.GxxxxVyy', as well as relatively (z/OS DFSMS Using Data Sets, Appendix A, 'Absolute generation and version number'; GxxxxVyy is the generation and version number the system assigns). An absolute name is the data set itself, not a position in the index: A2 reads G0006V00, which is generation 6 whatever A1 did to the relative numbers; the (+1) A1 made is 9, rolled in at job end, and (0) at A2 is still 8: the relative numbers were fixed at A1's first reference and hold for the job (User's Guide p. 235), so the new 9 is named only by (+1). Nothing is rolled off (limit 5, 4 held). ASSUMED (A13): the DD names a data set directly, so reading it neither changes nor is changed by the job's relative numbers; the manual states the absolute name and the job-long relationship separately."
     }
   ],
   "assumed": [
+    {
+      "id": "A13",
+      "text": "A DD that names a generation by its absolute name (GnnnnV00) neither changes nor is changed by the job's relative-number relationship. The manuals state the absolute name and the job-long relationship separately and do not say how they combine."
+    },
     {
       "id": "A2",
       "text": "A generation whose creating step abends under (NEW,CATLG,DELETE) is not cataloged, and under (NEW,CATLG) is, per the DISP text; the absolute number is still consumed by that job only (the next job reuses it)."
@@ -2596,10 +2657,6 @@
     {
       "construct": "a (+n) read before any step creates it, or (0) / (-n) with no such cataloged generation",
       "why": "a JCL or catalog error, not a step-flow answer"
-    },
-    {
-      "construct": "UNCATLG generations, absolute names (G0007V00), the SCRATCH / NOSCRATCH fate of a rolled-off generation",
-      "why": "not covered by this slice"
     },
     {
       "construct": "DISP=MOD of (0) / (-n) with that generation not cataloged, or MOD (+n) after the same (+n) was passed",
@@ -2660,6 +2717,14 @@
     {
       "construct": "DISP=(OLD,UNCATLG) of a generation of a group whose SMS state the catalog entry does not give, or of a generation other than the oldest",
       "why": "the manual states UNCATLG as ignored for SMS-managed data sets and processed otherwise, so the answer depends on a fact the job does not carry; and for any generation but the oldest it says 'catalog management can lose orientation within the data group' without stating an outcome"
+    },
+    {
+      "construct": "the SCRATCH / NOSCRATCH fate of a rolled-off generation",
+      "why": "the group's roll-off is modeled on the catalog entries only; the data set's own fate is not an input of this model"
+    },
+    {
+      "construct": "a DD naming a generation by absolute name (GnnnnVnn) that is not cataloged when its step starts, was made or deleted earlier in the job, has a version other than V00, or whose DD creates, deletes or uncatalogs",
+      "why": "the manual names the data set directly but states no step-flow outcome for an uncataloged or job-created generation, and no version rule beyond V00 here; DELETE or UNCATLG by absolute name is not answered (the orientation warning is stated for relative references)"
     }
   ]
 }

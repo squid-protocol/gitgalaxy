@@ -1003,6 +1003,26 @@ def test_an_i_o_control_rerun_same_area_or_multiple_file_clause_is_read_past(tmp
     assert recs["R"].fd == "F" and recs["R"].size == 80 and recs["R2"].size == 40 and recs["W"].size == 2
 
 
+def test_a_program_with_an_i_o_control_rerun_and_same_area_translates_whole(tmp_path):
+    """#8412 end to end (authored, invented names): the layout reads past RERUN / SAME AREA / MULTIPLE FILE (above), and
+    the whole translation, not only `layout.parse`, accepts the program: no refusal, no hole, every statement translated."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "T4.cbl").write_text(_fixed(
+        "IDENTIFICATION DIVISION.", "PROGRAM-ID. T4.", "ENVIRONMENT DIVISION.", "INPUT-OUTPUT SECTION.",
+        "FILE-CONTROL.", "    SELECT FIN ASSIGN TO FINDD.", "    SELECT FOUT ASSIGN TO FOUTDD.", "I-O-CONTROL.",
+        "    RERUN ON SYSCKPT EVERY 1000 RECORDS OF FIN.", "    SAME AREA FOR FIN FOUT.",
+        "    MULTIPLE FILE TAPE CONTAINS FIN POSITION 1.", "DATA DIVISION.", "FILE SECTION.", "FD  FIN.",
+        "01  FIN-REC PIC X(80).", "FD  FOUT.", "01  FOUT-REC PIC X(80).", "WORKING-STORAGE SECTION.",
+        "01  WS-A PIC X(4) VALUE SPACES.", "PROCEDURE DIVISION.", "    MOVE 'ABCD' TO WS-A", "    GOBACK."),
+        encoding="utf-8")  # fmt: skip
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class T4Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(tmp_path / "T4.cbl", [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == [] and r.stats["statements"] == r.stats["translated"] > 0
+
+
 @pytest.mark.parametrize("strict", [False, True])
 def test_the_port_tickets_collisions_carry_their_libraries_and_the_strict_mode(tmp_path, strict):
     """#4486: the skeleton's copy_collisions rows name the library chosen and the others; strict comes from the

@@ -14,6 +14,14 @@
         "//ONLYA    PROC",
         "//A1       EXEC PGM=PGMA1",
         "//A2       EXEC PGM=PGMA2"
+      ],
+      "IFPRC": [
+        "//IFPRC    PROC",
+        "//P1       EXEC PGM=PGMP1",
+        "//P2       EXEC PGM=PGMP2",
+        "//   IF (P1.RC = 0) THEN",
+        "//P3       EXEC PGM=PGMP3",
+        "//   ENDIF"
       ]
     },
     "LIB.B": {
@@ -90,7 +98,11 @@
     "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
     "//U1       EXEC PGM=PGMU",
     "//CALL1    EXEC RPRC",
-    "//"
+    "//",
+    "//*",
+    "//LIBBAD5  JOB (ACCT),'LIB IF IN PROC',CLASS=A,RESTART=CALL1.P2",
+    "//LIB      JCLLIB ORDER=(LIB.A,LIB.B)",
+    "//CALL1    EXEC IFPRC"
   ],
   "scenarios": [
     {
@@ -298,6 +310,13 @@
       "match": "SYSCHK",
       "construct": "RESTART=(CALL1.M2,CK1) naming a step of a library procedure with no SYSCHK DD before the first EXEC",
       "reason": "IBM: a checkid needs a SYSCHK DD placed immediately before the first EXEC; without it the JCL is in error"
+    },
+    {
+      "id": "lib-if-inside-the-procedure",
+      "job": "LIBBAD5",
+      "match": "inside a procedure",
+      "construct": "RESTART=CALL1.P2 of a library procedure whose member holds an IF/THEN/ELSE construct naming a step before the restart step",
+      "reason": "IBM states that a relation naming a step bypassed by RESTART is false, but not how a procedure's own IF names its steps once the call renames them; the construct is refused by name rather than run with the IF dropped"
     }
   ]
 }

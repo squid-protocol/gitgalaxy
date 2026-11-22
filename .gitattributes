@@ -72,3 +72,6 @@ tests/cics_crucible/strengthened/** text=auto eol=lf
 # #4918 / #4915: template requirement lockfiles are hashed byte-for-byte by sha256sum
 # in CI templates and tested against raw.githubusercontent.com contents; keep them LF on every OS.
 templates/requirements/** text eol=lf
+
+# Vendored files are verified byte for byte against site/vendor/SHA256SUMS: never convert line endings (a Windows checkout broke the hash, #9027).
+site/vendor/** -text

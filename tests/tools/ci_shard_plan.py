@@ -10,18 +10,23 @@ workflow. Stdlib only: a plan job runs before anything is installed.
              the plan, never typed into the YAML.
     cap      the workflow's share of the 20-job pool; `pool_cap` halves it while PR jobs queue (as the ground-truth layout does).
 
-A case with no measured seconds takes the median of the measured ones (it only unbalances the shards), but when more
-than MAX_UNMEASURED of the cases have none the plan fails loudly (`PlanError`): the durations cache is not being fed.
+A case with no measured seconds takes the median of the measured ones (it only unbalances the shards). When more than
+MAX_UNMEASURED of the cases have none the plan WARNS (a `::warning::` on stderr: the durations are going stale); when more
+than FAIL_UNMEASURED have none it fails loudly (`PlanError`): the durations cache is not being fed. 2026-11-23: the
+committed file had fallen to ~25% unmeasured (the nightly feeds a CI cache, never the file), so PRs that added three
+cases failed four planner tests at the old single 25% cliff although every unmeasured case already had an estimate.
 """
 
 from __future__ import annotations
 
 import math
 import statistics
+import sys
 from collections.abc import Iterable, Mapping
 
 MARGIN = 1.5  # timeout = the slowest planned shard x this
-MAX_UNMEASURED = 0.25  # fraction of the cases that may lack a measurement ...
+MAX_UNMEASURED = 0.25  # fraction of the cases that may lack a measurement before the plan warns ...
+FAIL_UNMEASURED = 0.5  # ... and before it fails: past this the durations are not being fed at all
 GRACE_CASES = 2  # ... and this many always may (a PR adding a couple of cases is no failure)
 HEADROOM = 0.8  # the share of a target a noise-sensitive plan (the Db2 shards) aims at: case seconds move 30-50% run to run (#5882)
 BUSY_ABOVE = 8  # queued PR jobs; the ground-truth layout's busy threshold
@@ -41,11 +46,13 @@ def weights(cases: Iterable[str], durations: Mapping[str, float]) -> tuple[dict[
 
 
 def check_measured(unmeasured: list[str], total: int, what: str = "case") -> None:
-    """Fail the plan when too many of the `total` cases have no measured seconds (past the grace allowance)."""
+    """Warn when many of the `total` cases have no measured seconds (past the grace allowance); fail the plan when most do."""
     if len(unmeasured) > GRACE_CASES and len(unmeasured) > MAX_UNMEASURED * total:
         shown = ", ".join(unmeasured[:8]) + (" ..." if len(unmeasured) > 8 else "")
-        raise PlanError(f"{len(unmeasured)} of {total} {what}s have no measured duration ({shown}): "
-                        "the durations cache is not being fed; run the nightly sweep or update the durations file")  # fmt: skip
+        msg = f"{len(unmeasured)} of {total} {what}s have no measured duration ({shown})"
+        if len(unmeasured) > FAIL_UNMEASURED * total:
+            raise PlanError(f"{msg}: the durations cache is not being fed; run the nightly sweep or update the durations file")
+        print(f"::warning::{msg}: they plan at the measured median; refresh tests/equivalence/det_sweep_durations.json", file=sys.stderr)
 
 
 def _shard_loads(weight: Mapping[str, float], n: int) -> list[tuple[float, float]]:

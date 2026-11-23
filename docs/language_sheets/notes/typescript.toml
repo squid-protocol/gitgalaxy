@@ -1,0 +1,8 @@
+context = "modern-tooled"
+
+[ceiling]
+parsers = "tree-sitter grammar; the TypeScript 6.0.2 type checker resolves calls (the call-link reference)."
+corpus = "Pinned language-crucible files plus zod for the import and call graphs."
+reference_analyser = "The TypeScript compiler's own type checker (tests/tools/ts_callgraph.js)."
+best_method = "The compiler itself for call links; tree-sitter for functions and imports."
+status = "confirmed"

@@ -1,5 +1,5 @@
 {
- "commit": "a48ee0ad9",
+ "commit": "0f95e7b89",
  "components": {
   "capabilities": {
    "groups": [
@@ -620,24 +620,24 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 6120,
+     "caught": 6110,
      "closed": 3,
-     "closed_caught": 309,
-     "closed_survived": 132,
+     "closed_caught": 308,
+     "closed_survived": 130,
      "equivalent": 2249,
      "l5": 3,
      "measured": 25,
      "mutants": 30382,
      "programs": 44,
-     "raw_pct": 51.0,
+     "raw_pct": 51.1,
      "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.3,
-     "survived": 5869,
+     "survived": 5848,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
-     "caught": 5175,
+     "caught": 5212,
      "closed": 0,
      "closed_caught": 0,
      "closed_survived": 0,
@@ -646,29 +646,29 @@
      "measured": 10,
      "mutants": 6284,
      "programs": 10,
-     "raw_pct": 89.4,
+     "raw_pct": 89.7,
      "ready": 0,
      "sampled": 6284,
      "sampled_pct": 100.0,
-     "survived": 613,
+     "survived": 597,
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 2277,
+     "caught": 2627,
      "closed": 3,
-     "closed_caught": 1019,
-     "closed_survived": 712,
-     "equivalent": 1980,
+     "closed_caught": 888,
+     "closed_survived": 649,
+     "equivalent": 2234,
      "l5": 3,
-     "measured": 9,
-     "mutants": 5380,
+     "measured": 10,
+     "mutants": 6395,
      "programs": 31,
-     "raw_pct": 45.1,
+     "raw_pct": 43.3,
      "ready": 0,
-     "sampled": 5380,
+     "sampled": 6395,
      "sampled_pct": 100.0,
-     "survived": 2776,
-     "unreachable": 710
+     "survived": 3442,
+     "unreachable": 754
     },
     "cics-genapp": {
      "caught": 2722,
@@ -740,21 +740,21 @@
     }
    },
    "total": {
-    "caught": 17794,
+    "caught": 18171,
     "closed": 7,
-    "closed_caught": 1568,
-    "closed_survived": 1096,
-    "equivalent": 6368,
+    "closed_caught": 1436,
+    "closed_survived": 1031,
+    "equivalent": 6622,
     "l5": 7,
-    "measured": 61,
-    "mutants": 56170,
+    "measured": 62,
+    "mutants": 57185,
     "programs": 158,
-    "raw_pct": 49.2,
+    "raw_pct": 48.9,
     "ready": 0,
-    "sampled": 38346,
-    "sampled_pct": 68.3,
-    "survived": 18350,
-    "unreachable": 1343
+    "sampled": 39361,
+    "sampled_pct": 68.8,
+    "survived": 18979,
+    "unreachable": 1387
    }
   },
   "mutation": {
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T17:52:38Z",
+  "as_of": "2026-11-23T18:23:02Z",
   "core": {
    "closed": 260,
    "open": 16,

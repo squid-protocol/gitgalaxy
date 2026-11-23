@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `a48ee0ad9` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `0f95e7b89` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -57,14 +57,14 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 3 | 0 | 51.0% (6120 of 11989) | 41.3% (12559 of 30382) | 2249 | 209 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 89.4% (5175 of 5788) | 100.0% (6284 of 6284) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 9 | 3 | 0 | 45.1% (2277 of 5053) | 100.0% (5380 of 5380) | 1980 | 710 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 3 | 0 | 51.1% (6110 of 11958) | 41.3% (12559 of 30382) | 2249 | 209 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 89.7% (5212 of 5809) | 100.0% (6284 of 6284) | 288 | 70 |
+| `cics-banking-sample-application-cbsa` | 31 | 10 | 3 | 0 | 43.3% (2627 of 6069) | 100.0% (6395 of 6395) | 2234 | 754 |
 | `cics-genapp` | 31 | 11 | 0 | 0 | 26.4% (2722 of 10318) | 100.0% (10993 of 10993) | 1014 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (322 of 636) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `zecs` | 7 | 4 | 1 | 0 | 49.9% (1178 of 2360) | 100.0% (2486 of 2487) | 831 | 354 |
-| **Total** | 158 | 61 | 7 | 0 | 49.2% (17794 of 36144) | 68.3% (38346 of 56170) | 6368 | 1343 |
+| **Total** | 158 | 62 | 7 | 0 | 48.9% (18171 of 37150) | 68.8% (39361 of 57185) | 6622 | 1387 |
 
 ## Capability ledger
 
@@ -134,7 +134,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-23T17:52:38Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-23T18:23:02Z.
 
 - `scope:core`: 16 open, 260 closed.
 - Milestone 28: 0 open, 136 closed.

@@ -80,7 +80,7 @@ DEFINITION: dict[str, Any] = {
         "args": re.compile(
             r"\bfunction\s*([a-zA-Z_][\w.:]*\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))"
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries defining scope and data definitions.
         "structural_boundaries": re.compile(
             r"\b(local|end|require|module|return|break|export\s+type|type|then|in|do|until|goto)\b|<\s*(?:const|close|toclose)\s*>"
         ),

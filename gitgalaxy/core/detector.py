@@ -1064,6 +1064,24 @@ _COBOL_UNIT_END_RE = re.compile(
 )
 _STRUCTURAL_UNIT_END_LANGS = frozenset({"cobol", "pli"})
 
+
+def _ada_unit_end(code: str, match: re.Match[str]) -> int | None:
+    """#8913: absolute index just past the `end Name;` that closes the Ada subprogram `match` opens.
+
+    Searched in the whole file, not the greedy sandbox: a parent's own `end Parent;` lies past the
+    nested subprograms' headers that cut its sandbox. A qualified `end Pkg.Name;` closes `Name`.
+    None when the body has no labelled end (the unit then keeps its greedy sandbox)."""
+    raw_name = match.group(match.lastindex) if match.lastindex else None
+    if not raw_name:
+        return None
+    end_re = re.compile(
+        r"(?<![\w.])end[ \t\r\n]+(?:[\w]+\.)*" + re.escape(raw_name) + r"(?![\w.])[ \t\r\n]*;",
+        re.I,
+    )
+    m = end_re.search(code, match.end())
+    return m.end() if m else None
+
+
 # #4302: a COBOL program may run statements straight after `PROCEDURE DIVISION.`,
 # before any paragraph or section header (batch mains open, loop, close and GOBACK
 # there: carddemo CBACT01C.cbl:70-91). Mode A only makes units at headers, so that
@@ -7071,6 +7089,10 @@ class StructuralExtractor:
         current_line_count = offset + 1
         last_counted_idx = 0
 
+        # #8913: an Ada subprogram ends at its own `end Name;`, so a nested one no longer takes the
+        # parent's tail and the parent keeps the lines after it (the nested body is blanked out of it).
+        ada_ends: list[int | None] = [_ada_unit_end(code, m) for m in matches] if self.primary_lang_id == "ada" else []
+
         for i, match in enumerate(matches):
             start_idx = match.start()
             greedy_end_idx = matches[i + 1].start() if i + 1 < len(matches) else len(code)
@@ -7078,7 +7100,10 @@ class StructuralExtractor:
             sandbox = code[start_idx:greedy_end_idx]
             end_offset = len(sandbox)
 
-            if self.primary_lang_id in _STRUCTURAL_UNIT_END_LANGS:
+            ada_end = ada_ends[i] if ada_ends else None
+            if ada_end is not None:
+                end_offset = ada_end - start_idx
+            elif self.primary_lang_id in _STRUCTURAL_UNIT_END_LANGS:
                 end_offset = self._structural_unit_end(sandbox, match.end() - start_idx, match)
             elif self.assembly_returns:
                 excluded_keywords = _NON_TERMINATING_KEYWORDS_BY_LANG.get(self.primary_lang_id, frozenset())
@@ -7112,7 +7137,19 @@ class StructuralExtractor:
             # unlike other integration modes a one-line body here is not a
             # mis-slice to discard -- only an actually-empty label has no
             # real content.
-            block = code[start_idx : start_idx + end_offset].strip()
+            block = code[start_idx : start_idx + end_offset]
+            nested_spans: list[tuple[int, int]] = []
+            if ada_end is not None:
+                # Blank (newlines kept, so lines and LOC hold) every nested subprogram inside this one.
+                for j in range(i + 1, len(matches)):
+                    nested_end = ada_ends[j]
+                    if matches[j].start() >= ada_end:
+                        break
+                    if nested_end is not None and nested_end <= ada_end:
+                        a, b = matches[j].start() - start_idx, nested_end - start_idx
+                        block = block[:a] + re.sub(r"[^\n]", " ", block[a:b]) + block[b:]
+                        nested_spans.append((matches[j].start(), nested_end))
+            block = block.strip()
             if not block:
                 continue
 
@@ -7237,6 +7274,7 @@ class StructuralExtractor:
                 spatial_map,
                 args_search_text=args_search_text,
                 args_count_override=args_count_override,
+                exclude_spans=nested_spans or None,
             )
 
             satellites.append(sat)
@@ -11950,6 +11988,7 @@ class StructuralExtractor:
         spatial_map: dict[str, list[int]] | None = None,
         args_search_text: str | None = None,
         args_count_override: int | None = None,
+        exclude_spans: list[tuple[int, int]] | None = None,
     ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
@@ -11990,6 +12029,9 @@ class StructuralExtractor:
                 left = bisect.bisect_left(indices, start_idx)
                 right = bisect.bisect_left(indices, end_idx)
                 count = right - left
+                # #8913: hits inside a nested unit's span belong to that unit, not this one.
+                for ex_a, ex_b in exclude_spans or ():
+                    count -= bisect.bisect_left(indices, ex_b) - bisect.bisect_left(indices, ex_a)
                 if count > 0:
                     hit_vector[key] = count
 

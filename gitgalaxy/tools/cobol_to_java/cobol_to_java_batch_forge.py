@@ -1408,7 +1408,11 @@ public class JclSteps {
                     int lrecl = lines.stream().mapToInt(String::length).max().orElse(80);
                     Idcams.Sequential seq = new Idcams.Sequential(Math.max(lrecl, 1), dd.status() == null ? "OLD" : dd.status());
                     for (String ln : lines) {
-                        seq.records.add(String.format("%-" + seq.lrecl + "s", ln).getBytes(StandardCharsets.ISO_8859_1));
+                        byte[] raw = ln.getBytes(StandardCharsets.ISO_8859_1);
+                        byte[] rec = new byte[seq.lrecl];
+                        java.util.Arrays.fill(rec, (byte) 0x20);
+                        System.arraycopy(raw, 0, rec, 0, Math.min(raw.length, rec.length));
+                        seq.records.add(rec);
                     }
                     ddMap.put(dd.name(), seq);
                     files.put(dd.name(), p);

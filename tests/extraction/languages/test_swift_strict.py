@@ -148,7 +148,7 @@ _SWIFT_SIMPLE_CASES = [
     ("ipc_rpc_bridges", "URLSession.shared.dataTask(with: url)", "processedCount += 1"),
     # DEEP ADVERSARIAL CASES
     ("branch", "repeat { x += 1 } while x < 3", "throws(Error)"),  # 2822 corollary 1
-    ("branch", "try? perform()", "a != b"),
+    ("branch", "let v = a ? b : c", "try? perform()"),  # #8895: try? is an optional, the ternary is the decision
     ("branch", "for await item in stream {", "formatItem(stream)"),
     ("branch", "guard x > 0 else { return }", "catch let error as NSError {"),  # 2822 corollary 1
     ("branch", "} else {", "defer { cleanup() }"),  # 2822: post-block else is the arm
@@ -484,3 +484,29 @@ def test_swift_regex_execution_range_of_fires_after_non_word(line):
 
 def test_swift_regex_execution_range_of_needs_regular_expression():
     assert not SWIFT_RULES["regex_execution"].search('let r = s.range(of: "a")')
+
+
+# #8895: branch counts decisions, not optional types/chains, `for` labels, enum cases
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("func optionalType(_ x: Int?) -> Int? { return x }", 0),
+        ("func chaining(_ s: String?) -> Int { return s?.count ?? 0 }", 1),
+        ("func labelFor(for item: Int) -> Int { return item }", 0),
+        ("func realIf(_ a: Int) -> Int { if a > 1 { return 1 }; return 0 }", 1),
+        ("let v = a ? b : c", 1),
+        ("let v = a\n    ? b\n    : c", 1),
+        ("let m: [String: Int?] = [:]; let n = x?[0]; let o = y as? Int", 0),
+        ("let x = try? f()", 0),
+        ("f(for: x)", 0),
+        ("g(a, for: x)", 0),
+        ("for x in xs { }", 1),
+        ("for await x in s { }", 1),
+        ("switch x {\ncase .a: break\ncase let (p, q) where p > q:\n    break\ndefault: break\n}", 7),
+        ("case 1: return x", 1),
+        ("enum E {\n    case a, b\n    case c(x: Int)\n    case d = 1\n}", 0),
+        ("let d = FileManager.default; let default1 = 2", 0),
+    ],
+)
+def test_swift_branch_counts_decisions_not_types_labels_or_enum_cases_8895(src, expected):
+    assert len(SWIFT_RULES["branch"].findall(src)) == expected

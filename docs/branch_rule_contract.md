@@ -98,6 +98,13 @@ Likewise `??` is one value-selection decision: typescript, javascript, dart,
 swift and apex listed `\?` before `\?\?`, so the single `?` arm won and `a ?? b`
 read 2.
 
+**Swift's `?`, `for`, `case` and `default` (#8895).** Swift counts the ternary `?`
+only where it has whitespace on both sides: an optional type (`Int?`), a chain
+(`x?.y`), `try?` and `as?` are not decisions. `for` is a loop, not an argument
+label (`func f(for item:)`, `f(for: x)`). `case` is a switch arm only when a
+depth-0 `:` ends its pattern (an enum `case a, b(x: Int)` is a declaration), and
+`default` only before a `:`.
+
 ## Deliberate duals and deferred residue
 
 - **Value-selection operators stay dual.** `?:`/`??`/`orelse`/kotlin `?:` are
@@ -172,7 +179,7 @@ the four control files, target 3 + 0 + 0 + 0). "—" = no crucible presence.
 | shell | 9737 → 3411 | 5 → 3 | then/fi/esac/done/do, test brackets; re-plant added else + while; break/continue → boundaries (#2832) |
 | solidity | 69 | 3 | try/catch relocated; break/continue → boundaries, no corpus incidence (#2832) |
 | sqlite | 161 → 45 | 5 → 3 | THEN/END relocated; one CASE = CASE + its arms |
-| swift | 871 → 759 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}`; C3 `.default` accessor dropped (#2859) |
+| swift | 871 → 759 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}`; C3 `.default` accessor dropped (#2859); #8895: optional `?`, `for` labels, enum `case` out |
 | tcl | 2330 → 2124 | 4 → 3 | catch/try/trap/finally |
 | typescript | 14879 → 14137 | 3 | try/catch/finally (+ safety mirror); break/continue → boundaries (#2832) |
 | yacc | 93 | 3 | clean (`\|` is yacc's real alternation decision) |

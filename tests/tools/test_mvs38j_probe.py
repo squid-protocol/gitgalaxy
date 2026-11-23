@@ -143,11 +143,19 @@ def test_the_proc_log_reader_skips_a_dummy_and_a_sysout_dd_and_the_deck_keeps_nu
     assert "//D7       DD DSN=NULLFILE\n" in deck and "//K1.D2    DD DSN=NULLFILE\n" in deck
 
 
+def test_the_proc_deck_drops_set_and_the_dd_whose_symbol_only_set_defines():
+    deck, _ = probe.proc_deck(PROC_DOC["flow_jcl"], "SSJOB", "E2")
+    assert "SET" not in deck and "&Q" not in deck and "&A..F1" in deck
+    assert probe.set_only_dds(PROC_DOC["flow_jcl"], "SSJOB") == {"D4"}
+    deck, _ = probe.proc_deck(PROC_DOC["flow_jcl"], "DUPJOB", "E2")
+    assert "SETV" not in deck and "EXEC DP,Q=XA,Q=XB" in deck and "E3" not in deck
+
+
 def test_the_committed_proc_results_repeat_the_manual_answers_and_the_engine_and_name_what_is_unobserved():
     got = json.loads((probe.PROC_RESULTS).read_text(encoding="utf-8"))
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
     _, text, libs, scs = probe.proc_scenarios()
-    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 11
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 15
     for r, sc in zip(got["results"], scs, strict=True):
         assert list(r["expect"]) == list(sc["expect"]), r["id"]
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]

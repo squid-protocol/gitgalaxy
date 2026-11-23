@@ -31,6 +31,7 @@ for the same metrics tracked over time across pushes to main.
 <!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->
 | Language | Func Recall | Func Precision | Class Recall | Class Precision |
 | -------- | ----------- | -------------- | ------------ | --------------- |
+| Ada | 97.8% | 96.8% | N/A | N/A |
 | Apex | 100.0% | 100.0% | 100.0% | 100.0% |
 | C | 100.0% | 99.5% | 100.0% | 100.0% |
 | Cpp | 100.0% | 100.0% | 100.0% | 100.0% |

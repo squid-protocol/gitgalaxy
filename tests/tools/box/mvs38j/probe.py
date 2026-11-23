@@ -58,6 +58,8 @@ PROC_JOBS = (
     "OVRJOB",
     "PCJOB",
     "KNDJOB",
+    "SSJOB",
+    "DUPJOB",
 )  # SET / JCLLIB / INCLUDE / nested procedures are not in 3.8J (tier 1 only)
 PROC_UNOBSERVED = [
     "pgm (every PGM= is IEFBR14)",
@@ -162,15 +164,32 @@ def observed(parsed, job, step_names):
     return {n: ("run" if n in started else "bypass") for n in step_names}
 
 
-def proc_deck(lines, job, call):
-    """(deck text, procedure steps with a symbolic PARM) for one call: the job's procedure, that call, its override DDs."""
+def set_only_dds(lines, job):
+    """ddnames of the job's procedure whose DSN uses a symbol only a SET statement defines (3.8J has no SET: not run)."""
     block, inside = [], False
     for ln in lines:
         f = ln.split()
         if len(f) > 1 and f[1] == "JOB" and not ln.startswith("//*"):
             inside = f[0] == f"//{job}"
-        elif inside and not ln.startswith("//*") and not ln.startswith("// SET"):
+        elif inside and not ln.startswith("//*"):
             block.append(ln)
+    set_syms = {m for ln in block if ln.split()[1:2] == ["SET"] for m in re.findall(r"([A-Z0-9$#@]+)=", ln)}
+    given = {m for ln in block if ln.split()[1:2] != ["SET"] for m in re.findall(r"([A-Z0-9$#@]+)=", ln)}
+    only = set_syms - given
+    return {ln.split()[0].lstrip("/") for ln in block if ln.split()[1:2] == ["DD"] and any(f"&{x}" in ln for x in only)}
+
+
+def proc_deck(lines, job, call):
+    """(deck text, procedure steps with a symbolic PARM) for one call: the job's procedure, that call, its override DDs."""
+    block, inside = [], False
+    skip = set_only_dds(lines, job)
+    for ln in lines:
+        f = ln.split()
+        if len(f) > 1 and f[1] == "JOB" and not ln.startswith("//*"):
+            inside = f[0] == f"//{job}"
+        elif inside and not ln.startswith("//*") and f[1:2] != ["SET"]:
+            if not (f[1:2] == ["DD"] and f[0].lstrip("/") in skip):
+                block.append(ln)
     out = [f"//{job:<8} JOB (ACCT),'PROBE',CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1)"]
     in_proc, keep, sym, step = True, True, [], None
     for ln in block:
@@ -304,7 +323,13 @@ def main_proc(args):
             keys,
             {k: v.get("parm") for k, v in engine_all.items()},
         )
+        gone = set_only_dds(doc["flow_jcl"], sc["job"])  # a DD the deck drops (its symbol needs SET) is not compared
+
+        def _drop(proj):
+            return {k: {**v, "dd": [d for d in v["dd"] if d[0] not in gone]} for k, v in proj.items()}
+
         expect = proc_projection(sc["expect"], keys, {k: v.get("parm") for k, v in sc["expect"].items()})
+        expect, engine = _drop(expect), _drop(engine)
         job = parsed["jobs"][-1] if parsed and parsed["jobs"] else None
         ran = [(s["procstep"], s["step"], s["executed"], s["cond_code"]) for s in job["steps"]] if job else None
         results.append(
@@ -327,7 +352,7 @@ def main_proc(args):
     out = {
         "provenance": runner.PROVENANCE,
         "internal_only": "Q16: MVS 3.8J results are not published",
-        "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB / KNDJOB)",
+        "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB / KNDJOB / SSJOB / DUPJOB)",
         "results": results,
     }
     Path(args.out if args.out != str(RESULTS) else PROC_RESULTS).write_text(json.dumps(out, indent=1) + "\n")

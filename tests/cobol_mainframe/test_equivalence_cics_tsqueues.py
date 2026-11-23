@@ -30,7 +30,7 @@ def test_the_cobol_side_reports_a_writeq_ts_as_cicstask_records_it(tmp_path):
     res = ec.outputs(out, {"name": "x"}, tmp_path, [])
     got = ec.cobol_events(res)
     assert got[1:3] == [
-        {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1},
+        {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1, "length": 8},
         {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": None, "resp": "LENGERR", "item": None},
     ]
 
@@ -43,7 +43,14 @@ def test_a_writeq_ts_is_compared_by_its_queue_data_resp_and_item():
     java = {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": base64.b64encode("CICA MSG".encode("cp037")).decode(),
             "resp": "NORMAL", "item": 1}  # fmt: skip
     got = ec.java_ts_as_compared(java)
-    assert got == {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1}
+    assert got == {
+        "event": "WRITEQ-TS",
+        "queue": "GENAERRS",
+        "data": "CICA MSG",
+        "resp": "NORMAL",
+        "item": 1,
+        "length": 8,
+    }
     cobol = {"event": "WRITEQ-TS", "queue": "GENAERRS", "data": "CICA MSG", "resp": "NORMAL", "item": 1}
     assert ec.compare_events([cobol], [got])["equal"] == 1
     d = ec.compare_events([cobol], [{**got, "data": "CICA MSF", "item": 2}])

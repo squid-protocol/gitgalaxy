@@ -493,7 +493,7 @@ public final class Idcams {
     private static String hex(byte[] b) {
         StringBuilder sb = new StringBuilder();
         for (byte x : b) {
-            sb.append(String.format("%02x", x & 0xFF));
+            sb.append(String.format(Locale.ROOT, "%02x", x & 0xFF));
         }
         return sb.toString();
     }

@@ -1,0 +1,8 @@
+context = "modern-tooled"
+
+[ceiling]
+parsers = "tree-sitter grammar; libclang 18.1.1 resolves calls (the call-link reference)."
+corpus = "Pinned language-crucible files plus hiredis and libuv for the import and call graphs."
+reference_analyser = "libclang 18.1.1."
+best_method = "A compiler front end (libclang) for call links; tree-sitter for functions and imports."
+status = "confirmed"

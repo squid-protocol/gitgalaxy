@@ -1,0 +1,16 @@
+# objective-c
+
+Context: unclassified
+
+## Measured
+
+| stat | value | sample | method | against | source |
+|---|---|---|---|---|---|
+| Detection | 100% recall / 100% precision | 6 files | corpus-label | labelled language-crucible files | `tests/detection_accuracy_baseline.json` |
+| Functions | 100% recall / 99.4% precision | 153 functions | tree-sitter | tree-sitter functions on language-crucible | `tests/tree_sitter_accuracy_baseline_objective-c.json` |
+| Call links | 97.8% precision / 98.1% recall | 321 calls | tree-sitter | tree-sitter call nodes (which names a function calls) | `tests/call_graph_accuracy_baseline.json` |
+| Imports | 100% precision / 99.6% recall | 2,767 imports | tree-sitter | import statements in SDWebImage/SDWebImage, TextureGroup/Texture | `tests/import_graph_accuracy_baseline.json` |
+| Keywords | decoy test only (28) |  | decoy-test |  | `tests/family_validity_baseline.json` |
+| Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+
+[All languages](README.md)

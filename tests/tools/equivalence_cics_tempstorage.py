@@ -94,8 +94,11 @@ def cobol_ts(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     text = ec.common._decode_text(data, enc) if resp == "NORMAL" else None
     if resp == "NORMAL" and text is None:
         text = f"<undecodable {data!r} in {enc}>"
-    return {"queue": (ec.common._decode_text(name, enc) or name.hex()).rstrip(" \x00"), "data": text, "resp": resp,
-            "item": int(kv.get("item", "0")) or None}  # fmt: skip
+    ev = {"queue": (ec.common._decode_text(name, enc) or name.hex()).rstrip(" \x00"), "data": text, "resp": resp,
+          "item": int(kv.get("item", "0")) or None}  # fmt: skip
+    if resp == "NORMAL":  # #7955: the item's byte length, which the blank-trimmed text compare cannot see
+        ev["length"] = len(data)
+    return ev
 
 
 def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
@@ -109,13 +112,15 @@ def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
 
     data = e.get("data")
     text = None
+    length = None
     if e.get("resp") == "NORMAL" and isinstance(data, str):
         raw = base64.b64decode(data)
+        length = len(raw)  # #7955: the item's byte length, as the COBOL side records it
         try:
             text = raw.decode(REGION_PAGE)
         except UnicodeDecodeError:
             text = f"<undecodable {raw!r} in {REGION_PAGE}>"
-    return {**e, "data": text, "item": e.get("item") or None}
+    return {**e, "data": text, "item": e.get("item") or None, **({"length": length} if length is not None else {})}
 
 
 def command(

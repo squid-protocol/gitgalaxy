@@ -127,7 +127,7 @@ DEFINITION: dict[str, Any] = {
             r"|a[xhl]|b[xhl]|c[xhl]|d[xhl]|si|di)\b",
             re.I,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Data movement, arithmetic primitives, and unconditional control transfer
         # (calls, returns and unconditional jumps -- structure, not decisions;
         # #2764 relocated those here out of `branch`, the same "relocate, not

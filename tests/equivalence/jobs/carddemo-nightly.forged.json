@@ -11,6 +11,14 @@
     "CREASTMT": "CREASTMT.JCL",
     "TRANIDX": "TRANIDX.jcl"
   },
+  "forge_utility_jobs": ["TRANBKP", "COMBTRAN", "TRANIDX"],
+  "datasets": {
+    "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
+      "job": "CREASTMT", "lrecl": 350, "recfm": "FB",
+      "seed": "tests/equivalence/carddemo-sort-creastmt/sortin.txt",
+      "source": "RECORDSIZE(350 350) in app/jcl/TRANFILE.jcl; the seed is the job case's 100 SORTIN records (newline-delimited, 350 bytes each)"
+    }
+  },
   "unmodelled": {
     "CREASTMT": ["DELDEF01", "STEP030"]
   },

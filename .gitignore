@@ -122,6 +122,7 @@ museum_2/
 # but merge_and_save() preserves every human-investigated verdict across runs (see
 # tri_comparison_ledger.py's own docstring) -- committed and hand-edited like the baselines
 # above, not disposable scan output.
+!docs/language_sheets/rosetta_snapshot.json
 !docs/self_scan/tri_comparison_ledger.json
 # ...and its call/import twin (#3641, docs/self_scan/graph_comparison_README.md): same module,
 # same hand-edited verdicts, merged by `call_graph_accuracy.py --ledger`.

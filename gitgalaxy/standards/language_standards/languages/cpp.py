@@ -215,7 +215,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
             r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"

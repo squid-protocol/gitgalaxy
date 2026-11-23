@@ -140,7 +140,7 @@ DEFINITION: dict[str, Any] = {
             r")",
             re.I | re.M,
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries and state transformation verbs.
         # BUG FIX (#593): "constant" used to be listed here too, duplicating
         # immutability_locks and violating this key's own documented EXCLUDES
         # rule (immutability keywords belong in immutability_locks, not here).

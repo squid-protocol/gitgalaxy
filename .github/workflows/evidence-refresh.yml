@@ -128,7 +128,19 @@ jobs:
         id: pin
         env:
           GH_TOKEN: ${{ github.token }}
-        run: echo "sha=$(gh api "repos/$REPO/commits/main" --jq .sha)" >> "$GITHUB_OUTPUT"
+        # #9031: a rate-limit 403 here failed a whole refresh. No checkout exists yet (so no ci_retry.sh): retry inline.
+        # The pin is required, so a read that still fails after the retries fails the job.
+        run: |
+          for attempt in 1 2 3; do
+            if sha=$(gh api "repos/$REPO/commits/main" --jq .sha) && [ -n "$sha" ]; then
+              echo "sha=$sha" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "pin read failed (attempt $attempt of 3)" >&2
+            [ "$attempt" -lt 3 ] && sleep $((attempt * 20))
+          done
+          echo "INFRASTRUCTURE: could not read main's head from the GitHub API after 3 tries" >&2
+          exit 1
 
       # #5882: the Db2 parts scale with the Db2 cases as det-sweep's full sweep does (det_sweep_plan.py db2_shards_for):
       # only the plan tool and the case.json files, at the pinned commit
@@ -1548,8 +1560,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          active=$(gh api "repos/$REPO/actions/workflows/evidence-refresh.yml/runs?per_page=50" \
-            --jq '[.workflow_runs[] | select(.status != "completed" and .event != "push")] | length')
+          # #9031: best-effort. A read that fails after the retries publishes (a duplicate bot PR is closed by the next full run).
+          if ! active=$(CI_RETRY_CAPTURE=1 gitgalaxy/tests/tools/ci_retry.sh 3 20 -- gh api "repos/$REPO/actions/workflows/evidence-refresh.yml/runs?per_page=50" \
+            --jq '[.workflow_runs[] | select(.status != "completed" and .event != "push")] | length'); then
+            echo "::warning title=Evidence refresh::could not list the workflow runs (API error); publishing the push lane's PR (#9031)"
+            active=0
+          fi
           if [ "$active" -gt 0 ]; then
             echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "A full refresh started while this one ran: no PR from the push lane (the full PR carries it)." >> "$GITHUB_STEP_SUMMARY"

@@ -78,16 +78,16 @@
     "repos": "ninenines/cowboy"
   },
   "fortran": {
-    "engine_edges": 294,
+    "engine_edges": 612,
     "files": 222,
-    "fn": 353,
-    "fp": 21,
-    "hub_overlap_at_10": 0.5,
+    "fn": 8,
+    "fp": 32,
+    "hub_overlap_at_10": 0.9,
     "hub_repos": 1,
-    "hub_spearman": -0.367,
+    "hub_spearman": 0.38,
     "imports": 635,
-    "precision_pct": 92.9,
-    "recall_pct": 44.4,
+    "precision_pct": 94.8,
+    "recall_pct": 98.7,
     "repos": "fortran-lang/fpm"
   },
   "go": {
@@ -400,16 +400,16 @@
     "repos": "apple/swift-argument-parser, swiftlang/swift-package-manager"
   },
   "tcl": {
-    "engine_edges": 33,
-    "files": 784,
-    "fn": 769,
-    "fp": 0,
-    "hub_overlap_at_10": 0.2,
+    "engine_edges": 760,
+    "files": 789,
+    "fn": 84,
+    "fp": 27,
+    "hub_overlap_at_10": 0.9,
     "hub_repos": 1,
-    "hub_spearman": -0.688,
-    "imports": 804,
-    "precision_pct": 100.0,
-    "recall_pct": 4.4,
+    "hub_spearman": 0.6,
+    "imports": 836,
+    "precision_pct": 96.4,
+    "recall_pct": 90.0,
     "repos": "tcltk/tcllib"
   },
   "typescript": {

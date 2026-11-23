@@ -9,6 +9,7 @@ Internal use only until counsel answers Q16: the results file is never published
     probe.py gdg  [--printer FILE] [--out FILE] [--timeout S] [--dry]   # tests/equivalence/jcl/gdg (relative generations, catalog after)
     probe.py restart [--printer FILE] [--out FILE] [--timeout S] [--dry]  # tests/equivalence/jcl/restart (JOB RESTART=, deferred step restart)
     probe.py dsutil [--printer FILE] [--out FILE] [--timeout S] [--dry]   # fixture/dsutil_scenarios.json (IEFBR14, IEBGENER, IEBCOPY)
+    probe.py carddemo [--printer FILE] [--out FILE] [--timeout S] [--dry]  # tests/equivalence/jcl/carddemo (needs the CardDemo corpus)
 
 For each scenario a deck is built from the fixture's own EXEC cards (their COND kept as written): a step whose `given` is
 `{rc: n}` runs IDCAMS with `SET MAXCC=n`; `{abend: ...}` runs a program 3.8J cannot find (S806, the abend seen live; the
@@ -107,6 +108,13 @@ _DSUTIL_STATE = {
     "UNCATALOGED": "uncataloged",
     "PASSED": "passed",
 }
+CARDDEMO_CASE = REPO / "tests" / "equivalence" / "jcl" / "carddemo"
+CARDDEMO_RESULTS = CARDDEMO_CASE / "mvs38j_probe.json"
+CARDDEMO_UNOBSERVED = [
+    "what a CardDemo step does (every EXEC is IDCAMS with SET MAXCC; the COND cards are kept as written)",
+    "the PROC call of TRANBKP (one step row, assumption A5; the procedure is not expanded)",
+    "TYPRUN=SCAN on CREADB21 (dropped, as the manual answers assume)",
+]
 ABEND_PGM = "NOPGM001"  # not in any library: step abend S806 (IEF450I, no IEF142I)
 
 
@@ -1086,9 +1094,83 @@ def main_dsutil(args):
     return 0 if all(r["verdict"] == "agree" for r in results) else 1
 
 
+def carddemo_corpus():
+    """The CardDemo corpus directory (GITGALAXY_MAINFRAME_CORPORA, else <repo>/.mainframe_corpora), or None when absent."""
+    import hashlib
+    import os
+
+    doc = json.loads((CARDDEMO_CASE / "scenarios.json").read_text(encoding="utf-8"))
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / doc["corpus"]
+    return doc, root if root.is_dir() else None, hashlib
+
+
+def main_carddemo(args):
+    from gitgalaxy.core.source_text import read_source
+
+    doc, root, hashlib = carddemo_corpus()
+    if root is None:
+        print("probe: the CardDemo corpus is not checked out (GITGALAXY_MAINFRAME_CORPORA)", file=sys.stderr)
+        return 2
+    jobs = []
+    for j in doc["jobs"]:
+        raw = (root / j["member"]).read_bytes()
+        if hashlib.sha256(raw).hexdigest() != j["sha256"]:
+            print(f"probe: {j['member']} is not the pinned member (sha256)", file=sys.stderr)
+            return 2
+        rows = job_flow.jcl_job_flow(read_source(root / j["member"]).text)
+        jobs.append((j, rows, JclFlow(rows)))
+    if args.dry:
+        for j, rows, _ in jobs:
+            for sc in j["scenarios"]:
+                print(f"* {j['job']} {sc['id']}\n{build_deck(rows, j['job'], sc['given'])}")
+        return 0
+    if not args.printer:
+        print("probe: --printer FILE is required (the 1403 file of a started box)", file=sys.stderr)
+        return 2
+    results = []
+    for j, rows, flow in jobs:
+        for sc in j["scenarios"]:
+            parsed = run_scenario(
+                {"id": f"{j['job']}-{sc['id']}", "job": j["job"], "given": sc["given"]},
+                rows,
+                args.printer,
+                args.host,
+                args.port,
+                args.timeout,
+            )
+            box = observed(parsed, j["job"], list(sc["expect"])) if parsed else None
+            engine = flow.run(j["job"], sc["given"]).actions
+            job = parsed["jobs"][-1] if parsed and parsed["jobs"] else None
+            results.append(
+                {
+                    "id": f"{j['job']}:{sc['id']}",
+                    "job": j["job"],
+                    "expect": sc["expect"],
+                    "engine": engine,
+                    "box": box,
+                    "verdict": verdict(sc["expect"], engine, box),
+                    "box_steps": job["steps"] if job else None,
+                    "box_abends": job["abends"] if job else None,
+                    "jcl_error": job["jcl_error"] if job else None,
+                    "unparsed_ief": parsed["unparsed_ief"] if parsed else None,
+                }
+            )
+            print(f"{results[-1]['id']}: {results[-1]['verdict']}", flush=True)
+    out = {
+        "provenance": runner.PROVENANCE,
+        "internal_only": "Q16: MVS 3.8J results are not published",
+        "fixture": "tests/equivalence/jcl/carddemo/scenarios.json",
+        "corpus_commit": doc["corpus_commit"],
+        "unobserved": CARDDEMO_UNOBSERVED,
+        "results": results,
+    }
+    Path(args.out if args.out != str(RESULTS) else CARDDEMO_RESULTS).write_text(json.dumps(out, indent=1) + "\n")
+    return 0 if all(r["verdict"] == "agree" for r in results) else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("what", choices=["cond", "proc", "flow", "gdg", "restart", "dsutil"])
+    ap.add_argument("what", choices=["cond", "proc", "flow", "gdg", "restart", "dsutil", "carddemo"])
     ap.add_argument("--printer")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=3505)
@@ -1106,6 +1188,8 @@ def main(argv=None):
         return main_restart(args)
     if args.what == "dsutil":
         return main_dsutil(args)
+    if args.what == "carddemo":
+        return main_carddemo(args)
     doc = json.loads((FIXTURE / "scenarios.json").read_text(encoding="utf-8"))
     rows = job_flow.jcl_job_flow((FIXTURE / "FLOW.jcl").read_text(encoding="utf-8"))
     flow = JclFlow(rows)

@@ -3807,7 +3807,7 @@
       "tcl/macports_registry/portuninstall.tcl": 5.563,
       "tcl/macports_registry/receipt_flat.tcl": 7.468,
       "tcl/macports_registry/receipt_sqlite.tcl": 5.846,
-      "tcl/macports_registry/registry.tcl": 4.775,
+      "tcl/macports_registry/registry.tcl": 4.76,
       "tcl/macports_registry/registry_util.tcl": 6.864
     },
     "tcl/sqlite": {

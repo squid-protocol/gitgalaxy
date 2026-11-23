@@ -196,7 +196,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`), the checkpoint restarts (`RSTJOB4` / `11` / `12`, SYSCHK) and `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`, no OUTPUT statement in 3.8J) and the checkpoint restarts (`RSTJOB4` / `11` / `12`, SYSCHK); the `carddemo` COND slice is done (below). IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -329,6 +329,14 @@ allocation and flushes the later steps) and A2 (IEBGENER with no `SYSUT1` ends R
 
 Not observed: the engine's answer, a dataset's record format / length / block size (no VTOC listing), which members a PDS holds beyond the one read
 back per step. Not in the fixture (`refused`): IEBGENER `GENERATE`, IEBCOPY unload / reload, VTOC and DCB checks.
+
+## Probe run (#8414): CardDemo COND jobs
+
+`probe.py carddemo --printer FILE` (a started box; needs the pinned CardDemo corpus, `GITGALAXY_MAINFRAME_CORPORA`, each member checked against its sha256)
+builds one deck per scenario of `tests/equivalence/jcl/carddemo/scenarios.json` from the real job's EXEC cards, COND as written, with the same IDCAMS `SET MAXCC`
+and S806 abend steps as the COND probe. Results: `tests/equivalence/jcl/carddemo/mvs38j_probe.json`.
+Run 2026-11-22: **34 of 34 agree three ways** (manual / engine / box), 8 jobs, `unparsed_ief` 0, no JCL error. Not observed: what a CardDemo step does,
+the one-row PROC call of `TRANBKP` (assumption A5) and `TYPRUN=SCAN` on `CREADB21` (dropped, as the answers assume). Internal only (Q16).
 
 ## What this tier cannot test
 

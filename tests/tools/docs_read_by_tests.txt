@@ -207,7 +207,7 @@
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
 /testing	tests/cobol_mainframe
-/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_no_raw_wall_clock_timing_8423.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
+/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/language_sheets.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_no_raw_wall_clock_timing_8423.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 0.md	tests/tools/test_doc_drift_issues.py
@@ -320,7 +320,7 @@ docs/args_rule_contract.md	gitgalaxy
 docs/bad.md	tests/tools/test_gate_controls_docs.py
 docs/benchmarks/det-refine-	tests/tools/cobolrt_api.py
 docs/benchmarks/det-refine-cbact02c/C.java	tests/cobol_mainframe
-docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py
+docs/bias_data.json	tests/core_engine,tests/tools/fidelity_table.py,tests/tools/language_sheets.py
 docs/branch_rule_contract.md	gitgalaxy
 docs/calls_out_rule_contract.md	gitgalaxy
 docs/canary_probe_clean.md	tests/tools/canary_control.py
@@ -351,6 +351,9 @@ docs/immutability_locks_rule_contract.md	gitgalaxy
 docs/import_rule_contract.md	gitgalaxy
 docs/io_rule_contract.md	gitgalaxy
 docs/jcl_oracle_mvs38j.md	tests/tools/capability_ledger.py
+docs/language_sheets/	tests/tools/language_sheets.py
+docs/language_sheets/notes/	tests/tools/language_sheets.py
+docs/language_sheets/rosetta_snapshot.json	tests/tools/language_sheets.py
 docs/language_status	tests/tools/test_progress_report.py
 docs/language_status/	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
@@ -522,6 +525,7 @@ docs/zero_dependency_mode.md	gitgalaxy
 docs/zero_dependency_mode.md.	gitgalaxy
 does_not_exist.md	tests/core_engine
 doom-port-study.md	tests/tools/doom_speedrun
+easytrieve.md	tests/tools/test_language_sheets.py
 est/report.md	tests/tools/test_generated_readers.py
 estate4_burned_basenames.json	tests/tools/estate4_draw.py
 estate4_candidates.json	tests/cobol_mainframe,tests/tools/equivalence_env.py,tests/tools/estate4_draw.py,tests/tools/estate_journey.py,tests/tools/progress_report.py
@@ -579,6 +583,7 @@ llm.md	tests/tools/test_cli_contract.py
 loop.md	tests/cobol_mainframe,tests/tools/porting_loop.py
 mainframe-evidence-policy.md	tests/tools/infeasible_outcomes.py,tests/tools/ladder_refresh.py
 manual_verification.json	tests/tools/tri_comparison_chart.py
+matrix.svg	tests/tools/language_sheets.py,tests/tools/test_language_sheets.py
 migration_worklist.md	gitgalaxy,tests/cobol_mainframe,tests/tools/publish_examples.py
 mutation.md	tests/tools/mutation.py,tests/tools/mutation_crucible.py
 mutation_equivalent_spot_check.md	tests/cobol_mainframe
@@ -611,6 +616,7 @@ report.md	tests/core_engine,tests/cultural_gauntlet,tests/tools/cics_crucible.py
 report_generated.md	tests/tools/publish_examples.py
 report_ported.md	tests/tools/publish_examples.py
 response.md	tests/tools/strengthen.py
+rosetta_snapshot.json	tests/tools/language_sheets.py
 same.md	tests/tools/test_generated_docs.py
 scan_comparison.md	tests/tools/publish_examples.py
 scorecard.md	tests/tools/referees

@@ -14,7 +14,7 @@ The network topology reveals a modularity of 0.5568, indicating some subsystem b
 * **Fragile Orchestrators:** `Include/Python.h` paradoxically also acts as the highest outbound orchestrator (94 dependencies), pulling together the entire API surface. Implementation files like `Python/pylifecycle.c` (51 outbound) and `Python/ceval.h` (47 outbound) are highly fragile, tying together disparate initialization and execution subsystems.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several test certificates in `Lib/test/certdata/` (e.g., `allsans.pem`) as "Hardcoded Payload Artifacts"; these are benign test fixtures. Areas flagged for "Raw Memory Manipulation" (e.g., `pycore_gc.h`, `pycore_dict.h`) and "Exploit Generation Surface" (e.g., `Tools/jit/_optimizers.py`) represent expected operational behaviors for a low-level language runtime managing garbage collection, direct memory allocation, and JIT compilation. The 61 binary anomalies detected by X-Ray align with expected compiled test artifacts and magic byte definitions within the repository.
 

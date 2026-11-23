@@ -97,6 +97,8 @@ jobs:
             tests/tools/suite_shard_plan.py
             tests/tools/ci_shard_plan.py
             tests/tools/ci_layout.py
+            tests/tools/gate_leg_margin.py
+            tests/tools/ci_rerun_stats.py
             tests/tools/post_merge_dispatch.py
             .test_durations
           sparse-checkout-cone-mode: false
@@ -112,7 +114,7 @@ jobs:
         run: |
           waiting=""
           if [ "$GITHUB_EVENT_NAME" != "push" ] && [ "$GITHUB_EVENT_NAME" != "schedule" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
-          python3 tests/tools/suite_shard_plan.py --gate ${waiting:+--waiting "$waiting"} | tee plan.out
+          python3 tests/tools/suite_shard_plan.py --gate --history-runs 10 ${waiting:+--waiting "$waiting"} | tee plan.out
           include=$(sed -n 's/^matrix=//p' plan.out)
           # #5953: smoke-test.yml runs the same suite on ubuntu / 3.12 nightly and on every main push (the gate leg only adds
           # test_evidence_components, run by mainframe-ground-truth.yml): the nightly and post-merge (main) dispatch drop that leg

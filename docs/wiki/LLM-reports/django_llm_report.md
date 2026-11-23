@@ -16,7 +16,7 @@ The network topology reveals a Modularity score of 0.6239, indicating generally 
 * **Fragile Orchestrators:** Test suites and the admin panel act as the primary orchestrators. `tests/admin_views/tests.py` (44 outbound) and `django/contrib/admin/options.py` (40 outbound) are highly coupled. The admin module, in particular, must integrate with almost every aspect of the ORM, form rendering, and HTTP handling, making it inherently fragile.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several core components (e.g., `django/contrib/admin/options.py`, `django/core/validators.py`) for "Exploit Generation Surface." In a web framework, this is operational reality: these files are explicitly responsible for parsing unvalidated HTTP input, dynamically constructing SQL queries (via the ORM), and rendering user-controlled strings. The system relies heavily on internal sanitization logic (e.g., `escape` filters) rather than strict typing to mitigate these vectors. 102 "Unknown Dependencies" were flagged, which represents standard Python package sprawl in a test/build environment.
 

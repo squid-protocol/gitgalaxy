@@ -10,7 +10,7 @@ The `Adafruit_CircuitPython_Bundle` repository functions primarily as a document
 The architecture is entirely flat and decoupled. The dependency graph registers zero inbound or outbound connections among the core repository files (e.g., `circuitpython_library_list.md`, `requirements.txt`, `README.txt`). This confirms the repository acts as a static collection of assets and metadata rather than a cohesive software application. Execution flow is restricted to isolated utility scripts that do not form a broader dependency tree.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts. Ecosystem security audits confirm 0 binary anomalies and 0 blacklisted dependencies. The repository is structurally secure from recognized threats, and no agentic RCE, memory corruption, or prompt injection surfaces were detected. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem security audits confirm 0 binary anomalies and 0 blacklisted dependencies. The repository is structurally secure from recognized threats, and no agentic RCE, memory corruption, or prompt injection surfaces were detected. 
 
 ## 4. Outliers & Extremes
 While the overall code footprint is negligible, the two execution scripts exhibit high relative risk exposures due to a complete lack of structural guardrails:

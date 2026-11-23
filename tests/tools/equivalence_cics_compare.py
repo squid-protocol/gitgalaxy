@@ -258,6 +258,13 @@ def compare_events(
             and int(c["length"]) != int(j["length"])
         ):  # #7955: LENGTH of a RETURN COMMAREA (the next EIBCALEN)
             bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
+        if (
+            c["event"] == "WRITEQ-TS"
+            and c.get("length") is not None
+            and j.get("length") is not None
+            and int(c["length"]) != int(j["length"])
+        ):  # #7955: the byte length of the item written, which the blank-trimmed data compare cannot see
+            bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
         if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
             bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways

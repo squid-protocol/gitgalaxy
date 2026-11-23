@@ -75,7 +75,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:CA|CS|TS|AD|SU|MULT|DV|MASK|DXCH|LXCH|QXCH|XCH|INDEX|AUG|DIM|INCR|CCS)[ \t]+(?:A|Q|L|Z)\b",
             re.I,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Standard instruction flow, data markers, and unconditional control
         # transfer (#2764: TC/TCF/TCR/CALL/GOTO calls-and-jumps and
         # RESUME/RETURN returns moved here out of `branch` -- structure, not

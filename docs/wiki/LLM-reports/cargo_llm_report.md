@@ -14,7 +14,7 @@ The dependency graph indicates a Modularity of 0.0, which, while mathematically 
 * **Fragile Orchestrators:** Files acting as domain-specific facades, such as `src/cargo/util/context/mod.rs` (60 outbound dependencies) and `src/cargo/core/compiler/mod.rs` (59 outbound dependencies), are highly fragile. They aggregate sprawling logic (environment variables, TOML parsing, rustc flags) into unified execution paths, making them highly susceptible to cascading breakage if the underlying schema changes.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged multiple test files in `crates/resolver-tests/tests/` with 100% "Weaponizable Injection Vectors" and "Exploit Generation Surface". In the context of a package manager's test suite, this is expected: these tests are designed to dynamically generate, parse, and resolve malformed or hostile package graphs (e.g., `pubgrub.rs`) to ensure the resolver does not panic. The hardcoded payload in `tests/testsuite/ssh.rs` is a benign test fixture used to mock SSH authentication.
 

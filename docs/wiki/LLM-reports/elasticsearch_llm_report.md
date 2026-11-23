@@ -14,7 +14,7 @@ The dependency graph confirms a "Spaghetti" coupling topology (Modularity 0.0).
 * **Fragile Orchestrators:** The system relies on massive God classes to bind subsystems together. `Security.java` (468 outbound dependencies), `MachineLearning.java` (464 outbound), and `ActionModule.java` (421 outbound) function as highly fragile orchestrators. They tightly couple the plugin lifecycle, cluster management, and request routing into concentrated execution contexts sensitive to API shifts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged several testing and provisioning utilities (e.g., `ElasticsearchNode.java`, `CliToolLauncherTests.java`) for "Exploit Generation Surface" and "Weaponizable Injection Vectors." In the context of a distributed database's test suite and cluster orchestration tooling, this is expected operational behavior involving dynamic process execution and network binding. Hardcoded payload artifacts (e.g., `private-ca.key`, `test-client.crt`) are explicitly constrained to `build-tools-internal/src/main/resources/test/ssl/` and represent benign test fixtures rather than leaked production credentials.
 

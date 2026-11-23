@@ -14,7 +14,7 @@ The dependency graph confirms a dense, highly coupled topology centered around c
 * **Fragile Orchestrators:** Files bridging disparate subsystems exhibit the highest outbound coupling. `stand/efi/libefi/env.c` (99 outbound) acts as a dense orchestrator for the EFI boot environment, while `sys/fs/nfs/nfsport.h` (90 outbound) and LLDB expression parsers (`ClangExpressionParser.cpp`) aggregate massive amounts of underlying system logic, making them highly fragile to API shifts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged several files (e.g., `bsd/dev/arm/munge.c`, `bsd/dev/dtrace/fbt.c`) for "Raw Memory Manipulation." In the context of an OS kernel and device drivers, this is the expected operational baseline: these files must directly interface with hardware, manipulate page tables, and handle fast-trap execution. Similarly, "Exploit Generation Surface" hits in `tools/lldbmacros/*` are expected for dynamic debugging and kernel core analysis tools. The "Hardcoded Payload Artifacts" found in `contrib/bearssl/samples/` are explicitly benign test certificates.
 

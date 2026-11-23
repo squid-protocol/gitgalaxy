@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import subprocess
 import sys
 from pathlib import Path
 
@@ -65,11 +66,51 @@ SLOWEST_SEEN_MIN = {
     ("macos-latest", "3.12"): 17,
 }
 SEEN_HEADROOM = 1.3
+# 2026-11-23 (#8701): SLOWEST_SEEN_MIN above is a hand-typed table that a person re-typed after every red night (#8944,
+# #8975: bump, fail, bump). It is now only the cold-start default. The plan reads the real wall minutes of each
+# (os, python, parts) leg over the latest HISTORY_RUNS scheduled Gate runs: with HISTORY_MIN_OBS or more observations the
+# MEASURED worst wall x SEEN_HEADROOM is the cap's floor, and a leg measured slower than SPLIT_ABOVE_MIN at n parts is
+# planned with one more part (up to the pool cap), so a slow leg is rebalanced before its cap is raised past the ceiling.
+# A cut leg counts at its cap (gate_leg_margin.is_measured), so a leg that was killed raises its own next cap. History
+# that cannot be read never fails the plan: the table is used.
+HISTORY_RUNS = 10
+HISTORY_MIN_OBS = 3
+SPLIT_ABOVE_MIN = GATE_TARGET_S / 60 * 1.15
 LEGS = (
     ("ubuntu-latest", "3.11", 1.0), ("ubuntu-latest", "3.12", 1.0),
     ("windows-latest", "3.11", 1.6), ("windows-latest", "3.12", 1.6),
     ("macos-latest", "3.11", 1.3), ("macos-latest", "3.12", 1.3),
 )  # fmt: skip
+
+
+def leg_walls(jobs_by_run: list[list[dict]]) -> dict[tuple[str, str, int], list[float]]:
+    """(os, python, parts) -> the wall minutes of every measured `Full Suite` step of that leg in the runs' jobs."""
+    import gate_leg_margin as glm  # only the plan job with history needs it, and its sparse checkout
+
+    out: dict[tuple[str, str, int], list[float]] = {}
+    for jobs in jobs_by_run:
+        for job in jobs:
+            leg = glm.parse_leg(job.get("name", ""))
+            if (
+                not leg
+                or not job.get("completed_at")
+                or job.get("conclusion") == "skipped"
+                or not glm.is_measured(job, leg)
+            ):
+                continue
+            out.setdefault((leg["os"], leg["python"], leg["splits"]), []).append(glm.step_minutes(job))
+    return out
+
+
+def load_history(runs: int = HISTORY_RUNS) -> dict[tuple[str, str, int], list[float]]:
+    """Measured leg walls over the latest scheduled Gate runs; {} (and a note on stderr) when they cannot be read."""
+    try:
+        import gate_leg_margin as glm
+
+        return leg_walls(glm.scheduled_jobs(runs))
+    except (ImportError, OSError, ValueError, KeyError, subprocess.CalledProcessError) as e:
+        print(f"history: unavailable ({type(e).__name__}); leg caps use the committed table", file=sys.stderr)
+        return {}
 
 
 def load_durations(path: Path | None = None) -> dict[str, float]:
@@ -100,7 +141,11 @@ def e2e_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
     return {"matrix": {"group": list(range(1, n + 1))}, "splits": n, "timeout": t}
 
 
-def gate_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
+def gate_plan(
+    durations: dict[str, float],
+    waiting: int | None = None,
+    history: dict[tuple[str, str, int], list[float]] | None = None,
+) -> dict:
     """{"matrix": [leg, ...]}: every leg of every part, the shape the Gate's `include` has today. A Windows leg runs
     `even` (the Linux seconds mislead there, #4906), so its tests weigh the same."""
     cap = sp.pool_cap(GATE_MAX_PARTS, waiting)
@@ -110,8 +155,16 @@ def gate_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
         even = os_name.startswith("windows")
         weight = {k: (mean if even else v) * speed for k, v in durations.items()}
         n = max(1, sp.shards_for(weight, GATE_SETUP_S, JOBS, GATE_TARGET_S, cap))
+        while (
+            n < cap
+            and len(seen := (history or {}).get((os_name, py, n), [])) >= HISTORY_MIN_OBS
+            and max(seen) > SPLIT_ABOVE_MIN
+        ):
+            n += 1  # measured too slow at n parts: one more part, not a longer cap
         t = sp.timeout_minutes(weight, n, GATE_SETUP_S, JOBS, GATE_TIMEOUT_FLOOR, GATE_TIMEOUT_CEILING)
-        t = min(GATE_TIMEOUT_CEILING, max(t, math.ceil(SLOWEST_SEEN_MIN.get((os_name, py), 0) * SEEN_HEADROOM)))
+        seen = (history or {}).get((os_name, py, n), [])
+        worst = max(seen) if len(seen) >= HISTORY_MIN_OBS else SLOWEST_SEEN_MIN.get((os_name, py), 0)
+        t = min(GATE_TIMEOUT_CEILING, max(t, math.ceil(worst * SEEN_HEADROOM)))
         for part in range(1, n + 1):
             leg = {"os": os_name, "python-version": py, "part": part, "splits": n}
             if even:
@@ -128,10 +181,19 @@ def main(argv: list[str] | None = None) -> int:
     what.add_argument("--e2e", action="store_true", help="the Equivalence E2E shards")
     ap.add_argument("--durations", type=Path, help="the durations file (default: .test_durations)")
     ap.add_argument("--waiting", type=int, help="queued PR jobs (halves the part cap past ci_shard_plan.BUSY_ABOVE)")
+    ap.add_argument(
+        "--history-runs",
+        type=int,
+        default=0,
+        help="--gate: read this many scheduled runs' measured leg walls (0 = off)",
+    )
     args = ap.parse_args(argv)
     try:
         d = load_durations(args.durations or (E2E_DURATIONS if args.e2e else None))
-        p = (smoke_plan if args.smoke else e2e_plan if args.e2e else gate_plan)(d, args.waiting)
+        if args.gate:
+            p = gate_plan(d, args.waiting, load_history(args.history_runs) if args.history_runs else None)
+        else:
+            p = (smoke_plan if args.smoke else e2e_plan)(d, args.waiting)
     except sp.PlanError as e:
         print(f"::error::{e}", file=sys.stderr)
         return 1

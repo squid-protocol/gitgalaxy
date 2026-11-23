@@ -493,7 +493,7 @@ public final class Idcams {
     private static String hex(byte[] b) {
         StringBuilder sb = new StringBuilder();
         for (byte x : b) {
-            sb.append(String.format("%02x", x & 0xFF));
+            sb.append(String.format(Locale.ROOT, "%02x", x & 0xFF));
         }
         return sb.toString();
     }
@@ -618,6 +618,12 @@ public final class Idcams {
             return false;
         }
 
+        /** CONTROLINTERVALSIZE(n) / CISZ(n): a control interval size, an allocation detail with no effect here. */
+        private static boolean isCisz(Op op) {
+            return (op.name.equals("CONTROLINTERVALSIZE") || op.name.equals("CISZ")) && op.args != null
+                && op.args.size() == 1 && op.args.get(0).args == null && op.args.get(0).name.matches("[0-9]+");
+        }
+
         private List<String> components(List<Op> ops, String kind) {
             List<String> names = new ArrayList<>();
             Set<String> seen = new HashSet<>();
@@ -629,7 +635,12 @@ public final class Idcams {
                 if (!seen.add(op.name)) {
                     throw new Refused("the IDCAMS DEFINE " + kind + " " + op.name + " component stated twice");
                 }
-                List<Op> inner = op.args == null ? List.of() : op.args;
+                List<Op> inner = new ArrayList<>();
+                for (Op i : op.args == null ? List.<Op>of() : op.args) {
+                    if (!isCisz(i)) {
+                        inner.add(i);
+                    }
+                }
                 if (inner.size() != 1 || !inner.get(0).name.equals("NAME") || inner.get(0).args == null
                     || inner.get(0).args.size() != 1) {
                     throw new Refused("the IDCAMS DEFINE " + kind + " " + op.name

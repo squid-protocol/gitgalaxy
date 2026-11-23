@@ -4916,6 +4916,7 @@
     "define",
     "scan",
     "componentsFree",
+    "isCisz",
     "defineAix",
     "definePath"
    ],

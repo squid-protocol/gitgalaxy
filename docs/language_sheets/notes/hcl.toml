@@ -1,0 +1,8 @@
+context = "DSL / config"
+
+[ceiling]
+parsers = "Not yet checked."
+corpus = "Not yet counted."
+best_method = "Not yet decided."
+why = "A declarative language: it has blocks and references but no function calls, so call links do not apply."
+status = "unconfirmed"

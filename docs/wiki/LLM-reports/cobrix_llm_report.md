@@ -14,7 +14,7 @@ The dependency graph indicates a Modularity of 0.0, which, while appearing flat,
 * **Fragile Orchestrators:** The primary orchestrator is `SparkCobolProcessor.scala` (24 outbound dependencies). It is highly fragile as it binds the low-level COBOL parsing rules, schema inference, and file streaming logic into the Spark execution context. `DefaultSource.scala` acts as the primary API surface for Spark, tying the engine together.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged several test files (e.g., `UsingUtilsSuite.scala`) with 100% "Exploit Generation Surface" or "Weaponizable Injection Vectors." In the context of a parser library, this is expected behavior: test suites are intentionally designed to inject malformed, unexpected, or destructive payloads (like corrupt EBCDIC bytes) to ensure the AST parser and schema inferencer fail gracefully without causing memory exhaustion or infinite loops. The two "Binary Anomalies" (X-Ray) detected are benign test fixtures (`.bin` files) representing legacy mainframe payloads.
 

@@ -6,7 +6,7 @@ description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_au
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py)
 
 ## Engineering Summary
-This subsystem acts as a verification tool that compares generated, program-specific Job Control Language (JCL) scripts against legacy IBM JCL files. It solves the problem of verifying the effectiveness and security posture of newly generated execution scripts by quantifying code bloat reduction and measuring the elimination of over-permissioned I/O access boundaries. It exists to provide measurable proof that the modernized JCL scripts enforce least privilege. It fits into GitGalaxy as the final audit step in the JCL modernization pipeline. This subsystem is known as the Zero-Trust JCL Auditor.
+This subsystem acts as a verification tool that compares generated, program-specific Job Control Language (JCL) scripts against legacy IBM JCL files. It solves the problem of verifying the effectiveness and security posture of newly generated execution scripts by quantifying code bloat reduction and measuring the elimination of over-permissioned I/O access boundaries. It exists to provide measurable proof that the modernized JCL scripts enforce least privilege. It fits into GitGalaxy as the final audit step in the JCL modernization pipeline. This subsystem is known as the JCL Auditor.
 
 ## Purpose
 The purpose of this component is to audit and calculate security and reduction metrics by mapping legacy JCL scripts to modernized scripts and evaluating changes in dataset allocations and line counts.
@@ -29,7 +29,7 @@ The auditor compares baseline legacy metrics against modernized JCL files. It ca
 
 ```mermaid
 flowchart LR
-    A[Legacy JCL Files] --> B[Zero-Trust JCL Auditor]
+    A[Legacy JCL Files] --> B[JCL Auditor]
     C[Modernized JCL Scripts] --> B
     B --> D[Audit Metrics Report]
 ```

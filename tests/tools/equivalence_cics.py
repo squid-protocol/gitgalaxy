@@ -3242,6 +3242,16 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             return t;
         }
 
+        /** #9116: the byte-carrying handleTransaction. The interface default would replace the scenario task's link area
+         *  with a copy of `bytes`, so what the task writes back on its RETURN lands in a copy and the caller's own
+         *  array (the one the runTask side judges) is never written: a COMMAREA of EIBCALEN >= the layout then looked
+         *  unwritten (byte 0 still the stage). The scenario's task already carries that array by reference. */
+        @Override
+        public CicsTask transaction(String transid, Object ca, byte[] bytes) {
+            CicsTask t = transaction(transid, ca);
+            return t.linkAreaView() != null || bytes == null ? t : t.withLinkArea(java.util.Arrays.copyOf(bytes, bytes.length));
+        }
+
         @Override
         public CicsTask linked(String p, Object ca) {
             CicsTask t = linked;

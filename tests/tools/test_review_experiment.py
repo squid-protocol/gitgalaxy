@@ -171,3 +171,29 @@ def test_max_reviews_refuses_a_bigger_run_before_any_call(monkeypatch, capsys):
     n = len(rc.CONTROLS) * 2
     assert ex.main(["run", "--models", "sonnet,opus", "--owner-ok", "--max-reviews", str(n - 1)]) == 2
     assert "refused" in capsys.readouterr().err
+
+
+def test_markdown_report_shows_counts_errored_and_delta(tmp_path, capsys):
+    d = DEFECTIVE[0]
+    t = TWINS[0]
+    rows = [
+        {"model": "a", "key": d.key, "raw": _review("request_changes", _on_target(d))},
+        {"model": "a", "key": t.key, "raw": _review("approve")},
+        {"model": "b", "key": d.key, "raw": _review("approve")},
+        {"model": "b", "key": t.key, "raw": "", "exit": 1, "error": "rate limit"},
+    ]
+    text = ex.render_markdown(ex.report(rows))
+    assert "| a | 1/1 (" in text and "| a | 1/1" in text.split("\n")[2]
+    b_row = [ln for ln in text.splitlines() if ln.startswith("| b |")][0]
+    assert "| 0/1 (" in b_row and "| 0/0 |" in b_row and b_row.count("| 1 |") == 1
+    assert "Delta a vs b: caught 1/1 vs 0/1" in text
+    path = tmp_path / "r.json"
+    path.write_text(json.dumps(rows), encoding="utf-8")
+    assert ex.main(["report", str(path), "--markdown"]) == 0
+    assert capsys.readouterr().out.startswith("| model |")
+
+
+def test_markdown_report_of_one_model_has_no_delta():
+    d = DEFECTIVE[0]
+    text = ex.render_markdown(ex.report([{"model": "a", "key": d.key, "raw": _review("approve")}]))
+    assert "Delta" not in text and "| a | 0/1" in text

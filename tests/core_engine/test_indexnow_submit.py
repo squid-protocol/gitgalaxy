@@ -8,9 +8,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-_spec = importlib.util.spec_from_file_location(
-    "indexnow_submit", ROOT / "scripts" / "indexnow_submit.py"
-)
+_spec = importlib.util.spec_from_file_location("indexnow_submit", ROOT / "scripts" / "indexnow_submit.py")
 ix = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ix)
 
@@ -36,3 +34,25 @@ def test_page_url(path, url):
 def test_exactly_one_committed_key_file_matches_its_name():
     key = ix.find_key(ROOT / "docs" / "wiki")
     assert len(key) >= 8
+
+
+@pytest.mark.parametrize("url", ["http://x.test/", "file:///etc/passwd", "ftp://x.test/"])
+def test_open_refuses_non_https(url):
+    import urllib.request
+
+    with pytest.raises(SystemExit):
+        ix._open(url, 5)
+    with pytest.raises(SystemExit):
+        ix._open(urllib.request.Request(url), 5)
+
+
+def test_open_passes_https_through(monkeypatch):
+    seen = []
+    monkeypatch.setattr(ix.urllib.request, "urlopen", lambda t, timeout: seen.append((t, timeout)) or "r")
+    assert ix._open("https://x.test/", 7) == "r"
+    assert seen == [("https://x.test/", 7)]
+
+
+def test_urlopen_is_called_in_one_place_only():
+    src = (ROOT / "scripts" / "indexnow_submit.py").read_text()
+    assert src.count("urllib.request.urlopen(") == 1

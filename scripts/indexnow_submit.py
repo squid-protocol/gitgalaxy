@@ -40,15 +40,9 @@ MAX_URLS = 10_000  # protocol limit per request
 
 def find_key(docs: Path = DOCS) -> str:
     """Return the key: the one `<hex>.txt` file in docs/wiki whose content is its own name."""
-    keys = [
-        p.stem
-        for p in docs.glob("*.txt")
-        if KEY_FILE_RE.match(p.name) and p.read_text().strip() == p.stem
-    ]
+    keys = [p.stem for p in docs.glob("*.txt") if KEY_FILE_RE.match(p.name) and p.read_text().strip() == p.stem]
     if len(keys) != 1:
-        raise SystemExit(
-            f"expected exactly one IndexNow key file in {docs}, found {keys}"
-        )
+        raise SystemExit(f"expected exactly one IndexNow key file in {docs}, found {keys}")
     return keys[0]
 
 
@@ -95,16 +89,24 @@ def changed_pages(base: str, head: str) -> list[str]:
     return sorted({u for p in out if (u := page_url(p))})
 
 
+def _open(target, timeout: int):
+    """The one network call: https only (the site and endpoint are fixed constants)."""
+    url = target if isinstance(target, str) else target.full_url
+    if urllib.parse.urlsplit(url).scheme != "https":
+        raise SystemExit(f"refusing a non-https URL: {url}")
+    # Scheme enforced above; the hosts are this module's own constants.
+    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+    return urllib.request.urlopen(target, timeout=timeout)  # noqa: S310
+
+
 def sitemap_pages() -> list[str]:
     """Every URL in the live sitemap, for a one-time bulk submit (`--all`)."""
-    with urllib.request.urlopen(f"{SITE}sitemap.xml", timeout=30) as r:
+    with _open(f"{SITE}sitemap.xml", 30) as r:
         xml = r.read().decode()
     urls = set()
     for loc in re.findall(r"<loc>([^<]+)</loc>", xml):
         parts = urllib.parse.urlsplit(html.unescape(loc))
-        urls.add(
-            parts._replace(path=urllib.parse.quote(parts.path, safe="/%")).geturl()
-        )
+        urls.add(parts._replace(path=urllib.parse.quote(parts.path, safe="/%")).geturl())
     return sorted(urls)
 
 
@@ -114,7 +116,7 @@ def wait_for_key(key: str, timeout: int) -> bool:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen(url, timeout=15) as r:
+            with _open(url, 15) as r:
                 if r.status == 200 and r.read().decode().strip() == key:
                     return True
         except (urllib.error.URLError, TimeoutError):
@@ -132,15 +134,11 @@ def submit(key: str, urls: list[str]) -> int:
             "urlList": urls[:MAX_URLS],
         }
     ).encode()
-    req = urllib.request.Request(
-        ENDPOINT, data=body, headers={"Content-Type": "application/json; charset=utf-8"}
-    )
+    req = urllib.request.Request(ENDPOINT, data=body, headers={"Content-Type": "application/json; charset=utf-8"})
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
+        with _open(req, 30) as r:
             return r.status
-    except (
-        urllib.error.HTTPError
-    ) as e:  # 200/202 ok; 403 bad key; 422 url/host mismatch; 429 slow down
+    except urllib.error.HTTPError as e:  # 200/202 ok; 403 bad key; 422 url/host mismatch; 429 slow down
         return e.code
 
 

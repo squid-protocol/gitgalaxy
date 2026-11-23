@@ -76,6 +76,7 @@ METHODS = frozenset(
         "decoy-test",
         "hand-audit",
         "corpus-label",
+        "answer-key",
         "keyword-rosetta",
         "none",
     }
@@ -324,6 +325,57 @@ def refresh_rosetta(bias_data: Path, out: Path = ROSETTA_SNAPSHOT) -> None:
     )
 
 
+GROUND_TRUTH = TESTS / "cobol_mainframe" / "ground_truth_ledger.json"
+# (stat, ledger field, what the field is, unit). One answer-key field stands in for each of three stats, for the
+# languages whose corpora are keyed (COBOL and CICS). A real tree-sitter or analyser measurement is never overridden.
+GROUND_TRUTH_FIELDS = (
+    ("functions", "units", "paragraphs and sections", "units"),
+    ("calls", "intra-program edges", "PERFORM and GO TO edges inside a program", "edges"),
+    ("imports", "copybook paths", "COPY members resolved to a file", "copybook paths"),
+)
+TIER_ORDER = ("draft", "sample_verified", "llm_verified", "cross_verified", "human_signed")
+
+
+def ground_truth_stats(ledger: Path = GROUND_TRUTH) -> dict[str, dict[str, Stat]]:
+    """{stat: {"cobol": Stat}} from the mainframe ground-truth ledger: the engine against hand-built answer keys that a
+    separately written reader drafted and blind LLM reviewers re-read. Summed over the keyed corpora."""
+    data = _read(ledger)
+    if not data:
+        return {}
+    corpora = data.get("corpora", {})
+    programs = sum(
+        (rec["scoreboard"].get("program_id") or {}).get("engine", {}).get("truth", 0)
+        for rec in corpora.values()
+        if (rec.get("scoreboard", {}).get("program_id") or {}).get("engine")
+    )
+    out: dict[str, dict[str, Stat]] = {}
+    for stat, fld, what, unit in GROUND_TRUTH_FIELDS:
+        got = tp = truth = n_corpora = 0
+        tiers: set[str] = set()
+        for rec in corpora.values():
+            row = rec.get("scoreboard", {}).get(fld)
+            if not row or not row.get("engine"):
+                continue
+            e = row["engine"]
+            got, tp, truth, n_corpora = got + e["got"], tp + e["tp"], truth + e["truth"], n_corpora + 1
+            tiers.add(row["truth"])
+        if not truth:
+            continue
+        weakest = min(tiers, key=TIER_ORDER.index)
+        metrics = [(k, v) for k, v in (("precision", _ratio(tp, got)), ("recall", _ratio(tp, truth))) if v is not None]
+        out[stat] = {
+            "cobol": Stat(
+                metrics=metrics,
+                n=truth,
+                unit=unit,
+                method="answer-key",
+                reference=f"answer key over {n_corpora} corpora, {programs} programs ({what}); weakest tier {weakest}",
+                source="tests/cobol_mainframe/ground_truth_ledger.json",
+            )
+        }
+    return out
+
+
 LOADERS = {
     "detection": detection_stats,
     "functions": functions_stats,
@@ -338,7 +390,11 @@ def load_all() -> tuple[list[str], dict[str, dict[str, Stat]]]:
     import graph_coverage_chart as gcc
 
     langs = gcc.all_languages()
-    return langs, {name: fn() for name, fn in LOADERS.items()}
+    stats = {name: fn() for name, fn in LOADERS.items()}
+    for stat, by_lang in ground_truth_stats().items():
+        for lang, st in by_lang.items():
+            stats[stat].setdefault(lang, st)  # never replace an independent tree-sitter / analyser measurement
+    return langs, stats
 
 
 # ----------------------------------------------------------------------------- notes

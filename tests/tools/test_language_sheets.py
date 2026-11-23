@@ -129,3 +129,59 @@ def test_build_writes_two_matrices_and_every_well_measured_language_is_in_the_fi
     assert all(f">{lang}</text>" in files["matrix.svg"] for lang in well)
     assert all(f">{lang}</text>" in files["matrix_sparse.svg"] for lang in sparse)
     assert all(f">{lang}</text>" not in files["matrix.svg"] for lang in sparse)
+
+
+def _ledger(tmp_path, boards):
+    """boards: {corpus: {field: (got, tp, truth, tier)}}"""
+    corpora = {}
+    for name, fields in boards.items():
+        corpora[name] = {
+            "scoreboard": {
+                f: {"engine": {"got": g, "tp": tp, "truth": t}, "forge": None, "truth": tier}
+                for f, (g, tp, t, tier) in fields.items()
+            },
+            "mismatches": {},
+        }
+    path = tmp_path / "ledger.json"
+    path.write_text(json.dumps({"corpora": corpora}))
+    return path
+
+
+def test_ground_truth_sums_corpora_and_reports_the_weakest_tier(tmp_path):
+    ledger = _ledger(
+        tmp_path,
+        {
+            "a": {
+                "program_id": (3, 3, 3, "cross_verified"),
+                "units": (10, 10, 10, "cross_verified"),
+                "intra-program edges": (8, 8, 10, "cross_verified"),
+            },
+            "b": {
+                "program_id": (2, 2, 2, "cross_verified"),
+                "units": (5, 5, 5, "cross_verified"),
+                "intra-program edges": (4, 4, 5, "draft"),
+            },
+        },
+    )
+    out = ls.ground_truth_stats(ledger)
+    fn = out["functions"]["cobol"]
+    assert dict(fn.metrics) == {"precision": 100.0, "recall": 100.0}
+    assert fn.n == 15 and fn.method == "answer-key"
+    assert "2 corpora, 5 programs" in fn.reference and "weakest tier cross_verified" in fn.reference
+    calls = out["calls"]["cobol"]
+    assert dict(calls.metrics) == {"precision": 100.0, "recall": 80.0}  # 12 of 15 edges
+    assert "weakest tier draft" in calls.reference
+    assert "imports" not in out  # no copybook paths in this ledger: no stat, not a zero
+
+
+def test_ground_truth_never_replaces_an_independent_measurement(monkeypatch):
+    real = ls.Stat(metrics=[("recall", 90.0)], method="tree-sitter")
+    fake = {"functions": {"cobol": ls.Stat(metrics=[("recall", 100.0)], method="answer-key")}}
+    monkeypatch.setattr(ls, "ground_truth_stats", lambda: fake)
+    monkeypatch.setitem(ls.LOADERS, "functions", lambda: {"cobol": real})
+    _langs, stats = ls.load_all()
+    assert stats["functions"]["cobol"] is real
+
+
+def test_ground_truth_missing_ledger_is_no_stats(tmp_path):
+    assert ls.ground_truth_stats(tmp_path / "absent.json") == {}

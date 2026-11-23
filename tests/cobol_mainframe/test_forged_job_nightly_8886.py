@@ -8,6 +8,9 @@ carddemo-nightly` writes, trimmed to what the comparison reads), so no Docker is
 Pinned result: 9 of 9 steps equal. TRANBKP's `//PRC001.FILEIN` / `FILEOUT` are PROC override DDs; slice 1 found
 `galaxy_ir.job_dds` dropped them (7 of 9), and it now reads them (the override replaces the procedure's DD of that name
 for that procedure step, else is added; `test_batch_jobs.py`). One feed stays unchecked: TRANIDX's `TRANKSDS`.
+
+Scope: slice 1 gives every program name a skeleton, so a utility-only job is forged here. The real forge generates only
+POSTTRAN, INTCALC and CREASTMT; `test_forged_spring_nightly_8886.py` (slice 2) executes those under Spring Batch.
 """
 
 from __future__ import annotations

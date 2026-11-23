@@ -328,7 +328,7 @@ DEFINITION: dict[str, Any] = {
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*(" + _PS_PARENS + r")\s*[ \t\n]*\{",
             re.I | re.M,
         ),
-        # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
+        # structural_boundaries (Structural Keywords). Structural boundaries defining scope (process, begin, end).
         # EXCLUDES access modifiers (hidden, static) to prevent Structural Complexity Inflation.
         "structural_boundaries": re.compile(
             r"(?<![-$.])\b(?:(?:function|filter|workflow|configuration|class|enum)\s+[" + ID_START + r"]"

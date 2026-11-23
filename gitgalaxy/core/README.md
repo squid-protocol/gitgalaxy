@@ -17,7 +17,7 @@ GitGalaxy operates on a different philosophy: **Visualizing functional intent ov
 Data flows through these modules sequentially. If a file is unparsable by this engine, we deal with it gracefully, attempting to extract as much information while routing the file to the **Unparsable Artifacts** queue, preventing pipeline bottlenecks.
 
 ### 1. `aperture.py` (The Boundary Filter)
-**Role:** Zero-Trust Ingestion.
+**Role:** Pre-read file filtering (no content is read until the file passes).
 Information hits this filter first. It evaluates OS-level metadata (file path, extension, byte size) *before* executing any disk I/O. It actively shunts massive data dumps, neural network weights (`.safetensors`), and binary payloads masking as text files (via null-byte detection). This protects the Python memory space from immediate exhaustion.
 
 ### 1a. `source_text.py` (The Decoder, #3813)

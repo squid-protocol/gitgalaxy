@@ -361,6 +361,11 @@ DEFINITION: dict[str, Any] = {
     # have native block comments (developers sometimes hack `if 0 { ... }`, but `#` is the standard).
     "lexical_family": "line_exclusive",
     "calls_out_namespace_qualifiers": True,
+    # Tcl `package require pkg::name` names a package declared via `package provide pkg::name`
+    # inside a file whose path/stem may differ from the package name (e.g. `nameserv::auto` in `nns_auto.tcl`).
+    "imports_may_name_declaration": True,
+    "imports_declaration_is_flat": True,
+    "import_target_langs": frozenset({"tcl"}),
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3359 (contract C7): command position, minus the upper-case SQL keywords
@@ -562,8 +567,12 @@ DEFINITION: dict[str, Any] = {
         # Package and module loading.
         "import": re.compile(r"^[ \t]*(?:package[ \t]+require|source|load)\b", re.M),
         "dependency_injection": None,
+        "_declaration_capture": re.compile(
+            r"(?:^[ \t]*|[;{][ \t]*)package[ \t]+provide[ \t]+(?:\{?[\"']?)([\w:.-]+)[}\"']?(?=[ \t]+(?:\d|\$|\[))",
+            re.M,
+        ),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:package[ \t\n]+require|source|load)[ \t\n]+(?:-exact[ \t\n]+)?(?:\{?[\"']?)([^\"'\s#{}]+)",
+            r"(?:^[ \t]*|[;\[{][ \t]*)(?:package[ \t]+require|source|load)[ \t]+(?:-exact[ \t]+|-encoding[ \t]+\S+[ \t]+)?(?:\{?[\"']?)([^\"'\s#{}\[\];]+)",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

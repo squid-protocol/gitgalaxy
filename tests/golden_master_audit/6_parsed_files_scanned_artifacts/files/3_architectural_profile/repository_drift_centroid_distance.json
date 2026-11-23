@@ -2517,7 +2517,7 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 6.58,
-      "perl/bugzilla/Bug.pm": 7.004,
+      "perl/bugzilla/Bug.pm": 6.981,
       "perl/bugzilla/CGI.pm": 6.617,
       "perl/bugzilla/DB.pm": 5.487,
       "perl/bugzilla/Requirements.pm": 6.773
@@ -3807,7 +3807,7 @@
       "tcl/macports_registry/portuninstall.tcl": 5.563,
       "tcl/macports_registry/receipt_flat.tcl": 7.468,
       "tcl/macports_registry/receipt_sqlite.tcl": 5.846,
-      "tcl/macports_registry/registry.tcl": 4.775,
+      "tcl/macports_registry/registry.tcl": 4.76,
       "tcl/macports_registry/registry_util.tcl": 6.864
     },
     "tcl/sqlite": {

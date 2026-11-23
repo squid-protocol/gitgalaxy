@@ -117,6 +117,11 @@ DEFINITION: dict[str, Any] = {
     # language or uppercase legacy style (`USE A`) never resolves to
     # `a.f90` and the whole import chain goes invisible.
     "case_insensitive_imports": True,
+    # Fortran `USE mod` names a MODULE declared inside a file whose stem may differ from the
+    # module name (e.g. `module fpm_cmd_export` inside `src/fpm/cmd/export.f90`).
+    "imports_may_name_declaration": True,
+    "imports_declaration_is_flat": True,
+    "import_target_langs": frozenset({"fortran"}),
     # #5638: `x = F(a)` is a call to the function F unless the unit declares F an array
     # (core/fortran_calls.py). TOP LEVEL, never inside `rules` (#2806).
     "calls_out_function_refs": True,
@@ -432,6 +437,10 @@ DEFINITION: dict[str, Any] = {
         # body -- nothing external is bound. `#include` is the preprocessor form.
         "import": re.compile(
             r"^[ \t]*(?:USE(?=[ \t]*(?:,|::)|[ \t]+[A-Za-z])|INCLUDE[ \t]*['\"]|#[ \t]*include\b)", re.I | re.M
+        ),
+        "_declaration_capture": re.compile(
+            r"^[ \t]*MODULE[ \t]+(?!PROCEDURE\b|SUBROUTINE\b|FUNCTION\b|PURE\b|ELEMENTAL\b|RECURSIVE\b|IMPURE\b)([a-zA-Z][a-zA-Z0-9_]*)",
+            re.IGNORECASE | re.MULTILINE,
         ),
         "_dependency_capture": re.compile(
             r"^[ \t]*(?:USE(?:\s+|\s*(?:,[^:]*)?::\s*)([a-zA-Z0-9_]+)|INCLUDE[ \t\n]*['\"]([^'\"]+)['\"]|SUBMODULE\s*\(\s*([^):]+)[^)]*\))",

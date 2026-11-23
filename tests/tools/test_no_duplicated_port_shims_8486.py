@@ -64,6 +64,7 @@ ALLOWED_COMMITTED_DUPLICATES: frozenset[tuple[str, str]] = frozenset({
     ("p4", "4d109ae17764"),
     ("readCxacaix", "2346fd398675"),
     ("readUsrsec", "0f454e8a5a5c"),
+    ("handleTransaction", "b40ee02b15b1"),  # the lowered-DFSORT ports (#8884: a third)
 })
 
 _SAMPLE_STUB = """package com.example.service;

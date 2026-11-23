@@ -13,7 +13,7 @@ The model (IBM z/OS DFSMS Access Method Services Commands, SC23-6846-60: "REPRO"
   return code. `SET MAXCC = n` replaces MAXCC (the idiom after a DELETE that may find nothing). `IF LASTCC|MAXCC op n THEN
   cmd | DO ... END [ELSE cmd | DO ... END]` (op = EQ NE GT GE LT LE or = ^= > >= < <=) runs the branch the code selects;
   testing changes no code. A failing command does not stop the commands after it (the DELETE-then-DEFINE idiom).
-* DELETE entryname [CLUSTER] [PURGE | NOPURGE] [ERASE | NOERASE]: removes the cluster and its records (code 0); an
+* DELETE entryname [CLUSTER | ALTERNATEINDEX (absent entry only)] [PURGE | NOPURGE] [ERASE | NOERASE]: removes the cluster and its records (code 0); an
   entry not in the catalog is code 8 (entry not found). The model has no retention period, so PURGE / NOPURGE change
   nothing, and ERASE overwrites data nothing can read afterwards.
 * DEFINE CLUSTER (NAME(n) RECORDSIZE(avg max) [KEYS(length offset)] [INDEXED | NONINDEXED] ...): INDEXED (the
@@ -345,9 +345,19 @@ class _Step:
             raise Refused("the IDCAMS DELETE without one entry name (an entry list is not modelled)")
         name = _entry(ops[0].name, "DELETE")
         for op in ops[1:]:
-            if op.name not in ("CLUSTER", "PURGE", "NOPURGE", "ERASE", "NOERASE") or op.args is not None:
+            if (
+                op.name not in ("CLUSTER", "PURGE", "NOPURGE", "ERASE", "NOERASE", "ALTERNATEINDEX", "AIX")
+                or op.args is not None
+            ):
                 raise Refused(f"the IDCAMS DELETE {op.name} parameter")
         ent = self.catalog.get(name)
+        if ent is None and any(op.name in ("ALTERNATEINDEX", "AIX") for op in ops[1:]):
+            self.end(8, f"DELETE {name}: entry not found")  # the type keyword changes nothing for an absent entry
+            return
+        if any(op.name in ("ALTERNATEINDEX", "AIX") for op in ops[1:]):
+            raise Refused(
+                f"the IDCAMS DELETE ALTERNATEINDEX of {name}, an entry in the catalog (only an absent one is modelled)"
+            )
         if ent is not None and not isinstance(ent, Cluster):
             raise Refused(f"the IDCAMS DELETE of {name}, an alternate index or path (its dependents are not modelled)")
         if ent is not None and any(isinstance(e, Aix) and e.relate == name for e in self.catalog.values()):

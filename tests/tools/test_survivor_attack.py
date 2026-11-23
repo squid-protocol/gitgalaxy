@@ -1276,3 +1276,38 @@ def test_eib_calen_is_not_settled_when_anything_reads_it_or_the_edit_leaves_the_
     assert not _calen(_CALEN_TXT, _CL, _CL.replace("(task, 20)", "(task, 20 + 1)"))
     assert not _calen(_CALEN_TXT, _CT, _CT.replace("&&", "||"))  # the guard that keeps linkArea() non-null
     assert not _calen(_CALEN_TXT, _CL, _CL.replace("calen =", "calen +="))
+
+
+def test_input_layout_reads_a_program_the_case_carries_8885(tmp_path, monkeypatch):
+    """`program_source: @case/<file>` (a lowered JCL SORT step) is in no corpus: input_layout found no file for it."""
+    import equivalence_common as common
+    import strengthen as st
+
+    monkeypatch.setattr(common, "CASES", tmp_path / "cases")
+    cdir = tmp_path / "cases" / "c"
+    cdir.mkdir(parents=True)
+    (cdir / "P.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. P.\n"
+        "       ENVIRONMENT DIVISION.\n"
+        "       INPUT-OUTPUT SECTION.\n"
+        "       FILE-CONTROL.\n"
+        "           SELECT I1-FILE ASSIGN TO SORTIN.\n"
+        "       DATA DIVISION.\n"
+        "       FILE SECTION.\n"
+        "       FD  I1-FILE.\n"
+        "       01  I1-REC PIC X(10).\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01  W-REC.\n"
+        "           05  ACCT PIC 9(5).\n"
+        "           05  NAME PIC X(5).\n"
+        "       PROCEDURE DIVISION.\n"
+        "           READ I1-FILE INTO W-REC.\n"
+        "           GOBACK.\n",
+        encoding="latin-1",
+    )
+    case = {"name": "c", "program_source": "@case/P.cbl", "datasets": {"SORTIN": {"input": "x", "reclen": 10}}}
+    fields = st.input_layout(case, tmp_path / "corpus", "SORTIN")
+    assert [(f["name"], f["offset"], f["bytes"]) for f in fields] == [("ACCT", 0, 5), ("NAME", 5, 5)]
+    case["datasets"]["NOPE"] = {"input": "x", "reclen": 10}
+    assert st.input_layout(case, tmp_path / "corpus", "NOPE") is None  # no SELECT for it: None, not a crash

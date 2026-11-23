@@ -31341,7 +31341,7 @@
         "map_fields@4478": 0,
         "match@435": 0,
         "modify_keywords@3081": 0,
-        "new@302": 0,
+        "new@302": 9,
         "new_bug_statuses@3784": 0,
         "object_cache_key@366": 0,
         "op_sys@3403": 0,
@@ -32683,7 +32683,7 @@
       "php/laravel_core/Model.php": {
         "__call@2794": 0,
         "__callStatic@2819": 0,
-        "__construct@315": 0,
+        "__construct@315": 7,
         "__get@2690": 0,
         "__isset@2771": 0,
         "__set@2702": 0,

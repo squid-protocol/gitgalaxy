@@ -98,6 +98,7 @@ CASES = [
     (f" REPRO INDATASET({AIX}) OUTFILE(OUT)\n", "built", "is an alternate index"),
     (f" DELETE {AIX}\n", "built", "alternate index or path"),
     (f" DELETE {PATH}\n", "built", "alternate index or path"),
+    (f" DELETE {AIX} ALTERNATEINDEX\n", "built", "an entry in the catalog (only an absent one"),  # #8885
     (f" DELETE {BASE}\n", "built", "alternate index related to it"),
 ]
 IDS = [f"{i:02d}-{c[2][:28]}" for i, c in enumerate(CASES)]

@@ -301,7 +301,7 @@ def test_a_nonzero_condition_code_bypasses_the_later_steps(stub, tmp_path, monke
     ("step", "why"),
     [(_idcams(deck="gone.idc"), "no such file beside the job case"),
      (_idcams(inputs={"INFILE": "x"}), "inputs on an IDCAMS step"),
-     (_idcams(gdg_in={"INFILE": {}}), "gdg_in on an IDCAMS step"),
+     (_idcams(gdg_in={"INFILE": {}}), "gdg_in INFILE must be"),
      (_idcams(reclen=0), "needs a record length"),
      (_idcams(reclen=20), "record length"),  # the feed rule reads the DD spec like a program step's
      ({**_idcams(), "idcams": {"deck": "step.idc", "dds": {"INFILE": {"reclen": 10}}}}, "no output dataset"),
@@ -334,3 +334,20 @@ def test_an_idcams_step_the_java_runtime_differs_on_stops_the_job_by_name(stub, 
     report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
     assert "Java IDCAMS step differs from the model" in report["steps"][1]["stopped"]
     assert len(api.seen) == 1 and report["proven"] is False
+
+
+def test_a_program_idcams_then_subprograms_chain_runs_in_jcl_order_with_the_subprograms_on_both_sides(
+    stub, tmp_path, monkeypatch
+):  # #8884: CREASTMT's shape, SORT-like step -> IDCAMS REPRO -> CBSTM03A + CBSTM03B
+    monkeypatch.setattr(ej_job, "_compare_java", lambda *a: {"equal": True, "lines": 3, "differs": []})
+    api = _idcams_api(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    api.cases["b"]["subprograms"] = ["app/cbl/SUBB.CBL"]
+    job = _idcams_job()
+    ej_job.check_job(job, _steps(job, api))
+    assert ej_job.run_case(api, job, tmp_path / "w") == 0
+    report = json.loads((tmp_path / "w" / "report.json").read_text(encoding="utf-8"))
+    assert [s["case"] for s in report["steps"]] == ["a", "idc", "b"] and report["proven"] is True
+    assert report["steps"][2]["subprograms"] == ["app/cbl/SUBB.CBL"] and "subprograms" not in report["steps"][0]
+    assert api.cobol_subs == [("PA", None), ("PB", ["app/cbl/SUBB.CBL"])]
+    assert java_cases == [("PA", None), ("PB", ["app/cbl/SUBB.CBL"])]
+    assert Path(api.seen[1][1]["IN"]["input"]).read_bytes() == b"AAAA000001\nBBBB000002\n"  # b reads the IDCAMS output

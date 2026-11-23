@@ -85,7 +85,12 @@ SCENARIOS: dict[str, tuple[dict, dict, list[str]]] = {
     "delete-missing-set-maxcc": (
         {},
         {},
-        [" DELETE APP.GONE CLUSTER PURGE\n SET MAXCC = 0\n", " DELETE APP.GONE\n IF LASTCC = 8 THEN SET MAXCC = 4\n"],
+        [
+            " DELETE APP.GONE ALTERNATEINDEX\n IF MAXCC LE 08 THEN SET MAXCC = 0\n",  # #8885: TRANBKP's absent AIX
+            " DELETE APP.GONE AIX\n IF LASTCC = 8 THEN SET MAXCC = 4\n",
+            " DELETE APP.GONE CLUSTER PURGE\n SET MAXCC = 0\n",
+            " DELETE APP.GONE\n IF LASTCC = 8 THEN SET MAXCC = 4\n",
+        ],
     ),
     "define-then-duplicate": ({}, {}, [DEFINE, DEFINE + " IF MAXCC > 8 THEN DO\n SET MAXCC = 12\n END\n"]),
     "if-else": (

@@ -4623,7 +4623,8 @@ class GalaxyIR:
         `ordinal`, `dd`, `dsn` (resolved where the engine resolved it, GDG generation apart),
         `disp`, `generation`, `line`, `source` (the file the DD is written in) and, only when the DD
         states them, `lrecl` / `recfm` (#4268). The rows
-        are job_flow's DD rows; override DDs (`//STEP.DD`) are out of scope, as there."""
+        are job_flow's DD rows; a PROC call's override DD (`//PROCSTEP.DD` after the EXEC, #8886) replaces the
+        procedure DD of that name for that procedure step (else is added), its `source` the job file."""
         resolved: dict[tuple[str, int], str] = {}
         for f in self.files.values():
             for ds in f.datasets:
@@ -4672,9 +4673,19 @@ class GalaxyIR:
                     if pf is None:
                         continue
                     theirs = by_step(pf.job_flow, inner[0].in_proc if inner else st.proc)
+                    over = mine.get(id(st), [])  # #8886: `//PROCSTEP.DD` after the EXEC overrides the proc's DD
                     for ps in inner:
-                        out += [row(pf, job.name, st.step_name, ps.step_name, st.step_ordinal, r)
-                                for r in theirs.get(id(ps), [])]  # fmt: skip
+                        mine_ps = [r for r in over if (r.step_name or "").upper() == (ps.step_name or "").upper()]
+                        rows_ = [row(pf, job.name, st.step_name, ps.step_name, st.step_ordinal, r)
+                                 for r in theirs.get(id(ps), [])]  # fmt: skip
+                        for r in mine_ps:  # replaces the proc's DD of that name in place, else is added
+                            new = row(f, job.name, st.step_name, ps.step_name, st.step_ordinal, r)
+                            at = next((i for i, x in enumerate(rows_) if x["dd"] == new["dd"]), None)
+                            if at is None:
+                                rows_.append(new)
+                            else:
+                                rows_[at] = new
+                        out += rows_
                     continue
                 out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
         return out

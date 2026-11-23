@@ -12,8 +12,8 @@ For each JCL job of a job case it
    (each `gdg_in` / `gdg_out` / `feeds` the case states against the forged `Dd(dd, dsn, disp, disp_normal, generation)`).
 
 It does NOT run Spring: `JclSteps.guarded` is replayed, not executed (a later slice). A DD the JCL states only as a PROC
-override (`//STEP.PROCSTEP.DD`) is outside `galaxy_ir.job_dds`, so the forge never sees it: that is reported as a
-difference, not worked around.
+override (`//PROCSTEP.DD`) replaces the procedure's DD of that name (`galaxy_ir.job_dds` reads it, #8886: slice 1 found it
+did not, and reported 7 of 9 steps equal); this module applies the same rule to its hand-built facts.
 """
 
 from __future__ import annotations
@@ -132,10 +132,11 @@ def job_facts(jcl: Path, proc_dir: Path, file: str) -> tuple[dict, list[dict], l
                 current["_inner"] = [x["step_name"] for x in inner]
             steps.append(current)
         elif r["kind"] == "DD" and current is not None:
-            if r["step_name"] != current["step"]:  # `//STEP.PROCSTEP.DD`: galaxy_ir.job_dds leaves these out
+            if r["step_name"] != current["step"]:  # `//PROCSTEP.DD`: a PROC override, applied below (#8886)
                 overrides.append(
-                    {"step": current["step"], "proc_step": r["step_name"], "dd": r["dd_name"], "dsn": r["dsn"]}
-                )
+                    {"step": current["step"], "proc_step": r["step_name"], "dd": r["dd_name"], "dsn": r["dsn"],
+                     "row": r}
+                )  # fmt: skip
                 continue
             dds.append(
                 {"file": file, "job": job["name"], "step": current["step"], "proc_step": None, "ordinal": current["ordinal"],
@@ -155,6 +156,20 @@ def job_facts(jcl: Path, proc_dir: Path, file: str) -> tuple[dict, list[dict], l
                          "dd": x["dd_name"], "dsn": x["dsn"], "disp": x["disp"], "disp_normal": x.get("disp_normal"),
                          "generation": x.get("generation"), "line": x["line"]}
                     )  # fmt: skip
+    for o in overrides:  # galaxy_ir.job_dds: replaces the proc's DD of that name in place, else is added
+        r = o.pop("row")
+        s = next(s for s in steps if s["step"] == o["step"])
+        if not s["proc"]:
+            continue
+        new = {"file": file, "job": job["name"], "step": s["step"], "proc_step": o["proc_step"],
+               "ordinal": s["ordinal"], "dd": r["dd_name"], "dsn": r["dsn"], "disp": r["disp"],
+               "disp_normal": r.get("disp_normal"), "generation": r.get("generation"), "line": r["line"]}  # fmt: skip
+        at = next((i for i, d in enumerate(dds) if (d["step"], d["proc_step"], d["dd"])
+                   == (s["step"], o["proc_step"], new["dd"])), None)  # fmt: skip
+        if at is None:
+            dds.append(new)
+        else:
+            dds[at] = new
     fact = {"file": file, "job": job["name"], "cond": job["cond"], "steps": steps}
     return fact, dds, overrides
 

@@ -171,7 +171,7 @@ DEFINITION: dict[str, Any] = {
             r")",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const/readonly (freeze_hits).
         # #8010: `=>` is closures' alone (a lambda arrow is not a declaration keyword).
         "structural_boundaries": re.compile(

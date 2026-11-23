@@ -69,7 +69,7 @@ DEFINITION: dict[str, Any] = {
         # 2. args (Parameters / Coupling)
         # Build arguments (`ARG`) passed into the container acting as input parameters to the satellite.
         "args": re.compile(r"^[ \t]*ARG(?:[ \t]|\\[ \t]*\r?\n)+[a-zA-Z0-9_-]+", re.M | re.I),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries defining straight-line execution and environment contexts.
         # CRITICAL GUARDRAIL: EXCLUDES `FROM` and `RUN`/`CMD` to maintain geometric stability.
         "structural_boundaries": re.compile(

@@ -150,7 +150,25 @@ def test_creastmt_sort_case_is_the_dfsort_lowering_of_the_jcl_sysin():
     sortin = (eq.CASES / "carddemo-sort-creastmt" / "sortin.txt").read_bytes().split(b"\n")
     recs = [r for r in sortin if r]
     assert len(recs) == 100 and {len(r) for r in recs} == {350}
-    assert len({(r[262:278], r[:16]) for r in recs}) == 100  # every sort key distinct: DFSORT's equal-key order never matters
+    assert (
+        len({(r[262:278], r[:16]) for r in recs}) == 100
+    )  # every sort key distinct: DFSORT's equal-key order never matters
+
+
+def test_creastmt_padded_variant_chain_is_valid_with_no_stop_and_its_sort_is_the_padded_lowering():
+    """The authored padded variant (#8884): OUTREC 329:22X makes SORTOUT 350 bytes, so the whole chain checks with no stop."""
+    from gitgalaxy.tools.cobol_to_java.det import dfsort
+
+    job = eq.load_case("carddemo-job-creastmt-padded")
+    assert "ibm_stops" not in job
+    cases = ej.load_steps(job, eq.load_case)
+    assert ej.step_names(job) == ["carddemo-sort-creastmt-padded", "creastmt-step020", "carddemo-cbstm03a"]
+    assert cases["carddemo-sort-creastmt-padded"]["datasets"]["SORTOUT"]["reclen"] == 350
+    assert cases["carddemo-cbstm03a"]["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
+    ej.check_job(job, cases)
+    jcl = " SORT FIELDS=(263,16,CH,A,1,16,CH,A)\n OUTREC FIELDS=(1:263,16,17:1,262,279:279,50,329:22X)"
+    want = dfsort.cobol_program(dfsort.parse(jcl), 350, ["SORTIN"])
+    assert (eq.CASES / "carddemo-sort-creastmt-padded" / "DFSORTST.cbl").read_text(encoding="utf-8") == want
 
 
 def _sort_job(writer_reclen, writer_program, reader_reclen):

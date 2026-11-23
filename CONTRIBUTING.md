@@ -48,7 +48,7 @@ A passing Differential Scan does **not** mean the tree-sitter accuracy audit als
 
 ## 🛠️ Submitting Pull Requests
 
-To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
+To ensure your contribution integrates smoothly into the engine:
 
 1. **Fork and Branch:** Create a feature branch from `main` (`git checkout -b feature/your-feature-name`).
 2. **Maintain the Contract:** Ensure that any backend changes to the CLI do not break the universal JSON schema contract expected by the frontend Observatory. 

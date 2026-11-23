@@ -123,6 +123,24 @@
       "aid": "DFHENTER",
       "commarea_hex": "3241",
       "why": "2-byte area stage 2"
+    },
+    {
+      "name": "stage-1-hex-equal-8",
+      "aid": "DFHENTER",
+      "commarea_hex": "3141424344454647",
+      "why": "an 8-byte caller area, exactly the layout: the write-back on the RETURN passes stage 2"
+    },
+    {
+      "name": "stage-1-hex-long-15",
+      "aid": "DFHENTER",
+      "commarea_hex": "314142434445464748494A4B4C4D4E",
+      "why": "a 15-byte caller area, longer than the 8-byte layout: byte 0 still becomes stage 2 on the RETURN (#9116)"
+    },
+    {
+      "name": "stage-1-hex-long-120",
+      "aid": "DFHENTER",
+      "commarea_hex": "314142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E4F4142434445464748494A4B4C4D4E",
+      "why": "a 120-byte caller area, far longer than the layout: byte 0 still becomes stage 2 on the RETURN (#9116)"
     }
   ],
   "termid": "T001"

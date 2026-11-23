@@ -2187,7 +2187,7 @@
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": 6.339,
-      "kotlin/okhttp/Dispatcher.kt": 8.416,
+      "kotlin/okhttp/Dispatcher.kt": 8.43,
       "kotlin/okhttp/LICENSE.txt": 0.0,
       "kotlin/okhttp/OkHttp.android.kt": 6.406,
       "kotlin/okhttp/OkHttp.jvm.kt": 5.984,

@@ -526,6 +526,9 @@ def param_types(text: str, header_end: int | None, lang: str) -> tuple[list[str]
             if p.strip() == "...":
                 variadic = True
                 continue
+            if "..." in re.sub(r"<[^<>]*>", "", p):
+                is_variadic = True
+                p = re.sub(r"\.\.\.(?![^<]*>)", " ", p)
             pm = _CPP_PARAM.fullmatch(p.strip())
             typ = normalize(pm.group("t") + (pm.group("ptr") or ""), lang) if pm else ""
         elif lang == "csharp":
@@ -631,17 +634,24 @@ def _kt_compat(param: str, arg: str, subtype: Subtype | None) -> bool | None:
     return None
 
 
+_CPP_STRING_TYPES = frozenset({"string", "string_view", "basic_string_view", "format_string", "basic_format_string"})
+
+
 def _cpp_compat(param: str, arg: str, subtype: Subtype | None) -> bool | None:
+    if not arg:
+        return True if _is_type_var(param) else None
     if param == arg:
         return True
     if arg == "nullptr":
         return param.endswith("*")
-    if _is_type_var(param) or _is_type_var(arg):
+    if _is_type_var(param):
+        return None if _is_type_var(arg) else True
+    if _is_type_var(arg):
         return None
     if arg == "char*":
-        if param in ("char*", "void*", "string", "string_view", "bool"):
+        if param in _CPP_STRING_TYPES or param in ("char*", "void*", "bool"):
             return True if param != "bool" else None
-        if param in _CPP_PRIMS:
+        if param in _CPP_PRIMS or param.endswith("*"):
             return False
         return None
     if arg in _CPP_PRIMS:
@@ -651,7 +661,7 @@ def _cpp_compat(param: str, arg: str, subtype: Subtype | None) -> bool | None:
             if param in ("int", "long", "unsigned", "size_t") and arg in ("bool", "char", "short", "int"):
                 return True
             return None
-        if param.endswith("*") or param in ("string", "string_view"):
+        if param.endswith("*") or param in _CPP_STRING_TYPES:
             return False
         return None
     if param.endswith("*") and arg.endswith("*"):
@@ -680,12 +690,17 @@ def _more_specific(a: list[str], b: list[str], lang: str, subtype: Subtype | Non
     return all(_compat(pb, pa, lang, subtype) is True for pa, pb in zip(a, b, strict=True))
 
 
-def _expand(params: list[str], n: int, variadic: bool) -> list[str] | None:
+def _expand(params: list[str], n: int, variadic: bool, lang: str = "") -> list[str] | None:
     """`params` as `n` argument slots: a trailing `params T[]` / `vararg T` in its expanded form takes `T` for
-    every extra argument. None when it cannot take `n`."""
+    every extra argument; a C++ variadic pack (`T&&... args`) takes its element type for 0+ trailing args.
+    None when it cannot take `n`."""
     if len(params) == n:
         return params
-    if not variadic or not params or not params[-1].endswith("[]") or n < len(params) - 1:
+    if not variadic or not params or n < len(params) - 1:
+        return None
+    if lang == "cpp":
+        return params[:-1] + [params[-1]] * (n - len(params) + 1)
+    if not params[-1].endswith("[]"):
         return None
     return params[:-1] + [params[-1][:-2]] * (n - len(params) + 1)
 
@@ -701,7 +716,11 @@ def choose(
     language picks for these argument types, or None when the scan cannot be certain: an unknown argument or
     parameter list, a maybe-applicable candidate, no applicable one, or no single best one. A candidate whose
     defaults fill the parameters after `args` (`fewest[k] <= len(args)`) is matched on its first parameters."""
-    if not args or any(not a for a in args) or any(c is None for c in candidates):
+    if not args or any(c is None for c in candidates):
+        return None
+    if lang != "cpp" and any(not a for a in args):
+        return None
+    if lang == "cpp" and not any(args):
         return None
     slots: list[list[str] | None] = []
     for k, c in enumerate(candidates):
@@ -711,7 +730,7 @@ def choose(
         if lo <= len(args) < len(params) and not variadic:
             slots.append(params[: len(args)])  # the rest take their defaults
         else:
-            slots.append(_expand(params, len(args), variadic))
+            slots.append(_expand(params, len(args), variadic, lang))
     live = [k for k, s in enumerate(slots) if s is not None]
     if not live:
         return None

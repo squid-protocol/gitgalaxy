@@ -2102,11 +2102,6 @@
         "fcall:jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl"
       ]
     },
-    "kotlin/okhttp": {
-      "kotlin/okhttp/Dispatcher.kt": [
-        "fcall:kotlin/okhttp/Call.kt"
-      ]
-    },
     "livecode/livecode": {
       "livecode/livecode/accountsignupcardbehavior.livecodescript": [
         "fcall:livecode/livecode/getstartedgetstartedstatusgroupbehavior.livecodescript"

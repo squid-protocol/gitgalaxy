@@ -1153,8 +1153,8 @@
       "csd/carddemo/PROVENANCE.md": -43.59
     },
     "csd/cbsa": {
-      "csd/cbsa/BANK.csd": 4352.71,
-      "csd/cbsa/PROVENANCE.md": 4072.33
+      "csd/cbsa/BANK.csd": 4352.79,
+      "csd/cbsa/PROVENANCE.md": 4072.41
     },
     "csd/z_sms_gateway": {
       "csd/z_sms_gateway/PROVENANCE.md": 8446.36,
@@ -1866,8 +1866,8 @@
       "html/polyglot_odoo/database_manager.qweb.html": 11853.61
     },
     "html/polyglot_vscode": {
-      "html/polyglot_vscode/LICENSE.txt": 3712.11,
-      "html/polyglot_vscode/vscode_builtin.html": 3567.65
+      "html/polyglot_vscode/LICENSE.txt": 3712.17,
+      "html/polyglot_vscode/vscode_builtin.html": 3567.7
     },
     "html/revealjs_decks": {
       "html/revealjs_decks/500-slides.html": -5535.93,
@@ -2172,7 +2172,7 @@
       "jcl/zopeneditor-sample/RUNPSAM1.jcl": -6594.89
     },
     "json": {
-      "json/SOURCES.md": 4307.85
+      "json/SOURCES.md": 4307.92
     },
     "json/baseline": {
       "json/baseline/control-package.json": 12204.99
@@ -2516,11 +2516,11 @@
       "perl/ack3_tests/file-permission.t": -3028.87
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 3120.46,
-      "perl/bugzilla/Bug.pm": 3653.17,
-      "perl/bugzilla/CGI.pm": 3734.24,
-      "perl/bugzilla/DB.pm": 3347.73,
-      "perl/bugzilla/Requirements.pm": 3999.75
+      "perl/bugzilla/Auth.pm": 3120.41,
+      "perl/bugzilla/Bug.pm": 3653.19,
+      "perl/bugzilla/CGI.pm": 3734.27,
+      "perl/bugzilla/DB.pm": 3347.71,
+      "perl/bugzilla/Requirements.pm": 3999.82
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": 11438.23,
@@ -2622,7 +2622,7 @@
       "plaintext/opencv/data/CMakeLists.txt": 10088.02
     },
     "plaintext/opencv/include": {
-      "plaintext/opencv/include/CMakeLists.txt": 3683.17
+      "plaintext/opencv/include/CMakeLists.txt": 3683.22
     },
     "pli": {
       "pli/SOURCES.md": 2039.18

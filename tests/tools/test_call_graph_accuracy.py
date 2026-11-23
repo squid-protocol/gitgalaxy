@@ -161,7 +161,7 @@ def test_qualified_bare_constructor_and_callback_callees(lang, src, expected):
 
 @pytest.mark.parametrize("lang", cga.LANGS)
 def test_every_measured_language_has_a_function_map_and_a_firing_call_node(lang):
-    spec = audit.NODE_MAPS[lang]
+    spec = audit.NODE_MAPS.get(lang) or cga._CALL_ONLY_NODE_MAPS[lang]
     assert spec["func_node_types"] and cga.CALL_NODE_TYPES
 
 
@@ -300,3 +300,45 @@ def test_shell_commands_substitutions_and_contract_non_calls():
 
 def test_objective_c_and_shell_are_measured():
     assert {"objective-c", "shell"} <= set(cga.LANGS)
+
+
+def test_iife_curried_and_subscript_callees_do_not_grab_body_or_arg_names():
+    """Go IIFEs (`func() { return err }()`), curried / multi-arg-list calls (`f(a)(b)`),
+    and computed subscript calls (`obj[method](v)`) have no static callee name of their own."""
+    assert _calls("go", "package p\nfunc run() { defer func() { _ = helper(); return err }() }\n") == {
+        "run": {"helper"}
+    }
+    assert _calls("typescript", "function run() { getA(SE)(E); (this as any)[method](v); }\n") == {"run": {"getA"}}
+    assert _calls("scala", "object O { def run() = { auth.filter(a)(b) } }\n") == {"run": {"filter"}}
+    assert _calls("python", "def run(x):\n    return make(arg)(x)\n") == {"run": {"make"}}
+
+
+def test_perl_file_test_operators_are_not_calls():
+    """File-test unary operators (`-e`, `-x`, `-f`) are operators, not function calls."""
+    assert _calls("perl", "sub run { return -x $p && -e $q && defined $r; }\n") == {"run": {"defined"}}
+
+
+def test_php_new_self_and_static_resolve_to_enclosing_class_and_match_is_not_a_call():
+    src = (
+        "<?php\nclass Pool {\n"
+        "  public static function batch($a) { return new static($a); }\n"
+        "  public function make($b) { $x = match($b) { 1 => new self($b), default => null }; return $x; }\n"
+        "}\n"
+    )
+    assert _calls("php", src) == {"batch": {"Pool"}, "make": {"Pool"}}
+
+
+def test_groovy_ada_fortran_matlab_and_scheme_callees():
+    assert _calls("groovy", "class A { def run(x) { foo(1); a.b.save(x); new Bar(2) } }\n") == {
+        "run": {"foo", "save", "Bar"}
+    }
+    assert _calls("ada", "procedure Run is\nbegin\n  Foo(1);\n  X := Pkg.Bar(2);\nend Run;\n") == {
+        "Run": {"Foo", "Bar"}
+    }
+    assert _calls("fortran", "subroutine run(x)\n  call foo(x)\n  y = bar(x)\nend subroutine\n") == {"run": {"foo"}}
+    assert _calls("matlab", "function y = run(x)\n  y = foo(x) + a.bar(1);\nend\n") == {"run": {"foo", "bar"}}
+    assert _calls("scheme", "(define (run x) (foo (bar x) (quote (baz 1))))\n") == {"run": {"foo", "bar"}}
+
+
+def test_groovy_ada_fortran_matlab_and_scheme_are_measured():
+    assert {"groovy", "ada", "fortran", "matlab", "scheme"} <= set(cga.LANGS)

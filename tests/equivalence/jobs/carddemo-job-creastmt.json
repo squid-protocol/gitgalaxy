@@ -1,6 +1,7 @@
 {
   "kind": "job",
   "job": "CREASTMT",
+  "ibm_stops": {"step": "carddemo-sort-creastmt", "reason": "ICE043A"},
   "steps": [
     {"case": "carddemo-sort-creastmt"},
     {"case": "creastmt-step020",
@@ -11,5 +12,5 @@
      "feeds": {"INFILE": {"step": "carddemo-sort-creastmt", "dd": "SORTOUT"}}},
     {"case": "carddemo-cbstm03a", "feeds": {"TRNXFILE": {"step": "creastmt-step020", "dd": "OUTFILE"}}}
   ],
-  "notes": "CardDemo job CREASTMT (app/jcl/CREASTMT.JCL), steps STEP010 (DFSORT, lowered by det/dfsort.py), STEP020 (IDCAMS REPRO, the model in det/idcams_model.py) and STEP040 (CBSTM03A, which CALLs CBSTM03B: a case with subprograms). DELDEF01 (DELETE / DEFINE CLUSTER of the KSDS) is not a step here: the KSDS starts empty and its definition is the STEP020 DD spec; STEP030 (IEFBR14 deleting the statement files) is not run. NOT RUNNABLE YET, refused by name at the STEP010 -> STEP020 join: STEP010's OUTREC builds 328-byte records (16 + 262 + 50) while the JCL states LRECL=350 for SORTOUT and RECORDSIZE(350 350) for the KSDS; what IBM does with an OUTREC shorter than the DD's LRECL (pad, or an error) is not established, so no pad is guessed (register F4). When that answer is cited, the join states it and this job runs. Assumption: the JCL wiring is this file, not a read job (register F4)."
+  "notes": "CardDemo job CREASTMT (app/jcl/CREASTMT.JCL), steps STEP010 (DFSORT, lowered by det/dfsort.py), STEP020 (IDCAMS REPRO, the model in det/idcams_model.py) and STEP040 (CBSTM03A, which CALLs CBSTM03B: a case with subprograms). DELDEF01 (DELETE / DEFINE CLUSTER of the KSDS) is not a step here: the KSDS starts empty and its definition is the STEP020 DD spec; STEP030 (IEFBR14 deleting the statement files) is not run. IBM ENDS THIS JOB AT STEP010 (declared in ibm_stops): STEP010's OUTREC builds 328-byte records (16 + 262 + 50) while the JCL states LRECL=350 for SORTOUT and RECORDSIZE(350 350) for the KSDS, so DFSORT ends the step with ICE043A reason 9 (z/OS DFSORT Messages, Codes and Diagnosis Guide SC23-6879) and COND=(0,NE) bypasses STEP020 to STEP040. The harness proves STEP010 and reports the later steps as not reached; it never pads (register F4). The chain past STEP010 is wired and checked but not run: it needs an authored padded OUTREC, not CardDemo's deck. Assumption: the JCL wiring is this file, not a read job (register F4)."
 }

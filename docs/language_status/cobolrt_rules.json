@@ -4292,8 +4292,11 @@
     "loadFaults",
     "planned"
    ],
-   "ibm": null,
-   "ibm_note": "the faults are the harness's; the PCB feedback a fault leaves is assumed",
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "ibm_note": "the faults are the harness's, not IBM's. IBM (IMS 15.4 Application Programming, \"Specifying the DB PCB mask\", note 3): \"After each DL/I call, this field contains the two-character status code that describes the results of the DL/I call\" and \"IMS updates this field after each call and does not clear it between calls\": a planned status in the PCB matches that. For a call IMS could not satisfy, the page says the segment name field holds \"the last segment along the path\" and \"the key feedback area contains the key of the segment at the last level that was satisfied\"; a fault replaces the call without a search, so IBM names no segment name, level or key for it and what the runtime leaves in those fields is assumed (I3). The page says nothing about the length of key feedback area after a non-blank status",
    "options": [],
    "register": [
     "I3"

@@ -289,7 +289,7 @@ DEFINITION: dict[str, Any] = {
         # structural-signal scan loop, same convention as haskell's
         # `_args_arrow_count_groups`.
         "_args_colon_selector_groups": {1},
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries defining interface, implementation, and memory types.
         # BUG FIX: the 8 @-prefixed alternatives never matched -- same
         # \b-before-@ shape as branch's fix above.
         # #2545: `return` added here (moved out of `branch` above) -- matches the

@@ -16,7 +16,7 @@ spec:
       description: "GitGalaxy version to install. 'latest' (default) means the hash-pinned release (fetched from an immutable ref, sha256-verified); an explicit version is exact-pinned but not hash-verified."
       default: "latest"
     full_precision:
-      description: "Opt-in to install heavy physics engines for Blast Radius and ML Threat Inference."
+      description: "Opt-in to install the optional engines (tiktoken, pyyaml) for exact token counts. No malware model ships (#8430)."
       default: "true"
 
 ---

@@ -636,14 +636,17 @@ def input_layout(case: dict[str, Any], corpus: Path, dd: str) -> list[dict[str, 
     spec = case["datasets"][dd]
     if spec.get("copybook"):
         return common.layout_fields(corpus, spec["copybook"], spec.get("record"))
-    src = (corpus / case["program_source"]).read_bytes().decode("latin-1")
+    # #8885: a program the case carries (`@case/<file>`, a lowered JCL SORT step) is in no corpus: resolve it as the
+    # runner does; `corpus / <absolute path>` is that path, so layout_fields takes it unchanged.
+    own = str(common.program_file(case, corpus)) if case["program_source"].startswith("@case/") else None
+    src = common.program_file(case, corpus).read_bytes().decode("latin-1")
     files = {assign.upper(): f.upper() for f, assign in _SELECT.findall(src)}
     fname = files.get(dd.upper())
     record = next((r.upper() for f, r in _READ_INTO.findall(src) if f.upper() == fname), None) if fname else None
     if record is None:
         return None
     level01 = re.compile(rf"^.{{6}}\s*01\s+{re.escape(record)}\s*\.", re.I | re.M)
-    candidates = [case["program_source"]] + [
+    candidates = [own or case["program_source"]] + [
         str(p.relative_to(corpus)) for d in case.get("copy_dirs", []) for p in sorted((corpus / d).glob("*"))
         if p.is_file()
     ]  # fmt: skip

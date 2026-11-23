@@ -35,6 +35,22 @@
         "CA-TEXT": "MENU-A1"
       },
       "why": "CA-STAGE 2: logged, RETURN"
+    },
+    {
+      "name": "short-calen-3",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "1",
+        "CA-TEXT": "ABCDEFG"
+      },
+      "commarea_length": 3,
+      "why": "EIBCALEN 3, shorter than the 8-byte layout: the area is cut to the caller's length (kills the exactCommarea / calen < length mutants)"
+    },
+    {
+      "name": "stage-1-hex-short",
+      "aid": "DFHENTER",
+      "commarea_hex": "3141424344",
+      "why": "a 5-byte caller area (stage 1, text ABCD): shorter than DFHCOMMAREA"
     }
   ],
   "termid": "T001"

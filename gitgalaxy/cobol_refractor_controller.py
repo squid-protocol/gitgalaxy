@@ -420,7 +420,7 @@ def main():
     parser.add_argument(
         "--var",
         type=str,
-        help="Optional: A target variable to slice across the entire repository",
+        help="Optional: a target variable; each program is sliced on it (alias closure over MOVE/ADD/SUBTRACT/COMPUTE, 3 passes), not repository-wide",
     )
     ir_source = parser.add_mutually_exclusive_group()
     ir_source.add_argument(
@@ -497,7 +497,7 @@ def main():
     print(" 🚀 COBOL REFRACTOR CONTROLLER (v4.0) ENGAGED")
     print(f" Target: {target_path.name}")
     if args.var:
-        print(f" Global Taint Tracking Target: [{args.var.upper()}]")
+        print(f" Slice Target Variable (per-program alias closure): [{args.var.upper()}]")
     print("=" * 70 + "\n")
 
     # 1. Sense the scale of the repository
@@ -612,7 +612,9 @@ def main():
     # Close DB connection if applicable
     state_manager.close()
 
-    # Run the Zero-Trust JCL Audit
+    # Compare each generated JCL with its legacy twin: LOC delta and DD statements dropped
+    # (a size/allocation comparison; no security or privilege check is made). The report header
+    # and "Zero-Trust" wording stay as-is: snapshot-pinned, and the label is an owner call (#8617).
     audit_metrics = audit_zero_trust_jcls(jcl_dir, target_path)
 
     # #3614: the engine's verified facts per program, for the code generators

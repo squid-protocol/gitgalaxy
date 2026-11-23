@@ -1,0 +1,29 @@
+{
+  "case": "carddemo-nightly",
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "jcl_dir": "app/jcl",
+  "proc_dir": "app/proc",
+  "jobs": {
+    "POSTTRAN": "POSTTRAN.jcl",
+    "INTCALC": "INTCALC.jcl",
+    "TRANBKP": "TRANBKP.jcl",
+    "COMBTRAN": "COMBTRAN.jcl",
+    "CREASTMT": "CREASTMT.JCL",
+    "TRANIDX": "TRANIDX.jcl"
+  },
+  "unmodelled": {
+    "CREASTMT": ["DELDEF01", "STEP030"]
+  },
+  "steps": [
+    {"case": "carddemo-posttran", "job": "POSTTRAN", "jcl_steps": ["STEP15"]},
+    {"case": "carddemo-intcalc", "job": "INTCALC", "jcl_steps": ["STEP15"]},
+    {"case": "tranbkp-idcams", "job": "TRANBKP", "jcl_steps": ["STEP05R.PRC001", "STEP05", "STEP10"]},
+    {"case": "carddemo-sort-combtran", "job": "COMBTRAN", "jcl_steps": ["STEP05R"],
+     "dd_alias": {"SORTIN1": "SORTIN", "SORTIN2": "SORTIN#2"}},
+    {"case": "combtran-step10-idcams", "job": "COMBTRAN", "jcl_steps": ["STEP10"]},
+    {"case": "carddemo-sort-creastmt", "job": "CREASTMT", "jcl_steps": ["STEP010"]},
+    {"case": "creastmt-step020", "job": "CREASTMT", "jcl_steps": ["STEP020"]},
+    {"case": "carddemo-cbstm03a", "job": "CREASTMT", "jcl_steps": ["STEP040"]},
+    {"case": "carddemo-tranidx", "job": "TRANIDX", "jcl_steps": ["STEP20", "STEP25", "STEP30"]}
+  ]
+}

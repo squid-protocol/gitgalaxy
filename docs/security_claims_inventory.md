@@ -147,7 +147,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Scanner runs offline | README.md:345-349; 04-00:41,48,71 | TESTED | `readiness/offline.py`; `test_assess.py` offline probes; tiktoken download caveat | Note `TIKTOKEN_CACHE_DIR` |
 | Source "never transmitted to any API … or third-party LLM"; "entire suite" air-gap ready | wiki/index.md:216-217 | FALSE | `port_runner.py` sends source to LLM endpoints (opt-in) | Scope to the scanner; name the exception |
 | "Volatile memory buffer", purged after use | wiki/index.md:218 | FALSE | On-disk `mkdtemp`; cache written into the target | Describe actual behaviour |
-| "Zero-Trust" labels | wiki page titles and body (`01-01-project-overview.md`, `05-11`, `05-12`, `cookbook/generate-zero-trust-sbom.md`), `mkdocs.yml` nav, `gitgalaxy/*/README.md` | VAGUE | No defined property; owner ruling A (2026-11-23, #8617) replaces each with the concrete claim. Already replaced: github-action-readme.md, wiki/index.md, CLAUDE.md, ANTIGRAVITY.md, CONTRIBUTING.md | Replace with the concrete claim (file names stay) |
+| "Zero-Trust" labels | wiki page titles and body (`01-01-project-overview.md`), `gitgalaxy/*/README.md` | VAGUE | No defined property; owner ruling A (2026-11-23, #8617) replaces each with the concrete claim. Already replaced: wiki 05-11, 05-12, cookbook SBOM page, mkdocs.yml nav, github-action-readme.md, wiki/index.md, CLAUDE.md, ANTIGRAVITY.md, CONTRIBUTING.md | Replace with the concrete claim (file names stay) |
 | Private vulnerability reporting; 48-hour response | SECURITY.md:4-16 | UNTESTED | Reporting is enabled on GitHub; SLA unverifiable | "Aim to respond" |
 
 ## C. Supply-chain tools (import policy gate, Vault Sentinel, X-Ray, SBOM, shadow APIs)

@@ -1,5 +1,5 @@
 {
- "commit": "491149bb7",
+ "commit": "0826adaa8",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T19:45:42Z",
+  "as_of": "2026-11-23T19:59:47Z",
   "core": {
    "closed": 260,
    "open": 16,
@@ -1108,8 +1108,8 @@
    "total": 63
   },
   "infra": {
-   "closed": 270,
-   "open": 25,
+   "closed": 271,
+   "open": 24,
    "total": 295
   },
   "measured": true,
@@ -1325,9 +1325,9 @@
     "total": 21
    },
    {
-    "closed": 2,
+    "closed": 3,
     "number": 33,
-    "open": 10,
+    "open": 9,
     "title": "Training Montage 2 \ud83c\udfcb\ufe0f \u2014 Prepping for Blind Draw 2",
     "total": 12
    },

@@ -14,7 +14,7 @@ The network graph indicates a relatively high modularity (0.5688), suggesting th
 * **Fragile Orchestrators:** The `.cpp` implementation files corresponding to the bindings, specifically `ZigGlobalObject.cpp` (210 outbound) and `bindings.cpp` (132 outbound), are extremely fragile orchestrators. They pull in vast amounts of external dependencies to map JavaScript objects to underlying Zig/C++ logic, making them highly sensitive to API shifts on either side of the FFI boundary.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged multiple internal APIs (`api/schema.js`, `ws.js`, `util.js`) with 100% "Exploit Generation Surface". In the context of a JavaScript runtime, this is expected: these files are explicitly designed to execute dynamic code, evaluate expressions, and manage untrusted network streams. The "Raw Memory Manipulation" signatures in C++ bindings (`ProcessBindingConstants.cpp`, `JSCipherPrototype.cpp`) are inherent to FFI and WebAssembly interactions but require strict bounds checking to prevent memory corruption when translating between V8/JSC types and Zig memory arenas. 
 

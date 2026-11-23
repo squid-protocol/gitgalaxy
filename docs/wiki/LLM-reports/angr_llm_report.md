@@ -16,7 +16,7 @@ The architecture is characterized by dense, highly coupled analytical orchestrat
 * **Fragile Orchestrators:** The `__init__.py` files within the `analyses` and `peephole_optimizations` modules, alongside `clinic.py` and `cfg_fast.py`, possess the highest outbound dependencies (42-63 connections). These orchestrators act as routing hubs, making them highly fragile to API mutations in underlying analysis modules.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts, and the ecosystem audit confirms 0 binary anomalies and 0 blacklisted dependencies. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem audit confirms 0 binary anomalies and 0 blacklisted dependencies. 
 
 The rule-based lens flagged several files with 100% "Exploit Generation Surface" exposure (e.g., `callsite_maker.py`, `cfg_base.py`). In the context of a binary analysis tool designed to decompile and analyze potential vulnerabilities, this is expected behavior: the engine must dynamically evaluate external binary structures. However, these surfaces must be strictly isolated to prevent maliciously crafted binaries from triggering unhandled exceptions or RCE during the CFG generation phase.
 

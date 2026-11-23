@@ -14,7 +14,7 @@ The dependency graph indicates a highly centralized topology (Modularity 0.66) w
 * **Fragile Orchestrators:** Files acting as the primary entry points and API surfaces, such as `src/black/__init__.py` (38 outbound dependencies) and `tests/test_black.py` (36 outbound dependencies), are highly fragile. They orchestrate the traversal and file I/O operations, coupling the execution context tightly to the underlying AST transformation rules.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several core modules (e.g., `src/black/trans.py` and `tests/test_black.py`) with 100% "Exploit Generation Surface" exposure. In the context of a code formatter, this is intended operational behavior: the system is designed to parse, tokenize, and manipulate raw, unvalidated string inputs representing executable code. Ecosystem security audits confirm no blacklisted dependencies and minimal supply chain risk.
 

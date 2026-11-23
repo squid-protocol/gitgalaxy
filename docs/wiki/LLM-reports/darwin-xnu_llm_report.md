@@ -14,7 +14,7 @@ The network topology reveals a Modularity of 0.6636, indicating strong micro-bou
 * **Fragile Orchestrators:** The initialization and execution modules carry extreme outbound coupling. `bsd/kern/bsd_init.c` (91 outbound) and `bsd/kern/kern_exec.c` (89 outbound) function as monolithic routing hubs, orchestrating process creation and system bootstrapping across disparate kernel domains. 
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged multiple files for "Raw Memory Manipulation" (e.g., `bsd/dev/arm/munge.c`, `bsd/dev/dtrace/fbt.c`) and "Exploit Generation Surface" (e.g., `tools/lldbmacros/core/cvalue.py`). In the context of a kernel repository, this is expected operational behavior. The kernel must perform raw memory mapping, fast-trap handling, and provide dynamic debugging macros (LLDB). The 11 "Binary Anomalies" identified by X-Ray align with expected compiled test artifacts or magic bytes used in driver payloads.
 

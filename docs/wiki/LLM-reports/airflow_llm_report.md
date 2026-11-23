@@ -14,7 +14,7 @@ The dependency graph indicates a highly centralized, somewhat fragile architectu
 * **Fragile Orchestrators:** High outbound coupling is centralized in test configurations (`pytest_plugin.py` - 100 imports) and core scheduling logic (`scheduler_job_runner.py`). These orchestrators are highly sensitive to API mutations in the underlying data models.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. 
 
 While the system imports 629 "Unknown Dependencies," this is standard for a heavily extensible plugin architecture. The rule-based lens flagged FastAPI public routes (`auth/tokens.py`, `public/dag_run.py`) with 100% Exploit Generation Surface. Given their role in JWT token exchange and external API ingress, this is expected behavior, but these boundaries require rigorous input sanitization and strict RBAC enforcement to prevent injection attacks.
 

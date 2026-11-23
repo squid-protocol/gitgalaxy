@@ -14,7 +14,7 @@ The dependency graph indicates a flat, highly coupled topology. Because CodeIgni
 * **Fragile Orchestrators:** Framework base classes (`Controller.php`, `Model.php`, `Loader.php`) act as implicit orchestrators. While not flagged with high outbound static dependencies due to dynamic loading, they are highly fragile. Any modification to these base classes cascades through every user-space application built on the framework.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged `system/core/Output.php` and `system/core/Security.php` for "Exploit Generation Surface." In the context of a web framework, this is expected architectural behavior: these modules are explicitly responsible for parsing raw HTTP headers, mitigating XSS, and manipulating output streams. They must execute highly scrutinized string operations on untrusted data. The 4 binary anomalies detected by X-Ray are likely compiled testing assets or database driver fixtures.
 

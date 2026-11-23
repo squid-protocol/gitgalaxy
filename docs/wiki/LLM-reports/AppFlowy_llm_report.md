@@ -14,7 +14,7 @@ The repository exhibits high modularity (0.8591), indicating clean boundaries be
 * **Fragile Orchestrators:** Core Rust services act as highly coupled orchestrators. `database_editor.rs` (50 outbound dependencies) and `appflowy_data_import.rs` (39 outbound dependencies) coordinate massive amounts of logic, translating user actions into underlying SQLite transactions and file I/O operations.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. 
 
 The rule-based lens flagged `dsa_pub.pem` and `.env` files with 100% "Hardcoded Payload Artifacts" exposure. The `dsa_pub.pem` is a public key (safe to commit), but the presence of an `.env` file within the `flowy-sqlite` directory should be verified to ensure it only contains local development mock variables and not production database credentials. The 3 "Binary Anomalies" flagged by the X-Ray scanner are likely expected compiled assets or native libraries supporting the Flutter environment.
 

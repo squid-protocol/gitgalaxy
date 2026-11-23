@@ -14,7 +14,7 @@ The network topology reveals a Modularity of 0.5582, indicating a clear boundary
 * **Fragile Orchestrators:** Board-specific hardware configuration files, such as `ports/stm/hal_conf/stm32h7xx_hal_conf.h` (60 outbound dependencies), are highly fragile. They act as monolithic routing hubs, importing vast swaths of standard libraries and HAL headers to initialize the microcontroller state.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several testing and build files (e.g., `tests/basics/lexer.py`, `tools/boardgen.py`) for "Exploit Generation Surface." In the context of a compiler and embedded OS, this is expected behavior, as these files explicitly parse, mutate, and execute arbitrary code strings or generate C headers dynamically. Minor "Raw Memory Manipulation" signatures in `extmod/modselect.c` and `vfs_fat.c` are inherent to virtual file system interactions on bare-metal hardware. The "Hardcoded Payload Artifacts" (e.g., `espruino_dfu_private_key.pem`) are public or test keys utilized for DFU (Device Firmware Update) validation tests, not leaked production secrets.
 

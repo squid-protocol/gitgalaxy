@@ -12,7 +12,7 @@ The network topology reveals a modularity of 0.64, indicating relatively clean m
 * **Fragile Orchestrators:** The `lib.rs` files at the root of core crates (`bevy_internal`, `bevy_reflect`, `bevy_pbr`) exhibit extreme outbound coupling (up to 53 dependencies). These orchestrators act as public API facades, making them fragile and highly sensitive to internal structural changes within their respective sub-modules.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several areas for "Raw Memory Manipulation," particularly in `crates/bevy_ptr/src/lib.rs` and `crates/bevy_math/src/primitives/dim3.rs`. In the context of a high-performance game engine, this is expected behavior: raw pointers and unsafe blocks are heavily utilized for zero-copy memory access and ECS storage alignment. The engine relies on Rust's compiler to mitigate traditional buffer overflows, but these specific `unsafe` boundaries require stringent auditing to prevent silent memory corruption during parallel execution.
 

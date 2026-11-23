@@ -381,7 +381,9 @@ class _Step:
             if op.name in seen:
                 raise Refused(f"the IDCAMS DEFINE {kind} {op.name} component stated twice")
             seen.add(op.name)
-            inner = op.args or []
+            # CONTROLINTERVALSIZE(n) / CISZ(n) sizes the component's control interval: an allocation detail with no effect
+            # on the records or the catalog (SC23-6846-60, "DEFINE CLUSTER", DATA / INDEX parameters).
+            inner = [i for i in op.args or [] if not _is_cisz(i)]
             if len(inner) != 1 or inner[0].name != "NAME" or inner[0].args is None or len(inner[0].args) != 1:
                 raise Refused(f"the IDCAMS DEFINE {kind} {op.name} component operand (only NAME(one name) is modelled)")
             names.append(_entry(inner[0].args[0].name, f"DEFINE {kind} {op.name} NAME"))
@@ -630,6 +632,15 @@ def _reclen(d: Sequential | Cluster) -> int:
     if d.avg != d.max:
         raise Refused(f"the IDCAMS REPRO of variable-length records (cluster {d.name} RECORDSIZE({d.avg} {d.max}))")
     return d.max
+
+
+def _is_cisz(op: _Op) -> bool:
+    return (
+        op.name in ("CONTROLINTERVALSIZE", "CISZ")
+        and op.args is not None
+        and len(op.args) == 1
+        and (op.args[0].args is None and op.args[0].name.isdigit())
+    )
 
 
 def _entry(text: str, what: str) -> str:

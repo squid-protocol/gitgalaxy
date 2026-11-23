@@ -2218,6 +2218,26 @@ _DECORATOR_LOOKBACK_LINES = 60
 _BRACKET_DEPTH = str.maketrans({"(": "(", "[": "(", "{": "(", ")": ")", "]": ")", "}": ")"})
 
 
+def _haskell_leading_pragmas(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
+    """Count of `{-# ... #-}` pragmas in the contiguous run of pragma/blank lines directly above `def_idx`."""
+    if rule is None:
+        return 0
+    lines: list[str] = []
+    pos = code.rfind("\n", 0, def_idx) + 1
+    while pos > 0 and len(lines) < _DECORATOR_LOOKBACK_LINES:
+        prev = code.rfind("\n", 0, pos - 1) + 1
+        lines.append(code[prev : pos - 1])
+        pos = prev
+    count = 0
+    for line in lines:
+        if not line.strip():
+            continue
+        if not rule.fullmatch(line.strip()):
+            break
+        count += 1
+    return count
+
+
 def _python_decorators(safe_code: str, def_idx: int) -> list[tuple[str, str]]:
     """(leaf, qualifier) for each decorator applied to the def at `def_idx`, outermost first.
 
@@ -9562,6 +9582,13 @@ class StructuralExtractor:
                 # [start_idx, end_idx) span the hit_vector is bisected from.
                 if decorators:
                     sat["hit_vector"]["decorators"] = len(decorators)
+
+            if lang_id == "haskell":
+                # #8904: a GHC pragma (`{-# INLINE f #-}`) sits on the line(s) above the binding's
+                # signature, outside the [start_idx, end_idx) span the hit_vector is bisected from.
+                pragmas = _haskell_leading_pragmas(code, start_idx, rules.get("decorators"))
+                if pragmas:
+                    sat["hit_vector"]["decorators"] = sat["hit_vector"].get("decorators", 0) + pragmas
 
             satellites.append(sat)
             sum_fxn_impact += mag

@@ -866,7 +866,7 @@ class Prism:
             # scheme was previously misclassified "line_exclusive" (stateless,
             # no cross-line tracking), which only ever stripped a #| block
             # comment's opening line.
-            code, nested_lits = self._strip_nested_comments(text, family)
+            code, nested_lits = self._strip_nested_comments(text, family, keep_pragmas=(lang_id == "haskell"))
             lits.extend(nested_lits)
             return code, "\n".join(lits)
 
@@ -1516,7 +1516,9 @@ class Prism:
         self.logger.warning(f"Scanner Scope Guard: Failed to find balanced '{opener}{closer}'. Forcing closure.")
         return limit
 
-    def _strip_nested_comments(self, text: str, family: str = "recursive_block") -> tuple[str, list[str]]:
+    def _strip_nested_comments(
+        self, text: str, family: str = "recursive_block", keep_pragmas: bool = False
+    ) -> tuple[str, list[str]]:
         """
         Iterative Peel loop for recursively nested block comments (e.g. Rust/Swift/Scala,
         or Haskell via the "recursive_block_haskell" family -- #621).
@@ -1597,8 +1599,13 @@ class Prism:
                 re.S | re.M,
             )
         else:
+            # #8904: a GHC `{-# ... #-}` pragma is an annotation (the decorators contract), not prose: claim
+            # it atomically, ahead of the block-comment peel, so it stays in the code stream. A `--` line
+            # comment starting earlier on the line still claims it first.
+            pragma = r"\{-#(?:(?!-\})[\s\S]){0,500}?#-\}|" if keep_pragmas else ""
             combined_pattern = re.compile(
-                lisp_char_literal
+                pragma
+                + lisp_char_literal
                 + r'(?<!\\)"(?:\\.|[^"\\])*"'
                 + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
                 + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"

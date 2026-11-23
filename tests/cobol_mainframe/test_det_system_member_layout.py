@@ -163,7 +163,9 @@ def test_the_engine_lays_out_each_system_member_from_the_shipped_text_and_agrees
     `stand-in#`), so the translator takes the engine's layout of every one of the five; at the translator's POINTER width
     no offset or width differs from the translator's own."""
     recs, own, lay = _laid(estate, "engine", POINTER_BYTES)
-    records = [r for m in MEMBERS for r in (("BAQ-REQUEST-INFO", "BAQ-RESPONSE-INFO") if m == "BAQRINFO" else (m,))]  # BAQRINFO holds two 01s
+    records = [
+        r for m in MEMBERS for r in (("BAQ-REQUEST-INFO", "BAQ-RESPONSE-INFO") if m == "BAQRINFO" else (m,))
+    ]  # BAQRINFO holds two 01s
     assert lay.consumed == ["WS-FIRST", *records] and lay.own == []
     assert {r.name: [(x.name, x.offset, x.size) for x in r.walk()] for r in recs} == own
     ef = estate[0].files["SYSTOY.cbl"]

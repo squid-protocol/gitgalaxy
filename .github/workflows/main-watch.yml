@@ -24,6 +24,7 @@ name: Main Watch
 on:
   workflow_run:
     workflows:
+      - "CI cap report"
       - "CICS Crucible"
       - "CodeQL Security Scan"
       - "Crucible Path Independence"

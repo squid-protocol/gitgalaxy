@@ -10,7 +10,7 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 
 | Kind | wrapped | advisory | in-tool | action | bare |
 |---|---|---|---|---|---|
-| pip | 60 | 0 | 0 | 0 | 0 |
+| pip | 61 | 0 | 0 | 0 | 0 |
 | os-packages | 1 | 0 | 0 | 0 | 0 |
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
@@ -23,9 +23,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
-| setup-toolchain | 0 | 0 | 0 | 79 | 0 |
+| setup-toolchain | 0 | 0 | 0 | 80 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 130 | 84 | 54 | 208 | 20 |
+| **total** | 131 | 84 | 54 | 209 | 20 |
 
 ## Bare steps (the shrink-only backlog)
 

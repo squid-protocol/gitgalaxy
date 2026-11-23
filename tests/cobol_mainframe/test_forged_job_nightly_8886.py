@@ -99,6 +99,19 @@ def test_the_proc_override_dds_are_in_the_forged_plan(result):
 
 
 @needs_corpus
+def test_the_forge_reads_the_scans_job_dds_rows_not_a_mirror_of_the_override_rule(tmp_path):
+    """Slice 1 of #8886 part 2: the facts come from a real scan of CardDemo's JCL (`GalaxyIR.job_dds` / `job_steps`)."""
+    ir = efj.scan_estate(CORPUS / SPEC["jcl_dir"], CORPUS / SPEC["proc_dir"], tmp_path)
+    fact, dds, over = efj.job_facts(ir, "jcl/TRANBKP.jcl")
+    assert dds == [d for d in ir.job_dds() if d["file"] == "jcl/TRANBKP.jcl"] and fact in ir.job_steps()
+    assert [(o["proc_step"], o["dd"], o["source"]) for o in over] == [
+        ("PRC001", "FILEIN", "jcl/TRANBKP.jcl"),
+        ("PRC001", "FILEOUT", "jcl/TRANBKP.jcl"),
+    ]
+    assert all(d["source"].startswith("proc/") for d in dds if d["proc_step"] and d not in over)
+
+
+@needs_corpus
 @needs_javac
 def test_the_forged_guard_runs_the_chain_and_bypasses_what_it_did_not_reach(result):
     rows = {r["case"]: r for r in result["rows"]}

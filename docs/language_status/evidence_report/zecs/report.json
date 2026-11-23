@@ -1476,6 +1476,24 @@
     10,
     10
    ],
+   "est-bdld-bdldckp": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "est-bdld-bdlddb2": [
+    3,
+    3,
+    2,
+    2
+   ],
+   "est-bdld-bdldrpt": [
+    1,
+    1,
+    1,
+    2
+   ],
    "genapp-lgacdb01": [
     4,
     4,
@@ -2417,10 +2435,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
    "translator": {
     "files": 186,
-    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
+    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
    }
   },
   "sweeps": {}
@@ -8203,20 +8221,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 176,
+    "accounted": 183,
     "chosen": 341,
     "current": true,
-    "det_port": "raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted",
+    "det_port": "raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 2 of 185 survivors unaccounted",
     "killed": 137,
     "l5": false,
     "mutants": 342,
     "score": 0.4255,
     "stale_inputs": [],
     "survived": 185,
-    "unaccounted": 9
+    "unaccounted": 2
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 2 of 185 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -8527,8 +8545,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "python tests/tools/cics_census.py survey --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8550,13 +8568,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
    "translator": {
     "files": 186,
-    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
+    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
    }
   },
-  "translator_commit": "971a5c4fb6cb4f3594b493856043dddac94de36b",
+  "translator_commit": "16979a35db87a1f3b32142b90d2d7681f6171de9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8599,6 +8617,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
+  "fingerprint": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
  }
 }

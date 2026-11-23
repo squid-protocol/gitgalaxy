@@ -1392,6 +1392,24 @@
     10,
     10
    ],
+   "est-bdld-bdldckp": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "est-bdld-bdlddb2": [
+    3,
+    3,
+    2,
+    2
+   ],
+   "est-bdld-bdldrpt": [
+    1,
+    1,
+    1,
+    2
+   ],
    "genapp-lgacdb01": [
     4,
     4,
@@ -2776,10 +2794,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
    "translator": {
     "files": 186,
-    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
+    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
    }
   },
   "sweeps": {}
@@ -15634,8 +15652,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b",
-   "python tests/tools/evidence_report.py example-health-apis --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "python tests/tools/cics_census.py survey --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "python tests/tools/evidence_report.py example-health-apis --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -15656,13 +15674,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
    "translator": {
     "files": 186,
-    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
+    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
    }
   },
-  "translator_commit": "971a5c4fb6cb4f3594b493856043dddac94de36b",
+  "translator_commit": "16979a35db87a1f3b32142b90d2d7681f6171de9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -15705,6 +15723,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
+  "fingerprint": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
  }
 }

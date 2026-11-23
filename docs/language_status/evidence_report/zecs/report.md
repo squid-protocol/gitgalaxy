@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `971a5c4fb6cb4f3594b493856043dddac94de36b` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `16979a35db87a1f3b32142b90d2d7681f6171de9` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `35db5738675b`).
+The translation survey matches the translator in the tree (translator fingerprint `27b8a6ee3b54`).
 
 ## How to read this report
 
@@ -89,7 +89,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 | Source/ZECS001.cbl | L4 | 561/561 | 0 | zecs-zecs001 | equal | 0 | not measured | 119/119 (100.0%) | 206/208 (99.0%) | 206/206 (100.0%) | — | not measured (no det_mutation/ entry) | 3/27 |
 | Source/ZECS002.asm | L4 | 511/511 | 0 | zecs-zecs002 | equal | 0 | not measured | 24/24 (100.0%) | 70/242 (28.9%) | 70/70 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | Source/ZECS003.cbl | L4 | 73/73 | 0 | zecs-zecs003 | equal | 0 | not measured | 21/21 (100.0%) | 30/30 (100.0%) | 30/30 (100.0%) | 51% | raw 51% (454/898 caught; 935 of 935 mutants, seed 0); 28 of 444 survivors unaccounted | 1/12 |
-| Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 0 | not measured | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 43% | raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted | 2/5 |
+| Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 0 | not measured | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 43% | raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 2 of 185 survivors unaccounted | 2/5 |
 
 ## Per program
 
@@ -459,7 +459,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 ### Source/ZECSPLT.cbl -- L4
 
 - **Executed equivalent** on the 12 scenarios of zecs-zecsplt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 2 of 185 survivors unaccounted)
 - **Translation:** 27/27 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
@@ -479,7 +479,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: urimaps
-- **Det-port mutation:** raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 9 of 185 survivors unaccounted
+- **Det-port mutation:** raw 43% (137/322 caught; 341 of 342 mutants, seed 0); 2 of 185 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X32, X42; commands without oracle backing: INQUIRE URIMAP, WRITE OPERATOR, WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
@@ -517,7 +517,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `971a5c4fb6cb4f3594b493856043dddac94de36b`
+- translator commit (the survey's): `16979a35db87a1f3b32142b90d2d7681f6171de9`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.19.0`, estate `v0.8.0`, language `v1.7.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -527,8 +527,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b
-python tests/tools/evidence_report.py zecs --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b
+python tests/tools/cics_census.py survey --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9
+python tests/tools/evidence_report.py zecs --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
 python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt

@@ -130,11 +130,32 @@ def test_the_proc_log_reader_pairs_each_steps_ddnames_with_its_dsns_in_order():
     assert "parm" not in shown["O3.A1"]
 
 
+def test_the_proc_log_reader_skips_a_dummy_and_a_sysout_dd_and_the_deck_keeps_nullfile_a_dummy():
+    log = (
+        "IEF236I ALLOC. FOR J K1 W1\n"
+        "IEF237I DMY  ALLOCATED TO D1\n"
+        "IEF237I JES2 ALLOCATED TO D4\n"
+        "IEF237I 251  ALLOCATED TO D3\n"
+        "IEF285I   NEW.D3                                       DELETED       *--------0\n"
+    )
+    assert probe.observe_proc(log, "J")[0] == {"W1.K1": {"dd": {"D3": "NEW.D3"}}}
+    deck, _ = probe.proc_deck(PROC_DOC["flow_jcl"], "KNDJOB", "W1")
+    assert "//D7       DD DSN=NULLFILE\n" in deck and "//K1.D2    DD DSN=NULLFILE\n" in deck
+
+
+def test_the_proc_deck_drops_set_and_the_dd_whose_symbol_only_set_defines():
+    deck, _ = probe.proc_deck(PROC_DOC["flow_jcl"], "SSJOB", "E2")
+    assert "SET" not in deck and "&Q" not in deck and "&A..F1" in deck
+    assert probe.set_only_dds(PROC_DOC["flow_jcl"], "SSJOB") == {"D4"}
+    deck, _ = probe.proc_deck(PROC_DOC["flow_jcl"], "DUPJOB", "E2")
+    assert "SETV" not in deck and "EXEC DP,Q=XA,Q=XB" in deck and "E3" not in deck
+
+
 def test_the_committed_proc_results_repeat_the_manual_answers_and_the_engine_and_name_what_is_unobserved():
     got = json.loads((probe.PROC_RESULTS).read_text(encoding="utf-8"))
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
     _, text, libs, scs = probe.proc_scenarios()
-    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 8
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 15
     for r, sc in zip(got["results"], scs, strict=True):
         assert list(r["expect"]) == list(sc["expect"]), r["id"]
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]
@@ -246,8 +267,8 @@ def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agr
     doc, scs = probe.restart_scenarios()
     assert [r["id"] for r in got["results"]] == [s["id"] for s in scs]
     assert (
-        len(scs) == 17
-    )  # the 2026-11-21 box rerun (11 at #8837, six added by #8835); a scenario added later is a stated skip until a rerun
+        len(scs) == 21
+    )  # the 2026-11-22 box rerun (11 at #8837, six added by #8835, four checkpoint restarts); a later scenario is a stated skip until a rerun
     assert set(got["skipped"]) == {s["id"] for s in doc["scenarios"]} - {s["id"] for s in scs}
     assert all(
         got["skipped"][s["id"]] == probe.RESTART_SKIP[s["job"]]
@@ -257,6 +278,35 @@ def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agr
     assert {r["id"] for r in got["results"]}.isdisjoint(got["skipped"])
     for r in got["results"]:
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]) == "agree", r["id"]
+        # a checkpoint scenario counts only when the box took a real checkpoint (IHJ004I) and restarted from it (IHJ008I)
+        assert ("checkpoint" in r) == (r["id"] in CHECKPOINT_IDS)
+        if "checkpoint" in r:
+            assert r["checkpoint"]["taken_IHJ004I"] and r["checkpoint"]["restarted_IHJ008I"], r["id"]
+
+
+CHECKPOINT_IDS = {
+    "checkpoint-restart",
+    "checkpoint-restart-rd-does-not-change-the-steps",
+    "restart-star-checkpoint",
+    "procstep-checkpoint-restart",
+}
+
+
+def test_the_checkpoint_decks_take_one_chkpt_then_restart_from_the_box_named_checkid():
+    doc, scs = probe.restart_scenarios()
+    for sc in scs:
+        if sc["job"] not in probe.RESTART_CHECKPOINT:
+            continue
+        step = probe.RESTART_CHECKPOINT[sc["job"]]
+        first = probe.chk_deck(doc["flow_jcl"], sc["job"], sc["given"], step, False)
+        again = probe.chk_deck(doc["flow_jcl"], sc["job"], sc["given"], step, True)
+        assert "RESTART=" not in first and "SYSCHK" not in first and "DISP=(NEW,CATLG)" in first, sc["id"]
+        assert (
+            probe.CHK_ID in again and "RESTART=" in again and "//SYSCHK   DD DSN=PUB001.CHK.DATA,DISP=OLD" in again
+        ), sc["id"]
+        assert "DISP=(NEW" not in again, sc["id"]
+        assert all(len(ln) <= 71 for ln in (first + again).splitlines() if not ln.startswith(" ")), sc["id"]
+    assert not {"RSTJOB4", "RSTJOB11", "RSTJOB12"} & set(probe.RESTART_SKIP)
 
 
 def _dsutil():

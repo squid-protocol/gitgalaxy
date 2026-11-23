@@ -377,6 +377,20 @@ What it says:
 - **A loaded box stretches every phase about 2x (82.6 s against 39.4 s at load 7-12), not one phase**: the baseline
   proof 2.2x, the javac check 2.0x, the proof 2.2x. The split is stable, so the quiet-box numbers can be compared
   across changes; wall time on a busy box cannot (compare phases, not totals).
+- **The same `--sample 60` run, repeated (n=3 per load, 2026-11-23, #8599).** cbsa-updcust `--sample 60 --seed 1 --jobs 2`,
+  fast+one-jvm, origin/main, wall seconds of the whole `det_mutation.py run` (the logs carry no per-phase stamps, so the
+  baseline proof is the one phase quoted). Quiet = load 3-5 at start; loaded = 12 busy loops beside it (load 19-23).
+
+  | load | runs (total s) | baseline proof s | median total |
+  |---|---|---|---|
+  | quiet | 52 (cold translate), 38, 38 | 12, 17, 12 | 38 |
+  | loaded | 113, 105, 120 | 31, 37, 30 | 113 |
+
+  The warm quiet runs repeat to the second (38, 38; the 39.4 s of 2026-11-19 agrees), and the first run pays about 14 s
+  of cold translation. The loaded runs spread 105-120 s (14%) and are about 3x the quiet median here, against 2.1x at
+  the 2026-11-19 load of 7-12: the stretch grows with load, and the baseline proof stretches 2.5-3x (12 to 30-37 s), as much
+  as the whole run. The n=1 caveat on this table is lifted for the
+  `--sample 60` row only; the full-enumeration rows stay n=1 (556 s, 684 mutants, was the second `--sample 0` run).
 - **Re-translating an unchanged case was only half skipped, now it is skipped (#8599).** The estate scan and the
   refactor were already cached (`equivalence_cache`), but the program's own translation (2.7-2.8 s warm on UPDCUST,
   15.8 s cold on readcust) ran again for every case of a `refresh` batch, including a case-only change (its

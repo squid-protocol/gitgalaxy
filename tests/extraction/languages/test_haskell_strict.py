@@ -239,6 +239,68 @@ def test_haskell_io_is_an_operation_not_the_io_type_8904():
     assert not rule.search("modifyIORef ref f")  # IORef is a mutable cell, not I/O across the program boundary
 
 
+def _hs_scan(code: str) -> tuple[str, dict[str, dict]]:
+    """Run `code` through the real Prism then the extractor: (code stream, {function: hit_vector})."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    streams = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(code, "haskell")
+    funcs = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"]
+    )
+    return streams["code_stream"], {
+        f["name"]: f.get("hit_vector", {})
+        for f in funcs["functions"]
+        if not f.get("is_synthetic_slice") and f["name"] != "__global_context__"
+    }
+
+
+_HS_8904 = """module A where
+
+hs_bits :: Int -> Int
+hs_bits x = x .&. 3
+
+hs_io :: Int -> IO Int
+hs_io x = return x
+
+{-# INLINE hs_inl #-}
+hs_inl :: Int -> Int
+hs_inl x = x + 1
+
+hs_err :: Int -> Either String Int
+hs_err x = throwError "bad"
+"""
+
+
+def test_haskell_issue_8904_measured_cases_per_function():
+    """The four reproduce cases of #8904, through the real pipeline."""
+    _, hv = _hs_scan(_HS_8904)
+    assert hv["hs_bits"].get("bitwise_ops") == 1
+    assert not hv["hs_io"].get("io")  # the IO type is not an operation
+    assert hv["hs_inl"].get("decorators") == 1  # the pragma above the binding
+    assert not hv["hs_bits"].get("decorators") and not hv["hs_io"].get("decorators")
+    assert not hv["hs_err"].get("panics_and_aborts")  # throwError: owner question, #8862
+
+
+def test_haskell_pragmas_stay_in_the_code_stream_8904():
+    code, hv = _hs_scan(
+        "{-# LANGUAGE BangPatterns #-}\nmodule A where\n\n"
+        "{-# INLINE f #-}\n{-# SPECIALIZE f :: Int -> Int #-}\nf :: Int -> Int\nf x = x\n\n"
+        "-- {-# INLINE g #-} (a line comment)\n{- {-# INLINE h #-} a block comment -}\ng :: Int -> Int\ng x = x\n"
+    )
+    assert "{-# LANGUAGE BangPatterns #-}" in code and "{-# INLINE f #-}" in code
+    assert "INLINE g" not in code and "INLINE h" not in code  # a pragma inside a comment is comment text
+    assert hv["f"].get("decorators") == 2
+    assert not hv["g"].get("decorators")  # the commented-out pragmas do not attach to g
+
+
+def test_haskell_pragma_keeps_later_line_numbers_and_ordinary_comments_8904():
+    code, _ = _hs_scan("{-# INLINE f #-}\nf = 1\n{- note\nmore -}\ng = 2\n")
+    assert code.split("\n")[0] == "{-# INLINE f #-}"
+    assert "note" not in code and code.split("\n")[4] == "g = 2"
+
+
 def test_haskell_globals_unsafeperformio_bug():
     """
     Regression test: the trailing `[^=]*` between the IORef/TVar/MVar type

@@ -100,8 +100,16 @@ DEFINITION: dict[str, Any] = {
         # the dotted singleton accessor (`FileManager.default`, `.default`) is not --
         # it is io/events' hit. The `(?<!\.)` guard keeps the switch case and drops
         # the accessor, the mirror of the fix #2858 made on the `globals` side.
+        # #8895 (contract: a decision, not a type or a label): the ternary `?` needs
+        # whitespace on both sides (a postfix optional `T?` / chain `x?.y` / `try?`
+        # does not); `for` is a loop, not an argument label (`(for item:`, `, for x`,
+        # `f(for: x)`); `case` is a switch arm only when a depth-0 `:` ends its
+        # pattern (an enum `case a, b(x: Int)` has none); `default` only before `:`.
         "branch": re.compile(
-            r"\b(if|guard|switch|case|for|while|repeat|break|continue)\b|(?<!\.)\bdefault\b|\}\s*else\b|\?\?|\?"
+            r"\b(if|guard|switch|while|repeat|break|continue)\b"
+            r"|\bcase\b(?=(?:[^\n:()]|\([^\n()]*\))*:)"
+            r"|(?<![(,])(?<![(,][ \t])(?<![(,]\n)\bfor\b(?![ \t]*:)"
+            r"|(?<!\.)\bdefault\b(?=[ \t]*:)|\}\s*else\b|\?\?|(?<=\s)\?(?=\s)"
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)

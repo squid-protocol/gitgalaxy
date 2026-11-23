@@ -154,7 +154,7 @@ _GROOVY_DEEP_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # branch: ternary, Elvis, safe navigation, ensure map literals are ignored
     ("branch", "def result = (x > 5) ? 'high' : 'low'", "def map = [key: 'value']"),
-    ("branch", "def name = user?.name", "foo(a: 1)"),
+    ("branch", "def name = user ? user.name : null", "def name = user?.name"),
     ("branch", "def a = b ?: c", "String type"),
     ("branch", "switch(x) { case 1: break }", "def list = [1, 2]"),
     ("branch", "for (String s in list) {", "def map = [a: 1]"),
@@ -880,10 +880,38 @@ def test_groovy_api_contract_2730():
     api = GROOVY_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public static void setText(Element e, String v) {'), 'public method'
+    assert api.search("public static void setText(Element e, String v) {"), "public method"
 
     # Not declarations -- must not match.
-    assert not api.search('log.warn("Could not open the public key ring.")'), 'keyword in a string'
+    assert not api.search('log.warn("Could not open the public key ring.")'), "keyword in a string"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)
+
+
+@pytest.mark.parametrize(
+    "src,branch_hits",
+    [
+        ("def chain(a) { return a?.b?.c }", 0),
+        ("def chain(a) { return a?[0] }", 0),
+        ("def t(a) { return a ? 1 : 0 }", 1),
+        ("def e(a, b) { return a ?: b }", 1),
+        ("def realIf(a) { if (a) { return 1 }; return 0 }", 1),
+    ],
+)
+def test_groovy_branch_ignores_safe_navigation_8912(src, branch_hits):
+    assert len(GROOVY_RULES["branch"].findall(src)) == branch_hits
+
+
+@pytest.mark.parametrize(
+    "src,hits",
+    [
+        ("def rx(s) { return s ==~ /a-b/ }", 0),
+        ("def rx(s) { return s =~ /a-b/ }", 0),
+        ("def rx() { return ~/a-b/ }", 0),
+        ("def m(a, b) { return a ^ b }", 1),
+        ("def n(a) { return ~a }", 1),
+    ],
+)
+def test_groovy_bitwise_ops_excludes_regex_operators_8912(src, hits):
+    assert len(GROOVY_RULES["bitwise_ops"].findall(src)) == hits

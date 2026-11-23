@@ -515,8 +515,9 @@ def test_perl_decorators_redos_immunity():
 
 def test_perl_branch_colon_ambiguity_and_defined_or():
     pattern = PERL_RULES["branch"]
-    assert pattern.search("$x ? 1 : 2;"), "ternary colon should match"
-    assert pattern.search("LABEL: while(1) {}"), "statement label colon should match"
+    assert pattern.search("$x ? 1 : 2;"), "ternary should match"
+    assert len(pattern.findall("$x ? 1 : 2;")) == 1, "a ternary counts once (#8908)"
+    assert not pattern.search("LABEL: print 1;"), "a label colon is not a decision"
     assert pattern.search("$x // 0;"), "defined-or should match"
     assert not pattern.search("Foo::Bar"), "package separator :: should NOT match"
     assert not pattern.search("$hash{key}"), "unrelated should not match"
@@ -622,17 +623,18 @@ def test_perl_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search("sub _private_helper {"), "underscore-private sub"
 
+
 def test_perl_calls_out_strict():
     """Epic #3264 Phase 3: Perl calls_out extraction and ignore tuning."""
     from _strict_harness import assert_redos_immune
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-    
+
     perl = LANGUAGE_DEFINITIONS["perl"]
     calls_out = perl["rules"]["calls_out"]
-    
+
     assert calls_out.groups == 1
-    
+
     code = """
 sub my_func {
     my ($x, $y) = @_;
@@ -649,11 +651,11 @@ sub my_func {
     extractor = StructuralExtractor("perl", {"perl": perl})
     res = extractor.splice(code, "")
     calls = res["functions"][0]["calls_out_to"]
-    
+
     assert "probe_branch" in calls
     assert "probe_io" in calls
     assert "open" in calls
-    
+
     assert "my" not in calls
     assert "elsif" not in calls
     assert "unless" not in calls

@@ -1040,6 +1040,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": "None Detected",
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": "None Detected",
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": "None Detected",
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": "None Detected",
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": "None Detected",
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": "None Detected",
@@ -2519,7 +2520,8 @@
       "swift/SOURCES.md": "None Detected"
     },
     "swift/alamofire": {
-      "swift/alamofire/Package.swift": "None Detected"
+      "swift/alamofire/Package.swift": "None Detected",
+      "swift/alamofire/Response.swift": "None Detected"
     },
     "tabular": {
       "tabular/SOURCES.md": "None Detected"

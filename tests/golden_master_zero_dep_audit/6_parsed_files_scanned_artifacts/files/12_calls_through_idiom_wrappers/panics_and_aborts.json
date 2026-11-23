@@ -7,19 +7,19 @@
       },
       "ada/alire/alr-commands-init.adb": {
         "Literal Sites": 1,
-        "Wrapped Sites": 2
+        "Wrapped Sites": 4
       },
       "ada/alire/alr-commands-self_update.adb": {
         "Literal Sites": 3,
-        "Wrapped Sites": 6
+        "Wrapped Sites": 8
       },
       "ada/alire/alr-commands-show.adb": {
         "Literal Sites": 2,
-        "Wrapped Sites": 6
+        "Wrapped Sites": 7
       },
       "ada/alire/alr-commands.adb": {
         "Literal Sites": 6,
-        "Wrapped Sites": 1
+        "Wrapped Sites": 3
       }
     },
     "c/cpython": {

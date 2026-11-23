@@ -75,7 +75,7 @@ In a repository of this magnitude and historical significance, domain knowledge 
 
 For a project tasked with securing global communications, the static security perimeter must be flawless.
 
-* **Autonomous AI Threats & Malware:** **0 detected**. The codebase is mathematically secure against structural malware.
+* **Autonomous AI Threats:** **0 detected** by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.
 * **Import Policy Gate:** **0 Blacklisted / 0 Unknown Dependencies**. A flawless supply chain perimeter. GnuPG relies purely on native C standard libraries and internal submodules, avoiding third-party ecosystem poisoning entirely.
 * **Binary Anomalies (X-Ray):** **82 hits**. These are flagged for high entropy, but cross-referencing shows these are completely expected Hardcoded Payload Artifacts (`sks-keyservers.netCA.pem`, `tls-ca.pem`, `samplekeys.asc`) located in `dirmngr/` and `doc/` directories for testing and trusted CA anchoring.
 * **Weaponizable Surface Exposures:** GitGalaxy flagged C buffer management files (`agent/agent.h`, `common/iobuf.c`, `dirmngr/http.c`) with **10.0% Raw Memory Manipulation**. This is the inherent risk of C; managing raw memory buffers for cryptographic transformations requires manual allocation, which remains a perpetual focal point for security audits.

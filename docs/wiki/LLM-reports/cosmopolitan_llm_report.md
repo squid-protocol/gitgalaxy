@@ -14,7 +14,7 @@ The dependency graph indicates a Modularity of 0.4159, highlighting clean bounda
 * **Fragile Orchestrators:** The `Makefile` (166 outbound dependencies) and the embedded web server `tool/net/redbean.c` (123 outbound dependencies) are massive orchestrators. They pull in vast swaths of the libc implementation to compile the portable executable toolchain and the redbean binary, making them highly fragile to internal API changes.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several test/fixture files in `third_party/mbedtls/test/data/` for "Hardcoded Payload Artifacts," which are benign public certificates used for TLS validation. Files like `ape/ape-m1.c` and `libc/calls/ioctl.c` were flagged for "Raw Memory Manipulation" and "Exploit Generation Surface." In the context of a `libc` implementation and executable loader, this is operational reality: these files must execute raw memory mapping (`mmap`), pointer arithmetic, and direct hardware traps (syscalls). The 38 "Binary Anomalies" (X-Ray) are largely expected, as Cosmopolitan intentionally produces "magic byte mismatches" (fat binaries) that defy standard PE/ELF/Mach-O classifications.
 

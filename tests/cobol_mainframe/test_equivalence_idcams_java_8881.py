@@ -68,3 +68,48 @@ def test_a_java_side_that_differs_is_reported_not_passed(monkeypatch):
 def test_no_jdk_is_none_never_equal(monkeypatch):
     monkeypatch.setattr(eij, "jdk_bin", lambda: None)
     assert eij.compare(TRANIDX, _base(), {}) is None
+
+
+# #8886: CardDemo CREASTMT's DELDEF01 (app/jcl/CREASTMT.JCL): the DELETE / SET MAXCC / DEFINE idiom with DATA (NAME CISZ).
+DELDEF01 = (
+    " DELETE    AWS.M2.CARDDEMO.TRXFL.SEQ\n"
+    " DELETE    AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS                     -\n"
+    "            CLUSTER\n"
+    " SET       MAXCC = 0\n"
+    " DEFINE    CLUSTER  (NAME(AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS)     -\n"
+    "                      KEYS(32 0)                                -\n"
+    "                      VOLUMES(TSU023)                           -\n"
+    "                      RECORDSIZE(350 350)                       -\n"
+    "                      SHAREOPTIONS(2 3)                         -\n"
+    "                      ERASE                                     -\n"
+    "                      INDEXED                                   -\n"
+    "                      CYL(1 5))                                 -\n"
+    "            DATA      (NAME(AWS.M2.CARDDEMO.TRXFL.DATA)         -\n"
+    "                      CISZ(4096))                               -\n"
+    "            INDEX     (NAME(AWS.M2.CARDDEMO.TRXFL.INDEX))\n"
+)
+
+
+def test_carddemos_deldef01_defines_the_cluster_and_both_sides_agree():
+    got = eij.compare(DELDEF01, {}, {})
+    assert got["equal"], got
+    assert eij.model_lines(DELDEF01, {}, {})[0] == "RC 0 0 0"
+    res = M.run(DELDEF01, {})
+    assert list(res.catalog) == ["AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS"]
+    cl = res.catalog["AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS"]
+    assert (cl.indexed, cl.key_len, cl.key_off, cl.avg, cl.max, cl.records) == (True, 32, 0, 350, 350, [])
+
+
+@pytest.mark.parametrize(
+    "deck",
+    [
+        DELDEF01.replace("CISZ(4096)", "CISZ(ABC)"),
+        DELDEF01.replace("CISZ(4096)", "CISZ(4096 1)"),
+        DELDEF01.replace("CISZ(4096)", "CISZ(4096) CISZ(512)"),
+        DELDEF01.replace("CISZ(4096)", "KEYS(32 0)"),
+    ],
+    ids=["not-a-number", "two-values", "twice", "keys-in-data"],
+)
+def test_a_component_operand_other_than_a_control_interval_size_is_refused_on_both_sides(deck):
+    assert eij.compare(deck, {}, {})["equal"]
+    assert eij.model_lines(deck, {}, {})[0].startswith("REFUSED")

@@ -36,6 +36,14 @@ ALLOW: dict[tuple[str, str], str] = {
         "java-compile.yml",
         "tests/tools/skip_tested_tree.py",
     ): "#4964: post-merge push gate; on pull_request it never skips, so changing the script cannot alter the check",
+    (
+        "graph-accuracy-audit.yml",
+        "tests/tools/job_cap_plan.py",
+    ): "#8701: only plans the job's timeout (a failed plan falls back to the literal); it cannot change a gate's result, and its own tests run in the suite",
+    (
+        "tri-comparison-audit.yml",
+        "tests/tools/job_cap_plan.py",
+    ): "#8701: only plans the job's timeout (a failed plan falls back to the literal); it cannot change a gate's result, and its own tests run in the suite",
 }
 
 

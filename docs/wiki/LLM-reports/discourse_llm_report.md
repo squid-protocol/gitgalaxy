@@ -14,7 +14,7 @@ The dependency graph indicates a highly decoupled, dynamic loading structure (Mo
 * **Fragile Orchestrators:** Frontend controllers and templates carry massive outbound dependencies. `topic.gjs` (49 outbound) and `topic.js` (46 outbound) act as fragile UI orchestrators. They tightly couple view-layer state, component composition, and API interactions, making them highly sensitive to changes in the underlying component API or backend data contracts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several areas for "Exploit Generation Surface" (e.g., `app/controllers/search_controller.rb`, `app/models/theme.rb`) and "Weaponizable Injection Vectors." In a forum platform handling user-generated content, themes, and dynamic search queries, this is expected operational behavior. These files inherently parse unvalidated text, execute custom SQL/Search logic, and handle file uploads. However, strict input sanitization must be maintained in these vectors to prevent persistent XSS or SQLi. The ecosystem audit identified 41 binary anomalies, which correspond to expected test fixtures and image assets within the repository.
 

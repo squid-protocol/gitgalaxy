@@ -10,7 +10,7 @@ The `Chart.js` repository serves as a versatile, canvas-based charting library f
 The architecture lacks clean micro-boundaries, exhibiting a flat and highly coupled dependency graph. The system relies heavily on centralized orchestrator modules acting as API aggregation hubs. Files like `src/index.umd.ts` (18 outbound dependencies), `src/helpers/index.ts` (16 outbound), and `src/core/index.ts` (14 outbound) act as fragile routing centers. These files tightly bind the internal controller and scale logic to the public API surface, making them highly susceptible to cascading changes during core refactoring.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts. Ecosystem security audits confirm zero binary anomalies and zero blacklisted dependencies. The repository is structurally secure from recognized threats, with only minor exposure vectors related to standard network/IO testing mockups.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem security audits confirm zero binary anomalies and zero blacklisted dependencies. The repository is structurally secure from recognized threats, with only minor exposure vectors related to standard network/IO testing mockups.
 
 ## 4. Outliers & Extremes
 The codebase contains severe algorithmic bottlenecks and localized technical debt, particularly within the rendering and scale modules:

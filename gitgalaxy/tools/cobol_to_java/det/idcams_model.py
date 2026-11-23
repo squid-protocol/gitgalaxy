@@ -381,7 +381,9 @@ class _Step:
             if op.name in seen:
                 raise Refused(f"the IDCAMS DEFINE {kind} {op.name} component stated twice")
             seen.add(op.name)
-            inner = op.args or []
+            # CONTROLINTERVALSIZE(n) / CISZ(n) sizes the component's control interval: an allocation detail with no effect
+            # on the records or the catalog (SC23-6846-60, "DEFINE CLUSTER", DATA / INDEX parameters).
+            inner = [i for i in op.args or [] if not _is_cisz(i)]
             if len(inner) != 1 or inner[0].name != "NAME" or inner[0].args is None or len(inner[0].args) != 1:
                 raise Refused(f"the IDCAMS DEFINE {kind} {op.name} component operand (only NAME(one name) is modelled)")
             names.append(_entry(inner[0].args[0].name, f"DEFINE {kind} {op.name} NAME"))
@@ -632,6 +634,15 @@ def _reclen(d: Sequential | Cluster) -> int:
     return d.max
 
 
+def _is_cisz(op: _Op) -> bool:
+    return (
+        op.name in ("CONTROLINTERVALSIZE", "CISZ")
+        and op.args is not None
+        and len(op.args) == 1
+        and (op.args[0].args is None and op.args[0].name.isdigit())
+    )
+
+
 def _entry(text: str, what: str) -> str:
     if "/" in text or not _NAME.match(text):
         raise Refused(f"the IDCAMS {what} name ({text[:20]}) is not a plain data set name (no password)")
@@ -660,6 +671,12 @@ def path_records(catalog: dict[str, Cluster | Aix | Path], path_name: str) -> li
             f"the path {path_name} reads {aix.name}, which BLDINDEX has not built (reading it is not modelled)"
         )
     return sorted(base.records, key=lambda r: r[aix.key_off : aix.key_off + aix.key_len])
+
+
+def parse_check(sysin: str) -> None:
+    """Raise `Refused` (by name) when the model cannot parse the deck; a deck that parses may still be refused when it
+    runs (a DD or catalog entry it needs is missing). The batch forge asks this before lowering a step (#8886)."""
+    _parse(sysin)
 
 
 def run(

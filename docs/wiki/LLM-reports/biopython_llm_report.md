@@ -14,7 +14,7 @@ The dependency graph reveals high modularity (0.7089), indicating the repository
 * **Fragile Orchestrators:** Modules acting as domain-specific facades, particularly `Bio/PDB/__init__.py` and `Bio/Align/__init__.py`, exhibit the highest outbound dependencies. These orchestrators are fragile because they aggregate numerous sub-modules into a unified public API, meaning changes to underlying logic frequently require updates to these root files.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several I/O modules (e.g., `Bio/Affy/CelFile.py`, `Bio/AlignIO/EmbossIO.py`) with 100% Exploit Generation Surface exposure. In the context of a bioinformatics parsing library, this is expected behavior: these files are expressly designed to ingest, decode, and execute logic based on external, unvalidated string buffers and file streams. The 26 "Binary Anomalies" are likely compiled C-extensions (`.so` or `.pyd` files) required for the alignment engines.
 

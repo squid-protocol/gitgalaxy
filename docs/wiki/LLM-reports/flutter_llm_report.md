@@ -16,7 +16,7 @@ The network topology reveals a monolithic core with extreme coupling across lang
 * **Fragile Orchestrators:** The engine entry points act as massive routing hubs. `engine/src/flutter/lib/web_ui/lib/src/engine.dart` (159 outbound dependencies) orchestrates the entire Web compilation target. Native embedder views like `FlutterView.java` (73 outbound) and `FlutterTextInputPluginTest.java` tightly couple platform-specific input/output channels to the core C++ engine lifecycle.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several C++ components (e.g., `fl_text_input_handler.cc`, `point.h`) for "Raw Memory Manipulation" and "Exploit Generation Surface." In the context of a graphics engine and native platform embedder, this is the expected operational baseline: these files must directly manage GPU memory buffers, execute unsafe pointer arithmetic for rasterization, and handle raw native OS event structs. 12 "Binary Anomalies" were detected by X-Ray, which align with expected compiled test assets (`dummy-cert.pem`, `debug.keystore`) rather than supply chain attacks.
 

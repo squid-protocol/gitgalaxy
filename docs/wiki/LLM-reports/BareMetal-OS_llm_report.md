@@ -13,7 +13,7 @@ The dependency graph reveals a completely flat topology with a Modularity and As
 * **The Monolithic Orchestrator:** `baremetal.sh` acts as the sole active node. It functions simultaneously as the foundational infrastructure and the orchestrator, possessing no inbound or outbound API dependencies. Information flow is strictly linear and procedural within this single artifact.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter. The ecosystem audit confirms 0 binary anomalies and 0 unknown or blacklisted dependencies. There are no detected weaponizable injection vectors, exploit generation surfaces, or hardcoded payload artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. The ecosystem audit confirms 0 binary anomalies and 0 unknown or blacklisted dependencies. There are no detected weaponizable injection vectors, exploit generation surfaces, or hardcoded payload artifacts.
 
 ## 4. Outliers & Extremes
 Because the repository's active logic is centralized in one file, all systemic friction and structural anomalies are localized there:

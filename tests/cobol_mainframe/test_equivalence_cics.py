@@ -890,3 +890,25 @@ def test_the_generated_test_runs_runtask_unless_the_facade_side_is_asked_for(tmp
     assert 'new FacadeRegion(task, commarea, "PROG", true)' in linked
     pkg = java.split("package ", 1)[1].split(";", 1)[0]
     assert ec.FACADE_JAVA.replace("__PKG__", pkg) in java  # #4695: the port's package names its page's class
+
+
+def test_the_facade_region_keeps_the_callers_area_for_the_byte_carrying_handle_transaction():
+    """#9116: the interface default of Region.transaction(transid, ca, bytes) swaps the scenario task's link area for a
+    copy, so the RETURN's write-back never reached the caller's array and byte 0 stayed the stage on a COMMAREA of
+    EIBCALEN >= the layout. FacadeRegion overrides it and keeps the area by reference (copying only when the task has none)."""
+    body = ec.FACADE_JAVA.split("public CicsTask transaction(String transid, Object ca, byte[] bytes) {", 1)[1].split(
+        "}", 1
+    )[0]
+    assert "transaction(transid, ca)" in body and "linkAreaView() != null" in body and "withLinkArea(" in body
+    assert "withLinkArea(java.util.Arrays.copyOf(bytes" in body
+
+
+def test_pcimmb_states_a_caller_area_shorter_equal_and_longer_than_its_layout():
+    """#9116: the class is the caller's area length against the 8-byte DFHCOMMAREA: shorter (3, 5, 1, 2), equal (8) and longer
+    (15, 120), each judged on the runTask side and through the facade."""
+    import json
+
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence" / "cruc-pc-return-immediate-b" / "case.json")
+                      .read_text(encoding="utf-8"))  # fmt: skip
+    lengths = {len(bytes.fromhex(s["commarea_hex"])) for s in case["scenarios"] if s.get("commarea_hex")}
+    assert {1, 2, 5, 8, 15, 120} <= lengths

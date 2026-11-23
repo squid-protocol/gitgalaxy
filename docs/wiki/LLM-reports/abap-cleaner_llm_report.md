@@ -14,7 +14,7 @@ The architecture follows a standard plugin pattern but suffers from high couplin
 * **Fragile Orchestrators:** The highest outbound dependencies exist in the GUI and test layers. Files like `AbapCleanerHandlerBase.java` (47 dependencies), `FrmProfiles.java` (36), and `FrmMain.java` (36) act as heavy orchestrators. This indicates that the presentation layer is tightly coupled to the underlying rule engines and parsing logic, creating fragility when modifying the core API.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts. Ecosystem security audits confirm 0 blacklisted or unknown dependencies. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem security audits confirm 0 blacklisted or unknown dependencies. 
 
 There are isolated alerts for Exploit Generation Surface (e.g., `CommentIdentifier.java` at 100%), but this is expected operational behavior for a compiler/linter tool. These files are designed to dynamically parse raw, unvalidated text input. There are no identified Agentic RCE or prompt injection vulnerabilities within the architecture.
 

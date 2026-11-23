@@ -1547,12 +1547,12 @@ def _kotlin_class_parents(stream: str, name_end: int, body_end: int) -> list[str
             part = raw[start:idx].strip()
             m = _KT_IDENT.match(part)
             if m and m.group(0) != "where":
-                parents.append(m.group(0).rsplit(".", 1)[-1])
+                parents.append(m.group(0))
             start = idx + 1
     part = raw[start:].strip()
     m = _KT_IDENT.match(part)
     if m and m.group(0) != "where":
-        parents.append(m.group(0).rsplit(".", 1)[-1])
+        parents.append(m.group(0))
     return list(dict.fromkeys(parents))
 
 
@@ -2276,6 +2276,31 @@ def _python_references(text: str, called: set[str], own_name: str) -> list[tuple
 _DECORATOR_NAME = re.compile(r"(?m)^[ \t]*@[ \t]*([A-Za-z_][\w.]{0,200})")
 _DECORATOR_LOOKBACK_LINES = 60
 _BRACKET_DEPTH = str.maketrans({"(": "(", "[": "(", "{": "(", ")": ")", "]": ")", "}": ")"})
+
+
+def _erlang_leading_attributes(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
+    """#8923: count `-spec` / `-type`-style attribute lines in the unbroken block directly above a clause head.
+
+    A `-spec` may continue on indented lines; the walk stops at a blank line or a column-0 line that is not an
+    attribute (the previous function's head), so a clause after `;` finds none.
+    """
+    if rule is None:
+        return 0
+    pos = code.rfind("\n", 0, def_idx) + 1
+    count = 0
+    seen = 0
+    while pos > 0 and seen < _DECORATOR_LOOKBACK_LINES:
+        prev = code.rfind("\n", 0, pos - 1) + 1
+        line = code[prev : pos - 1]
+        seen += 1
+        pos = prev
+        if not line.strip():
+            break
+        if rule.match(line):
+            count += 1
+        elif line[0] not in " \t%":
+            break
+    return count
 
 
 def _haskell_leading_pragmas(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
@@ -3195,6 +3220,8 @@ def _ts_js_def_shape(code: str, match: "re.Match[str]", bodyless: bool) -> str:
 # #3836: a java method ending in `;` with no body is an interface or `abstract`
 # declaration -- a `signature`, never a call target -- unless it is `native`.
 _JAVA_NATIVE_MODIFIER = re.compile(r"\bnative\b")
+_KOTLIN_EXTERNAL_MODIFIER = re.compile(r"\bexternal\b")
+_KOTLIN_EXT_RECV = re.compile(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*\??\s*\.\s*$")
 
 
 # #2547: satellite names the structural slicer synthesizes for languages/modes with
@@ -7948,6 +7975,7 @@ class StructuralExtractor:
             start_idx = match.start()
             ts_bodyless = False  # #3757: set by the typescript/javascript terminator scan
             java_bodyless = False  # #3836: set by the java terminator scan
+            kotlin_bodyless = False  # bodyless Kotlin interface / abstract / expect fun
 
             # #2933: scheme's func_start leads with `^[ \t\n]*` under re.M, whose
             # newline-inclusive class swallows the blank/blanked-comment lines
@@ -8311,6 +8339,8 @@ class StructuralExtractor:
                         end_idx = next_match_start
                     elif term_kind == "none":
                         end_idx = term_idx
+                        decl = code[code.rfind("\n", 0, start_idx) + 1 : match.end()]
+                        kotlin_bodyless = not _KOTLIN_EXTERNAL_MODIFIER.search(decl)
                     else:
                         end_idx = (
                             params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window
@@ -9226,7 +9256,7 @@ class StructuralExtractor:
             )
             if lang_id in ("typescript", "javascript"):
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
-            elif java_bodyless:
+            elif java_bodyless or (kotlin_bodyless and name != "constructor"):
                 sat["def_shape"] = "signature"
             elif lang_id in ("c", "cpp") and _C_STATIC_WORD.search(_header_before_name(match.group(0), name)):
                 # #8161 (X4): a C/C++ `static` function has internal linkage: only its own translation unit (its
@@ -9237,6 +9267,10 @@ class StructuralExtractor:
                 # #8161 (PR 5): a Kotlin extension function (`fun KClass<*>.asClassName()`): a call through a receiver
                 # (`x.asClassName()`, `a().b().c()`) reaches it, as it reaches a method
                 sat["def_shape"] = EXTENSION_SHAPE
+                ext_prefix = match.group(0)[: match.group(0).rfind(name)]
+                ext_m = _KOTLIN_EXT_RECV.search(ext_prefix)
+                if ext_m:
+                    sat.setdefault("calls_out_receiver_types", {}).setdefault("this", ext_m.group(1))
             elif lang_id == "csharp" and _CS_EXTENSION_HEADER.match(code, match.end()):
                 # #8161 (PR 5): a C# extension method (`static string FormatWith(this string s, ..)`): its receiver may
                 # be a type the repo does not define, unlike any other method's
@@ -10515,6 +10549,11 @@ class StructuralExtractor:
                         sat_end_char,
                         spatial_map,
                     )
+                    if lang_id == "erlang" and satellite_name != "Declarative_Block":
+                        # #8923: the `-spec` above a function sits outside its unit.
+                        attrs = _erlang_leading_attributes(code, sat_start_char, rules.get("decorators"))
+                        if attrs:
+                            sat["hit_vector"]["decorators"] = sat["hit_vector"].get("decorators", 0) + attrs
                     satellites.append(sat)
                     sum_fxn_impact += mag
 

@@ -14,7 +14,7 @@ The repository exhibits a relatively high modularity (0.665), indicating a clean
 * **Fragile Orchestrators:** The SCSS aggregation files exhibit high fragility. `scss/bootstrap.scss` (40 outbound dependencies) and `scss/_mixins.scss` (25 outbound dependencies) act as monolithic routing hubs, making them tightly coupled to the implementation details of every individual UI component style.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 Ecosystem security audits confirm 0 binary anomalies and 0 blacklisted dependencies. The 63 "Unknown Dependencies" reflect the standard sprawl of the NPM/JavaScript tooling ecosystem rather than direct runtime supply chain threats. There are no weaponizable injection vectors or exploit generation surfaces detected in the core framework logic.
 

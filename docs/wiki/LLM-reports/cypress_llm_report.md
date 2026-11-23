@@ -14,7 +14,7 @@ The network topology reveals a high Modularity score (0.6584), indicating clean 
 * **Fragile Orchestrators:** Files acting as operational controllers, such as `packages/driver/src/cypress.ts` (45 outbound dependencies) and `packages/data-context/graphql/schemaTypes/objectTypes/index.ts` (36 outbound), pull in a massive number of external references. They are highly coupled aggregators that tie together disparate subsystems into cohesive execution paths.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several files for "Exploit Generation Surface" (e.g., `makeGraphQLServer.ts`, `cypress.d.ts`) and "Weaponizable Injection Vectors." In the context of a testing framework designed to dynamically evaluate user-provided code, stub network requests, and mutate the DOM, these are expected operational behaviors rather than production vulnerabilities. The ecosystem audit identified 5,511 unknown dependencies, which is standard for a massive JavaScript monorepo managing extensive build tooling and browser automation libraries.
 

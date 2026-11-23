@@ -14,7 +14,7 @@ The network topology reveals a highly centralized and coupled architecture relyi
 * **Fragile Orchestrators:** The primary execution and game loop files exhibit extreme outbound coupling. `linuxdoom-1.10/d_main.c` (30 outbound dependencies) and `linuxdoom-1.10/g_game.c` (28 outbound) act as fragile orchestrators, binding together input processing, rendering, and sound synchronization into highly sensitive unified contexts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged minor "Raw Memory Manipulation" exposure in `linuxdoom-1.10/d_net.c` (3.5%). In the context of a C-based networking subsystem parsing raw byte packets (IPX), this is standard operational behavior. There are no modern injection surfaces or obfuscated payloads detected; the system is structurally secure within its domain constraints.
 

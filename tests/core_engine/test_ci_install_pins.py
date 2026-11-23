@@ -303,7 +303,7 @@ def test_dependabot_watches_the_ci_lockfiles():
     assert ci_entry["package-ecosystem"] == "pip"
     # Ensure multiversion packages that dependabot collapses are ignored
     ignored = {ig["dependency-name"] for ig in ci_entry.get("ignore", [])}
-    assert {"numpy", "xgboost"}.issubset(ignored)
+    assert "numpy" in ignored
 
 
 # -- every `-r <path>/ci/requirements/x.txt` resolves from where the step runs ---------------------

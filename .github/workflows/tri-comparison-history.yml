@@ -65,6 +65,7 @@ jobs:
       actions: read  # gh run list: the last successful run's commit
     outputs:
       run: ${{ steps.plan.outputs.run }}
+      cap: ${{ steps.cap.outputs.cap }}  # job_cap_plan.py: worst measured wall x 1.3, clamped
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -89,11 +90,21 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Plan the job's cap from its measured wall time
+        id: cap
+        continue-on-error: true  # never fails the workflow: no history means the literal fallback below
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 tests/tools/job_cap_plan.py --workflow tri-comparison-history.yml --job tri-comparison-history --floor 15 --ceiling 45 \
+            --fallback 30 --github-output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+
   tri-comparison-history:
     needs: [plan]
     if: ${{ always() }}  # a failed plan runs it
     runs-on: ubuntu-24.04  # ctags version pinned via the image (#8158)
-    timeout-minutes: 30
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.cap || '30') }}  # job_cap_plan.py; the literal is the fallback
     permissions:
       contents: write
     steps:
@@ -129,10 +140,11 @@ jobs:
       # job WRITES the chart/ledger, so a silently-degraded ctags here would commit bad data to
       # main instead of just failing a single PR check.
       - name: Install universal-ctags and verify it's the real thing
+        timeout-minutes: 12  # 2026-11-23: a hung package install ran the whole 30-min job cap; 3 bounded attempts fit well inside this
         if: needs.plan.outputs.run != 'false'
         run: |
           # #5048: a mirror hiccup is infrastructure, not a code defect: bounded retry, then an INFRASTRUCTURE marker.
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
+          gitgalaxy/tests/tools/ci_retry.sh 3 10 -- timeout -k 10 180 bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
           if ! ctags --version | grep -q "Universal Ctags"; then
             echo "::error::ctags on PATH is not Universal Ctags -- refusing to write a silently-degraded chart/ledger."
             ctags --version || true

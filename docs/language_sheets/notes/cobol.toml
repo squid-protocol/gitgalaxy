@@ -1,0 +1,9 @@
+context = "legacy/mainframe"
+
+[ceiling]
+parsers = "GnuCOBOL is used as the runtime oracle for equivalence work in this repo. Whether a maintained public COBOL parser grammar exists for function extraction: not yet checked."
+corpus = "Open COBOL estates pinned for the CICS and batch work (CardDemo, CBSA, and others); size per language-crucible: not yet counted here."
+reference_analyser = "None found for call links or COPY resolution. Not yet searched."
+best_method = "Hand audit plus the GnuCOBOL oracle for behaviour; no independent call-graph reference known."
+why = "Proprietary mainframe dialects (IBM Enterprise COBOL, CICS, Db2) and few public parsers."
+status = "unconfirmed"

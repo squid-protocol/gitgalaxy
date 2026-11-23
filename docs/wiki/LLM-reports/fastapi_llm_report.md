@@ -14,7 +14,7 @@ The dependency graph indicates a highly centralized, monolithic topology where e
 * **Fragile Orchestrators:** Files acting as the primary execution engine, specifically `fastapi/routing.py` (19 outbound dependencies) and `fastapi/openapi/utils.py` (16 outbound), are highly fragile. They pull together underlying validation, routing, and schema components to bind HTTP interactions into unified contexts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged core routing and security modules (e.g., `fastapi/routing.py`, `fastapi/applications.py`, and `fastapi/security/oauth2.py`) for "Exploit Generation Surface." In the context of a web framework, this is the intended operational reality: these files are explicitly designed to parse unvalidated network input, manage authentication state, and evaluate dynamic execution pathways based on client requests. Ecosystem audits confirm 0 blacklisted dependencies and a clean supply chain.
 

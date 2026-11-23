@@ -14,7 +14,7 @@ The dependency graph indicates a highly centralized, 'hub-and-spoke' architectur
 * **Fragile Orchestrators:** Files such as `src/compiler.ts` (14 outbound) and `src/program.ts` (14 outbound) act as central orchestrators. They manage the entire compilation lifecycle and are tightly coupled to almost every subsystem (parsing, typing, emitting), making them highly susceptible to upstream changes.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the source code.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several core parser and execution files (e.g., `src/flow.ts`, `src/parser.ts`) with 100% "Exploit Generation Surface". In the context of a compiler, this is expected operational behavior: these files are expressly designed to interpret, parse, and execute raw, unvalidated string inputs representing user code. These files do not represent network vulnerabilities, but rather the intrinsic risks of compiler frontends managing syntax trees.
 

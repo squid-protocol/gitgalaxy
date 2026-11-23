@@ -43,8 +43,10 @@ _ANNOT_MACRO = (
     r"[ \t]*\n[ \t]+(?=[A-Z0-9_]{0,63}(?:LOCK|EXCLUDE|REQUIRE|ACQUIRE|RELEASE|GUARDED))[A-Z][A-Z0-9_]{1,63}[ \t]*"
     + _PARENS
 )
-# A trailing return type token: a qualified name with template arguments (`std::map<int, int>`).
-_RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*<>]+"
+# A trailing return type token: a qualified name with optional template arguments
+# (`std::map<int, int>`, `join_view<decltype(a), decltype(b)>`). Excludes `{};` to stay bounded.
+_RET_TPL = r"(?:<(?:[^<>{};]|<(?:[^<>{};]|<[^<>{};]*>)*>)*>)?"
+_RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*]+" + _RET_TPL
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -215,7 +217,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
             r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"

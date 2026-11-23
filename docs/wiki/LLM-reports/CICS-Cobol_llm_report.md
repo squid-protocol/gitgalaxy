@@ -14,7 +14,7 @@ The network topology reveals a Modularity of 0.0 and an Avg Path Length of 1.0. 
 * **Fragile Orchestrators:** There are no orchestrators. The codebase is a flat collection of independent demonstrations.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the source code.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 Given the nature of this repository as a collection of isolated educational examples, there are no meaningful attack surfaces, injection vectors, or external dependencies. The codebase is structurally secure for its intended purpose.
 

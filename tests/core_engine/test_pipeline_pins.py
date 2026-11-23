@@ -369,9 +369,9 @@ def test_our_own_pipelines_are_clean(path):
 
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
-    ".github/workflows/doom-rosetta.yml": {(114, "apt")},
-    ".github/workflows/tri-comparison-audit.yml": {(127, "apt")},
-    ".github/workflows/tri-comparison-history.yml": {(135, "apt")},
+    ".github/workflows/doom-rosetta.yml": {(115, "apt")},
+    ".github/workflows/tri-comparison-audit.yml": {(142, "apt")},
+    ".github/workflows/tri-comparison-history.yml": {(147, "apt")},
 }
 
 

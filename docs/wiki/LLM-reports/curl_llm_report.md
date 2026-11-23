@@ -14,7 +14,7 @@ The network topology reveals moderate modularity (0.4286), indicating some separ
 * **Fragile Orchestrators:** Files like `lib/url.c` (72 outbound dependencies), `lib/transfer.c` (46 outbound), and `lib/multi.c` (45 outbound) are highly fragile routing hubs. They orchestrate almost every aspect of DNS resolution, socket handling, and state transitions, making them exceptionally sensitive to any internal API changes.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several files with "Exploit Generation Surface" (e.g., `lib/vauth/digest.c`, `lib/vtls/openssl.c`) and "Raw Memory Manipulation" (e.g., `lib/vauth/cleartext.c`). In the context of a low-level network library, this is completely expected operational behavior: these modules manually process raw authentication buffers, execute cryptographic handshakes, and manage socket memory. The "Hardcoded Payload Artifacts" detected in `tests/certs/` are benign, explicitly included test certificates used for validation, not leaked production secrets. 
 

@@ -2531,22 +2531,6 @@
    ]
   },
   {
-   "id": "b7502c68ed",
-   "op": "CON",
-   "line": 313,
-   "before": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"WRITEQ TS\", CS), CS, REGION));",
-   "after": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 14, \"WRITEQ TS\", CS), CS, REGION));",
-   "verdict": "harness-gap",
-   "reason": "WRITEQ TS LENGTH 13 -> 14 writes the 13-byte WS-SLOG plus one blank: the TS item is one byte longer, but the compare (equivalence_cics_compare.py) strips trailing blanks from the event's data, so the proof cannot see the longer record. The compare would have to check the written length.",
-   "tried": [
-    "link-1000-noterm",
-    "link-20",
-    "link-4",
-    "wq-noterm-invreq",
-    "wq-noterm-ioerr"
-   ]
-  },
-  {
    "id": "1136270a98",
    "op": "DEL",
    "line": 314,

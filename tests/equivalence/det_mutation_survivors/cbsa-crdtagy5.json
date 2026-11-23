@@ -1,0 +1,1511 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-crdtagy5",
+ "survivors": [
+  {
+   "id": "92ac6162de",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS-ABND-AREA (its first byte's VALUE): A010's first statement, MOVE DFHCOMMAREA TO WS-ABND-AREA, overwrites all 681 bytes before anything reads them",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "40a68e4fbb",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"AAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_CICS_WORK_AREA follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "0177939ae3",
+   "op": "LIT",
+   "line": 53,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_CONTAINER_LEN follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "9c0c97ad47",
+   "op": "LIT",
+   "line": 63,
+   "before": "\"ICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_WS_ORIG_DATE lie in no item the program names (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "5e4f8e1cb0",
+   "op": "LIT",
+   "line": 69,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "7ac1c48a31",
+   "op": "LIT",
+   "line": 73,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_PROCTRAN_RIDFLD lie in no item the program names (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "7e04224282",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f2_WS_CONT_IN = Field.group(s_WS_CONT_IN, 0, 261);",
+   "after": "private final Field f2_WS_CONT_IN = Field.group(s_WS_CONT_IN, 0, 262);",
+   "verdict": "harness-gap",
+   "reason": "field offset/length of an ABNDINFO-REC body item, WS item or typed DFHCOMMAREA view: the oracle compares neither the LINK commarea contents nor the final ABNDFILE record (only the key bytes show, through a DUPREC DISPLAY)"
+  },
+  {
+   "id": "db386974a5",
+   "op": "LIT",
+   "line": 87,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "88c22785f7",
+   "op": "CON",
+   "line": 111,
+   "before": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "harness-gap",
+   "reason": "field offset/length of an ABNDINFO-REC body item, WS item or typed DFHCOMMAREA view: the oracle compares neither the LINK commarea contents nor the final ABNDFILE record (only the key bytes show, through a DUPREC DISPLAY)"
+  },
+  {
+   "id": "938a54fde8",
+   "op": "LIT",
+   "line": 143,
+   "before": "java.util.Map.entry(\"GMOFH999\", 5),",
+   "after": "java.util.Map.entry(\"XMOFH999\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is consulted only to turn a HANDLE CONDITION / HANDLE ABEND label into a paragraph index; CRDTAGY5 has no HANDLE verb, so handlers stays empty and task.abendExit() is null, and the map is never read",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "89e1bd4020",
+   "op": "COR",
+   "line": 145,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "equivalent",
+   "reason": "store() is reached only from the WRITE of ABNDFILE, whose task.write(file, exists, store) first asks CicsTask.fileFault, which answers FILENOTFOUND (12, 1) for a name undefinedInRegion; the mutant (&& for ||) then hands out the real ABNDFILE store, whose only effect is the eager exists() read of the repository, and task.write returns before store.run(), so RESP, RESP2, events and file are the same; the scenarios abndfile-not-in-region and its link_bytes twin, and a duplicate-key variant, state a region without ABNDFILE and the mutant survives them",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0524192548",
+   "op": "LIT",
+   "line": 149,
+   "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"WsAbndArea\"));",
+   "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec))).withLengths(CicsTask.recordLengths(\"XsAbndArea\"));",
+   "verdict": "unreachable",
+   "reason": "store() default arm is unreachable because ABNDPROC only accesses FILE('ABNDFILE')",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "02a74602e1",
+   "op": "LIT",
+   "line": 155,
+   "before": "java.util.Map.entry(\"GMOOH999\", 5),",
+   "after": "java.util.Map.entry(\"XMOOH999\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() and everything reached only from it never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e4871997c9",
+   "op": "LIT",
+   "line": 157,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 3),",
+   "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 3),",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition(), abended(), and PARAGRAPHS lookups never run",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "df2cd12604",
+   "op": "NEG",
+   "line": 161,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3ca045c042",
+   "op": "ROR",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "627c33e8c5",
+   "op": "DEL",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e10cf718b2",
+   "op": "AOR",
+   "line": 166,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base - 12, 8, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1b8a54e4b0",
+   "op": "CON",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 1, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "67e9cc2310",
+   "op": "ROR",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "fb4d35bb8a",
+   "op": "AOR",
+   "line": 175,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base - 81, 600, false), CS);",
+   "verdict": "unreachable",
+   "reason": "Crdtagy5Service.in_AbndprocDfhcommarea is called only at the A010 LINK, under !task.linkAreaBack(); ABNDPROC's runTask always calls task.linkArea() (raw 681 bytes passed), so the transaction forge sets linkAreaBack true after a NORMAL link and this typed load never runs",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "dac08d7263",
+   "op": "CON",
+   "line": 178,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 13, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY5 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "66643e2388",
+   "op": "AOR",
+   "line": 179,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base - 0, 15, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f1b2c71cf1",
+   "op": "CON",
+   "line": 181,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2edcf3535e",
+   "op": "ROR",
+   "line": 183,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY5 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f39095592a",
+   "op": "DEL",
+   "line": 183,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "/* d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "431c0b704f",
+   "op": "ROR",
+   "line": 184,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY5 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "605ad5c8d1",
+   "op": "DEL",
+   "line": 184,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY5 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2881854eda",
+   "op": "CON",
+   "line": 186,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 47, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "59d698b443",
+   "op": "ROR",
+   "line": 186,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.in_AbndprocDfhcommarea (typed DTO load) runs only before DetCics.loadCommarea(s_DFHCOMMAREA, raw), which overwrites all 681 bytes of DFHCOMMAREA: CRDTAGY5 always LINKs with the raw area, so the typed load is overwritten before any statement reads it",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ced26dd723",
+   "op": "CON",
+   "line": 188,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "7d38c3dc32",
+   "op": "DEL",
+   "line": 190,
+   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+   "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "d0d178d7a1",
+   "op": "DEL",
+   "line": 192,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6ef4bc29aa",
+   "op": "DEL",
+   "line": 195,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "/* d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "d17675933a",
+   "op": "DEL",
+   "line": 195,
+   "before": "fill_AbndprocDfhcommarea(d, s, base);",
+   "after": "/* fill_AbndprocDfhcommarea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "The DTO ca4 built by out_/fill_AbndprocDfhcommarea at the A010 LINK is read only by ABNDPROC's typed in_, and runTask then overwrites all 681 bytes of its COMMAREA from the raw link area (task.linkArea), so the typed content never reaches an event, a store or a later statement",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2bdc06faa1",
+   "op": "CON",
+   "line": 197,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AbndprocService.fill_AbndprocDfhcommarea only refreshes the request DTO after the raw bytes are copied back; CRDTAGY5 never reads that DTO because its in_ runs only when linkAreaBack is false, and after a NORMAL link of a program taking the raw area it is true",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "bf9a7e4153",
+   "op": "DEL",
+   "line": 197,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "/* d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never modifies DFHCOMMAREA; caller DTO already holds every field value",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "e92b36c7a1",
+   "op": "DEL",
+   "line": 207,
+   "before": "fill_AbndprocDfhcommarea(d, s, base);",
+   "after": "/* fill_AbndprocDfhcommarea(d, s, base); */",
+   "verdict": "unreachable",
+   "reason": "out_AbndprocDfhcommarea() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "97a7cc8350",
+   "op": "DEL",
+   "line": 220,
+   "before": "System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length); */",
+   "verdict": "case-gap",
+   "reason": "initial-image bytes and their reset copies are only seen if the stored byte later reaches a compared event or sysout line; no scenario of this case makes the mutated image byte reach one"
+  },
+  {
+   "id": "6fd79cb0ad",
+   "op": "DEL",
+   "line": 222,
+   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+   "verdict": "case-gap",
+   "reason": "initial-image bytes and their reset copies are only seen if the stored byte later reaches a compared event or sysout line; no scenario of this case makes the mutated image byte reach one"
+  },
+  {
+   "id": "372015818c",
+   "op": "DEL",
+   "line": 223,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "664e26dedd",
+   "op": "DEL",
+   "line": 226,
+   "before": "System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_CICS_WORK_AREA's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "e90cd7ad33",
+   "op": "DEL",
+   "line": 234,
+   "before": "DC_1.reset();",
+   "after": "/* DC_1.reset(); */",
+   "verdict": "case-gap",
+   "reason": "initial-image bytes and their reset copies are only seen if the stored byte later reaches a compared event or sysout line; no scenario of this case makes the mutated image byte reach one"
+  },
+  {
+   "id": "22483b353f",
+   "op": "DEL",
+   "line": 237,
+   "before": "System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_CUSTOMER_KY's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "e08bc0e9a7",
+   "op": "DEL",
+   "line": 239,
+   "before": "System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_SQLCODE_DISPLAY's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "7b6c1c8b3e",
+   "op": "DEL",
+   "line": 257,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "caBack is already initialised to `() -> { }` at its declaration (line 132) and nothing else in Crdtagy5Service assigns it, so removing this re-assignment at the start of the task leaves the same no-op Runnable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "494c36d99b",
+   "op": "AOR",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dc90bf3940",
+   "op": "AOR",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a6a89321af",
+   "op": "AOR",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ee73d95149",
+   "op": "AOR",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "63995a9574",
+   "op": "CON",
+   "line": 271,
+   "before": "int calen = 0;",
+   "after": "int calen = 1;",
+   "verdict": "equivalent",
+   "reason": "calen only feeds the store into EIBCALEN, and CRDTAGY5 never reads EIBCALEN (its only reference is that store), so a different start value changes nothing observable",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "60c3e534ce",
+   "op": "NEG",
+   "line": 272,
+   "before": "if (ca instanceof AbndprocDfhcommarea) {",
+   "after": "if (!(ca instanceof AbndprocDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3690e49060",
+   "op": "AOR",
+   "line": 274,
+   "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f75_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "29de6ec475",
+   "op": "AOR",
+   "line": 275,
+   "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f74_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "8fcabe6e8e",
+   "op": "CON",
+   "line": 277,
+   "before": "calen = DetCics.eibCalen(task, 32);",
+   "after": "calen = DetCics.eibCalen(task, 33);",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "5d069fd3d7",
+   "op": "NEG",
+   "line": 278,
+   "before": "} else if (ca instanceof Bnk1tfnWsCommarea) {",
+   "after": "} else if (!(ca instanceof Bnk1tfnWsCommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "f0b465123c",
+   "op": "NEG",
+   "line": 280,
+   "before": "} else if (ca instanceof BnkmenuCommunicationArea) {",
+   "after": "} else if (!(ca instanceof BnkmenuCommunicationArea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5d0b0221c4",
+   "op": "NEG",
+   "line": 282,
+   "before": "} else if (ca instanceof Crdtagy1WsContIn) {",
+   "after": "} else if (!(ca instanceof Crdtagy1WsContIn)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "cb50a48130",
+   "op": "NEG",
+   "line": 284,
+   "before": "} else if (ca instanceof CreaccDfhcommarea) {",
+   "after": "} else if (!(ca instanceof CreaccDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c3e876c8a4",
+   "op": "NEG",
+   "line": 286,
+   "before": "} else if (ca instanceof DelaccDfhcommarea) {",
+   "after": "} else if (!(ca instanceof DelaccDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "450a53e9f2",
+   "op": "NEG",
+   "line": 288,
+   "before": "} else if (ca instanceof DelcusDfhcommarea) {",
+   "after": "} else if (!(ca instanceof DelcusDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "96cfbd385a",
+   "op": "NEG",
+   "line": 294,
+   "before": "} else if (ca instanceof InqcustDfhcommarea) {",
+   "after": "} else if (!(ca instanceof InqcustDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is never read: calen flows only into the store to EIBCALEN at Crdtagy5Service line 317 and no statement of CRDTAGY5 reads EIBCALEN (its only mentions are the declaration and that store), so a changed calen is unobservable; CRDTAGY5 has no COMMAREA (LINKAGE SECTION empty)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "6786d7ebd2",
+   "op": "AOR",
+   "line": 297,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "equivalent",
+   "reason": "the copy of DFHCOMMAREA back into the raw link area lands in CRDTAGY5's cw5, which Cobol.commareaBack copies into ABNDINFO-REC, referenced nowhere after the A010 LINK (the program then ABENDs PLOP); a dead store",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "3056d19f0e",
+   "op": "COR",
+   "line": 300,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() is true only at level 1 (parent == null); ABNDPROC here runs as a LINKed program at level 2, so this guard is false and the exact-COMMAREA statements never run",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0ade468a89",
+   "op": "CON",
+   "line": 304,
+   "before": "perform(0, 8);",
+   "after": "perform(0, 9);",
+   "verdict": "equivalent",
+   "reason": "the paragraph skipped or added by this PERFORM range is empty: p0 (and POPULATE-TIME-DATE, p6) hold no statement and only return the next paragraph's index, so starting at the next one or ending one later runs the same statements",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c1521659c5",
+   "op": "LIT",
+   "line": 337,
+   "before": "region.run(task, \"ABNDPROC\", this::runTask);",
+   "after": "region.run(task, \"XBNDPROC\", this::runTask);",
+   "verdict": "unreachable",
+   "reason": "handleLink is the Spring facade of ABNDPROC; CRDTAGY5's port reaches ABNDPROC only through task.link and the case drives runTask, so nothing in this case calls handleLink or lastLinkBytes",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "661ba858a8",
+   "op": "COR",
+   "line": 346,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink is the Spring facade of ABNDPROC; CRDTAGY5's port reaches ABNDPROC only through task.link and the case drives runTask, so nothing in this case calls handleLink or lastLinkBytes",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "fb423014be",
+   "op": "ROR",
+   "line": 346,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink is the Spring facade of ABNDPROC; CRDTAGY5's port reaches ABNDPROC only through task.link and the case drives runTask, so nothing in this case calls handleLink or lastLinkBytes",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2c30710958",
+   "op": "DEL",
+   "line": 367,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "only the explicit super(null, null, false, false) of the control-flow exception: it switches off suppression and the stack trace, which no statement reads; the exception is thrown and caught the same way",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "2ed74cfc13",
+   "op": "DEL",
+   "line": 378,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "the PERFORM-depth stack starts at 64 entries and doubles on demand; CRDTAGY5 has 9 paragraphs, so the depth never nears 64 and the grow step is never taken, whatever the starting size",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "830f255948",
+   "op": "ROR",
+   "line": 391,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+  },
+  {
+   "id": "81aebe0cde",
+   "op": "AOR",
+   "line": 414,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64 (mine == length); ABNDPROC nests at most 2",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "49e2cfaf64",
+   "op": "ROR",
+   "line": 428,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c140f1da02",
+   "op": "BDM",
+   "line": 441,
+   "before": "BigDecimal v1 = Cobol.add(D2.multiply(funcRandom.next(Cobol.num(f26_WS_SEED, CS))), DC_1);",
+   "after": "BigDecimal v1 = Cobol.subtract(D2.multiply(funcRandom.next(Cobol.num(f26_WS_SEED, CS))), DC_1);",
+   "verdict": "case-gap",
+   "reason": "delay branch (WS-DELAY-AMT, planned DELAY fault): the delay scenario draws one seeded RANDOM value and the DELAY response is only compared as fired/not fired, so a changed amount, RESP slot or RESP2 store is not seen by the planned inputs"
+  },
+  {
+   "id": "fcc99c4924",
+   "op": "CON",
+   "line": 455,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f48_ABNDINFO_REC.storage(), f48_ABNDINFO_REC.offset() + 12, 8, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f48_ABNDINFO_REC.storage(), f48_ABNDINFO_REC.offset() + 13, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "INITIALIZE ABNDINFO-REC / key / SQLCODE moves write record-body bytes that reach only the ABNDFILE record and LINK commarea; the oracle does not compare either (the key bytes are seen only with a seeded record, whose utime and task are fixed at the values this case drives)"
+  },
+  {
+   "id": "b870e5d907",
+   "op": "DEL",
+   "line": 459,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f48_ABNDINFO_REC.storage(), f48_ABNDINFO_REC.offset() + 42, 4, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f48_ABNDINFO_REC.storage(), f48_ABNDINFO_REC.offset() + 42, 4, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "this MOVE ZEROS/SPACES targets a field of ABNDINFO-REC whose initial image (IMAGE_s_ABNDINFO_REC: packed zero, '0000', spaces, +00000000) already holds exactly that value, and the field is untouched before the A010 paragraph, which runs once per task",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "a64b434ff4",
+   "op": "CON",
+   "line": 493,
+   "before": "AbndprocDfhcommarea ca4 = out_AbndprocDfhcommarea(Cobol.commarea(f48_ABNDINFO_REC, 681), 0);",
+   "after": "AbndprocDfhcommarea ca4 = out_AbndprocDfhcommarea(Cobol.commarea(f48_ABNDINFO_REC, 682), 0);",
+   "verdict": "harness-gap",
+   "reason": "LINK commarea length: the oracle compares the LINK event by program name only, not its commarea length or contents"
+  },
+  {
+   "id": "a56a1178e5",
+   "op": "ROR",
+   "line": 506,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "case-gap",
+   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+  },
+  {
+   "id": "ae21b730e4",
+   "op": "NEG",
+   "line": 513,
+   "before": "if (true) return GOTO | paragraph(exit7);",
+   "after": "if (!(true)) return GOTO | paragraph(exit7);",
+   "verdict": "case-gap",
+   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+  },
+  {
+   "id": "1bf4d31afe",
+   "op": "CON",
+   "line": 557,
+   "before": "perform(3, 5);",
+   "after": "perform(3, 6);",
+   "verdict": "case-gap",
+   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+  },
+  {
+   "id": "2b3ced4ec8",
+   "op": "DEL",
+   "line": 580,
+   "before": "task.returnTransid(null, null);",
+   "after": "/* task.returnTransid(null, null); */",
+   "verdict": "case-gap",
+   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+  }
+ ]
+}

@@ -16,7 +16,7 @@ The dependency graph indicates a fragmented topology (Modularity 0.6036) driven 
 * **Fragile Orchestrators:** The primary surface classes, `CarbonInterval.php` (38 outbound dependencies) and `CarbonPeriod.php` (37 outbound dependencies), function as massive aggregators, pulling in dozens of distinct traits to compose their public API. This makes them highly fragile to internal logic changes within any single trait.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged `tests/remove-comments-in-switch.php` with 100% "Weaponizable Injection Vectors" and "Exploit Generation Surface" exposure. Given that this is explicitly a test fixture designed to parse and potentially execute edge-case string manipulations, this is expected behavior and does not represent a runtime vulnerability in the core library. Ecosystem audits confirm 0 blacklisted or unknown dependencies, indicating a secure supply chain.
 

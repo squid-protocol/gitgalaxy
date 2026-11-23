@@ -1,0 +1,291 @@
+{
+ "engine_commit": "a48ee0ad95e1205d376f0751f92806e269f0baf8",
+ "languages": {
+  "abap": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 1
+  },
+  "acs": {
+   "comparable": 50,
+   "open": 0,
+   "variation": 5
+  },
+  "ada": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "agc_assembly": {
+   "comparable": 56,
+   "open": 0,
+   "variation": 5
+  },
+  "apex": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 3
+  },
+  "assembly": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 0
+  },
+  "bms": {
+   "comparable": 38,
+   "open": 0,
+   "variation": 9
+  },
+  "c": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 2
+  },
+  "clist": {
+   "comparable": 47,
+   "open": 8,
+   "variation": 2
+  },
+  "cobol": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 4
+  },
+  "cpp": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 2
+  },
+  "crystal": {
+   "comparable": 59,
+   "open": 1,
+   "variation": 6
+  },
+  "csharp": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "css": {
+   "comparable": 51,
+   "open": 0,
+   "variation": 8
+  },
+  "dart": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "db2_sql": {
+   "comparable": 57,
+   "open": 1,
+   "variation": 9
+  },
+  "dockerfile": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 9
+  },
+  "embedded_python": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 7
+  },
+  "fortran": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 4
+  },
+  "fsharp": {
+   "comparable": 58,
+   "open": 5,
+   "variation": 3
+  },
+  "go": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 5
+  },
+  "groovy": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "haskell": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 5
+  },
+  "hlasm": {
+   "comparable": 57,
+   "open": 0,
+   "variation": 4
+  },
+  "html": {
+   "comparable": 53,
+   "open": 0,
+   "variation": 15
+  },
+  "java": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "javascript": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 2
+  },
+  "jcl": {
+   "comparable": 52,
+   "open": 0,
+   "variation": 8
+  },
+  "kotlin": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 1
+  },
+  "livecode": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "lua": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "m4": {
+   "comparable": 52,
+   "open": 0,
+   "variation": 1
+  },
+  "makefile": {
+   "comparable": 57,
+   "open": 0,
+   "variation": 5
+  },
+  "markdown": {
+   "comparable": 24,
+   "open": 0,
+   "variation": 9
+  },
+  "matlab": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "objective-c": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "perl": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "php": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 1
+  },
+  "pli": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 1
+  },
+  "postgresql": {
+   "comparable": 57,
+   "open": 1,
+   "variation": 4
+  },
+  "powershell": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 3
+  },
+  "python": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 6
+  },
+  "rexx": {
+   "comparable": 54,
+   "open": 0,
+   "variation": 3
+  },
+  "ruby": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 6
+  },
+  "rust": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 5
+  },
+  "scala": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "scheme": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 1
+  },
+  "shell": {
+   "comparable": 57,
+   "open": 0,
+   "variation": 1
+  },
+  "solidity": {
+   "comparable": 57,
+   "open": 0,
+   "variation": 2
+  },
+  "sqlite": {
+   "comparable": 55,
+   "open": 0,
+   "variation": 11
+  },
+  "swift": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 7
+  },
+  "tcl": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 0
+  },
+  "typescript": {
+   "comparable": 59,
+   "open": 0,
+   "variation": 0
+  },
+  "yacc": {
+   "comparable": 54,
+   "open": 0,
+   "variation": 6
+  },
+  "yaml": {
+   "comparable": 57,
+   "open": 0,
+   "variation": 5
+  },
+  "zig": {
+   "comparable": 58,
+   "open": 0,
+   "variation": 1
+  },
+  "zscript": {
+   "comparable": 52,
+   "open": 0,
+   "variation": 1
+  }
+ },
+ "source": "keyword-rosetta docs/bias_data.json"
+}

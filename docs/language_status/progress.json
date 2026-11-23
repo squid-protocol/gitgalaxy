@@ -1,5 +1,5 @@
 {
- "commit": "92a3698a4",
+ "commit": "7d0d973d7",
  "components": {
   "capabilities": {
    "groups": [
@@ -620,10 +620,10 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 6108,
+     "caught": 6121,
      "closed": 3,
-     "closed_caught": 308,
-     "closed_survived": 130,
+     "closed_caught": 351,
+     "closed_survived": 89,
      "equivalent": 2249,
      "l5": 3,
      "measured": 25,
@@ -633,11 +633,11 @@
      "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.3,
-     "survived": 5853,
+     "survived": 5856,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
-     "caught": 5212,
+     "caught": 5175,
      "closed": 0,
      "closed_caught": 0,
      "closed_survived": 0,
@@ -646,11 +646,11 @@
      "measured": 10,
      "mutants": 6284,
      "programs": 10,
-     "raw_pct": 89.7,
+     "raw_pct": 89.4,
      "ready": 0,
      "sampled": 6284,
      "sampled_pct": 100.0,
-     "survived": 597,
+     "survived": 613,
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
@@ -697,11 +697,11 @@
      "measured": 2,
      "mutants": 644,
      "programs": 6,
-     "raw_pct": 50.8,
+     "raw_pct": 50.6,
      "ready": 0,
      "sampled": 644,
      "sampled_pct": 100.0,
-     "survived": 312,
+     "survived": 314,
      "unreachable": 0
     },
     "example-health-apis": {
@@ -740,20 +740,20 @@
     }
    },
    "total": {
-    "caught": 17819,
+    "caught": 17795,
     "closed": 7,
-    "closed_caught": 1567,
-    "closed_survived": 1094,
+    "closed_caught": 1610,
+    "closed_survived": 1053,
     "equivalent": 6363,
     "l5": 7,
     "measured": 61,
     "mutants": 56170,
     "programs": 158,
-    "raw_pct": 49.3,
+    "raw_pct": 49.2,
     "ready": 0,
     "sampled": 38346,
     "sampled_pct": 68.3,
-    "survived": 18316,
+    "survived": 18337,
     "unreachable": 1341
    }
   },
@@ -1070,15 +1070,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T09:57:43Z",
+  "as_of": "2026-11-23T10:54:34Z",
   "core": {
-   "closed": 259,
-   "open": 16,
+   "closed": 260,
+   "open": 15,
    "total": 275
   },
   "core_last_window": {
-   "closed": 11,
-   "net_closed": 1,
+   "closed": 12,
+   "net_closed": 2,
    "opened": 10
   },
   "core_milestone": {
@@ -1094,7 +1094,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "112 days",
+  "eta": "52 days",
   "frontier": {
    "closed": 134,
    "found_last_window": 5,
@@ -1388,9 +1388,9 @@
     "total": 0
    },
    {
-    "closed": 5,
+    "closed": 6,
     "number": 42,
-    "open": 4,
+    "open": 3,
     "title": "Night Shift \ud83c\udf19 \u2014 CardDemo's nightly in the translation proofs",
     "total": 9
    },

@@ -377,3 +377,23 @@ def test_tcl_calls_out_strict():
     # 4. ReDoS immunity
     payload = " " * 100000 + "probe_branch"
     assert_redos_immune(calls_out, payload)
+
+
+def test_tcl_declaration_and_dependency_capture():
+    """Tcl `package provide <pkg> <version>` declares a package; `[package provide Tcl]` queries it."""
+    decl = LANGUAGE_DEFINITIONS["tcl"]["rules"]["_declaration_capture"]
+    dep = LANGUAGE_DEFINITIONS["tcl"]["rules"]["_dependency_capture"]
+    assert [m.group(1) for m in decl.finditer("package provide struct::matrix 2.0\npackage provide aes $ver\n")] == [
+        "struct::matrix",
+        "aes",
+    ]
+    assert decl.findall("if {![package vsatisfies [package provide Tcl] 8.5]} {return}\n") == []
+    assert decl.findall("if {[string length [package provide Tk]] > 0} {}\n") == []
+    assert [
+        m.group(1) for m in dep.finditer("package require struct::matrix\nif {[catch {package require nns}]} {}\n")
+    ] == [
+        "struct::matrix",
+        "nns",
+    ]
+    assert_redos_immune(decl, "package provide " + " " * 50000, timeout_sec=3.0)
+    assert_redos_immune(dep, "package require " + " " * 50000, timeout_sec=3.0)

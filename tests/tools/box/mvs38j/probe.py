@@ -53,7 +53,12 @@ COND_JOBS = ("CONDJOB", "EVNJOB")  # IFJOB needs IF / THEN / ELSE, which 3.8J do
 RESULTS = FIXTURE / "mvs38j_probe.json"
 PROC_CASE = REPO / "tests" / "equivalence" / "jcl" / "proc"
 PROC_RESULTS = PROC_CASE / "mvs38j_probe.json"
-PROC_JOBS = ("SYMJOB", "OVRJOB", "PCJOB")  # SET / JCLLIB / INCLUDE / nested procedures are not in 3.8J (tier 1 only)
+PROC_JOBS = (
+    "SYMJOB",
+    "OVRJOB",
+    "PCJOB",
+    "KNDJOB",
+)  # SET / JCLLIB / INCLUDE / nested procedures are not in 3.8J (tier 1 only)
 PROC_UNOBSERVED = [
     "pgm (every PGM= is IEFBR14)",
     "parm unless a symbolic",
@@ -186,13 +191,14 @@ def proc_deck(lines, job, call):
             ln = re.sub(r"PGM=[A-Z0-9$#@]+", "PGM=IEFBR14", ln)
         elif f[1:2] == ["DD"] and "DSN=" in ln:
             dsn = re.search(r"DSN=([^,\s]+)", ln).group(1)
-            ln = f"{f[0].ljust(max(9, len(f[0])))} DD DSN={dsn},UNIT=SYSDA,SPACE=(TRK,1)"
+            if dsn != "NULLFILE":  # NULLFILE is a dummy: it keeps no unit or space
+                ln = f"{f[0].ljust(max(9, len(f[0])))} DD DSN={dsn},UNIT=SYSDA,SPACE=(TRK,1)"
         out.append(ln)
     return "\n".join(out) + "\n", sym
 
 
 _ALLOC = re.compile(r"IEF236I ALLOC\. FOR (\S+) (\S+) (\S+)")
-_DDALLOC = re.compile(r"IEF237I\s+\S+\s+ALLOCATED TO (\S+)")
+_DDALLOC = re.compile(r"IEF237I\s+(?!DMY\b|JES2\b)\S+\s+ALLOCATED TO (\S+)")  # a dummy or a sysout DD names no dataset
 _SUBST = re.compile(r"IEF653I SUBSTITUTION JCL - PGM=\S+?,PARM='([^']*)'")
 _DSNDISP = re.compile(r"IEF285I\s+(\S+)\s+(?:KEPT|DELETED|PASSED|CATALOGED|UNCATALOGED)")
 
@@ -321,7 +327,7 @@ def main_proc(args):
     out = {
         "provenance": runner.PROVENANCE,
         "internal_only": "Q16: MVS 3.8J results are not published",
-        "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB)",
+        "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB / KNDJOB)",
         "results": results,
     }
     Path(args.out if args.out != str(RESULTS) else PROC_RESULTS).write_text(json.dumps(out, indent=1) + "\n")

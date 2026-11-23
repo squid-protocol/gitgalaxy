@@ -130,11 +130,24 @@ def test_the_proc_log_reader_pairs_each_steps_ddnames_with_its_dsns_in_order():
     assert "parm" not in shown["O3.A1"]
 
 
+def test_the_proc_log_reader_skips_a_dummy_and_a_sysout_dd_and_the_deck_keeps_nullfile_a_dummy():
+    log = (
+        "IEF236I ALLOC. FOR J K1 W1\n"
+        "IEF237I DMY  ALLOCATED TO D1\n"
+        "IEF237I JES2 ALLOCATED TO D4\n"
+        "IEF237I 251  ALLOCATED TO D3\n"
+        "IEF285I   NEW.D3                                       DELETED       *--------0\n"
+    )
+    assert probe.observe_proc(log, "J")[0] == {"W1.K1": {"dd": {"D3": "NEW.D3"}}}
+    deck, _ = probe.proc_deck(PROC_DOC["flow_jcl"], "KNDJOB", "W1")
+    assert "//D7       DD DSN=NULLFILE\n" in deck and "//K1.D2    DD DSN=NULLFILE\n" in deck
+
+
 def test_the_committed_proc_results_repeat_the_manual_answers_and_the_engine_and_name_what_is_unobserved():
     got = json.loads((probe.PROC_RESULTS).read_text(encoding="utf-8"))
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
     _, text, libs, scs = probe.proc_scenarios()
-    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 8
+    assert [r["id"] for r in got["results"]] == [s["id"] for s in scs] and len(scs) == 11
     for r, sc in zip(got["results"], scs, strict=True):
         assert list(r["expect"]) == list(sc["expect"]), r["id"]
         assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]), r["id"]

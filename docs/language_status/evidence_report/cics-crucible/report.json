@@ -401,6 +401,12 @@
     0,
     0
    ],
+   "carddemo-sort-creastmt": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-sort-tranrept": [
     1,
     1,
@@ -3846,10 +3852,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
    "translator": {
-    "files": 185,
-    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
+    "files": 186,
+    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
    }
   },
   "sweeps": {}
@@ -35742,8 +35748,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "python tests/tools/cics_census.py survey --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-hx-extended-linked,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -35764,13 +35770,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
    "translator": {
-    "files": 185,
-    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
+    "files": 186,
+    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
    }
   },
-  "translator_commit": "42bfd682954ea5353d5e84e92abad0452a9a5756",
+  "translator_commit": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -35813,6 +35819,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
+  "fingerprint": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
  }
 }

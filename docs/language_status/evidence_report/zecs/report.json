@@ -546,6 +546,12 @@
     0,
     0
    ],
+   "carddemo-sort-creastmt": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-sort-tranrept": [
     1,
     1,
@@ -2397,10 +2403,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
    "translator": {
-    "files": 185,
-    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
+    "files": 186,
+    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
    }
   },
   "sweeps": {}
@@ -8507,8 +8513,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "python tests/tools/cics_census.py survey --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "python tests/tools/evidence_report.py zecs --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8530,13 +8536,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "42bfd682954ea5353d5e84e92abad0452a9a5756",
+   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
    "translator": {
-    "files": 185,
-    "sha256": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
+    "files": 186,
+    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
    }
   },
-  "translator_commit": "42bfd682954ea5353d5e84e92abad0452a9a5756",
+  "translator_commit": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8579,6 +8585,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "bf4dd55ff012aafcc9e52328a18daf2d8fec967dba96a9e134a635820dfb6d0d"
+  "fingerprint": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
  }
 }

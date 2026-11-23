@@ -133,6 +133,7 @@ static const char *condition_abcode(int resp) {
     case DFHRESP_NOTAUTH: return "AEY7";
     case DFHRESP_INVMPSZ: return "AEYB";
     case DFHRESP_TSIOERR: return "AEI8";
+    case DFHRESP_NOSPACE: return "AEIR";
     default: return "????";
     }
 }
